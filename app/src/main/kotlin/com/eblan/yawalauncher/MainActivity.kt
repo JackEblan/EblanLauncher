@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.eblan.yawalauncher.ui.theme.YawaLauncherTheme
 import kotlin.math.roundToInt
 
@@ -66,24 +68,6 @@ fun Greeting(
             GridItem(
                 cells = listOf(
                     GridCell(0, 0),
-                )
-            ),
-            GridItem(
-                cells = listOf(
-                    GridCell(1, 0),
-                    GridCell(1, 1),
-                    GridCell(1, 2),
-                )
-            ),
-            GridItem(
-                cells = listOf(
-                    GridCell(3, 1),
-                    GridCell(3, 2),
-                )
-            ),
-            GridItem(
-                cells = listOf(
-                    GridCell(0, 3),
                 )
             ),
         )
@@ -154,22 +138,17 @@ fun Greeting(
                 boundingBox.height.toDp()
             }
 
-            Text(text = "Drag", modifier = Modifier
-                .pointerInput(Unit) {
-                    detectDragGestures(onDragEnd = {
-                        isDragging = false
-                    }, onDrag = { change, dragAmount ->
-                        change.consume()
-                        dragOffsetX += dragAmount.x.roundToInt()
-                        dragOffsetY += dragAmount.y.roundToInt()
-                    })
-                }
+            var width by remember { mutableStateOf(boundingBoxWidth) }
+
+            var height by remember { mutableStateOf(boundingBoxHeight) }
+
+            Box(modifier = Modifier
                 .offset {
                     IntOffset(
                         x = dragOffsetX, y = dragOffsetY
                     )
                 }
-                .size(width = boundingBoxWidth, height = boundingBoxHeight)
+                .size(width = width, height = height)
                 .background(Color.Green)
                 .pointerInput(Unit) {
                     detectDragGestures(onDragEnd = {
@@ -192,7 +171,40 @@ fun Greeting(
                         dragOffsetX += dragAmount.x.roundToInt()
                         dragOffsetY += dragAmount.y.roundToInt()
                     })
-                })
+                }) {
+                Text(text = "Drag")
+
+                Box(modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.Gray)
+                    .align(Alignment.BottomEnd)
+                    .pointerInput(Unit) {
+                        detectDragGestures(onDragEnd = {
+                            val newPixelWidth = with(density) {
+                                width.toPx()
+                            }
+
+                            val newPixelHeight = with(density) {
+                                height.toPx()
+                            }
+
+                            resizeGridItemWithPixels(
+                                items = items,
+                                itemIndex = selectedIndex,
+                                newPixelWidth = newPixelWidth.roundToInt(),
+                                newPixelHeight = newPixelHeight.roundToInt(),
+                                gridCellPixelWidth = gridIntSize.width / 4,
+                                gridCellPixelHeight = gridIntSize.height / 4,
+                            )
+
+                            isDragging = false
+                        }, onDrag = { change, dragAmount ->
+                            change.consume()
+                            width += dragAmount.x.toDp()
+                            height += dragAmount.y.toDp()
+                        })
+                    })
+            }
         }
     }
 }
@@ -318,6 +330,77 @@ fun isOverlapping(newCells: List<GridCell>, items: List<GridItem>, excludeIndex:
         }
     }
     return false // No overlapping cells
+}
+
+fun pixelsToGridCells(
+    newPixelWidth: Int, // New width in pixels
+    newPixelHeight: Int, // New height in pixels
+    gridCellPixelWidth: Int, // Width of a single grid cell in pixels
+    gridCellPixelHeight: Int // Height of a single grid cell in pixels
+): Pair<Int, Int> {
+    val newWidth = (newPixelWidth / gridCellPixelWidth).coerceAtLeast(1) // Ensure at least 1 cell
+    val newHeight =
+        (newPixelHeight / gridCellPixelHeight).coerceAtLeast(1) // Ensure at least 1 cell
+    return Pair(newWidth, newHeight)
+}
+
+fun resizeGridItemWithPixels(
+    items: MutableList<GridItem>, // The list of grid items
+    itemIndex: Int, // The index of the item to resize
+    newPixelWidth: Int, // New width in pixels
+    newPixelHeight: Int, // New height in pixels
+    gridCellPixelWidth: Int, // Width of a single grid cell in pixels
+    gridCellPixelHeight: Int, // Height of a single grid cell in pixels
+): Boolean {
+    // Convert pixel values to grid cells
+    val (newWidth, newHeight) = pixelsToGridCells(
+        newPixelWidth = newPixelWidth,
+        newPixelHeight = newPixelHeight,
+        gridCellPixelWidth = gridCellPixelWidth,
+        gridCellPixelHeight = gridCellPixelHeight
+    )
+
+    // Resize the grid item
+    return resizeGridItem(
+        items = items, itemIndex = itemIndex, newWidth = newWidth, newHeight = newHeight
+    )
+}
+
+fun calculateResizedCells(
+    oldCells: List<GridCell>, // Current cells of the grid item
+    newWidth: Int, // New width in terms of grid cells
+    newHeight: Int // New height in terms of grid cells
+): List<GridCell> {
+    // Find the top-left cell of the grid item
+    val topLeftCell = oldCells.minWith(compareBy({ it.row }, { it.column }))
+
+    // Calculate the new cells
+    val newCells = mutableListOf<GridCell>()
+    for (row in topLeftCell.row until topLeftCell.row + newHeight) {
+        for (col in topLeftCell.column until topLeftCell.column + newWidth) {
+            newCells.add(GridCell(row, col))
+        }
+    }
+    return newCells
+}
+
+fun resizeGridItem(
+    items: MutableList<GridItem>, // The list of grid items
+    itemIndex: Int, // The index of the item to resize
+    newWidth: Int, // New width in terms of grid cells
+    newHeight: Int, // New height in terms of grid cells
+): Boolean {
+    val item = items[itemIndex]
+    val newCells = calculateResizedCells(item.cells, newWidth, newHeight)
+
+    // Check if the new cells overlap with other items
+    if (isOverlapping(newCells, items, itemIndex)) {
+        return false // Cannot resize: overlapping cells
+    }
+
+    // Update the grid item with the new cells
+    items[itemIndex] = item.copy(cells = newCells)
+    return true // Successfully resized
 }
 
 fun calculateNewCells(oldCells: List<GridCell>, targetCell: GridCell): List<GridCell> {

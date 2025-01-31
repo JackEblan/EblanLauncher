@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +25,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +42,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.eblan.yawalauncher.ui.theme.YawaLauncherTheme
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +64,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier
@@ -83,27 +89,33 @@ fun Greeting(
 
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
+    val pagerState = rememberPagerState(pageCount = {
+        10
+    })
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        Grid(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    gridIntSize = it
-                },
-        ) {
-            items.forEachIndexed { index, item ->
-                Text(text = "Hello", modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(onLongPress = {
-                            isDragging = true
-                            selectedIndex = index
-                        })
-                    }
+        HorizontalPager(state = pagerState) { page ->
+            Grid(
+                modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Blue)
-                    .gridCells(item.cells))
+                    .onSizeChanged {
+                        gridIntSize = it
+                    },
+            ) {
+                items.forEachIndexed { index, item ->
+                    Text(text = "Hello $page", modifier = Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(onLongPress = {
+                                isDragging = true
+                                selectedIndex = index
+                            })
+                        }
+                        .fillMaxSize()
+                        .background(Color.Blue)
+                        .gridCells(item.cells))
+                }
             }
         }
 
@@ -142,6 +154,8 @@ fun Greeting(
 
             var height by remember { mutableStateOf(boundingBoxHeight) }
 
+            val coroutineScope = rememberCoroutineScope()
+
             Box(modifier = Modifier
                 .offset {
                     IntOffset(
@@ -160,7 +174,9 @@ fun Greeting(
                             gridWidth = 4,
                             gridHeight = 4,
                             screenWidth = gridIntSize.width,
-                            screenHeight = gridIntSize.height
+                            screenHeight = gridIntSize.height,
+                            boundingBoxWidth = boundingBox.width,
+                            boundingBoxHeight = boundingBox.height,
                         )
 
                         dragOffsetX = -1
@@ -170,6 +186,28 @@ fun Greeting(
                         change.consume()
                         dragOffsetX += dragAmount.x.roundToInt()
                         dragOffsetY += dragAmount.y.roundToInt()
+
+                        val edgeState = isAtScreenEdge(
+                            x = dragOffsetX,
+                            y = dragOffsetY,
+                            boundingBoxWidth = boundingBox.width,
+                            boundingBoxHeight = boundingBox.height,
+                            screenWidth = gridIntSize.width,
+                            screenHeight = gridIntSize.height,
+                            margin = 0
+                        )
+
+                        if (edgeState.touchesRight) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                        }
+
+                        if (edgeState.touchesLeft) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                            }
+                        }
                     })
                 }) {
                 Text(text = "Drag")
@@ -437,10 +475,21 @@ fun moveGridItemWithCoordinates(
     gridWidth: Int, // Number of columns in the grid
     gridHeight: Int, // Number of rows in the grid
     screenWidth: Int, // Total width of the screen
-    screenHeight: Int // Total height of the screen
+    screenHeight: Int, // Total height of the screen
+    boundingBoxWidth: Int, // Width of the item in pixels
+    boundingBoxHeight: Int,
 ): Boolean {
     // Convert coordinates to grid cell
-    val targetCell = coordinatesToGridCell(x, y, gridWidth, gridHeight, screenWidth, screenHeight)
+    val targetCell = coordinatesToGridCell(
+        x = x,
+        y = y,
+        gridWidth = gridWidth,
+        gridHeight = gridHeight,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+        boundingBoxWidth = boundingBoxWidth,
+        boundingBoxHeight = boundingBoxHeight
+    )
 
     // Move the grid item to the target cell
     return moveGridItem(items, itemIndex, targetCell)
@@ -452,16 +501,43 @@ fun coordinatesToGridCell(
     gridWidth: Int, // Number of columns in the grid
     gridHeight: Int, // Number of rows in the grid
     screenWidth: Int, // Total width of the screen
-    screenHeight: Int // Total height of the screen
+    screenHeight: Int, // Total height of the screen
+    boundingBoxWidth: Int, // Width of the item in pixels
+    boundingBoxHeight: Int // Height of the item in pixels
 ): GridCell {
     val cellWidth = screenWidth / gridWidth
     val cellHeight = screenHeight / gridHeight
 
-    val row = (y / cellHeight).coerceIn(0 until gridHeight)
-    val column = (x / cellWidth).coerceIn(0 until gridWidth)
+    val centerX = x + boundingBoxWidth / 2
+    val centerY = y + boundingBoxHeight / 2
+
+    val row = (centerY / cellHeight).coerceIn(0 until gridHeight)
+    val column = (centerX / cellWidth).coerceIn(0 until gridWidth)
 
     return GridCell(row, column)
 }
+
+fun isAtScreenEdge(
+    x: Int, y: Int, // Top-left of item (pixels)
+    boundingBoxWidth: Int, boundingBoxHeight: Int, // Item size (pixels)
+    screenWidth: Int, screenHeight: Int, // Screen size
+    margin: Int = 0 // Edge tolerance (default = 0)
+): EdgeState {
+    val touchesTop = y <= margin
+    val touchesBottom = (y + boundingBoxHeight) >= (screenHeight - margin)
+    val touchesLeft = x <= margin
+    val touchesRight = (x + boundingBoxWidth) >= (screenWidth - margin)
+
+    return EdgeState(touchesTop, touchesBottom, touchesLeft, touchesRight)
+}
+
+// Data class to represent edge states
+data class EdgeState(
+    val touchesTop: Boolean,
+    val touchesBottom: Boolean,
+    val touchesLeft: Boolean,
+    val touchesRight: Boolean
+)
 
 @Preview
 @Composable

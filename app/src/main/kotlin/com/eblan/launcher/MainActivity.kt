@@ -47,7 +47,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.ui.theme.EblanLauncherTheme
 import kotlinx.coroutines.launch
-import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -344,30 +343,6 @@ fun calculateBoundingBox(
     return BoundingBox(width, height)
 }
 
-fun calculateBoundingBoxBySize(
-    gridItemWidth: Int,  // Number of columns the item occupies in the grid
-    gridItemHeight: Int, // Number of rows the item occupies in the grid
-    gridWidth: Int,      // Total number of columns in the grid
-    gridHeight: Int,     // Total number of rows in the grid
-    screenWidth: Int,    // Total width of the screen
-    screenHeight: Int    // Total height of the screen
-): BoundingBox {
-    // Calculate the dimensions of one grid cell
-    val cellWidth = screenWidth / gridWidth
-    val cellHeight = screenHeight / gridHeight
-
-    // Determine how many cells are needed to cover the item.
-    // Use ceil to ensure the item fully fits into the grid cells.
-    val gridCellsWide = ceil(gridItemWidth / cellWidth.toDouble()).toInt()
-    val gridCellsHigh = ceil(gridItemHeight / cellHeight.toDouble()).toInt()
-
-    // Calculate the bounding box dimensions in pixels based on grid cells.
-    val boundingBoxWidth = gridCellsWide * cellWidth
-    val boundingBoxHeight = gridCellsHigh * cellHeight
-
-    return BoundingBox(boundingBoxWidth, boundingBoxHeight)
-}
-
 data class Coordinates(val x: Int, val y: Int)
 
 fun calculateCoordinates(
@@ -390,35 +365,6 @@ fun calculateCoordinates(
     val y = minRow * cellHeight
 
     return Coordinates(x, y)
-}
-
-fun calculateCoordinatesByFromCenter(
-    centerX: Int,        // The x-coordinate (in pixels) of the grid item’s center
-    centerY: Int,        // The y-coordinate (in pixels) of the grid item’s center
-    gridItemWidth: Int,    // The width of the grid item in pixels
-    gridItemHeight: Int,   // The height of the grid item in pixels
-    gridWidth: Int,      // Number of columns in the grid
-    gridHeight: Int,     // Number of rows in the grid
-    screenWidth: Int,    // Total screen width in pixels
-    screenHeight: Int    // Total screen height in pixels
-): Coordinates {
-    // Calculate the dimensions of one grid cell.
-    val cellWidth = screenWidth / gridWidth
-    val cellHeight = screenHeight / gridHeight
-
-    // Determine the top-left coordinate of the item from its center.
-    val itemX = centerX - gridItemWidth / 2
-    val itemY = centerY - gridItemHeight / 2
-
-    // Determine which grid cell this top-left coordinate falls into.
-    val col = itemX / cellWidth
-    val row = itemY / cellHeight
-
-    // Snap to the grid.
-    val snappedX = col * cellWidth
-    val snappedY = row * cellHeight
-
-    return Coordinates(snappedX, snappedY)
 }
 
 data class GridCellsParentData(val cells: List<GridCell>)

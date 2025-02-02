@@ -1,4 +1,4 @@
-package com.eblan.yawalauncher
+package com.eblan.launcher
 
 
 import android.os.Bundle
@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.eblan.yawalauncher.ui.theme.YawaLauncherTheme
+import com.eblan.launcher.ui.theme.EblanLauncherTheme
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            YawaLauncherTheme {
+            EblanLauncherTheme {
                 Scaffold { innerPadding ->
                     Greeting(
                         modifier = Modifier

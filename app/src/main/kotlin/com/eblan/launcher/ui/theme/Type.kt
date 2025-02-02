@@ -1,4 +1,4 @@
-package com.eblan.yawalauncher.ui.theme
+package com.eblan.launcher.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

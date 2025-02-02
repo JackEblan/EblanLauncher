@@ -1,4 +1,4 @@
-package com.eblan.yawalauncher
+package com.eblan.launcher
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow

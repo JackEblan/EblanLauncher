@@ -1,4 +1,4 @@
-package com.eblan.yawalauncher
+package com.eblan.launcher
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

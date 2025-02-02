@@ -1,4 +1,4 @@
-package com.eblan.yawalauncher.ui.theme
+package com.eblan.launcher.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

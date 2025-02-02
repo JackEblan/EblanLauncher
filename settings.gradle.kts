@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Yawa Launcher"
+rootProject.name = "Eblan Launcher"
 include(":app")

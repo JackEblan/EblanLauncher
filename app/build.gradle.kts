@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.yawalauncher"
+    namespace = "com.eblan.launcher"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.eblan.yawalauncher"
+        applicationId = "com.eblan.launcher"
         minSdk = 21
         targetSdk = 35
         versionCode = 1

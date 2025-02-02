@@ -33,15 +33,37 @@ class GridRepository {
         _gridItemsFlow.emit(gridItems)
     }
 
-    suspend fun updateGridItem(page: Int, index: Int, gridItem: GridItem) {
+    suspend fun deleteGridItem(page: Int, index: Int) {
         val gridItemsByPage = currentGridItems[page]
 
         if (gridItemsByPage != null) {
             val deleteOldGridItem = gridItemsByPage - gridItemsByPage[index]
 
-            val addNewGridItem = deleteOldGridItem + gridItem
+            _gridItemsFlow.emit(currentGridItems.plus(page to deleteOldGridItem))
+        }
+    }
+
+    suspend fun addGridItem(page: Int, gridItem: GridItem) {
+        val gridItemsByPage = currentGridItems[page] ?: emptyList()
+
+        if (page != gridItem.page) {
+            val addNewGridItem = gridItemsByPage + gridItem.copy(page = page)
 
             _gridItemsFlow.emit(currentGridItems.plus(page to addNewGridItem))
+        } else {
+            val addNewGridItem = gridItemsByPage + gridItem
+
+            _gridItemsFlow.emit(currentGridItems.plus(gridItem.page to addNewGridItem))
         }
+    }
+
+    fun isOverlapping(newCells: List<GridCell>, items: List<GridItem>, excludeIndex: Int): Boolean {
+        for (i in items.indices) {
+            if (i == excludeIndex) continue // Skip the item being moved
+            if (items[i].cells.any { it in newCells }) {
+                return true // Overlapping cells found
+            }
+        }
+        return false // No overlapping cells
     }
 }

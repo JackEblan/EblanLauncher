@@ -33,7 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -45,6 +47,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.yawalauncher.ui.theme.YawaLauncherTheme
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -73,7 +76,8 @@ class MainActivity : ComponentActivity() {
                             .consumeWindowInsets(innerPadding)
                             .fillMaxSize(),
                         gridItems = gridItems,
-                        onUpdateGridItem = mainActivityViewModel::updateGridItem
+                        onUpdateGridItem = mainActivityViewModel::addGridItem,
+                        onDeleteGridItem = mainActivityViewModel::deleteGridItem
                     )
                 }
             }
@@ -86,7 +90,8 @@ class MainActivity : ComponentActivity() {
 fun Greeting(
     modifier: Modifier = Modifier,
     gridItems: Map<Int, List<GridItem>>,
-    onUpdateGridItem: (Int, Int, GridItem) -> Unit,
+    onUpdateGridItem: (page: Int, gridItem: GridItem) -> Unit,
+    onDeleteGridItem: (page: Int, index: Int) -> Unit,
 ) {
     var isDragging by remember { mutableStateOf(false) }
 
@@ -96,13 +101,15 @@ fun Greeting(
 
     var gridIntSize by remember { mutableStateOf(IntSize.Zero) }
 
-    var selectedIndex by remember { mutableIntStateOf(-1) }
+    var selectedGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val pagerState = rememberPagerState(pageCount = {
         10
     })
 
     var gridItemsByPage by remember { mutableStateOf(emptyList<GridItem>()) }
+
+    var selectedGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -118,14 +125,29 @@ fun Greeting(
                 gridItems[page]?.also {
                     gridItemsByPage = it
                 }?.forEachIndexed { index, item ->
+                    var gridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
+                    var gridItemOffsetX by remember { mutableIntStateOf(-1) }
+                    var gridItemOffsetY by remember { mutableIntStateOf(-1) }
+
                     Text(text = "Hello $page", modifier = Modifier
                         .pointerInput(Unit) {
                             detectTapGestures(onLongPress = {
+                                onDeleteGridItem(page, index)
                                 isDragging = true
-                                selectedIndex = index
+                                selectedGridItem = item
+                                selectedGridItemIntSize = gridItemIntSize
+                                dragOffsetX = gridItemOffsetX
+                                dragOffsetY = gridItemOffsetY
                             })
                         }
                         .fillMaxSize()
+                        .onSizeChanged {
+                            gridItemIntSize = it
+                        }
+                        .onGloballyPositioned {
+                            gridItemOffsetX = it.positionInParent().x.roundToInt()
+                            gridItemOffsetY = it.positionInParent().y.roundToInt()
+                        }
                         .background(Color.Blue)
                         .gridCells(item.cells))
                 }
@@ -133,34 +155,14 @@ fun Greeting(
         }
 
         if (isDragging) {
-            val boundingBox = calculateBoundingBox(
-                gridCells = gridItemsByPage[selectedIndex].cells,
-                gridWidth = 4,
-                gridHeight = 4,
-                screenWidth = gridIntSize.width,
-                screenHeight = gridIntSize.height
-            )
-
-            val coordinates = calculateCoordinates(
-                gridCells = gridItemsByPage[selectedIndex].cells,
-                gridWidth = 4,
-                gridHeight = 4,
-                screenWidth = gridIntSize.width,
-                screenHeight = gridIntSize.height
-            )
-
-            dragOffsetX = coordinates.x
-
-            dragOffsetY = coordinates.y
-
             val density = LocalDensity.current
 
             val boundingBoxWidth = with(density) {
-                boundingBox.width.toDp()
+                selectedGridItemIntSize.width.toDp()
             }
 
             val boundingBoxHeight = with(density) {
-                boundingBox.height.toDp()
+                selectedGridItemIntSize.height.toDp()
             }
 
             var width by remember { mutableStateOf(boundingBoxWidth) }
@@ -179,21 +181,18 @@ fun Greeting(
                 .background(Color.Green)
                 .pointerInput(Unit) {
                     detectDragGestures(onDragEnd = {
-                        moveGridItemWithCoordinates(items = gridItemsByPage,
-                                                    itemIndex = selectedIndex,
+                        moveGridItemWithCoordinates(gridItem = selectedGridItem,
                                                     x = dragOffsetX,
                                                     y = dragOffsetY,
                                                     gridWidth = 4,
                                                     gridHeight = 4,
                                                     screenWidth = gridIntSize.width,
                                                     screenHeight = gridIntSize.height,
-                                                    boundingBoxWidth = boundingBox.width,
-                                                    boundingBoxHeight = boundingBox.height,
+                                                    boundingBoxWidth = selectedGridItemIntSize.width,
+                                                    boundingBoxHeight = selectedGridItemIntSize.height,
                                                     onUpdateGridItem = { gridItem ->
                                                         onUpdateGridItem(
-                                                            pagerState.currentPage,
-                                                            selectedIndex,
-                                                            gridItem
+                                                            pagerState.currentPage, gridItem
                                                         )
                                                     })
                         isDragging = false
@@ -205,8 +204,8 @@ fun Greeting(
                         val edgeState = isAtScreenEdge(
                             x = dragOffsetX,
                             y = dragOffsetY,
-                            boundingBoxWidth = boundingBox.width,
-                            boundingBoxHeight = boundingBox.height,
+                            boundingBoxWidth = selectedGridItemIntSize.width,
+                            boundingBoxHeight = selectedGridItemIntSize.height,
                             screenWidth = gridIntSize.width,
                             screenHeight = gridIntSize.height,
                             margin = 0
@@ -241,17 +240,14 @@ fun Greeting(
                                 height.toPx()
                             }
 
-                            resizeGridItemWithPixels(items = gridItemsByPage,
-                                                     itemIndex = selectedIndex,
+                            resizeGridItemWithPixels(gridItem = selectedGridItem,
                                                      newPixelWidth = newPixelWidth.roundToInt(),
                                                      newPixelHeight = newPixelHeight.roundToInt(),
                                                      gridCellPixelWidth = gridIntSize.width / 4,
                                                      gridCellPixelHeight = gridIntSize.height / 4,
                                                      onUpdateGridItem = { gridItem ->
                                                          onUpdateGridItem(
-                                                             pagerState.currentPage,
-                                                             selectedIndex,
-                                                             gridItem
+                                                             pagerState.currentPage, gridItem
                                                          )
                                                      })
 
@@ -348,6 +344,30 @@ fun calculateBoundingBox(
     return BoundingBox(width, height)
 }
 
+fun calculateBoundingBoxBySize(
+    gridItemWidth: Int,  // Number of columns the item occupies in the grid
+    gridItemHeight: Int, // Number of rows the item occupies in the grid
+    gridWidth: Int,      // Total number of columns in the grid
+    gridHeight: Int,     // Total number of rows in the grid
+    screenWidth: Int,    // Total width of the screen
+    screenHeight: Int    // Total height of the screen
+): BoundingBox {
+    // Calculate the dimensions of one grid cell
+    val cellWidth = screenWidth / gridWidth
+    val cellHeight = screenHeight / gridHeight
+
+    // Determine how many cells are needed to cover the item.
+    // Use ceil to ensure the item fully fits into the grid cells.
+    val gridCellsWide = ceil(gridItemWidth / cellWidth.toDouble()).toInt()
+    val gridCellsHigh = ceil(gridItemHeight / cellHeight.toDouble()).toInt()
+
+    // Calculate the bounding box dimensions in pixels based on grid cells.
+    val boundingBoxWidth = gridCellsWide * cellWidth
+    val boundingBoxHeight = gridCellsHigh * cellHeight
+
+    return BoundingBox(boundingBoxWidth, boundingBoxHeight)
+}
+
 data class Coordinates(val x: Int, val y: Int)
 
 fun calculateCoordinates(
@@ -372,6 +392,35 @@ fun calculateCoordinates(
     return Coordinates(x, y)
 }
 
+fun calculateCoordinatesByFromCenter(
+    centerX: Int,        // The x-coordinate (in pixels) of the grid item’s center
+    centerY: Int,        // The y-coordinate (in pixels) of the grid item’s center
+    gridItemWidth: Int,    // The width of the grid item in pixels
+    gridItemHeight: Int,   // The height of the grid item in pixels
+    gridWidth: Int,      // Number of columns in the grid
+    gridHeight: Int,     // Number of rows in the grid
+    screenWidth: Int,    // Total screen width in pixels
+    screenHeight: Int    // Total screen height in pixels
+): Coordinates {
+    // Calculate the dimensions of one grid cell.
+    val cellWidth = screenWidth / gridWidth
+    val cellHeight = screenHeight / gridHeight
+
+    // Determine the top-left coordinate of the item from its center.
+    val itemX = centerX - gridItemWidth / 2
+    val itemY = centerY - gridItemHeight / 2
+
+    // Determine which grid cell this top-left coordinate falls into.
+    val col = itemX / cellWidth
+    val row = itemY / cellHeight
+
+    // Snap to the grid.
+    val snappedX = col * cellWidth
+    val snappedY = row * cellHeight
+
+    return Coordinates(snappedX, snappedY)
+}
+
 data class GridCellsParentData(val cells: List<GridCell>)
 
 fun Modifier.gridCells(cells: List<GridCell>): Modifier = then(object : ParentDataModifier {
@@ -379,16 +428,6 @@ fun Modifier.gridCells(cells: List<GridCell>): Modifier = then(object : ParentDa
         return GridCellsParentData(cells = cells)
     }
 })
-
-fun isOverlapping(newCells: List<GridCell>, items: List<GridItem>, excludeIndex: Int): Boolean {
-    for (i in items.indices) {
-        if (i == excludeIndex) continue // Skip the item being moved
-        if (items[i].cells.any { it in newCells }) {
-            return true // Overlapping cells found
-        }
-    }
-    return false // No overlapping cells
-}
 
 fun pixelsToGridCells(
     newPixelWidth: Int, // New width in pixels
@@ -403,14 +442,13 @@ fun pixelsToGridCells(
 }
 
 fun resizeGridItemWithPixels(
-    items: List<GridItem>, // The list of grid items
-    itemIndex: Int, // The index of the item to resize
+    gridItem: GridItem?, // The list of grid items
     newPixelWidth: Int, // New width in pixels
     newPixelHeight: Int, // New height in pixels
     gridCellPixelWidth: Int, // Width of a single grid cell in pixels
     gridCellPixelHeight: Int, // Height of a single grid cell in pixels
     onUpdateGridItem: (GridItem) -> Unit,
-): Boolean {
+) {
     // Convert pixel values to grid cells
     val (newWidth, newHeight) = pixelsToGridCells(
         newPixelWidth = newPixelWidth,
@@ -420,9 +458,8 @@ fun resizeGridItemWithPixels(
     )
 
     // Resize the grid item
-    return resizeGridItem(
-        items = items,
-        itemIndex = itemIndex,
+    resizeGridItem(
+        gridItem = gridItem,
         newWidth = newWidth,
         newHeight = newHeight,
         onUpdateGridItem = onUpdateGridItem
@@ -448,24 +485,19 @@ fun calculateResizedCells(
 }
 
 fun resizeGridItem(
-    items: List<GridItem>, // The list of grid items
-    itemIndex: Int, // The index of the item to resize
+    gridItem: GridItem?, // The list of grid items
     newWidth: Int, // New width in terms of grid cells
     newHeight: Int, // New height in terms of grid
     onUpdateGridItem: (GridItem) -> Unit,
-): Boolean {
-    val item = items[itemIndex]
-    val newCells = calculateResizedCells(item.cells, newWidth, newHeight)
+) {
+    if (gridItem != null) {
 
-    // Check if the new cells overlap with other items
-    if (isOverlapping(newCells, items, itemIndex)) {
-        return false // Cannot resize: overlapping cells
+        val newCells = calculateResizedCells(gridItem.cells, newWidth, newHeight)
+
+        // Update the grid item with the new cells
+        // items[itemIndex] = item.copy(cells = newCells)
+        onUpdateGridItem(gridItem.copy(cells = newCells))
     }
-
-    // Update the grid item with the new cells
-    // items[itemIndex] = item.copy(cells = newCells)
-    onUpdateGridItem(item.copy(cells = newCells))
-    return true // Successfully resized
 }
 
 fun calculateNewCells(oldCells: List<GridCell>, targetCell: GridCell): List<GridCell> {
@@ -477,28 +509,21 @@ fun calculateNewCells(oldCells: List<GridCell>, targetCell: GridCell): List<Grid
 }
 
 fun moveGridItem(
-    items: List<GridItem>, // The list of grid items
-    itemIndex: Int, // The index of the item to move
+    gridItem: GridItem?,
     targetCell: GridCell, // The target grid cell,
     onUpdateGridItem: (GridItem) -> Unit,
-): Boolean {
-    val item = items[itemIndex]
-    val newCells = calculateNewCells(item.cells, targetCell)
+) {
+    if (gridItem != null) {
+        val newCells = calculateNewCells(gridItem.cells, targetCell)
 
-    // Check if the new cells overlap with other items
-    if (isOverlapping(newCells, items, itemIndex)) {
-        return false // Cannot move: overlapping cells
+        // Update the grid item with the new cells
+        // items[itemIndex] = item.copy(cells = newCells)
+        onUpdateGridItem(gridItem.copy(cells = newCells))
     }
-
-    // Update the grid item with the new cells
-    // items[itemIndex] = item.copy(cells = newCells)
-    onUpdateGridItem(item.copy(cells = newCells))
-    return true // Successfully moved
 }
 
 fun moveGridItemWithCoordinates(
-    items: List<GridItem>, // The list of grid items
-    itemIndex: Int, // The index of the item to move
+    gridItem: GridItem?,
     x: Int, // X-coordinate in pixels
     y: Int, // Y-coordinate in pixels
     gridWidth: Int, // Number of columns in the grid
@@ -508,7 +533,7 @@ fun moveGridItemWithCoordinates(
     boundingBoxWidth: Int, // Width of the item in pixels
     boundingBoxHeight: Int,
     onUpdateGridItem: (GridItem) -> Unit,
-): Boolean {
+) {
     // Convert coordinates to grid cell
     val targetCell = coordinatesToGridCell(
         x = x,
@@ -522,11 +547,8 @@ fun moveGridItemWithCoordinates(
     )
 
     // Move the grid item to the target cell
-    return moveGridItem(
-        items = items,
-        itemIndex = itemIndex,
-        targetCell = targetCell,
-        onUpdateGridItem = onUpdateGridItem
+    moveGridItem(
+        gridItem = gridItem, targetCell = targetCell, onUpdateGridItem = onUpdateGridItem
     )
 }
 

@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        var gridItems by mutableStateOf(emptyMap<Int, List<GridItem>>())
+        var gridItems by mutableStateOf(emptyList<GridItem>())
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -91,8 +91,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
-    gridItems: Map<Int, List<GridItem>>,
-    onUpdateGridItem: (page: Int, oldGridItem: GridItem, newGridItem: GridItem) -> Unit,
+    gridItems: List<GridItem>,
+    onUpdateGridItem: (page: Int, gridItem: GridItem) -> Unit,
 ) {
     var isDragging by remember { mutableStateOf(false) }
 
@@ -108,8 +108,6 @@ fun Greeting(
         10
     })
 
-    var gridItemsByPage by remember { mutableStateOf(emptyList<GridItem>()) }
-
     var selectedGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
@@ -117,7 +115,7 @@ fun Greeting(
     LaunchedEffect(key1 = true) {
         snapshotFlow { updatedGridItem }.filterNotNull().distinctUntilChanged()
             .collect { newGridItem ->
-                // Atleast we did some optimization this is so useful when updating the grid items on drag
+                onUpdateGridItem(pagerState.currentPage, newGridItem)
             }
     }
 
@@ -132,9 +130,7 @@ fun Greeting(
                         gridIntSize = it
                     },
             ) {
-                gridItems[page]?.also {
-                    gridItemsByPage = it
-                }?.forEach { item ->
+                gridItems.filter { it.page == page }.forEach { item ->
                     var gridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
                     var gridItemOffsetX by remember { mutableIntStateOf(-1) }
                     var gridItemOffsetY by remember { mutableIntStateOf(-1) }
@@ -239,6 +235,12 @@ fun Greeting(
                     .align(Alignment.BottomEnd)
                     .pointerInput(Unit) {
                         detectDragGestures(onDragEnd = {
+                            isDragging = false
+                        }, onDrag = { change, dragAmount ->
+                            change.consume()
+                            width += dragAmount.x.toDp()
+                            height += dragAmount.y.toDp()
+
                             val newPixelWidth = with(density) {
                                 width.toPx()
                             }
@@ -247,22 +249,13 @@ fun Greeting(
                                 height.toPx()
                             }
 
-//                            resizeGridItemWithPixels(gridItem = selectedGridItem,
-//                                                     newPixelWidth = newPixelWidth.roundToInt(),
-//                                                     newPixelHeight = newPixelHeight.roundToInt(),
-//                                                     gridCellPixelWidth = gridIntSize.width / 4,
-//                                                     gridCellPixelHeight = gridIntSize.height / 4,
-//                                                     onUpdateGridItem = { gridItem ->
-//                                                         onUpdateGridItem(
-//                                                             pagerState.currentPage, gridItem
-//                                                         )
-//                                                     })
-
-                            isDragging = false
-                        }, onDrag = { change, dragAmount ->
-                            change.consume()
-                            width += dragAmount.x.toDp()
-                            height += dragAmount.y.toDp()
+                            updatedGridItem = resizeGridItemWithPixels(
+                                gridItem = selectedGridItem,
+                                newPixelWidth = newPixelWidth.roundToInt(),
+                                newPixelHeight = newPixelHeight.roundToInt(),
+                                gridCellPixelWidth = gridIntSize.width / 4,
+                                gridCellPixelHeight = gridIntSize.height / 4
+                            )
                         })
                     })
             }
@@ -401,9 +394,7 @@ fun resizeGridItemWithPixels(
     newPixelHeight: Int, // New height in pixels
     gridCellPixelWidth: Int, // Width of a single grid cell in pixels
     gridCellPixelHeight: Int, // Height of a single grid cell in pixels
-    onUpdateGridItem: (GridItem) -> Unit,
-) {
-    // Convert pixel values to grid cells
+): GridItem? {
     val (newWidth, newHeight) = pixelsToGridCells(
         newPixelWidth = newPixelWidth,
         newPixelHeight = newPixelHeight,
@@ -411,12 +402,10 @@ fun resizeGridItemWithPixels(
         gridCellPixelHeight = gridCellPixelHeight
     )
 
-    // Resize the grid item
-    resizeGridItem(
+    return resizeGridItem(
         gridItem = gridItem,
         newWidth = newWidth,
         newHeight = newHeight,
-        onUpdateGridItem = onUpdateGridItem
     )
 }
 
@@ -442,15 +431,12 @@ fun resizeGridItem(
     gridItem: GridItem?, // The list of grid items
     newWidth: Int, // New width in terms of grid cells
     newHeight: Int, // New height in terms of grid
-    onUpdateGridItem: (GridItem) -> Unit,
-) {
-    if (gridItem != null) {
-
+): GridItem? {
+    return if (gridItem != null) {
         val newCells = calculateResizedCells(gridItem.cells, newWidth, newHeight)
-
-        // Update the grid item with the new cells
-        // items[itemIndex] = item.copy(cells = newCells)
-        onUpdateGridItem(gridItem.copy(cells = newCells))
+        gridItem.copy(cells = newCells)
+    } else {
+        null
     }
 }
 
@@ -468,9 +454,6 @@ fun moveGridItem(
 ): GridItem? {
     return if (gridItem != null) {
         val newCells = calculateNewCells(gridItem.cells, targetCell)
-
-        // Update the grid item with the new cells
-        // items[itemIndex] = item.copy(cells = newCells)
         gridItem.copy(cells = newCells)
     } else {
         null

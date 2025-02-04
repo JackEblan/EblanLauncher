@@ -15,13 +15,13 @@ class MainActivityViewModel : ViewModel() {
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyMap()
+        initialValue = emptyList()
     )
 
-    fun updateGridItem(page: Int, oldGridItem: GridItem, newGridItem: GridItem) {
+    fun updateGridItem(page: Int, gridItem: GridItem) {
         viewModelScope.launch {
             gridRepository.updateGridItem(
-                page = page, oldGridItem = oldGridItem, newGridItem = newGridItem
+                page = page, gridItem = gridItem
             )
         }
     }

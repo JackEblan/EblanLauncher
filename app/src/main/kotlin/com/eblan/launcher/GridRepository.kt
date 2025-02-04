@@ -18,13 +18,13 @@ class GridRepository {
         val gridItems = mapOf(
             0 to listOf(
                 GridItem(
-                    page = 0, cells = listOf(
+                    page = 0, id = 0, cells = listOf(
                         GridCell(row = 0, column = 0)
                     )
                 )
             ), 1 to listOf(
                 GridItem(
-                    page = 1, cells = listOf(
+                    page = 1, id = 1, cells = listOf(
                         GridCell(row = 1, column = 1)
                     )
                 )
@@ -33,37 +33,14 @@ class GridRepository {
         _gridItemsFlow.emit(gridItems)
     }
 
-    suspend fun deleteGridItem(page: Int, index: Int) {
-        val gridItemsByPage = currentGridItems[page]
-
-        if (gridItemsByPage != null) {
-            val deleteOldGridItem = gridItemsByPage - gridItemsByPage[index]
-
-            _gridItemsFlow.emit(currentGridItems.plus(page to deleteOldGridItem))
-        }
-    }
-
-    suspend fun addGridItem(page: Int, gridItem: GridItem) {
+    suspend fun updateGridItem(page: Int, gridItem: GridItem) {
         val gridItemsByPage = currentGridItems[page] ?: emptyList()
 
-        if (page != gridItem.page) {
-            val addNewGridItem = gridItemsByPage + gridItem.copy(page = page)
+        if(page != gridItem.page){
+            val gridItemsWithNewGridItem = gridItemsByPage + gridItem
+            _gridItemsFlow.emit(gridItemsWithNewGridItem)
+        }else {
 
-            _gridItemsFlow.emit(currentGridItems.plus(page to addNewGridItem))
-        } else {
-            val addNewGridItem = gridItemsByPage + gridItem
-
-            _gridItemsFlow.emit(currentGridItems.plus(gridItem.page to addNewGridItem))
         }
-    }
-
-    fun isOverlapping(newCells: List<GridCell>, items: List<GridItem>, excludeIndex: Int): Boolean {
-        for (i in items.indices) {
-            if (i == excludeIndex) continue // Skip the item being moved
-            if (items[i].cells.any { it in newCells }) {
-                return true // Overlapping cells found
-            }
-        }
-        return false // No overlapping cells
     }
 }

@@ -18,15 +18,11 @@ class MainActivityViewModel : ViewModel() {
         initialValue = emptyMap()
     )
 
-    fun deleteGridItem(page: Int, index: Int) {
+    fun updateGridItem(page: Int, oldGridItem: GridItem, newGridItem: GridItem) {
         viewModelScope.launch {
-            gridRepository.deleteGridItem(page = page, index = index)
-        }
-    }
-
-    fun addGridItem(page: Int, gridItem: GridItem) {
-        viewModelScope.launch {
-            gridRepository.addGridItem(page = page, gridItem = gridItem)
+            gridRepository.updateGridItem(
+                page = page, oldGridItem = oldGridItem, newGridItem = newGridItem
+            )
         }
     }
 }

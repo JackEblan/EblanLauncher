@@ -137,13 +137,15 @@ fun Greeting(
 
                     Text(text = "Hello ${gridItem.cells}",
                          modifier = Modifier
-                             .pointerInput(key1 = gridItem) {
+                             .pointerInput(key1 = gridItem, key2 = isDragging) {
                                  detectTapGestures(onLongPress = {
-                                     isDragging = true
-                                     selectedGridItem = gridItem
-                                     selectedGridItemIntSize = gridItemIntSize
-                                     dragOffsetX = gridItemOffsetX
-                                     dragOffsetY = gridItemOffsetY
+                                     if (isDragging.not()) {
+                                         isDragging = true
+                                         selectedGridItem = gridItem
+                                         selectedGridItemIntSize = gridItemIntSize
+                                         dragOffsetX = gridItemOffsetX
+                                         dragOffsetY = gridItemOffsetY
+                                     }
                                  })
                              }
                              .fillMaxSize()

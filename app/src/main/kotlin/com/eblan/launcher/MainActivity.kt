@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        var gridItems by mutableStateOf(emptyList<GridItem>())
+        var gridItems by mutableStateOf(emptyMap<Int, List<GridItem>>())
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
-    gridItems: List<GridItem>,
+    gridItems: Map<Int, List<GridItem>>,
     onUpdateGridItem: (page: Int, gridItem: GridItem) -> Unit,
 ) {
     var isDragging by remember { mutableStateOf(false) }
@@ -130,31 +130,32 @@ fun Greeting(
                         gridIntSize = it
                     },
             ) {
-                gridItems.filter { it.page == page }.forEach { item ->
+                gridItems[page]?.forEach { gridItem ->
                     var gridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
                     var gridItemOffsetX by remember { mutableIntStateOf(-1) }
                     var gridItemOffsetY by remember { mutableIntStateOf(-1) }
 
-                    Text(text = "Hello $page", modifier = Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(onLongPress = {
-                                isDragging = true
-                                selectedGridItem = item
-                                selectedGridItemIntSize = gridItemIntSize
-                                dragOffsetX = gridItemOffsetX
-                                dragOffsetY = gridItemOffsetY
-                            })
-                        }
-                        .fillMaxSize()
-                        .onSizeChanged {
-                            gridItemIntSize = it
-                        }
-                        .onGloballyPositioned {
-                            gridItemOffsetX = it.positionInParent().x.roundToInt()
-                            gridItemOffsetY = it.positionInParent().y.roundToInt()
-                        }
-                        .background(Color.Blue)
-                        .gridCells(item.cells))
+                    Text(text = "Hello ${gridItem.cells}",
+                         modifier = Modifier
+                             .pointerInput(key1 = gridItem) {
+                                 detectTapGestures(onLongPress = {
+                                     isDragging = true
+                                     selectedGridItem = gridItem
+                                     selectedGridItemIntSize = gridItemIntSize
+                                     dragOffsetX = gridItemOffsetX
+                                     dragOffsetY = gridItemOffsetY
+                                 })
+                             }
+                             .fillMaxSize()
+                             .onSizeChanged {
+                                 gridItemIntSize = it
+                             }
+                             .onGloballyPositioned {
+                                 gridItemOffsetX = it.positionInParent().x.roundToInt()
+                                 gridItemOffsetY = it.positionInParent().y.roundToInt()
+                             }
+                             .background(Color.Blue)
+                             .gridCells(gridItem.cells))
                 }
             }
         }

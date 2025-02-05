@@ -33,14 +33,12 @@ class GridRepository {
     suspend fun updateGridItem(page: Int, gridItem: GridItem) {
         val oldGridItem = currentGridItems.find { it.id == gridItem.id }
 
-        if (oldGridItem != null) {
-            val oldGridItemIndex = currentGridItems.indexOf(oldGridItem)
+        val oldGridItemIndex = currentGridItems.indexOf(oldGridItem)
 
-            val gridItemsWithUpdateGridItem = currentGridItems.toMutableList().apply {
-                set(oldGridItemIndex, gridItem.copy(page = page))
-            }
-
-            _gridItemsFlow.emit(gridItemsWithUpdateGridItem)
+        val gridItemsWithUpdateGridItem = currentGridItems.toMutableList().apply {
+            set(oldGridItemIndex, gridItem.copy(page = page))
         }
+
+        _gridItemsFlow.emit(gridItemsWithUpdateGridItem)
     }
 }

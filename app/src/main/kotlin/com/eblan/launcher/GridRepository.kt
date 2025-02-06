@@ -3,6 +3,8 @@ package com.eblan.launcher
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import java.util.PriorityQueue
+import kotlin.math.abs
 
 class GridRepository {
     private val _gridItemsFlow = MutableSharedFlow<List<GridItem>>(
@@ -61,32 +63,57 @@ class GridRepository {
     }
 
     private fun findAvailableRegion(
-        grid: Array<BooleanArray>, requiredRows: Int, requiredCols: Int
+        grid: Array<BooleanArray>,
+        requiredRows: Int,
+        requiredCols: Int,
+        startRow: Int,
+        startCol: Int
     ): List<GridCell>? {
         val rows = grid.size
         val cols = grid[0].size
 
-        for (startRow in 0 until rows) {
-            for (startCol in 0 until cols) {
-                if (startRow + requiredRows > rows || startCol + requiredCols > cols) continue
+        // Priority queue for A* (sorts by Manhattan distance)
+        val queue = PriorityQueue<Triple<Int, Int, Int>>(compareBy { it.third })
+        val visited = mutableSetOf<Pair<Int, Int>>()
 
+        queue.add(Triple(startRow, startCol, 0)) // (row, col, heuristic)
+        visited.add(startRow to startCol)
+
+        while (queue.isNotEmpty()) {
+            val (r, c, _) = queue.poll() ?: break
+
+            // Check if required space fits at (r, c)
+            if (r + requiredRows <= rows && c + requiredCols <= cols) {
                 val candidate = mutableListOf<GridCell>()
                 var fits = true
 
-                for (r in startRow until startRow + requiredRows) {
-                    for (c in startCol until startCol + requiredCols) {
-                        if (grid[r][c]) {
+                for (i in r until r + requiredRows) {
+                    for (j in c until c + requiredCols) {
+                        if (grid[i][j]) { // If occupied, discard this region
                             fits = false
                             break
                         }
-                        candidate.add(GridCell(r, c))
+                        candidate.add(GridCell(i, j))
                     }
                     if (!fits) break
                 }
-                if (fits) return candidate
+
+                if (fits) return candidate // Found the best available space
             }
+
+            // Add neighboring cells with a heuristic (Manhattan distance)
+            listOf(
+                r - 1 to c, r + 1 to c,  // Up & Down
+                r to c - 1, r to c + 1   // Left & Right
+            ).filter { (nr, nc) -> nr in 0 until rows && nc in 0 until cols && (nr to nc) !in visited }
+                .forEach { (nr, nc) ->
+                    val heuristic = abs(nr - startRow) + abs(nc - startCol)
+                    queue.add(Triple(nr, nc, heuristic))
+                    visited.add(nr to nc)
+                }
         }
-        return null
+
+        return null // No space found
     }
 
     private fun solveConflicts(
@@ -116,7 +143,13 @@ class GridRepository {
         gridItems.filter { it.page == page && it.id != movingItem.id }.forEach { item ->
             if (item.cells.any { grid[it.row][it.column] }) {
                 val (rows, cols) = getItemDimensions(item.cells)
-                val newRegion = findAvailableRegion(grid, rows, cols)
+                val newRegion = findAvailableRegion(
+                    grid = grid,
+                    requiredRows = rows,
+                    requiredCols = cols,
+                    startRow = movingItem.cells.first().row,
+                    startCol = movingItem.cells.first().column
+                )
 
                 if (newRegion != null) {
                     newRegion.forEach { grid[it.row][it.column] = true }

@@ -18,7 +18,7 @@ class GridRepository {
         val gridItems = listOf(
             GridItem(
                 page = 0, id = 0, cells = listOf(
-                    GridCell(row = 0, column = 0)
+                    GridCell(row = 0, column = 1)
                 )
             ), GridItem(
                 page = 0, id = 1, cells = listOf(
@@ -44,9 +44,10 @@ class GridRepository {
         }
 
         _gridItemsFlow.emit(
-            resolveConflictsForPage(
+            solveConflicts(
                 page = page,
                 gridItems = gridItemsWithUpdateGridItem,
+                movingItem = gridItem,
             )
         )
     }
@@ -58,19 +59,14 @@ class GridRepository {
     }
 
     private fun findAvailableRegion(
-        occupied: Set<GridCell>,
-        requiredRows: Int,
-        requiredCols: Int,
-        gridSize: Int = 4
+        occupied: Set<GridCell>, requiredRows: Int, requiredCols: Int, gridSize: Int = 4
     ): List<GridCell>? {
         for (startRow in 0 until gridSize) {
             for (startCol in 0 until gridSize) {
-                // Check if the region would fit within the grid boundaries.
                 if (startRow + requiredRows > gridSize || startCol + requiredCols > gridSize) continue
 
                 val candidate = mutableListOf<GridCell>()
                 var fits = true
-                // Build a candidate region.
                 for (r in startRow until startRow + requiredRows) {
                     for (c in startCol until startCol + requiredCols) {
                         val cell = GridCell(r, c)
@@ -88,61 +84,49 @@ class GridRepository {
         return null
     }
 
-    /**
-     * Resolves cell conflicts for all grid items on the given page.
-     *
-     * @param page The target page.
-     * @param gridItems The complete list of grid items.
-     * @param gridSize The grid size (default is 4 for a 4x4 grid).
-     * @param selectedItem The item that was moved. Its cells are locked in and will not be changed.
-     * @return A new list of grid items with conflicts resolved on the target page.
-     */
-    private fun resolveConflictsForPage(
-        page: Int,
-        gridItems: List<GridItem>,
-        gridSize: Int = 4,
-        selectedItem: GridItem? = null
+    private fun solveConflicts(
+        page: Int, gridItems: List<GridItem>, movingItem: GridItem, gridSize: Int = 4
     ): List<GridItem> {
-        // Set to track occupied cells on the page.
         val occupiedCells = mutableSetOf<GridCell>()
-        // List to accumulate the resolved items for the target page.
         val resolvedItems = mutableListOf<GridItem>()
 
-        // 1. Lock the selected (moved) item if provided.
-        selectedItem?.let { selItem ->
-            if (selItem.page == page) {
-                occupiedCells.addAll(selItem.cells)
-                resolvedItems.add(selItem)
-            }
+        // **Step 1: Lock the moving item (it never moves)**
+        if (movingItem.page == page) {
+            // If the moving item is already on the target page, mark its cells as occupied
+            occupiedCells.addAll(movingItem.cells)
+            resolvedItems.add(movingItem)
+        } else {
+            // If the moving item is being moved to this page, add it to resolvedItems and mark its cells as occupied
+            resolvedItems.add(movingItem.copy(page = page))
+            occupiedCells.addAll(movingItem.cells)
         }
 
-        // 2. Process all other items on the target page, excluding the selected item.
-        gridItems.filter {
-            it.page == page && (selectedItem == null || it.id != selectedItem.id)
-        }.forEach { item ->
-            // Check if any of the item's cells conflict with already occupied ones.
-            if (item.cells.any { it in occupiedCells }) {
-                // Determine the item's dimensions.
+        // **Step 2: Process other items (move only if they conflict)**
+        gridItems.filter { it.page == page && it.id != movingItem.id }.forEach { item ->
+            val conflictsWithMovingItem = item.cells.any { it in movingItem.cells }
+
+            if (conflictsWithMovingItem) {
+                // **Find a new space since it overlaps with the moving item**
                 val (rows, cols) = getItemDimensions(item.cells)
-                // Try to find an available region.
                 val newRegion = findAvailableRegion(occupiedCells, rows, cols, gridSize)
+
                 if (newRegion != null) {
-                    // Use the new region and mark these cells as occupied.
+                    // **Move the conflicting item to the new space**
                     occupiedCells.addAll(newRegion)
                     resolvedItems.add(item.copy(cells = newRegion))
                 } else {
-                    // If no region is available, leave the item as-is.
+                    // **No available space, keep it in place**
                     occupiedCells.addAll(item.cells)
                     resolvedItems.add(item)
                 }
             } else {
-                // No conflict – mark the cells as occupied.
+                // **No conflict, keep the item in place**
                 occupiedCells.addAll(item.cells)
                 resolvedItems.add(item)
             }
         }
 
-        // 3. Items on other pages remain unchanged.
+        // Items on other pages remain unchanged.
         val otherPagesItems = gridItems.filter { it.page != page }
         return otherPagesItems + resolvedItems
     }

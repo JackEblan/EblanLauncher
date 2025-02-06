@@ -41,17 +41,17 @@ class GridRepository {
 
         val oldGridItemIndex = currentGridItems.indexOf(oldGridItem)
 
-        val newGridItem = gridItem.copy(page = page)
+        val movingGridItem = gridItem.copy(page = page)
 
         val gridItemsWithUpdateGridItem = currentGridItems.toMutableList().apply {
-            set(oldGridItemIndex, newGridItem)
+            set(oldGridItemIndex, movingGridItem)
         }
 
         _gridItemsFlow.emit(
             solveConflicts(
                 page = page,
                 gridItems = gridItemsWithUpdateGridItem,
-                movingItem = newGridItem,
+                movingGridItem = movingGridItem,
             )
         )
     }
@@ -119,7 +119,7 @@ class GridRepository {
     private fun solveConflicts(
         page: Int,
         gridItems: List<GridItem>,
-        movingItem: GridItem,
+        movingGridItem: GridItem,
         gridRows: Int = 4,
         gridCols: Int = 4
     ): List<GridItem> {
@@ -127,10 +127,10 @@ class GridRepository {
         val resolvedItems = mutableListOf<GridItem>()
 
         // **Step 1: Lock the moving item**
-        resolvedItems.add(movingItem)
+        resolvedItems.add(movingGridItem)
 
         // Ensure we don't try to access out-of-bounds indices
-        movingItem.cells.forEach { cell ->
+        movingGridItem.cells.forEach { cell ->
             if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) {
                 grid[cell.row][cell.column] = true
             } else {
@@ -140,15 +140,15 @@ class GridRepository {
         }
 
         // **Step 2: Process other items, move only if needed**
-        gridItems.filter { it.page == page && it.id != movingItem.id }.forEach { item ->
+        gridItems.filter { it.page == page && it.id != movingGridItem.id }.forEach { item ->
             if (item.cells.any { grid[it.row][it.column] }) {
-                val (rows, cols) = getItemDimensions(item.cells)
+                val (rows, cols) = getItemDimensions(cells = item.cells)
                 val newRegion = findAvailableRegion(
                     grid = grid,
                     requiredRows = rows,
                     requiredCols = cols,
-                    startRow = movingItem.cells.first().row,
-                    startCol = movingItem.cells.first().column
+                    startRow = movingGridItem.cells.first().row,
+                    startCol = movingGridItem.cells.first().column
                 )
 
                 if (newRegion != null) {

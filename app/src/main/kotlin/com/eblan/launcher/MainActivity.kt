@@ -135,7 +135,7 @@ fun Greeting(
                     var gridItemOffsetX by remember { mutableIntStateOf(-1) }
                     var gridItemOffsetY by remember { mutableIntStateOf(-1) }
 
-                    Text(text = "Hello ${gridItem.cells}",
+                    Text(text = "Hello ${gridItem.id}",
                          modifier = Modifier
                              .pointerInput(key1 = gridItem, key2 = isDragging) {
                                  detectTapGestures(onLongPress = {

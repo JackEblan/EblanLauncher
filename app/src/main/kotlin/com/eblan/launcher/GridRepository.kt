@@ -36,10 +36,12 @@ class GridRepository {
 
     suspend fun updateGridItem(page: Int, gridItem: GridItem) {
         val oldGridItem = currentGridItems.find { it.id == gridItem.id }
+
         val oldGridItemIndex = currentGridItems.indexOf(oldGridItem)
 
+        val newGridItem = gridItem.copy(page = page)
+
         val gridItemsWithUpdateGridItem = currentGridItems.toMutableList().apply {
-            val newGridItem = gridItem.copy(page = page)
             set(oldGridItemIndex, newGridItem)
         }
 
@@ -47,7 +49,7 @@ class GridRepository {
             solveConflicts(
                 page = page,
                 gridItems = gridItemsWithUpdateGridItem,
-                movingItem = gridItem,
+                movingItem = newGridItem,
             )
         )
     }
@@ -59,22 +61,25 @@ class GridRepository {
     }
 
     private fun findAvailableRegion(
-        occupied: Set<GridCell>, requiredRows: Int, requiredCols: Int, gridSize: Int = 4
+        grid: Array<BooleanArray>, requiredRows: Int, requiredCols: Int
     ): List<GridCell>? {
-        for (startRow in 0 until gridSize) {
-            for (startCol in 0 until gridSize) {
-                if (startRow + requiredRows > gridSize || startCol + requiredCols > gridSize) continue
+        val rows = grid.size
+        val cols = grid[0].size
+
+        for (startRow in 0 until rows) {
+            for (startCol in 0 until cols) {
+                if (startRow + requiredRows > rows || startCol + requiredCols > cols) continue
 
                 val candidate = mutableListOf<GridCell>()
                 var fits = true
+
                 for (r in startRow until startRow + requiredRows) {
                     for (c in startCol until startCol + requiredCols) {
-                        val cell = GridCell(r, c)
-                        if (cell in occupied) {
+                        if (grid[r][c]) {
                             fits = false
                             break
                         }
-                        candidate.add(cell)
+                        candidate.add(GridCell(r, c))
                     }
                     if (!fits) break
                 }
@@ -85,49 +90,38 @@ class GridRepository {
     }
 
     private fun solveConflicts(
-        page: Int, gridItems: List<GridItem>, movingItem: GridItem, gridSize: Int = 4
+        page: Int,
+        gridItems: List<GridItem>,
+        movingItem: GridItem,
+        gridRows: Int = 4,
+        gridCols: Int = 4
     ): List<GridItem> {
-        val occupiedCells = mutableSetOf<GridCell>()
+        val grid = Array(gridRows) { BooleanArray(gridCols) }
         val resolvedItems = mutableListOf<GridItem>()
 
-        // **Step 1: Lock the moving item (it never moves)**
-        if (movingItem.page == page) {
-            // If the moving item is already on the target page, mark its cells as occupied
-            occupiedCells.addAll(movingItem.cells)
-            resolvedItems.add(movingItem)
-        } else {
-            // If the moving item is being moved to this page, add it to resolvedItems and mark its cells as occupied
-            resolvedItems.add(movingItem.copy(page = page))
-            occupiedCells.addAll(movingItem.cells)
-        }
+        // **Step 1: Lock the moving item**
+        resolvedItems.add(movingItem)
+        movingItem.cells.forEach { grid[it.row][it.column] = true }
 
-        // **Step 2: Process other items (move only if they conflict)**
+        // **Step 2: Process other items, move only if needed**
         gridItems.filter { it.page == page && it.id != movingItem.id }.forEach { item ->
-            val conflictsWithMovingItem = item.cells.any { it in movingItem.cells }
-
-            if (conflictsWithMovingItem) {
-                // **Find a new space since it overlaps with the moving item**
+            if (item.cells.any { grid[it.row][it.column] }) {
                 val (rows, cols) = getItemDimensions(item.cells)
-                val newRegion = findAvailableRegion(occupiedCells, rows, cols, gridSize)
+                val newRegion = findAvailableRegion(grid, rows, cols)
 
                 if (newRegion != null) {
-                    // **Move the conflicting item to the new space**
-                    occupiedCells.addAll(newRegion)
+                    newRegion.forEach { grid[it.row][it.column] = true }
                     resolvedItems.add(item.copy(cells = newRegion))
                 } else {
-                    // **No available space, keep it in place**
-                    occupiedCells.addAll(item.cells)
+                    item.cells.forEach { grid[it.row][it.column] = true }
                     resolvedItems.add(item)
                 }
             } else {
-                // **No conflict, keep the item in place**
-                occupiedCells.addAll(item.cells)
+                item.cells.forEach { grid[it.row][it.column] = true }
                 resolvedItems.add(item)
             }
         }
 
-        // Items on other pages remain unchanged.
-        val otherPagesItems = gridItems.filter { it.page != page }
-        return otherPagesItems + resolvedItems
+        return resolvedItems + gridItems.filter { it.page != page }
     }
 }

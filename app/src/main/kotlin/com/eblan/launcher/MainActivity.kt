@@ -47,6 +47,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.ui.theme.EblanLauncherTheme
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, FlowPreview::class)
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
@@ -124,12 +125,16 @@ fun Greeting(
     LaunchedEffect(key1 = true) {
         snapshotFlow { edgeState }.filterNotNull().debounce(2000).distinctUntilChanged()
             .collect { newEdgeState ->
-                if (newEdgeState.touchesRight) {
-                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                }
+                when (newEdgeState) {
+                    EdgeState.Left -> {
+                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    }
 
-                if (newEdgeState.touchesLeft) {
-                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    EdgeState.Right -> {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
+
+                    EdgeState.None -> Unit
                 }
             }
     }
@@ -210,15 +215,10 @@ fun Greeting(
 
                         edgeState = isAtScreenEdge(
                             x = dragOffsetX,
-                            y = dragOffsetY,
                             boundingBoxWidth = selectedGridItemIntSize.width,
-                            boundingBoxHeight = selectedGridItemIntSize.height,
                             screenWidth = gridIntSize.width,
-                            screenHeight = gridIntSize.height,
                             margin = 0
                         )
-
-
 
                         updatedGridItem = moveGridItemWithCoordinates(
                             gridItem = selectedGridItem,
@@ -516,23 +516,18 @@ fun coordinatesToGridCell(
 }
 
 fun isAtScreenEdge(
-    x: Int, y: Int, // Top-left of item (pixels)
-    boundingBoxWidth: Int, boundingBoxHeight: Int, // Item size (pixels)
-    screenWidth: Int, screenHeight: Int, // Screen size
-    margin: Int = 0 // Edge tolerance (default = 0)
+    x: Int, boundingBoxWidth: Int, screenWidth: Int, margin: Int = 0
 ): EdgeState {
-    val touchesTop = y <= margin
-    val touchesBottom = (y + boundingBoxHeight) >= (screenHeight - margin)
     val touchesLeft = x <= margin
     val touchesRight = (x + boundingBoxWidth) >= (screenWidth - margin)
 
-    return EdgeState(touchesTop, touchesBottom, touchesLeft, touchesRight)
+    return when {
+        touchesLeft -> EdgeState.Left
+        touchesRight -> EdgeState.Right
+        else -> EdgeState.None
+    }
 }
 
-// Data class to represent edge states
-data class EdgeState(
-    val touchesTop: Boolean,
-    val touchesBottom: Boolean,
-    val touchesLeft: Boolean,
-    val touchesRight: Boolean
-)
+enum class EdgeState {
+    Left, Right, None
+}

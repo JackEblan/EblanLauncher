@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -48,6 +47,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.ui.theme.EblanLauncherTheme
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -112,10 +112,25 @@ fun Greeting(
 
     var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
 
+    var edgeState by remember { mutableStateOf<EdgeState?>(null) }
+
     LaunchedEffect(key1 = true) {
         snapshotFlow { updatedGridItem }.filterNotNull().distinctUntilChanged()
             .collect { newGridItem ->
                 onUpdateGridItem(pagerState.currentPage, newGridItem)
+            }
+    }
+
+    LaunchedEffect(key1 = true) {
+        snapshotFlow { edgeState }.filterNotNull().debounce(2000).distinctUntilChanged()
+            .collect { newEdgeState ->
+                if (newEdgeState.touchesRight) {
+                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                }
+
+                if (newEdgeState.touchesLeft) {
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                }
             }
     }
 
@@ -177,8 +192,6 @@ fun Greeting(
 
             var height by remember { mutableStateOf(boundingBoxHeight) }
 
-            val coroutineScope = rememberCoroutineScope()
-
             Box(modifier = Modifier
                 .offset {
                     IntOffset(
@@ -195,7 +208,7 @@ fun Greeting(
                         dragOffsetX += dragAmount.x.roundToInt()
                         dragOffsetY += dragAmount.y.roundToInt()
 
-                        val edgeState = isAtScreenEdge(
+                        edgeState = isAtScreenEdge(
                             x = dragOffsetX,
                             y = dragOffsetY,
                             boundingBoxWidth = selectedGridItemIntSize.width,
@@ -205,17 +218,7 @@ fun Greeting(
                             margin = 0
                         )
 
-                        if (edgeState.touchesRight) {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }
-                        }
 
-                        if (edgeState.touchesLeft) {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                            }
-                        }
 
                         updatedGridItem = moveGridItemWithCoordinates(
                             gridItem = selectedGridItem,

@@ -101,7 +101,16 @@ class GridRepository {
 
         // **Step 1: Lock the moving item**
         resolvedItems.add(movingItem)
-        movingItem.cells.forEach { grid[it.row][it.column] = true }
+
+        // Ensure we don't try to access out-of-bounds indices
+        movingItem.cells.forEach { cell ->
+            if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) {
+                grid[cell.row][cell.column] = true
+            } else {
+                // Handle the case where the cell is out of bounds, maybe log a warning
+                println("Warning: Moving item cell out of bounds: ${cell.row}, ${cell.column}")
+            }
+        }
 
         // **Step 2: Process other items, move only if needed**
         gridItems.filter { it.page == page && it.id != movingItem.id }.forEach { item ->

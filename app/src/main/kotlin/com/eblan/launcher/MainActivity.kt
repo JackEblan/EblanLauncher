@@ -113,7 +113,7 @@ fun Greeting(
 
     var dragOffsetY by remember { mutableIntStateOf(-1) }
 
-    var gridSize by remember { mutableStateOf(IntSize.Zero) }
+    var gridIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     var selectedGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -150,7 +150,7 @@ fun Greeting(
                 modifier = Modifier
                     .fillMaxSize()
                     .onSizeChanged {
-                        gridSize = it
+                        gridIntSize = it
                         onUpdateScreenDimension(
                             it.width,
                             it.height,
@@ -223,7 +223,7 @@ fun Greeting(
                         edgeState = isGridItemOutOfBounds(
                             x = dragOffsetX,
                             boundingBoxWidth = selectedGridItemIntSize.width,
-                            screenWidth = gridSize.width,
+                            screenWidth = gridIntSize.width,
                             margin = 0
                         )
 
@@ -231,8 +231,8 @@ fun Greeting(
                             pagerState.currentPage,
                             dragOffsetX,
                             dragOffsetY,
-                            gridSize.width,
-                            gridSize.height,
+                            gridIntSize.width,
+                            gridIntSize.height,
                             selectedGridItemPixel
                         )
                     })
@@ -263,8 +263,8 @@ fun Greeting(
                                 pagerState.currentPage,
                                 newPixelWidth.roundToInt(),
                                 newPixelHeight.roundToInt(),
-                                gridSize.width,
-                                gridSize.height,
+                                gridIntSize.width,
+                                gridIntSize.height,
                                 selectedGridItemPixel?.gridItem,
                             )
                         })

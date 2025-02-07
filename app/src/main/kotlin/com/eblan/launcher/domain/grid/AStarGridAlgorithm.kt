@@ -1,10 +1,10 @@
-package com.eblan.launcher.domain.gridalgorithm
+package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.GridCell
 import com.eblan.launcher.GridItem
 import java.util.PriorityQueue
 
-class AStar {
+class AStarGridAlgorithm {
     operator fun invoke(
         page: Int,
         gridItems: List<GridItem>,
@@ -18,48 +18,55 @@ class AStar {
         // Step 1: Lock the moving item.
         resolvedItems.add(movingGridItem)
         movingGridItem.cells.forEach { cell ->
-            if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) grid[cell.row][cell.column] =
-                true
-            else println("Warning: moving item cell out of bounds: ${cell.row}, ${cell.column}")
+            if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) {
+                grid[cell.row][cell.column] = true
+            } else println("Warning: moving item cell out of bounds: ${cell.row}, ${cell.column}")
         }
+
         val movingCells = movingGridItem.cells.toSet()
 
-        // Step 2: Process other items on the same page.
-        gridItems.filter { it.page == page && it.id != movingGridItem.id }
-            .sortedBy { it.id } // ensure stable ordering
-            .forEach { item ->
-                // Check conflict: only if the item's cells intersect with the moving item's cells.
-                if (item.cells.any { it in movingCells }) {
-                    val (reqRows, reqCols) = getItemDimensions(item.cells)
-                    // Instead of starting from the moving item’s position,
-                    // start from the conflicting item’s original first cell.
-                    val startR = item.cells.first().row
-                    val startC = item.cells.first().column
+        // Step 2: Split items into non-conflicting and conflicting groups.
+        val samePageItems = gridItems.filter { it.page == page && it.id != movingGridItem.id }
+            .sortedBy { it.id } // Stable order within groups
 
-                    val newRegion = findAvailableRegion(grid, reqRows, reqCols, startR, startC)
-                    if (newRegion != null) {
-                        newRegion.forEach { cell ->
-                            if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) grid[cell.row][cell.column] =
-                                true
-                        }
-                        resolvedItems.add(item.copy(cells = newRegion))
-                    } else {
-                        // If no free region is found, leave the item in place.
-                        item.cells.forEach { cell ->
-                            if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) grid[cell.row][cell.column] =
-                                true
-                        }
-                        resolvedItems.add(item)
-                    }
-                } else {
-                    // Item doesn't conflict with the moving item.
-                    item.cells.forEach { cell ->
-                        if (cell.row in 0 until gridRows && cell.column in 0 until gridCols) grid[cell.row][cell.column] =
-                            true
-                    }
-                    resolvedItems.add(item)
+        val (nonConflicting, conflicting) = samePageItems.partition { item ->
+            item.cells.none { it in movingCells } // Check for non-conflicting
+        }
+
+// Process NON-CONFLICTING items first
+        nonConflicting.forEach { item ->
+            item.cells.forEach { cell ->
+                if (cell.row in grid.indices && cell.column in grid[0].indices) {
+                    grid[cell.row][cell.column] = true
                 }
             }
+            resolvedItems.add(item)
+        }
+
+// Process CONFLICTING items afterward
+        conflicting.forEach { item ->
+            // Existing logic to find new region and update grid
+            val (reqRows, reqCols) = getItemDimensions(item.cells)
+            val startR = item.cells.first().row
+            val startC = item.cells.first().column
+
+            val newRegion = findAvailableRegion(grid, reqRows, reqCols, startR, startC)
+            if (newRegion != null) {
+                newRegion.forEach { cell ->
+                    if (cell.row in grid.indices && cell.column in grid[0].indices) {
+                        grid[cell.row][cell.column] = true
+                    }
+                }
+                resolvedItems.add(item.copy(cells = newRegion))
+            } else {
+                item.cells.forEach { cell ->
+                    if (cell.row in grid.indices && cell.column in grid[0].indices) {
+                        grid[cell.row][cell.column] = true
+                    }
+                }
+                resolvedItems.add(item)
+            }
+        }
 
         // Step 3: Return resolved items along with items from other pages unchanged.
         return resolvedItems + gridItems.filter { it.page != page }
@@ -123,8 +130,13 @@ class AStar {
     }
 
     private fun getItemDimensions(cells: List<GridCell>): Pair<Int, Int> {
-        val uniqueRows = cells.map { it.row }.distinct().count()
-        val uniqueCols = cells.map { it.column }.distinct().count()
-        return uniqueRows to uniqueCols
+        if (cells.isEmpty()) return 0 to 0
+        val minRow = cells.minOf { it.row }
+        val maxRow = cells.maxOf { it.row }
+        val minCol = cells.minOf { it.column }
+        val maxCol = cells.maxOf { it.column }
+        val requiredRows = maxRow - minRow + 1
+        val requiredCols = maxCol - minCol + 1
+        return requiredRows to requiredCols
     }
 }

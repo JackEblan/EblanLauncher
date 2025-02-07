@@ -2,12 +2,12 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.GridItem
 import com.eblan.launcher.GridRepository
-import com.eblan.launcher.domain.gridalgorithm.AStar
+import com.eblan.launcher.domain.grid.AStarGridAlgorithm
 import kotlinx.coroutines.flow.first
 
 class AStarGridAlgorithmUseCase(
     private val gridRepository: GridRepository,
-    private val aStar: AStar
+    private val aStarGridAlgorithm: AStarGridAlgorithm
 ) {
     suspend operator fun invoke(page: Int, gridItem: GridItem) {
         val oldGridItem = gridRepository.gridItems.first().find { it.id == gridItem.id }
@@ -20,7 +20,7 @@ class AStarGridAlgorithmUseCase(
             set(oldGridItemIndex, movingGridItem)
         }
 
-        val aStarGridItems = aStar(
+        val aStarGridItems = aStarGridAlgorithm(
             page = page,
             gridItems = updatedGridItems,
             movingGridItem = movingGridItem,

@@ -14,33 +14,25 @@ fun gridAlgorithmUsingAStar(
     val grid = Array(gridRows) { BooleanArray(gridCols) }
     val resolvedItems = mutableListOf<GridItem>()
 
-    // Step 1: Lock the moving item.
     resolvedItems.add(movingGridItem)
     movingGridItem.cells.forEach { cell ->
         grid[cell.row][cell.column] = true
     }
 
-    val movingCells = movingGridItem.cells.toSet()
-
-    // Step 2: Split items into non-conflicting and conflicting groups.
     val samePageItems = gridItems.filter { it.page == page && it.id != movingGridItem.id }
-        .sortedBy { it.id } // Stable order within groups
 
     val (nonConflicting, conflicting) = samePageItems.partition { item ->
-        item.cells.none { it in movingCells } // Check for non-conflicting
+        item.cells.none { it in movingGridItem.cells }
     }
 
     nonConflicting.forEach { item ->
         item.cells.forEach { cell ->
-            if (cell.row in grid.indices && cell.column in grid[0].indices) {
-                grid[cell.row][cell.column] = true
-            }
+            grid[cell.row][cell.column] = true
         }
         resolvedItems.add(item)
     }
 
     conflicting.forEach { item ->
-        // Existing logic to find new region and update grid
         val (reqRows, reqCols) = getItemDimensions(item.cells)
         val startR = item.cells.first().row
         val startC = item.cells.first().column
@@ -48,26 +40,20 @@ fun gridAlgorithmUsingAStar(
         val newRegion = findAvailableRegion(grid, reqRows, reqCols, startR, startC)
         if (newRegion != null) {
             newRegion.forEach { cell ->
-                if (cell.row in grid.indices && cell.column in grid[0].indices) {
-                    grid[cell.row][cell.column] = true
-                }
+                grid[cell.row][cell.column] = true
             }
             resolvedItems.add(item.copy(cells = newRegion))
         } else {
             item.cells.forEach { cell ->
-                if (cell.row in grid.indices && cell.column in grid[0].indices) {
-                    grid[cell.row][cell.column] = true
-                }
+                grid[cell.row][cell.column] = true
             }
             resolvedItems.add(item)
         }
     }
 
-    // Step 3: Return resolved items along with items from other pages unchanged.
     return resolvedItems + gridItems.filter { it.page != page }
 }
 
-// A node for A* search, representing a cell and its associated costs.
 private data class Node(val row: Int, val col: Int, val g: Int, val h: Int) {
     val f: Int get() = g + h
 }
@@ -88,7 +74,6 @@ private fun findAvailableRegion(
         val r = current.row
         val c = current.col
 
-        // Check if region starting at (r, c) fits inside the grid.
         if (r + requiredRows <= rows && c + requiredCols <= cols) {
             var fits = true
             val candidate = mutableListOf<GridCell>()
@@ -105,7 +90,6 @@ private fun findAvailableRegion(
             if (fits) return candidate
         }
 
-        // Expand neighbors: Up, Down, Left, Right.
         listOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1).forEach { (dr, dc) ->
             val nr = r + dr
             val nc = c + dc

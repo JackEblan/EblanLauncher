@@ -46,6 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.eblan.launcher.domain.grid.Coordinates
+import com.eblan.launcher.domain.model.BoundingBox
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.ui.theme.EblanLauncherTheme
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -61,7 +65,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        var gridItems by mutableStateOf(emptyMap<Int, List<GridItem>>())
+        var gridItems by mutableStateOf(emptyMap<Int, List<GridItemPixel>>())
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -80,7 +84,9 @@ class MainActivity : ComponentActivity() {
                             .consumeWindowInsets(innerPadding)
                             .fillMaxSize(),
                         gridItems = gridItems,
-                        onUpdateGridItem = mainActivityViewModel::updateGridItem,
+                        onUpdateScreenDimension = mainActivityViewModel::updateScreenDimension,
+                        onMoveGridItem = mainActivityViewModel::moveGridItem,
+                        onResizeGridItem = mainActivityViewModel::resizeGridItem
                     )
                 }
             }
@@ -92,8 +98,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
-    gridItems: Map<Int, List<GridItem>>,
-    onUpdateGridItem: (page: Int, gridItem: GridItem) -> Unit,
+    gridItems: Map<Int, List<GridItemPixel>>,
+    onUpdateScreenDimension: (screenWidth: Int, screenHeight: Int) -> Unit,
+    onMoveGridItem: (
+        page: Int, x: Int, y: Int, screenWidth: Int, screenHeight: Int, gridItemPixel: GridItemPixel?
+    ) -> Unit,
+    onResizeGridItem: (
+        page: Int, newPixelWidth: Int, newPixelHeight: Int, screenWidth: Int, screenHeight: Int, gridItem: GridItem?
+    ) -> Unit,
 ) {
     var isDragging by remember { mutableStateOf(false) }
 
@@ -101,7 +113,7 @@ fun Greeting(
 
     var dragOffsetY by remember { mutableIntStateOf(-1) }
 
-    var gridIntSize by remember { mutableStateOf(IntSize.Zero) }
+    var gridSize by remember { mutableStateOf(IntSize.Zero) }
 
     var selectedGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -109,18 +121,9 @@ fun Greeting(
         10
     })
 
-    var selectedGridItem by remember { mutableStateOf<GridItem?>(null) }
-
-    var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
+    var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
 
     var edgeState by remember { mutableStateOf<EdgeState?>(null) }
-
-    LaunchedEffect(key1 = true) {
-        snapshotFlow { updatedGridItem }.filterNotNull().distinctUntilChanged()
-            .collect { newGridItem ->
-                onUpdateGridItem(pagerState.currentPage, newGridItem)
-            }
-    }
 
     LaunchedEffect(key1 = true) {
         snapshotFlow { edgeState }.filterNotNull().debounce(2000).distinctUntilChanged()
@@ -147,21 +150,25 @@ fun Greeting(
                 modifier = Modifier
                     .fillMaxSize()
                     .onSizeChanged {
-                        gridIntSize = it
+                        gridSize = it
+                        onUpdateScreenDimension(
+                            it.width,
+                            it.height,
+                        )
                     },
             ) {
-                gridItems[page]?.forEach { gridItem ->
+                gridItems[page]?.forEach { gridItemPixel ->
                     var gridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
                     var gridItemOffsetX by remember { mutableIntStateOf(-1) }
                     var gridItemOffsetY by remember { mutableIntStateOf(-1) }
 
-                    Text(text = "Hello ${gridItem.id}",
+                    Text(text = "Hello ${gridItemPixel.gridItem.id}",
                          modifier = Modifier
-                             .pointerInput(key1 = gridItem, key2 = isDragging) {
+                             .pointerInput(key1 = gridItemPixel, key2 = isDragging) {
                                  detectTapGestures(onLongPress = {
                                      if (isDragging.not()) {
                                          isDragging = true
-                                         selectedGridItem = gridItem
+                                         selectedGridItemPixel = gridItemPixel
                                          selectedGridItemIntSize = gridItemIntSize
                                          dragOffsetX = gridItemOffsetX
                                          dragOffsetY = gridItemOffsetY
@@ -177,7 +184,7 @@ fun Greeting(
                                  gridItemOffsetY = it.positionInParent().y.roundToInt()
                              }
                              .background(Color.Blue)
-                             .gridCells(gridItem.cells))
+                             .gridItemPlacement(gridItemPixel))
                 }
             }
         }
@@ -213,23 +220,20 @@ fun Greeting(
                         dragOffsetX += dragAmount.x.roundToInt()
                         dragOffsetY += dragAmount.y.roundToInt()
 
-                        edgeState = isAtScreenEdge(
+                        edgeState = isGridItemOutOfBounds(
                             x = dragOffsetX,
                             boundingBoxWidth = selectedGridItemIntSize.width,
-                            screenWidth = gridIntSize.width,
+                            screenWidth = gridSize.width,
                             margin = 0
                         )
 
-                        updatedGridItem = moveGridItemWithCoordinates(
-                            gridItem = selectedGridItem,
-                            x = dragOffsetX,
-                            y = dragOffsetY,
-                            gridWidth = 4,
-                            gridHeight = 4,
-                            screenWidth = gridIntSize.width,
-                            screenHeight = gridIntSize.height,
-                            boundingBoxWidth = selectedGridItemIntSize.width,
-                            boundingBoxHeight = selectedGridItemIntSize.height
+                        onMoveGridItem(
+                            pagerState.currentPage,
+                            dragOffsetX,
+                            dragOffsetY,
+                            gridSize.width,
+                            gridSize.height,
+                            selectedGridItemPixel
                         )
                     })
                 }) {
@@ -255,12 +259,13 @@ fun Greeting(
                                 height.toPx()
                             }
 
-                            updatedGridItem = resizeGridItemWithPixels(
-                                gridItem = selectedGridItem,
-                                newPixelWidth = newPixelWidth.roundToInt(),
-                                newPixelHeight = newPixelHeight.roundToInt(),
-                                gridCellPixelWidth = gridIntSize.width / 4,
-                                gridCellPixelHeight = gridIntSize.height / 4
+                            onResizeGridItem(
+                                pagerState.currentPage,
+                                newPixelWidth.roundToInt(),
+                                newPixelHeight.roundToInt(),
+                                gridSize.width,
+                                gridSize.height,
+                                selectedGridItemPixel?.gridItem,
                             )
                         })
                     })
@@ -278,244 +283,42 @@ fun Grid(
         content()
     }, modifier = modifier) { measurables, constraints ->
         val placeables = measurables.map { measurable ->
-            val gridCells = measurable.parentData as GridCellsParentData
-
-            val boundingBox = calculateBoundingBox(
-                gridCells = gridCells.cells,
-                gridWidth = 4,
-                gridHeight = 4,
-                screenWidth = constraints.maxWidth,
-                screenHeight = constraints.maxHeight
-            )
+            val gridItemPlacement = measurable.parentData as GridItemPlacementParentData
 
             measurable.measure(
                 Constraints(
-                    maxWidth = boundingBox.width, maxHeight = boundingBox.height
+                    maxWidth = gridItemPlacement.boundingBox.width,
+                    maxHeight = gridItemPlacement.boundingBox.height
                 )
             )
         }
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             placeables.forEach { placeable ->
-                val gridCells = placeable.parentData as GridCellsParentData
+                val gridItemPlacement = placeable.parentData as GridItemPlacementParentData
 
-                val coordinates = calculateCoordinates(
-                    gridCells = gridCells.cells,
-                    gridWidth = 4,
-                    gridHeight = 4,
-                    screenWidth = constraints.maxWidth,
-                    screenHeight = constraints.maxHeight
+                placeable.placeRelative(
+                    x = gridItemPlacement.coordinates.x, y = gridItemPlacement.coordinates.y
                 )
-
-                placeable.placeRelative(x = coordinates.x, y = coordinates.y)
             }
         }
     }
 }
 
-data class GridItem(
-    val page: Int, val id: Int, val cells: List<GridCell> // List of grid cells the item occupies
+data class GridItemPlacementParentData(
+    val boundingBox: BoundingBox, val coordinates: Coordinates
 )
 
-data class GridCell(val row: Int, val column: Int)
-
-// Data class representing the bounding box of an item
-data class BoundingBox(
-    val width: Int,  // Total width of the bounding box
-    val height: Int  // Total height of the bounding box
-)
-
-// Function to calculate the bounding box for a list of grid cells
-fun calculateBoundingBox(
-    gridCells: List<GridCell>, // List of grid cells the item occupies
-    gridWidth: Int,            // Number of columns in the grid
-    gridHeight: Int,           // Number of rows in the grid
-    screenWidth: Int,          // Total width of the screen
-    screenHeight: Int          // Total height of the screen
-): BoundingBox {
-    // Calculate cell dimensions
-    val cellWidth = screenWidth / gridWidth
-    val cellHeight = screenHeight / gridHeight
-
-    // Find the minimum and maximum row and column indices
-    val minRow = gridCells.minOf { it.row }
-    val maxRow = gridCells.maxOf { it.row }
-    val minCol = gridCells.minOf { it.column }
-    val maxCol = gridCells.maxOf { it.column }
-
-    // Calculate the total width and height
-    val width = (maxCol - minCol + 1) * cellWidth
-    val height = (maxRow - minRow + 1) * cellHeight
-
-    return BoundingBox(width, height)
-}
-
-data class Coordinates(val x: Int, val y: Int)
-
-fun calculateCoordinates(
-    gridCells: List<GridCell>, // List of grid cells the item occupies
-    gridWidth: Int,            // Number of columns in the grid
-    gridHeight: Int,           // Number of rows in the grid
-    screenWidth: Int,          // Total width of the screen
-    screenHeight: Int
-): Coordinates {
-    // Calculate cell dimensions
-    val cellWidth = screenWidth / gridWidth
-    val cellHeight = screenHeight / gridHeight
-
-    // Find the minimum and maximum row and column indices
-    val minRow = gridCells.minOf { it.row }
-    val minCol = gridCells.minOf { it.column }
-
-    // Calculate the top-left corner (x, y)
-    val x = minCol * cellWidth
-    val y = minRow * cellHeight
-
-    return Coordinates(x, y)
-}
-
-data class GridCellsParentData(val cells: List<GridCell>)
-
-fun Modifier.gridCells(cells: List<GridCell>): Modifier = then(object : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?): Any {
-        return GridCellsParentData(cells = cells)
-    }
-})
-
-fun pixelsToGridCells(
-    newPixelWidth: Int, // New width in pixels
-    newPixelHeight: Int, // New height in pixels
-    gridCellPixelWidth: Int, // Width of a single grid cell in pixels
-    gridCellPixelHeight: Int // Height of a single grid cell in pixels
-): Pair<Int, Int> {
-    val newWidth = (newPixelWidth / gridCellPixelWidth).coerceAtLeast(1) // Ensure at least 1 cell
-    val newHeight =
-        (newPixelHeight / gridCellPixelHeight).coerceAtLeast(1) // Ensure at least 1 cell
-    return Pair(newWidth, newHeight)
-}
-
-fun resizeGridItemWithPixels(
-    gridItem: GridItem?, // The list of grid items
-    newPixelWidth: Int, // New width in pixels
-    newPixelHeight: Int, // New height in pixels
-    gridCellPixelWidth: Int, // Width of a single grid cell in pixels
-    gridCellPixelHeight: Int, // Height of a single grid cell in pixels
-): GridItem? {
-    val (newWidth, newHeight) = pixelsToGridCells(
-        newPixelWidth = newPixelWidth,
-        newPixelHeight = newPixelHeight,
-        gridCellPixelWidth = gridCellPixelWidth,
-        gridCellPixelHeight = gridCellPixelHeight
-    )
-
-    return resizeGridItem(
-        gridItem = gridItem,
-        newWidth = newWidth,
-        newHeight = newHeight,
-    )
-}
-
-fun calculateResizedCells(
-    oldCells: List<GridCell>, // Current cells of the grid item
-    newWidth: Int, // New width in terms of grid cells
-    newHeight: Int // New height in terms of grid cells
-): List<GridCell> {
-    // Find the top-left cell of the grid item
-    val topLeftCell = oldCells.minWith(compareBy({ it.row }, { it.column }))
-
-    // Calculate the new cells
-    val newCells = mutableListOf<GridCell>()
-    for (row in topLeftCell.row until topLeftCell.row + newHeight) {
-        for (col in topLeftCell.column until topLeftCell.column + newWidth) {
-            newCells.add(GridCell(row, col))
+fun Modifier.gridItemPlacement(gridItemPixel: GridItemPixel): Modifier =
+    then(object : ParentDataModifier {
+        override fun Density.modifyParentData(parentData: Any?): Any {
+            return GridItemPlacementParentData(
+                boundingBox = gridItemPixel.boundingBox, coordinates = gridItemPixel.coordinates
+            )
         }
-    }
-    return newCells
-}
+    })
 
-fun resizeGridItem(
-    gridItem: GridItem?, // The list of grid items
-    newWidth: Int, // New width in terms of grid cells
-    newHeight: Int, // New height in terms of grid
-): GridItem? {
-    return if (gridItem != null) {
-        val newCells = calculateResizedCells(gridItem.cells, newWidth, newHeight)
-        gridItem.copy(cells = newCells)
-    } else {
-        null
-    }
-}
-
-fun calculateNewCells(oldCells: List<GridCell>, targetCell: GridCell): List<GridCell> {
-    val rowOffset = targetCell.row - oldCells[0].row
-    val colOffset = targetCell.column - oldCells[0].column
-    return oldCells.map { cell ->
-        GridCell(cell.row + rowOffset, cell.column + colOffset)
-    }
-}
-
-fun moveGridItem(
-    gridItem: GridItem?,
-    targetCell: GridCell,
-): GridItem? {
-    return if (gridItem != null) {
-        val newCells = calculateNewCells(gridItem.cells, targetCell)
-        gridItem.copy(cells = newCells)
-    } else {
-        null
-    }
-}
-
-fun moveGridItemWithCoordinates(
-    gridItem: GridItem?,
-    x: Int, // X-coordinate in pixels
-    y: Int, // Y-coordinate in pixels
-    gridWidth: Int, // Number of columns in the grid
-    gridHeight: Int, // Number of rows in the grid
-    screenWidth: Int, // Total width of the screen
-    screenHeight: Int, // Total height of the screen
-    boundingBoxWidth: Int, // Width of the item in pixels
-    boundingBoxHeight: Int,
-): GridItem? {
-    val targetCell = coordinatesToGridCell(
-        x = x,
-        y = y,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
-        screenWidth = screenWidth,
-        screenHeight = screenHeight,
-        boundingBoxWidth = boundingBoxWidth,
-        boundingBoxHeight = boundingBoxHeight
-    )
-
-    return moveGridItem(
-        gridItem = gridItem, targetCell = targetCell
-    )
-}
-
-fun coordinatesToGridCell(
-    x: Int, // X-coordinate in pixels
-    y: Int, // Y-coordinate in pixels
-    gridWidth: Int, // Number of columns in the grid
-    gridHeight: Int, // Number of rows in the grid
-    screenWidth: Int, // Total width of the screen
-    screenHeight: Int, // Total height of the screen
-    boundingBoxWidth: Int, // Width of the item in pixels
-    boundingBoxHeight: Int // Height of the item in pixels
-): GridCell {
-    val cellWidth = screenWidth / gridWidth
-    val cellHeight = screenHeight / gridHeight
-
-    val centerX = x + boundingBoxWidth / 2
-    val centerY = y + boundingBoxHeight / 2
-
-    val row = (centerY / cellHeight).coerceIn(0 until gridHeight)
-    val column = (centerX / cellWidth).coerceIn(0 until gridWidth)
-
-    return GridCell(row, column)
-}
-
-fun isAtScreenEdge(
+fun isGridItemOutOfBounds(
     x: Int, boundingBoxWidth: Int, screenWidth: Int, margin: Int = 0
 ): EdgeState {
     val touchesLeft = x <= margin

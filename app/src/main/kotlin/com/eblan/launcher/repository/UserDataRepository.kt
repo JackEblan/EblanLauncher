@@ -1,4 +1,4 @@
-package com.eblan.launcher
+package com.eblan.launcher.repository
 
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.flowOf

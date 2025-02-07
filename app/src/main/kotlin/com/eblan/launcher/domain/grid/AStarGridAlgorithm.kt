@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.grid
 
-import com.eblan.launcher.GridCell
-import com.eblan.launcher.GridItem
+import com.eblan.launcher.domain.model.GridCell
+import com.eblan.launcher.domain.model.GridItem
 import java.util.PriorityQueue
 
 fun gridAlgorithmUsingAStar(
@@ -33,7 +33,7 @@ fun gridAlgorithmUsingAStar(
     }
 
     conflicting.forEach { item ->
-        val (reqRows, reqCols) = getItemDimensions(item.cells)
+        val (reqRows, reqCols) = getGridItemDimensions(item.cells)
         val startR = item.cells.first().row
         val startC = item.cells.first().column
 

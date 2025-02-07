@@ -1,5 +1,7 @@
-package com.eblan.launcher
+package com.eblan.launcher.repository
 
+import com.eblan.launcher.domain.model.GridCell
+import com.eblan.launcher.domain.model.GridItem
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -9,8 +11,6 @@ class GridRepository {
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
-
-    private val currentGridItems get() = _gridItemsFlow.replayCache.firstOrNull() ?: emptyList()
 
     val gridItems = _gridItemsFlow.asSharedFlow()
 

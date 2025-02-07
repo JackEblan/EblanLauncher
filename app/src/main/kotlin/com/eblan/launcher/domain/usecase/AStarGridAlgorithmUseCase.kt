@@ -44,6 +44,8 @@ class AStarGridAlgorithmUseCase(
             gridCols = userData.columns,
         )
 
-        gridRepository.updateGridItems(gridItems = aStarGridItems)
+        if(aStarGridItems != null){
+            gridRepository.updateGridItems(gridItems = aStarGridItems)
+        }
     }
 }

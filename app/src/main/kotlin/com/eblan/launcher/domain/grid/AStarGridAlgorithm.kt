@@ -10,7 +10,7 @@ fun gridAlgorithmUsingAStar(
     movingGridItem: GridItem,
     gridRows: Int,
     gridCols: Int,
-): List<GridItem> {
+): List<GridItem>? {
     val grid = Array(gridRows) { BooleanArray(gridCols) }
     val resolvedItems = mutableListOf<GridItem>()
 
@@ -44,10 +44,7 @@ fun gridAlgorithmUsingAStar(
             }
             resolvedItems.add(item.copy(cells = newRegion))
         } else {
-            item.cells.forEach { cell ->
-                grid[cell.row][cell.column] = true
-            }
-            resolvedItems.add(item)
+            return null
         }
     }
 

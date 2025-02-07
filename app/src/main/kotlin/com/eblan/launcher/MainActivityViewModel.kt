@@ -2,9 +2,8 @@ package com.eblan.launcher
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.grid.AStarGridAlgorithm
-import com.eblan.launcher.domain.usecase.GridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
+import com.eblan.launcher.domain.usecase.GridItemsByPageUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -12,9 +11,10 @@ import kotlinx.coroutines.launch
 class MainActivityViewModel : ViewModel() {
     private val gridRepository = GridRepository()
     private val gridItemsByPageUseCase = GridItemsByPageUseCase(gridRepository = gridRepository)
-    private val aStarGridAlgorithm = AStarGridAlgorithm()
-    private val AStarGridAlgorithmUseCase = AStarGridAlgorithmUseCase(
-        gridRepository = gridRepository, aStarGridAlgorithm = aStarGridAlgorithm
+    private val userDataRepository = UserDataRepository()
+    private val aStarGridAlgorithmUseCase = AStarGridAlgorithmUseCase(
+        gridRepository = gridRepository,
+        userDataRepository = userDataRepository,
     )
 
     val gridItems = gridItemsByPageUseCase().stateIn(
@@ -25,7 +25,7 @@ class MainActivityViewModel : ViewModel() {
 
     fun updateGridItem(page: Int, gridItem: GridItem) {
         viewModelScope.launch {
-            AStarGridAlgorithmUseCase(page = page, gridItem = gridItem)
+            aStarGridAlgorithmUseCase(page = page, gridItem = gridItem)
         }
     }
 }

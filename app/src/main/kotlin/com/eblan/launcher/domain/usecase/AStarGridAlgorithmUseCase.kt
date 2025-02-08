@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.areValidCells
-import com.eblan.launcher.domain.grid.gridAlgorithmUsingAStar
+import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.grid.isGridItemWithinBounds
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.repository.GridRepository
@@ -44,7 +44,7 @@ class AStarGridAlgorithmUseCase(
                 set(oldGridItemIndex, movingGridItem)
             }
 
-            val aStarGridItems = gridAlgorithmUsingAStar(
+            val aStarGridItems = resolveConflicts(
                 page = page,
                 gridItems = updatedGridItems,
                 movingGridItem = movingGridItem,

@@ -4,7 +4,7 @@ import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
 import java.util.PriorityQueue
 
-fun gridAlgorithmUsingAStar(
+fun resolveConflicts(
     page: Int,
     gridItems: List<GridItem>,
     movingGridItem: GridItem,
@@ -39,7 +39,7 @@ fun gridAlgorithmUsingAStar(
         val startR = item.cells.first().row
         val startC = item.cells.first().column
 
-        val newRegion = findAvailableRegion(grid, reqRows, reqCols, startR, startC)
+        val newRegion = aStarGridAlgorithm(grid, reqRows, reqCols, startR, startC)
 
         if (newRegion != null) {
             newRegion.forEach { cell ->
@@ -59,7 +59,7 @@ private data class Node(val row: Int, val col: Int, val g: Int, val h: Int) {
     val f: Int get() = g + h
 }
 
-private fun findAvailableRegion(
+private fun aStarGridAlgorithm(
     grid: Array<BooleanArray>, requiredRows: Int, requiredCols: Int, startRow: Int, startCol: Int
 ): List<GridCell>? {
     val rows = grid.size

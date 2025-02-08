@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.grid.areValidCells
 import com.eblan.launcher.domain.grid.gridAlgorithmUsingAStar
 import com.eblan.launcher.domain.grid.isGridItemWithinBounds
 import com.eblan.launcher.domain.model.GridItem
@@ -27,15 +28,19 @@ class AStarGridAlgorithmUseCase(
                 return@withContext
             }
 
-            val gridItems = gridRepository.gridItems.first()
+            val gridItemsWithValidCells = gridRepository.gridItems.first().filter { gridItem ->
+                areValidCells(
+                    gridCells = gridItem.cells, rows = userData.rows, columns = userData.columns
+                )
+            }
 
-            val oldGridItem = gridItems.find { it.id == gridItem.id }
+            val oldGridItem = gridItemsWithValidCells.find { it.id == gridItem.id }
 
-            val oldGridItemIndex = gridItems.indexOf(oldGridItem)
+            val oldGridItemIndex = gridItemsWithValidCells.indexOf(oldGridItem)
 
             val movingGridItem = gridItem.copy(page = page)
 
-            val updatedGridItems = gridItems.toMutableList().apply {
+            val updatedGridItems = gridItemsWithValidCells.toMutableList().apply {
                 set(oldGridItemIndex, movingGridItem)
             }
 

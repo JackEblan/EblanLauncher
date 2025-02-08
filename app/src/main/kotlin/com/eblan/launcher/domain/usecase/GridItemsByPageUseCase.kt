@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.grid.areValidCells
 import com.eblan.launcher.domain.grid.calculateBoundingBox
 import com.eblan.launcher.domain.grid.calculateCoordinates
 import com.eblan.launcher.domain.model.GridItemPixel
@@ -24,7 +25,11 @@ class GridItemsByPageUseCase(
             .map { gridItems ->
                 val userData = userDataRepository.userData.first()
 
-                gridItems.map { gridItem ->
+                gridItems.filter { gridItem ->
+                    areValidCells(
+                        gridCells = gridItem.cells, rows = userData.rows, columns = userData.columns
+                    )
+                }.map { gridItem ->
                     val boundingBox = calculateBoundingBox(
                         gridCells = gridItem.cells,
                         rows = userData.rows,

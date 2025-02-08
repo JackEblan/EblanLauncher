@@ -18,7 +18,7 @@ class GridRepository {
         val gridItems = listOf(
             GridItem(
                 page = 0, id = 0, cells = listOf(
-                    GridCell(row = 0, column = 1)
+                    GridCell(row = 0, column = 3)
                 )
             ), GridItem(
                 page = 0, id = 1, cells = listOf(

@@ -60,3 +60,6 @@ fun calculateCoordinates(
     return Coordinates(x = x, y = y)
 }
 
+fun areValidCells(gridCells: List<GridCell>, rows: Int, columns: Int): Boolean {
+    return gridCells.all { it.row in 0 until rows && it.column in 0 until columns }
+}

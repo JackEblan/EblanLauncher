@@ -1,35 +1,42 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.repository.GridRepository
 import com.eblan.launcher.domain.grid.calculateBoundingBox
 import com.eblan.launcher.domain.grid.calculateCoordinates
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
+import com.eblan.launcher.repository.GridRepository
+import com.eblan.launcher.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
-class GridItemsByPageUseCase(private val gridRepository: GridRepository) {
+class GridItemsByPageUseCase(
+    private val gridRepository: GridRepository,
+    private val userDataRepository: UserDataRepository,
+) {
     operator fun invoke(
         screenDimension: ScreenDimension,
     ): Flow<Map<Int, List<GridItemPixel>>> {
         return gridRepository.gridItems.onStart { gridRepository.insertGridItems() }
             .map { gridItems ->
+                val userData = userDataRepository.userData.first()
+
                 gridItems.map { gridItem ->
                     val boundingBox = calculateBoundingBox(
                         gridCells = gridItem.cells,
-                        gridWidth = 4,
-                        gridHeight = 4,
+                        rows = userData.rows,
+                        columns = userData.columns,
                         screenWidth = screenDimension.screenWidth,
                         screenHeight = screenDimension.screenHeight,
                     )
 
                     val coordinates = calculateCoordinates(
                         gridCells = gridItem.cells,
-                        gridWidth = 4,
-                        gridHeight = 4,
+                        rows = userData.rows,
+                        columns = userData.columns,
                         screenWidth = screenDimension.screenWidth,
                         screenHeight = screenDimension.screenHeight,
                     )

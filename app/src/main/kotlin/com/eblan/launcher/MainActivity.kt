@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.eblan.launcher.domain.grid.Coordinates
 import com.eblan.launcher.domain.model.BoundingBox
+import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.ui.theme.EblanLauncherTheme

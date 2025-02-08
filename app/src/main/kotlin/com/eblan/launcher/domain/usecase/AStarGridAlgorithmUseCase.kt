@@ -15,6 +15,18 @@ class AStarGridAlgorithmUseCase(
 ) {
     suspend operator fun invoke(page: Int, gridItem: GridItem) {
         withContext(Dispatchers.Default) {
+            val userData = userDataRepository.userData.first()
+
+            val isGridItemWithinBounds = isGridItemWithinBounds(
+                gridItem = gridItem,
+                rows = userData.rows,
+                columns = userData.columns,
+            )
+
+            if (isGridItemWithinBounds.not()) {
+                return@withContext
+            }
+
             val gridItems = gridRepository.gridItems.first()
 
             val oldGridItem = gridItems.find { it.id == gridItem.id }
@@ -22,18 +34,6 @@ class AStarGridAlgorithmUseCase(
             val oldGridItemIndex = gridItems.indexOf(oldGridItem)
 
             val movingGridItem = gridItem.copy(page = page)
-
-            val userData = userDataRepository.userData.first()
-
-            val isGridItemWithinBounds = isGridItemWithinBounds(
-                gridItem = gridItem,
-                gridRows = userData.rows,
-                gridCols = userData.columns,
-            )
-
-            if (isGridItemWithinBounds.not()) {
-                return@withContext
-            }
 
             val updatedGridItems = gridItems.toMutableList().apply {
                 set(oldGridItemIndex, movingGridItem)
@@ -43,8 +43,8 @@ class AStarGridAlgorithmUseCase(
                 page = page,
                 gridItems = updatedGridItems,
                 movingGridItem = movingGridItem,
-                gridRows = userData.rows,
-                gridCols = userData.columns,
+                rows = userData.rows,
+                columns = userData.columns,
             )
 
             if (aStarGridItems != null) {

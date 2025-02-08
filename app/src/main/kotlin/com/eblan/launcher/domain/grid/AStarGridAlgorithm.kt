@@ -8,13 +8,14 @@ fun gridAlgorithmUsingAStar(
     page: Int,
     gridItems: List<GridItem>,
     movingGridItem: GridItem,
-    gridRows: Int,
-    gridCols: Int,
+    rows: Int,
+    columns: Int,
 ): List<GridItem>? {
-    val grid = Array(gridRows) { BooleanArray(gridCols) }
+    val grid = Array(rows) { BooleanArray(columns) }
     val resolvedItems = mutableListOf<GridItem>()
 
     resolvedItems.add(movingGridItem)
+
     movingGridItem.cells.forEach { cell ->
         grid[cell.row][cell.column] = true
     }
@@ -29,6 +30,7 @@ fun gridAlgorithmUsingAStar(
         item.cells.forEach { cell ->
             grid[cell.row][cell.column] = true
         }
+
         resolvedItems.add(item)
     }
 
@@ -38,10 +40,12 @@ fun gridAlgorithmUsingAStar(
         val startC = item.cells.first().column
 
         val newRegion = findAvailableRegion(grid, reqRows, reqCols, startR, startC)
+
         if (newRegion != null) {
             newRegion.forEach { cell ->
                 grid[cell.row][cell.column] = true
             }
+
             resolvedItems.add(item.copy(cells = newRegion))
         } else {
             return null

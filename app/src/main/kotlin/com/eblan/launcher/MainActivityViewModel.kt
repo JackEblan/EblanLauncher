@@ -22,8 +22,14 @@ import kotlinx.coroutines.launch
 
 class MainActivityViewModel : ViewModel() {
     private val gridRepository = GridRepository()
-    private val gridItemsByPageUseCase = GridItemsByPageUseCase(gridRepository = gridRepository)
+
     private val userDataRepository = UserDataRepository()
+
+    private val gridItemsByPageUseCase = GridItemsByPageUseCase(
+        gridRepository = gridRepository,
+        userDataRepository = userDataRepository
+    )
+
     private val aStarGridAlgorithmUseCase = AStarGridAlgorithmUseCase(
         gridRepository = gridRepository,
         userDataRepository = userDataRepository,

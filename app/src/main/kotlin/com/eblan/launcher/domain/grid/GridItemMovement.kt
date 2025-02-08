@@ -17,20 +17,20 @@ fun moveGridItem(
 
 fun moveGridItemWithCoordinates(
     gridItem: GridItem?,
-    x: Int, // X-coordinate in pixels
-    y: Int, // Y-coordinate in pixels
-    gridWidth: Int, // Number of columns in the grid
-    gridHeight: Int, // Number of rows in the grid
-    screenWidth: Int, // Total width of the screen
-    screenHeight: Int, // Total height of the screen
-    boundingBoxWidth: Int, // Width of the item in pixels
+    x: Int,
+    y: Int,
+    rows: Int,
+    columns: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    boundingBoxWidth: Int,
     boundingBoxHeight: Int,
 ): GridItem? {
     val targetCell = coordinatesToGridCell(
         x = x,
         y = y,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
+        rows = rows,
+        columns = columns,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
         boundingBoxWidth = boundingBoxWidth,
@@ -43,23 +43,23 @@ fun moveGridItemWithCoordinates(
 }
 
 fun coordinatesToGridCell(
-    x: Int, // X-coordinate in pixels
-    y: Int, // Y-coordinate in pixels
-    gridWidth: Int, // Number of columns in the grid
-    gridHeight: Int, // Number of rows in the grid
-    screenWidth: Int, // Total width of the screen
-    screenHeight: Int, // Total height of the screen
-    boundingBoxWidth: Int, // Width of the item in pixels
-    boundingBoxHeight: Int // Height of the item in pixels
+    x: Int,
+    y: Int,
+    rows: Int,
+    columns: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    boundingBoxWidth: Int,
+    boundingBoxHeight: Int
 ): GridCell {
-    val cellWidth = screenWidth / gridWidth
-    val cellHeight = screenHeight / gridHeight
+    val cellWidth = screenWidth / rows
+    val cellHeight = screenHeight / columns
 
     val centerX = x + boundingBoxWidth / 2
     val centerY = y + boundingBoxHeight / 2
 
-    val row = (centerY / cellHeight).coerceIn(0 until gridHeight)
-    val column = (centerX / cellWidth).coerceIn(0 until gridWidth)
+    val row = (centerY / cellHeight).coerceIn(0 until columns)
+    val column = (centerX / cellWidth).coerceIn(0 until rows)
 
     return GridCell(row, column)
 }

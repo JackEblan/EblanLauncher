@@ -44,7 +44,7 @@ class AStarGridAlgorithmUseCase(
                 set(oldGridItemIndex, movingGridItem)
             }
 
-            val aStarGridItems = resolveConflicts(
+            val resolvedConflictsGridItems = resolveConflicts(
                 page = page,
                 gridItems = updatedGridItems,
                 movingGridItem = movingGridItem,
@@ -52,8 +52,8 @@ class AStarGridAlgorithmUseCase(
                 columns = userData.columns,
             )
 
-            if (aStarGridItems != null) {
-                gridRepository.updateGridItems(gridItems = aStarGridItems)
+            if (resolvedConflictsGridItems != null) {
+                gridRepository.updateGridItems(gridItems = resolvedConflictsGridItems)
             }
         }
     }

@@ -34,9 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -177,10 +175,6 @@ fun Greeting(
                     },
             ) {
                 gridItems[page]?.forEach { gridItemPixel ->
-                    var gridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
-                    var gridItemOffsetX by remember { mutableIntStateOf(-1) }
-                    var gridItemOffsetY by remember { mutableIntStateOf(-1) }
-
                     Text(text = "Hello ${gridItemPixel.gridItem.id}",
                          modifier = Modifier
                              .fillMaxSize()
@@ -189,18 +183,14 @@ fun Greeting(
                                      if (isDragging.not()) {
                                          isDragging = true
                                          selectedGridItemPixel = gridItemPixel
-                                         selectedGridItemIntSize = gridItemIntSize
-                                         dragOffsetX = gridItemOffsetX
-                                         dragOffsetY = gridItemOffsetY
+                                         selectedGridItemIntSize = IntSize(
+                                             width = gridItemPixel.boundingBox.width,
+                                             height = gridItemPixel.boundingBox.height
+                                         )
+                                         dragOffsetX = gridItemPixel.coordinates.x
+                                         dragOffsetY = gridItemPixel.coordinates.y
                                      }
                                  })
-                             }
-                             .onSizeChanged {
-                                 gridItemIntSize = it
-                             }
-                             .onGloballyPositioned {
-                                 gridItemOffsetX = it.positionInParent().x.roundToInt()
-                                 gridItemOffsetY = it.positionInParent().y.roundToInt()
                              }
                              .background(Color.Blue)
                              .gridItemPlacement(gridItemPixel))

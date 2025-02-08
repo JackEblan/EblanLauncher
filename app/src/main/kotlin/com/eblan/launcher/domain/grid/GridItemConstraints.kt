@@ -63,3 +63,16 @@ fun calculateCoordinates(
 fun areValidCells(gridCells: List<GridCell>, rows: Int, columns: Int): Boolean {
     return gridCells.all { it.row in 0 until rows && it.column in 0 until columns }
 }
+
+fun coordinatesToGridCell(
+    x: Int, y: Int, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int
+): GridCell {
+    val cellWidth = screenWidth / rows
+    val cellHeight = screenHeight / columns
+
+    val row = (y / cellHeight).coerceIn(0 until rows)
+    val column = (x / cellWidth).coerceIn(0 until columns)
+
+    return GridCell(row, column)
+}
+

@@ -86,7 +86,8 @@ class MainActivity : ComponentActivity() {
                         gridItems = gridItems,
                         onUpdateScreenDimension = mainActivityViewModel::updateScreenDimension,
                         onMoveGridItem = mainActivityViewModel::moveGridItem,
-                        onResizeGridItem = mainActivityViewModel::resizeGridItem
+                        onResizeGridItem = mainActivityViewModel::resizeGridItem,
+                        onAddGridItem = mainActivityViewModel::addGridItem
                     )
                 }
             }
@@ -105,6 +106,13 @@ fun Greeting(
     ) -> Unit,
     onResizeGridItem: (
         page: Int, newPixelWidth: Int, newPixelHeight: Int, screenWidth: Int, screenHeight: Int, gridItem: GridItem?
+    ) -> Unit,
+    onAddGridItem: (
+        page: Int,
+        x: Int,
+        y: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
 ) {
     var isDragging by remember { mutableStateOf(false) }
@@ -149,6 +157,17 @@ fun Greeting(
             Grid(
                 modifier = Modifier
                     .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(onLongPress = {
+                            onAddGridItem(
+                                pagerState.currentPage,
+                                it.x.roundToInt(),
+                                it.y.roundToInt(),
+                                gridIntSize.width,
+                                gridIntSize.height
+                            )
+                        })
+                    }
                     .onSizeChanged {
                         gridIntSize = it
                         onUpdateScreenDimension(
@@ -164,6 +183,7 @@ fun Greeting(
 
                     Text(text = "Hello ${gridItemPixel.gridItem.id}",
                          modifier = Modifier
+                             .fillMaxSize()
                              .pointerInput(key1 = gridItemPixel, key2 = isDragging) {
                                  detectTapGestures(onLongPress = {
                                      if (isDragging.not()) {
@@ -175,7 +195,6 @@ fun Greeting(
                                      }
                                  })
                              }
-                             .fillMaxSize()
                              .onSizeChanged {
                                  gridItemIntSize = it
                              }

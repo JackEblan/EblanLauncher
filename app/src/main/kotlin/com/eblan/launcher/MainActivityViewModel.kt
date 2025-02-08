@@ -6,6 +6,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
 import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
+import com.eblan.launcher.domain.usecase.AddGridItemUseCase
 import com.eblan.launcher.domain.usecase.GridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
@@ -26,8 +27,7 @@ class MainActivityViewModel : ViewModel() {
     private val userDataRepository = UserDataRepository()
 
     private val gridItemsByPageUseCase = GridItemsByPageUseCase(
-        gridRepository = gridRepository,
-        userDataRepository = userDataRepository
+        gridRepository = gridRepository, userDataRepository = userDataRepository
     )
 
     private val aStarGridAlgorithmUseCase = AStarGridAlgorithmUseCase(
@@ -42,6 +42,12 @@ class MainActivityViewModel : ViewModel() {
     )
 
     private val resizeGridItemUseCase = ResizeGridItemUseCase(
+        gridRepository = gridRepository,
+        userDataRepository = userDataRepository,
+        aStarGridAlgorithmUseCase = aStarGridAlgorithmUseCase
+    )
+
+    private val addGridItemUseCase = AddGridItemUseCase(
         gridRepository = gridRepository,
         userDataRepository = userDataRepository,
         aStarGridAlgorithmUseCase = aStarGridAlgorithmUseCase
@@ -100,6 +106,20 @@ class MainActivityViewModel : ViewModel() {
                 screenWidth = screenWidth,
                 screenHeight = screenHeight,
                 gridItem = gridItem
+            )
+        }
+    }
+
+    fun addGridItem(
+        page: Int,
+        x: Int,
+        y: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            addGridItemUseCase(
+                page = page, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight
             )
         }
     }

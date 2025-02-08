@@ -3,18 +3,6 @@ package com.eblan.launcher.domain.grid
 import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
 
-fun moveGridItem(
-    gridItem: GridItem?,
-    targetCell: GridCell,
-): GridItem? {
-    return if (gridItem != null) {
-        val newCells = calculateNewCells(gridItem.cells, targetCell)
-        gridItem.copy(cells = newCells)
-    } else {
-        null
-    }
-}
-
 fun moveGridItemWithCoordinates(
     gridItem: GridItem?,
     x: Int,
@@ -26,7 +14,7 @@ fun moveGridItemWithCoordinates(
     boundingBoxWidth: Int,
     boundingBoxHeight: Int,
 ): GridItem? {
-    val targetCell = coordinatesToGridCell(
+    val targetCell = coordinatesToGridCellWithBoundingBox(
         x = x,
         y = y,
         rows = rows,
@@ -42,7 +30,19 @@ fun moveGridItemWithCoordinates(
     )
 }
 
-fun coordinatesToGridCell(
+private fun moveGridItem(
+    gridItem: GridItem?,
+    targetCell: GridCell,
+): GridItem? {
+    return if (gridItem != null) {
+        val newCells = calculateNewCells(gridItem.cells, targetCell)
+        gridItem.copy(cells = newCells)
+    } else {
+        null
+    }
+}
+
+private fun coordinatesToGridCellWithBoundingBox(
     x: Int,
     y: Int,
     rows: Int,
@@ -64,7 +64,7 @@ fun coordinatesToGridCell(
     return GridCell(row, column)
 }
 
-fun calculateNewCells(oldCells: List<GridCell>, targetCell: GridCell): List<GridCell> {
+private fun calculateNewCells(oldCells: List<GridCell>, targetCell: GridCell): List<GridCell> {
     val rowOffset = targetCell.row - oldCells[0].row
     val colOffset = targetCell.column - oldCells[0].column
     return oldCells.map { cell ->

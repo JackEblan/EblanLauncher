@@ -3,17 +3,6 @@ package com.eblan.launcher.domain.grid
 import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
 
-fun pixelsToGridCells(
-    newPixelWidth: Int,
-    newPixelHeight: Int,
-    gridCellPixelWidth: Int,
-    gridCellPixelHeight: Int,
-): Pair<Int, Int> {
-    val newWidth = (newPixelWidth / gridCellPixelWidth).coerceAtLeast(1)
-    val newHeight = (newPixelHeight / gridCellPixelHeight).coerceAtLeast(1)
-    return Pair(newWidth, newHeight)
-}
-
 fun resizeGridItemWithPixels(
     gridItem: GridItem?,
     newPixelWidth: Int,
@@ -35,7 +24,18 @@ fun resizeGridItemWithPixels(
     )
 }
 
-fun calculateResizedCells(
+private fun pixelsToGridCells(
+    newPixelWidth: Int,
+    newPixelHeight: Int,
+    gridCellPixelWidth: Int,
+    gridCellPixelHeight: Int,
+): Pair<Int, Int> {
+    val newWidth = (newPixelWidth / gridCellPixelWidth).coerceAtLeast(1)
+    val newHeight = (newPixelHeight / gridCellPixelHeight).coerceAtLeast(1)
+    return Pair(newWidth, newHeight)
+}
+
+private fun calculateResizedCells(
     oldCells: List<GridCell>, newWidth: Int, newHeight: Int
 ): List<GridCell> {
     val topLeftCell = oldCells.minWith(compareBy({ it.row }, { it.column }))
@@ -49,7 +49,7 @@ fun calculateResizedCells(
     return newCells
 }
 
-fun resizeGridItem(
+private fun resizeGridItem(
     gridItem: GridItem?,
     newWidth: Int,
     newHeight: Int,

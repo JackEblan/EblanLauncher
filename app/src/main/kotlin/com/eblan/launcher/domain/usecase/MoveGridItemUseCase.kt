@@ -34,8 +34,6 @@ class MoveGridItemUseCase(
                 columns = userData.columns,
                 screenWidth = screenWidth,
                 screenHeight = screenHeight,
-                boundingBoxWidth = gridItemPixel.boundingBox.width,
-                boundingBoxHeight = gridItemPixel.boundingBox.height
             )
 
             val gridItems = gridRepository.gridItems.first()

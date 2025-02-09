@@ -6,8 +6,7 @@ import com.eblan.launcher.domain.model.GridItem
 /**
  * Moves the specified grid item to a new position based on screen coordinates and the dimensions of its bounding box.
  *
- * This function converts the provided pixel coordinates ([x], [y]) along with the bounding box dimensions
- * ([boundingBoxWidth], [boundingBoxHeight]) into a target grid cell. It then moves the grid item so that its
+ * This function converts the provided pixel coordinates ([x], [y]) into a target grid cell. It then moves the grid item so that its
  * relative cell positions are shifted accordingly.
  *
  * @param gridItem The [GridItem] to be moved. If `null`, the function returns `null`.
@@ -17,8 +16,6 @@ import com.eblan.launcher.domain.model.GridItem
  * @param columns The number of columns in the grid.
  * @param screenWidth The width of the screen (or container) in pixels.
  * @param screenHeight The height of the screen (or container) in pixels.
- * @param boundingBoxWidth The width of the grid item's bounding box in pixels.
- * @param boundingBoxHeight The height of the grid item's bounding box in pixels.
  * @return A new [GridItem] with updated cell positions if [gridItem] is not `null`; otherwise, `null`.
  */
 fun moveGridItemWithCoordinates(
@@ -29,18 +26,14 @@ fun moveGridItemWithCoordinates(
     columns: Int,
     screenWidth: Int,
     screenHeight: Int,
-    boundingBoxWidth: Int,
-    boundingBoxHeight: Int,
 ): GridItem? {
-    val targetCell = coordinatesToGridCellWithBoundingBox(
+    val targetCell = coordinatesToGridCell(
         x = x,
         y = y,
         rows = rows,
         columns = columns,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
-        boundingBoxWidth = boundingBoxWidth,
-        boundingBoxHeight = boundingBoxHeight
     )
 
     return moveGridItem(
@@ -68,51 +61,6 @@ private fun moveGridItem(
     } else {
         null
     }
-}
-
-/**
- * Converts pixel coordinates into a grid cell while taking into account the dimensions of a bounding box.
- *
- * This function first calculates the center point of the bounding box using the provided top‑left
- * coordinates ([x], [y]) and the bounding box dimensions ([boundingBoxWidth], [boundingBoxHeight]). It then
- * determines the grid cell corresponding to that center point based on the screen dimensions and the grid's
- * configuration.
- *
- * **Note:** The computed row index is clamped to the range `0 until columns` and the column index to `0 until rows`.
- * This clamping might appear reversed; ensure that this behavior aligns with your grid coordinate system.
- *
- * @param x The x-coordinate (in pixels) of the top‑left corner of the bounding box.
- * @param y The y-coordinate (in pixels) of the top‑left corner of the bounding box.
- * @param rows The number of rows in the grid.
- * @param columns The number of columns in the grid.
- * @param screenWidth The width of the screen (or container) in pixels.
- * @param screenHeight The height of the screen (or container) in pixels.
- * @param boundingBoxWidth The width of the bounding box in pixels.
- * @param boundingBoxHeight The height of the bounding box in pixels.
- * @return A [GridCell] corresponding to the center of the bounding box, converted into grid coordinates.
- */
-private fun coordinatesToGridCellWithBoundingBox(
-    x: Int,
-    y: Int,
-    rows: Int,
-    columns: Int,
-    screenWidth: Int,
-    screenHeight: Int,
-    boundingBoxWidth: Int,
-    boundingBoxHeight: Int
-): GridCell {
-    val cellWidth = screenWidth / rows
-    val cellHeight = screenHeight / columns
-
-    // Calculate the center of the bounding box.
-    val centerX = x + boundingBoxWidth / 2
-    val centerY = y + boundingBoxHeight / 2
-
-    // Convert the center point into grid coordinates and clamp them within valid ranges.
-    val row = (centerY / cellHeight).coerceIn(0 until columns)
-    val column = (centerX / cellWidth).coerceIn(0 until rows)
-
-    return GridCell(row, column)
 }
 
 /**

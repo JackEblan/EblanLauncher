@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.isGridItemOutOfBounds
+import com.eblan.launcher.domain.grid.getGridItemEdgeState
 import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
@@ -27,7 +27,7 @@ class MoveGridItemUseCase(
         return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val edgeState = isGridItemOutOfBounds(
+            val edgeState = getGridItemEdgeState(
                 x = x,
                 boundingBoxWidth = gridItemPixel.boundingBox.width,
                 screenWidth = screenWidth,

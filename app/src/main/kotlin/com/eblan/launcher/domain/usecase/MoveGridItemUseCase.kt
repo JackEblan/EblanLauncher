@@ -1,6 +1,8 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.grid.isGridItemOutOfBounds
 import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.repository.GridRepository
 import com.eblan.launcher.repository.UserDataRepository
@@ -11,7 +13,6 @@ import kotlinx.coroutines.withContext
 class MoveGridItemUseCase(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -20,11 +21,18 @@ class MoveGridItemUseCase(
         screenWidth: Int,
         screenHeight: Int,
         gridItemPixel: GridItemPixel?
-    ) {
-        if (gridItemPixel == null) return
+    ): GridItem? {
+        if (gridItemPixel == null) return null
 
-        withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
+
+            val edgeState = isGridItemOutOfBounds(
+                x = x,
+                boundingBoxWidth = gridItemPixel.boundingBox.width,
+                screenWidth = screenWidth,
+                margin = 0
+            )
 
             val updatedGridItem = moveGridItemWithCoordinates(
                 gridItem = gridItemPixel.gridItem,
@@ -39,9 +47,9 @@ class MoveGridItemUseCase(
             val gridItems = gridRepository.gridItems.first()
 
             if (updatedGridItem != null && updatedGridItem !in gridItems) {
-                aStarGridAlgorithmUseCase(
-                    page = page, gridItem = updatedGridItem
-                )
+                updatedGridItem.copy(page = page, edgeState = edgeState)
+            } else {
+                null
             }
         }
     }

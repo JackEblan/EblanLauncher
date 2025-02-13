@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToGridCell
+import com.eblan.launcher.domain.model.EdgeState
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.repository.GridRepository
 import com.eblan.launcher.repository.UserDataRepository
@@ -12,7 +13,6 @@ import kotlin.random.Random
 class AddGridItemUseCase(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -35,7 +35,8 @@ class AddGridItemUseCase(
 
             val id = Random.nextInt()
 
-            val gridItem = GridItem(page = page, id = id, cells = listOf(gridCell))
+            val gridItem =
+                GridItem(page = page, id = id, cells = listOf(gridCell), edgeState = EdgeState.None)
 
             val gridItems = gridRepository.gridItems.first().toMutableList().apply {
                 add(gridItem)

@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
+import com.eblan.launcher.domain.model.EdgeState
 import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
 
@@ -160,4 +161,17 @@ fun coordinatesToGridCell(
     val column = (x / cellWidth).coerceIn(0 until columns)
 
     return GridCell(row, column)
+}
+
+fun isGridItemOutOfBounds(
+    x: Int, boundingBoxWidth: Int, screenWidth: Int, margin: Int = 0
+): EdgeState {
+    val touchesLeft = x <= margin
+    val touchesRight = (x + boundingBoxWidth) >= (screenWidth - margin)
+
+    return when {
+        touchesLeft -> EdgeState.Left
+        touchesRight -> EdgeState.Right
+        else -> EdgeState.None
+    }
 }

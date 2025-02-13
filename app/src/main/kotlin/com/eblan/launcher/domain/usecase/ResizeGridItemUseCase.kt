@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 class ResizeGridItemUseCase(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -20,10 +19,10 @@ class ResizeGridItemUseCase(
         screenWidth: Int,
         screenHeight: Int,
         gridItem: GridItem?,
-    ) {
-        if (gridItem == null) return
+    ): GridItem? {
+        if (gridItem == null) return null
 
-        withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
             val updatedGridItem = resizeGridItemWithPixels(
@@ -37,9 +36,9 @@ class ResizeGridItemUseCase(
             val gridItems = gridRepository.gridItems.first()
 
             if (updatedGridItem != null && updatedGridItem !in gridItems) {
-                aStarGridAlgorithmUseCase(
-                    page = page, gridItem = updatedGridItem
-                )
+                updatedGridItem.copy(page = page)
+            } else {
+                null
             }
         }
     }

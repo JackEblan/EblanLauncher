@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,19 +40,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
+import com.eblan.launcher.domain.model.EdgeState
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.ui.theme.EblanLauncherTheme
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -63,16 +56,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        var gridItems by mutableStateOf(emptyMap<Int, List<GridItemPixel>>())
-
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainActivityViewModel.gridItems.collect {
-                    gridItems = it
-                }
-            }
-        }
-
         setContent {
             EblanLauncherTheme {
                 Scaffold { innerPadding ->
@@ -81,7 +64,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .consumeWindowInsets(innerPadding)
                             .fillMaxSize(),
-                        gridItems = gridItems,
+                        viewModel = mainActivityViewModel,
                         onUpdateScreenDimension = mainActivityViewModel::updateScreenDimension,
                         onMoveGridItem = mainActivityViewModel::moveGridItem,
                         onResizeGridItem = mainActivityViewModel::resizeGridItem,
@@ -93,11 +76,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, FlowPreview::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Greeting(
     modifier: Modifier = Modifier,
-    gridItems: Map<Int, List<GridItemPixel>>,
+    viewModel: MainActivityViewModel,
     onUpdateScreenDimension: (screenWidth: Int, screenHeight: Int) -> Unit,
     onMoveGridItem: (
         page: Int, x: Int, y: Int, screenWidth: Int, screenHeight: Int, gridItemPixel: GridItemPixel?
@@ -113,6 +96,10 @@ fun Greeting(
         screenHeight: Int,
     ) -> Unit,
 ) {
+    val gridItems by viewModel.gridItems.collectAsStateWithLifecycle()
+
+    val currentGridItem by viewModel.currentGridItem.collectAsStateWithLifecycle()
+
     var isDragging by remember { mutableStateOf(false) }
 
     var dragOffsetX by remember { mutableIntStateOf(-1) }
@@ -129,23 +116,18 @@ fun Greeting(
 
     var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
 
-    var edgeState by remember { mutableStateOf<EdgeState?>(null) }
-
-    LaunchedEffect(key1 = true) {
-        snapshotFlow { edgeState }.filterNotNull().debounce(2000).distinctUntilChanged()
-            .collect { newEdgeState ->
-                when (newEdgeState) {
-                    EdgeState.Left -> {
-                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                    }
-
-                    EdgeState.Right -> {
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                    }
-
-                    EdgeState.None -> Unit
-                }
+    LaunchedEffect(key1 = currentGridItem) {
+        when (currentGridItem?.edgeState) {
+            EdgeState.Left -> {
+                pagerState.animateScrollToPage(pagerState.currentPage - 1)
             }
+
+            EdgeState.Right -> {
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            }
+
+            EdgeState.None, null -> Unit
+        }
     }
 
     Box(
@@ -229,12 +211,6 @@ fun Greeting(
                         dragOffsetX += dragAmount.x.roundToInt()
                         dragOffsetY += dragAmount.y.roundToInt()
 
-                        edgeState = isGridItemOutOfBounds(
-                            x = dragOffsetX,
-                            boundingBoxWidth = selectedGridItemIntSize.width,
-                            screenWidth = gridIntSize.width,
-                            margin = 0
-                        )
 
                         onMoveGridItem(
                             pagerState.currentPage,
@@ -326,20 +302,3 @@ fun Modifier.gridItemPlacement(gridItemPixel: GridItemPixel): Modifier =
             )
         }
     })
-
-fun isGridItemOutOfBounds(
-    x: Int, boundingBoxWidth: Int, screenWidth: Int, margin: Int = 0
-): EdgeState {
-    val touchesLeft = x <= margin
-    val touchesRight = (x + boundingBoxWidth) >= (screenWidth - margin)
-
-    return when {
-        touchesLeft -> EdgeState.Left
-        touchesRight -> EdgeState.Right
-        else -> EdgeState.None
-    }
-}
-
-enum class EdgeState {
-    Left, Right, None
-}

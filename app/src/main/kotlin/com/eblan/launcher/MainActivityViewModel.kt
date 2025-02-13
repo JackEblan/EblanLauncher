@@ -13,10 +13,13 @@ import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.repository.GridRepository
 import com.eblan.launcher.repository.UserDataRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,19 +41,16 @@ class MainActivityViewModel : ViewModel() {
     private val moveGridItemUseCase = MoveGridItemUseCase(
         gridRepository = gridRepository,
         userDataRepository = userDataRepository,
-        aStarGridAlgorithmUseCase = aStarGridAlgorithmUseCase
     )
 
     private val resizeGridItemUseCase = ResizeGridItemUseCase(
         gridRepository = gridRepository,
         userDataRepository = userDataRepository,
-        aStarGridAlgorithmUseCase = aStarGridAlgorithmUseCase
     )
 
     private val addGridItemUseCase = AddGridItemUseCase(
         gridRepository = gridRepository,
         userDataRepository = userDataRepository,
-        aStarGridAlgorithmUseCase = aStarGridAlgorithmUseCase
     )
 
     private var _screenDimension = MutableStateFlow<ScreenDimension?>(null)
@@ -62,6 +62,15 @@ class MainActivityViewModel : ViewModel() {
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyMap()
+    )
+
+    private var _currentGridItem = MutableStateFlow<GridItem?>(null)
+
+    @OptIn(FlowPreview::class)
+    val currentGridItem = _currentGridItem.filterNotNull().debounce(1000).onEach { gridItem ->
+        aStarGridAlgorithmUseCase(gridItem = gridItem)
+    }.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = null
     )
 
     fun updateScreenDimension(screenWidth: Int, screenHeight: Int) {
@@ -79,14 +88,16 @@ class MainActivityViewModel : ViewModel() {
         gridItemPixel: GridItemPixel?
     ) {
         viewModelScope.launch {
-            moveGridItemUseCase(
-                page = page,
-                x = x,
-                y = y,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                gridItemPixel = gridItemPixel
-            )
+            _currentGridItem.update {
+                moveGridItemUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    gridItemPixel = gridItemPixel
+                )
+            }
         }
     }
 
@@ -99,14 +110,16 @@ class MainActivityViewModel : ViewModel() {
         gridItem: GridItem?,
     ) {
         viewModelScope.launch {
-            resizeGridItemUseCase(
-                page = page,
-                newPixelWidth = newPixelWidth,
-                newPixelHeight = newPixelHeight,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                gridItem = gridItem
-            )
+            _currentGridItem.update {
+                resizeGridItemUseCase(
+                    page = page,
+                    newPixelWidth = newPixelWidth,
+                    newPixelHeight = newPixelHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    gridItem = gridItem
+                )
+            }
         }
     }
 

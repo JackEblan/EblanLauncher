@@ -14,7 +14,7 @@ class AStarGridAlgorithmUseCase(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke(page: Int, gridItem: GridItem) {
+    suspend operator fun invoke(gridItem: GridItem) {
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
@@ -38,16 +38,14 @@ class AStarGridAlgorithmUseCase(
 
             val oldGridItemIndex = gridItemsWithValidCells.indexOf(oldGridItem)
 
-            val movingGridItem = gridItem.copy(page = page)
-
             val updatedGridItems = gridItemsWithValidCells.toMutableList().apply {
-                set(oldGridItemIndex, movingGridItem)
+                set(oldGridItemIndex, gridItem)
             }
 
             val resolvedConflictsGridItems = resolveConflicts(
-                page = page,
+                page = gridItem.page,
                 gridItems = updatedGridItems,
-                movingGridItem = movingGridItem,
+                movingGridItem = gridItem,
                 rows = userData.rows,
                 columns = userData.columns,
             )

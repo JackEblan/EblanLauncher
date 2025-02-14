@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -100,7 +99,7 @@ fun Greeting(
 
     val currentGridItem by viewModel.currentGridItem.collectAsStateWithLifecycle()
 
-    var isDragging by remember { mutableStateOf(false) }
+    var isEditing by remember { mutableStateOf(false) }
 
     var dragOffsetX by remember { mutableIntStateOf(-1) }
 
@@ -115,6 +114,8 @@ fun Greeting(
     })
 
     var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
+
+    val gridItemCornerSize = 40.dp
 
     LaunchedEffect(key1 = currentGridItem) {
         when (currentGridItem?.edgeState) {
@@ -160,10 +161,10 @@ fun Greeting(
                     Text(text = "Hello ${gridItemPixel.gridItem.id}",
                          modifier = Modifier
                              .fillMaxSize()
-                             .pointerInput(key1 = gridItemPixel, key2 = isDragging) {
+                             .pointerInput(key1 = gridItemPixel, key2 = isEditing) {
                                  detectTapGestures(onLongPress = {
-                                     if (isDragging.not()) {
-                                         isDragging = true
+                                     if (isEditing.not()) {
+                                         isEditing = true
                                          selectedGridItemPixel = gridItemPixel
                                          selectedGridItemIntSize = IntSize(
                                              width = gridItemPixel.boundingBox.width,
@@ -180,7 +181,7 @@ fun Greeting(
             }
         }
 
-        if (isDragging) {
+        if (isEditing) {
             val density = LocalDensity.current
 
             val boundingBoxWidth = with(density) {
@@ -205,12 +206,11 @@ fun Greeting(
                 .background(Color.Green)
                 .pointerInput(Unit) {
                     detectDragGestures(onDragEnd = {
-                        isDragging = false
+                        isEditing = false
                     }, onDrag = { change, dragAmount ->
                         change.consume()
                         dragOffsetX += dragAmount.x.roundToInt()
                         dragOffsetY += dragAmount.y.roundToInt()
-
 
                         onMoveGridItem(
                             pagerState.currentPage,
@@ -223,38 +223,166 @@ fun Greeting(
                     })
                 }) {
                 Text(text = "Drag")
-
-                Box(modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.Gray)
-                    .align(Alignment.BottomEnd)
-                    .pointerInput(Unit) {
-                        detectDragGestures(onDragEnd = {
-                            isDragging = false
-                        }, onDrag = { change, dragAmount ->
-                            change.consume()
-                            width += dragAmount.x.toDp()
-                            height += dragAmount.y.toDp()
-
-                            val newPixelWidth = with(density) {
-                                width.toPx()
-                            }
-
-                            val newPixelHeight = with(density) {
-                                height.toPx()
-                            }
-
-                            onResizeGridItem(
-                                pagerState.currentPage,
-                                newPixelWidth.roundToInt(),
-                                newPixelHeight.roundToInt(),
-                                gridIntSize.width,
-                                gridIntSize.height,
-                                selectedGridItemPixel?.gridItem,
-                            )
-                        })
-                    })
             }
+
+            //Bottom Right
+            Box(modifier = Modifier
+                .offset {
+                    val gridItemCornerSizePixel = with(density) {
+                        40.dp.toPx()
+                    }.roundToInt()
+
+                    val newPixelWidth = with(density) {
+                        width.toPx()
+                    }.roundToInt()
+
+                    val newPixelHeight = with(density) {
+                        height.toPx()
+                    }.roundToInt()
+
+                    // Check if the box is out of bound on the bottom right
+                    val coercingOffsetX =
+                        if ((dragOffsetX + newPixelWidth) + gridItemCornerSizePixel > gridIntSize.width) {
+                            (dragOffsetX + newPixelWidth) - gridItemCornerSizePixel
+                        } else {
+                            dragOffsetX + newPixelWidth
+                        }
+
+                    val coercingOffsetY =
+                        if ((dragOffsetY + newPixelHeight) + gridItemCornerSizePixel > gridIntSize.height) {
+                            (dragOffsetY + newPixelHeight) - gridItemCornerSizePixel
+                        } else {
+                            dragOffsetY + newPixelHeight
+                        }
+
+                    IntOffset(
+                        x = coercingOffsetX,
+                        y = coercingOffsetY,
+                    )
+                }
+                .size(40.dp)
+                .background(Color.Gray)
+                .pointerInput(Unit) {
+                    detectDragGestures(onDragEnd = {
+                        isEditing = false
+                    }, onDrag = { change, dragAmount ->
+                        change.consume()
+                        width += dragAmount.x.toDp()
+                        height += dragAmount.y.toDp()
+
+                        val newPixelWidth = with(density) {
+                            width.toPx()
+                        }
+
+                        val newPixelHeight = with(density) {
+                            height.toPx()
+                        }
+
+                        onResizeGridItem(
+                            pagerState.currentPage,
+                            newPixelWidth.roundToInt(),
+                            newPixelHeight.roundToInt(),
+                            gridIntSize.width,
+                            gridIntSize.height,
+                            selectedGridItemPixel?.gridItem,
+                        )
+                    })
+                })
+
+            // Bottom Left
+            Box(modifier = Modifier
+                .offset {
+                    val gridItemCornerSizePixel = with(density) {
+                        gridItemCornerSize.toPx()
+                    }.roundToInt()
+
+                    val newPixelHeight = with(density) {
+                        height.toPx()
+                    }.roundToInt()
+
+                    // Check if the box is out of bound on the bottom left
+                    val coercingOffsetX = if (dragOffsetX - gridItemCornerSizePixel < 0) {
+                        dragOffsetX
+                    } else {
+                        dragOffsetX - gridItemCornerSizePixel
+                    }
+
+                    val coercingOffsetY =
+                        if ((dragOffsetY + newPixelHeight) + gridItemCornerSizePixel > gridIntSize.height) {
+                            (dragOffsetY + newPixelHeight) - gridItemCornerSizePixel
+                        } else {
+                            dragOffsetY + newPixelHeight
+                        }
+
+                    IntOffset(
+                        x = coercingOffsetX,
+                        y = coercingOffsetY,
+                    )
+                }
+                .size(gridItemCornerSize)
+                .background(Color.Gray))
+
+            // Top Left
+            Box(modifier = Modifier
+                .offset {
+                    val gridItemCornerSizePixel = with(density) {
+                        gridItemCornerSize.toPx()
+                    }.roundToInt()
+
+                    // Check if the box is out of bound on the top left
+                    val coercingOffsetX = if (dragOffsetX - gridItemCornerSizePixel < 0) {
+                        dragOffsetX
+                    } else {
+                        dragOffsetX - gridItemCornerSizePixel
+                    }
+
+                    val coercingOffsetY = if (dragOffsetY - gridItemCornerSizePixel < 0) {
+                        dragOffsetY
+                    } else {
+                        dragOffsetY - gridItemCornerSizePixel
+                    }
+
+                    IntOffset(
+                        x = coercingOffsetX,
+                        y = coercingOffsetY,
+                    )
+                }
+                .size(gridItemCornerSize)
+                .background(Color.Gray))
+
+            // Top Right
+            Box(modifier = Modifier
+                .offset {
+                    val gridItemCornerSizePixel = with(density) {
+                        gridItemCornerSize.toPx()
+                    }.roundToInt()
+
+                    val newPixelWidth = with(density) {
+                        width.toPx()
+                    }.roundToInt()
+
+                    // Check if the box is out of bound on the top right
+                    val coercingOffsetX =
+                        if ((dragOffsetX + newPixelWidth) + gridItemCornerSizePixel > gridIntSize.width) {
+                            (dragOffsetX + newPixelWidth) - gridItemCornerSizePixel
+                        } else {
+                            dragOffsetX + newPixelWidth
+                        }
+
+                    val coercingOffsetY = if (dragOffsetY - gridItemCornerSizePixel < 0) {
+                        dragOffsetY
+                    } else {
+                        dragOffsetY - gridItemCornerSizePixel
+                    }
+
+                    IntOffset(
+                        x = coercingOffsetX,
+                        y = coercingOffsetY,
+                    )
+                }
+                .size(gridItemCornerSize)
+                .background(Color.Gray))
+
         }
     }
 }

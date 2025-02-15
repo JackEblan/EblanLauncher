@@ -255,7 +255,7 @@ fun Greeting(
                     width = overlayBoundingBoxWidth, height = overlayBoundingBoxHeight
                 )
                 .border(width = 2.dp, color = Color.White)) {
-                // Top-left circle
+
                 Box(modifier = Modifier
                     .size(30.dp)
                     .align(Alignment.TopStart)
@@ -292,7 +292,6 @@ fun Greeting(
                         })
                     })
 
-                // Top-right circle
                 Box(modifier = Modifier
                     .size(30.dp)
                     .align(Alignment.TopEnd)
@@ -328,7 +327,6 @@ fun Greeting(
                         })
                     })
 
-                // Bottom-left circle
                 Box(modifier = Modifier
                     .size(30.dp)
                     .align(Alignment.BottomStart)
@@ -364,7 +362,6 @@ fun Greeting(
                         })
                     })
 
-                // Bottom-right circle
                 Box(modifier = Modifier
                     .size(30.dp)
                     .align(Alignment.BottomEnd)
@@ -449,17 +446,14 @@ fun Modifier.gridItemPlacement(gridItemPixel: GridItemPixel): Modifier =
 data class OverlayBoundingBox(val x: Int, val y: Int, val width: Int, val height: Int)
 
 fun enlargeOverlayCentered(
-    base: OverlayBoundingBox, scale: Double = 1.2, minWidth: Int = 100, minHeight: Int = 100
+    base: OverlayBoundingBox, min: Int = 100
 ): OverlayBoundingBox {
-    // Scale up the dimensions by 20% and apply a minimum size.
-    val newWidth = (base.width * scale).toInt().coerceAtLeast(minWidth)
-    val newHeight = (base.height * scale).toInt().coerceAtLeast(minHeight)
+    val newWidth = (base.width + min).coerceAtLeast(min)
+    val newHeight = (base.height + min).coerceAtLeast(min)
 
-    // Calculate the center of the original bounding box.
     val centerX = base.x + base.width / 2
     val centerY = base.y + base.height / 2
 
-    // Compute the new top-left coordinates so that the new bounding box remains centered.
     val newX = centerX - newWidth / 2
     val newY = centerY - newHeight / 2
 

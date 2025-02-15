@@ -164,19 +164,18 @@ fun coordinatesToGridCell(
 }
 
 /**
- * Determines the edge state of a grid item based on its horizontal position and dimensions.
+ * Determines the edge state of a grid item based on its center horizontal position and dimensions.
  *
  * @param x The x-coordinate of the grid item's position.
  * @param boundingBoxWidth The width of the grid item's bounding box.
  * @param screenWidth The total width of the screen or container.
- * @param margin The margin used to define the edge detection threshold. Defaults to 0.
  * @return [EdgeState] indicating whether the grid item is touching the left edge, right edge, or neither.
  */
 fun getGridItemEdgeState(
-    x: Int, boundingBoxWidth: Int, screenWidth: Int, margin: Int = 0
+    x: Int, boundingBoxWidth: Int, screenWidth: Int,
 ): EdgeState {
-    val touchesLeft = x <= margin
-    val touchesRight = (x + boundingBoxWidth) >= (screenWidth - margin)
+    val touchesLeft = (x + boundingBoxWidth / 2) <= 0
+    val touchesRight = (x + boundingBoxWidth / 2) >= screenWidth
 
     return when {
         touchesLeft -> EdgeState.Left

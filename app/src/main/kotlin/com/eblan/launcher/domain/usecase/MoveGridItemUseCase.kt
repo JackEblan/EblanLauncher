@@ -31,7 +31,6 @@ class MoveGridItemUseCase(
                 x = x,
                 boundingBoxWidth = gridItemPixel.boundingBox.width,
                 screenWidth = screenWidth,
-                margin = 0
             )
 
             val updatedGridItem = moveGridItemWithCoordinates(

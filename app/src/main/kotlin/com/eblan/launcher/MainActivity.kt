@@ -204,19 +204,39 @@ fun Greeting(
                 height.toPx()
             }.roundToInt()
 
-            val overlayBoundingBox = enlargeOverlayCentered(
-                base = OverlayBoundingBox(
-                    x = dragOffsetX, y = dragOffsetY, width = pixelWidth, height = pixelHeight
+            val resizeBoundingBox = calculateResizeBoundingBox(
+                coordinates = Coordinates(
+                    x = dragOffsetX, y = dragOffsetY,
+                ), boundingBox = BoundingBox(
+                    width = pixelWidth, height = pixelHeight
                 )
             )
 
-            val overlayBoundingBoxWidth = with(density) {
-                overlayBoundingBox.width.toDp()
+            val resizeBoundingBoxWidth = with(density) {
+                resizeBoundingBox.width.toDp()
             }
 
-            val overlayBoundingBoxHeight = with(density) {
-                overlayBoundingBox.height.toDp()
+            val resizeBoundingBoxHeight = with(density) {
+                resizeBoundingBox.height.toDp()
             }
+
+            var menuIntSize by remember { mutableStateOf(IntSize.Zero) }
+
+            val menuSizeMargin = with(density) {
+                10.dp.toPx()
+            }.roundToInt()
+
+            val menuCoordinates = calculateMenuCoordinates(
+                parentX = resizeBoundingBox.x,
+                parentY = resizeBoundingBox.y,
+                parentWidth = resizeBoundingBox.width,
+                parentHeight = resizeBoundingBox.height,
+                childWidth = menuIntSize.width,
+                childHeight = menuIntSize.height,
+                screenWidth = gridIntSize.width,
+                screenHeight = gridIntSize.height,
+                margin = menuSizeMargin,
+            )
 
             Box(modifier = Modifier
                 .offset {
@@ -249,10 +269,10 @@ fun Greeting(
 
             Box(modifier = Modifier
                 .offset {
-                    IntOffset(x = overlayBoundingBox.x, y = overlayBoundingBox.y)
+                    IntOffset(x = resizeBoundingBox.x, y = resizeBoundingBox.y)
                 }
                 .size(
-                    width = overlayBoundingBoxWidth, height = overlayBoundingBoxHeight
+                    width = resizeBoundingBoxWidth, height = resizeBoundingBoxHeight
                 )
                 .border(width = 2.dp, color = Color.White)) {
 
@@ -395,6 +415,17 @@ fun Greeting(
                         })
                     })
             }
+
+            Box(modifier = Modifier
+                .offset {
+                    IntOffset(x = menuCoordinates.x, y = menuCoordinates.y)
+                }
+                .background(Color.Gray)
+                .onSizeChanged {
+                    menuIntSize = it
+                }) {
+                Text(text = "Menu here")
+            }
         }
     }
 }
@@ -443,19 +474,58 @@ fun Modifier.gridItemPlacement(gridItemPixel: GridItemPixel): Modifier =
         }
     })
 
-data class OverlayBoundingBox(val x: Int, val y: Int, val width: Int, val height: Int)
+data class ResizeBoundingBox(val x: Int, val y: Int, val width: Int, val height: Int)
+data class MenuCoordinates(val x: Int, val y: Int)
 
-fun enlargeOverlayCentered(
-    base: OverlayBoundingBox, min: Int = 100
-): OverlayBoundingBox {
-    val newWidth = (base.width + min).coerceAtLeast(min)
-    val newHeight = (base.height + min).coerceAtLeast(min)
+fun calculateResizeBoundingBox(
+    coordinates: Coordinates, boundingBox: BoundingBox, margin: Int = 100
+): ResizeBoundingBox {
+    val newWidth = (boundingBox.width + margin).coerceAtLeast(margin)
+    val newHeight = (boundingBox.height + margin).coerceAtLeast(margin)
 
-    val centerX = base.x + base.width / 2
-    val centerY = base.y + base.height / 2
+    val centerX = coordinates.x + boundingBox.width / 2
+    val centerY = coordinates.y + boundingBox.height / 2
 
     val newX = centerX - newWidth / 2
     val newY = centerY - newHeight / 2
 
-    return OverlayBoundingBox(x = newX, y = newY, width = newWidth, height = newHeight)
+    return ResizeBoundingBox(x = newX, y = newY, width = newWidth, height = newHeight)
+}
+
+fun calculateMenuCoordinates(
+    parentX: Int,
+    parentY: Int,       // Parent's top coordinate
+    parentWidth: Int,
+    parentHeight: Int,
+    childWidth: Int,
+    childHeight: Int,
+    screenWidth: Int,   // Screen width
+    screenHeight: Int,  // Screen height
+    margin: Int         // Margin between parent and child
+): MenuCoordinates {
+    // Calculate the parent's horizontal center
+    val parentCenterX = parentX + parentWidth / 2
+
+    // Compute the initial x-position so the child's center aligns with the parent's center
+    val childXInitial = parentCenterX - childWidth / 2
+
+    // Coerce the child's x-position to ensure it doesn't go off the screen horizontally.
+    val childX = childXInitial.coerceIn(0, screenWidth - childWidth)
+
+    // Determine the vertical position:
+    // Calculate the y-coordinate if the child is placed above the parent.
+    // With margin: child's bottom = parent's top - margin, so child's top = parent's top - margin - childHeight
+    val topPositionY = parentY - margin - childHeight
+
+    // Calculate the y-coordinate if the child is placed below the parent.
+    // With margin: child's top = parent's bottom + margin
+    val bottomPositionY = parentY + parentHeight + margin
+
+    // Decide where to place the child: use top if it fits (child not off-screen), else use bottom.
+    val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
+
+    // Ensure the child's vertical position stays within screen bounds.
+    val childY = childYInitial.coerceIn(0, screenHeight - childHeight)
+
+    return MenuCoordinates(x = childX, y = childY)
 }

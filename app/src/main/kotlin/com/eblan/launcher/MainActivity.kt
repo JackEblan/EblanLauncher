@@ -114,7 +114,7 @@ fun Greeting(
     var selectedGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val pagerState = rememberPagerState(pageCount = {
-        10
+        2
     })
 
     var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
@@ -223,7 +223,7 @@ fun Greeting(
             var menuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
             val menuSizeMargin = with(density) {
-                10.dp.toPx()
+                20.dp.toPx()
             }.roundToInt()
 
             val menuCoordinates = calculateMenuCoordinates(
@@ -494,14 +494,14 @@ fun calculateResizeBoundingBox(
 
 fun calculateMenuCoordinates(
     parentX: Int,
-    parentY: Int,       // Parent's top coordinate
+    parentY: Int,
     parentWidth: Int,
     parentHeight: Int,
     childWidth: Int,
     childHeight: Int,
-    screenWidth: Int,   // Screen width
-    screenHeight: Int,  // Screen height
-    margin: Int         // Margin between parent and child
+    screenWidth: Int,
+    screenHeight: Int,
+    margin: Int
 ): MenuCoordinates {
     // Calculate the parent's horizontal center
     val parentCenterX = parentX + parentWidth / 2

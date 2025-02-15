@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
@@ -120,8 +119,6 @@ fun Greeting(
 
     var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
 
-    val gridItemCornerSize = 40.dp
-
     LaunchedEffect(key1 = currentGridItem) {
         when (currentGridItem?.edgeState) {
             EdgeState.Left -> {
@@ -198,8 +195,6 @@ fun Greeting(
             var width by remember { mutableStateOf(boundingBoxWidth) }
 
             var height by remember { mutableStateOf(boundingBoxHeight) }
-
-            var selectedTransformOrigin by remember { mutableStateOf(TransformOrigin(0f, 0f)) }
 
             val pixelWidth = with(density) {
                 width.toPx()
@@ -285,8 +280,6 @@ fun Greeting(
                                 height.toPx()
                             }
 
-                            selectedTransformOrigin = TransformOrigin(1f, 1f)
-
                             onResizeGridItem(
                                 pagerState.currentPage,
                                 newPixelWidth.roundToInt(),
@@ -322,8 +315,6 @@ fun Greeting(
                             val newPixelHeight = with(density) {
                                 height.toPx()
                             }
-
-                            selectedTransformOrigin = TransformOrigin(0f, 1f)
 
                             onResizeGridItem(
                                 pagerState.currentPage,
@@ -361,8 +352,6 @@ fun Greeting(
                                 height.toPx()
                             }
 
-                            selectedTransformOrigin = TransformOrigin(1f, 0f)
-
                             onResizeGridItem(
                                 pagerState.currentPage,
                                 newPixelWidth.roundToInt(),
@@ -397,8 +386,6 @@ fun Greeting(
                                 height.toPx()
                             }
 
-                            selectedTransformOrigin = TransformOrigin(0f, 0f)
-
                             onResizeGridItem(
                                 pagerState.currentPage,
                                 newPixelWidth.roundToInt(),
@@ -411,167 +398,6 @@ fun Greeting(
                         })
                     })
             }
-
-//            //Bottom Right
-//            Box(modifier = Modifier
-//                .offset {
-//                    val gridItemCornerSizePixel = with(density) {
-//                        40.dp.toPx()
-//                    }.roundToInt()
-//
-//                    val newPixelWidth = with(density) {
-//                        width.toPx()
-//                    }.roundToInt()
-//
-//                    val newPixelHeight = with(density) {
-//                        height.toPx()
-//                    }.roundToInt()
-//
-//                    // Check if the box is out of bound on the bottom right
-//                    val coercingOffsetX =
-//                        if ((dragOffsetX + newPixelWidth) + gridItemCornerSizePixel > gridIntSize.width) {
-//                            (dragOffsetX + newPixelWidth) - gridItemCornerSizePixel
-//                        } else {
-//                            dragOffsetX + newPixelWidth
-//                        }
-//
-//                    val coercingOffsetY =
-//                        if ((dragOffsetY + newPixelHeight) + gridItemCornerSizePixel > gridIntSize.height) {
-//                            (dragOffsetY + newPixelHeight) - gridItemCornerSizePixel
-//                        } else {
-//                            dragOffsetY + newPixelHeight
-//                        }
-//
-//                    IntOffset(
-//                        x = coercingOffsetX,
-//                        y = coercingOffsetY,
-//                    )
-//                }
-//                .size(40.dp)
-//                .background(Color.Gray)
-//                .pointerInput(Unit) {
-//                    detectDragGestures(onDragEnd = {
-//                        isEditing = false
-//                    }, onDrag = { change, dragAmount ->
-//                        change.consume()
-//                        width += dragAmount.x.toDp()
-//                        height += dragAmount.y.toDp()
-//
-//                        val newPixelWidth = with(density) {
-//                            width.toPx()
-//                        }
-//
-//                        val newPixelHeight = with(density) {
-//                            height.toPx()
-//                        }
-//
-//                        selectedTransformOrigin = TransformOrigin(0f, 0f)
-//
-//                        onResizeGridItem(
-//                            pagerState.currentPage,
-//                            newPixelWidth.roundToInt(),
-//                            newPixelHeight.roundToInt(),
-//                            gridIntSize.width,
-//                            gridIntSize.height,
-//                            selectedGridItemPixel?.gridItem,
-//                            Anchor.TOP_START,
-//                        )
-//                    })
-//                })
-//
-//            // Bottom Left
-//            Box(modifier = Modifier
-//                .offset {
-//                    val gridItemCornerSizePixel = with(density) {
-//                        gridItemCornerSize.toPx()
-//                    }.roundToInt()
-//
-//                    val newPixelHeight = with(density) {
-//                        height.toPx()
-//                    }.roundToInt()
-//
-//                    // Check if the box is out of bound on the bottom left
-//                    val coercingOffsetX = if (dragOffsetX - gridItemCornerSizePixel < 0) {
-//                        dragOffsetX
-//                    } else {
-//                        dragOffsetX - gridItemCornerSizePixel
-//                    }
-//
-//                    val coercingOffsetY =
-//                        if ((dragOffsetY + newPixelHeight) + gridItemCornerSizePixel > gridIntSize.height) {
-//                            (dragOffsetY + newPixelHeight) - gridItemCornerSizePixel
-//                        } else {
-//                            dragOffsetY + newPixelHeight
-//                        }
-//
-//                    IntOffset(
-//                        x = coercingOffsetX,
-//                        y = coercingOffsetY,
-//                    )
-//                }
-//                .size(gridItemCornerSize)
-//                .background(Color.Gray))
-//
-//            // Top Left
-//            Box(modifier = Modifier
-//                .offset {
-//                    val gridItemCornerSizePixel = with(density) {
-//                        gridItemCornerSize.toPx()
-//                    }.roundToInt()
-//
-//                    // Check if the box is out of bound on the top left
-//                    val coercingOffsetX = if (dragOffsetX - gridItemCornerSizePixel < 0) {
-//                        dragOffsetX
-//                    } else {
-//                        dragOffsetX - gridItemCornerSizePixel
-//                    }
-//
-//                    val coercingOffsetY = if (dragOffsetY - gridItemCornerSizePixel < 0) {
-//                        dragOffsetY
-//                    } else {
-//                        dragOffsetY - gridItemCornerSizePixel
-//                    }
-//
-//                    IntOffset(
-//                        x = coercingOffsetX,
-//                        y = coercingOffsetY,
-//                    )
-//                }
-//                .size(gridItemCornerSize)
-//                .background(Color.Gray))
-//
-//            // Top Right
-//            Box(modifier = Modifier
-//                .offset {
-//                    val gridItemCornerSizePixel = with(density) {
-//                        gridItemCornerSize.toPx()
-//                    }.roundToInt()
-//
-//                    val newPixelWidth = with(density) {
-//                        width.toPx()
-//                    }.roundToInt()
-//
-//                    // Check if the box is out of bound on the top right
-//                    val coercingOffsetX =
-//                        if ((dragOffsetX + newPixelWidth) + gridItemCornerSizePixel > gridIntSize.width) {
-//                            (dragOffsetX + newPixelWidth) - gridItemCornerSizePixel
-//                        } else {
-//                            dragOffsetX + newPixelWidth
-//                        }
-//
-//                    val coercingOffsetY = if (dragOffsetY - gridItemCornerSizePixel < 0) {
-//                        dragOffsetY
-//                    } else {
-//                        dragOffsetY - gridItemCornerSizePixel
-//                    }
-//
-//                    IntOffset(
-//                        x = coercingOffsetX,
-//                        y = coercingOffsetY,
-//                    )
-//                }
-//                .size(gridItemCornerSize)
-//                .background(Color.Gray))
         }
     }
 }

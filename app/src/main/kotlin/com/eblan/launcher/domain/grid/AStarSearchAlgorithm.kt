@@ -8,7 +8,7 @@ import kotlin.math.abs
 /**
  * Resolves layout conflicts among grid items on a specified page when a grid item is moved.
  *
- * This function updates the positions of grid items to prevent overlapping when the [movingGridItem]
+ * Updates the positions of grid items to prevent overlapping when the [movingGridItem]
  * is placed onto the grid. It operates on a per‑page basis, first marking the occupied cells in a
  * boolean grid. Non‑conflicting items (i.e. those that do not overlap with the moving item) are added
  * directly. For conflicting items, the algorithm uses an A* search strategy to find a new, free rectangular

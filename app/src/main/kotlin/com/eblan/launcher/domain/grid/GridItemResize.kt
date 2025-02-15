@@ -7,7 +7,7 @@ import com.eblan.launcher.domain.model.GridItem
 /**
  * Resizes a [GridItem] based on new pixel dimensions.
  *
- * This function converts the desired new pixel width and height into grid cell dimensions by taking into
+ * Converts the desired new pixel width and height into grid cell dimensions by taking into
  * account the pixel dimensions of a single grid cell ([gridCellPixelWidth] and [gridCellPixelHeight]). The
  * calculated grid cell dimensions are then used to resize the grid item.
  *
@@ -16,6 +16,7 @@ import com.eblan.launcher.domain.model.GridItem
  * @param newPixelHeight The new desired height in pixels for the grid item.
  * @param gridCellPixelWidth The width of a single grid cell in pixels.
  * @param gridCellPixelHeight The height of a single grid cell in pixels.
+ * @param anchor The starting point of cells expansion.
  * @return A new [GridItem] with resized grid cells if [gridItem] is not `null`; otherwise, `null`.
  */
 fun resizeGridItemWithPixels(
@@ -44,7 +45,7 @@ fun resizeGridItemWithPixels(
 /**
  * Converts pixel dimensions to grid cell dimensions.
  *
- * This function calculates how many grid cells fit into the specified pixel dimensions based on the pixel
+ * Calculates how many grid cells fit into the specified pixel dimensions based on the pixel
  * size of a single grid cell. The division result is coerced to be at least 1 so that the grid item always
  * occupies a minimum of one cell in each direction.
  *
@@ -71,11 +72,12 @@ private fun pixelsToGridCells(
  *
  * The new grid cells are calculated by first identifying the top-left cell from the list of the current cells
  * (using the smallest row and column values). A rectangular block of grid cells with the specified [newWidth]
- * and [newHeight] is then created starting from this top-left cell.
+ * and [newHeight] is then created starting from [anchor].
  *
  * @param oldCells The original list of [GridCell] objects representing the current position of the grid item.
  * @param newWidth The desired new width of the grid item in terms of grid cells.
  * @param newHeight The desired new height of the grid item in terms of grid cells.
+ * @param anchor The starting point of cells expansion.
  * @return A list of [GridCell] objects representing the new layout of the grid item after resizing.
  */
 private fun calculateResizedCells(
@@ -117,13 +119,14 @@ private fun calculateResizedCells(
 /**
  * Resizes a [GridItem] to a new size specified in grid cells.
  *
- * This function uses [calculateResizedCells] to compute the new grid cell positions for the grid item based on
+ * Uses [calculateResizedCells] to compute the new grid cell positions for the grid item based on
  * the desired new width ([newWidth]) and new height ([newHeight]) in grid cells. The original grid item is resized
- * such that its top-left cell remains anchored while the overall dimensions change.
+ * such that [anchor] remains anchored while the overall dimensions change.
  *
  * @param gridItem The grid item to be resized. If `null`, the function returns `null`.
  * @param newWidth The new desired width of the grid item in terms of grid cells.
  * @param newHeight The new desired height of the grid item in terms of grid cells.
+ * @param anchor The starting point of cells expansion.
  * @return A new [GridItem] with updated grid cells if [gridItem] is not `null`; otherwise, `null`.
  */
 private fun resizeGridItem(

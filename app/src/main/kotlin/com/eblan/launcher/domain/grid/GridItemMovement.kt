@@ -6,7 +6,7 @@ import com.eblan.launcher.domain.model.GridItem
 /**
  * Moves the specified grid item to a new position based on screen coordinates and the dimensions of its bounding box.
  *
- * This function converts the provided pixel coordinates ([x], [y]) into a target grid cell. It then moves the grid item so that its
+ * Converts the provided pixel coordinates ([x], [y]) into a target grid cell. It then moves the grid item so that its
  * relative cell positions are shifted accordingly.
  *
  * @param gridItem The [GridItem] to be moved. If `null`, the function returns `null`.

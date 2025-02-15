@@ -53,7 +53,7 @@ fun isGridItemWithinBounds(
 /**
  * Calculates the bounding box for a set of grid cells in pixel dimensions.
  *
- * The function computes the width and height of the bounding box based on the cell dimensions derived from
+ * Computes the width and height of the bounding box based on the cell dimensions derived from
  * the provided screen size and grid configuration. Note that the cell dimensions are computed as:
  * - `cellWidth = screenWidth / rows`
  * - `cellHeight = screenHeight / columns`
@@ -89,7 +89,7 @@ fun calculateBoundingBox(
 /**
  * Calculates the pixel coordinates of the top-left corner for a given set of grid cells.
  *
- * The function determines the cell dimensions using the provided [screenWidth] and [screenHeight] along with
+ * Determines the cell dimensions using the provided [screenWidth] and [screenHeight] along with
  * the grid configuration ([rows] and [columns]). It then computes the coordinates based on the minimum row and
  * column indices among [gridCells]:
  * - `x = minCol * cellWidth`

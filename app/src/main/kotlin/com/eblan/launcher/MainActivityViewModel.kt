@@ -2,6 +2,7 @@ package com.eblan.launcher
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
@@ -108,6 +109,7 @@ class MainActivityViewModel : ViewModel() {
         screenWidth: Int,
         screenHeight: Int,
         gridItem: GridItem?,
+        anchor: Anchor,
     ) {
         viewModelScope.launch {
             _currentGridItem.update {
@@ -117,7 +119,8 @@ class MainActivityViewModel : ViewModel() {
                     newPixelHeight = newPixelHeight,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    gridItem = gridItem
+                    gridItem = gridItem,
+                    anchor = anchor,
                 )
             }
         }

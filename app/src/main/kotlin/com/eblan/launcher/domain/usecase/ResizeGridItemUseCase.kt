@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
+import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.repository.GridRepository
 import com.eblan.launcher.repository.UserDataRepository
@@ -19,6 +20,7 @@ class ResizeGridItemUseCase(
         screenWidth: Int,
         screenHeight: Int,
         gridItem: GridItem?,
+        anchor: Anchor,
     ): GridItem? {
         if (gridItem == null) return null
 
@@ -30,7 +32,8 @@ class ResizeGridItemUseCase(
                 newPixelWidth = newPixelWidth,
                 newPixelHeight = newPixelHeight,
                 gridCellPixelWidth = screenWidth / userData.rows,
-                gridCellPixelHeight = screenHeight / userData.columns
+                gridCellPixelHeight = screenHeight / userData.columns,
+                anchor = anchor,
             )
 
             val gridItems = gridRepository.gridItems.first()

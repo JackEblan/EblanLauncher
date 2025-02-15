@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.grid
 
+import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
 
@@ -23,6 +24,7 @@ fun resizeGridItemWithPixels(
     newPixelHeight: Int,
     gridCellPixelWidth: Int,
     gridCellPixelHeight: Int,
+    anchor: Anchor,
 ): GridItem? {
     val (newWidth, newHeight) = pixelsToGridCells(
         newPixelWidth = newPixelWidth,
@@ -35,6 +37,7 @@ fun resizeGridItemWithPixels(
         gridItem = gridItem,
         newWidth = newWidth,
         newHeight = newHeight,
+        anchor = anchor,
     )
 }
 
@@ -76,18 +79,39 @@ private fun pixelsToGridCells(
  * @return A list of [GridCell] objects representing the new layout of the grid item after resizing.
  */
 private fun calculateResizedCells(
-    oldCells: List<GridCell>, newWidth: Int, newHeight: Int
+    oldCells: List<GridCell>,
+    newWidth: Int,
+    newHeight: Int,
+    anchor: Anchor,
 ): List<GridCell> {
-    // Find the top-left cell based on the smallest row and column values.
-    val topLeftCell = oldCells.minWith(compareBy({ it.row }, { it.column }))
+    if (oldCells.isEmpty()) return emptyList()
 
-    val newCells = mutableListOf<GridCell>()
-    for (row in topLeftCell.row until topLeftCell.row + newHeight) {
-        for (col in topLeftCell.column until topLeftCell.column + newWidth) {
-            newCells.add(GridCell(row, col))
+    val startCell = when (anchor) {
+        Anchor.TOP_START -> oldCells.minWith(compareBy({ it.row }, { it.column }))
+
+        Anchor.TOP_END -> {
+            val topRight = oldCells.minWith(compareBy { it.row })
+            val maxCol = oldCells.maxOf { it.column }
+            GridCell(topRight.row, maxCol - (newWidth - 1))
+        }
+
+        Anchor.BOTTOM_START -> {
+            val bottomLeft = oldCells.minWith(compareBy { it.column })
+            val maxRow = oldCells.maxOf { it.row }
+            GridCell(maxRow - (newHeight - 1), bottomLeft.column)
+        }
+
+        Anchor.BOTTOM_END -> {
+            val bottomRight = oldCells.maxWith(compareBy({ it.row }, { it.column }))
+            GridCell(bottomRight.row - (newHeight - 1), bottomRight.column - (newWidth - 1))
         }
     }
-    return newCells
+
+    return List(newHeight) { rowOffset ->
+        List(newWidth) { colOffset ->
+            GridCell(startCell.row + rowOffset, startCell.column + colOffset)
+        }
+    }.flatten()
 }
 
 /**
@@ -106,9 +130,15 @@ private fun resizeGridItem(
     gridItem: GridItem?,
     newWidth: Int,
     newHeight: Int,
+    anchor: Anchor,
 ): GridItem? {
     return if (gridItem != null) {
-        val newCells = calculateResizedCells(gridItem.cells, newWidth, newHeight)
+        val newCells = calculateResizedCells(
+            oldCells = gridItem.cells,
+            newWidth = newWidth,
+            newHeight = newHeight,
+            anchor = anchor,
+        )
         gridItem.copy(cells = newCells)
     } else {
         null

@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -210,23 +211,9 @@ fun Greeting(
                 )
             )
 
-            var menuIntSize by remember { mutableStateOf(IntSize.Zero) }
-
             val menuSizeMargin = with(density) {
                 20.dp.toPx()
             }.roundToInt()
-
-            val menuCoordinates = calculateMenuCoordinates(
-                parentX = resizeableBoundingBox.x,
-                parentY = resizeableBoundingBox.y,
-                parentWidth = resizeableBoundingBox.width,
-                parentHeight = resizeableBoundingBox.height,
-                childWidth = menuIntSize.width,
-                childHeight = menuIntSize.height,
-                screenWidth = gridIntSize.width,
-                screenHeight = gridIntSize.height,
-                margin = menuSizeMargin,
-            )
 
             Box(modifier = Modifier
                 .offset {
@@ -405,14 +392,30 @@ fun Greeting(
             )
 
             Box(modifier = Modifier
-                .offset {
-                    IntOffset(x = menuCoordinates.x, y = menuCoordinates.y)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
+                    layout(
+                        width = placeable.width,
+                        height = placeable.height,
+                    ) {
+                        val menuCoordinates = calculateMenuCoordinates(
+                            parentX = resizeableBoundingBox.x,
+                            parentY = resizeableBoundingBox.y,
+                            parentWidth = resizeableBoundingBox.width,
+                            parentHeight = resizeableBoundingBox.height,
+                            childWidth = placeable.width,
+                            childHeight = placeable.height,
+                            screenWidth = gridIntSize.width,
+                            screenHeight = gridIntSize.height,
+                            margin = menuSizeMargin,
+                        )
+
+                        placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)
+                    }
                 }
-                .background(Color.Gray)
-                .onSizeChanged {
-                    menuIntSize = it
-                }) {
-                Text(text = "Menu here")
+                .background(Color.Gray)) {
+                Text(text = "Lots of menu actions here")
             }
         }
     }

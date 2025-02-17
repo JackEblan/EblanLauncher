@@ -1,12 +1,6 @@
-package com.eblan.launcher.feature.home.geometry
+package com.eblan.launcher.domain.geometry
 
-/**
- * Holds the coordinates for placing a menu on the screen.
- *
- * @property x The horizontal position of the menu.
- * @property y The vertical position of the menu.
- */
-data class MenuCoordinates(val x: Int, val y: Int)
+import com.eblan.launcher.domain.model.MenuCoordinates
 
 /**
  * Calculates a great spot to show your menu relative to a parent element.

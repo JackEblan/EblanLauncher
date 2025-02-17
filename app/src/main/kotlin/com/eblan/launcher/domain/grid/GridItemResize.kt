@@ -8,30 +8,30 @@ import com.eblan.launcher.domain.model.GridItem
  * Resizes a [GridItem] based on new pixel dimensions.
  *
  * Converts the desired new pixel width and height into grid cell dimensions by taking into
- * account the pixel dimensions of a single grid cell ([gridCellPixelWidth] and [gridCellPixelHeight]). The
+ * account the pixel dimensions of a single grid cell ([gridCellWidth] and [gridCellHeight]). The
  * calculated grid cell dimensions are then used to resize the grid item.
  *
  * @param gridItem The grid item to be resized. If `null`, the function returns `null`.
- * @param newPixelWidth The new desired width in pixels for the grid item.
- * @param newPixelHeight The new desired height in pixels for the grid item.
- * @param gridCellPixelWidth The width of a single grid cell in pixels.
- * @param gridCellPixelHeight The height of a single grid cell in pixels.
+ * @param width The new desired width in pixels for the grid item.
+ * @param height The new desired height in pixels for the grid item.
+ * @param gridCellWidth The width of a single grid cell in pixels.
+ * @param gridCellHeight The height of a single grid cell in pixels.
  * @param anchor The starting point of cells expansion.
  * @return A new [GridItem] with resized grid cells if [gridItem] is not `null`; otherwise, `null`.
  */
 fun resizeGridItemWithPixels(
     gridItem: GridItem?,
-    newPixelWidth: Int,
-    newPixelHeight: Int,
-    gridCellPixelWidth: Int,
-    gridCellPixelHeight: Int,
+    width: Int,
+    height: Int,
+    gridCellWidth: Int,
+    gridCellHeight: Int,
     anchor: Anchor,
 ): GridItem? {
     val (newWidth, newHeight) = pixelsToGridCells(
-        newPixelWidth = newPixelWidth,
-        newPixelHeight = newPixelHeight,
-        gridCellPixelWidth = gridCellPixelWidth,
-        gridCellPixelHeight = gridCellPixelHeight
+        width = width,
+        height = height,
+        gridCellWidth = gridCellWidth,
+        gridCellHeight = gridCellHeight
     )
 
     return resizeGridItem(
@@ -49,21 +49,21 @@ fun resizeGridItemWithPixels(
  * size of a single grid cell. The division result is coerced to be at least 1 so that the grid item always
  * occupies a minimum of one cell in each direction.
  *
- * @param newPixelWidth The width in pixels to be converted.
- * @param newPixelHeight The height in pixels to be converted.
- * @param gridCellPixelWidth The width of a single grid cell in pixels.
- * @param gridCellPixelHeight The height of a single grid cell in pixels.
+ * @param width The width in pixels to be converted.
+ * @param height The height in pixels to be converted.
+ * @param gridCellWidth The width of a single grid cell in pixels.
+ * @param gridCellHeight The height of a single grid cell in pixels.
  * @return A [Pair] where the first component is the number of grid cells corresponding to the width and the second
  * component is the number corresponding to the height.
  */
 private fun pixelsToGridCells(
-    newPixelWidth: Int,
-    newPixelHeight: Int,
-    gridCellPixelWidth: Int,
-    gridCellPixelHeight: Int,
+    width: Int,
+    height: Int,
+    gridCellWidth: Int,
+    gridCellHeight: Int,
 ): Pair<Int, Int> {
-    val newWidth = (newPixelWidth / gridCellPixelWidth).coerceAtLeast(1)
-    val newHeight = (newPixelHeight / gridCellPixelHeight).coerceAtLeast(1)
+    val newWidth = (width / gridCellWidth).coerceAtLeast(1)
+    val newHeight = (height / gridCellHeight).coerceAtLeast(1)
     return Pair(newWidth, newHeight)
 }
 

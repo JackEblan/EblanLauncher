@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,25 +15,44 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.eblan.launcher.feature.home.geometry.ResizableBoundingBox
+import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
+import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
+import com.eblan.launcher.domain.model.BoundingBox
+import com.eblan.launcher.domain.model.Coordinates
+import kotlin.math.roundToInt
 
 @Composable
-fun ResizableBox(
+fun ResizableBoxWithMenu(
     modifier: Modifier = Modifier,
-    resizableBoundingBox: ResizableBoundingBox,
-    onTopStartDragEnd: () -> Unit,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    onDragEnd: () -> Unit,
     onTopStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
-    onTopEndDragEnd: () -> Unit,
     onTopEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
-    onBottomStartDragEnd: () -> Unit,
     onBottomStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
-    onBottomEndDragEnd: () -> Unit,
     onBottomEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
 ) {
     val density = LocalDensity.current
+
+    val resizableBoundingBox = calculateResizableBoundingBox(
+        coordinates = Coordinates(
+            x = x, y = y,
+        ), boundingBox = BoundingBox(
+            width = width, height = height
+        )
+    )
+
+    val menuSizeMarginPixel = with(density) {
+        20.dp.toPx()
+    }.roundToInt()
 
     val commonModifier = Modifier
         .size(30.dp)
@@ -60,7 +80,7 @@ fun ResizableBox(
             .then(commonModifier)
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDragEnd = onTopStartDragEnd, onDrag = onTopStartDrag
+                    onDragEnd = onDragEnd, onDrag = onTopStartDrag
                 )
             })
 
@@ -70,7 +90,7 @@ fun ResizableBox(
             .then(commonModifier)
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDragEnd = onTopEndDragEnd, onDrag = onTopEndDrag
+                    onDragEnd = onDragEnd, onDrag = onTopEndDrag
                 )
             })
 
@@ -80,7 +100,7 @@ fun ResizableBox(
             .then(commonModifier)
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDragEnd = onBottomStartDragEnd, onDrag = onBottomStartDrag
+                    onDragEnd = onDragEnd, onDrag = onBottomStartDrag
                 )
             })
 
@@ -90,8 +110,35 @@ fun ResizableBox(
             .then(commonModifier)
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDragEnd = onBottomEndDragEnd, onDrag = onBottomEndDrag
+                    onDragEnd = onDragEnd, onDrag = onBottomEndDrag
                 )
             })
+    }
+
+    Box(modifier = Modifier
+        .layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+
+            layout(
+                width = placeable.width,
+                height = placeable.height,
+            ) {
+                val menuCoordinates = calculateMenuCoordinates(
+                    parentX = resizableBoundingBox.x,
+                    parentY = resizableBoundingBox.y,
+                    parentWidth = resizableBoundingBox.width,
+                    parentHeight = resizableBoundingBox.height,
+                    childWidth = placeable.width,
+                    childHeight = placeable.height,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    margin = menuSizeMarginPixel,
+                )
+
+                placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)
+            }
+        }
+        .background(Color.Gray)) {
+        Text(text = "Lots of menu actions here")
     }
 }

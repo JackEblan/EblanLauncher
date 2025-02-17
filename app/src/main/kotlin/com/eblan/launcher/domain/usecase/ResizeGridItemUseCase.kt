@@ -15,8 +15,8 @@ class ResizeGridItemUseCase(
 ) {
     suspend operator fun invoke(
         page: Int,
-        newPixelWidth: Int,
-        newPixelHeight: Int,
+        width: Int,
+        height: Int,
         screenWidth: Int,
         screenHeight: Int,
         gridItem: GridItem?,
@@ -29,10 +29,10 @@ class ResizeGridItemUseCase(
 
             val updatedGridItem = resizeGridItemWithPixels(
                 gridItem = gridItem,
-                newPixelWidth = newPixelWidth,
-                newPixelHeight = newPixelHeight,
-                gridCellPixelWidth = screenWidth / userData.rows,
-                gridCellPixelHeight = screenHeight / userData.columns,
+                width = width,
+                height = height,
+                gridCellWidth = screenWidth / userData.rows,
+                gridCellHeight = screenHeight / userData.columns,
                 anchor = anchor,
             )
 

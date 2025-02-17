@@ -65,10 +65,10 @@ class MainActivityViewModel : ViewModel() {
         initialValue = emptyMap()
     )
 
-    private var _currentGridItem = MutableStateFlow<GridItem?>(null)
+    private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
 
     @OptIn(FlowPreview::class)
-    val currentGridItem = _currentGridItem.filterNotNull().debounce(1000).onEach { gridItem ->
+    val updatedGridItem = _updatedGridItem.filterNotNull().debounce(1000).onEach { gridItem ->
         aStarGridAlgorithmUseCase(gridItem = gridItem)
     }.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = null
@@ -89,7 +89,7 @@ class MainActivityViewModel : ViewModel() {
         gridItemPixel: GridItemPixel?
     ) {
         viewModelScope.launch {
-            _currentGridItem.update {
+            _updatedGridItem.update {
                 moveGridItemUseCase(
                     page = page,
                     x = x,
@@ -104,19 +104,19 @@ class MainActivityViewModel : ViewModel() {
 
     fun resizeGridItem(
         page: Int,
-        newPixelWidth: Int,
-        newPixelHeight: Int,
+        width: Int,
+        height: Int,
         screenWidth: Int,
         screenHeight: Int,
         gridItem: GridItem?,
         anchor: Anchor,
     ) {
         viewModelScope.launch {
-            _currentGridItem.update {
+            _updatedGridItem.update {
                 resizeGridItemUseCase(
                     page = page,
-                    newPixelWidth = newPixelWidth,
-                    newPixelHeight = newPixelHeight,
+                    width = width,
+                    height = height,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     gridItem = gridItem,

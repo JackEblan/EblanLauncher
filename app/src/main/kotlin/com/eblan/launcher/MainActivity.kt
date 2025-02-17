@@ -30,23 +30,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.BoundingBox
-import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.EdgeState
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.feature.home.Grid
-import com.eblan.launcher.feature.home.ResizableBox
-import com.eblan.launcher.feature.home.geometry.calculateMenuCoordinates
-import com.eblan.launcher.feature.home.geometry.calculateResizableBoundingBox
+import com.eblan.launcher.feature.home.ResizableBoxWithMenu
 import com.eblan.launcher.feature.home.gridItemPlacement
 import com.eblan.launcher.ui.theme.EblanLauncherTheme
 import kotlin.math.roundToInt
@@ -83,24 +77,26 @@ class MainActivity : ComponentActivity() {
 fun Greeting(
     modifier: Modifier = Modifier,
     viewModel: MainActivityViewModel,
-    onUpdateScreenDimension: (screenWidth: Int, screenHeight: Int) -> Unit,
+    onUpdateScreenDimension: (screenWidthPixel: Int, screenHeightPixel: Int) -> Unit,
     onMoveGridItem: (
-        page: Int, x: Int, y: Int, screenWidth: Int, screenHeight: Int, gridItemPixel: GridItemPixel?
+        page: Int, x: Int, y: Int, screenWidthPixel: Int, screenHeightPixel: Int, gridItemPixel: GridItemPixel?
     ) -> Unit,
     onResizeGridItem: (
-        page: Int, newPixelWidth: Int, newPixelHeight: Int, screenWidth: Int, screenHeight: Int, gridItem: GridItem?, anchor: Anchor,
+        page: Int, widthPixel: Int, heightPixel: Int, screenWidthPixel: Int, screenHeightPixel: Int, gridItem: GridItem?, anchor: Anchor,
     ) -> Unit,
     onAddGridItem: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        screenWidthPixel: Int,
+        screenHeightPixel: Int,
     ) -> Unit,
 ) {
+    val density = LocalDensity.current
+
     val gridItems by viewModel.gridItems.collectAsStateWithLifecycle()
 
-    val currentGridItem by viewModel.currentGridItem.collectAsStateWithLifecycle()
+    val updatedGridItem by viewModel.updatedGridItem.collectAsStateWithLifecycle()
 
     var isEditing by remember { mutableStateOf(false) }
 
@@ -118,8 +114,8 @@ fun Greeting(
 
     var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
 
-    LaunchedEffect(key1 = currentGridItem) {
-        when (currentGridItem?.edgeState) {
+    LaunchedEffect(key1 = updatedGridItem) {
+        when (updatedGridItem?.edgeState) {
             EdgeState.Left -> {
                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
             }
@@ -140,21 +136,21 @@ fun Greeting(
                 modifier = Modifier
                     .fillMaxSize()
                     .pointerInput(Unit) {
-                        detectTapGestures(onLongPress = {
+                        detectTapGestures(onLongPress = { offset ->
                             onAddGridItem(
                                 pagerState.currentPage,
-                                it.x.roundToInt(),
-                                it.y.roundToInt(),
+                                offset.x.roundToInt(),
+                                offset.y.roundToInt(),
                                 gridIntSize.width,
                                 gridIntSize.height
                             )
                         })
                     }
-                    .onSizeChanged {
-                        gridIntSize = it
+                    .onSizeChanged { intSize ->
+                        gridIntSize = intSize
                         onUpdateScreenDimension(
-                            it.width,
-                            it.height,
+                            intSize.width,
+                            intSize.height,
                         )
                     },
             ) {
@@ -181,8 +177,6 @@ fun Greeting(
         }
 
         if (isEditing) {
-            val density = LocalDensity.current
-
             val boundingBoxWidthDp = with(density) {
                 selectedGridItemIntSize.width.toDp()
             }
@@ -198,18 +192,6 @@ fun Greeting(
             var widthPixel by remember { mutableIntStateOf(selectedGridItemIntSize.width) }
 
             var heightPixel by remember { mutableIntStateOf(selectedGridItemIntSize.height) }
-
-            val resizeableBoundingBox = calculateResizableBoundingBox(
-                coordinates = Coordinates(
-                    x = dragOffsetX, y = dragOffsetY,
-                ), boundingBox = BoundingBox(
-                    width = widthPixel, height = heightPixel
-                )
-            )
-
-            val menuSizeMarginPixel = with(density) {
-                20.dp.toPx()
-            }.roundToInt()
 
             Box(modifier = Modifier
                 .offset {
@@ -240,9 +222,14 @@ fun Greeting(
                 Text(text = "Drag")
             }
 
-            ResizableBox(
-                resizableBoundingBox = resizeableBoundingBox,
-                onTopStartDragEnd = {
+            ResizableBoxWithMenu(
+                x = dragOffsetX,
+                y = dragOffsetY,
+                width = widthPixel,
+                height = heightPixel,
+                screenWidth = gridIntSize.width,
+                screenHeight = gridIntSize.height,
+                onDragEnd = {
                     isEditing = false
                 },
                 onTopStartDrag = { change, dragAmount ->
@@ -279,9 +266,6 @@ fun Greeting(
                         Anchor.BOTTOM_END,
                     )
                 },
-                onTopEndDragEnd = {
-                    isEditing = false
-                },
                 onTopEndDrag = { change, dragAmount ->
                     change.consume()
                     val dragAmountXDp = with(density) {
@@ -314,9 +298,6 @@ fun Greeting(
                         selectedGridItemPixel?.gridItem,
                         Anchor.BOTTOM_START,
                     )
-                },
-                onBottomStartDragEnd = {
-                    isEditing = false
                 },
                 onBottomStartDrag = { change, dragAmount ->
                     change.consume()
@@ -351,9 +332,6 @@ fun Greeting(
                         Anchor.TOP_END,
                     )
                 },
-                onBottomEndDragEnd = {
-                    isEditing = false
-                },
                 onBottomEndDrag = { change, dragAmount ->
                     change.consume()
                     val dragAmountXDp = with(density) {
@@ -386,33 +364,6 @@ fun Greeting(
                     )
                 },
             )
-
-            Box(modifier = Modifier
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-
-                    layout(
-                        width = placeable.width,
-                        height = placeable.height,
-                    ) {
-                        val menuCoordinates = calculateMenuCoordinates(
-                            parentX = resizeableBoundingBox.x,
-                            parentY = resizeableBoundingBox.y,
-                            parentWidth = resizeableBoundingBox.width,
-                            parentHeight = resizeableBoundingBox.height,
-                            childWidth = placeable.width,
-                            childHeight = placeable.height,
-                            screenWidth = gridIntSize.width,
-                            screenHeight = gridIntSize.height,
-                            margin = menuSizeMarginPixel,
-                        )
-
-                        placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)
-                    }
-                }
-                .background(Color.Gray)) {
-                Text(text = "Lots of menu actions here")
-            }
         }
     }
 }

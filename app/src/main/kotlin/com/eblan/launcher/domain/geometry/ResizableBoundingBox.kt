@@ -1,17 +1,8 @@
-package com.eblan.launcher.feature.home.geometry
+package com.eblan.launcher.domain.geometry
 
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
-
-/**
- * Represents a bounding box that can be resized.
- *
- * @property x The x-coordinate (top-left) of the bounding box.
- * @property y The y-coordinate (top-left) of the bounding box.
- * @property width The width of the bounding box.
- * @property height The height of the bounding box.
- */
-data class ResizableBoundingBox(val x: Int, val y: Int, val width: Int, val height: Int)
+import com.eblan.launcher.domain.model.ResizableBoundingBox
 
 /**
  * Calculates a new resizable bounding box based on the provided [coordinates] and [boundingBox].

@@ -183,35 +183,31 @@ fun Greeting(
         if (isEditing) {
             val density = LocalDensity.current
 
-            val boundingBoxWidth = with(density) {
+            val boundingBoxWidthDp = with(density) {
                 selectedGridItemIntSize.width.toDp()
             }
 
-            val boundingBoxHeight = with(density) {
+            val boundingBoxHeightDp = with(density) {
                 selectedGridItemIntSize.height.toDp()
             }
 
-            var width by remember { mutableStateOf(boundingBoxWidth) }
+            var widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
 
-            var height by remember { mutableStateOf(boundingBoxHeight) }
+            var heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
 
-            val pixelWidth = with(density) {
-                width.toPx()
-            }.roundToInt()
+            var widthPixel by remember { mutableIntStateOf(selectedGridItemIntSize.width) }
 
-            val pixelHeight = with(density) {
-                height.toPx()
-            }.roundToInt()
+            var heightPixel by remember { mutableIntStateOf(selectedGridItemIntSize.height) }
 
             val resizeableBoundingBox = calculateResizableBoundingBox(
                 coordinates = Coordinates(
                     x = dragOffsetX, y = dragOffsetY,
                 ), boundingBox = BoundingBox(
-                    width = pixelWidth, height = pixelHeight
+                    width = widthPixel, height = heightPixel
                 )
             )
 
-            val menuSizeMargin = with(density) {
+            val menuSizeMarginPixel = with(density) {
                 20.dp.toPx()
             }.roundToInt()
 
@@ -221,7 +217,7 @@ fun Greeting(
                         x = dragOffsetX, y = dragOffsetY
                     )
                 }
-                .size(width = width, height = height)
+                .size(width = widthDp, height = heightDp)
                 .background(Color.Green)
                 .pointerInput(Unit) {
                     detectDragGestures(onDragEnd = {
@@ -259,24 +255,24 @@ fun Greeting(
                         dragAmount.y.toDp()
                     }
 
-                    width += -dragAmountXDp
-                    height += -dragAmountYDp
+                    widthDp += -dragAmountXDp
+                    heightDp += -dragAmountYDp
 
                     dragOffsetX += dragAmount.x.roundToInt()
                     dragOffsetY += dragAmount.y.roundToInt()
 
-                    val newPixelWidth = with(density) {
-                        width.toPx()
-                    }
+                    widthPixel = with(density) {
+                        widthDp.toPx()
+                    }.roundToInt()
 
-                    val newPixelHeight = with(density) {
-                        height.toPx()
-                    }
+                    heightPixel = with(density) {
+                        heightDp.toPx()
+                    }.roundToInt()
 
                     onResizeGridItem(
                         pagerState.currentPage,
-                        newPixelWidth.roundToInt(),
-                        newPixelHeight.roundToInt(),
+                        widthPixel,
+                        heightPixel,
                         gridIntSize.width,
                         gridIntSize.height,
                         selectedGridItemPixel?.gridItem,
@@ -296,23 +292,23 @@ fun Greeting(
                         dragAmount.y.toDp()
                     }
 
-                    width += dragAmountXDp
-                    height += -dragAmountYDp
+                    widthDp += dragAmountXDp
+                    heightDp += -dragAmountYDp
 
                     dragOffsetY += dragAmount.y.roundToInt()
 
-                    val newPixelWidth = with(density) {
-                        width.toPx()
-                    }
+                    widthPixel = with(density) {
+                        widthDp.toPx()
+                    }.roundToInt()
 
-                    val newPixelHeight = with(density) {
-                        height.toPx()
-                    }
+                    heightPixel = with(density) {
+                        heightDp.toPx()
+                    }.roundToInt()
 
                     onResizeGridItem(
                         pagerState.currentPage,
-                        newPixelWidth.roundToInt(),
-                        newPixelHeight.roundToInt(),
+                        widthPixel,
+                        heightPixel,
                         gridIntSize.width,
                         gridIntSize.height,
                         selectedGridItemPixel?.gridItem,
@@ -332,23 +328,23 @@ fun Greeting(
                         dragAmount.y.toDp()
                     }
 
-                    width += -dragAmountXDp
-                    height += dragAmountYDp
+                    widthDp += -dragAmountXDp
+                    heightDp += dragAmountYDp
 
                     dragOffsetX += dragAmount.x.roundToInt()
 
-                    val newPixelWidth = with(density) {
-                        width.toPx()
-                    }
+                    widthPixel = with(density) {
+                        widthDp.toPx()
+                    }.roundToInt()
 
-                    val newPixelHeight = with(density) {
-                        height.toPx()
-                    }
+                    heightPixel = with(density) {
+                        heightDp.toPx()
+                    }.roundToInt()
 
                     onResizeGridItem(
                         pagerState.currentPage,
-                        newPixelWidth.roundToInt(),
-                        newPixelHeight.roundToInt(),
+                        widthPixel,
+                        heightPixel,
                         gridIntSize.width,
                         gridIntSize.height,
                         selectedGridItemPixel?.gridItem,
@@ -368,21 +364,21 @@ fun Greeting(
                         dragAmount.y.toDp()
                     }
 
-                    width += dragAmountXDp
-                    height += dragAmountYDp
+                    widthDp += dragAmountXDp
+                    heightDp += dragAmountYDp
 
-                    val newPixelWidth = with(density) {
-                        width.toPx()
-                    }
+                    widthPixel = with(density) {
+                        widthDp.toPx()
+                    }.roundToInt()
 
-                    val newPixelHeight = with(density) {
-                        height.toPx()
-                    }
+                    heightPixel = with(density) {
+                        heightDp.toPx()
+                    }.roundToInt()
 
                     onResizeGridItem(
                         pagerState.currentPage,
-                        newPixelWidth.roundToInt(),
-                        newPixelHeight.roundToInt(),
+                        widthPixel,
+                        heightPixel,
                         gridIntSize.width,
                         gridIntSize.height,
                         selectedGridItemPixel?.gridItem,
@@ -408,7 +404,7 @@ fun Greeting(
                             childHeight = placeable.height,
                             screenWidth = gridIntSize.width,
                             screenHeight = gridIntSize.height,
-                            margin = menuSizeMargin,
+                            margin = menuSizeMarginPixel,
                         )
 
                         placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)

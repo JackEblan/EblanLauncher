@@ -4,10 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +32,7 @@ import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
 import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
+import com.eblan.launcher.domain.model.ResizableBoundingBox
 import kotlin.math.roundToInt
 
 @Composable
@@ -45,9 +55,10 @@ fun ResizableBoxWithMenu(
     val resizableBoundingBox = calculateResizableBoundingBox(
         coordinates = Coordinates(
             x = x, y = y,
-        ), boundingBox = BoundingBox(
-            width = width, height = height
-        )
+        ),
+        boundingBox = BoundingBox(
+            width = width, height = height,
+        ),
     )
 
     val menuSizeMarginPixel = with(density) {
@@ -66,57 +77,83 @@ fun ResizableBoxWithMenu(
         resizableBoundingBox.height.toDp()
     }
 
-    Box(modifier = modifier
-        .offset {
-            IntOffset(x = resizableBoundingBox.x, y = resizableBoundingBox.y)
-        }
-        .size(
-            width = resizableBoundingBoxWidth, height = resizableBoundingBoxHeight
+    Box(
+        modifier = modifier
+            .offset {
+                IntOffset(x = resizableBoundingBox.x, y = resizableBoundingBox.y)
+            }
+            .size(
+                width = resizableBoundingBoxWidth, height = resizableBoundingBoxHeight,
+            )
+            .border(width = 2.dp, color = Color.White),
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset((-15).dp, (-15).dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onDragEnd, onDrag = onTopStartDrag,
+                    )
+                },
         )
-        .border(width = 2.dp, color = Color.White)) {
-        Box(modifier = Modifier
-            .align(Alignment.TopStart)
-            .offset((-15).dp, (-15).dp)
-            .then(commonModifier)
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = onDragEnd, onDrag = onTopStartDrag
-                )
-            })
 
-        Box(modifier = Modifier
-            .align(Alignment.TopEnd)
-            .offset(15.dp, (-15).dp)
-            .then(commonModifier)
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = onDragEnd, onDrag = onTopEndDrag
-                )
-            })
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(15.dp, (-15).dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onDragEnd, onDrag = onTopEndDrag,
+                    )
+                },
+        )
 
-        Box(modifier = Modifier
-            .align(Alignment.BottomStart)
-            .offset((-15).dp, 15.dp)
-            .then(commonModifier)
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = onDragEnd, onDrag = onBottomStartDrag
-                )
-            })
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset((-15).dp, 15.dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onDragEnd, onDrag = onBottomStartDrag,
+                    )
+                },
+        )
 
-        Box(modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .offset(15.dp, 15.dp)
-            .then(commonModifier)
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragEnd = onDragEnd, onDrag = onBottomEndDrag
-                )
-            })
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(15.dp, 15.dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onDragEnd, onDrag = onBottomEndDrag,
+                    )
+                },
+        )
     }
 
-    Box(modifier = Modifier
-        .layout { measurable, constraints ->
+    Menu(
+        resizableBoundingBox = resizableBoundingBox,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+        menuSizeMarginPixel = menuSizeMarginPixel,
+    )
+}
+
+@Composable
+private fun Menu(
+    modifier: Modifier = Modifier,
+    resizableBoundingBox: ResizableBoundingBox,
+    screenWidth: Int,
+    screenHeight: Int,
+    menuSizeMarginPixel: Int,
+) {
+    Surface(
+        modifier = modifier.layout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
 
             layout(
@@ -137,8 +174,28 @@ fun ResizableBoxWithMenu(
 
                 placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)
             }
+        },
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+    ) {
+        Row {
+            IconButton(
+                onClick = {
+
+                },
+            ) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+            }
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            IconButton(
+                onClick = {
+
+                },
+            ) {
+                Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+            }
         }
-        .background(Color.Gray)) {
-        Text(text = "Lots of menu actions here")
     }
 }

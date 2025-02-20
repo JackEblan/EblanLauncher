@@ -7,6 +7,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
+import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.AddGridItemUseCase
 import com.eblan.launcher.domain.usecase.GridItemBoundaryUseCase
@@ -18,9 +19,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -29,6 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    userDataRepository: UserDataRepository,
     private val gridItemsByPageUseCase: GridItemsByPageUseCase,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
@@ -40,13 +44,26 @@ class HomeViewModel @Inject constructor(
     private var _screenDimension = MutableStateFlow<ScreenDimension?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val gridItems = _screenDimension.filterNotNull().flatMapLatest { screenDimension ->
-        gridItemsByPageUseCase(screenDimension = screenDimension)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyMap(),
-    )
+    val homeUiState =
+        combine(_screenDimension, userDataRepository.userData) { screenDimension, userData ->
+            screenDimension?.let { it to userData }
+        }.filterNotNull().flatMapLatest { (screenDimension, userData) ->
+            gridItemsByPageUseCase(
+                screenDimension = screenDimension,
+                rows = userData.rows,
+                columns = userData.columns,
+            ).map { gridItemsByPage ->
+                HomeUiState.Success(
+                    gridItems = gridItemsByPage,
+                    screenDimension = screenDimension,
+                    pageCount = userData.pageCount,
+                )
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = HomeUiState.Loading,
+        )
 
     private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
 

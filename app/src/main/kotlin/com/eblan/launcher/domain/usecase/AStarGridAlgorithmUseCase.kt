@@ -1,16 +1,17 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.areValidCells
-import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.grid.isGridItemWithinBounds
+import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.repository.GridRepository
-import com.eblan.launcher.repository.UserDataRepository
+import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class AStarGridAlgorithmUseCase(
+class AStarGridAlgorithmUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {

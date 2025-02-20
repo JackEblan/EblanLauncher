@@ -5,16 +5,17 @@ import com.eblan.launcher.domain.grid.calculateBoundingBox
 import com.eblan.launcher.domain.grid.calculateCoordinates
 import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
-import com.eblan.launcher.repository.GridRepository
-import com.eblan.launcher.repository.UserDataRepository
+import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import javax.inject.Inject
 
-class GridItemsByPageUseCase(
+class GridItemsByPageUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {

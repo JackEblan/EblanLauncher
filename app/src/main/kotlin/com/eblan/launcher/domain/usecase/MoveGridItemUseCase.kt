@@ -1,16 +1,16 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.getGridItemEdgeState
 import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemPixel
-import com.eblan.launcher.repository.GridRepository
-import com.eblan.launcher.repository.UserDataRepository
+import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class MoveGridItemUseCase(
+class MoveGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
@@ -27,12 +27,6 @@ class MoveGridItemUseCase(
         return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val edgeState = getGridItemEdgeState(
-                x = x,
-                boundingBoxWidth = gridItemPixel.boundingBox.width,
-                screenWidth = screenWidth,
-            )
-
             val updatedGridItem = moveGridItemWithCoordinates(
                 gridItem = gridItemPixel.gridItem,
                 x = x,
@@ -46,7 +40,7 @@ class MoveGridItemUseCase(
             val gridItems = gridRepository.gridItems.first()
 
             if (updatedGridItem != null && updatedGridItem !in gridItems) {
-                updatedGridItem.copy(page = page, edgeState = edgeState)
+                updatedGridItem.copy(page = page)
             } else {
                 null
             }

@@ -2,9 +2,9 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
-import com.eblan.launcher.domain.model.EdgeState
 import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemBoundary
 
 /**
  * Computes the dimensions (number of rows and columns) required to fully enclose the provided grid cells.
@@ -164,22 +164,22 @@ fun coordinatesToGridCell(
 }
 
 /**
- * Determines the edge state of a grid item based on its center horizontal position and dimensions.
+ * Determines if the grid item exceeds the screen boundary based on its center horizontal position and dimensions.
  *
  * @param x The x-coordinate of the grid item's position.
  * @param boundingBoxWidth The width of the grid item's bounding box.
  * @param screenWidth The total width of the screen or container.
- * @return [EdgeState] indicating whether the grid item is touching the left edge, right edge, or neither.
+ * @return [GridItemBoundary] indicating whether the grid item is touching the left edge, right edge, or neither.
  */
-fun getGridItemEdgeState(
+fun getGridItemBoundary(
     x: Int, boundingBoxWidth: Int, screenWidth: Int,
-): EdgeState {
+): GridItemBoundary? {
     val touchesLeft = (x + boundingBoxWidth / 2) <= 0
     val touchesRight = (x + boundingBoxWidth / 2) >= screenWidth
 
     return when {
-        touchesLeft -> EdgeState.Left
-        touchesRight -> EdgeState.Right
-        else -> EdgeState.None
+        touchesLeft -> GridItemBoundary.Left
+        touchesRight -> GridItemBoundary.Right
+        else -> null
     }
 }

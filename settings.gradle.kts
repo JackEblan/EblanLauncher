@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -19,5 +20,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Eblan Launcher"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+rootProject.name = "EblanLauncher"
 include(":app")
+include(":design-system")
+include(":domain:model")
+include(":lint")

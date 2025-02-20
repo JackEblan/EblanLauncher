@@ -102,8 +102,8 @@ private data class Node(val row: Int, val col: Int, val g: Int, val h: Int) {
  *
  * Starting from the provided [startRow] and [startCol], the algorithm explores neighboring cells
  * (including diagonal moves) by maintaining a priority queue of [Node] objects, sorted by their total cost [Node.f].
- * For each node, it checks if a rectangular region of size [requiredRows] x [requiredCols] is free using
- * [isRegionFree]. Upon finding a valid region, [generateRegion] is used to produce a list of [GridCell] objects
+ * For each node, it checks if a rectangular region of size [requiredRows] x [requiredCols] is free either up, down, left or right.
+ * Upon finding a valid region, produce a list of [GridCell] objects
  * representing that region.
  *
  * @param grid The current grid represented as a 2D boolean array where `true` denotes an occupied cell.
@@ -114,92 +114,49 @@ private data class Node(val row: Int, val col: Int, val g: Int, val h: Int) {
  * @return A list of [GridCell] representing a free region that fits the required dimensions, or `null` if none is found.
  */
 private fun aStarSearchAlgorithm(
-    grid: Array<BooleanArray>, requiredRows: Int, requiredCols: Int, startRow: Int, startCol: Int
+    grid: Array<BooleanArray>, requiredRows: Int, requiredCols: Int, startRow: Int, startCol: Int,
 ): List<GridCell>? {
-    // Priority queue to select the node with the lowest total cost (f = g + h).
+    val rows = grid.size
+    val cols = grid[0].size
     val queue = PriorityQueue<Node>(compareBy { it.f })
-    // Map to store the cost so far for each cell.
-    val costSoFar = mutableMapOf<Pair<Int, Int>, Int>()
+    val visited = mutableSetOf<Pair<Int, Int>>()
+
     queue.add(Node(startRow, startCol, 0, 0))
-    costSoFar[startRow to startCol] = 0
+    visited.add(startRow to startCol)
 
     while (queue.isNotEmpty()) {
         val current = queue.poll() ?: break
+        val r = current.row
+        val c = current.col
 
-        // Check if the rectangular region starting at the current node is free.
-        if (isRegionFree(current.row, current.col, requiredRows, requiredCols, grid)) {
-            return generateRegion(current.row, current.col, requiredRows, requiredCols)
+        // Check if region starting at (r, c) fits inside the grid.
+        if (r + requiredRows <= rows && c + requiredCols <= cols) {
+            var fits = true
+            val candidate = mutableListOf<GridCell>()
+            for (i in r until r + requiredRows) {
+                for (j in c until c + requiredCols) {
+                    if (grid[i][j]) {
+                        fits = false
+                        break
+                    }
+                    candidate.add(GridCell(i, j))
+                }
+                if (!fits) break
+            }
+            if (fits) return candidate
         }
 
-        // Explore all neighboring cells (including diagonals).
-        for (dr in -1..1) {
-            for (dc in -1..1) {
-                if (dr == 0 && dc == 0) continue  // Skip the current cell.
-                val nr = current.row + dr
-                val nc = current.col + dc
-                // Skip if the neighbor is outside the grid boundaries.
-                if (nr !in grid.indices || nc !in 0 until grid[0].size) continue
-
+        // Expand neighbors: Up, Down, Left, Right.
+        listOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1).forEach { (dr, dc) ->
+            val nr = r + dr
+            val nc = c + dc
+            if (nr in 0 until rows && nc in 0 until cols && (nr to nc) !in visited) {
+                visited.add(nr to nc)
                 val newG = current.g + 1
-                // The heuristic uses the maximum of row and column differences (Chebyshev distance).
-                val newH = maxOf(abs(nr - startRow), abs(nc - startCol))
-
-                // Only consider this neighbor if a cheaper path to it is found.
-                if (newG < costSoFar.getOrDefault(nr to nc, Int.MAX_VALUE)) {
-                    costSoFar[nr to nc] = newG
-                    queue.add(Node(nr, nc, newG, newH))
-                }
+                val newH = abs(nr - startRow) + abs(nc - startCol)
+                queue.add(Node(nr, nc, newG, newH))
             }
         }
     }
-    // Return null if no suitable free region is found.
     return null
-}
-
-/**
- * Checks if a rectangular region in the grid is completely free (i.e., none of its cells are occupied).
- *
- * The region is defined by the top‑left corner ([startRow], [startCol]) and extends for [reqRows] rows
- * and [reqCols] columns. If the region exceeds grid boundaries or if any cell in the region is already
- * occupied (true), the region is not free.
- *
- * @param startRow The top‑left row index of the region.
- * @param startCol The top‑left column index of the region.
- * @param reqRows The number of rows in the region.
- * @param reqCols The number of columns in the region.
- * @param grid The grid represented as a 2D boolean array.
- * @return `true` if the entire region is free; `false` otherwise.
- */
-private fun isRegionFree(
-    startRow: Int, startCol: Int, reqRows: Int, reqCols: Int, grid: Array<BooleanArray>
-): Boolean {
-    // Ensure the region fits within the grid.
-    if (startRow + reqRows > grid.size || startCol + reqCols > grid[0].size) return false
-
-    // Check each cell in the region.
-    for (r in startRow until startRow + reqRows) {
-        for (c in startCol until startCol + reqCols) {
-            if (grid[r][c]) return false
-        }
-    }
-    return true
-}
-
-/**
- * Generates a list of [GridCell] objects representing a rectangular region starting at the specified cell.
- *
- * The region begins at ([startRow], [startCol]) and spans [rows] rows and [cols] columns.
- *
- * @param startRow The starting row index of the region.
- * @param startCol The starting column index of the region.
- * @param rows The number of rows in the region.
- * @param cols The number of columns in the region.
- * @return A list of [GridCell] objects covering the specified rectangular region.
- */
-private fun generateRegion(
-    startRow: Int, startCol: Int, rows: Int, cols: Int
-): List<GridCell> {
-    return (startRow until startRow + rows).flatMap { r ->
-        (startCol until startCol + cols).map { c -> GridCell(r, c) }
-    }
 }

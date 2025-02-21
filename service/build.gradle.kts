@@ -18,15 +18,13 @@
 
 plugins {
     alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
 }
 
 android {
-    namespace = "com.eblan.launcher.data.repository"
+    namespace = "com.eblan.launcher.service"
 }
 
 dependencies {
-    implementation(projects.data.room)
-    implementation(projects.domain.repository)
+    implementation(libs.androidx.core.ktx)
 }

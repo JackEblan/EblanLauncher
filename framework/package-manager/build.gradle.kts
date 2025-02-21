@@ -23,10 +23,10 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.data.repository"
+    namespace = "com.eblan.launcher.framework.packagemanager"
 }
 
 dependencies {
-    implementation(projects.data.room)
-    implementation(projects.domain.repository)
+    implementation(projects.domain.common)
+    implementation(projects.domain.framework)
 }

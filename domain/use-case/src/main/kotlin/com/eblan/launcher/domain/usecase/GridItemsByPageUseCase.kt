@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class GridItemsByPageUseCase @Inject constructor(
@@ -21,11 +20,10 @@ class GridItemsByPageUseCase @Inject constructor(
         rows: Int,
         columns: Int,
     ): Flow<Map<Int, List<GridItemPixel>>> {
-        return gridRepository.gridItems.onStart { gridRepository.insertGridItems() }
-            .map { gridItems ->
+        return gridRepository.gridItems.map { gridItems ->
                 gridItems.filter { gridItem ->
                     areValidCells(
-                        gridCells = gridItem.cells, rows = rows, columns = columns
+                        gridCells = gridItem.cells, rows = rows, columns = columns,
                     )
                 }.map { gridItem ->
                     val boundingBox = calculateBoundingBox(
@@ -45,7 +43,7 @@ class GridItemsByPageUseCase @Inject constructor(
                     )
 
                     GridItemPixel(
-                        gridItem = gridItem, boundingBox = boundingBox, coordinates = coordinates
+                        gridItem = gridItem, boundingBox = boundingBox, coordinates = coordinates,
                     )
                 }
             }.map { gridItemPixels ->

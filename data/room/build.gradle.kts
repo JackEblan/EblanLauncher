@@ -20,13 +20,20 @@ plugins {
     alias(libs.plugins.com.eblan.launcher.library)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
+    alias(libs.plugins.com.eblan.launcher.room)
 }
 
 android {
-    namespace = "com.eblan.launcher.data.repository"
+    namespace = "com.eblan.launcher.data.room"
+
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 dependencies {
-    implementation(projects.data.room)
+    implementation(projects.domain.model)
     implementation(projects.domain.repository)
+
+    implementation(libs.gson)
 }

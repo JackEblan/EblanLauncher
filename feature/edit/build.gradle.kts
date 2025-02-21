@@ -17,16 +17,17 @@
  */
 
 plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.com.eblan.launcher.hilt)
+    alias(libs.plugins.roborazzi)
 }
 
 android {
-    namespace = "com.eblan.launcher.data.repository"
+    namespace = "com.eblan.launcher.feature.edit"
 }
 
 dependencies {
-    implementation(projects.data.room)
     implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
 }

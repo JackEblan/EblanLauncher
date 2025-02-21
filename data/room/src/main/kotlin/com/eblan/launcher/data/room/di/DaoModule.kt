@@ -15,18 +15,22 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.data.room.di
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import com.eblan.launcher.data.room.EblanLauncherDatabase
+import com.eblan.launcher.data.room.dao.GridDao
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-android {
-    namespace = "com.eblan.launcher.data.repository"
-}
+@Module
+@InstallIn(SingletonComponent::class)
+internal object DaoModule {
 
-dependencies {
-    implementation(projects.data.room)
-    implementation(projects.domain.repository)
+    @Provides
+    @Singleton
+    fun gridDao(eblanLauncherDatabase: EblanLauncherDatabase): GridDao =
+        eblanLauncherDatabase.gridDao()
 }

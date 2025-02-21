@@ -1,47 +1,32 @@
 package com.eblan.launcher.data.repository
 
-import com.eblan.launcher.domain.model.GridCell
+import com.eblan.launcher.data.room.dao.GridDao
+import com.eblan.launcher.data.room.entity.GridItemEntity
 import com.eblan.launcher.domain.model.GridItem
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import com.eblan.launcher.domain.repository.GridRepository
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class DefaultGridRepository @Inject constructor() :
-    com.eblan.launcher.domain.repository.GridRepository {
-    private val _gridItemsFlow = MutableSharedFlow<List<GridItem>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
-
-    override val gridItems = _gridItemsFlow.asSharedFlow()
-
-    override suspend fun insertGridItems() {
-        val gridItems = listOf(
-            GridItem(
-                page = 0, id = 0,
-                cells = listOf(
-                    GridCell(row = 0, column = 3),
-                ),
-            ),
-            GridItem(
-                page = 0, id = 1,
-                cells = listOf(
-                    GridCell(row = 1, column = 1),
-                ),
-            ),
-            GridItem(
-                page = 0, id = 2,
-                cells = listOf(
-                    GridCell(row = 0, column = 0),
-                ),
-            ),
-        )
-
-        _gridItemsFlow.emit(gridItems)
+class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : GridRepository {
+    override val gridItems = gridDao.getGridItemEntities().map { entities ->
+        entities.map { entity ->
+            entity.toGridItem()
+        }
     }
 
     override suspend fun updateGridItems(gridItems: List<GridItem>) {
-        _gridItemsFlow.emit(gridItems)
+        val gridItemEntities = gridItems.map { gridItem ->
+            gridItem.toGridItemEntity()
+        }
+
+        gridDao.updateGridItemEntities(gridItemEntities = gridItemEntities)
+    }
+
+    private fun GridItemEntity.toGridItem(): GridItem {
+        return GridItem(id = id, page = page, cells = cells)
+    }
+
+    private fun GridItem.toGridItemEntity(): GridItemEntity {
+        return GridItemEntity(id = id, page = page, cells = cells)
     }
 }

@@ -9,8 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
@@ -30,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -176,10 +178,12 @@ fun ApplicationScreen(
             },
             sheetState = selectApplicationBottomSheetState,
         ) {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 items(applicationInfos) { eblanLauncherApplicationInfo ->
-                    Text(
-                        text = eblanLauncherApplicationInfo.label,
+                    Column(
                         modifier = Modifier.clickable {
                             onLabelChange(eblanLauncherApplicationInfo.label)
 
@@ -187,7 +191,18 @@ fun ApplicationScreen(
 
                             showSelectApplicationBottomSheet = false
                         },
-                    )
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        AsyncImage(
+                            model = eblanLauncherApplicationInfo.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                        )
+
+                        Text(
+                            text = eblanLauncherApplicationInfo.label,
+                        )
+                    }
                 }
             }
         }

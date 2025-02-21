@@ -47,11 +47,14 @@ android {
 }
 
 dependencies {
+    implementation(projects.common)
     implementation(projects.data.repository)
     implementation(projects.designSystem)
+    implementation(projects.domain.model)
     implementation(projects.feature.edit)
     implementation(projects.feature.home)
-    implementation(projects.domain.model)
+    implementation(projects.framework.packageManager)
+    implementation(projects.service)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.ktx)

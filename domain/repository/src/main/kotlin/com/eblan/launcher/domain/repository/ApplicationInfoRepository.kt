@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.SharedFlow
 interface ApplicationInfoRepository {
     val applicationInfos: SharedFlow<List<EblanLauncherApplicationInfo>>
 
-    suspend fun insertApplicationInfos()
+    suspend fun updateApplicationInfos(applicationInfos: List<EblanLauncherApplicationInfo>)
 }

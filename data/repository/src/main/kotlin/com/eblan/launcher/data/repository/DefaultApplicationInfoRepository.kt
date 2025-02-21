@@ -15,15 +15,7 @@ class DefaultApplicationInfoRepository @Inject constructor() : ApplicationInfoRe
 
     override val applicationInfos = _applicationInfos.asSharedFlow()
 
-    override suspend fun insertApplicationInfos() {
-        _applicationInfos.emit(
-            listOf(
-                EblanLauncherApplicationInfo(
-                    packageName = "Package Name",
-                    label = "Label",
-                    icon = ByteArray(0),
-                ),
-            ),
-        )
+    override suspend fun updateApplicationInfos(applicationInfos: List<EblanLauncherApplicationInfo>) {
+        _applicationInfos.emit(applicationInfos)
     }
 }

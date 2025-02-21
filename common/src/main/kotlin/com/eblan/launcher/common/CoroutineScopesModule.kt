@@ -15,35 +15,28 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.di
+package com.eblan.launcher.common
 
-import android.content.Context
-import androidx.room.Room
-import com.eblan.launcher.data.room.EblanLauncherDatabase
-import com.eblan.launcher.data.room.converter.EblanLauncherTypeConverters
-import com.google.gson.Gson
+import com.eblan.launcher.domain.common.ApplicationScope
+import com.eblan.launcher.domain.common.Dispatcher
+import com.eblan.launcher.domain.common.GetoDispatchers.Default
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal object RoomModule {
-    @Singleton
+internal object CoroutineScopesModule {
     @Provides
-    fun eblanLauncherDatabase(
-        @ApplicationContext context: Context,
-        eblanLauncherTypeConverters: EblanLauncherTypeConverters,
-    ): EblanLauncherDatabase = Room.databaseBuilder(
-        context,
-        EblanLauncherDatabase::class.java,
-        EblanLauncherDatabase.DATABASE_NAME,
-    ).addTypeConverter(eblanLauncherTypeConverters).build()
-
     @Singleton
-    @Provides
-    fun gson(): Gson = Gson()
+    @ApplicationScope
+    fun providesCoroutineScope(
+        @Dispatcher(Default) dispatcher: CoroutineDispatcher,
+    ): CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
 }

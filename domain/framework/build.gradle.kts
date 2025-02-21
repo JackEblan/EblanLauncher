@@ -19,14 +19,14 @@
 plugins {
     alias(libs.plugins.com.eblan.launcher.library)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.com.eblan.launcher.hilt)
 }
 
 android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
+    namespace = "com.eblan.launcher.domain.framework"
 }
 
 dependencies {
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
+    api(projects.domain.model)
+
+    implementation(libs.kotlinx.coroutines.core)
 }

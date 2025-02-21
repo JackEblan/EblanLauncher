@@ -15,18 +15,16 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.common
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import javax.inject.Qualifier
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
-android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
-}
+@Qualifier
+@Retention(RUNTIME)
+annotation class Dispatcher(val getoDispatcher: GetoDispatchers)
 
-dependencies {
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
+enum class GetoDispatchers {
+    Default,
+    IO,
 }

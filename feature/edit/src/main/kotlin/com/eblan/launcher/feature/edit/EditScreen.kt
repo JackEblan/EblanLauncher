@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -30,8 +31,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
 
 @Composable
@@ -57,6 +60,8 @@ fun EditScreen(
     onNavigationIconClick: () -> Unit,
 ) {
     var label by remember { mutableStateOf("") }
+
+    var icon by remember { mutableStateOf(ByteArray(0)) }
 
     Scaffold(
         topBar = {
@@ -113,9 +118,13 @@ fun EditScreen(
                 GridItemType.Application -> {
                     ApplicationScreen(
                         label = label,
+                        icon = icon,
                         applicationInfos = applicationInfos,
                         onLabelChange = {
                             label = it
+                        },
+                        onIconChange = {
+                            icon = it
                         },
                     )
                 }
@@ -133,8 +142,10 @@ fun EditScreen(
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     label: String,
+    icon: ByteArray,
     applicationInfos: List<EblanLauncherApplicationInfo>,
     onLabelChange: (String) -> Unit,
+    onIconChange: (ByteArray) -> Unit,
 ) {
     val selectApplicationBottomSheetState = rememberModalBottomSheetState()
 
@@ -148,7 +159,7 @@ fun ApplicationScreen(
             },
         )
 
-        Text(text = "Icon")
+        AsyncImage(model = icon, contentDescription = null, modifier = Modifier.size(40.dp))
 
         TextField(
             value = label,
@@ -167,7 +178,16 @@ fun ApplicationScreen(
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(applicationInfos) { eblanLauncherApplicationInfo ->
-                    Text(text = eblanLauncherApplicationInfo.label)
+                    Text(
+                        text = eblanLauncherApplicationInfo.label,
+                        modifier = Modifier.clickable {
+                            onLabelChange(eblanLauncherApplicationInfo.label)
+
+                            onIconChange(eblanLauncherApplicationInfo.icon)
+
+                            showSelectApplicationBottomSheet = false
+                        },
+                    )
                 }
             }
         }

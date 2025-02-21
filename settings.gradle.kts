@@ -23,10 +23,13 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "EblanLauncher"
 include(":app")
+include(":broadcast-receiver")
+include(":common")
 include(":design-system")
 include(":data:repository")
 include(":data:room")
 include(":domain:common")
+include(":domain:framework")
 include(":domain:geometry")
 include(":domain:grid")
 include(":domain:model")

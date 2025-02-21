@@ -15,18 +15,14 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.framework
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
 
-android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
-}
+interface PackageManagerWrapper {
+    suspend fun queryIntentActivities(): List<EblanLauncherApplicationInfo>
 
-dependencies {
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
+    suspend fun getApplicationIcon(packageName: String): ByteArray?
+
+    fun launchIntentForPackage(packageName: String)
 }

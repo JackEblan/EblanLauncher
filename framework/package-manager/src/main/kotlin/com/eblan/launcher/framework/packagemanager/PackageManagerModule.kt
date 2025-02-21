@@ -15,18 +15,20 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.packagemanager
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
-}
+@Module
+@InstallIn(SingletonComponent::class)
+interface PackageManagerModule {
 
-dependencies {
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
+    @Binds
+    @Singleton
+    fun packageManagerWrapper(impl: AndroidPackageManagerWrapper): PackageManagerWrapper
 }

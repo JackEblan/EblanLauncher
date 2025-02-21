@@ -5,6 +5,6 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
-class DefaultUserDataRepository @Inject constructor(): UserDataRepository {
+class DefaultUserDataRepository @Inject constructor() : UserDataRepository {
     override val userData = flowOf(UserData(rows = 5, columns = 5, pageCount = 3))
 }

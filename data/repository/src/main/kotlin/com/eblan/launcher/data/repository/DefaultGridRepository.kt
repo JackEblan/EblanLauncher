@@ -2,13 +2,13 @@ package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
-class DefaultGridRepository @Inject constructor() : GridRepository {
+class DefaultGridRepository @Inject constructor() :
+    com.eblan.launcher.domain.repository.GridRepository {
     private val _gridItemsFlow = MutableSharedFlow<List<GridItem>>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,

@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.com.eblan.launcher.applicationCompose)
     alias(libs.plugins.com.eblan.launcher.applicationJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
-    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -48,7 +47,9 @@ android {
 }
 
 dependencies {
+    implementation(projects.data.repository)
     implementation(projects.designSystem)
+    implementation(projects.feature.home)
     implementation(projects.domain.model)
 
     implementation(libs.accompanist.permissions)
@@ -56,7 +57,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

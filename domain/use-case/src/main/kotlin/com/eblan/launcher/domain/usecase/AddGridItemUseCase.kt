@@ -35,8 +35,7 @@ class AddGridItemUseCase @Inject constructor(
 
             val id = Random.nextInt()
 
-            val gridItem =
-                GridItem(page = page, id = id, cells = listOf(gridCell))
+            val gridItem = GridItem(page = page, id = id, cells = listOf(gridCell))
 
             val gridItems = gridRepository.gridItems.first().toMutableList().apply {
                 add(gridItem)

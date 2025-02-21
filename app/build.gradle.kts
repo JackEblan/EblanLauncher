@@ -49,6 +49,7 @@ android {
 dependencies {
     implementation(projects.data.repository)
     implementation(projects.designSystem)
+    implementation(projects.feature.edit)
     implementation(projects.feature.home)
     implementation(projects.domain.model)
 

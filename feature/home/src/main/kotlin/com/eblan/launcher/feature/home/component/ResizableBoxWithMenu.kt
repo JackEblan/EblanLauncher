@@ -32,12 +32,14 @@ import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
 import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResizableBoundingBox
 import kotlin.math.roundToInt
 
 @Composable
 fun ResizableBoxWithMenu(
     modifier: Modifier = Modifier,
+    gridItem: GridItem?,
     x: Int,
     y: Int,
     width: Int,
@@ -49,6 +51,7 @@ fun ResizableBoxWithMenu(
     onTopEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onBottomStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onBottomEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
+    onEdit: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -137,20 +140,24 @@ fun ResizableBoxWithMenu(
     }
 
     Menu(
+        gridItem = gridItem,
         resizableBoundingBox = resizableBoundingBox,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
         menuSizeMarginPixel = menuSizeMarginPixel,
+        onEdit = onEdit,
     )
 }
 
 @Composable
 private fun Menu(
     modifier: Modifier = Modifier,
+    gridItem: GridItem?,
     resizableBoundingBox: ResizableBoundingBox,
     screenWidth: Int,
     screenHeight: Int,
     menuSizeMarginPixel: Int,
+    onEdit: (Int) -> Unit,
 ) {
     Surface(
         modifier = modifier.layout { measurable, constraints ->
@@ -181,7 +188,7 @@ private fun Menu(
         Row {
             IconButton(
                 onClick = {
-
+                    gridItem?.id?.let(onEdit)
                 },
             ) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = null)

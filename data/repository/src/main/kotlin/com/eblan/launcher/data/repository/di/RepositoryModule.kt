@@ -17,8 +17,10 @@
  */
 package com.eblan.launcher.data.repository.di
 
+import com.eblan.launcher.data.repository.DefaultApplicationInfoRepository
 import com.eblan.launcher.data.repository.DefaultGridRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
+import com.eblan.launcher.domain.repository.ApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import dagger.Binds
@@ -38,4 +40,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun userDataRepository(impl: DefaultUserDataRepository): UserDataRepository
+
+    @Binds
+    @Singleton
+    fun applicationInfoRepository(impl: DefaultApplicationInfoRepository): ApplicationInfoRepository
 }

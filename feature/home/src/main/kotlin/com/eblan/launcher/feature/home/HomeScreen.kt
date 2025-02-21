@@ -40,7 +40,10 @@ import com.eblan.launcher.feature.home.component.gridItemPlacement
 import kotlin.math.roundToInt
 
 @Composable
-fun HomeRoute(modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeRoute(
+    modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltViewModel(),
+    onEdit: (Int) -> Unit,
+) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
     val updatedGridItem by viewModel.updatedGridItem.collectAsStateWithLifecycle()
@@ -56,6 +59,7 @@ fun HomeRoute(modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltView
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
+        onEdit = onEdit,
     )
 }
 
@@ -79,6 +83,7 @@ fun HomeScreen(
         screenWidthPixel: Int,
         screenHeightPixel: Int,
     ) -> Unit,
+    onEdit: (Int) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Box(
@@ -108,6 +113,7 @@ fun HomeScreen(
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
+                        onEdit = onEdit,
                     )
                 }
             }
@@ -136,6 +142,7 @@ fun Success(
         screenWidthPixel: Int,
         screenHeightPixel: Int,
     ) -> Unit,
+    onEdit: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -268,6 +275,7 @@ fun Success(
             }
 
             ResizableBoxWithMenu(
+                gridItem = selectedGridItemPixel?.gridItem,
                 x = dragOffsetX,
                 y = dragOffsetY,
                 width = widthPixel,
@@ -408,6 +416,7 @@ fun Success(
                         Anchor.TOP_START,
                     )
                 },
+                onEdit = onEdit,
             )
         }
     }

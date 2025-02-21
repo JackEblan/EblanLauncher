@@ -15,14 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.navigation
+package com.eblan.launcher.feature.edit.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.home.HomeRoute
+import kotlinx.serialization.Serializable
 
-fun NavGraphBuilder.homeScreen(onEdit: (Int) -> Unit) {
-    composable<HomeRouteData> {
-        HomeRoute(onEdit = onEdit)
-    }
-}
+@Serializable
+data class EditRouteData(val id: Int)

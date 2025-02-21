@@ -15,14 +15,21 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.navigation
+package com.eblan.launcher.feature.edit.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.home.HomeRoute
+import com.eblan.launcher.feature.edit.EditRoute
 
-fun NavGraphBuilder.homeScreen(onEdit: (Int) -> Unit) {
-    composable<HomeRouteData> {
-        HomeRoute(onEdit = onEdit)
+fun NavController.navigateToEdit(id: Int) {
+    navigate(EditRouteData(id = id))
+}
+
+fun NavGraphBuilder.editScreen(
+    onNavigationIconClick: () -> Unit,
+) {
+    composable<EditRouteData> {
+        EditRoute(onNavigationIconClick = onNavigationIconClick)
     }
 }

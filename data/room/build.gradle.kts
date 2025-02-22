@@ -35,5 +35,5 @@ dependencies {
     implementation(projects.domain.model)
     implementation(projects.domain.repository)
 
-    implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
 }

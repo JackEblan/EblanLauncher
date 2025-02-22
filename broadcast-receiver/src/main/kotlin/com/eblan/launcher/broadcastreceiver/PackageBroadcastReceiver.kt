@@ -3,7 +3,7 @@ package com.eblan.launcher.broadcastreceiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.eblan.launcher.domain.common.ApplicationScope
+import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import dagger.hilt.android.AndroidEntryPoint

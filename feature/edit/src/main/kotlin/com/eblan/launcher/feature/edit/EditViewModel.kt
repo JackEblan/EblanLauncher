@@ -4,9 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
-import com.eblan.launcher.domain.model.GridItemType
-import com.eblan.launcher.domain.repository.ApplicationInfoRepository
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import com.eblan.launcher.feature.edit.navigation.EditRouteData
@@ -20,7 +18,6 @@ import javax.inject.Inject
 class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     inMemoryApplicationInfoRepository: InMemoryApplicationInfoRepository,
-    private val applicationInfoRepository: ApplicationInfoRepository,
     private val gridRepository: GridRepository,
 ) : ViewModel() {
     private val editRouteData = savedStateHandle.toRoute<EditRouteData>()
@@ -32,25 +29,21 @@ class EditViewModel @Inject constructor(
     )
 
     fun addApplicationInfo(
-        type: GridItemType,
         packageName: String,
         flags: Int,
-        icon: ByteArray?,
         label: String,
     ) {
+        val data = GridItemData.ApplicationInfo(
+            gridItemId = editRouteData.id,
+            packageName = packageName,
+            flags = flags,
+            label = label,
+        )
         viewModelScope.launch {
-            applicationInfoRepository.upsertApplicationInfo(
-                gridItemId = editRouteData.id,
-                applicationInfo = EblanLauncherApplicationInfo(
-                    gridItemId = editRouteData.id,
-                    packageName = packageName,
-                    flags = flags,
-                    icon = icon,
-                    label = label,
-                ),
+            gridRepository.updateGridItemData(
+                id = editRouteData.id,
+                data = data,
             )
-
-            gridRepository.updateGridItemType(id = editRouteData.id, type = type)
         }
     }
 }

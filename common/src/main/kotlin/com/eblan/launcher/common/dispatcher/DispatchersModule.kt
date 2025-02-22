@@ -17,9 +17,9 @@
  */
 package com.eblan.launcher.common.dispatcher
 
-import com.eblan.launcher.domain.common.Dispatcher
-import com.eblan.launcher.domain.common.GetoDispatchers.Default
-import com.eblan.launcher.domain.common.GetoDispatchers.IO
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.GetoDispatchers.Default
+import com.eblan.launcher.domain.common.dispatcher.GetoDispatchers.IO
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

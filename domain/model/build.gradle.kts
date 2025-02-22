@@ -19,6 +19,7 @@
 plugins {
     alias(libs.plugins.com.eblan.launcher.library)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -27,4 +28,8 @@ android {
     defaultConfig {
         consumerProguardFiles("consumer-proguard-rules.pro")
     }
+}
+
+dependencies {
+    implementation(libs.kotlinx.serialization.json)
 }

@@ -3,7 +3,7 @@ package com.eblan.launcher.data.repository
 import com.eblan.launcher.data.room.dao.GridDao
 import com.eblan.launcher.data.room.entity.GridItemEntity
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemType
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -27,15 +27,15 @@ class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : 
         gridDao.upsertGridItemEntity(gridItemEntity = gridItem.toGridItemEntity())
     }
 
-    override suspend fun updateGridItemType(id: Int, type: GridItemType) {
-        gridDao.updateGridItemType(id = id, type = type)
+    override suspend fun updateGridItemData(id: Int, data: GridItemData) {
+        gridDao.updateGridItemData(id = id, data = data)
     }
 
     private fun GridItemEntity.toGridItem(): GridItem {
-        return GridItem(id = id, page = page, cells = cells, type = type)
+        return GridItem(id = id, page = page, cells = cells, data = data)
     }
 
     private fun GridItem.toGridItemEntity(): GridItemEntity {
-        return GridItemEntity(id = id, page = page, cells = cells, type = type)
+        return GridItemEntity(id = id, page = page, cells = cells, data = data)
     }
 }

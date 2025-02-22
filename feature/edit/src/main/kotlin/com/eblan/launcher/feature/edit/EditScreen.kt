@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.model.GridItemType
 import com.eblan.launcher.domain.model.InMemoryApplicationInfo
 
 @Composable
@@ -63,16 +63,19 @@ fun EditScreen(
     applicationInfos: List<InMemoryApplicationInfo>,
     onNavigationIconClick: () -> Unit,
     onAddApplicationInfo: (
-        type: GridItemType,
         packageName: String,
         flags: Int,
-        icon: ByteArray?,
         label: String,
     ) -> Unit,
 ) {
-    var selectedGridItemType by remember { mutableStateOf(GridItemType.Application) }
+    var selectedGridItemIndex by remember { mutableIntStateOf(0) }
 
     val applicationScreenUiState = rememberApplicationScreenUiState()
+
+    val gridItemDataItems = listOf(
+        "Application",
+        "Widget",
+    )
 
     Scaffold(
         topBar = {
@@ -93,20 +96,18 @@ fun EditScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    when (selectedGridItemType) {
-                        GridItemType.Application -> {
+                    when (selectedGridItemIndex) {
+                        0 -> {
                             if (applicationScreenUiState.validate()) {
                                 onAddApplicationInfo(
-                                    selectedGridItemType,
                                     applicationScreenUiState.packageName!!,
                                     applicationScreenUiState.flags!!,
-                                    applicationScreenUiState.icon,
                                     applicationScreenUiState.label,
                                 )
                             }
                         }
 
-                        GridItemType.Widget -> {
+                        1 -> {
 
                         }
                     }
@@ -123,32 +124,30 @@ fun EditScreen(
                 .consumeWindowInsets(paddingValues),
         ) {
 
-            ContextualFlowRow(modifier = Modifier.fillMaxWidth(), itemCount = 2) { index ->
+            ContextualFlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                itemCount = gridItemDataItems.size,
+            ) { index ->
                 FilterChip(
-                    selected = GridItemType.entries[index] == selectedGridItemType,
+                    selected = index == selectedGridItemIndex,
                     onClick = {
-                        selectedGridItemType = GridItemType.entries[index]
+                        selectedGridItemIndex = index
                     },
                     label = {
-                        val title = when (GridItemType.entries[index]) {
-                            GridItemType.Application -> "Application"
-                            GridItemType.Widget -> "Widget"
-                        }
-
-                        Text(text = title)
+                        Text(text = gridItemDataItems[index])
                     },
                 )
             }
 
-            when (selectedGridItemType) {
-                GridItemType.Application -> {
+            when (selectedGridItemIndex) {
+                0 -> {
                     ApplicationScreen(
                         applicationScreenUiState = applicationScreenUiState,
                         applicationInfos = applicationInfos,
                     )
                 }
 
-                GridItemType.Widget -> {
+                1 -> {
 
                 }
             }

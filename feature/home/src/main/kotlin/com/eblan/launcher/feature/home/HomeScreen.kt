@@ -34,8 +34,8 @@ import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemPixel
-import com.eblan.launcher.domain.model.GridItemTypeData
 import com.eblan.launcher.domain.model.ScreenDimension
 import com.eblan.launcher.feature.home.component.Grid
 import com.eblan.launcher.feature.home.component.ResizableBoxWithMenu
@@ -201,8 +201,8 @@ fun Success(
                     },
             ) {
                 gridItems[page]?.forEach { gridItemPixel ->
-                    when (val gridItemTypeData = gridItemPixel.gridItemTypeData) {
-                        is GridItemTypeData.ApplicationInfo -> {
+                    when (val gridItemData = gridItemPixel.data) {
+                        is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -222,11 +222,11 @@ fun Success(
                                     }
                                     .background(Color.Blue)
                                     .gridItemPlacement(gridItemPixel),
-                                gridItemTypeData = gridItemTypeData,
+                                gridItemData = gridItemData,
                             )
                         }
 
-                        is GridItemTypeData.Widget -> {
+                        is GridItemData.Widget -> {
 
                         }
 
@@ -460,11 +460,11 @@ fun Success(
 @Composable
 fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
-    gridItemTypeData: GridItemTypeData.ApplicationInfo,
+    gridItemData: GridItemData.ApplicationInfo,
 ) {
     Column(modifier = modifier) {
-        AsyncImage(model = gridItemTypeData.icon, contentDescription = null)
+        AsyncImage(model = gridItemData.icon, contentDescription = null)
 
-        Text(text = gridItemTypeData.label)
+        Text(text = gridItemData.label)
     }
 }

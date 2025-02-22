@@ -1,4 +1,4 @@
-package com.eblan.launcher.domain.common
+package com.eblan.launcher.domain.common.qualifier
 
 import javax.inject.Qualifier
 

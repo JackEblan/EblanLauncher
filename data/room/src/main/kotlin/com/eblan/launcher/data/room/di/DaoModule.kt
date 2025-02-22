@@ -18,7 +18,6 @@
 package com.eblan.launcher.data.room.di
 
 import com.eblan.launcher.data.room.EblanLauncherDatabase
-import com.eblan.launcher.data.room.dao.ApplicationInfoDao
 import com.eblan.launcher.data.room.dao.GridDao
 import dagger.Module
 import dagger.Provides
@@ -34,9 +33,4 @@ internal object DaoModule {
     @Singleton
     fun gridDao(eblanLauncherDatabase: EblanLauncherDatabase): GridDao =
         eblanLauncherDatabase.gridDao()
-
-    @Provides
-    @Singleton
-    fun applicationInfoDao(eblanLauncherDatabase: EblanLauncherDatabase): ApplicationInfoDao =
-        eblanLauncherDatabase.applicationInfoDao()
 }

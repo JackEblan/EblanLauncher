@@ -5,7 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.IBinder
 import com.eblan.launcher.broadcastreceiver.PackageBroadcastReceiver
-import com.eblan.launcher.domain.common.ApplicationScope
+import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import dagger.hilt.android.AndroidEntryPoint

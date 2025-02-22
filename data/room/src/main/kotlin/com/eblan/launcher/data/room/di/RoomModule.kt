@@ -21,7 +21,6 @@ import android.content.Context
 import androidx.room.Room
 import com.eblan.launcher.data.room.EblanLauncherDatabase
 import com.eblan.launcher.data.room.converter.EblanLauncherTypeConverters
-import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,8 +41,4 @@ internal object RoomModule {
         EblanLauncherDatabase::class.java,
         EblanLauncherDatabase.DATABASE_NAME,
     ).addTypeConverter(eblanLauncherTypeConverters).build()
-
-    @Singleton
-    @Provides
-    fun gson(): Gson = Gson()
 }

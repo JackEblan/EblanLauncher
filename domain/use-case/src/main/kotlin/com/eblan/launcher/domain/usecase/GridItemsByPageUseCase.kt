@@ -3,21 +3,21 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.areValidCells
 import com.eblan.launcher.domain.grid.calculateBoundingBox
 import com.eblan.launcher.domain.grid.calculateCoordinates
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemPixel
-import com.eblan.launcher.domain.model.GridItemType
-import com.eblan.launcher.domain.model.GridItemTypeData
 import com.eblan.launcher.domain.model.ScreenDimension
-import com.eblan.launcher.domain.repository.ApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GridItemsByPageUseCase @Inject constructor(
     private val gridRepository: GridRepository,
-    private val applicationInfoRepository: ApplicationInfoRepository,
+    private val inMemoryApplicationInfoRepository: InMemoryApplicationInfoRepository,
 ) {
     operator fun invoke(
         screenDimension: ScreenDimension,
@@ -46,37 +46,32 @@ class GridItemsByPageUseCase @Inject constructor(
                     screenHeight = screenDimension.screenHeight,
                 )
 
-                val gridItemTypeData = when (gridItem.type) {
-                    GridItemType.Application -> {
-                        val applicationInfo =
-                            applicationInfoRepository.getApplicationInfo(gridItemId = gridItem.id)
-
-                        GridItemTypeData.ApplicationInfo(
-                            id = applicationInfo.id,
-                            packageName = applicationInfo.packageName,
-                            gridItemId = applicationInfo.gridItemId,
-                            flags = applicationInfo.flags,
-                            icon = applicationInfo.icon,
-                            label = applicationInfo.label,
-                        )
+                val data = when (val gridItemData = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        getApplicationInfoIcon(gridItemData = gridItemData)
                     }
 
-                    GridItemType.Widget -> {
-                        GridItemTypeData.Widget(label = "")
-                    }
+                    is GridItemData.Widget -> null
 
-                    else -> {
-                        null
-                    }
+                    null -> null
                 }
 
                 GridItemPixel(
                     gridItem = gridItem, boundingBox = boundingBox, coordinates = coordinates,
-                    gridItemTypeData = gridItemTypeData,
+                    data = data,
                 )
             }
         }.map { gridItemPixels ->
             gridItemPixels.groupBy { gridItemPixel -> gridItemPixel.gridItem.page }
         }.flowOn(Dispatchers.Default)
+    }
+
+    private suspend fun getApplicationInfoIcon(gridItemData: GridItemData.ApplicationInfo): GridItemData.ApplicationInfo {
+        val icon = inMemoryApplicationInfoRepository.applicationInfos.first()
+            .find { inMemoryApplicationInfo ->
+                inMemoryApplicationInfo.packageName == gridItemData.packageName
+            }?.icon ?: ByteArray(0)
+
+        return gridItemData.copy(icon = icon)
     }
 }

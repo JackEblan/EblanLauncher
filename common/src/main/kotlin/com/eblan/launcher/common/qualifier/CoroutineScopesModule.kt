@@ -15,11 +15,11 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.common
+package com.eblan.launcher.common.qualifier
 
-import com.eblan.launcher.domain.common.ApplicationScope
-import com.eblan.launcher.domain.common.Dispatcher
-import com.eblan.launcher.domain.common.GetoDispatchers.Default
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.GetoDispatchers.Default
+import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,7 +27,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module

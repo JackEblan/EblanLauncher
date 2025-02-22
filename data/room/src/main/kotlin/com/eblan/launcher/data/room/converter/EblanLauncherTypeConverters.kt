@@ -3,21 +3,29 @@ package com.eblan.launcher.data.room.converter
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import com.eblan.launcher.domain.model.GridCell
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.eblan.launcher.domain.model.GridItemData
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @ProvidedTypeConverter
-class EblanLauncherTypeConverters @Inject constructor(private val gson: Gson){
+class EblanLauncherTypeConverters @Inject constructor() {
     @TypeConverter
     fun fromGridCells(value: List<GridCell>): String {
-        return gson.toJson(value)
+        return Json.encodeToString(value)
     }
 
     @TypeConverter
     fun toGridCells(value: String): List<GridCell> {
-        val type = object : TypeToken<List<GridCell>>() {}.type
+        return Json.decodeFromString(value)
+    }
 
-        return gson.fromJson(value, type)
+    @TypeConverter
+    fun fromGridItemData(value: GridItemData): String {
+        return Json.encodeToString(value)
+    }
+
+    @TypeConverter
+    fun toGridItemData(value: String): GridItemData {
+        return Json.decodeFromString(value)
     }
 }

@@ -4,5 +4,5 @@ data class GridItemPixel(
     val gridItem: GridItem,
     val boundingBox: BoundingBox,
     val coordinates: Coordinates,
-    val gridItemTypeData: GridItemTypeData?,
+    val data: GridItemData?,
 )

@@ -3,6 +3,7 @@ package com.eblan.launcher.data.repository
 import com.eblan.launcher.data.room.dao.GridDao
 import com.eblan.launcher.data.room.entity.GridItemEntity
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemType
 import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -14,19 +15,27 @@ class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : 
         }
     }
 
-    override suspend fun updateGridItems(gridItems: List<GridItem>) {
+    override suspend fun upsertGridItems(gridItems: List<GridItem>) {
         val gridItemEntities = gridItems.map { gridItem ->
             gridItem.toGridItemEntity()
         }
 
-        gridDao.updateGridItemEntities(gridItemEntities = gridItemEntities)
+        gridDao.upsertGridItemEntities(gridItemEntities = gridItemEntities)
+    }
+
+    override suspend fun upsertGridItem(gridItem: GridItem) {
+        gridDao.upsertGridItemEntity(gridItemEntity = gridItem.toGridItemEntity())
+    }
+
+    override suspend fun updateGridItemType(id: Int, type: GridItemType) {
+        gridDao.updateGridItemType(id = id, type = type)
     }
 
     private fun GridItemEntity.toGridItem(): GridItem {
-        return GridItem(id = id, page = page, cells = cells)
+        return GridItem(id = id, page = page, cells = cells, type = type)
     }
 
     private fun GridItem.toGridItemEntity(): GridItemEntity {
-        return GridItemEntity(id = id, page = page, cells = cells)
+        return GridItemEntity(id = id, page = page, cells = cells, type = type)
     }
 }

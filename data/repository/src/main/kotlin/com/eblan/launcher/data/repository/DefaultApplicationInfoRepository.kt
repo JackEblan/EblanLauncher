@@ -1,21 +1,50 @@
 package com.eblan.launcher.data.repository
 
+import com.eblan.launcher.data.room.dao.ApplicationInfoDao
+import com.eblan.launcher.data.room.entity.EblanLauncherApplicationInfoEntity
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
 import com.eblan.launcher.domain.repository.ApplicationInfoRepository
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
-class DefaultApplicationInfoRepository @Inject constructor() : ApplicationInfoRepository {
-    private val _applicationInfos = MutableSharedFlow<List<EblanLauncherApplicationInfo>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+class DefaultApplicationInfoRepository @Inject constructor(
+    private val applicationInfoDao: ApplicationInfoDao,
+    private val packageManagerWrapper: PackageManagerWrapper,
+) : ApplicationInfoRepository {
+    override suspend fun getApplicationInfo(gridItemId: Int): EblanLauncherApplicationInfo {
+        return applicationInfoDao.getApplicationInfoEntity(gridItemId = gridItemId)
+            .toApplicationInfo()
+    }
 
-    override val applicationInfos = _applicationInfos.asSharedFlow()
+    override suspend fun upsertApplicationInfo(
+        gridItemId: Int,
+        applicationInfo: EblanLauncherApplicationInfo,
+    ) {
+        applicationInfoDao.upsertApplicationInfoEntity(
+            applicationInfoEntity = applicationInfo.toEntity(
+                gridItemId = gridItemId,
+            ),
+        )
+    }
 
-    override suspend fun updateApplicationInfos(applicationInfos: List<EblanLauncherApplicationInfo>) {
-        _applicationInfos.emit(applicationInfos)
+    private suspend fun EblanLauncherApplicationInfoEntity.toApplicationInfo(): EblanLauncherApplicationInfo {
+        return EblanLauncherApplicationInfo(
+            id = id,
+            gridItemId = gridItemId,
+            packageName = packageName,
+            flags = flags,
+            icon = packageManagerWrapper.getApplicationIcon(packageName = packageName),
+            label = label,
+        )
+    }
+
+    private fun EblanLauncherApplicationInfo.toEntity(gridItemId: Int): EblanLauncherApplicationInfoEntity {
+        return EblanLauncherApplicationInfoEntity(
+            id = id,
+            gridItemId = gridItemId,
+            packageName = packageName,
+            flags = flags,
+            label = label,
+        )
     }
 }

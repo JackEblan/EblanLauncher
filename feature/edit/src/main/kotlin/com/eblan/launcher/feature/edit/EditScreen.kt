@@ -37,7 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
+import com.eblan.launcher.domain.model.GridItemType
+import com.eblan.launcher.domain.model.InMemoryApplicationInfo
 
 @Composable
 fun EditRoute(
@@ -51,6 +52,7 @@ fun EditRoute(
         modifier = modifier,
         applicationInfos = applicationInfos,
         onNavigationIconClick = onNavigationIconClick,
+        onAddApplicationInfo = viewModel::addApplicationInfo,
     )
 }
 
@@ -58,12 +60,19 @@ fun EditRoute(
 @Composable
 fun EditScreen(
     modifier: Modifier = Modifier,
-    applicationInfos: List<EblanLauncherApplicationInfo>,
+    applicationInfos: List<InMemoryApplicationInfo>,
     onNavigationIconClick: () -> Unit,
+    onAddApplicationInfo: (
+        type: GridItemType,
+        packageName: String,
+        flags: Int,
+        icon: ByteArray?,
+        label: String,
+    ) -> Unit,
 ) {
-    var label by remember { mutableStateOf("") }
+    var selectedGridItemType by remember { mutableStateOf(GridItemType.Application) }
 
-    var icon by remember { mutableStateOf(ByteArray(0)) }
+    val applicationScreenUiState = rememberApplicationScreenUiState()
 
     Scaffold(
         topBar = {
@@ -84,7 +93,23 @@ fun EditScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    when (selectedGridItemType) {
+                        GridItemType.Application -> {
+                            if (applicationScreenUiState.validate()) {
+                                onAddApplicationInfo(
+                                    selectedGridItemType,
+                                    applicationScreenUiState.packageName!!,
+                                    applicationScreenUiState.flags!!,
+                                    applicationScreenUiState.icon,
+                                    applicationScreenUiState.label,
+                                )
+                            }
+                        }
 
+                        GridItemType.Widget -> {
+
+                        }
+                    }
                 },
             ) {
                 Icon(imageVector = Icons.Default.Save, contentDescription = null)
@@ -97,7 +122,6 @@ fun EditScreen(
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues),
         ) {
-            var selectedGridItemType by remember { mutableStateOf(GridItemType.Application) }
 
             ContextualFlowRow(modifier = Modifier.fillMaxWidth(), itemCount = 2) { index ->
                 FilterChip(
@@ -119,15 +143,8 @@ fun EditScreen(
             when (selectedGridItemType) {
                 GridItemType.Application -> {
                     ApplicationScreen(
-                        label = label,
-                        icon = icon,
+                        applicationScreenUiState = applicationScreenUiState,
                         applicationInfos = applicationInfos,
-                        onLabelChange = {
-                            label = it
-                        },
-                        onIconChange = {
-                            icon = it
-                        },
                     )
                 }
 
@@ -143,11 +160,8 @@ fun EditScreen(
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
-    label: String,
-    icon: ByteArray,
-    applicationInfos: List<EblanLauncherApplicationInfo>,
-    onLabelChange: (String) -> Unit,
-    onIconChange: (ByteArray) -> Unit,
+    applicationScreenUiState: ApplicationScreenUiState,
+    applicationInfos: List<InMemoryApplicationInfo>,
 ) {
     val selectApplicationBottomSheetState = rememberModalBottomSheetState()
 
@@ -161,11 +175,17 @@ fun ApplicationScreen(
             },
         )
 
-        AsyncImage(model = icon, contentDescription = null, modifier = Modifier.size(40.dp))
+        AsyncImage(
+            model = applicationScreenUiState.icon,
+            contentDescription = null,
+            modifier = Modifier.size(40.dp),
+        )
 
         TextField(
-            value = label,
-            onValueChange = onLabelChange,
+            value = applicationScreenUiState.label,
+            onValueChange = {
+                applicationScreenUiState.label = it
+            },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Label") },
         )
@@ -185,9 +205,14 @@ fun ApplicationScreen(
                 items(applicationInfos) { eblanLauncherApplicationInfo ->
                     Column(
                         modifier = Modifier.clickable {
-                            onLabelChange(eblanLauncherApplicationInfo.label)
+                            applicationScreenUiState.packageName =
+                                eblanLauncherApplicationInfo.packageName
 
-                            onIconChange(eblanLauncherApplicationInfo.icon)
+                            applicationScreenUiState.flags = eblanLauncherApplicationInfo.flags
+
+                            applicationScreenUiState.icon = eblanLauncherApplicationInfo.icon
+
+                            applicationScreenUiState.label = eblanLauncherApplicationInfo.label
 
                             showSelectApplicationBottomSheet = false
                         },

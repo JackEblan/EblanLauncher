@@ -7,7 +7,7 @@ import android.os.IBinder
 import com.eblan.launcher.broadcastreceiver.PackageBroadcastReceiver
 import com.eblan.launcher.domain.common.ApplicationScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.repository.ApplicationInfoRepository
+import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ApplicationInfoService : Service() {
     @Inject
-    lateinit var applicationInfoRepository: ApplicationInfoRepository
+    lateinit var inMemoryApplicationInfoRepository: InMemoryApplicationInfoRepository
 
     @Inject
     lateinit var packageManagerWrapper: PackageManagerWrapper
@@ -45,7 +45,7 @@ class ApplicationInfoService : Service() {
         registerReceiver(packageBroadcastReceiver, intentFilter)
 
         serviceJob = appScope.launch {
-            applicationInfoRepository.updateApplicationInfos(packageManagerWrapper.queryIntentActivities())
+            inMemoryApplicationInfoRepository.updateInMemoryApplicationInfos(packageManagerWrapper.queryIntentActivities())
         }
 
         return super.onStartCommand(intent, flags, startId)

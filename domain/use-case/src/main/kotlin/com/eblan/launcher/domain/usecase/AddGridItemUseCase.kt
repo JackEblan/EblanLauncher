@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.random.Random
 
 class AddGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
@@ -33,15 +32,14 @@ class AddGridItemUseCase @Inject constructor(
                 screenHeight = screenHeight,
             )
 
-            val id = Random.nextInt()
-
-            val gridItem = GridItem(page = page, id = id, cells = listOf(gridCell))
+            val gridItem =
+                GridItem(page = page, cells = listOf(gridCell), type = null)
 
             val gridItems = gridRepository.gridItems.first().toMutableList().apply {
                 add(gridItem)
             }
 
-            gridRepository.updateGridItems(gridItems = gridItems)
+            gridRepository.upsertGridItems(gridItems = gridItems)
         }
     }
 }

@@ -17,10 +17,10 @@
  */
 package com.eblan.launcher.domain.framework
 
-import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
+import com.eblan.launcher.domain.model.InMemoryApplicationInfo
 
 interface PackageManagerWrapper {
-    suspend fun queryIntentActivities(): List<EblanLauncherApplicationInfo>
+    suspend fun queryIntentActivities(): List<InMemoryApplicationInfo>
 
     suspend fun getApplicationIcon(packageName: String): ByteArray?
 

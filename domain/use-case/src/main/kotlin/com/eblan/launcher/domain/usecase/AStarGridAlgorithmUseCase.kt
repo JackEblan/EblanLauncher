@@ -52,7 +52,7 @@ class AStarGridAlgorithmUseCase @Inject constructor(
             )
 
             if (resolvedConflictsGridItems != null) {
-                gridRepository.updateGridItems(gridItems = resolvedConflictsGridItems)
+                gridRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
             }
         }
     }

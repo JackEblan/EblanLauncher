@@ -27,7 +27,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.drawable.toBitmap
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.EblanLauncherApplicationInfo
+import com.eblan.launcher.domain.model.InMemoryApplicationInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +40,7 @@ class AndroidPackageManagerWrapper @Inject constructor(
 
     private val packageManager = context.packageManager
 
-    override suspend fun queryIntentActivities(): List<EblanLauncherApplicationInfo> {
+    override suspend fun queryIntentActivities(): List<InMemoryApplicationInfo> {
         val intent = Intent().apply {
             action = Intent.ACTION_MAIN
             addCategory(Intent.CATEGORY_LAUNCHER)
@@ -49,7 +49,7 @@ class AndroidPackageManagerWrapper @Inject constructor(
         return withContext(Dispatchers.Default) {
             packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
                 .map { resolveInfo ->
-                    resolveInfo.activityInfo.applicationInfo.toEblanLauncherApplicationInfo()
+                    resolveInfo.activityInfo.applicationInfo.toInMemoryApplicationInfo()
                 }.sortedBy { applicationInfo -> applicationInfo.label }
         }
     }
@@ -73,8 +73,8 @@ class AndroidPackageManagerWrapper @Inject constructor(
         }
     }
 
-    private suspend fun ApplicationInfo.toEblanLauncherApplicationInfo(): EblanLauncherApplicationInfo {
-        return EblanLauncherApplicationInfo(
+    private suspend fun ApplicationInfo.toInMemoryApplicationInfo(): InMemoryApplicationInfo {
+        return InMemoryApplicationInfo(
             packageName = packageName,
             flags = flags,
             icon = loadIcon(packageManager).toByteArray(),

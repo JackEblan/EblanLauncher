@@ -18,9 +18,11 @@
 package com.eblan.launcher.domain.model
 
 data class EblanLauncherApplicationInfo(
+    val id: Int = 0,
+    val gridItemId: Int,
     val packageName: String,
     val flags: Int,
-    val icon: ByteArray,
+    val icon: ByteArray?,
     val label: String,
 ) {
     override fun equals(other: Any?): Boolean {

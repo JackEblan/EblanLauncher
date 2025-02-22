@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.eblan.launcher.domain.common.ApplicationScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.repository.ApplicationInfoRepository
+import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -14,7 +14,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PackageBroadcastReceiver : BroadcastReceiver() {
     @Inject
-    lateinit var applicationInfoRepository: ApplicationInfoRepository
+    lateinit var inMemoryApplicationInfoRepository: InMemoryApplicationInfoRepository
 
     @Inject
     lateinit var packageManagerWrapper: PackageManagerWrapper
@@ -25,7 +25,7 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         appScope.launch {
-            applicationInfoRepository.updateApplicationInfos(packageManagerWrapper.queryIntentActivities())
+            inMemoryApplicationInfoRepository.updateInMemoryApplicationInfos(packageManagerWrapper.queryIntentActivities())
         }
     }
 }

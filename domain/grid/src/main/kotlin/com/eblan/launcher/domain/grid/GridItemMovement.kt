@@ -19,14 +19,14 @@ import com.eblan.launcher.domain.model.GridItem
  * @return A new [GridItem] with updated cell positions if [gridItem] is not `null`; otherwise, `null`.
  */
 fun moveGridItemWithCoordinates(
-    gridItem: GridItem?,
+    gridItem: GridItem,
     x: Int,
     y: Int,
     rows: Int,
     columns: Int,
     screenWidth: Int,
     screenHeight: Int,
-): GridItem? {
+): GridItem {
     val targetCell = coordinatesToGridCell(
         x = x,
         y = y,
@@ -37,7 +37,7 @@ fun moveGridItemWithCoordinates(
     )
 
     return moveGridItem(
-        gridItem = gridItem, targetCell = targetCell
+        gridItem = gridItem, targetCell = targetCell,
     )
 }
 
@@ -49,18 +49,15 @@ fun moveGridItemWithCoordinates(
  *
  * @param gridItem The [GridItem] to move. If `null`, the function returns `null`.
  * @param targetCell The target [GridCell] to which the grid item's first cell should be aligned.
- * @return A new [GridItem] with repositioned cells if [gridItem] is not `null`; otherwise, `null`.
+ * @return A new [GridItem] with repositioned cells.
  */
 private fun moveGridItem(
-    gridItem: GridItem?,
+    gridItem: GridItem,
     targetCell: GridCell,
-): GridItem? {
-    return if (gridItem != null) {
-        val newCells = calculateNewCells(gridItem.cells, targetCell)
-        gridItem.copy(cells = newCells)
-    } else {
-        null
-    }
+): GridItem {
+    val newCells = calculateNewCells(gridItem.cells, targetCell)
+
+    return gridItem.copy(cells = newCells)
 }
 
 /**

@@ -16,34 +16,30 @@ class ResizeGridItemUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         page: Int,
+        id: Int,
         width: Int,
         height: Int,
         screenWidth: Int,
         screenHeight: Int,
-        gridItem: GridItem?,
         anchor: Anchor,
     ): GridItem? {
-        if (gridItem == null) return null
-
         return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val updatedGridItem = resizeGridItemWithPixels(
-                gridItem = gridItem,
-                width = width,
-                height = height,
-                gridCellWidth = screenWidth / userData.rows,
-                gridCellHeight = screenHeight / userData.columns,
-                anchor = anchor,
-            )
-
             val gridItems = gridRepository.gridItems.first()
 
-            if (updatedGridItem != null && updatedGridItem !in gridItems) {
-                updatedGridItem.copy(page = page)
-            } else {
-                null
-            }
+            gridItems.find { gridItem ->
+                gridItem.id == id
+            }?.let { gridItem ->
+                resizeGridItemWithPixels(
+                    gridItem = gridItem,
+                    width = width,
+                    height = height,
+                    gridCellWidth = screenWidth / userData.rows,
+                    gridCellHeight = screenHeight / userData.columns,
+                    anchor = anchor,
+                ).copy(page = page)
+            }.takeIf { gridItem -> gridItem != null && gridItem !in gridItems }
         }
     }
 }

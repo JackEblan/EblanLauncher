@@ -23,6 +23,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,7 +39,6 @@ import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemPixel
@@ -55,13 +55,12 @@ fun HomeRoute(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
-    val updatedGridItem by viewModel.updatedGridItem.collectAsStateWithLifecycle()
+    viewModel.updatedGridItem.collectAsStateWithLifecycle()
 
     val gridItemBoundary by viewModel.gridItemBoundary.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
-        updatedGridItem = updatedGridItem,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
         onUpdateScreenDimension = viewModel::updateScreenDimension,
@@ -75,15 +74,25 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    updatedGridItem: GridItem?,
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
     onUpdateScreenDimension: (screenWidthPixel: Int, screenHeightPixel: Int) -> Unit,
     onMoveGridItem: (
-        page: Int, x: Int, y: Int, screenWidthPixel: Int, screenHeightPixel: Int, gridItemPixel: GridItemPixel?,
+        page: Int,
+        id: Int,
+        x: Int,
+        y: Int,
+        screenWidthPixel: Int,
+        screenHeightPixel: Int,
     ) -> Unit,
     onResizeGridItem: (
-        page: Int, widthPixel: Int, heightPixel: Int, screenWidthPixel: Int, screenHeightPixel: Int, gridItem: GridItem?, anchor: Anchor,
+        page: Int,
+        id: Int,
+        widthPixel: Int,
+        heightPixel: Int,
+        screenWidthPixel: Int,
+        screenHeightPixel: Int,
+        anchor: Anchor,
     ) -> Unit,
     onAddGridItem: (
         page: Int,
@@ -115,7 +124,6 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     Success(
                         gridItems = homeUiState.gridItems,
-                        updatedGridItem = updatedGridItem,
                         gridItemBoundary = gridItemBoundary,
                         screenDimension = homeUiState.screenDimension,
                         pageCount = homeUiState.pageCount,
@@ -134,15 +142,25 @@ fun HomeScreen(
 fun Success(
     modifier: Modifier = Modifier,
     gridItems: Map<Int, List<GridItemPixel>>,
-    updatedGridItem: GridItem?,
     gridItemBoundary: GridItemBoundary?,
     screenDimension: ScreenDimension,
     pageCount: Int,
     onMoveGridItem: (
-        page: Int, x: Int, y: Int, screenWidthPixel: Int, screenHeightPixel: Int, gridItemPixel: GridItemPixel?,
+        page: Int,
+        id: Int,
+        x: Int,
+        y: Int,
+        screenWidthPixel: Int,
+        screenHeightPixel: Int,
     ) -> Unit,
     onResizeGridItem: (
-        page: Int, widthPixel: Int, heightPixel: Int, screenWidthPixel: Int, screenHeightPixel: Int, gridItem: GridItem?, anchor: Anchor,
+        page: Int,
+        id: Int,
+        widthPixel: Int,
+        heightPixel: Int,
+        screenWidthPixel: Int,
+        screenHeightPixel: Int,
+        anchor: Anchor,
     ) -> Unit,
     onAddGridItem: (
         page: Int,
@@ -161,7 +179,7 @@ fun Success(
 
     var dragOffsetY by remember { mutableIntStateOf(-1) }
 
-    var selectedGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
+    var selectedGridItemPixelIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val pagerState = rememberPagerState(
         pageCount = {
@@ -169,7 +187,7 @@ fun Success(
         },
     )
 
-    var selectedGridItemPixel by remember { mutableStateOf<GridItemPixel?>(null) }
+    var selectedGridItemId by remember { mutableIntStateOf(-1) }
 
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
@@ -208,21 +226,22 @@ fun Success(
             ) {
                 gridItems[page]?.forEach { gridItemPixel ->
                     key(gridItemPixel.gridItem.id) {
+                        val gridItemPixelOnLongPress by rememberUpdatedState(gridItemPixel)
+
                         when (val gridItemData = gridItemPixel.gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 AnimatedGridItem(
-                                    key1 = gridItemPixel,
                                     boundingBox = gridItemPixel.boundingBox,
                                     coordinates = gridItemPixel.coordinates,
                                     onLongPress = {
                                         isEditing = true
-                                        selectedGridItemPixel = gridItemPixel
-                                        selectedGridItemIntSize = IntSize(
-                                            width = gridItemPixel.boundingBox.width,
-                                            height = gridItemPixel.boundingBox.height,
+                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
+                                        selectedGridItemPixelIntSize = IntSize(
+                                            width = gridItemPixelOnLongPress.boundingBox.width,
+                                            height = gridItemPixelOnLongPress.boundingBox.height,
                                         )
-                                        dragOffsetX = gridItemPixel.coordinates.x
-                                        dragOffsetY = gridItemPixel.coordinates.y
+                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
+                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
                                     },
                                 ) {
                                     ApplicationInfoGridItem(gridItemData = gridItemData)
@@ -235,18 +254,17 @@ fun Success(
 
                             null -> {
                                 AnimatedGridItem(
-                                    key1 = gridItemPixel,
                                     boundingBox = gridItemPixel.boundingBox,
                                     coordinates = gridItemPixel.coordinates,
                                     onLongPress = {
                                         isEditing = true
-                                        selectedGridItemPixel = gridItemPixel
-                                        selectedGridItemIntSize = IntSize(
-                                            width = gridItemPixel.boundingBox.width,
-                                            height = gridItemPixel.boundingBox.height,
+                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
+                                        selectedGridItemPixelIntSize = IntSize(
+                                            width = gridItemPixelOnLongPress.boundingBox.width,
+                                            height = gridItemPixelOnLongPress.boundingBox.height,
                                         )
-                                        dragOffsetX = gridItemPixel.coordinates.x
-                                        dragOffsetY = gridItemPixel.coordinates.y
+                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
+                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
                                     },
                                 ) {
                                     EmptyGridItem()
@@ -260,20 +278,20 @@ fun Success(
 
         if (isEditing) {
             val boundingBoxWidthDp = with(density) {
-                selectedGridItemIntSize.width.toDp()
+                selectedGridItemPixelIntSize.width.toDp()
             }
 
             val boundingBoxHeightDp = with(density) {
-                selectedGridItemIntSize.height.toDp()
+                selectedGridItemPixelIntSize.height.toDp()
             }
 
             var widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
 
             var heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
 
-            var widthPixel by remember { mutableIntStateOf(selectedGridItemIntSize.width) }
+            var widthPixel by remember { mutableIntStateOf(selectedGridItemPixelIntSize.width) }
 
-            var heightPixel by remember { mutableIntStateOf(selectedGridItemIntSize.height) }
+            var heightPixel by remember { mutableIntStateOf(selectedGridItemPixelIntSize.height) }
 
             Box(
                 modifier = Modifier
@@ -296,11 +314,11 @@ fun Success(
 
                                 onMoveGridItem(
                                     pagerState.currentPage,
+                                    selectedGridItemId,
                                     dragOffsetX,
                                     dragOffsetY,
                                     screenDimension.screenWidth,
                                     screenDimension.screenHeight,
-                                    selectedGridItemPixel,
                                 )
                             },
                         )
@@ -310,7 +328,6 @@ fun Success(
             }
 
             ResizableBoxWithMenu(
-                gridItem = selectedGridItemPixel?.gridItem,
                 x = dragOffsetX,
                 y = dragOffsetY,
                 width = widthPixel,
@@ -346,11 +363,11 @@ fun Success(
 
                     onResizeGridItem(
                         pagerState.currentPage,
+                        selectedGridItemId,
                         widthPixel,
                         heightPixel,
                         screenDimension.screenWidth,
                         screenDimension.screenHeight,
-                        selectedGridItemPixel?.gridItem,
                         Anchor.BOTTOM_END,
                     )
                 },
@@ -379,11 +396,11 @@ fun Success(
 
                     onResizeGridItem(
                         pagerState.currentPage,
+                        selectedGridItemId,
                         widthPixel,
                         heightPixel,
                         screenDimension.screenWidth,
                         screenDimension.screenHeight,
-                        selectedGridItemPixel?.gridItem,
                         Anchor.BOTTOM_START,
                     )
                 },
@@ -412,11 +429,11 @@ fun Success(
 
                     onResizeGridItem(
                         pagerState.currentPage,
+                        selectedGridItemId,
                         widthPixel,
                         heightPixel,
                         screenDimension.screenWidth,
                         screenDimension.screenHeight,
-                        selectedGridItemPixel?.gridItem,
                         Anchor.TOP_END,
                     )
                 },
@@ -443,15 +460,17 @@ fun Success(
 
                     onResizeGridItem(
                         pagerState.currentPage,
+                        selectedGridItemId,
                         widthPixel,
                         heightPixel,
                         screenDimension.screenWidth,
                         screenDimension.screenHeight,
-                        selectedGridItemPixel?.gridItem,
                         Anchor.TOP_START,
                     )
                 },
-                onEdit = onEdit,
+                onEdit = {
+                    onEdit(selectedGridItemId)
+                },
             )
         }
     }
@@ -460,7 +479,6 @@ fun Success(
 @Composable
 fun AnimatedGridItem(
     modifier: Modifier = Modifier,
-    key1: GridItemPixel,
     boundingBox: BoundingBox,
     coordinates: Coordinates,
     onLongPress: ((Offset) -> Unit)? = null,
@@ -477,7 +495,7 @@ fun AnimatedGridItem(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(key1 = key1) {
+            .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onLongPress = onLongPress,
                 )

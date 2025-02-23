@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
-import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
@@ -79,7 +78,7 @@ class HomeViewModel @Inject constructor(
     private var _gridItemBoundary = MutableStateFlow<GridItemBoundary?>(null)
 
     @OptIn(FlowPreview::class)
-    val gridItemBoundary = _gridItemBoundary.filterNotNull().debounce(1000).stateIn(
+    val gridItemBoundary = _gridItemBoundary.debounce(1000).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
@@ -93,30 +92,30 @@ class HomeViewModel @Inject constructor(
 
     fun moveGridItem(
         page: Int,
+        id: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
-        gridItemPixel: GridItemPixel?,
     ) {
         viewModelScope.launch {
-
             _gridItemBoundary.update {
                 gridItemBoundaryUseCase(
+                    id = id,
                     x = x,
                     screenWidth = screenWidth,
-                    gridItemPixel = gridItemPixel,
+                    screenHeight = screenHeight,
                 )
             }
 
             _updatedGridItem.update {
                 moveGridItemUseCase(
                     page = page,
+                    id = id,
                     x = x,
                     y = y,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    gridItemPixel = gridItemPixel,
                 )
             }
         }
@@ -124,22 +123,22 @@ class HomeViewModel @Inject constructor(
 
     fun resizeGridItem(
         page: Int,
+        id: Int,
         width: Int,
         height: Int,
         screenWidth: Int,
         screenHeight: Int,
-        gridItem: GridItem?,
         anchor: Anchor,
     ) {
         viewModelScope.launch {
             _updatedGridItem.update {
                 resizeGridItemUseCase(
                     page = page,
+                    id = id,
                     width = width,
                     height = height,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    gridItem = gridItem,
                     anchor = anchor,
                 )
             }
@@ -155,7 +154,11 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             addGridItemUseCase(
-                page = page, x = x, y = y, screenWidth = screenWidth, screenHeight = screenHeight,
+                page = page,
+                x = x,
+                y = y,
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
             )
         }
     }

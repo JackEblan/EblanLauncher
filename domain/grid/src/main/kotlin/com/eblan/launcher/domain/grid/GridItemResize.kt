@@ -20,18 +20,18 @@ import com.eblan.launcher.domain.model.GridItem
  * @return A new [GridItem] with resized grid cells if [gridItem] is not `null`; otherwise, `null`.
  */
 fun resizeGridItemWithPixels(
-    gridItem: GridItem?,
+    gridItem: GridItem,
     width: Int,
     height: Int,
     gridCellWidth: Int,
     gridCellHeight: Int,
     anchor: Anchor,
-): GridItem? {
+): GridItem {
     val (newWidth, newHeight) = pixelsToGridCells(
         width = width,
         height = height,
         gridCellWidth = gridCellWidth,
-        gridCellHeight = gridCellHeight
+        gridCellHeight = gridCellHeight,
     )
 
     return resizeGridItem(
@@ -127,23 +127,20 @@ private fun calculateResizedCells(
  * @param newWidth The new desired width of the grid item in terms of grid cells.
  * @param newHeight The new desired height of the grid item in terms of grid cells.
  * @param anchor The starting point of cells expansion.
- * @return A new [GridItem] with updated grid cells if [gridItem] is not `null`; otherwise, `null`.
+ * @return A new [GridItem] with updated grid cells.
  */
 private fun resizeGridItem(
-    gridItem: GridItem?,
+    gridItem: GridItem,
     newWidth: Int,
     newHeight: Int,
     anchor: Anchor,
-): GridItem? {
-    return if (gridItem != null) {
-        val newCells = calculateResizedCells(
-            oldCells = gridItem.cells,
-            newWidth = newWidth,
-            newHeight = newHeight,
-            anchor = anchor,
-        )
-        gridItem.copy(cells = newCells)
-    } else {
-        null
-    }
+): GridItem {
+    val newCells = calculateResizedCells(
+        oldCells = gridItem.cells,
+        newWidth = newWidth,
+        newHeight = newHeight,
+        anchor = anchor,
+    )
+
+    return gridItem.copy(cells = newCells)
 }

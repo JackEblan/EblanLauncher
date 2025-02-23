@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.model.InMemoryApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 @Composable
 fun EditRoute(
@@ -50,7 +50,7 @@ fun EditRoute(
 
     EditScreen(
         modifier = modifier,
-        applicationInfos = applicationInfos,
+        eblanApplicationInfos = applicationInfos,
         onNavigationIconClick = onNavigationIconClick,
         onAddApplicationInfo = viewModel::addApplicationInfo,
     )
@@ -60,11 +60,10 @@ fun EditRoute(
 @Composable
 fun EditScreen(
     modifier: Modifier = Modifier,
-    applicationInfos: List<InMemoryApplicationInfo>,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     onNavigationIconClick: () -> Unit,
     onAddApplicationInfo: (
         packageName: String,
-        flags: Int,
         label: String,
     ) -> Unit,
 ) {
@@ -101,7 +100,6 @@ fun EditScreen(
                             if (applicationScreenUiState.validate()) {
                                 onAddApplicationInfo(
                                     applicationScreenUiState.packageName!!,
-                                    applicationScreenUiState.flags!!,
                                     applicationScreenUiState.label,
                                 )
                             }
@@ -143,7 +141,7 @@ fun EditScreen(
                 0 -> {
                     ApplicationScreen(
                         applicationScreenUiState = applicationScreenUiState,
-                        applicationInfos = applicationInfos,
+                        eblanApplicationInfos = eblanApplicationInfos,
                     )
                 }
 
@@ -160,7 +158,7 @@ fun EditScreen(
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     applicationScreenUiState: ApplicationScreenUiState,
-    applicationInfos: List<InMemoryApplicationInfo>,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
 ) {
     val selectApplicationBottomSheetState = rememberModalBottomSheetState()
 
@@ -201,13 +199,11 @@ fun ApplicationScreen(
                 columns = GridCells.Fixed(4),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                items(applicationInfos) { eblanLauncherApplicationInfo ->
+                items(eblanApplicationInfos) { eblanLauncherApplicationInfo ->
                     Column(
                         modifier = Modifier.clickable {
                             applicationScreenUiState.packageName =
                                 eblanLauncherApplicationInfo.packageName
-
-                            applicationScreenUiState.flags = eblanLauncherApplicationInfo.flags
 
                             applicationScreenUiState.icon = eblanLauncherApplicationInfo.icon
 

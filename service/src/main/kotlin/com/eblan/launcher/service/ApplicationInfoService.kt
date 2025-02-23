@@ -7,7 +7,9 @@ import android.os.IBinder
 import com.eblan.launcher.broadcastreceiver.PackageBroadcastReceiver
 import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.framework.filemanager.FileManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -17,10 +19,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ApplicationInfoService : Service() {
     @Inject
-    lateinit var inMemoryApplicationInfoRepository: InMemoryApplicationInfoRepository
+    lateinit var eblanApplicationInfoRepository: EblanApplicationInfoRepository
 
     @Inject
     lateinit var packageManagerWrapper: PackageManagerWrapper
+
+    @Inject
+    lateinit var fileManager: FileManager
 
     @Inject
     @ApplicationScope
@@ -45,7 +50,23 @@ class ApplicationInfoService : Service() {
         registerReceiver(packageBroadcastReceiver, intentFilter)
 
         serviceJob = appScope.launch {
-            inMemoryApplicationInfoRepository.updateInMemoryApplicationInfos(packageManagerWrapper.queryIntentActivities())
+            val eblanApplicationInfos =
+                packageManagerWrapper.queryIntentActivities().map { packageManagerApplicationInfo ->
+                    val icon = fileManager.writeIconBytes(
+                        name = packageManagerApplicationInfo.packageName,
+                        newIcon = packageManagerWrapper.getApplicationIcon(
+                            packageName = packageManagerApplicationInfo.packageName,
+                        ),
+                    )
+
+                    EblanApplicationInfo(
+                        packageName = packageManagerApplicationInfo.packageName,
+                        icon = icon,
+                        label = packageManagerApplicationInfo.label,
+                    )
+                }
+
+            eblanApplicationInfoRepository.upsertEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfos)
         }
 
         return super.onStartCommand(intent, flags, startId)

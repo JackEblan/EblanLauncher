@@ -16,4 +16,4 @@
 #
 #
 
-com.eblan.launcher.lint.EblanLauncherIssueRegistry
+com.eblan.launcher.lint.EblanIssueRegistry

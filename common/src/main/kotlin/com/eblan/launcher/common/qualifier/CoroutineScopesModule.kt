@@ -18,7 +18,7 @@
 package com.eblan.launcher.common.qualifier
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
-import com.eblan.launcher.domain.common.dispatcher.GetoDispatchers.Default
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers.Default
 import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import dagger.Module
 import dagger.Provides

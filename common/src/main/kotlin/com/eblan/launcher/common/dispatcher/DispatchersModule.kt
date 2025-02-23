@@ -18,8 +18,8 @@
 package com.eblan.launcher.common.dispatcher
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
-import com.eblan.launcher.domain.common.dispatcher.GetoDispatchers.Default
-import com.eblan.launcher.domain.common.dispatcher.GetoDispatchers.IO
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers.Default
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers.IO
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

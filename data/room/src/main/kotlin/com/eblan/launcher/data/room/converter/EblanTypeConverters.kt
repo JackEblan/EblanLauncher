@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @ProvidedTypeConverter
-class EblanLauncherTypeConverters @Inject constructor() {
+class EblanTypeConverters @Inject constructor() {
     @TypeConverter
     fun fromGridCells(value: List<GridCell>): String {
         return Json.encodeToString(value)

@@ -15,14 +15,16 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.domain.common.dispatcher
 
-import com.eblan.launcher.domain.model.PackageManagerApplicationInfo
+import javax.inject.Qualifier
+import kotlin.annotation.AnnotationRetention.RUNTIME
 
-interface PackageManagerWrapper {
-    suspend fun queryIntentActivities(): List<PackageManagerApplicationInfo>
+@Qualifier
+@Retention(RUNTIME)
+annotation class Dispatcher(val eblanDispatcher: EblanDispatchers)
 
-    suspend fun getApplicationIcon(packageName: String): ByteArray?
-
-    fun launchIntentForPackage(packageName: String)
+enum class EblanDispatchers {
+    Default,
+    IO,
 }

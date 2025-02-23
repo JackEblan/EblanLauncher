@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
-import com.eblan.launcher.navigation.GetoNavHost
+import com.eblan.launcher.navigation.EblanNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 dynamicTheme = false,
             ) {
                 Surface {
-                    GetoNavHost(navController = navController)
+                    EblanNavHost(navController = navController)
                 }
             }
         }

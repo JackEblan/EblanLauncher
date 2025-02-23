@@ -26,7 +26,7 @@ import com.eblan.launcher.feature.home.navigation.HomeRouteData
 import com.eblan.launcher.feature.home.navigation.homeScreen
 
 @Composable
-fun GetoNavHost(
+fun EblanNavHost(
     navController: NavHostController,
 ) {
     NavHost(

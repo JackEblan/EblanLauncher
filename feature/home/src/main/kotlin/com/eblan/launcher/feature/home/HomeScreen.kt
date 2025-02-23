@@ -201,7 +201,7 @@ fun Success(
                     },
             ) {
                 gridItems[page]?.forEach { gridItemPixel ->
-                    when (val gridItemData = gridItemPixel.data) {
+                    when (val gridItemData = gridItemPixel.gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
                                 modifier = Modifier

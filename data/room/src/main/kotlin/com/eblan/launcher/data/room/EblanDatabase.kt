@@ -20,20 +20,24 @@ package com.eblan.launcher.data.room
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.eblan.launcher.data.room.converter.EblanLauncherTypeConverters
+import com.eblan.launcher.data.room.converter.EblanTypeConverters
+import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.GridDao
+import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.data.room.entity.GridItemEntity
 
 @Database(
-    entities = [GridItemEntity::class],
+    entities = [GridItemEntity::class, EblanApplicationInfoEntity::class],
     version = 1,
     exportSchema = true,
 )
-@TypeConverters(EblanLauncherTypeConverters::class)
-internal abstract class EblanLauncherDatabase : RoomDatabase() {
+@TypeConverters(EblanTypeConverters::class)
+internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun gridDao(): GridDao
 
+    abstract fun eblanApplicationInfoDao(): EblanApplicationInfoDao
+
     companion object {
-        const val DATABASE_NAME = "EblanLauncher.db"
+        const val DATABASE_NAME = "Eblan.db"
     }
 }

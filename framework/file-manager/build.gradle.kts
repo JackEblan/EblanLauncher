@@ -15,24 +15,18 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
 
-data class InMemoryApplicationInfo(
-    val packageName: String,
-    val flags: Int,
-    val icon: ByteArray?,
-    val label: String,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
 
-        other as InMemoryApplicationInfo
+android {
+    namespace = "com.eblan.launcher.framework.filemanager"
+}
 
-        return packageName == other.packageName
-    }
-
-    override fun hashCode(): Int {
-        return packageName.hashCode()
-    }
+dependencies {
+    implementation(projects.domain.common)
+    implementation(projects.domain.framework)
 }

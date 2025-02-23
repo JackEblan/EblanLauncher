@@ -19,16 +19,12 @@ fun rememberApplicationScreenUiState(): ApplicationScreenUiState {
 class ApplicationScreenUiState {
     var packageName by mutableStateOf<String?>(null)
 
-    var flags by mutableStateOf<Int?>(null)
-
-    var icon by mutableStateOf<ByteArray?>(null)
+    var icon by mutableStateOf<String?>(null)
 
     var label by mutableStateOf("")
 
     fun validate(): Boolean {
         if (packageName.isNullOrBlank()) return false
-
-        if (flags == null) return false
 
         if (icon == null) return false
 
@@ -47,7 +43,7 @@ class ApplicationScreenUiState {
             },
             restore = {
                 ApplicationScreenUiState().apply {
-                    icon = it[0] as ByteArray
+                    icon = it[0] as String
 
                     label = it[1] as String
                 }

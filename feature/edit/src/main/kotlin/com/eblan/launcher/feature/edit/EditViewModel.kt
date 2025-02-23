@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.InMemoryApplicationInfoRepository
 import com.eblan.launcher.feature.edit.navigation.EditRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,12 +17,12 @@ import javax.inject.Inject
 @HiltViewModel
 class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    inMemoryApplicationInfoRepository: InMemoryApplicationInfoRepository,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val gridRepository: GridRepository,
 ) : ViewModel() {
     private val editRouteData = savedStateHandle.toRoute<EditRouteData>()
 
-    val applicationInfos = inMemoryApplicationInfoRepository.applicationInfos.stateIn(
+    val applicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList(),
@@ -30,16 +30,19 @@ class EditViewModel @Inject constructor(
 
     fun addApplicationInfo(
         packageName: String,
-        flags: Int,
         label: String,
     ) {
-        val data = GridItemData.ApplicationInfo(
-            gridItemId = editRouteData.id,
-            packageName = packageName,
-            flags = flags,
-            label = label,
-        )
         viewModelScope.launch {
+            val icon =
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)?.icon
+
+            val data = GridItemData.ApplicationInfo(
+                gridItemId = editRouteData.id,
+                packageName = packageName,
+                icon = icon,
+                label = label,
+            )
+
             gridRepository.updateGridItemData(
                 id = editRouteData.id,
                 data = data,

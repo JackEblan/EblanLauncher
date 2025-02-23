@@ -21,7 +21,7 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-class EblanLauncherIssueRegistry : IssueRegistry() {
+class EblanIssueRegistry : IssueRegistry() {
 
     override val issues = listOf(
         TestMethodNameDetector.FORMAT,

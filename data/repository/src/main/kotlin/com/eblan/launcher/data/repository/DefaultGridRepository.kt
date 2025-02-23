@@ -20,11 +20,11 @@ class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : 
             gridItem.toGridItemEntity()
         }
 
-        gridDao.upsertGridItemEntities(gridItemEntities = gridItemEntities)
+        gridDao.upsertGridItemEntities(entities = gridItemEntities)
     }
 
     override suspend fun upsertGridItem(gridItem: GridItem) {
-        gridDao.upsertGridItemEntity(gridItemEntity = gridItem.toGridItemEntity())
+        gridDao.upsertGridItemEntity(entity = gridItem.toGridItemEntity())
     }
 
     override suspend fun updateGridItemData(id: Int, data: GridItemData) {

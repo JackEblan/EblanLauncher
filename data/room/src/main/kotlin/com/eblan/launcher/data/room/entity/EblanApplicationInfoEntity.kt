@@ -15,26 +15,15 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.entity
 
-data class EblanLauncherApplicationInfo(
-    val id: Int = 0,
-    val gridItemId: Int,
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+data class EblanApplicationInfoEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int,
     val packageName: String,
-    val flags: Int,
-    val icon: ByteArray?,
+    val icon: String?,
     val label: String,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as EblanLauncherApplicationInfo
-
-        return packageName == other.packageName
-    }
-
-    override fun hashCode(): Int {
-        return packageName.hashCode()
-    }
-}
+)

@@ -15,14 +15,11 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.PackageManagerApplicationInfo
-
-interface PackageManagerWrapper {
-    suspend fun queryIntentActivities(): List<PackageManagerApplicationInfo>
-
-    suspend fun getApplicationIcon(packageName: String): ByteArray?
-
-    fun launchIntentForPackage(packageName: String)
-}
+data class EblanApplicationInfo(
+    val id: Int = 0,
+    val packageName: String,
+    val icon: String?,
+    val label: String,
+)

@@ -15,16 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.common.dispatcher
 
-import javax.inject.Qualifier
-import kotlin.annotation.AnnotationRetention.RUNTIME
+package com.eblan.launcher
 
-@Qualifier
-@Retention(RUNTIME)
-annotation class Dispatcher(val getoDispatcher: GetoDispatchers)
-
-enum class GetoDispatchers {
-    Default,
-    IO,
+/**
+ * This is shared between :app and :benchmarks module to provide configurations type safety.
+ */
+enum class EblanBuildType(val applicationIdSuffix: String? = null) {
+    DEBUG(".debug"), RELEASE,
 }

@@ -13,10 +13,10 @@ interface GridDao {
     fun getGridItemEntities(): Flow<List<GridItemEntity>>
 
     @Upsert
-    suspend fun upsertGridItemEntities(gridItemEntities: List<GridItemEntity>)
+    suspend fun upsertGridItemEntities(entities: List<GridItemEntity>)
 
     @Upsert
-    suspend fun upsertGridItemEntity(gridItemEntity: GridItemEntity)
+    suspend fun upsertGridItemEntity(entity: GridItemEntity)
 
     @Query("UPDATE GridItemEntity SET data = :data WHERE id = :id")
     suspend fun updateGridItemData(id: Int, data: GridItemData)

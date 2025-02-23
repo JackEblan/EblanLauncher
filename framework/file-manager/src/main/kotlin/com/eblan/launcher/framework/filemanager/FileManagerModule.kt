@@ -15,12 +15,19 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.filemanager
 
-package com.eblan.launcher
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-/**
- * This is shared between :app and :benchmarks module to provide configurations type safety.
- */
-enum class EblanLauncherBuildType(val applicationIdSuffix: String? = null) {
-    DEBUG(".debug"), RELEASE,
+@Module
+@InstallIn(SingletonComponent::class)
+interface FileManagerModule {
+
+    @Binds
+    @Singleton
+    fun fileManager(impl: AndroidFileManager): FileManager
 }

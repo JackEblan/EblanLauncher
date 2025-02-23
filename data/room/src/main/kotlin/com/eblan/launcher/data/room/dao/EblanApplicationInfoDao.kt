@@ -17,7 +17,6 @@ interface EblanApplicationInfoDao {
     @Upsert
     suspend fun upsertEblanApplicationInfoEntity(entity: EblanApplicationInfoEntity)
 
-
     @Query("SELECT * FROM EblanApplicationInfoEntity WHERE packageName = :packageName")
     suspend fun getEblanApplicationInfoEntity(packageName: String): EblanApplicationInfoEntity?
 }

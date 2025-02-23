@@ -22,11 +22,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +42,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 
 @Composable
 fun EditRoute(
@@ -48,9 +53,15 @@ fun EditRoute(
 ) {
     val applicationInfos by viewModel.applicationInfos.collectAsStateWithLifecycle()
 
+    val gridItem by viewModel.gridItem.collectAsStateWithLifecycle()
+
+    val gridRepositoryUpdate by viewModel.gridRepositoryUpdate.collectAsStateWithLifecycle()
+
     EditScreen(
         modifier = modifier,
         eblanApplicationInfos = applicationInfos,
+        gridItem = gridItem,
+        gridRepositoryUpdate = gridRepositoryUpdate,
         onNavigationIconClick = onNavigationIconClick,
         onAddApplicationInfo = viewModel::addApplicationInfo,
     )
@@ -61,6 +72,8 @@ fun EditRoute(
 fun EditScreen(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    gridItem: GridItem?,
+    gridRepositoryUpdate: Boolean?,
     onNavigationIconClick: () -> Unit,
     onAddApplicationInfo: (
         packageName: String,
@@ -71,10 +84,48 @@ fun EditScreen(
 
     val applicationScreenUiState = rememberApplicationScreenUiState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val gridItemDataItems = listOf(
         "Application",
         "Widget",
     )
+
+    LaunchedEffect(key1 = gridItem) {
+        when (val gridItemData = gridItem?.data) {
+            is GridItemData.ApplicationInfo -> {
+                applicationScreenUiState.packageName = gridItemData.packageName
+
+                applicationScreenUiState.icon = gridItemData.icon
+
+                applicationScreenUiState.label = gridItemData.label
+            }
+
+            is GridItemData.Widget -> {
+
+            }
+
+            null -> {
+
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = gridRepositoryUpdate) {
+        when (gridRepositoryUpdate) {
+            true -> {
+                snackbarHostState.showSnackbar("Grid Item Data updated")
+            }
+
+            false -> {
+                snackbarHostState.showSnackbar("Grid Item Data updated failed")
+            }
+
+            null -> {
+
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -91,6 +142,9 @@ fun EditScreen(
                     }
                 },
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         },
         floatingActionButton = {
             FloatingActionButton(

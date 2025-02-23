@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e176d8c6cca18f0be3738bce669106b1",
+    "identityHash": "e2698755ce360c646442f027dd5d4e28",
     "entities": [
       {
         "tableName": "GridItemEntity",
@@ -44,14 +44,8 @@
       },
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, PRIMARY KEY(`packageName`))",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "packageName",
             "columnName": "packageName",
@@ -72,9 +66,9 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "packageName"
           ]
         },
         "indices": [],
@@ -84,7 +78,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e176d8c6cca18f0be3738bce669106b1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e2698755ce360c646442f027dd5d4e28')"
     ]
   }
 }

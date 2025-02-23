@@ -35,7 +35,6 @@ class DefaultEblanApplicationInfoRepository @Inject constructor(private val ebla
 
     private fun EblanApplicationInfoEntity.toEblanApplicationInfo(): EblanApplicationInfo {
         return EblanApplicationInfo(
-            id = id,
             packageName = packageName,
             icon = icon,
             label = label,
@@ -44,7 +43,6 @@ class DefaultEblanApplicationInfoRepository @Inject constructor(private val ebla
 
     private fun EblanApplicationInfo.toEblanApplicationInfoEntity(): EblanApplicationInfoEntity {
         return EblanApplicationInfoEntity(
-            id = id,
             packageName = packageName,
             icon = icon,
             label = label,

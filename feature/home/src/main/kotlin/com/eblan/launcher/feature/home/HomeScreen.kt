@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home
 
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -39,7 +41,7 @@ import com.eblan.launcher.domain.model.GridItemPixel
 import com.eblan.launcher.domain.model.ScreenDimension
 import com.eblan.launcher.feature.home.component.Grid
 import com.eblan.launcher.feature.home.component.ResizableBoxWithMenu
-import com.eblan.launcher.feature.home.component.gridItemPlacement
+import com.eblan.launcher.feature.home.component.gridItem
 import kotlin.math.roundToInt
 
 @Composable
@@ -201,28 +203,33 @@ fun Success(
                     },
             ) {
                 gridItems[page]?.forEach { gridItemPixel ->
+                    val animatedWidth by animateIntAsState(targetValue = gridItemPixel.boundingBox.width)
+
+                    val animatedHeight by animateIntAsState(targetValue = gridItemPixel.boundingBox.height)
+
+                    val animatedX by animateIntAsState(targetValue = gridItemPixel.coordinates.x)
+
+                    val animatedY by animateIntAsState(targetValue = gridItemPixel.coordinates.y)
+
                     when (val gridItemData = gridItemPixel.gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .pointerInput(key1 = gridItemPixel) {
-                                        detectTapGestures(
-                                            onLongPress = {
-                                                isEditing = true
-                                                selectedGridItemPixel = gridItemPixel
-                                                selectedGridItemIntSize = IntSize(
-                                                    width = gridItemPixel.boundingBox.width,
-                                                    height = gridItemPixel.boundingBox.height,
-                                                )
-                                                dragOffsetX = gridItemPixel.coordinates.x
-                                                dragOffsetY = gridItemPixel.coordinates.y
-                                            },
-                                        )
-                                    }
-                                    .background(Color.Blue)
-                                    .gridItemPlacement(gridItemPixel),
+                                key = gridItemPixel,
+                                width = animatedWidth,
+                                height = animatedHeight,
+                                x = animatedX,
+                                y = animatedY,
                                 gridItemData = gridItemData,
+                                onLongPress = {
+                                    isEditing = true
+                                    selectedGridItemPixel = gridItemPixel
+                                    selectedGridItemIntSize = IntSize(
+                                        width = gridItemPixel.boundingBox.width,
+                                        height = gridItemPixel.boundingBox.height,
+                                    )
+                                    dragOffsetX = gridItemPixel.coordinates.x
+                                    dragOffsetY = gridItemPixel.coordinates.y
+                                },
                             )
                         }
 
@@ -231,26 +238,22 @@ fun Success(
                         }
 
                         null -> {
-                            Text(
-                                text = "Empty",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .pointerInput(key1 = gridItemPixel) {
-                                        detectTapGestures(
-                                            onLongPress = {
-                                                isEditing = true
-                                                selectedGridItemPixel = gridItemPixel
-                                                selectedGridItemIntSize = IntSize(
-                                                    width = gridItemPixel.boundingBox.width,
-                                                    height = gridItemPixel.boundingBox.height,
-                                                )
-                                                dragOffsetX = gridItemPixel.coordinates.x
-                                                dragOffsetY = gridItemPixel.coordinates.y
-                                            },
-                                        )
-                                    }
-                                    .background(Color.Blue)
-                                    .gridItemPlacement(gridItemPixel),
+                            EmptyGridItem(
+                                key = gridItemPixel,
+                                width = animatedWidth,
+                                height = animatedHeight,
+                                x = animatedX,
+                                y = animatedY,
+                                onLongPress = {
+                                    isEditing = true
+                                    selectedGridItemPixel = gridItemPixel
+                                    selectedGridItemIntSize = IntSize(
+                                        width = gridItemPixel.boundingBox.width,
+                                        height = gridItemPixel.boundingBox.height,
+                                    )
+                                    dragOffsetX = gridItemPixel.coordinates.x
+                                    dragOffsetY = gridItemPixel.coordinates.y
+                                },
                             )
                         }
                     }
@@ -460,11 +463,61 @@ fun Success(
 @Composable
 fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
+    key: Any?,
+    width: Int,
+    height: Int,
+    x: Int,
+    y: Int,
     gridItemData: GridItemData.ApplicationInfo,
+    onLongPress: ((Offset) -> Unit)? = null,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(key1 = key) {
+                detectTapGestures(
+                    onLongPress = onLongPress,
+                )
+            }
+            .background(Color.Blue)
+            .gridItem(
+                width = width,
+                height = height,
+                x = x, y = y,
+            ),
+    ) {
         AsyncImage(model = gridItemData.icon, contentDescription = null)
 
         Text(text = gridItemData.label)
     }
 }
+
+@Composable
+fun EmptyGridItem(
+    modifier: Modifier = Modifier,
+    key: Any?,
+    width: Int,
+    height: Int,
+    x: Int,
+    y: Int,
+    onLongPress: ((Offset) -> Unit)? = null,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(key1 = key) {
+                detectTapGestures(
+                    onLongPress = onLongPress,
+                )
+            }
+            .background(Color.Blue)
+            .gridItem(
+                width = width,
+                height = height,
+                x = x, y = y,
+            ),
+    ) {
+        Text(text = "Empty")
+    }
+}
+

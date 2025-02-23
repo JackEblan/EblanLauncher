@@ -6,50 +6,59 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import com.eblan.launcher.domain.model.BoundingBox
-import com.eblan.launcher.domain.model.Coordinates
-import com.eblan.launcher.domain.model.GridItemPixel
 
 @Composable
 fun Grid(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    Layout(content = {
-        content()
-    }, modifier = modifier) { measurables, constraints ->
+    Layout(
+        content = {
+            content()
+        },
+        modifier = modifier,
+    ) { measurables, constraints ->
         val placeables = measurables.map { measurable ->
-            val gridItemPlacement = measurable.parentData as GridItemPlacementParentData
+            val gridItemParentData = measurable.parentData as GridItemParentData
 
             measurable.measure(
                 Constraints(
-                    maxWidth = gridItemPlacement.boundingBox.width,
-                    maxHeight = gridItemPlacement.boundingBox.height
-                )
+                    maxWidth = gridItemParentData.width,
+                    maxHeight = gridItemParentData.height,
+                ),
             )
         }
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             placeables.forEach { placeable ->
-                val gridItemPlacement = placeable.parentData as GridItemPlacementParentData
+                val gridItemParentData = placeable.parentData as GridItemParentData
 
                 placeable.placeRelative(
-                    x = gridItemPlacement.coordinates.x, y = gridItemPlacement.coordinates.y
+                    x = gridItemParentData.x, y = gridItemParentData.y,
                 )
             }
         }
     }
 }
 
-data class GridItemPlacementParentData(
-    val boundingBox: BoundingBox, val coordinates: Coordinates
+data class GridItemParentData(
+    val width: Int,
+    val height: Int,
+    val x: Int,
+    val y: Int,
 )
 
-fun Modifier.gridItemPlacement(gridItemPixel: GridItemPixel): Modifier =
-    then(object : ParentDataModifier {
+fun Modifier.gridItem(
+    width: Int,
+    height: Int,
+    x: Int,
+    y: Int,
+): Modifier = then(
+    object : ParentDataModifier {
         override fun Density.modifyParentData(parentData: Any?): Any {
-            return GridItemPlacementParentData(
-                boundingBox = gridItemPixel.boundingBox, coordinates = gridItemPixel.coordinates
+            return GridItemParentData(
+                width = width, height = height, x = x, y = y,
             )
         }
-    })
+    },
+)

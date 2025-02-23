@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +36,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.BoundingBox
+import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
@@ -203,58 +207,51 @@ fun Success(
                     },
             ) {
                 gridItems[page]?.forEach { gridItemPixel ->
-                    val animatedWidth by animateIntAsState(targetValue = gridItemPixel.boundingBox.width)
+                    key(gridItemPixel.gridItem.id) {
+                        when (val gridItemData = gridItemPixel.gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                AnimatedGridItem(
+                                    key1 = gridItemPixel,
+                                    boundingBox = gridItemPixel.boundingBox,
+                                    coordinates = gridItemPixel.coordinates,
+                                    onLongPress = {
+                                        isEditing = true
+                                        selectedGridItemPixel = gridItemPixel
+                                        selectedGridItemIntSize = IntSize(
+                                            width = gridItemPixel.boundingBox.width,
+                                            height = gridItemPixel.boundingBox.height,
+                                        )
+                                        dragOffsetX = gridItemPixel.coordinates.x
+                                        dragOffsetY = gridItemPixel.coordinates.y
+                                    },
+                                ) {
+                                    ApplicationInfoGridItem(gridItemData = gridItemData)
+                                }
+                            }
 
-                    val animatedHeight by animateIntAsState(targetValue = gridItemPixel.boundingBox.height)
+                            is GridItemData.Widget -> {
 
-                    val animatedX by animateIntAsState(targetValue = gridItemPixel.coordinates.x)
+                            }
 
-                    val animatedY by animateIntAsState(targetValue = gridItemPixel.coordinates.y)
-
-                    when (val gridItemData = gridItemPixel.gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(
-                                key = gridItemPixel,
-                                width = animatedWidth,
-                                height = animatedHeight,
-                                x = animatedX,
-                                y = animatedY,
-                                gridItemData = gridItemData,
-                                onLongPress = {
-                                    isEditing = true
-                                    selectedGridItemPixel = gridItemPixel
-                                    selectedGridItemIntSize = IntSize(
-                                        width = gridItemPixel.boundingBox.width,
-                                        height = gridItemPixel.boundingBox.height,
-                                    )
-                                    dragOffsetX = gridItemPixel.coordinates.x
-                                    dragOffsetY = gridItemPixel.coordinates.y
-                                },
-                            )
-                        }
-
-                        is GridItemData.Widget -> {
-
-                        }
-
-                        null -> {
-                            EmptyGridItem(
-                                key = gridItemPixel,
-                                width = animatedWidth,
-                                height = animatedHeight,
-                                x = animatedX,
-                                y = animatedY,
-                                onLongPress = {
-                                    isEditing = true
-                                    selectedGridItemPixel = gridItemPixel
-                                    selectedGridItemIntSize = IntSize(
-                                        width = gridItemPixel.boundingBox.width,
-                                        height = gridItemPixel.boundingBox.height,
-                                    )
-                                    dragOffsetX = gridItemPixel.coordinates.x
-                                    dragOffsetY = gridItemPixel.coordinates.y
-                                },
-                            )
+                            null -> {
+                                AnimatedGridItem(
+                                    key1 = gridItemPixel,
+                                    boundingBox = gridItemPixel.boundingBox,
+                                    coordinates = gridItemPixel.coordinates,
+                                    onLongPress = {
+                                        isEditing = true
+                                        selectedGridItemPixel = gridItemPixel
+                                        selectedGridItemIntSize = IntSize(
+                                            width = gridItemPixel.boundingBox.width,
+                                            height = gridItemPixel.boundingBox.height,
+                                        )
+                                        dragOffsetX = gridItemPixel.coordinates.x
+                                        dragOffsetY = gridItemPixel.coordinates.y
+                                    },
+                                ) {
+                                    EmptyGridItem()
+                                }
+                            }
                         }
                     }
                 }
@@ -461,30 +458,48 @@ fun Success(
 }
 
 @Composable
-fun ApplicationInfoGridItem(
+fun AnimatedGridItem(
     modifier: Modifier = Modifier,
-    key: Any?,
-    width: Int,
-    height: Int,
-    x: Int,
-    y: Int,
-    gridItemData: GridItemData.ApplicationInfo,
+    key1: GridItemPixel,
+    boundingBox: BoundingBox,
+    coordinates: Coordinates,
     onLongPress: ((Offset) -> Unit)? = null,
+    content: @Composable (BoxScope.() -> Unit),
 ) {
-    Column(
+    val width by animateIntAsState(targetValue = boundingBox.width)
+
+    val height by animateIntAsState(targetValue = boundingBox.height)
+
+    val x by animateIntAsState(targetValue = coordinates.x)
+
+    val y by animateIntAsState(targetValue = coordinates.y)
+
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(key1 = key) {
+            .pointerInput(key1 = key1) {
                 detectTapGestures(
                     onLongPress = onLongPress,
                 )
             }
-            .background(Color.Blue)
             .gridItem(
                 width = width,
                 height = height,
                 x = x, y = y,
             ),
+        content = content,
+    )
+}
+
+@Composable
+fun ApplicationInfoGridItem(
+    modifier: Modifier = Modifier,
+    gridItemData: GridItemData.ApplicationInfo,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Blue),
     ) {
         AsyncImage(model = gridItemData.icon, contentDescription = null)
 
@@ -495,27 +510,11 @@ fun ApplicationInfoGridItem(
 @Composable
 fun EmptyGridItem(
     modifier: Modifier = Modifier,
-    key: Any?,
-    width: Int,
-    height: Int,
-    x: Int,
-    y: Int,
-    onLongPress: ((Offset) -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .pointerInput(key1 = key) {
-                detectTapGestures(
-                    onLongPress = onLongPress,
-                )
-            }
-            .background(Color.Blue)
-            .gridItem(
-                width = width,
-                height = height,
-                x = x, y = y,
-            ),
+            .background(Color.Red),
     ) {
         Text(text = "Empty")
     }

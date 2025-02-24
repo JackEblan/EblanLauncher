@@ -15,15 +15,18 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.packagemanager
 
-import android.content.pm.ApplicationInfo
-import android.graphics.drawable.Drawable
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
 
-interface PackageManagerWrapper {
-    suspend fun queryIntentActivities(): List<ApplicationInfo>
+android {
+    namespace = "com.eblan.launcher.framework.widgetmanager"
+}
 
-    suspend fun getApplicationIcon(packageName: String): Drawable?
-
-    fun launchIntentForPackage(packageName: String)
+dependencies {
+    implementation(projects.domain.common)
+    implementation(projects.domain.model)
 }

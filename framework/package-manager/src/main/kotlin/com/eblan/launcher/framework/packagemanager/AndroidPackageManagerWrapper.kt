@@ -23,14 +23,10 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import androidx.core.graphics.drawable.toBitmap
-import com.eblan.launcher.domain.model.PackageManagerApplicationInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 internal class AndroidPackageManagerWrapper @Inject constructor(
@@ -39,7 +35,7 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
 
     private val packageManager = context.packageManager
 
-    override suspend fun queryIntentActivities(): List<PackageManagerApplicationInfo> {
+    override suspend fun queryIntentActivities(): List<ApplicationInfo> {
         val intent = Intent().apply {
             action = Intent.ACTION_MAIN
             addCategory(Intent.CATEGORY_LAUNCHER)
@@ -48,14 +44,16 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
         return withContext(Dispatchers.Default) {
             packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
                 .map { resolveInfo ->
-                    resolveInfo.activityInfo.applicationInfo.toPackageManagerApplicationInfo()
-                }.sortedBy { applicationInfo -> applicationInfo.label }
+                    resolveInfo.activityInfo.applicationInfo
+                }.sortedBy { applicationInfo ->
+                    applicationInfo.loadLabel(packageManager).toString()
+                }
         }
     }
 
-    override suspend fun getApplicationIcon(packageName: String): ByteArray? {
+    override suspend fun getApplicationIcon(packageName: String): Drawable? {
         return try {
-            packageManager.getApplicationIcon(packageName).toByteArray()
+            packageManager.getApplicationIcon(packageName)
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
@@ -70,22 +68,5 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
             context.startActivity(intent)
         } catch (_: ActivityNotFoundException) {
         }
-    }
-
-    private fun ApplicationInfo.toPackageManagerApplicationInfo(): PackageManagerApplicationInfo {
-        return PackageManagerApplicationInfo(
-            packageName = packageName,
-            label = loadLabel(packageManager).toString(),
-        )
-    }
-
-    private suspend fun Drawable.toByteArray(): ByteArray {
-        val stream = ByteArrayOutputStream()
-
-        withContext(Dispatchers.IO) {
-            toBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream)
-        }
-
-        return stream.toByteArray()
     }
 }

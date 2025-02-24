@@ -3,7 +3,9 @@ package com.eblan.launcher.service
 import android.app.Service
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.os.IBinder
+import androidx.core.graphics.drawable.toBitmap
 import com.eblan.launcher.broadcastreceiver.PackageBroadcastReceiver
 import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -12,8 +14,11 @@ import com.eblan.launcher.framework.filemanager.FileManager
 import com.eblan.launcher.framework.packagemanager.PackageManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,18 +56,30 @@ class ApplicationInfoService : Service() {
 
         serviceJob = appScope.launch {
             val eblanApplicationInfos =
-                packageManagerWrapper.queryIntentActivities().map { packageManagerApplicationInfo ->
+                packageManagerWrapper.queryIntentActivities().map { applicationInfo ->
+                    val newIcon = withContext(Dispatchers.IO) {
+                        val stream = ByteArrayOutputStream()
+
+                        val drawable = packageManagerWrapper.getApplicationIcon(
+                            packageName = applicationInfo.packageName,
+                        )
+
+                        drawable?.toBitmap()?.compress(Bitmap.CompressFormat.PNG, 100, stream)
+
+                        stream.toByteArray()
+                    }
+
                     val icon = fileManager.writeIconBytes(
-                        name = packageManagerApplicationInfo.packageName,
-                        newIcon = packageManagerWrapper.getApplicationIcon(
-                            packageName = packageManagerApplicationInfo.packageName,
-                        ),
+                        name = applicationInfo.packageName,
+                        newIcon = newIcon,
                     )
 
+                    val label = applicationInfo.loadLabel(packageManager).toString()
+
                     EblanApplicationInfo(
-                        packageName = packageManagerApplicationInfo.packageName,
+                        packageName = applicationInfo.packageName,
                         icon = icon,
-                        label = packageManagerApplicationInfo.label,
+                        label = label,
                     )
                 }
 

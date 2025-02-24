@@ -28,5 +28,4 @@ android {
 
 dependencies {
     implementation(projects.domain.common)
-    implementation(projects.domain.model)
 }

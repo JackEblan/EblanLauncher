@@ -67,13 +67,14 @@ class HomeViewModel @Inject constructor(
     private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
 
     @OptIn(FlowPreview::class)
-    val updatedGridItem = _updatedGridItem.filterNotNull().debounce(1000).onEach { gridItem ->
-        aStarGridAlgorithmUseCase(gridItem = gridItem)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
+    val updatedGridItem =
+        _updatedGridItem.filterNotNull().debounce(1000).onEach { gridItem ->
+            aStarGridAlgorithmUseCase(gridItem = gridItem)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null,
+        )
 
     private var _gridItemBoundary = MutableStateFlow<GridItemBoundary?>(null)
 

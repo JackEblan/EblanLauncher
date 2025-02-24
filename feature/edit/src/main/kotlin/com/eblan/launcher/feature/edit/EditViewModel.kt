@@ -1,14 +1,18 @@
 package com.eblan.launcher.feature.edit
 
+import android.appwidget.AppWidgetProviderInfo
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.usecase.GetEblanApplicationInfoInstalledProvidersUseCase
 import com.eblan.launcher.feature.edit.navigation.EditRouteData
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +28,8 @@ class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val gridRepository: GridRepository,
+    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
+    private val getEblanApplicationInfoInstalledProvidersUseCase: GetEblanApplicationInfoInstalledProvidersUseCase,
 ) : ViewModel() {
     private val editRouteData = savedStateHandle.toRoute<EditRouteData>()
 
@@ -47,6 +53,22 @@ class EditViewModel @Inject constructor(
 
     val gridRepositoryUpdate = _gridRepositoryUpdate.asStateFlow()
 
+    private val _eblanApplicationInfoInstalledProviders =
+        MutableStateFlow(emptyList<EblanApplicationInfo>())
+
+    val eblanApplicationInfoInstalledProviders = _eblanApplicationInfoInstalledProviders.onStart {
+        getInstalledProviderPackageNames()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
+    )
+
+    private val _installedProvidersByPackageName =
+        MutableStateFlow(emptyList<AppWidgetProviderInfo>())
+
+    val installedProvidersByPackageName = _installedProvidersByPackageName.asStateFlow()
+
     fun addApplicationInfo(
         packageName: String,
         label: String,
@@ -69,6 +91,25 @@ class EditViewModel @Inject constructor(
 
             _gridRepositoryUpdate.update {
                 rowsAffected > 0
+            }
+        }
+    }
+
+    fun getInstalledProviderByPackageName(packageName: String) {
+        viewModelScope.launch {
+            _installedProvidersByPackageName.update {
+                appWidgetManagerWrapper.getInstalledProviderByPackageName(packageName = packageName)
+            }
+        }
+    }
+
+    private fun getInstalledProviderPackageNames() {
+        viewModelScope.launch {
+            val installedProviderPackageNames =
+                getEblanApplicationInfoInstalledProvidersUseCase(installedProviderPackageNames = appWidgetManagerWrapper.getInstalledProviderPackageNames())
+
+            _eblanApplicationInfoInstalledProviders.update {
+                installedProviderPackageNames
             }
         }
     }

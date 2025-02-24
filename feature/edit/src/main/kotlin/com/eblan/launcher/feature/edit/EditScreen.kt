@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.edit
 
+import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ContextualFlowRow
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
@@ -37,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -57,13 +61,20 @@ fun EditRoute(
 
     val gridRepositoryUpdate by viewModel.gridRepositoryUpdate.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfoInstalledProviders by viewModel.eblanApplicationInfoInstalledProviders.collectAsStateWithLifecycle()
+
+    val installedProvidersByPackageName by viewModel.installedProvidersByPackageName.collectAsStateWithLifecycle()
+
     EditScreen(
         modifier = modifier,
         eblanApplicationInfos = applicationInfos,
+        eblanApplicationInfoInstalledProviders = eblanApplicationInfoInstalledProviders,
+        installedProvidersByPackageName = installedProvidersByPackageName,
         gridItem = gridItem,
         gridRepositoryUpdate = gridRepositoryUpdate,
         onNavigationIconClick = onNavigationIconClick,
         onAddApplicationInfo = viewModel::addApplicationInfo,
+        onGetInstalledProviderByPackageName = viewModel::getInstalledProviderByPackageName,
     )
 }
 
@@ -72,6 +83,8 @@ fun EditRoute(
 fun EditScreen(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanApplicationInfoInstalledProviders: List<EblanApplicationInfo>,
+    installedProvidersByPackageName: List<AppWidgetProviderInfo>,
     gridItem: GridItem?,
     gridRepositoryUpdate: Boolean?,
     onNavigationIconClick: () -> Unit,
@@ -79,6 +92,7 @@ fun EditScreen(
         packageName: String,
         label: String,
     ) -> Unit,
+    onGetInstalledProviderByPackageName: (String) -> Unit,
 ) {
     var selectedGridItemIndex by remember { mutableIntStateOf(0) }
 
@@ -200,7 +214,11 @@ fun EditScreen(
                 }
 
                 1 -> {
-
+                    WidgetScreen(
+                        eblanApplicationInfoInstalledProviders = eblanApplicationInfoInstalledProviders,
+                        installedProvidersByPackageName = installedProvidersByPackageName,
+                        onGetInstalledProviderByPackageName = onGetInstalledProviderByPackageName,
+                    )
                 }
             }
         }
@@ -280,5 +298,78 @@ fun ApplicationScreen(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WidgetScreen(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfoInstalledProviders: List<EblanApplicationInfo>,
+    installedProvidersByPackageName: List<AppWidgetProviderInfo>,
+    onGetInstalledProviderByPackageName: (String) -> Unit,
+) {
+    val selectApplicationBottomSheetState = rememberModalBottomSheetState()
+
+    var showSelectApplicationBottomSheet by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier.fillMaxSize()) {
+        Text(
+            text = "Select Application",
+            modifier = Modifier.clickable {
+                showSelectApplicationBottomSheet = true
+            },
+        )
+
+        LazyColumn {
+            items(installedProvidersByPackageName) { appWidgetProviderInfo ->
+                WidgetPreview(appWidgetProviderInfo = appWidgetProviderInfo)
+            }
+        }
+    }
+
+    if (showSelectApplicationBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showSelectApplicationBottomSheet = false
+            },
+            sheetState = selectApplicationBottomSheetState,
+        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(eblanApplicationInfoInstalledProviders) { eblanLauncherApplicationInfo ->
+                    Column(
+                        modifier = Modifier.clickable {
+                            onGetInstalledProviderByPackageName(eblanLauncherApplicationInfo.packageName)
+                        },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        AsyncImage(
+                            model = eblanLauncherApplicationInfo.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                        )
+
+                        Text(
+                            text = eblanLauncherApplicationInfo.label,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun WidgetPreview(modifier: Modifier = Modifier, appWidgetProviderInfo: AppWidgetProviderInfo) {
+    val context = LocalContext.current
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        AsyncImage(
+            model = appWidgetProviderInfo.loadPreviewImage(context, 0),
+            contentDescription = null,
+        )
     }
 }

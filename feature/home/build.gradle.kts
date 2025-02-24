@@ -31,4 +31,5 @@ dependencies {
     implementation(projects.domain.geometry)
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)
+    implementation(projects.framework.widgetManager)
 }

@@ -78,7 +78,6 @@ class EditViewModel @Inject constructor(
                 eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)?.icon
 
             val data = GridItemData.ApplicationInfo(
-                gridItemId = editRouteData.id,
                 packageName = packageName,
                 icon = icon,
                 label = label,
@@ -99,6 +98,23 @@ class EditViewModel @Inject constructor(
         viewModelScope.launch {
             _installedProvidersByPackageName.update {
                 appWidgetManagerWrapper.getInstalledProviderByPackageName(packageName = packageName)
+            }
+        }
+    }
+
+    fun addWidget(appWidgetId: Int) {
+        viewModelScope.launch {
+            val data = GridItemData.Widget(
+                appWidgetId = appWidgetId,
+            )
+
+            val rowsAffected = gridRepository.updateGridItemData(
+                id = editRouteData.id,
+                data = data,
+            )
+
+            _gridRepositoryUpdate.update {
+                rowsAffected > 0
             }
         }
     }

@@ -1,6 +1,11 @@
 package com.eblan.launcher.feature.edit
 
+import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ContextualFlowRow
@@ -45,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -75,6 +82,7 @@ fun EditRoute(
         onNavigationIconClick = onNavigationIconClick,
         onAddApplicationInfo = viewModel::addApplicationInfo,
         onGetInstalledProviderByPackageName = viewModel::getInstalledProviderByPackageName,
+        onAddWidget = viewModel::addWidget,
     )
 }
 
@@ -93,6 +101,7 @@ fun EditScreen(
         label: String,
     ) -> Unit,
     onGetInstalledProviderByPackageName: (String) -> Unit,
+    onAddWidget: (Int) -> Unit,
 ) {
     var selectedGridItemIndex by remember { mutableIntStateOf(0) }
 
@@ -104,6 +113,16 @@ fun EditScreen(
         "Application",
         "Widget",
     )
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) {}
+
+    var bindAppWidget by remember { mutableStateOf(false) }
+
+    var selectedAppWidgetId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(key1 = gridItem) {
         when (val gridItemData = gridItem?.data) {
@@ -174,7 +193,10 @@ fun EditScreen(
                         }
 
                         1 -> {
-
+                            if (bindAppWidget) {
+                                selectedAppWidgetId?.let(onAddWidget)
+                                bindAppWidget = false
+                            }
                         }
                     }
                 },
@@ -218,6 +240,27 @@ fun EditScreen(
                         eblanApplicationInfoInstalledProviders = eblanApplicationInfoInstalledProviders,
                         installedProvidersByPackageName = installedProvidersByPackageName,
                         onGetInstalledProviderByPackageName = onGetInstalledProviderByPackageName,
+                        onWidgetClick = { appWidgetId, provider ->
+                            if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                                    appWidgetId,
+                                    provider,
+                                )
+                            ) {
+                                bindAppWidget = true
+                            } else {
+                                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                                    putExtra(
+                                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                        appWidgetId,
+                                    )
+                                    putExtra(
+                                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                                        provider,
+                                    )
+                                }
+                                appWidgetLauncher.launch(intent)
+                            }
+                        },
                     )
                 }
             }
@@ -308,6 +351,7 @@ fun WidgetScreen(
     eblanApplicationInfoInstalledProviders: List<EblanApplicationInfo>,
     installedProvidersByPackageName: List<AppWidgetProviderInfo>,
     onGetInstalledProviderByPackageName: (String) -> Unit,
+    onWidgetClick: (Int, ComponentName) -> Unit,
 ) {
     val selectApplicationBottomSheetState = rememberModalBottomSheetState()
 
@@ -323,7 +367,10 @@ fun WidgetScreen(
 
         LazyColumn {
             items(installedProvidersByPackageName) { appWidgetProviderInfo ->
-                WidgetPreview(appWidgetProviderInfo = appWidgetProviderInfo)
+                WidgetPreview(
+                    appWidgetProviderInfo = appWidgetProviderInfo,
+                    onWidgetClick = onWidgetClick,
+                )
             }
         }
     }
@@ -363,13 +410,28 @@ fun WidgetScreen(
 }
 
 @Composable
-fun WidgetPreview(modifier: Modifier = Modifier, appWidgetProviderInfo: AppWidgetProviderInfo) {
+fun WidgetPreview(
+    modifier: Modifier = Modifier,
+    appWidgetProviderInfo: AppWidgetProviderInfo,
+    onWidgetClick: (Int, ComponentName) -> Unit,
+) {
     val context = LocalContext.current
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetId = appWidgetHost.allocateAppWidgetId()
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                onWidgetClick(appWidgetId, appWidgetProviderInfo.provider)
+            },
+    ) {
         AsyncImage(
             model = appWidgetProviderInfo.loadPreviewImage(context, 0),
             contentDescription = null,
         )
     }
 }
+

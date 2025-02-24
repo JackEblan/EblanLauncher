@@ -7,7 +7,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class DefaultEblanApplicationInfoRepository @Inject constructor(private val eblanApplicationInfoDao: EblanApplicationInfoDao) :
+internal class DefaultEblanApplicationInfoRepository @Inject constructor(private val eblanApplicationInfoDao: EblanApplicationInfoDao) :
     EblanApplicationInfoRepository {
     override val eblanApplicationInfos =
         eblanApplicationInfoDao.getEblanApplicationInfoEntities().map { entities ->

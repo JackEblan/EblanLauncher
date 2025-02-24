@@ -33,9 +33,12 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
@@ -249,7 +252,7 @@ fun Success(
                             }
 
                             is GridItemData.Widget -> {
-
+                                WidgetGridItem(appWidgetId = gridItemData.appWidgetId)
                             }
 
                             null -> {
@@ -536,5 +539,24 @@ fun EmptyGridItem(
     ) {
         Text(text = "Empty")
     }
+}
+
+@Composable
+private fun WidgetGridItem(
+    modifier: Modifier = Modifier,
+    appWidgetId: Int,
+) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    AndroidView(
+        modifier = modifier,
+        factory = {
+            val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
+
+            appWidgetHost.createView(appWidgetId, appWidgetInfo)
+        },
+    )
 }
 

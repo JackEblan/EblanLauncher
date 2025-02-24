@@ -8,7 +8,7 @@ import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : GridRepository {
+internal class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : GridRepository {
     override val gridItems = gridDao.getGridItemEntities().map { entities ->
         entities.map { entity ->
             entity.toGridItem()

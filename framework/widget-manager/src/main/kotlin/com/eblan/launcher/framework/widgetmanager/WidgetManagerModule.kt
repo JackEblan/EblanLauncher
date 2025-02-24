@@ -13,4 +13,8 @@ internal interface WidgetManagerModule {
     @Binds
     @Singleton
     fun appWidgetManagerWrapper(impl: AndroidAppWidgetManagerWrapper): AppWidgetManagerWrapper
+
+    @Binds
+    @Singleton
+    fun appWidgetHostWrapper(impl: AndroidAppWidgetHostWrapper): AppWidgetHostWrapper
 }

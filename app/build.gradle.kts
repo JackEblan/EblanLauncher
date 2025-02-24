@@ -55,6 +55,7 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.framework.fileManager)
     implementation(projects.framework.packageManager)
+    implementation(projects.framework.widgetManager)
     implementation(projects.service)
 
     implementation(libs.accompanist.permissions)

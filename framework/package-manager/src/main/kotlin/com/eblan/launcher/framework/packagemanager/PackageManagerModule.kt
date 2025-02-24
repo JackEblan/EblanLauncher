@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
-import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -26,7 +25,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface PackageManagerModule {
+internal interface PackageManagerModule {
 
     @Binds
     @Singleton

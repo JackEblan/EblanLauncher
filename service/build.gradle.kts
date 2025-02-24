@@ -28,8 +28,9 @@ android {
 dependencies {
     implementation(projects.broadcastReceiver)
     implementation(projects.domain.common)
-    implementation(projects.domain.framework)
     implementation(projects.domain.repository)
+    implementation(projects.framework.fileManager)
+    implementation(projects.framework.packageManager)
 
     implementation(libs.androidx.core.ktx)
 }

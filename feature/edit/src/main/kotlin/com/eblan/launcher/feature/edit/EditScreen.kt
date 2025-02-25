@@ -1,8 +1,8 @@
 package com.eblan.launcher.feature.edit
 
+import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
-import android.content.ComponentName
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -114,14 +114,6 @@ fun EditScreen(
         "Widget",
     )
 
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-    ) {}
-
-    var bindAppWidget by remember { mutableStateOf(false) }
-
     var selectedAppWidgetId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(key1 = gridItem) {
@@ -193,10 +185,7 @@ fun EditScreen(
                         }
 
                         1 -> {
-                            if (bindAppWidget) {
-                                selectedAppWidgetId?.let(onAddWidget)
-                                bindAppWidget = false
-                            }
+                            selectedAppWidgetId?.let(onAddWidget)
                         }
                     }
                 },
@@ -240,26 +229,8 @@ fun EditScreen(
                         eblanApplicationInfoInstalledProviders = eblanApplicationInfoInstalledProviders,
                         installedProvidersByPackageName = installedProvidersByPackageName,
                         onGetInstalledProviderByPackageName = onGetInstalledProviderByPackageName,
-                        onWidgetClick = { appWidgetId, provider ->
-                            if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                                    appWidgetId,
-                                    provider,
-                                )
-                            ) {
-                                bindAppWidget = true
-                            } else {
-                                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                                    putExtra(
-                                        AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                        appWidgetId,
-                                    )
-                                    putExtra(
-                                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                                        provider,
-                                    )
-                                }
-                                appWidgetLauncher.launch(intent)
-                            }
+                        onAddWidget = { appWidgetId ->
+                            selectedAppWidgetId = appWidgetId
                         },
                     )
                 }
@@ -351,7 +322,7 @@ fun WidgetScreen(
     eblanApplicationInfoInstalledProviders: List<EblanApplicationInfo>,
     installedProvidersByPackageName: List<AppWidgetProviderInfo>,
     onGetInstalledProviderByPackageName: (String) -> Unit,
-    onWidgetClick: (Int, ComponentName) -> Unit,
+    onAddWidget: (appWidget: Int) -> Unit,
 ) {
     val selectApplicationBottomSheetState = rememberModalBottomSheetState()
 
@@ -369,7 +340,7 @@ fun WidgetScreen(
             items(installedProvidersByPackageName) { appWidgetProviderInfo ->
                 WidgetPreview(
                     appWidgetProviderInfo = appWidgetProviderInfo,
-                    onWidgetClick = onWidgetClick,
+                    onAddWidget = onAddWidget,
                 )
             }
         }
@@ -413,19 +384,50 @@ fun WidgetScreen(
 fun WidgetPreview(
     modifier: Modifier = Modifier,
     appWidgetProviderInfo: AppWidgetProviderInfo,
-    onWidgetClick: (Int, ComponentName) -> Unit,
+    onAddWidget: (appWidget: Int) -> Unit,
 ) {
     val context = LocalContext.current
 
     val appWidgetHost = LocalAppWidgetHost.current
 
+    val appWidgetManager = LocalAppWidgetManager.current
+
     val appWidgetId = appWidgetHost.allocateAppWidgetId()
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            onAddWidget(appWidgetId)
+        }
+    }
+
+    appWidgetProviderInfo.minResizeWidth
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                onWidgetClick(appWidgetId, appWidgetProviderInfo.provider)
+                if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                        appWidgetId,
+                        appWidgetProviderInfo.provider,
+                    )
+                ) {
+                    onAddWidget(appWidgetId)
+                } else {
+                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                        putExtra(
+                            AppWidgetManager.EXTRA_APPWIDGET_ID,
+                            appWidgetId,
+                        )
+                        putExtra(
+                            AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                            appWidgetProviderInfo.provider,
+                        )
+                    }
+
+                    appWidgetLauncher.launch(intent)
+                }
             },
     ) {
         AsyncImage(

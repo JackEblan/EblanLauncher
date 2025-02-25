@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Bundle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,5 +51,9 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
 
     override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName): Boolean {
         return appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
+    }
+
+    override fun updateAppWidgetOptions(appWidgetId: Int, options: Bundle) {
+        appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
     }
 }

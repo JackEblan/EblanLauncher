@@ -40,7 +40,7 @@ fun getGridItemDimensions(cells: List<GridCell>): Pair<Int, Int> {
  * @return `true` if every cell of [gridItem] is within the grid bounds; `false` otherwise.
  */
 fun isGridItemWithinBounds(
-    gridItem: GridItem, rows: Int, columns: Int
+    gridItem: GridItem, rows: Int, columns: Int,
 ): Boolean {
     for (cell in gridItem.cells) {
         if (cell.row < 0 || cell.row >= rows || cell.column < 0 || cell.column >= columns) {
@@ -70,7 +70,7 @@ fun isGridItemWithinBounds(
  * @return A [BoundingBox] object containing the computed width and height.
  */
 fun calculateBoundingBox(
-    gridCells: List<GridCell>, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int
+    gridCells: List<GridCell>, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int,
 ): BoundingBox {
     val cellWidth = screenWidth / rows
     val cellHeight = screenHeight / columns
@@ -103,7 +103,7 @@ fun calculateBoundingBox(
  * @return A [Coordinates] object representing the top-left pixel position of the grid cells.
  */
 fun calculateCoordinates(
-    gridCells: List<GridCell>, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int
+    gridCells: List<GridCell>, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int,
 ): Coordinates {
     val cellWidth = screenWidth / rows
     val cellHeight = screenHeight / columns
@@ -152,7 +152,7 @@ fun areValidCells(gridCells: List<GridCell>, rows: Int, columns: Int): Boolean {
  * @return A [GridCell] corresponding to the position of the provided coordinates on the grid.
  */
 fun coordinatesToGridCell(
-    x: Int, y: Int, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int
+    x: Int, y: Int, rows: Int, columns: Int, screenWidth: Int, screenHeight: Int,
 ): GridCell {
     val cellWidth = screenWidth / rows
     val cellHeight = screenHeight / columns
@@ -171,7 +171,7 @@ fun coordinatesToGridCell(
  * @param screenWidth The total width of the screen or container.
  * @return [GridItemBoundary] indicating whether the grid item is touching the left edge, right edge, or neither.
  */
-fun getGridItemBoundary(
+fun getGridItemBoundaryCenter(
     x: Int, boundingBoxWidth: Int, screenWidth: Int,
 ): GridItemBoundary? {
     val touchesLeft = (x + boundingBoxWidth / 2) <= 0
@@ -183,3 +183,15 @@ fun getGridItemBoundary(
         else -> null
     }
 }
+
+fun isGridItemWithinBounds(
+    x: Int,
+    y: Int,
+    boundingBoxWidth: Int,
+    boundingBoxHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+): Boolean {
+    return x >= 0 && y >= 0 && (x + boundingBoxWidth) <= screenWidth && (y + boundingBoxHeight) <= screenHeight
+}
+

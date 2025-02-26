@@ -102,10 +102,47 @@ class EditViewModel @Inject constructor(
         }
     }
 
-    fun addWidget(appWidgetId: Int) {
+    fun addWidget(
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+    ) {
         viewModelScope.launch {
             val data = GridItemData.Widget(
                 appWidgetId = appWidgetId,
+                minWidth = minWidth,
+                minHeight = minHeight,
+            )
+
+            val rowsAffected = gridRepository.updateGridItemData(
+                id = editRouteData.id,
+                data = data,
+            )
+
+            _gridRepositoryUpdate.update {
+                rowsAffected > 0
+            }
+        }
+    }
+
+    fun addWidgetAndroidTwelve(
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        targetCellWidth: Int,
+        targetCellHeight: Int,
+    ) {
+        viewModelScope.launch {
+            val data = GridItemData.WidgetAndroidTwelve(
+                appWidgetId = appWidgetId,
+                minWidth = minWidth,
+                minHeight = minHeight,
+                minResizeWidth = minResizeWidth,
+                minResizeHeight = minResizeHeight,
+                targetCellWidth = targetCellWidth,
+                targetCellHeight = targetCellHeight,
             )
 
             val rowsAffected = gridRepository.updateGridItemData(

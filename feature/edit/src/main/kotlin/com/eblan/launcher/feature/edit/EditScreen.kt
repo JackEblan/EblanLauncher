@@ -4,6 +4,7 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -83,6 +84,7 @@ fun EditRoute(
         onAddApplicationInfo = viewModel::addApplicationInfo,
         onGetInstalledProviderByPackageName = viewModel::getInstalledProviderByPackageName,
         onAddWidget = viewModel::addWidget,
+        onAddWidgetAndroidTwelve = viewModel::addWidgetAndroidTwelve,
     )
 }
 
@@ -101,7 +103,20 @@ fun EditScreen(
         label: String,
     ) -> Unit,
     onGetInstalledProviderByPackageName: (String) -> Unit,
-    onAddWidget: (Int) -> Unit,
+    onAddWidget: (
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+    ) -> Unit,
+    onAddWidgetAndroidTwelve: (
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        targetCellWidth: Int,
+        targetCellHeight: Int,
+    ) -> Unit,
 ) {
     var selectedGridItemIndex by remember { mutableIntStateOf(0) }
 
@@ -114,8 +129,6 @@ fun EditScreen(
         "Widget",
     )
 
-    var selectedAppWidgetId by remember { mutableStateOf<Int?>(null) }
-
     LaunchedEffect(key1 = gridItem) {
         when (val gridItemData = gridItem?.data) {
             is GridItemData.ApplicationInfo -> {
@@ -127,6 +140,10 @@ fun EditScreen(
             }
 
             is GridItemData.Widget -> {
+
+            }
+
+            is GridItemData.WidgetAndroidTwelve -> {
 
             }
 
@@ -185,7 +202,7 @@ fun EditScreen(
                         }
 
                         1 -> {
-                            selectedAppWidgetId?.let(onAddWidget)
+
                         }
                     }
                 },
@@ -229,9 +246,8 @@ fun EditScreen(
                         eblanApplicationInfoInstalledProviders = eblanApplicationInfoInstalledProviders,
                         installedProvidersByPackageName = installedProvidersByPackageName,
                         onGetInstalledProviderByPackageName = onGetInstalledProviderByPackageName,
-                        onAddWidget = { appWidgetId ->
-                            selectedAppWidgetId = appWidgetId
-                        },
+                        onAddWidget = onAddWidget,
+                        onAddWidgetAndroidTwelve = onAddWidgetAndroidTwelve,
                     )
                 }
             }
@@ -322,7 +338,20 @@ fun WidgetScreen(
     eblanApplicationInfoInstalledProviders: List<EblanApplicationInfo>,
     installedProvidersByPackageName: List<AppWidgetProviderInfo>,
     onGetInstalledProviderByPackageName: (String) -> Unit,
-    onAddWidget: (appWidget: Int) -> Unit,
+    onAddWidget: (
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+    ) -> Unit,
+    onAddWidgetAndroidTwelve: (
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        targetCellWidth: Int,
+        targetCellHeight: Int,
+    ) -> Unit,
 ) {
     val selectApplicationBottomSheetState = rememberModalBottomSheetState()
 
@@ -341,6 +370,7 @@ fun WidgetScreen(
                 WidgetPreview(
                     appWidgetProviderInfo = appWidgetProviderInfo,
                     onAddWidget = onAddWidget,
+                    onAddWidgetAndroidTwelve = onAddWidgetAndroidTwelve,
                 )
             }
         }
@@ -384,7 +414,20 @@ fun WidgetScreen(
 fun WidgetPreview(
     modifier: Modifier = Modifier,
     appWidgetProviderInfo: AppWidgetProviderInfo,
-    onAddWidget: (appWidget: Int) -> Unit,
+    onAddWidget: (
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+    ) -> Unit,
+    onAddWidgetAndroidTwelve: (
+        appWidgetId: Int,
+        minWidth: Int,
+        minHeight: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        targetCellWidth: Int,
+        targetCellHeight: Int,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -394,11 +437,31 @@ fun WidgetPreview(
 
     val appWidgetId = appWidgetHost.allocateAppWidgetId()
 
+    fun addWidget() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            onAddWidgetAndroidTwelve(
+                appWidgetId,
+                appWidgetProviderInfo.minWidth,
+                appWidgetProviderInfo.minHeight,
+                appWidgetProviderInfo.minResizeWidth,
+                appWidgetProviderInfo.minResizeHeight,
+                appWidgetProviderInfo.targetCellWidth,
+                appWidgetProviderInfo.targetCellHeight,
+            )
+        } else {
+            onAddWidget(
+                appWidgetId,
+                appWidgetProviderInfo.minWidth,
+                appWidgetProviderInfo.minHeight,
+            )
+        }
+    }
+
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            onAddWidget(appWidgetId)
+            addWidget()
         }
     }
 
@@ -413,7 +476,7 @@ fun WidgetPreview(
                         appWidgetProviderInfo.provider,
                     )
                 ) {
-                    onAddWidget(appWidgetId)
+                    addWidget()
                 } else {
                     val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                         putExtra(

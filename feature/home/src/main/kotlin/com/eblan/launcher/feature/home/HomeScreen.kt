@@ -1,7 +1,5 @@
 package com.eblan.launcher.feature.home
 
-import android.appwidget.AppWidgetManager
-import android.os.Bundle
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -254,26 +252,6 @@ fun Success(
                             }
 
                             is GridItemData.Widget -> {
-                                val appWidgetManager = LocalAppWidgetManager.current
-
-                                val minWidth = with(density) {
-                                    gridItemPixel.boundingBox.width.toDp().value.roundToInt()
-                                }
-
-                                val minHeight = with(density) {
-                                    gridItemPixel.boundingBox.height.toDp().value.roundToInt()
-                                }
-
-                                val options = Bundle().apply {
-                                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minWidth)
-                                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
-                                }
-
-                                appWidgetManager.updateAppWidgetOptions(
-                                    gridItemData.appWidgetId,
-                                    options,
-                                )
-
                                 AnimatedGridItem(
                                     boundingBox = gridItemPixel.boundingBox,
                                     coordinates = gridItemPixel.coordinates,
@@ -308,6 +286,26 @@ fun Success(
                                     },
                                 ) {
                                     EmptyGridItem()
+                                }
+                            }
+
+                            is GridItemData.WidgetAndroidTwelve -> {
+                                println(gridItemPixel)
+                                AnimatedGridItem(
+                                    boundingBox = gridItemPixel.boundingBox,
+                                    coordinates = gridItemPixel.coordinates,
+                                    onLongPress = {
+                                        isEditing = true
+                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
+                                        selectedGridItemPixelIntSize = IntSize(
+                                            width = gridItemPixelOnLongPress.boundingBox.width,
+                                            height = gridItemPixelOnLongPress.boundingBox.height,
+                                        )
+                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
+                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
+                                    },
+                                ) {
+                                    WidgetGridItem(appWidgetId = gridItemData.appWidgetId)
                                 }
                             }
                         }
@@ -588,7 +586,7 @@ private fun WidgetGridItem(
     val appWidgetManager = LocalAppWidgetManager.current
 
     AndroidView(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         factory = {
             val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
 

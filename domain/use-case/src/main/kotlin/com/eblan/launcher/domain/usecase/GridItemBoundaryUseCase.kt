@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.calculateBoundingBox
-import com.eblan.launcher.domain.grid.getGridItemBoundary
+import com.eblan.launcher.domain.grid.getGridItemBoundaryCenter
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -36,7 +36,7 @@ class GridItemBoundaryUseCase @Inject constructor(
                     screenHeight = screenHeight,
                 )
 
-                getGridItemBoundary(
+                getGridItemBoundaryCenter(
                     x = x,
                     boundingBoxWidth = boundingBox.width,
                     screenWidth = screenWidth,

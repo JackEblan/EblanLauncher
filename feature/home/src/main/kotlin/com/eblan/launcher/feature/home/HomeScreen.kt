@@ -231,83 +231,21 @@ fun Success(
                     key(gridItemPixel.gridItem.id) {
                         val gridItemPixelOnLongPress by rememberUpdatedState(gridItemPixel)
 
-                        when (val gridItemData = gridItemPixel.gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                AnimatedGridItem(
-                                    boundingBox = gridItemPixel.boundingBox,
-                                    coordinates = gridItemPixel.coordinates,
-                                    onLongPress = {
-                                        isEditing = true
-                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
-                                        selectedGridItemPixelIntSize = IntSize(
-                                            width = gridItemPixelOnLongPress.boundingBox.width,
-                                            height = gridItemPixelOnLongPress.boundingBox.height,
-                                        )
-                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
-                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
-                                    },
-                                ) {
-                                    ApplicationInfoGridItem(gridItemData = gridItemData)
-                                }
-                            }
-
-                            is GridItemData.Widget -> {
-                                AnimatedGridItem(
-                                    boundingBox = gridItemPixel.boundingBox,
-                                    coordinates = gridItemPixel.coordinates,
-                                    onLongPress = {
-                                        isEditing = true
-                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
-                                        selectedGridItemPixelIntSize = IntSize(
-                                            width = gridItemPixelOnLongPress.boundingBox.width,
-                                            height = gridItemPixelOnLongPress.boundingBox.height,
-                                        )
-                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
-                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
-                                    },
-                                ) {
-                                    WidgetGridItem(appWidgetId = gridItemData.appWidgetId)
-                                }
-                            }
-
-                            null -> {
-                                AnimatedGridItem(
-                                    boundingBox = gridItemPixel.boundingBox,
-                                    coordinates = gridItemPixel.coordinates,
-                                    onLongPress = {
-                                        isEditing = true
-                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
-                                        selectedGridItemPixelIntSize = IntSize(
-                                            width = gridItemPixelOnLongPress.boundingBox.width,
-                                            height = gridItemPixelOnLongPress.boundingBox.height,
-                                        )
-                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
-                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
-                                    },
-                                ) {
-                                    EmptyGridItem()
-                                }
-                            }
-
-                            is GridItemData.WidgetAndroidTwelve -> {
-                                println(gridItemPixel)
-                                AnimatedGridItem(
-                                    boundingBox = gridItemPixel.boundingBox,
-                                    coordinates = gridItemPixel.coordinates,
-                                    onLongPress = {
-                                        isEditing = true
-                                        selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
-                                        selectedGridItemPixelIntSize = IntSize(
-                                            width = gridItemPixelOnLongPress.boundingBox.width,
-                                            height = gridItemPixelOnLongPress.boundingBox.height,
-                                        )
-                                        dragOffsetX = gridItemPixelOnLongPress.coordinates.x
-                                        dragOffsetY = gridItemPixelOnLongPress.coordinates.y
-                                    },
-                                ) {
-                                    WidgetGridItem(appWidgetId = gridItemData.appWidgetId)
-                                }
-                            }
+                        AnimatedGridItem(
+                            boundingBox = gridItemPixel.boundingBox,
+                            coordinates = gridItemPixel.coordinates,
+                            onLongPress = {
+                                isEditing = true
+                                selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
+                                selectedGridItemPixelIntSize = IntSize(
+                                    width = gridItemPixelOnLongPress.boundingBox.width,
+                                    height = gridItemPixelOnLongPress.boundingBox.height,
+                                )
+                                dragOffsetX = gridItemPixelOnLongPress.coordinates.x
+                                dragOffsetY = gridItemPixelOnLongPress.coordinates.y
+                            },
+                        ) {
+                            EmptyGridItem()
                         }
                     }
                 }

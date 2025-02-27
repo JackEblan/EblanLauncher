@@ -1,23 +1,22 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.GridCell
 import com.eblan.launcher.domain.model.GridItem
 
 /**
  * Resizes a [GridItem] based on new pixel dimensions.
  *
- * Converts the desired new pixel width and height into grid cell dimensions by taking into
- * account the pixel dimensions of a single grid cell ([gridCellWidth] and [gridCellHeight]). The
- * calculated grid cell dimensions are then used to resize the grid item.
+ * Converts the desired new pixel width and height into grid cell dimensions by taking into account
+ * the size of a single grid cell ([gridCellWidth] and [gridCellHeight]). The calculated grid cell dimensions
+ * are then used to resize the grid item by updating its spans and (depending on [anchor]) its starting position.
  *
- * @param gridItem The grid item to be resized. If `null`, the function returns `null`.
+ * @param gridItem The grid item to be resized.
  * @param width The new desired width in pixels for the grid item.
  * @param height The new desired height in pixels for the grid item.
  * @param gridCellWidth The width of a single grid cell in pixels.
  * @param gridCellHeight The height of a single grid cell in pixels.
- * @param anchor The starting point of cells expansion.
- * @return A new [GridItem] with resized grid cells if [gridItem] is not `null`; otherwise, `null`.
+ * @param anchor The corner that remains fixed during resizing.
+ * @return A new [GridItem] with updated starting position and spans.
  */
 fun resizeGridItemWithPixels(
     gridItem: GridItem,
@@ -27,7 +26,7 @@ fun resizeGridItemWithPixels(
     gridCellHeight: Int,
     anchor: Anchor,
 ): GridItem {
-    val (newWidth, newHeight) = pixelsToGridCells(
+    val (newWidth, newHeight) = pixelDimensionsToGridSpan(
         width = width,
         height = height,
         gridCellWidth = gridCellWidth,
@@ -43,91 +42,48 @@ fun resizeGridItemWithPixels(
 }
 
 /**
- * Converts pixel dimensions to grid cell dimensions.
+ * Converts pixel dimensions into grid span counts.
  *
- * Calculates how many grid cells fit into the specified pixel dimensions based on the pixel
- * size of a single grid cell. The division result is coerced to be at least 1 so that the grid item always
- * occupies a minimum of one cell in each direction.
+ * Given a width and height in pixels, this function calculates how many grid cells
+ * (horizontally and vertically) can be covered based on the dimensions of a single grid cell.
+ * The results are coerced to be at least 1, ensuring that even very small pixel dimensions count as one cell.
  *
  * @param width The width in pixels to be converted.
  * @param height The height in pixels to be converted.
  * @param gridCellWidth The width of a single grid cell in pixels.
  * @param gridCellHeight The height of a single grid cell in pixels.
- * @return A [Pair] where the first component is the number of grid cells corresponding to the width and the second
- * component is the number corresponding to the height.
+ * @return A [Pair] where the first component is the number of cells that fit horizontally,
+ *         and the second is the number of cells that fit vertically.
  */
-private fun pixelsToGridCells(
+private fun pixelDimensionsToGridSpan(
     width: Int,
     height: Int,
     gridCellWidth: Int,
     gridCellHeight: Int,
 ): Pair<Int, Int> {
-    val newWidth = (width / gridCellWidth).coerceAtLeast(1)
-    val newHeight = (height / gridCellHeight).coerceAtLeast(1)
-    return Pair(newWidth, newHeight)
-}
-
-/**
- * Calculates the new set of grid cells for a grid item when it is resized.
- *
- * The new grid cells are calculated by first identifying the top-left cell from the list of the current cells
- * (using the smallest row and column values). A rectangular block of grid cells with the specified [newWidth]
- * and [newHeight] is then created starting from [anchor].
- *
- * @param oldCells The original list of [GridCell] objects representing the current position of the grid item.
- * @param newWidth The desired new width of the grid item in terms of grid cells.
- * @param newHeight The desired new height of the grid item in terms of grid cells.
- * @param anchor The starting point of cells expansion.
- * @return A list of [GridCell] objects representing the new layout of the grid item after resizing.
- */
-private fun calculateResizedCells(
-    oldCells: List<GridCell>,
-    newWidth: Int,
-    newHeight: Int,
-    anchor: Anchor,
-): List<GridCell> {
-    if (oldCells.isEmpty()) return emptyList()
-
-    val startCell = when (anchor) {
-        Anchor.TOP_START -> oldCells.minWith(compareBy({ it.row }, { it.column }))
-
-        Anchor.TOP_END -> {
-            val topRight = oldCells.minWith(compareBy { it.row })
-            val maxCol = oldCells.maxOf { it.column }
-            GridCell(topRight.row, maxCol - (newWidth - 1))
-        }
-
-        Anchor.BOTTOM_START -> {
-            val bottomLeft = oldCells.minWith(compareBy { it.column })
-            val maxRow = oldCells.maxOf { it.row }
-            GridCell(maxRow - (newHeight - 1), bottomLeft.column)
-        }
-
-        Anchor.BOTTOM_END -> {
-            val bottomRight = oldCells.maxWith(compareBy({ it.row }, { it.column }))
-            GridCell(bottomRight.row - (newHeight - 1), bottomRight.column - (newWidth - 1))
-        }
-    }
-
-    return List(newHeight) { rowOffset ->
-        List(newWidth) { colOffset ->
-            GridCell(startCell.row + rowOffset, startCell.column + colOffset)
-        }
-    }.flatten()
+    val spanWidth = (width / gridCellWidth).coerceAtLeast(1)
+    val spanHeight = (height / gridCellHeight).coerceAtLeast(1)
+    return spanWidth to spanHeight
 }
 
 /**
  * Resizes a [GridItem] to a new size specified in grid cells.
  *
- * Uses [calculateResizedCells] to compute the new grid cell positions for the grid item based on
- * the desired new width ([newWidth]) and new height ([newHeight]) in grid cells. The original grid item is resized
- * such that [anchor] remains anchored while the overall dimensions change.
+ * Using the new width ([newWidth]) and height ([newHeight])—which represent the new column and row spans—
+ * this function updates the grid item. Depending on the [anchor] value, the grid item’s starting position
+ * is adjusted so that a specific corner remains fixed.
  *
- * @param gridItem The grid item to be resized. If `null`, the function returns `null`.
- * @param newWidth The new desired width of the grid item in terms of grid cells.
- * @param newHeight The new desired height of the grid item in terms of grid cells.
- * @param anchor The starting point of cells expansion.
- * @return A new [GridItem] with updated grid cells.
+ * For example:
+ * - [Anchor.TOP_START]: The top‑left corner remains fixed.
+ * - [Anchor.TOP_END]: The top‑right corner remains fixed.
+ * - [Anchor.BOTTOM_START]: The bottom‑left corner remains fixed.
+ * - [Anchor.BOTTOM_END]: The bottom‑right corner remains fixed.
+ *
+ * @param gridItem The grid item to be resized.
+ * @param newWidth The new desired width in grid cells (new column span).
+ * @param newHeight The new desired height in grid cells (new row span).
+ * @param anchor The fixed corner during the resize.
+ * @return A new [GridItem] with updated starting position and spans.
  */
 private fun resizeGridItem(
     gridItem: GridItem,
@@ -135,12 +91,38 @@ private fun resizeGridItem(
     newHeight: Int,
     anchor: Anchor,
 ): GridItem {
-    val newCells = calculateResizedCells(
-        oldCells = gridItem.cells,
-        newWidth = newWidth,
-        newHeight = newHeight,
-        anchor = anchor,
-    )
+    val newStartRow: Int
+    val newStartColumn: Int
 
-    return gridItem.copy(cells = newCells)
+    when (anchor) {
+        Anchor.TOP_START -> {
+            newStartRow = gridItem.startRow
+            newStartColumn = gridItem.startColumn
+        }
+
+        Anchor.TOP_END -> {
+            // Preserve the top-right corner.
+            newStartRow = gridItem.startRow
+            newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
+        }
+
+        Anchor.BOTTOM_START -> {
+            // Preserve the bottom-left corner.
+            newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
+            newStartColumn = gridItem.startColumn
+        }
+
+        Anchor.BOTTOM_END -> {
+            // Preserve the bottom-right corner.
+            newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
+            newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
+        }
+    }
+
+    return gridItem.copy(
+        startRow = newStartRow,
+        startColumn = newStartColumn,
+        rowSpan = newHeight,
+        columnSpan = newWidth,
+    )
 }

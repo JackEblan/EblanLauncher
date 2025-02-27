@@ -1,7 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.areValidCells
-import com.eblan.launcher.domain.grid.isGridItemWithinBounds
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
@@ -15,38 +14,23 @@ class AStarGridAlgorithmUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke(gridItem: GridItem) {
+    suspend operator fun invoke(movingGridItem: GridItem) {
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val isGridItemWithinBounds = isGridItemWithinBounds(
-                gridItem = gridItem,
+            val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+                gridItem = movingGridItem,
                 rows = userData.rows,
                 columns = userData.columns,
             )
 
-            if (isGridItemWithinBounds.not()) {
-                return@withContext
-            }
-
-            val gridItemsWithValidCells = gridRepository.gridItems.first().filter { gridItem ->
-                areValidCells(
-                    gridCells = gridItem.cells, rows = userData.rows, columns = userData.columns
-                )
-            }
-
-            val oldGridItem = gridItemsWithValidCells.find { it.id == gridItem.id }
-
-            val oldGridItemIndex = gridItemsWithValidCells.indexOf(oldGridItem)
-
-            val updatedGridItems = gridItemsWithValidCells.toMutableList().apply {
-                set(oldGridItemIndex, gridItem)
+            val gridItems = gridRepository.gridItems.first().filter { gridItem ->
+                isGridItemSpanWithinBounds && gridItem.id != movingGridItem.id && gridItem.page == movingGridItem.page
             }
 
             val resolvedConflictsGridItems = resolveConflicts(
-                page = gridItem.page,
-                gridItems = updatedGridItems,
-                movingGridItem = gridItem,
+                gridItems = gridItems,
+                movingGridItem = movingGridItem,
                 rows = userData.rows,
                 columns = userData.columns,
             )

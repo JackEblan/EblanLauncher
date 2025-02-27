@@ -8,7 +8,8 @@ import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-internal class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) : GridRepository {
+internal class DefaultGridRepository @Inject constructor(private val gridDao: GridDao) :
+    GridRepository {
     override val gridItems = gridDao.getGridItemEntities().map { entities ->
         entities.map { entity ->
             entity.toGridItem()
@@ -28,7 +29,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
     }
 
     override suspend fun updateGridItemData(id: Int, data: GridItemData): Int {
-        return gridDao.updateGridItemData(id = id, data = data)
+        return 0 /*gridDao.updateGridItemData(id = id, data = data)*/
     }
 
     override suspend fun getGridItem(id: Int): GridItem? {
@@ -36,10 +37,24 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
     }
 
     private fun GridItemEntity.toGridItem(): GridItem {
-        return GridItem(id = id, page = page, cells = cells, data = data)
+        return GridItem(
+            id = id,
+            page = page,
+            startRow = startRow,
+            startColumn = startColumn,
+            rowSpan = rowSpan,
+            columnSpan = columnSpan,
+        )
     }
 
     private fun GridItem.toGridItemEntity(): GridItemEntity {
-        return GridItemEntity(id = id, page = page, cells = cells, data = data)
+        return GridItemEntity(
+            id = id,
+            page = page,
+            startRow = startRow,
+            startColumn = startColumn,
+            rowSpan = rowSpan,
+            columnSpan = columnSpan,
+        )
     }
 }

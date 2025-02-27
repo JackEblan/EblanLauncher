@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.coordinatesToGridCell
+import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -23,7 +23,7 @@ class AddGridItemUseCase @Inject constructor(
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val gridCell = coordinatesToGridCell(
+            val (startRow, startColumn) = coordinatesToStartPosition(
                 x = x,
                 y = y,
                 rows = userData.rows,
@@ -32,8 +32,13 @@ class AddGridItemUseCase @Inject constructor(
                 screenHeight = screenHeight,
             )
 
-            val gridItem =
-                GridItem(page = page, cells = listOf(gridCell), data = null)
+            val gridItem = GridItem(
+                page = page,
+                startRow = startRow,
+                startColumn = startColumn,
+                rowSpan = 1,
+                columnSpan = 1,
+            )
 
             val gridItems = gridRepository.gridItems.first().toMutableList().apply {
                 add(gridItem)

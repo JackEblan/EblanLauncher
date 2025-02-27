@@ -55,7 +55,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 
 @Composable
 fun EditRoute(
@@ -130,27 +129,27 @@ fun EditScreen(
     )
 
     LaunchedEffect(key1 = gridItem) {
-        when (val gridItemData = gridItem?.data) {
-            is GridItemData.ApplicationInfo -> {
-                applicationScreenUiState.packageName = gridItemData.packageName
-
-                applicationScreenUiState.icon = gridItemData.icon
-
-                applicationScreenUiState.label = gridItemData.label
-            }
-
-            is GridItemData.Widget -> {
-
-            }
-
-            is GridItemData.WidgetAndroidTwelve -> {
-
-            }
-
-            null -> {
-
-            }
-        }
+//        when (val gridItemData = gridItem?.data) {
+//            is GridItemData.ApplicationInfo -> {
+//                applicationScreenUiState.packageName = gridItemData.packageName
+//
+//                applicationScreenUiState.icon = gridItemData.icon
+//
+//                applicationScreenUiState.label = gridItemData.label
+//            }
+//
+//            is GridItemData.Widget -> {
+//
+//            }
+//
+//            is GridItemData.WidgetAndroidTwelve -> {
+//
+//            }
+//
+//            null -> {
+//
+//            }
+//        }
     }
 
     LaunchedEffect(key1 = gridRepositoryUpdate) {

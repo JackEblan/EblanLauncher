@@ -3,6 +3,8 @@ package com.eblan.launcher.domain.model
 data class GridItem(
     val id: Int = 0,
     val page: Int,
-    val cells: List<GridCell>,
-    val data: GridItemData?,
+    val startRow: Int,
+    val startColumn: Int,
+    val rowSpan: Int,
+    val columnSpan: Int,
 )

@@ -29,7 +29,7 @@ class GridItemBoundaryUseCase @Inject constructor(
                 gridItem.id == id
             }?.let { gridItem ->
                 val boundingBox = calculateBoundingBox(
-                    gridCells = gridItem.cells,
+                    gridItem = gridItem,
                     rows = userData.rows,
                     columns = userData.columns,
                     screenWidth = screenWidth,

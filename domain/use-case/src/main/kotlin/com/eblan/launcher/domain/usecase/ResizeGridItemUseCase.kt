@@ -2,7 +2,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +12,7 @@ import javax.inject.Inject
 class ResizeGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
+    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -22,13 +22,13 @@ class ResizeGridItemUseCase @Inject constructor(
         screenWidth: Int,
         screenHeight: Int,
         anchor: Anchor,
-    ): GridItem? {
-        return withContext(Dispatchers.Default) {
+    ) {
+        withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
             val gridItems = gridRepository.gridItems.first()
 
-            gridItems.find { gridItem ->
+            val movingGridItem = gridItems.find { gridItem ->
                 gridItem.id == id
             }?.let { gridItem ->
                 resizeGridItemWithPixels(
@@ -39,7 +39,11 @@ class ResizeGridItemUseCase @Inject constructor(
                     gridCellHeight = screenHeight / userData.columns,
                     anchor = anchor,
                 ).copy(page = page)
-            }.takeIf { gridItem -> gridItem != null && gridItem !in gridItems }
+            }
+
+            if (movingGridItem != null && movingGridItem !in gridItems) {
+                aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
+            }
         }
     }
 }

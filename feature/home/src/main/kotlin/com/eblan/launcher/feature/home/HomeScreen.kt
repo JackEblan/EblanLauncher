@@ -54,8 +54,6 @@ fun HomeRoute(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
-    viewModel.updatedGridItem.collectAsStateWithLifecycle()
-
     val gridItemBoundary by viewModel.gridItemBoundary.collectAsStateWithLifecycle()
 
     HomeScreen(

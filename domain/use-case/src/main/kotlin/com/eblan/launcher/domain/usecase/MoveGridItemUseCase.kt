@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
-import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +12,8 @@ import javax.inject.Inject
 class MoveGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
+    private val gridItemBoundaryUseCase: GridItemBoundaryUseCase,
+    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -20,13 +22,13 @@ class MoveGridItemUseCase @Inject constructor(
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): GridItem? {
+    ): GridItemBoundary? {
         return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
             val gridItems = gridRepository.gridItems.first()
 
-            gridItems.find { gridItem ->
+            val movingGridItem = gridItems.find { gridItem ->
                 gridItem.id == id
             }?.let { gridItem ->
                 moveGridItemWithCoordinates(
@@ -38,7 +40,18 @@ class MoveGridItemUseCase @Inject constructor(
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 ).copy(page = page)
-            }.takeIf { gridItem -> gridItem != null && gridItem !in gridItems }
+            }
+
+            if (movingGridItem != null && movingGridItem !in gridItems) {
+                aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
+            }
+
+            gridItemBoundaryUseCase(
+                id = id,
+                x = x,
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
+            )
         }
     }
 }

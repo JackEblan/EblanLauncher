@@ -1,60 +1,24 @@
 package com.eblan.launcher.feature.home.component
 
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
 import com.eblan.launcher.domain.model.GridItem
 
 @Composable
-fun Grid(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Layout(
-        content = {
-            content()
-        },
-        modifier = modifier,
-    ) { measurables, constraints ->
-        val placeables = measurables.map { measurable ->
-            val gridItemParentData = measurable.parentData as GridItemParentData
-
-            measurable.measure(
-                Constraints(
-                    maxWidth = gridItemParentData.width,
-                    maxHeight = gridItemParentData.height,
-                ),
-            )
-        }
-
-        layout(width = constraints.maxWidth, height = constraints.maxHeight) {
-            placeables.forEach { placeable ->
-                val gridItemParentData = placeable.parentData as GridItemParentData
-
-                placeable.placeRelative(
-                    x = gridItemParentData.x,
-                    y = gridItemParentData.y,
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun GridSubcomposeLayout(
+    modifier: Modifier = Modifier,
     page: Int,
     rows: Int,
     columns: Int,
     gridItems: Map<Int, List<GridItem>>,
-    parentContent: @Composable () -> Unit,
-    gridContent: @Composable (
+    content: @Composable (
         id: Int,
         width: Int,
         height: Int,
@@ -62,61 +26,84 @@ fun GridSubcomposeLayout(
         y: Int,
     ) -> Unit,
 ) {
-    SubcomposeLayout { constraints ->
-        val parentPlaceables = subcompose(
-            "Parent",
-            parentContent,
-        ).map { measurable -> measurable.measure(constraints) }
+    SubcomposeLayout(modifier = modifier) { constraints ->
+        val cellWidth = constraints.maxWidth / columns
 
-        val maxSize = parentPlaceables.fold(IntSize.Zero) { currentMax, placeable ->
-            IntSize(
-                width = maxOf(currentMax.width, placeable.width),
-                height = maxOf(currentMax.height, placeable.height),
-            )
-        }
+        val cellHeight = constraints.maxHeight / rows
 
-        val cellWidth = maxSize.width / columns
+        val placeablesByPage = gridItems[page]?.map { gridItem ->
+            subcompose(gridItem.id) {
+                GridItemLayout(
+                    id = gridItem.id,
+                    cellWidth = cellWidth,
+                    cellHeight = cellHeight,
+                    startRow = gridItem.startRow,
+                    startColumn = gridItem.startColumn,
+                    rowSpan = gridItem.rowSpan,
+                    columnSpan = gridItem.columnSpan,
+                    content = content,
+                )
+            }.map { measurable ->
+                val gridItemParentData = measurable.parentData as GridItemParentData
 
-        val cellHeight = maxSize.height / rows
-
-        val gridItemPlaceables = subcompose("GridItem") {
-            gridItems[page]?.forEach { gridItem ->
-                val width by animateIntAsState(targetValue = gridItem.columnSpan * cellWidth)
-
-                val height by animateIntAsState(targetValue = gridItem.rowSpan * cellHeight)
-
-                val x by animateIntAsState(targetValue = gridItem.startColumn * cellWidth)
-
-                val y by animateIntAsState(targetValue = gridItem.startRow * cellHeight)
-
-                gridContent(gridItem.id, width, height, x, y)
-            }
-        }.map { measurable ->
-            val gridItemParentData = measurable.parentData as GridItemParentData
-
-            measurable.measure(
-                Constraints(
-                    maxWidth = gridItemParentData.width,
-                    maxHeight = gridItemParentData.height,
-                ),
-            )
-        }
-
-        layout(width = maxSize.width, height = maxSize.height) {
-            parentPlaceables.forEach { placeable ->
-                placeable.placeRelative(0, 0)
-            }
-
-            gridItemPlaceables.forEach { placeable ->
-                val gridItemParentData = placeable.parentData as GridItemParentData
-
-                placeable.placeRelative(
-                    x = gridItemParentData.x,
-                    y = gridItemParentData.y,
+                measurable.measure(
+                    Constraints(
+                        maxWidth = gridItemParentData.width,
+                        maxHeight = gridItemParentData.height,
+                    ),
                 )
             }
         }
+
+        layout(width = constraints.maxWidth, height = constraints.maxHeight) {
+            placeablesByPage?.forEach { placeables ->
+                placeables.forEach { placeable ->
+                    val gridItemParentData = placeable.parentData as GridItemParentData
+
+                    placeable.placeRelative(
+                        x = gridItemParentData.x,
+                        y = gridItemParentData.y,
+                    )
+                }
+            }
+        }
     }
+}
+
+@Composable
+fun GridItemLayout(
+    modifier: Modifier = Modifier,
+    id: Int,
+    cellWidth: Int,
+    cellHeight: Int,
+    startRow: Int,
+    startColumn: Int,
+    rowSpan: Int,
+    columnSpan: Int,
+    content: @Composable (
+        id: Int,
+        width: Int,
+        height: Int,
+        x: Int,
+        y: Int,
+    ) -> Unit,
+) {
+    val width by animateIntAsState(targetValue = columnSpan * cellWidth)
+
+    val height by animateIntAsState(targetValue = rowSpan * cellHeight)
+
+    val x by animateIntAsState(targetValue = startColumn * cellWidth)
+
+    val y by animateIntAsState(targetValue = startRow * cellHeight)
+
+    Box(
+        modifier = modifier.gridItem(
+            width = width, height = height, x = x, y = y,
+        ),
+        content = {
+            content(id, width, height, x, y)
+        },
+    )
 }
 
 data class GridItemParentData(

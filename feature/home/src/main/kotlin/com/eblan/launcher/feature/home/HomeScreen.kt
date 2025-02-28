@@ -2,7 +2,7 @@ package com.eblan.launcher.feature.home
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -203,34 +203,44 @@ fun Success(
     ) {
         HorizontalPager(state = pagerState) { page ->
             GridSubcomposeLayout(
+                modifier = Modifier.fillMaxSize(),
                 page = page,
                 rows = userData.rows,
                 columns = userData.columns,
                 gridItems = gridItems,
-                parentContent = {
-                    Box(modifier = Modifier.fillMaxSize())
-                },
-                gridContent = { id, width, height, x, y ->
+                content = { id, width, height, x, y ->
                     EmptyGridItem(
-                        modifier = Modifier
-                            .pointerInput(key1 = Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        isEditing = true
-                                        selectedGridItemId = id
-                                        selectedGridItemPixelIntSize = IntSize(
-                                            width = width,
-                                            height = height,
-                                        )
+                        modifier = Modifier.pointerInput(Unit) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = {
+                                    isEditing = true
+                                    selectedGridItemId = id
+                                    selectedGridItemPixelIntSize = IntSize(
+                                        width = width,
+                                        height = height,
+                                    )
+                                    dragOffsetX = x
+                                    dragOffsetY = y
+                                },
+                                onDragEnd = {
+                                    isEditing = false
+                                },
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    dragOffsetX += dragAmount.x.roundToInt()
+                                    dragOffsetY += dragAmount.y.roundToInt()
 
-                                        dragOffsetX = x
-                                        dragOffsetY = y
-                                    },
-                                )
-                            }
-                            .gridItem(
-                                width = width, height = height, x = x, y = y,
-                            ),
+                                    onMoveGridItem(
+                                        pagerState.currentPage,
+                                        selectedGridItemId,
+                                        dragOffsetX,
+                                        dragOffsetY,
+                                        screenIntSize.width,
+                                        screenIntSize.height,
+                                    )
+                                },
+                            )
+                        },
                     )
                 },
             )
@@ -261,28 +271,7 @@ fun Success(
                         )
                     }
                     .size(width = widthDp, height = heightDp)
-                    .background(Color.Green)
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragEnd = {
-                                isEditing = false
-                            },
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                dragOffsetX += dragAmount.x.roundToInt()
-                                dragOffsetY += dragAmount.y.roundToInt()
-
-                                onMoveGridItem(
-                                    pagerState.currentPage,
-                                    selectedGridItemId,
-                                    dragOffsetX,
-                                    dragOffsetY,
-                                    screenIntSize.width,
-                                    screenIntSize.height,
-                                )
-                            },
-                        )
-                    },
+                    .background(Color.Green),
             ) {
                 Text(text = "Drag")
             }

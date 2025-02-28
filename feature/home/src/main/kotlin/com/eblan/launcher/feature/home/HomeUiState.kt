@@ -1,14 +1,13 @@
 package com.eblan.launcher.feature.home
 
-import com.eblan.launcher.domain.model.GridItemPixel
-import com.eblan.launcher.domain.model.ScreenDimension
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.UserData
 
 sealed interface HomeUiState {
     data object Loading : HomeUiState
 
     data class Success(
-        val gridItems: Map<Int, List<GridItemPixel>>,
-        val screenDimension: ScreenDimension,
-        val pageCount: Int,
+        val gridItems: Map<Int, List<GridItem>>,
+        val userData: UserData,
     ) : HomeUiState
 }

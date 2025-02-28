@@ -19,11 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -40,13 +38,11 @@ import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.BoundingBox
-import com.eblan.launcher.domain.model.Coordinates
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemPixel
-import com.eblan.launcher.domain.model.ScreenDimension
-import com.eblan.launcher.feature.home.component.Grid
+import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.ResizableBoxWithMenu
 import com.eblan.launcher.feature.home.component.gridItem
 import kotlin.math.roundToInt
@@ -66,7 +62,6 @@ fun HomeRoute(
         modifier = modifier,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
-        onUpdateScreenDimension = viewModel::updateScreenDimension,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
@@ -79,7 +74,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
-    onUpdateScreenDimension: (screenWidthPixel: Int, screenHeightPixel: Int) -> Unit,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -111,13 +105,7 @@ fun HomeScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .consumeWindowInsets(paddingValues)
-                .onSizeChanged { intSize ->
-                    onUpdateScreenDimension(
-                        intSize.width,
-                        intSize.height,
-                    )
-                },
+                .consumeWindowInsets(paddingValues),
         ) {
             when (homeUiState) {
                 HomeUiState.Loading -> {
@@ -127,9 +115,8 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     Success(
                         gridItems = homeUiState.gridItems,
+                        userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
-                        screenDimension = homeUiState.screenDimension,
-                        pageCount = homeUiState.pageCount,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
@@ -144,10 +131,9 @@ fun HomeScreen(
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
-    gridItems: Map<Int, List<GridItemPixel>>,
+    gridItems: Map<Int, List<GridItem>>,
+    userData: UserData,
     gridItemBoundary: GridItemBoundary?,
-    screenDimension: ScreenDimension,
-    pageCount: Int,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -186,11 +172,13 @@ fun Success(
 
     val pagerState = rememberPagerState(
         pageCount = {
-            pageCount
+            userData.pageCount
         },
     )
 
     var selectedGridItemId by remember { mutableIntStateOf(-1) }
+
+    var screenIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
@@ -207,49 +195,45 @@ fun Success(
     }
 
     Box(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize()
+            .onSizeChanged { intSize ->
+                screenIntSize = intSize
+            },
     ) {
         HorizontalPager(state = pagerState) { page ->
-            Grid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = { offset ->
-                                onAddGridItem(
-                                    pagerState.currentPage,
-                                    offset.x.roundToInt(),
-                                    offset.y.roundToInt(),
-                                    screenDimension.screenWidth,
-                                    screenDimension.screenHeight,
-                                )
-                            },
-                        )
-                    },
-            ) {
-                gridItems[page]?.forEach { gridItemPixel ->
-                    key(gridItemPixel.gridItem.id) {
-                        val gridItemPixelOnLongPress by rememberUpdatedState(gridItemPixel)
+            GridSubcomposeLayout(
+                page = page,
+                rows = userData.rows,
+                columns = userData.columns,
+                gridItems = gridItems,
+                parentContent = {
+                    Box(modifier = Modifier.fillMaxSize())
+                },
+                gridContent = { id, width, height, x, y ->
+                    EmptyGridItem(
+                        modifier = Modifier
+                            .pointerInput(key1 = Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        isEditing = true
+                                        selectedGridItemId = id
+                                        selectedGridItemPixelIntSize = IntSize(
+                                            width = width,
+                                            height = height,
+                                        )
 
-                        AnimatedGridItem(
-                            boundingBox = gridItemPixel.boundingBox,
-                            coordinates = gridItemPixel.coordinates,
-                            onLongPress = {
-                                isEditing = true
-                                selectedGridItemId = gridItemPixelOnLongPress.gridItem.id
-                                selectedGridItemPixelIntSize = IntSize(
-                                    width = gridItemPixelOnLongPress.boundingBox.width,
-                                    height = gridItemPixelOnLongPress.boundingBox.height,
+                                        dragOffsetX = x
+                                        dragOffsetY = y
+                                    },
                                 )
-                                dragOffsetX = gridItemPixelOnLongPress.coordinates.x
-                                dragOffsetY = gridItemPixelOnLongPress.coordinates.y
-                            },
-                        ) {
-                            EmptyGridItem()
-                        }
-                    }
-                }
-            }
+                            }
+                            .gridItem(
+                                width = width, height = height, x = x, y = y,
+                            ),
+                    )
+                },
+            )
         }
 
         if (isEditing) {
@@ -293,8 +277,8 @@ fun Success(
                                     selectedGridItemId,
                                     dragOffsetX,
                                     dragOffsetY,
-                                    screenDimension.screenWidth,
-                                    screenDimension.screenHeight,
+                                    screenIntSize.width,
+                                    screenIntSize.height,
                                 )
                             },
                         )
@@ -308,8 +292,8 @@ fun Success(
                 y = dragOffsetY,
                 width = widthPixel,
                 height = heightPixel,
-                screenWidth = screenDimension.screenWidth,
-                screenHeight = screenDimension.screenHeight,
+                screenWidth = screenIntSize.width,
+                screenHeight = screenIntSize.height,
                 onDragEnd = {
                     isEditing = false
                 },
@@ -342,8 +326,8 @@ fun Success(
                         selectedGridItemId,
                         widthPixel,
                         heightPixel,
-                        screenDimension.screenWidth,
-                        screenDimension.screenHeight,
+                        screenIntSize.width,
+                        screenIntSize.height,
                         Anchor.BOTTOM_END,
                     )
                 },
@@ -375,8 +359,8 @@ fun Success(
                         selectedGridItemId,
                         widthPixel,
                         heightPixel,
-                        screenDimension.screenWidth,
-                        screenDimension.screenHeight,
+                        screenIntSize.width,
+                        screenIntSize.height,
                         Anchor.BOTTOM_START,
                     )
                 },
@@ -408,8 +392,8 @@ fun Success(
                         selectedGridItemId,
                         widthPixel,
                         heightPixel,
-                        screenDimension.screenWidth,
-                        screenDimension.screenHeight,
+                        screenIntSize.width,
+                        screenIntSize.height,
                         Anchor.TOP_END,
                     )
                 },
@@ -439,8 +423,8 @@ fun Success(
                         selectedGridItemId,
                         widthPixel,
                         heightPixel,
-                        screenDimension.screenWidth,
-                        screenDimension.screenHeight,
+                        screenIntSize.width,
+                        screenIntSize.height,
                         Anchor.TOP_START,
                     )
                 },
@@ -455,31 +439,32 @@ fun Success(
 @Composable
 fun AnimatedGridItem(
     modifier: Modifier = Modifier,
-    boundingBox: BoundingBox,
-    coordinates: Coordinates,
+    cellWidth: Int,
+    cellHeight: Int,
+    startRow: Int,
+    startColumn: Int,
+    rowSpan: Int,
+    columnSpan: Int,
     onLongPress: ((Offset) -> Unit)? = null,
     content: @Composable (BoxScope.() -> Unit),
 ) {
-    val width by animateIntAsState(targetValue = boundingBox.width)
+    val width by animateIntAsState(targetValue = columnSpan * cellWidth)
 
-    val height by animateIntAsState(targetValue = boundingBox.height)
+    val height by animateIntAsState(targetValue = rowSpan * cellHeight)
 
-    val x by animateIntAsState(targetValue = coordinates.x)
+    val x by animateIntAsState(targetValue = startColumn * cellWidth)
 
-    val y by animateIntAsState(targetValue = coordinates.y)
+    val y by animateIntAsState(targetValue = startRow * cellHeight)
 
     Box(
         modifier = modifier
-            .fillMaxSize()
             .pointerInput(key1 = Unit) {
                 detectTapGestures(
                     onLongPress = onLongPress,
                 )
             }
             .gridItem(
-                width = width,
-                height = height,
-                x = x, y = y,
+                width = width, height = height, x = x, y = y,
             ),
         content = content,
     )

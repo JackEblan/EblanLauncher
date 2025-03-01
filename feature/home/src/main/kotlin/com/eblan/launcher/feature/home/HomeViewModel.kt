@@ -3,12 +3,12 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
+import com.eblan.launcher.domain.usecase.GridItemOverlay
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,14 +50,13 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _selectedGridItem = MutableStateFlow<GridItem?>(null)
+    private var _gridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
 
-    val selectedGridItem = _selectedGridItem.asStateFlow()
+    val gridItemOverlay = _gridItemOverlay.asStateFlow()
 
     fun moveGridItem(
         page: Int,
         id: Int,
-        width: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
@@ -68,7 +67,6 @@ class HomeViewModel @Inject constructor(
                 moveGridItemUseCase(
                     page = page,
                     id = id,
-                    width = width,
                     x = x,
                     y = y,
                     screenWidth = screenWidth,
@@ -126,7 +124,7 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _selectedGridItem.update {
+            _gridItemOverlay.update {
                 getGridItemByCoordinatesUseCase(
                     page = page,
                     x = x,

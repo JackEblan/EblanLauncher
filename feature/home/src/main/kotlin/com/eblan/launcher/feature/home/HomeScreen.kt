@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
@@ -15,12 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,6 +37,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.domain.usecase.GridItemOverlay
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import kotlin.math.roundToInt
 
@@ -44,13 +50,13 @@ fun HomeRoute(
 
     val gridItemBoundary by viewModel.gridItemBoundary.collectAsStateWithLifecycle()
 
-    val selectedGridItem by viewModel.selectedGridItem.collectAsStateWithLifecycle()
+    val gridItemOverlay by viewModel.gridItemOverlay.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
-        selectedGridItem = selectedGridItem,
+        gridItemOverlay = gridItemOverlay,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
@@ -64,11 +70,10 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
-    selectedGridItem: GridItem?,
+    gridItemOverlay: GridItemOverlay?,
     onMoveGridItem: (
         page: Int,
         id: Int,
-        width: Int,
         x: Int,
         y: Int,
         screenWidthPixel: Int,
@@ -116,7 +121,7 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItems,
                         userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
-                        selectedGridItem = selectedGridItem,
+                        gridItemOverlay = gridItemOverlay,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
@@ -135,11 +140,10 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemBoundary: GridItemBoundary?,
-    selectedGridItem: GridItem?,
+    gridItemOverlay: GridItemOverlay?,
     onMoveGridItem: (
         page: Int,
         id: Int,
-        width: Int,
         x: Int,
         y: Int,
         screenWidthPixel: Int,
@@ -170,6 +174,8 @@ fun Success(
     ) -> Unit,
     onEdit: (Int) -> Unit,
 ) {
+    val density = LocalDensity.current
+
     val pagerState = rememberPagerState(
         pageCount = {
             userData.pageCount
@@ -179,6 +185,8 @@ fun Success(
     var dragOffsetX by remember { mutableIntStateOf(-1) }
 
     var dragOffsetY by remember { mutableIntStateOf(-1) }
+
+    var showGridItemOverlay by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
@@ -194,7 +202,15 @@ fun Success(
         }
     }
 
-    val gridItem by rememberUpdatedState(selectedGridItem)
+    LaunchedEffect(key1 = gridItemOverlay) {
+        if (gridItemOverlay != null) {
+            showGridItemOverlay = true
+            dragOffsetX = gridItemOverlay.x
+            dragOffsetY = gridItemOverlay.y
+        }
+    }
+
+    val gridItemId by rememberUpdatedState(gridItemOverlay?.id)
 
     Box(
         modifier = modifier
@@ -209,16 +225,18 @@ fun Success(
                             size.height,
                         )
                     },
+                    onDragEnd = {
+                        showGridItemOverlay = false
+                    },
                     onDrag = { change, dragAmount ->
-                        gridItem?.let { gridItem ->
+                        gridItemId?.let { id ->
                             change.consume()
                             dragOffsetX += dragAmount.x.roundToInt()
                             dragOffsetY += dragAmount.y.roundToInt()
 
                             onMoveGridItem(
                                 pagerState.currentPage,
-                                gridItem.id,
-                                gridItem.columnSpan * size.width,
+                                id,
                                 dragOffsetX,
                                 dragOffsetY,
                                 size.width,
@@ -240,6 +258,37 @@ fun Success(
                     EmptyGridItem()
                 },
             )
+        }
+
+        if (gridItemOverlay != null && showGridItemOverlay) {
+            val boundingBoxWidthDp = with(density) {
+                gridItemOverlay.width.toDp()
+            }
+
+            val boundingBoxHeightDp = with(density) {
+                gridItemOverlay.height.toDp()
+            }
+
+            var widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
+
+            var heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
+
+            var widthPixel by remember { mutableIntStateOf(gridItemOverlay.width) }
+
+            var heightPixel by remember { mutableIntStateOf(gridItemOverlay.height) }
+
+            Box(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = dragOffsetX, y = dragOffsetY,
+                        )
+                    }
+                    .size(width = widthDp, height = heightDp)
+                    .background(Color.Green),
+            ) {
+                Text(text = "Drag")
+            }
         }
     }
 }

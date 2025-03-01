@@ -1,6 +1,5 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
@@ -16,14 +15,14 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): GridItem? {
+    ): GridItemOverlay? {
         val userData = userDataRepository.userData.first()
 
         val cellWidth = screenWidth / userData.columns
 
         val cellHeight = screenHeight / userData.rows
 
-        return gridRepository.gridItems.first().find { gridItem ->
+        val gridItem = gridRepository.gridItems.first().find { gridItem ->
             val startRow = y / cellHeight
 
             val startColumn = x / cellWidth
@@ -36,5 +35,27 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
 
             gridItem.page == page && rowInSpan && columnInSpan
         }
+
+        return if (gridItem != null) {
+            val gridItemWidth = gridItem.columnSpan * cellWidth
+
+            val gridItemHeight = gridItem.rowSpan * cellHeight
+
+            val gridItemX = gridItem.startColumn * cellWidth
+
+            val gridItemY = gridItem.startRow * cellHeight
+
+            GridItemOverlay(
+                id = gridItem.id,
+                width = gridItemWidth,
+                height = gridItemHeight,
+                x = gridItemX,
+                y = gridItemY,
+            )
+        } else {
+            null
+        }
     }
 }
+
+data class GridItemOverlay(val id: Int, val width: Int, val height: Int, val x: Int, val y: Int)

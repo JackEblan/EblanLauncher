@@ -19,7 +19,6 @@ class MoveGridItemUseCase @Inject constructor(
     suspend operator fun invoke(
         page: Int,
         id: Int,
-        width: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
@@ -29,6 +28,8 @@ class MoveGridItemUseCase @Inject constructor(
             val userData = userDataRepository.userData.first()
 
             val gridItems = gridRepository.gridItems.first()
+
+            val cellWidth = screenWidth / userData.columns
 
             val movingGridItem = gridItems.find { gridItem ->
                 gridItem.id == id
@@ -50,14 +51,18 @@ class MoveGridItemUseCase @Inject constructor(
                     columns = userData.columns,
                 )
             ) {
-                aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
-            }
+                val width = movingGridItem.columnSpan * cellWidth
 
-            getGridItemBoundaryCenter(
-                x = x,
-                width = width,
-                screenWidth = screenWidth,
-            )
+                aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
+
+                getGridItemBoundaryCenter(
+                    x = x,
+                    width = width,
+                    screenWidth = screenWidth,
+                )
+            } else {
+                null
+            }
         }
     }
 }

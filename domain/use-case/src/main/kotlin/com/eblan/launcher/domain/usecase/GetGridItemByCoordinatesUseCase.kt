@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
@@ -51,11 +52,11 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
                 height = gridItemHeight,
                 x = gridItemX,
                 y = gridItemY,
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
             )
         } else {
             null
         }
     }
 }
-
-data class GridItemOverlay(val id: Int, val width: Int, val height: Int, val x: Int, val y: Int)

@@ -6,12 +6,14 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class GetGridItemByCoordinates @Inject constructor(
+class GetGridItemByCoordinatesUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
     suspend operator fun invoke(
-        x: Int, y: Int,
+        page: Int,
+        x: Int,
+        y: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): GridItem? {
@@ -22,15 +24,17 @@ class GetGridItemByCoordinates @Inject constructor(
         val cellHeight = screenHeight / userData.rows
 
         return gridRepository.gridItems.first().find { gridItem ->
-            val gridItemX = gridItem.startColumn * cellWidth
+            val startRow = y / cellHeight
 
-            val gridItemY = gridItem.startRow * cellHeight
+            val startColumn = x / cellWidth
 
-            val startRow = (gridItemY - y) / cellHeight
+            val rowInSpan =
+                startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
 
-            val startColumn = (gridItemX - x) / cellWidth
+            val columnInSpan =
+                startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
 
-            gridItem.startRow == startRow && gridItem.startColumn == startColumn
+            gridItem.page == page && rowInSpan && columnInSpan
         }
     }
 }

@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 internal class DefaultUserDataRepository @Inject constructor() : UserDataRepository {
-    override val userData = flowOf(UserData(rows = 10, columns = 10, pageCount = 3))
+    override val userData = flowOf(UserData(rows = 4, columns = 4, pageCount = 3))
 }

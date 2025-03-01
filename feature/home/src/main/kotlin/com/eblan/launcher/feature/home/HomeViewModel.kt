@@ -3,15 +3,18 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddGridItemUseCase
+import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -25,6 +28,7 @@ class HomeViewModel @Inject constructor(
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val addGridItemUseCase: AddGridItemUseCase,
+    private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
 ) : ViewModel() {
     val homeUiState =
         combine(gridRepository.gridItems, userDataRepository.userData) { gridItems, userData ->
@@ -46,9 +50,14 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
+    private var _selectedGridItem = MutableStateFlow<GridItem?>(null)
+
+    val selectedGridItem = _selectedGridItem.asStateFlow()
+
     fun moveGridItem(
         page: Int,
         id: Int,
+        width: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
@@ -59,6 +68,7 @@ class HomeViewModel @Inject constructor(
                 moveGridItemUseCase(
                     page = page,
                     id = id,
+                    width = width,
                     x = x,
                     y = y,
                     screenWidth = screenWidth,
@@ -105,6 +115,26 @@ class HomeViewModel @Inject constructor(
                 screenWidth = screenWidth,
                 screenHeight = screenHeight,
             )
+        }
+    }
+
+    fun getGridItemByCoordinates(
+        page: Int,
+        x: Int,
+        y: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _selectedGridItem.update {
+                getGridItemByCoordinatesUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
         }
     }
 }

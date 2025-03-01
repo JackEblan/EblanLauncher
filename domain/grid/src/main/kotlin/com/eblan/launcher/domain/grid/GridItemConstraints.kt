@@ -99,15 +99,15 @@ fun coordinatesToStartPosition(
  * Determines if the grid item exceeds the screen boundary based on its center horizontal position and dimensions.
  *
  * @param x The x-coordinate of the grid item's position.
- * @param boundingBoxWidth The width of the grid item's bounding box.
+ * @param width The width of the grid item's bounding box.
  * @param screenWidth The total width of the screen or container.
  * @return [GridItemBoundary] indicating whether the grid item is touching the left edge, right edge, or neither.
  */
 fun getGridItemBoundaryCenter(
-    x: Int, boundingBoxWidth: Int, screenWidth: Int,
+    x: Int, width: Int, screenWidth: Int,
 ): GridItemBoundary? {
-    val touchesLeft = (x + boundingBoxWidth / 2) <= 0
-    val touchesRight = (x + boundingBoxWidth / 2) >= screenWidth
+    val touchesLeft = (x + width / 2) <= 0
+    val touchesRight = (x + width / 2) >= screenWidth
 
     return when {
         touchesLeft -> GridItemBoundary.Left

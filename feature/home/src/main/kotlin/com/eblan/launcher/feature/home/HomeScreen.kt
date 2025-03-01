@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,9 +33,6 @@ import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.Menu
-import com.eblan.launcher.feature.home.component.ResizableBox
-import com.eblan.launcher.feature.home.component.gridItem
 import kotlin.math.roundToInt
 
 @Composable
@@ -174,8 +170,6 @@ fun Success(
     ) -> Unit,
     onEdit: (Int) -> Unit,
 ) {
-    val density = LocalDensity.current
-
     val pagerState = rememberPagerState(
         pageCount = {
             userData.pageCount
@@ -239,137 +233,11 @@ fun Success(
         HorizontalPager(state = pagerState) { page ->
             GridSubcomposeLayout(
                 modifier = Modifier.fillMaxSize(),
-                page = page,
                 rows = userData.rows,
                 columns = userData.columns,
                 gridItems = gridItems[page],
-                gridItem = gridItem,
                 content = {
                     EmptyGridItem()
-                },
-                resizableContent = { id, width, height, x, y, gridWidth, gridHeight ->
-                    var widthPixel by remember { mutableIntStateOf(width) }
-
-                    var heightPixel by remember { mutableIntStateOf(height) }
-
-                    dragOffsetX = x
-
-                    dragOffsetY = y
-
-                    ResizableBox(
-                        modifier = Modifier.gridItem(
-                            width = widthPixel,
-                            height = heightPixel,
-                            x = dragOffsetX,
-                            y = dragOffsetY,
-                        ),
-                        onTopStartDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx()
-                            }.roundToInt()
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx()
-                            }.roundToInt()
-
-                            widthPixel += -dragAmountX
-                            heightPixel += -dragAmountY
-
-                            dragOffsetX += dragAmount.x.roundToInt()
-                            dragOffsetY += dragAmount.y.roundToInt()
-
-                            onResizeGridItem(
-                                pagerState.currentPage,
-                                id,
-                                widthPixel,
-                                heightPixel,
-                                gridWidth,
-                                gridHeight,
-                                Anchor.BOTTOM_END,
-                            )
-                        },
-                        onTopEndDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx()
-                            }.roundToInt()
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx()
-                            }.roundToInt()
-
-                            widthPixel += dragAmountX
-                            heightPixel += -dragAmountY
-
-                            dragOffsetY += dragAmount.y.roundToInt()
-
-                            onResizeGridItem(
-                                pagerState.currentPage,
-                                id,
-                                widthPixel,
-                                heightPixel,
-                                gridWidth,
-                                gridHeight,
-                                Anchor.BOTTOM_START,
-                            )
-                        },
-                        onBottomStartDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx()
-                            }.roundToInt()
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx()
-                            }.roundToInt()
-
-                            widthPixel += -dragAmountX
-                            heightPixel += dragAmountY
-
-                            dragOffsetX += dragAmount.x.roundToInt()
-
-                            onResizeGridItem(
-                                pagerState.currentPage,
-                                id,
-                                widthPixel,
-                                heightPixel,
-                                gridWidth,
-                                gridHeight,
-                                Anchor.TOP_END,
-                            )
-                        },
-                        onBottomEndDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx()
-                            }.roundToInt()
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx()
-                            }.roundToInt()
-
-                            widthPixel += dragAmountX
-                            heightPixel += dragAmountY
-
-                            onResizeGridItem(
-                                pagerState.currentPage,
-                                id,
-                                widthPixel,
-                                heightPixel,
-                                gridWidth,
-                                gridHeight,
-                                Anchor.TOP_START,
-                            )
-                        },
-                    )
-                },
-                menuContent = {
-                    Menu(
-                        onEdit = {
-
-                        },
-                    )
                 },
             )
         }

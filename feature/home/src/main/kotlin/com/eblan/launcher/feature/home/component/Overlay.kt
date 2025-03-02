@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -32,8 +33,6 @@ import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
 import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
-import com.eblan.launcher.domain.model.ResizableBoundingBox
-import kotlin.math.roundToInt
 
 @Composable
 fun ResizableOverlay(
@@ -42,14 +41,11 @@ fun ResizableOverlay(
     y: Int,
     width: Int,
     height: Int,
-    screenWidth: Int,
-    screenHeight: Int,
     onDragEnd: () -> Unit,
     onTopStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onTopEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onBottomStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onBottomEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
-    onEdit: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -61,10 +57,6 @@ fun ResizableOverlay(
             width = width, height = height,
         ),
     )
-
-    val menuSizeMarginPixel = with(density) {
-        20.dp.toPx()
-    }.roundToInt()
 
     val commonModifier = Modifier
         .size(30.dp)
@@ -136,24 +128,20 @@ fun ResizableOverlay(
                 },
         )
     }
-
-    Menu(
-        resizableBoundingBox = resizableBoundingBox,
-        screenWidth = screenWidth,
-        screenHeight = screenHeight,
-        menuSizeMarginPixel = menuSizeMarginPixel,
-        onEdit = onEdit,
-    )
 }
 
 @Composable
-private fun Menu(
+fun MenuOverlay(
     modifier: Modifier = Modifier,
-    resizableBoundingBox: ResizableBoundingBox,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
     screenWidth: Int,
     screenHeight: Int,
     menuSizeMarginPixel: Int,
     onEdit: () -> Unit,
+    onResize: () -> Unit,
 ) {
     Surface(
         modifier = modifier.layout { measurable, constraints ->
@@ -164,10 +152,10 @@ private fun Menu(
                 height = placeable.height,
             ) {
                 val menuCoordinates = calculateMenuCoordinates(
-                    parentX = resizableBoundingBox.x,
-                    parentY = resizableBoundingBox.y,
-                    parentWidth = resizableBoundingBox.width,
-                    parentHeight = resizableBoundingBox.height,
+                    parentX = x,
+                    parentY = y,
+                    parentWidth = width,
+                    parentHeight = height,
                     childWidth = placeable.width,
                     childHeight = placeable.height,
                     screenWidth = screenWidth,
@@ -188,7 +176,7 @@ private fun Menu(
                 Icon(imageVector = Icons.Default.Edit, contentDescription = null)
             }
 
-            Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(2.dp))
 
             IconButton(
                 onClick = {
@@ -196,6 +184,14 @@ private fun Menu(
                 },
             ) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+            }
+
+            Spacer(modifier = Modifier.width(2.dp))
+
+            IconButton(
+                onClick = onResize,
+            ) {
+                Icon(imageVector = Icons.Default.Android, contentDescription = null)
             }
         }
     }

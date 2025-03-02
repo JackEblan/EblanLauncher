@@ -5,14 +5,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -142,6 +141,7 @@ fun MenuOverlay(
     menuSizeMarginPixel: Int,
     onEdit: () -> Unit,
     onResize: () -> Unit,
+    onClose: () -> Unit,
 ) {
     Surface(
         modifier = modifier.layout { measurable, constraints ->
@@ -176,8 +176,6 @@ fun MenuOverlay(
                 Icon(imageVector = Icons.Default.Edit, contentDescription = null)
             }
 
-            Spacer(modifier = Modifier.width(2.dp))
-
             IconButton(
                 onClick = {
 
@@ -186,12 +184,16 @@ fun MenuOverlay(
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             }
 
-            Spacer(modifier = Modifier.width(2.dp))
-
             IconButton(
                 onClick = onResize,
             ) {
                 Icon(imageVector = Icons.Default.Android, contentDescription = null)
+            }
+
+            IconButton(
+                onClick = onClose,
+            ) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = null)
             }
         }
     }

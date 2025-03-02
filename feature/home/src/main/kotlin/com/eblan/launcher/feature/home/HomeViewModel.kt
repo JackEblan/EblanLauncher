@@ -50,9 +50,13 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _gridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
+    private var _draggedGridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
 
-    val gridItemOverlay = _gridItemOverlay.asStateFlow()
+    val draggedGridItemOverlay = _draggedGridItemOverlay.asStateFlow()
+
+    private var _resizedGridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
+
+    val resizedGridItemOverlay = _resizedGridItemOverlay.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -116,7 +120,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getGridItemByCoordinates(
+    fun dragGridItemOverlay(
         page: Int,
         x: Int,
         y: Int,
@@ -124,7 +128,15 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemOverlay.update {
+            _draggedGridItemOverlay.update {
+                null
+            }
+
+            _resizedGridItemOverlay.update {
+                null
+            }
+
+            _draggedGridItemOverlay.update {
                 getGridItemByCoordinatesUseCase(
                     page = page,
                     x = x,
@@ -133,6 +145,40 @@ class HomeViewModel @Inject constructor(
                     screenHeight = screenHeight,
                 )
             }
+        }
+    }
+
+    fun resizeGridItemOverlay(
+        page: Int,
+        x: Int,
+        y: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _draggedGridItemOverlay.update {
+                null
+            }
+
+            _resizedGridItemOverlay.update {
+                null
+            }
+
+            _resizedGridItemOverlay.update {
+                getGridItemByCoordinatesUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
+        }
+    }
+
+    fun resetGridItemOverlay() {
+        _draggedGridItemOverlay.update {
+            null
         }
     }
 }

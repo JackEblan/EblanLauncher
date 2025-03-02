@@ -187,8 +187,6 @@ fun Success(
 
     var dragOffsetY by remember { mutableIntStateOf(-1) }
 
-    var showGridItemOverlay by remember { mutableStateOf(false) }
-
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
             GridItemBoundary.Left -> {
@@ -205,7 +203,6 @@ fun Success(
 
     LaunchedEffect(key1 = gridItemOverlay) {
         if (gridItemOverlay != null) {
-            showGridItemOverlay = true
             dragOffsetX = gridItemOverlay.x
             dragOffsetY = gridItemOverlay.y
         }
@@ -225,9 +222,6 @@ fun Success(
                             size.width,
                             size.height,
                         )
-                    },
-                    onDragEnd = {
-                        showGridItemOverlay = false
                     },
                     onDrag = { change, dragAmount ->
                         gridItemId?.let { id ->
@@ -261,7 +255,7 @@ fun Success(
             )
         }
 
-        if (gridItemOverlay != null && showGridItemOverlay) {
+        if (gridItemOverlay != null) {
             val boundingBoxWidthDp = with(density) {
                 gridItemOverlay.width.toDp()
             }
@@ -299,7 +293,6 @@ fun Success(
                 screenWidth = gridItemOverlay.screenWidth,
                 screenHeight = gridItemOverlay.screenHeight,
                 onDragEnd = {
-                    showGridItemOverlay = false
                 },
                 onTopStartDrag = { change, dragAmount ->
                     change.consume()

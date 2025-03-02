@@ -25,59 +25,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
-import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
-import com.eblan.launcher.domain.model.BoundingBox
-import com.eblan.launcher.domain.model.Coordinates
 
 @Composable
 fun ResizableOverlay(
     modifier: Modifier = Modifier,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
     onDragEnd: () -> Unit,
     onTopStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onTopEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onBottomStartDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onBottomEndDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
 ) {
-    val density = LocalDensity.current
-
-    val resizableBoundingBox = calculateResizableBoundingBox(
-        coordinates = Coordinates(
-            x = x, y = y,
-        ),
-        boundingBox = BoundingBox(
-            width = width, height = height,
-        ),
-    )
-
     val commonModifier = Modifier
         .size(30.dp)
         .background(Color.White, shape = CircleShape)
 
-    val resizableBoundingBoxWidth = with(density) {
-        resizableBoundingBox.width.toDp()
-    }
-
-    val resizableBoundingBoxHeight = with(density) {
-        resizableBoundingBox.height.toDp()
-    }
-
     Box(
-        modifier = modifier
-            .offset {
-                IntOffset(x = resizableBoundingBox.x, y = resizableBoundingBox.y)
-            }
-            .size(
-                width = resizableBoundingBoxWidth, height = resizableBoundingBoxHeight,
-            )
-            .border(width = 2.dp, color = Color.White),
+        modifier = modifier.border(width = 2.dp, color = Color.White),
     ) {
         Box(
             modifier = Modifier

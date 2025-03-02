@@ -40,7 +40,6 @@ import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuOverlay
-import com.eblan.launcher.feature.home.component.ResizableOverlay
 import kotlin.math.roundToInt
 
 @Composable
@@ -65,8 +64,8 @@ fun HomeRoute(
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
-        onDragGridItemOverlay = viewModel::dragGridItemOverlay,
-        onResizeGridItemOverlay = viewModel::resizeGridItemOverlay,
+        onGridItemOverlayDragStarted = viewModel::getGridItemByCoordinatesWhenDragStarted,
+        onGridItemOverlayResized = viewModel::getGridItemByCoordinatesWhenResized,
         onEdit = onEdit,
     )
 }
@@ -83,38 +82,38 @@ fun HomeScreen(
         id: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         page: Int,
         id: Int,
-        widthPixel: Int,
-        heightPixel: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        width: Int,
+        height: Int,
+        cellWidth: Int,
+        cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onAddGridItem: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
-    onDragGridItemOverlay: (
+    onGridItemOverlayDragStarted: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
-    onResizeGridItemOverlay: (
+    onGridItemOverlayResized: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
     onEdit: (Int) -> Unit,
 ) {
@@ -135,13 +134,13 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItems,
                         userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
-                        gridItemOverlay = draggedGridItemOverlay,
+                        draggedGridItemOverlay = draggedGridItemOverlay,
                         resizedGridItemOverlay = resizedGridItemOverlay,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
-                        onDragGridItemOverlay = onDragGridItemOverlay,
-                        onResizeGridItemOverlay = onResizeGridItemOverlay,
+                        onGridItemOverlayDragStarted = onGridItemOverlayDragStarted,
+                        onGridItemOverlayResized = onGridItemOverlayResized,
                         onEdit = onEdit,
                     )
                 }
@@ -156,45 +155,45 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemBoundary: GridItemBoundary?,
-    gridItemOverlay: GridItemOverlay?,
+    draggedGridItemOverlay: GridItemOverlay?,
     resizedGridItemOverlay: GridItemOverlay?,
     onMoveGridItem: (
         page: Int,
         id: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         page: Int,
         id: Int,
-        widthPixel: Int,
-        heightPixel: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        width: Int,
+        height: Int,
+        cellWidth: Int,
+        cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onAddGridItem: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
-    onDragGridItemOverlay: (
+    onGridItemOverlayDragStarted: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
-    onResizeGridItemOverlay: (
+    onGridItemOverlayResized: (
         page: Int,
         x: Int,
         y: Int,
-        screenWidthPixel: Int,
-        screenHeightPixel: Int,
+        screenWidth: Int,
+        screenHeight: Int,
     ) -> Unit,
     onEdit: (Int) -> Unit,
 ) {
@@ -210,13 +209,11 @@ fun Success(
 
     var dragOffsetY by remember { mutableIntStateOf(-1) }
 
-    val gridItemId by rememberUpdatedState(gridItemOverlay?.id)
-
     var showOverlay by remember { mutableStateOf(false) }
 
-    var showPopupMenu by remember { mutableStateOf(false) }
-
     var showResize by remember { mutableStateOf(false) }
+
+    val gridItemId by rememberUpdatedState(draggedGridItemOverlay?.gridItem?.id)
 
     var gridItemOverlayId by remember { mutableIntStateOf(-1) }
 
@@ -246,30 +243,28 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = gridItemOverlay) {
-        if (gridItemOverlay != null) {
-            gridItemOverlayId = gridItemOverlay.id
+    LaunchedEffect(key1 = draggedGridItemOverlay) {
+        if (draggedGridItemOverlay != null) {
+            gridItemOverlayId = draggedGridItemOverlay.gridItem.id
 
-            dragOffsetX = gridItemOverlay.x
-            dragOffsetY = gridItemOverlay.y
+            dragOffsetX = draggedGridItemOverlay.x
+            dragOffsetY = draggedGridItemOverlay.y
 
-            gridItemOverlayOffsetX = gridItemOverlay.x
-            gridItemOverlayOffsetY = gridItemOverlay.y
+            gridItemOverlayOffsetX = draggedGridItemOverlay.x
+            gridItemOverlayOffsetY = draggedGridItemOverlay.y
 
-            gridItemOverlayWidth = gridItemOverlay.width
-            gridItemOverlayHeight = gridItemOverlay.height
+            gridItemOverlayWidth = draggedGridItemOverlay.width
+            gridItemOverlayHeight = draggedGridItemOverlay.height
 
-            gridItemOverlayScreenWidth = gridItemOverlay.screenWidth
-            gridItemOverlayScreenHeight = gridItemOverlay.screenHeight
+            gridItemOverlayScreenWidth = draggedGridItemOverlay.screenWidth
+            gridItemOverlayScreenHeight = draggedGridItemOverlay.screenHeight
             showOverlay = true
-            showPopupMenu = true
-            showResize = false
         }
     }
 
     LaunchedEffect(key1 = resizedGridItemOverlay) {
         if (resizedGridItemOverlay != null) {
-            gridItemOverlayId = resizedGridItemOverlay.id
+            gridItemOverlayId = resizedGridItemOverlay.gridItem.id
 
             dragOffsetX = resizedGridItemOverlay.x
             dragOffsetY = resizedGridItemOverlay.y
@@ -282,8 +277,6 @@ fun Success(
 
             gridItemOverlayScreenWidth = resizedGridItemOverlay.screenWidth
             gridItemOverlayScreenHeight = resizedGridItemOverlay.screenHeight
-            showOverlay = false
-            showPopupMenu = false
             showResize = true
         }
     }
@@ -293,7 +286,7 @@ fun Success(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
-                        onDragGridItemOverlay(
+                        onGridItemOverlayDragStarted(
                             pagerState.currentPage,
                             offset.x.roundToInt(),
                             offset.y.roundToInt(),
@@ -324,11 +317,15 @@ fun Success(
         HorizontalPager(state = pagerState) { page ->
             GridSubcomposeLayout(
                 modifier = Modifier.fillMaxSize(),
+                page = page,
                 rows = userData.rows,
                 columns = userData.columns,
-                gridItems = gridItems[page],
-                content = {
-                    EmptyGridItem()
+                resizedGridItemOverlay = resizedGridItemOverlay,
+                showResize = showResize,
+                gridItems = gridItems,
+                onResizeGridItem = onResizeGridItem,
+                onResizeEnd = {
+                    showResize = false
                 },
             )
         }
@@ -358,36 +355,7 @@ fun Success(
             ) {
                 Text(text = "Drag")
             }
-        }
 
-        if (showOverlay) {
-            val boundingBoxWidthDp = with(density) {
-                gridItemOverlayWidth.toDp()
-            }
-
-            val boundingBoxHeightDp = with(density) {
-                gridItemOverlayHeight.toDp()
-            }
-
-            val widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
-
-            val heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
-
-            Box(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = dragOffsetX, y = dragOffsetY,
-                        )
-                    }
-                    .size(width = widthDp, height = heightDp)
-                    .background(Color.Green),
-            ) {
-                Text(text = "Drag")
-            }
-        }
-
-        if (showPopupMenu) {
             MenuOverlay(
                 modifier = modifier,
                 x = dragOffsetX,
@@ -401,7 +369,7 @@ fun Success(
 
                 },
                 onResize = {
-                    onResizeGridItemOverlay(
+                    onGridItemOverlayResized(
                         pagerState.currentPage,
                         dragOffsetX,
                         dragOffsetY,
@@ -411,126 +379,6 @@ fun Success(
                 },
                 onClose = {
                     showOverlay = false
-                    showPopupMenu = false
-                },
-            )
-        }
-
-        if (showResize) {
-            var resizeOffsetX by remember { mutableIntStateOf(gridItemOverlayOffsetX) }
-
-            var resizeOffsetY by remember { mutableIntStateOf(gridItemOverlayOffsetY) }
-
-            var widthPixel by remember { mutableIntStateOf(gridItemOverlayWidth) }
-
-            var heightPixel by remember { mutableIntStateOf(gridItemOverlayHeight) }
-
-            ResizableOverlay(
-                x = resizeOffsetX,
-                y = resizeOffsetY,
-                width = widthPixel,
-                height = heightPixel,
-                onDragEnd = {
-                    showResize = false
-                },
-                onTopStartDrag = { change, dragAmount ->
-                    change.consume()
-                    val dragAmountX = with(density) {
-                        dragAmount.x.toDp().toPx().roundToInt()
-                    }
-
-                    val dragAmountY = with(density) {
-                        dragAmount.y.toDp().toPx().roundToInt()
-                    }
-
-                    widthPixel += -dragAmountX
-                    heightPixel += -dragAmountY
-
-                    resizeOffsetX += dragAmount.x.roundToInt()
-                    resizeOffsetY += dragAmount.y.roundToInt()
-
-                    onResizeGridItem(
-                        pagerState.currentPage,
-                        gridItemOverlayId,
-                        widthPixel,
-                        heightPixel,
-                        gridItemOverlayScreenWidth,
-                        gridItemOverlayScreenHeight,
-                        Anchor.BOTTOM_END,
-                    )
-                },
-                onTopEndDrag = { change, dragAmount ->
-                    change.consume()
-                    val dragAmountX = with(density) {
-                        dragAmount.x.toDp().toPx().roundToInt()
-                    }
-
-                    val dragAmountY = with(density) {
-                        dragAmount.y.toDp().toPx().roundToInt()
-                    }
-
-                    widthPixel += dragAmountX
-                    heightPixel += -dragAmountY
-
-                    resizeOffsetY += dragAmount.y.roundToInt()
-
-                    onResizeGridItem(
-                        pagerState.currentPage,
-                        gridItemOverlayId,
-                        widthPixel,
-                        heightPixel,
-                        gridItemOverlayScreenWidth,
-                        gridItemOverlayScreenHeight,
-                        Anchor.BOTTOM_START,
-                    )
-                },
-                onBottomStartDrag = { change, dragAmount ->
-                    change.consume()
-                    val dragAmountX = with(density) {
-                        dragAmount.x.toDp().toPx().roundToInt()
-                    }
-
-                    val dragAmountY = with(density) {
-                        dragAmount.y.toDp().toPx().roundToInt()
-                    }
-
-                    widthPixel += -dragAmountX
-                    heightPixel += dragAmountY
-
-                    resizeOffsetX += dragAmount.x.roundToInt()
-
-                    onResizeGridItem(
-                        pagerState.currentPage,
-                        gridItemOverlayId,
-                        widthPixel,
-                        heightPixel,
-                        gridItemOverlayScreenWidth,
-                        gridItemOverlayScreenHeight,
-                        Anchor.TOP_END,
-                    )
-                },
-                onBottomEndDrag = { change, dragAmount ->
-                    change.consume()
-                    val dragAmountX = with(density) {
-                        dragAmount.x.toDp().toPx().roundToInt()
-                    }
-
-                    val dragAmountY = with(density) {
-                        dragAmount.y.toDp().toPx().roundToInt()
-                    }
-
-                    widthPixel += dragAmountX
-                    heightPixel += dragAmountY
-
-                    onResizeGridItem(
-                        pagerState.currentPage,
-                        gridItemOverlayId,
-                        widthPixel,
-                        heightPixel,
-                        gridItemOverlayScreenWidth,
-                        gridItemOverlayScreenHeight,
-                        Anchor.TOP_START,
-                    )
                 },
             )
         }

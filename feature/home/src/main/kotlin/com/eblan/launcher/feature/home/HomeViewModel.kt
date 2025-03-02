@@ -85,8 +85,8 @@ class HomeViewModel @Inject constructor(
         id: Int,
         width: Int,
         height: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        cellWidth: Int,
+        cellHeight: Int,
         anchor: Anchor,
     ) {
         viewModelScope.launch {
@@ -95,8 +95,8 @@ class HomeViewModel @Inject constructor(
                 id = id,
                 width = width,
                 height = height,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
                 anchor = anchor,
             )
         }
@@ -120,7 +120,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun dragGridItemOverlay(
+    fun getGridItemByCoordinatesWhenDragStarted(
         page: Int,
         x: Int,
         y: Int,
@@ -148,7 +148,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resizeGridItemOverlay(
+    fun getGridItemByCoordinatesWhenResized(
         page: Int,
         x: Int,
         y: Int,
@@ -173,12 +173,6 @@ class HomeViewModel @Inject constructor(
                     screenHeight = screenHeight,
                 )
             }
-        }
-    }
-
-    fun resetGridItemOverlay() {
-        _draggedGridItemOverlay.update {
-            null
         }
     }
 }

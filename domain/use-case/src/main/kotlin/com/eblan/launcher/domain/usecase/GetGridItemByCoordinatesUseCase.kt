@@ -47,7 +47,7 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
             val gridItemY = gridItem.startRow * cellHeight
 
             GridItemOverlay(
-                id = gridItem.id,
+                gridItem = gridItem,
                 width = gridItemWidth,
                 height = gridItemHeight,
                 x = gridItemX,

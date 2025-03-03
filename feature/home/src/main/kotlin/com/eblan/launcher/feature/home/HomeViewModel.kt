@@ -50,13 +50,9 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _draggedGridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
+    private var _gridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
 
-    val draggedGridItemOverlay = _draggedGridItemOverlay.asStateFlow()
-
-    private var _resizedGridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
-
-    val resizedGridItemOverlay = _resizedGridItemOverlay.asStateFlow()
+    val gridItemOverlay = _gridItemOverlay.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -120,7 +116,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getGridItemByCoordinatesWhenDragStarted(
+    fun getGridItemByCoordinates(
         page: Int,
         x: Int,
         y: Int,
@@ -128,15 +124,7 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _draggedGridItemOverlay.update {
-                null
-            }
-
-            _resizedGridItemOverlay.update {
-                null
-            }
-
-            _draggedGridItemOverlay.update {
+            _gridItemOverlay.update {
                 getGridItemByCoordinatesUseCase(
                     page = page,
                     x = x,
@@ -148,30 +136,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getGridItemByCoordinatesWhenResized(
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) {
+    fun resetGridItemOverlay() {
         viewModelScope.launch {
-            _draggedGridItemOverlay.update {
+            _gridItemOverlay.update {
                 null
-            }
-
-            _resizedGridItemOverlay.update {
-                null
-            }
-
-            _resizedGridItemOverlay.update {
-                getGridItemByCoordinatesUseCase(
-                    page = page,
-                    x = x,
-                    y = y,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                )
             }
         }
     }

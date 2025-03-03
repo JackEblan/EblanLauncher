@@ -1,25 +1,36 @@
 package com.eblan.launcher.feature.home.component
 
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
 import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemOverlay
-import com.eblan.launcher.feature.home.EmptyGridItem
 import kotlin.math.roundToInt
 
 @Composable
@@ -28,8 +39,7 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    resizedGridItemOverlay: GridItemOverlay?,
-    showResize: Boolean,
+    id: Int?,
     gridItems: Map<Int, List<GridItem>>,
     onResizeGridItem: (
         page: Int,
@@ -41,6 +51,8 @@ fun GridSubcomposeLayout(
         anchor: Anchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
+    gridItemContent: @Composable () -> Unit,
+    menuContent: @Composable () -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns
@@ -57,6 +69,7 @@ fun GridSubcomposeLayout(
                         startColumn = gridItem.startColumn,
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
+                        content = gridItemContent,
                     )
                 }.forEach { measurable ->
                     val gridItemParentData = measurable.parentData as GridItemParentData
@@ -72,17 +85,53 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                subcompose("Resize") {
-                    if (showResize && resizedGridItemOverlay != null) {
-                        GridItemResize(
-                            page = page,
-                            id = resizedGridItemOverlay.gridItem.id,
+                subcompose("Menu") {
+                    val gridItemOverlay = gridItem.takeIf { it.id == id }
+
+                    if (gridItemOverlay != null) {
+                        GridItemMenu(
                             cellWidth = cellWidth,
                             cellHeight = cellHeight,
-                            startRow = resizedGridItemOverlay.gridItem.startRow,
-                            startColumn = resizedGridItemOverlay.gridItem.startColumn,
-                            rowSpan = resizedGridItemOverlay.gridItem.rowSpan,
-                            columnSpan = resizedGridItemOverlay.gridItem.columnSpan,
+                            startRow = gridItemOverlay.startRow,
+                            startColumn = gridItemOverlay.startColumn,
+                            rowSpan = gridItemOverlay.rowSpan,
+                            columnSpan = gridItemOverlay.columnSpan,
+                            content = menuContent,
+                        )
+                    }
+                }.forEach { measurable ->
+                    val gridItemParentData = measurable.parentData as GridItemParentData
+
+                    val placeable = measurable.measure(Constraints())
+
+                    val menuCoordinates = calculateMenuCoordinates(
+                        parentX = gridItemParentData.x,
+                        parentY = gridItemParentData.y,
+                        parentWidth = gridItemParentData.width,
+                        parentHeight = gridItemParentData.height,
+                        childWidth = placeable.width,
+                        childHeight = placeable.height,
+                        screenWidth = constraints.maxWidth,
+                        screenHeight = constraints.maxHeight,
+                        margin = 100,
+                    )
+
+                    placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)
+                }
+
+                subcompose("Resize") {
+                    val gridItemOverlay = gridItem.takeIf { it.id == id }
+
+                    if (gridItemOverlay != null) {
+                        GridItemResize(
+                            page = page,
+                            id = gridItemOverlay.id,
+                            cellWidth = cellWidth,
+                            cellHeight = cellHeight,
+                            startRow = gridItemOverlay.startRow,
+                            startColumn = gridItemOverlay.startColumn,
+                            rowSpan = gridItemOverlay.rowSpan,
+                            columnSpan = gridItemOverlay.columnSpan,
                             onResizeGridItem = onResizeGridItem,
                             onResizeEnd = onResizeEnd,
                         )
@@ -123,6 +172,7 @@ private fun GridItemContainer(
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
+    content: @Composable () -> Unit,
 ) {
     val width by animateIntAsState(targetValue = columnSpan * cellWidth)
 
@@ -132,13 +182,41 @@ private fun GridItemContainer(
 
     val y by animateIntAsState(targetValue = startRow * cellHeight)
 
-    Box(
+    Surface(
         modifier = modifier.gridItem(
             width = width, height = height, x = x, y = y,
         ),
-    ) {
-        EmptyGridItem()
-    }
+        content = content,
+    )
+}
+
+@Composable
+private fun GridItemMenu(
+    modifier: Modifier = Modifier,
+    cellWidth: Int,
+    cellHeight: Int,
+    startRow: Int,
+    startColumn: Int,
+    rowSpan: Int,
+    columnSpan: Int,
+    content: @Composable () -> Unit,
+) {
+    val width = columnSpan * cellWidth
+
+    val height = rowSpan * cellHeight
+
+    val x = startColumn * cellWidth
+
+    val y = startRow * cellHeight
+
+    Surface(
+        modifier = modifier.gridItem(
+            width = width, height = height, x = x, y = y,
+        ),
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = content,
+    )
 }
 
 @Composable
@@ -173,114 +251,167 @@ private fun GridItemResize(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
-    ResizableOverlay(
-        modifier = modifier.gridItem(
-            width = width,
-            height = height,
-            x = x,
-            y = y,
-        ),
-        onDragEnd = onResizeEnd,
-        onTopStartDrag = { change, dragAmount ->
-            change.consume()
-            val dragAmountX = with(density) {
-                dragAmount.x.toDp().toPx().roundToInt()
-            }
+    val commonModifier = Modifier
+        .size(30.dp)
+        .background(Color.White, shape = CircleShape)
 
-            val dragAmountY = with(density) {
-                dragAmount.y.toDp().toPx().roundToInt()
-            }
-
-            width += -dragAmountX
-            height += -dragAmountY
-
-            x += dragAmount.x.roundToInt()
-            y += dragAmount.y.roundToInt()
-
-            onResizeGridItem(
-                page,
-                id,
-                width,
-                height,
-                cellWidth,
-                cellHeight,
-                Anchor.BOTTOM_END,
+    Box(
+        modifier = modifier
+            .gridItem(
+                width = width,
+                height = height,
+                x = x,
+                y = y,
             )
-        },
-        onTopEndDrag = { change, dragAmount ->
-            change.consume()
-            val dragAmountX = with(density) {
-                dragAmount.x.toDp().toPx().roundToInt()
-            }
+            .border(width = 2.dp, color = Color.White),
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset((-15).dp, (-15).dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onResizeEnd,
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val dragAmountX = with(density) {
+                                dragAmount.x.toDp().toPx().roundToInt()
+                            }
 
-            val dragAmountY = with(density) {
-                dragAmount.y.toDp().toPx().roundToInt()
-            }
+                            val dragAmountY = with(density) {
+                                dragAmount.y.toDp().toPx().roundToInt()
+                            }
 
-            width += dragAmountX
-            height += -dragAmountY
+                            width += -dragAmountX
+                            height += -dragAmountY
 
-            y += dragAmount.y.roundToInt()
+                            x += dragAmount.x.roundToInt()
+                            y += dragAmount.y.roundToInt()
 
-            onResizeGridItem(
-                page,
-                id,
-                width,
-                height,
-                cellWidth,
-                cellHeight,
-                Anchor.BOTTOM_START,
-            )
-        },
-        onBottomStartDrag = { change, dragAmount ->
-            change.consume()
-            val dragAmountX = with(density) {
-                dragAmount.x.toDp().toPx().roundToInt()
-            }
+                            onResizeGridItem(
+                                page,
+                                id,
+                                width,
+                                height,
+                                cellWidth,
+                                cellHeight,
+                                Anchor.BOTTOM_END,
+                            )
+                        },
+                    )
+                },
+        )
 
-            val dragAmountY = with(density) {
-                dragAmount.y.toDp().toPx().roundToInt()
-            }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(15.dp, (-15).dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onResizeEnd,
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val dragAmountX = with(density) {
+                                dragAmount.x.toDp().toPx().roundToInt()
+                            }
 
-            width += -dragAmountX
-            height += dragAmountY
+                            val dragAmountY = with(density) {
+                                dragAmount.y.toDp().toPx().roundToInt()
+                            }
 
-            x += dragAmount.x.roundToInt()
+                            width += dragAmountX
+                            height += -dragAmountY
 
-            onResizeGridItem(
-                page,
-                id,
-                width,
-                height,
-                cellWidth,
-                cellHeight,
-                Anchor.TOP_END,
-            )
-        },
-        onBottomEndDrag = { change, dragAmount ->
-            change.consume()
-            val dragAmountX = with(density) {
-                dragAmount.x.toDp().toPx().roundToInt()
-            }
+                            y += dragAmount.y.roundToInt()
 
-            val dragAmountY = with(density) {
-                dragAmount.y.toDp().toPx().roundToInt()
-            }
+                            onResizeGridItem(
+                                page,
+                                id,
+                                width,
+                                height,
+                                cellWidth,
+                                cellHeight,
+                                Anchor.BOTTOM_START,
+                            )
+                        },
+                    )
+                },
+        )
 
-            width += dragAmountX
-            height += dragAmountY
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset((-15).dp, 15.dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onResizeEnd,
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val dragAmountX = with(density) {
+                                dragAmount.x.toDp().toPx().roundToInt()
+                            }
 
-            onResizeGridItem(
-                page,
-                id,
-                width,
-                height,
-                cellWidth,
-                cellHeight,
-                Anchor.TOP_START,
-            )
-        },
-    )
+                            val dragAmountY = with(density) {
+                                dragAmount.y.toDp().toPx().roundToInt()
+                            }
+
+                            width += -dragAmountX
+                            height += dragAmountY
+
+                            x += dragAmount.x.roundToInt()
+
+                            onResizeGridItem(
+                                page,
+                                id,
+                                width,
+                                height,
+                                cellWidth,
+                                cellHeight,
+                                Anchor.TOP_END,
+                            )
+                        },
+                    )
+                },
+        )
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(15.dp, 15.dp)
+                .then(commonModifier)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = onResizeEnd,
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val dragAmountX = with(density) {
+                                dragAmount.x.toDp().toPx().roundToInt()
+                            }
+
+                            val dragAmountY = with(density) {
+                                dragAmount.y.toDp().toPx().roundToInt()
+                            }
+
+                            width += dragAmountX
+                            height += dragAmountY
+
+                            onResizeGridItem(
+                                page,
+                                id,
+                                width,
+                                height,
+                                cellWidth,
+                                cellHeight,
+                                Anchor.TOP_START,
+                            )
+                        },
+                    )
+                },
+        )
+    }
 }
 
 data class GridItemParentData(

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -11,6 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -39,7 +48,9 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.MenuOverlay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
 @Composable
@@ -51,21 +62,18 @@ fun HomeRoute(
 
     val gridItemBoundary by viewModel.gridItemBoundary.collectAsStateWithLifecycle()
 
-    val draggedGridItemOverlay by viewModel.draggedGridItemOverlay.collectAsStateWithLifecycle()
-
-    val resizedGridItemOverlay by viewModel.resizedGridItemOverlay.collectAsStateWithLifecycle()
+    val gridItemOverlay by viewModel.gridItemOverlay.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
-        draggedGridItemOverlay = draggedGridItemOverlay,
-        resizedGridItemOverlay = resizedGridItemOverlay,
+        gridItemOverlay = gridItemOverlay,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
-        onGridItemOverlayDragStarted = viewModel::getGridItemByCoordinatesWhenDragStarted,
-        onGridItemOverlayResized = viewModel::getGridItemByCoordinatesWhenResized,
+        onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
+        onResetGridItemOverlay = viewModel::resetGridItemOverlay,
         onEdit = onEdit,
     )
 }
@@ -75,8 +83,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
-    draggedGridItemOverlay: GridItemOverlay?,
-    resizedGridItemOverlay: GridItemOverlay?,
+    gridItemOverlay: GridItemOverlay?,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -101,20 +108,14 @@ fun HomeScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onGridItemOverlayDragStarted: (
+    onGridItemByCoordinates: (
         page: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onGridItemOverlayResized: (
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
+    onResetGridItemOverlay: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
     Scaffold { paddingValues ->
@@ -134,13 +135,12 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItems,
                         userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
-                        draggedGridItemOverlay = draggedGridItemOverlay,
-                        resizedGridItemOverlay = resizedGridItemOverlay,
+                        gridItemOverlay = gridItemOverlay,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
-                        onGridItemOverlayDragStarted = onGridItemOverlayDragStarted,
-                        onGridItemOverlayResized = onGridItemOverlayResized,
+                        onGridItemByCoordinates = onGridItemByCoordinates,
+                        onResetGridItemOverlay = onResetGridItemOverlay,
                         onEdit = onEdit,
                     )
                 }
@@ -155,8 +155,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemBoundary: GridItemBoundary?,
-    draggedGridItemOverlay: GridItemOverlay?,
-    resizedGridItemOverlay: GridItemOverlay?,
+    gridItemOverlay: GridItemOverlay?,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -181,20 +180,14 @@ fun Success(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onGridItemOverlayDragStarted: (
+    onGridItemByCoordinates: (
         page: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onGridItemOverlayResized: (
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
+    onResetGridItemOverlay: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -211,23 +204,19 @@ fun Success(
 
     var showOverlay by remember { mutableStateOf(false) }
 
+    var showMenu by remember { mutableStateOf(false) }
+
     var showResize by remember { mutableStateOf(false) }
 
-    val gridItemId by rememberUpdatedState(draggedGridItemOverlay?.gridItem?.id)
+    var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
 
-    var gridItemOverlayId by remember { mutableIntStateOf(-1) }
-
-    var gridItemOverlayOffsetX by remember { mutableIntStateOf(-1) }
-
-    var gridItemOverlayOffsetY by remember { mutableIntStateOf(-1) }
+    val gridItemId by rememberUpdatedState(gridItemOverlayId)
 
     var gridItemOverlayWidth by remember { mutableIntStateOf(-1) }
 
     var gridItemOverlayHeight by remember { mutableIntStateOf(-1) }
 
-    var gridItemOverlayScreenWidth by remember { mutableIntStateOf(-1) }
-
-    var gridItemOverlayScreenHeight by remember { mutableIntStateOf(-1) }
+    var dragOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
@@ -243,41 +232,30 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = draggedGridItemOverlay) {
-        if (draggedGridItemOverlay != null) {
-            gridItemOverlayId = draggedGridItemOverlay.gridItem.id
+    LaunchedEffect(key1 = gridItemOverlay) {
+        val dragOffsetXFlow = snapshotFlow { dragOffsetX }
 
-            dragOffsetX = draggedGridItemOverlay.x
-            dragOffsetY = draggedGridItemOverlay.y
+        val dragOffsetYFlow = snapshotFlow { dragOffsetY }
 
-            gridItemOverlayOffsetX = draggedGridItemOverlay.x
-            gridItemOverlayOffsetY = draggedGridItemOverlay.y
-
-            gridItemOverlayWidth = draggedGridItemOverlay.width
-            gridItemOverlayHeight = draggedGridItemOverlay.height
-
-            gridItemOverlayScreenWidth = draggedGridItemOverlay.screenWidth
-            gridItemOverlayScreenHeight = draggedGridItemOverlay.screenHeight
+        if (gridItemOverlay != null) {
+            dragOffsetX = gridItemOverlay.x
+            dragOffsetY = gridItemOverlay.y
+            gridItemOverlayWidth = gridItemOverlay.width
+            gridItemOverlayHeight = gridItemOverlay.height
             showOverlay = true
-        }
-    }
 
-    LaunchedEffect(key1 = resizedGridItemOverlay) {
-        if (resizedGridItemOverlay != null) {
-            gridItemOverlayId = resizedGridItemOverlay.gridItem.id
-
-            dragOffsetX = resizedGridItemOverlay.x
-            dragOffsetY = resizedGridItemOverlay.y
-
-            gridItemOverlayOffsetX = resizedGridItemOverlay.x
-            gridItemOverlayOffsetY = resizedGridItemOverlay.y
-
-            gridItemOverlayWidth = resizedGridItemOverlay.width
-            gridItemOverlayHeight = resizedGridItemOverlay.height
-
-            gridItemOverlayScreenWidth = resizedGridItemOverlay.screenWidth
-            gridItemOverlayScreenHeight = resizedGridItemOverlay.screenHeight
-            showResize = true
+            combine(dragOffsetXFlow, dragOffsetYFlow) { x, y ->
+                IntOffset(x = x, y = y)
+            }.onEach { intOffset ->
+                onMoveGridItem(
+                    pagerState.currentPage,
+                    gridItemOverlay.gridItem.id,
+                    intOffset.x,
+                    intOffset.y,
+                    gridItemOverlay.screenWidth,
+                    gridItemOverlay.screenHeight,
+                )
+            }.collect()
         }
     }
 
@@ -286,7 +264,7 @@ fun Success(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
-                        onGridItemOverlayDragStarted(
+                        onGridItemByCoordinates(
                             pagerState.currentPage,
                             offset.x.roundToInt(),
                             offset.y.roundToInt(),
@@ -294,21 +272,14 @@ fun Success(
                             size.height,
                         )
                     },
+                    onDragEnd = {
+                        onResetGridItemOverlay()
+                        showOverlay = false
+                    },
                     onDrag = { change, dragAmount ->
-                        gridItemId?.let { id ->
-                            change.consume()
-                            dragOffsetX += dragAmount.x.roundToInt()
-                            dragOffsetY += dragAmount.y.roundToInt()
-
-                            onMoveGridItem(
-                                pagerState.currentPage,
-                                id,
-                                dragOffsetX,
-                                dragOffsetY,
-                                size.width,
-                                size.height,
-                            )
-                        }
+                        change.consume()
+                        dragOffsetX += dragAmount.x.roundToInt()
+                        dragOffsetY += dragAmount.y.roundToInt()
                     },
                 )
             }
@@ -320,12 +291,28 @@ fun Success(
                 page = page,
                 rows = userData.rows,
                 columns = userData.columns,
-                resizedGridItemOverlay = resizedGridItemOverlay,
-                showResize = showResize,
+                id = gridItemOverlayId,
                 gridItems = gridItems,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = {
                     showResize = false
+                },
+                gridItemContent = {
+                    EmptyGridItem()
+                },
+                menuContent = {
+                    MenuOverlay(
+                        onEdit = {
+
+                        },
+                        onResize = {
+                            showMenu = false
+                            showResize = true
+                        },
+                        onClose = {
+
+                        },
+                    )
                 },
             )
         }
@@ -355,32 +342,6 @@ fun Success(
             ) {
                 Text(text = "Drag")
             }
-
-            MenuOverlay(
-                modifier = modifier,
-                x = dragOffsetX,
-                y = dragOffsetY,
-                width = gridItemOverlayWidth,
-                height = gridItemOverlayHeight,
-                screenWidth = gridItemOverlayScreenWidth,
-                screenHeight = gridItemOverlayScreenHeight,
-                menuSizeMarginPixel = 100,
-                onEdit = {
-
-                },
-                onResize = {
-                    onGridItemOverlayResized(
-                        pagerState.currentPage,
-                        dragOffsetX,
-                        dragOffsetY,
-                        gridItemOverlayScreenWidth,
-                        gridItemOverlayScreenHeight,
-                    )
-                },
-                onClose = {
-                    showOverlay = false
-                },
-            )
         }
     }
 }
@@ -431,5 +392,41 @@ private fun WidgetGridItem(
             appWidgetHost.createView(appWidgetId, appWidgetInfo)
         },
     )
+}
+
+@Composable
+fun MenuOverlay(
+    modifier: Modifier = Modifier,
+    onEdit: () -> Unit,
+    onResize: () -> Unit,
+    onClose: () -> Unit,
+) {
+    Row(modifier = modifier) {
+        IconButton(
+            onClick = onEdit,
+        ) {
+            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+        }
+
+        IconButton(
+            onClick = {
+
+            },
+        ) {
+            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+        }
+
+        IconButton(
+            onClick = onResize,
+        ) {
+            Icon(imageVector = Icons.Default.Android, contentDescription = null)
+        }
+
+        IconButton(
+            onClick = onClose,
+        ) {
+            Icon(imageVector = Icons.Default.Close, contentDescription = null)
+        }
+    }
 }
 

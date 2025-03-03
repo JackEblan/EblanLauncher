@@ -41,6 +41,8 @@ fun GridSubcomposeLayout(
     columns: Int,
     id: Int?,
     gridItems: Map<Int, List<GridItem>>,
+    showMenu: Boolean,
+    showResize: Boolean,
     onResizeGridItem: (
         page: Int,
         id: Int,
@@ -88,7 +90,7 @@ fun GridSubcomposeLayout(
                 subcompose("Menu") {
                     val gridItemOverlay = gridItem.takeIf { it.id == id }
 
-                    if (gridItemOverlay != null) {
+                    if (showMenu && gridItemOverlay != null) {
                         GridItemMenu(
                             cellWidth = cellWidth,
                             cellHeight = cellHeight,
@@ -122,7 +124,7 @@ fun GridSubcomposeLayout(
                 subcompose("Resize") {
                     val gridItemOverlay = gridItem.takeIf { it.id == id }
 
-                    if (gridItemOverlay != null) {
+                    if (showResize && gridItemOverlay != null) {
                         GridItemResize(
                             page = page,
                             id = gridItemOverlay.id,

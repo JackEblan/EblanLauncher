@@ -14,7 +14,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -27,10 +26,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -49,7 +48,6 @@ import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
@@ -198,9 +196,7 @@ fun Success(
         },
     )
 
-    var dragOffsetX by remember { mutableIntStateOf(-1) }
-
-    var dragOffsetY by remember { mutableIntStateOf(-1) }
+    var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
 
     var showOverlay by remember { mutableStateOf(false) }
 
@@ -210,13 +206,9 @@ fun Success(
 
     var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
 
-    val gridItemId by rememberUpdatedState(gridItemOverlayId)
-
     var gridItemOverlayWidth by remember { mutableIntStateOf(-1) }
 
     var gridItemOverlayHeight by remember { mutableIntStateOf(-1) }
-
-    var dragOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
@@ -233,25 +225,26 @@ fun Success(
     }
 
     LaunchedEffect(key1 = gridItemOverlay) {
-        val dragOffsetXFlow = snapshotFlow { dragOffsetX }
-
-        val dragOffsetYFlow = snapshotFlow { dragOffsetY }
-
         if (gridItemOverlay != null) {
-            dragOffsetX = gridItemOverlay.x
-            dragOffsetY = gridItemOverlay.y
+            gridItemOverlayId = gridItemOverlay.gridItem.id
+
+            dragOffset = dragOffset.copy(
+                x = gridItemOverlay.x.toFloat(),
+                y = gridItemOverlay.y.toFloat(),
+            )
+
             gridItemOverlayWidth = gridItemOverlay.width
             gridItemOverlayHeight = gridItemOverlay.height
-            showOverlay = true
 
-            combine(dragOffsetXFlow, dragOffsetYFlow) { x, y ->
-                IntOffset(x = x, y = y)
-            }.onEach { intOffset ->
+            showOverlay = true
+            showMenu = true
+
+            snapshotFlow { dragOffset }.onEach { offset ->
                 onMoveGridItem(
                     pagerState.currentPage,
                     gridItemOverlay.gridItem.id,
-                    intOffset.x,
-                    intOffset.y,
+                    offset.x.roundToInt(),
+                    offset.y.roundToInt(),
                     gridItemOverlay.screenWidth,
                     gridItemOverlay.screenHeight,
                 )
@@ -264,13 +257,19 @@ fun Success(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
-                        onGridItemByCoordinates(
-                            pagerState.currentPage,
-                            offset.x.roundToInt(),
-                            offset.y.roundToInt(),
-                            size.width,
-                            size.height,
-                        )
+                        if (showMenu || showResize) {
+                            showOverlay = false
+                            showMenu = false
+                            showResize = false
+                        } else {
+                            onGridItemByCoordinates(
+                                pagerState.currentPage,
+                                offset.x.roundToInt(),
+                                offset.y.roundToInt(),
+                                size.width,
+                                size.height,
+                            )
+                        }
                     },
                     onDragEnd = {
                         onResetGridItemOverlay()
@@ -278,8 +277,8 @@ fun Success(
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
-                        dragOffsetX += dragAmount.x.roundToInt()
-                        dragOffsetY += dragAmount.y.roundToInt()
+                        showMenu = false
+                        dragOffset += dragAmount
                     },
                 )
             }
@@ -294,6 +293,8 @@ fun Success(
                 id = gridItemOverlayId,
                 gridItems = gridItems,
                 onResizeGridItem = onResizeGridItem,
+                showMenu = showMenu,
+                showResize = showResize,
                 onResizeEnd = {
                     showResize = false
                 },
@@ -306,11 +307,9 @@ fun Success(
 
                         },
                         onResize = {
+                            showOverlay = false
                             showMenu = false
                             showResize = true
-                        },
-                        onClose = {
-
                         },
                     )
                 },
@@ -334,7 +333,8 @@ fun Success(
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            x = dragOffsetX, y = dragOffsetY,
+                            x = dragOffset.x.roundToInt(),
+                            y = dragOffset.y.roundToInt(),
                         )
                     }
                     .size(width = widthDp, height = heightDp)
@@ -399,7 +399,6 @@ fun MenuOverlay(
     modifier: Modifier = Modifier,
     onEdit: () -> Unit,
     onResize: () -> Unit,
-    onClose: () -> Unit,
 ) {
     Row(modifier = modifier) {
         IconButton(
@@ -420,12 +419,6 @@ fun MenuOverlay(
             onClick = onResize,
         ) {
             Icon(imageVector = Icons.Default.Android, contentDescription = null)
-        }
-
-        IconButton(
-            onClick = onClose,
-        ) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = null)
         }
     }
 }

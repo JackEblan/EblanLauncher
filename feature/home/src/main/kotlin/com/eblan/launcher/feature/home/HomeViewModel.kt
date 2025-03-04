@@ -4,17 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItemBoundary
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,6 +33,8 @@ class HomeViewModel @Inject constructor(
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val addGridItemUseCase: AddGridItemUseCase,
     private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
 ) : ViewModel() {
     val homeUiState =
         combine(gridRepository.gridItems, userDataRepository.userData) { gridItems, userData ->
@@ -35,7 +42,7 @@ class HomeViewModel @Inject constructor(
                 gridItems = gridItems.groupBy { gridItem -> gridItem.page },
                 userData = userData,
             )
-        }.stateIn(
+        }.flowOn(Dispatchers.Default).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = HomeUiState.Loading,
@@ -49,9 +56,31 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _gridItemOverlayUiState = MutableStateFlow<GridItemOverlayUiState>(GridItemOverlayUiState.Loading)
+    private var _gridItemOverlayUiState =
+        MutableStateFlow<GridItemOverlayUiState>(GridItemOverlayUiState.Idle)
 
     val gridItemOverlayUiState = _gridItemOverlayUiState.asStateFlow()
+
+    val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
+    )
+
+    val appWidgetProviderInfos =
+        eblanApplicationInfoRepository.eblanApplicationInfos.map { applicationInfos ->
+            applicationInfos.map { eblanApplicationInfo ->
+                eblanApplicationInfo to appWidgetManagerWrapper.getInstalledProviderByPackageName(
+                    packageName = eblanApplicationInfo.packageName,
+                )
+            }.filter { (_, appWidgetProviderInfos) ->
+                appWidgetProviderInfos.isNotEmpty()
+            }
+        }.flowOn(Dispatchers.Default).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
 
     fun moveGridItem(
         page: Int,
@@ -140,7 +169,7 @@ class HomeViewModel @Inject constructor(
     fun resetGridItemOverlay() {
         viewModelScope.launch {
             _gridItemOverlayUiState.update {
-                GridItemOverlayUiState.Loading
+                GridItemOverlayUiState.Idle
             }
         }
     }

@@ -1,19 +1,35 @@
 package com.eblan.launcher.feature.home
 
+import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,13 +38,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +55,7 @@ import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
@@ -57,11 +77,17 @@ fun HomeRoute(
 
     val gridItemOverlayUiState by viewModel.gridItemOverlayUiState.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+
+    val appWidgetProviderInfos by viewModel.appWidgetProviderInfos.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
         gridItemOverlayUiState = gridItemOverlayUiState,
+        eblanApplicationInfos = eblanApplicationInfos,
+        appWidgetProviderInfos = appWidgetProviderInfos,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
@@ -77,6 +103,8 @@ fun HomeScreen(
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
     gridItemOverlayUiState: GridItemOverlayUiState,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -129,6 +157,8 @@ fun HomeScreen(
                         userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
                         gridItemOverlayUiState = gridItemOverlayUiState,
+                        eblanApplicationInfos = eblanApplicationInfos,
+                        appWidgetProviderInfos = appWidgetProviderInfos,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
@@ -142,6 +172,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
@@ -149,6 +180,8 @@ fun Success(
     userData: UserData,
     gridItemBoundary: GridItemBoundary?,
     gridItemOverlayUiState: GridItemOverlayUiState,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -191,6 +224,8 @@ fun Success(
         },
     )
 
+    val sheetState = rememberModalBottomSheetState()
+
     var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
 
     var showOverlay by remember { mutableStateOf(false) }
@@ -198,6 +233,10 @@ fun Success(
     var showMenu by remember { mutableStateOf(false) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    var showEblanApplicationInfosBottomSheet by remember { mutableStateOf(false) }
+
+    var showAppWidgetProviderInfosBottomSheet by remember { mutableStateOf(false) }
 
     var showResize by remember { mutableStateOf(false) }
 
@@ -223,10 +262,6 @@ fun Success(
 
     LaunchedEffect(key1 = gridItemOverlayUiState) {
         when (gridItemOverlayUiState) {
-            GridItemOverlayUiState.Loading -> {
-
-            }
-
             is GridItemOverlayUiState.Success -> {
                 if (gridItemOverlayUiState.gridItemOverlay != null) {
                     gridItemOverlayId = gridItemOverlayUiState.gridItemOverlay.gridItem.id
@@ -256,6 +291,8 @@ fun Success(
                     showBottomSheet = true
                 }
             }
+
+            GridItemOverlayUiState.Idle -> Unit
         }
     }
 
@@ -371,7 +408,106 @@ fun Success(
         }
 
         if (showBottomSheet) {
-            // Maybe show a bottom sheet here
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState,
+            ) {
+                Row {
+                    Column(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable {
+                                showEblanApplicationInfosBottomSheet = true
+                            },
+                    ) {
+                        Icon(imageVector = Icons.Default.Android, contentDescription = null)
+
+                        Text(text = "Application")
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable {
+                                showAppWidgetProviderInfosBottomSheet = true
+                            },
+                    ) {
+                        Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
+
+                        Text(text = "Widgets")
+                    }
+                }
+            }
+        }
+
+        if (showEblanApplicationInfosBottomSheet) {
+            val eblanApplicationInfosBottomSheet = rememberModalBottomSheetState()
+
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showEblanApplicationInfosBottomSheet = false
+                },
+                sheetState = eblanApplicationInfosBottomSheet,
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    items(eblanApplicationInfos) { eblanApplicationInfo ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            AsyncImage(
+                                model = eblanApplicationInfo.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                            )
+
+                            Text(
+                                text = eblanApplicationInfo.label,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showAppWidgetProviderInfosBottomSheet) {
+            val appWidgetProviderInfosBottomSheet = rememberModalBottomSheetState()
+
+            val context = LocalContext.current
+
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showAppWidgetProviderInfosBottomSheet = false
+                },
+                sheetState = appWidgetProviderInfosBottomSheet,
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    items(appWidgetProviderInfos) { (eblanApplicationInfo, appWidgetProviderInfos) ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            AsyncImage(
+                                model = eblanApplicationInfo.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                            )
+
+                            Text(
+                                text = eblanApplicationInfo.label,
+                            )
+
+                            appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
+                                AsyncImage(
+                                    model = appWidgetProviderInfo.loadPreviewImage(context, 0),
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

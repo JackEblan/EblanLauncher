@@ -14,9 +14,9 @@ sealed interface HomeUiState {
 }
 
 sealed interface GridItemOverlayUiState {
-    data object Loading : GridItemOverlayUiState
-
     data class Success(
         val gridItemOverlay: GridItemOverlay?,
     ) : GridItemOverlayUiState
+
+    data object Idle : GridItemOverlayUiState
 }

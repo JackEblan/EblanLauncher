@@ -1,9 +1,10 @@
-package com.eblan.launcher.feature.home.component
+package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -25,12 +26,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import com.eblan.launcher.domain.geometry.calculateMenuCoordinates
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import kotlin.math.roundToInt
 
 @Composable
@@ -52,6 +55,7 @@ fun GridSubcomposeLayout(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
+    onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
     gridItemContent: @Composable () -> Unit,
     menuContent: @Composable () -> Unit,
@@ -87,44 +91,38 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                subcompose("Menu") {
-                    val gridItemOverlay = gridItem.takeIf { it.id == id }
+                val gridItemOverlay = gridItem.takeIf { it.id == id }
 
-                    if (showMenu && gridItemOverlay != null) {
+                if (showMenu && gridItemOverlay != null) {
+                    val width = gridItemOverlay.columnSpan * cellWidth
+
+                    val height = gridItemOverlay.rowSpan * cellHeight
+
+                    val x = gridItemOverlay.startColumn * cellWidth
+
+                    val y = gridItemOverlay.startRow * cellHeight
+
+                    subcompose("Menu") {
                         GridItemMenu(
-                            cellWidth = cellWidth,
-                            cellHeight = cellHeight,
-                            startRow = gridItemOverlay.startRow,
-                            startColumn = gridItemOverlay.startColumn,
-                            rowSpan = gridItemOverlay.rowSpan,
-                            columnSpan = gridItemOverlay.columnSpan,
+                            popupPositionProvider = MenuPositionProvider(
+                                x = x,
+                                y = y,
+                                width = width,
+                                height = height,
+                                screenWidth = constraints.maxWidth,
+                                screenHeight = constraints.maxHeight,
+                                margin = 0,
+                            ),
+                            onDismissRequest = onDismissRequest,
                             content = menuContent,
                         )
+                    }.forEach { measurable ->
+                        measurable.measure(Constraints()).placeRelative(x = 0, y = 0)
                     }
-                }.forEach { measurable ->
-                    val gridItemParentData = measurable.parentData as GridItemParentData
-
-                    val placeable = measurable.measure(Constraints())
-
-                    val menuCoordinates = calculateMenuCoordinates(
-                        parentX = gridItemParentData.x,
-                        parentY = gridItemParentData.y,
-                        parentWidth = gridItemParentData.width,
-                        parentHeight = gridItemParentData.height,
-                        childWidth = placeable.width,
-                        childHeight = placeable.height,
-                        screenWidth = constraints.maxWidth,
-                        screenHeight = constraints.maxHeight,
-                        margin = 100,
-                    )
-
-                    placeable.placeRelative(x = menuCoordinates.x, y = menuCoordinates.y)
                 }
 
-                subcompose("Resize") {
-                    val gridItemOverlay = gridItem.takeIf { it.id == id }
-
-                    if (showResize && gridItemOverlay != null) {
+                if (showResize && gridItemOverlay != null) {
+                    subcompose("Resize") {
                         GridItemResize(
                             page = page,
                             id = gridItemOverlay.id,
@@ -137,28 +135,29 @@ fun GridSubcomposeLayout(
                             onResizeGridItem = onResizeGridItem,
                             onResizeEnd = onResizeEnd,
                         )
+                    }.forEach { measurable ->
+                        val gridItemParentData = measurable.parentData as GridItemParentData
+
+                        val resizableBoundingBox = calculateResizableBoundingBox(
+                            coordinates = Coordinates(
+                                x = gridItemParentData.x, y = gridItemParentData.y,
+                            ),
+                            boundingBox = BoundingBox(
+                                width = gridItemParentData.width,
+                                height = gridItemParentData.height,
+                            ),
+                        )
+
+                        measurable.measure(
+                            Constraints(
+                                minWidth = resizableBoundingBox.width,
+                                minHeight = resizableBoundingBox.height,
+                            ),
+                        ).placeRelative(
+                            x = resizableBoundingBox.x,
+                            y = resizableBoundingBox.y,
+                        )
                     }
-                }.forEach { measurable ->
-                    val gridItemParentData = measurable.parentData as GridItemParentData
-
-                    val resizableBoundingBox = calculateResizableBoundingBox(
-                        coordinates = Coordinates(
-                            x = gridItemParentData.x, y = gridItemParentData.y,
-                        ),
-                        boundingBox = BoundingBox(
-                            width = gridItemParentData.width, height = gridItemParentData.height,
-                        ),
-                    )
-
-                    measurable.measure(
-                        Constraints(
-                            minWidth = resizableBoundingBox.width,
-                            minHeight = resizableBoundingBox.height,
-                        ),
-                    ).placeRelative(
-                        x = resizableBoundingBox.x,
-                        y = resizableBoundingBox.y,
-                    )
                 }
             }
         }
@@ -195,30 +194,21 @@ private fun GridItemContainer(
 @Composable
 private fun GridItemMenu(
     modifier: Modifier = Modifier,
-    cellWidth: Int,
-    cellHeight: Int,
-    startRow: Int,
-    startColumn: Int,
-    rowSpan: Int,
-    columnSpan: Int,
+    popupPositionProvider: PopupPositionProvider,
+    onDismissRequest: (() -> Unit)?,
     content: @Composable () -> Unit,
 ) {
-    val width = columnSpan * cellWidth
-
-    val height = rowSpan * cellHeight
-
-    val x = startColumn * cellWidth
-
-    val y = startRow * cellHeight
-
-    Surface(
-        modifier = modifier.gridItem(
-            width = width, height = height, x = x, y = y,
-        ),
-        shape = RoundedCornerShape(30.dp),
-        shadowElevation = 2.dp,
-        content = content,
-    )
+    Popup(
+        popupPositionProvider = popupPositionProvider,
+        onDismissRequest = onDismissRequest,
+    ) {
+        Surface(
+            modifier = modifier,
+            shape = RoundedCornerShape(30.dp),
+            shadowElevation = 2.dp,
+            content = content,
+        )
+    }
 }
 
 @Composable
@@ -259,6 +249,11 @@ private fun GridItemResize(
 
     Box(
         modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    onResizeEnd()
+                })
+            }
             .gridItem(
                 width = width,
                 height = height,

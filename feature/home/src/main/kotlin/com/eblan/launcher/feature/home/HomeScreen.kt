@@ -1,10 +1,10 @@
 package com.eblan.launcher.feature.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -12,12 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +25,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -46,7 +41,8 @@ import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.menu.MenuOverlay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
@@ -255,32 +251,49 @@ fun Success(
     Box(
         modifier = modifier
             .pointerInput(Unit) {
-                detectDragGesturesAfterLongPress(
-                    onDragStart = { offset ->
-                        if (showMenu || showResize) {
+                awaitPointerEventScope {
+                    while (true) {
+                        // Wait for the first down event (even if partially consumed).
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        // Wait for a long press (or cancellation) starting from that down.
+                        val longPressChange = awaitLongPressOrCancellation(down.id)
+                        if (longPressChange == null) {
+                            onResetGridItemOverlay()
                             showOverlay = false
-                            showMenu = false
-                            showResize = false
-                        } else {
+                            continue
+                        }
+                        // Only trigger onDragStart if the long press wasn’t already consumed.
+                        if (!longPressChange.isConsumed) {
                             onGridItemByCoordinates(
                                 pagerState.currentPage,
-                                offset.x.roundToInt(),
-                                offset.y.roundToInt(),
+                                longPressChange.position.x.roundToInt(),
+                                longPressChange.position.y.roundToInt(),
                                 size.width,
                                 size.height,
                             )
                         }
-                    },
-                    onDragEnd = {
+                        var dragging: Boolean
+
+                        do {
+                            val event = awaitPointerEvent(PointerEventPass.Main)
+                            event.changes.forEach { change ->
+                                if (change.pressed) {
+                                    val dragAmount = change.position - change.previousPosition
+                                    // Only trigger drag if the change isn’t already consumed.
+                                    if (!change.isConsumed) {
+                                        change.consume()
+                                        showMenu = false
+                                        dragOffset += dragAmount
+                                    }
+                                }
+                            }
+                            dragging = event.changes.any { it.pressed }
+                        } while (dragging)
+
                         onResetGridItemOverlay()
                         showOverlay = false
-                    },
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        showMenu = false
-                        dragOffset += dragAmount
-                    },
-                )
+                    }
+                }
             }
             .fillMaxSize(),
     ) {
@@ -295,6 +308,9 @@ fun Success(
                 onResizeGridItem = onResizeGridItem,
                 showMenu = showMenu,
                 showResize = showResize,
+                onDismissRequest = {
+                    showMenu = false
+                },
                 onResizeEnd = {
                     showResize = false
                 },
@@ -308,7 +324,6 @@ fun Success(
                         },
                         onResize = {
                             showOverlay = false
-                            showMenu = false
                             showResize = true
                         },
                     )
@@ -393,33 +408,3 @@ private fun WidgetGridItem(
         },
     )
 }
-
-@Composable
-fun MenuOverlay(
-    modifier: Modifier = Modifier,
-    onEdit: () -> Unit,
-    onResize: () -> Unit,
-) {
-    Row(modifier = modifier) {
-        IconButton(
-            onClick = onEdit,
-        ) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
-        }
-
-        IconButton(
-            onClick = {
-
-            },
-        ) {
-            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
-        }
-
-        IconButton(
-            onClick = onResize,
-        ) {
-            Icon(imageVector = Icons.Default.Android, contentDescription = null)
-        }
-    }
-}
-

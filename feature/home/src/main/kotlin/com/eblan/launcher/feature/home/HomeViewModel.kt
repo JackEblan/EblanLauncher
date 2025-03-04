@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItemBoundary
-import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddGridItemUseCase
@@ -50,9 +49,9 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _gridItemOverlay = MutableStateFlow<GridItemOverlay?>(null)
+    private var _gridItemOverlayUiState = MutableStateFlow<GridItemOverlayUiState>(GridItemOverlayUiState.Loading)
 
-    val gridItemOverlay = _gridItemOverlay.asStateFlow()
+    val gridItemOverlayUiState = _gridItemOverlayUiState.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -124,13 +123,15 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemOverlay.update {
-                getGridItemByCoordinatesUseCase(
-                    page = page,
-                    x = x,
-                    y = y,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
+            _gridItemOverlayUiState.update {
+                GridItemOverlayUiState.Success(
+                    gridItemOverlay = getGridItemByCoordinatesUseCase(
+                        page = page,
+                        x = x,
+                        y = y,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                    ),
                 )
             }
         }
@@ -138,8 +139,8 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridItemOverlay() {
         viewModelScope.launch {
-            _gridItemOverlay.update {
-                null
+            _gridItemOverlayUiState.update {
+                GridItemOverlayUiState.Loading
             }
         }
     }

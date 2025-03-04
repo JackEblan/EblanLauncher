@@ -39,7 +39,6 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.menu.MenuOverlay
@@ -56,13 +55,13 @@ fun HomeRoute(
 
     val gridItemBoundary by viewModel.gridItemBoundary.collectAsStateWithLifecycle()
 
-    val gridItemOverlay by viewModel.gridItemOverlay.collectAsStateWithLifecycle()
+    val gridItemOverlayUiState by viewModel.gridItemOverlayUiState.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
-        gridItemOverlay = gridItemOverlay,
+        gridItemOverlayUiState = gridItemOverlayUiState,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
@@ -77,7 +76,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
-    gridItemOverlay: GridItemOverlay?,
+    gridItemOverlayUiState: GridItemOverlayUiState,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -129,7 +128,7 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItems,
                         userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
-                        gridItemOverlay = gridItemOverlay,
+                        gridItemOverlayUiState = gridItemOverlayUiState,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
@@ -149,7 +148,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemBoundary: GridItemBoundary?,
-    gridItemOverlay: GridItemOverlay?,
+    gridItemOverlayUiState: GridItemOverlayUiState,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -198,6 +197,8 @@ fun Success(
 
     var showMenu by remember { mutableStateOf(false) }
 
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     var showResize by remember { mutableStateOf(false) }
 
     var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
@@ -220,31 +221,41 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = gridItemOverlay) {
-        if (gridItemOverlay != null) {
-            gridItemOverlayId = gridItemOverlay.gridItem.id
+    LaunchedEffect(key1 = gridItemOverlayUiState) {
+        when (gridItemOverlayUiState) {
+            GridItemOverlayUiState.Loading -> {
 
-            dragOffset = dragOffset.copy(
-                x = gridItemOverlay.x.toFloat(),
-                y = gridItemOverlay.y.toFloat(),
-            )
+            }
 
-            gridItemOverlayWidth = gridItemOverlay.width
-            gridItemOverlayHeight = gridItemOverlay.height
+            is GridItemOverlayUiState.Success -> {
+                if (gridItemOverlayUiState.gridItemOverlay != null) {
+                    gridItemOverlayId = gridItemOverlayUiState.gridItemOverlay.gridItem.id
 
-            showOverlay = true
-            showMenu = true
+                    dragOffset = dragOffset.copy(
+                        x = gridItemOverlayUiState.gridItemOverlay.x.toFloat(),
+                        y = gridItemOverlayUiState.gridItemOverlay.y.toFloat(),
+                    )
 
-            snapshotFlow { dragOffset }.onEach { offset ->
-                onMoveGridItem(
-                    pagerState.currentPage,
-                    gridItemOverlay.gridItem.id,
-                    offset.x.roundToInt(),
-                    offset.y.roundToInt(),
-                    gridItemOverlay.screenWidth,
-                    gridItemOverlay.screenHeight,
-                )
-            }.collect()
+                    gridItemOverlayWidth = gridItemOverlayUiState.gridItemOverlay.width
+                    gridItemOverlayHeight = gridItemOverlayUiState.gridItemOverlay.height
+
+                    showOverlay = true
+                    showMenu = true
+
+                    snapshotFlow { dragOffset }.onEach { offset ->
+                        onMoveGridItem(
+                            pagerState.currentPage,
+                            gridItemOverlayUiState.gridItemOverlay.gridItem.id,
+                            offset.x.roundToInt(),
+                            offset.y.roundToInt(),
+                            gridItemOverlayUiState.gridItemOverlay.screenWidth,
+                            gridItemOverlayUiState.gridItemOverlay.screenHeight,
+                        )
+                    }.collect()
+                } else {
+                    showBottomSheet = true
+                }
+            }
         }
     }
 
@@ -357,6 +368,10 @@ fun Success(
             ) {
                 Text(text = "Drag")
             }
+        }
+
+        if (showBottomSheet) {
+            // Maybe show a bottom sheet here
         }
     }
 }

@@ -1,14 +1,17 @@
 package com.eblan.launcher.feature.home.component.menu
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun MenuOverlay(
@@ -16,25 +19,32 @@ fun MenuOverlay(
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    Row(modifier = modifier) {
-        IconButton(
-            onClick = onEdit,
-        ) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
-        }
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row(modifier = modifier) {
+                IconButton(
+                    onClick = onEdit,
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                }
 
-        IconButton(
-            onClick = {
+                IconButton(
+                    onClick = {
 
-            },
-        ) {
-            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
-        }
+                    },
+                ) {
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+                }
 
-        IconButton(
-            onClick = onResize,
-        ) {
-            Icon(imageVector = Icons.Default.Android, contentDescription = null)
-        }
-    }
+                IconButton(
+                    onClick = onResize,
+                ) {
+                    Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                }
+            }
+        },
+    )
 }

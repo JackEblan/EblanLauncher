@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -193,7 +192,6 @@ private fun GridItemContainer(
 
 @Composable
 private fun GridItemMenu(
-    modifier: Modifier = Modifier,
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)?,
     content: @Composable () -> Unit,
@@ -201,14 +199,8 @@ private fun GridItemMenu(
     Popup(
         popupPositionProvider = popupPositionProvider,
         onDismissRequest = onDismissRequest,
-    ) {
-        Surface(
-            modifier = modifier,
-            shape = RoundedCornerShape(30.dp),
-            shadowElevation = 2.dp,
-            content = content,
-        )
-    }
+        content = content,
+    )
 }
 
 @Composable
@@ -250,9 +242,11 @@ private fun GridItemResize(
     Box(
         modifier = modifier
             .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    onResizeEnd()
-                })
+                detectTapGestures(
+                    onTap = {
+                        onResizeEnd()
+                    },
+                )
             }
             .gridItem(
                 width = width,

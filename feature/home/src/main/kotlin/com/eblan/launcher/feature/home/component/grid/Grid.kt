@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
@@ -93,25 +92,16 @@ fun GridSubcomposeLayout(
                 val gridItemOverlay = gridItem.takeIf { it.id == id }
 
                 if (showMenu && gridItemOverlay != null) {
-                    val width = gridItemOverlay.columnSpan * cellWidth
-
-                    val height = gridItemOverlay.rowSpan * cellHeight
-
-                    val x = gridItemOverlay.startColumn * cellWidth
-
-                    val y = gridItemOverlay.startRow * cellHeight
-
                     subcompose("Menu") {
                         GridItemMenu(
-                            popupPositionProvider = MenuPositionProvider(
-                                x = x,
-                                y = y,
-                                width = width,
-                                height = height,
-                                screenWidth = constraints.maxWidth,
-                                screenHeight = constraints.maxHeight,
-                                margin = 0,
-                            ),
+                            cellWidth = cellWidth,
+                            cellHeight = cellHeight,
+                            startRow = gridItemOverlay.startRow,
+                            startColumn = gridItemOverlay.startColumn,
+                            rowSpan = gridItemOverlay.rowSpan,
+                            columnSpan = gridItemOverlay.columnSpan,
+                            screenWidth = constraints.maxWidth,
+                            screenHeight = constraints.maxHeight,
                             onDismissRequest = onDismissRequest,
                             content = menuContent,
                         )
@@ -192,12 +182,34 @@ private fun GridItemContainer(
 
 @Composable
 private fun GridItemMenu(
-    popupPositionProvider: PopupPositionProvider,
+    cellWidth: Int,
+    cellHeight: Int,
+    startRow: Int,
+    startColumn: Int,
+    rowSpan: Int,
+    columnSpan: Int,
+    screenWidth: Int,
+    screenHeight: Int,
     onDismissRequest: (() -> Unit)?,
     content: @Composable () -> Unit,
 ) {
+    val width = columnSpan * cellWidth
+
+    val height = rowSpan * cellHeight
+
+    val x = startColumn * cellWidth
+
+    val y = startRow * cellHeight
+
     Popup(
-        popupPositionProvider = popupPositionProvider,
+        popupPositionProvider = MenuPositionProvider(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+        ),
         onDismissRequest = onDismissRequest,
         content = content,
     )

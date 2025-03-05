@@ -14,7 +14,6 @@ class MenuPositionProvider(
     private val height: Int,
     private val screenWidth: Int,
     private val screenHeight: Int,
-    private val margin: Int,
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -31,7 +30,6 @@ class MenuPositionProvider(
             childHeight = popupContentSize.height,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            margin = margin,
         )
         return IntOffset(coordinates.x, coordinates.y)
     }

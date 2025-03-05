@@ -17,7 +17,6 @@ import com.eblan.launcher.domain.model.MenuCoordinates
  * @param childHeight The height of the menu.
  * @param screenWidth The overall screen width.
  * @param screenHeight The overall screen height.
- * @param margin The desired space between the parent element and the menu.
  * @return A [MenuCoordinates] object with the x and y coordinates for where the menu should appear.
  */
 fun calculateMenuCoordinates(
@@ -29,7 +28,6 @@ fun calculateMenuCoordinates(
     childHeight: Int,
     screenWidth: Int,
     screenHeight: Int,
-    margin: Int
 ): MenuCoordinates {
     // Center the menu horizontally relative to the parent element.
     val parentCenterX = parentX + parentWidth / 2
@@ -37,8 +35,8 @@ fun calculateMenuCoordinates(
     val childX = childXInitial.coerceIn(0, screenWidth - childWidth)
 
     // Calculate possible vertical positions.
-    val topPositionY = parentY - margin - childHeight
-    val bottomPositionY = parentY + parentHeight + margin
+    val topPositionY = parentY - childHeight
+    val bottomPositionY = parentY + parentHeight
 
     // Choose the vertical position that keeps the menu on-screen.
     val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY

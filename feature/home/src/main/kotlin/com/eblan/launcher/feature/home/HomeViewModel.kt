@@ -56,10 +56,9 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _gridItemOverlayUiState =
-        MutableStateFlow<GridItemOverlayUiState>(GridItemOverlayUiState.Idle)
+    private var _gridItemByCoordinates = MutableStateFlow<Boolean?>(null)
 
-    val gridItemOverlayUiState = _gridItemOverlayUiState.asStateFlow()
+    val gridItemByCoordinates = _gridItemByCoordinates.asStateFlow()
 
     val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
@@ -152,24 +151,22 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemOverlayUiState.update {
-                GridItemOverlayUiState.Success(
-                    gridItemOverlay = getGridItemByCoordinatesUseCase(
-                        page = page,
-                        x = x,
-                        y = y,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
-                    ),
-                )
+            _gridItemByCoordinates.update {
+                getGridItemByCoordinatesUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                ) != null
             }
         }
     }
 
-    fun resetGridItemOverlay() {
+    fun resetGridItemByCoordinates() {
         viewModelScope.launch {
-            _gridItemOverlayUiState.update {
-                GridItemOverlayUiState.Idle
+            _gridItemByCoordinates.update {
+                null
             }
         }
     }

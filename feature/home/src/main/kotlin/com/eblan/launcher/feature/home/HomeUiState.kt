@@ -20,3 +20,7 @@ sealed interface GridItemOverlayUiState {
 
     data object Idle : GridItemOverlayUiState
 }
+
+enum class SuccessUiState {
+    Pager, Applications, Widgets
+}

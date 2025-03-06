@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -59,11 +59,12 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.menu.MenuOverlay
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
 import kotlin.math.roundToInt
 
 @Composable
@@ -75,7 +76,7 @@ fun HomeRoute(
 
     val gridItemBoundary by viewModel.gridItemBoundary.collectAsStateWithLifecycle()
 
-    val gridItemOverlayUiState by viewModel.gridItemOverlayUiState.collectAsStateWithLifecycle()
+    val gridItemByCoordinates by viewModel.gridItemByCoordinates.collectAsStateWithLifecycle()
 
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
@@ -85,14 +86,14 @@ fun HomeRoute(
         modifier = modifier,
         gridItemBoundary = gridItemBoundary,
         homeUiState = homeUiState,
-        gridItemOverlayUiState = gridItemOverlayUiState,
+        gridItemByCoordinates = gridItemByCoordinates,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onAddGridItem = viewModel::addGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
-        onResetGridItemOverlay = viewModel::resetGridItemOverlay,
+        onResetGridItemByCoordinates = viewModel::resetGridItemByCoordinates,
         onEdit = onEdit,
     )
 }
@@ -102,7 +103,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemBoundary: GridItemBoundary?,
     homeUiState: HomeUiState,
-    gridItemOverlayUiState: GridItemOverlayUiState,
+    gridItemByCoordinates: Boolean?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     onMoveGridItem: (
@@ -136,7 +137,7 @@ fun HomeScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onResetGridItemOverlay: () -> Unit,
+    onResetGridItemByCoordinates: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
     Scaffold { paddingValues ->
@@ -156,14 +157,14 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItems,
                         userData = homeUiState.userData,
                         gridItemBoundary = gridItemBoundary,
-                        gridItemOverlayUiState = gridItemOverlayUiState,
+                        gridItemByCoordinates = gridItemByCoordinates,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onAddGridItem = onAddGridItem,
-                        onGridItemByCoordinates = onGridItemByCoordinates,
-                        onResetGridItemOverlay = onResetGridItemOverlay,
+                        onGetGridItemByCoordinates = onGridItemByCoordinates,
+                        onResetGridItemByCoordinates = onResetGridItemByCoordinates,
                         onEdit = onEdit,
                     )
                 }
@@ -179,7 +180,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemBoundary: GridItemBoundary?,
-    gridItemOverlayUiState: GridItemOverlayUiState,
+    gridItemByCoordinates: Boolean?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     onMoveGridItem: (
@@ -206,17 +207,19 @@ fun Success(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onGridItemByCoordinates: (
+    onGetGridItemByCoordinates: (
         page: Int,
         x: Int,
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onResetGridItemOverlay: () -> Unit,
+    onResetGridItemByCoordinates: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
+
+    val context = LocalContext.current
 
     val pagerState = rememberPagerState(
         pageCount = {
@@ -234,10 +237,6 @@ fun Success(
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    var showEblanApplicationInfosBottomSheet by remember { mutableStateOf(false) }
-
-    var showAppWidgetProviderInfosBottomSheet by remember { mutableStateOf(false) }
-
     var showResize by remember { mutableStateOf(false) }
 
     var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
@@ -245,6 +244,10 @@ fun Success(
     var gridItemOverlayWidth by remember { mutableIntStateOf(-1) }
 
     var gridItemOverlayHeight by remember { mutableIntStateOf(-1) }
+
+    var gridItemOverlay by remember { mutableStateOf<GridItemOverlay?>(null) }
+
+    var successUiState by remember { mutableStateOf(SuccessUiState.Pager) }
 
     LaunchedEffect(key1 = gridItemBoundary) {
         when (gridItemBoundary) {
@@ -260,124 +263,182 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = gridItemOverlayUiState) {
-        when (gridItemOverlayUiState) {
-            is GridItemOverlayUiState.Success -> {
-                if (gridItemOverlayUiState.gridItemOverlay != null) {
-                    gridItemOverlayId = gridItemOverlayUiState.gridItemOverlay.gridItem.id
+    LaunchedEffect(key1 = gridItemOverlay) {
+        combine(snapshotFlow { gridItemOverlay }, snapshotFlow { dragOffset }) { overlay, offset ->
+            if (overlay != null) {
+                gridItemOverlayId = overlay.gridItem.id
+                gridItemOverlayWidth = overlay.width
+                gridItemOverlayHeight = overlay.height
 
-                    dragOffset = dragOffset.copy(
-                        x = gridItemOverlayUiState.gridItemOverlay.x.toFloat(),
-                        y = gridItemOverlayUiState.gridItemOverlay.y.toFloat(),
-                    )
-
-                    gridItemOverlayWidth = gridItemOverlayUiState.gridItemOverlay.width
-                    gridItemOverlayHeight = gridItemOverlayUiState.gridItemOverlay.height
-
-                    showOverlay = true
-                    showMenu = true
-
-                    snapshotFlow { dragOffset }.onEach { offset ->
-                        onMoveGridItem(
-                            pagerState.currentPage,
-                            gridItemOverlayUiState.gridItemOverlay.gridItem.id,
-                            offset.x.roundToInt(),
-                            offset.y.roundToInt(),
-                            gridItemOverlayUiState.gridItemOverlay.screenWidth,
-                            gridItemOverlayUiState.gridItemOverlay.screenHeight,
-                        )
-                    }.collect()
-                } else {
-                    showBottomSheet = true
-                }
+                onMoveGridItem(
+                    pagerState.currentPage,
+                    overlay.gridItem.id,
+                    offset.x.roundToInt(),
+                    offset.y.roundToInt(),
+                    overlay.screenWidth,
+                    overlay.screenHeight,
+                )
             }
+        }.collect()
+    }
 
-            GridItemOverlayUiState.Idle -> Unit
+    LaunchedEffect(key1 = gridItemByCoordinates) {
+        if (gridItemByCoordinates == null) return@LaunchedEffect
+
+        if (gridItemByCoordinates) {
+            showOverlay = true
+            showMenu = true
+        } else {
+            showBottomSheet = true
         }
     }
 
     Box(
         modifier = modifier
             .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        // Wait for the first down event (even if partially consumed).
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        // Wait for a long press (or cancellation) starting from that down.
-                        val longPressChange = awaitLongPressOrCancellation(down.id)
-                        if (longPressChange == null) {
-                            onResetGridItemOverlay()
-                            showOverlay = false
-                            continue
-                        }
-                        // Only trigger onDragStart if the long press wasn’t already consumed.
-                        if (!longPressChange.isConsumed) {
-                            onGridItemByCoordinates(
-                                pagerState.currentPage,
-                                longPressChange.position.x.roundToInt(),
-                                longPressChange.position.y.roundToInt(),
-                                size.width,
-                                size.height,
-                            )
-                        }
-                        var dragging: Boolean
-
-                        do {
-                            val event = awaitPointerEvent(PointerEventPass.Main)
-                            event.changes.forEach { change ->
-                                if (change.pressed) {
-                                    val dragAmount = change.position - change.previousPosition
-                                    // Only trigger drag if the change isn’t already consumed.
-                                    if (!change.isConsumed) {
-                                        change.consume()
-                                        showMenu = false
-                                        dragOffset += dragAmount
-                                    }
-                                }
-                            }
-                            dragging = event.changes.any { it.pressed }
-                        } while (dragging)
-
-                        onResetGridItemOverlay()
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        onGetGridItemByCoordinates(
+                            pagerState.currentPage,
+                            offset.x.roundToInt(),
+                            offset.y.roundToInt(),
+                            size.width,
+                            size.height,
+                        )
+                    },
+                    onDragEnd = {
                         showOverlay = false
-                    }
-                }
+                        showResize = false
+                        gridItemOverlay = null
+                        dragOffset = Offset.Zero
+                        onResetGridItemByCoordinates()
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        dragOffset += dragAmount
+                        showMenu = false
+                        showResize = false
+                    },
+                )
             }
             .fillMaxSize(),
     ) {
-        HorizontalPager(state = pagerState) { page ->
-            GridSubcomposeLayout(
-                modifier = Modifier.fillMaxSize(),
-                page = page,
-                rows = userData.rows,
-                columns = userData.columns,
-                id = gridItemOverlayId,
-                gridItems = gridItems,
-                onResizeGridItem = onResizeGridItem,
-                showMenu = showMenu,
-                showResize = showResize,
-                onDismissRequest = {
-                    showMenu = false
-                },
-                onResizeEnd = {
-                    showResize = false
-                },
-                gridItemContent = {
-                    EmptyGridItem()
-                },
-                menuContent = {
-                    MenuOverlay(
-                        onEdit = {
-
+        when (successUiState) {
+            SuccessUiState.Pager -> {
+                HorizontalPager(state = pagerState) { page ->
+                    GridSubcomposeLayout(
+                        modifier = Modifier.fillMaxSize(),
+                        page = page,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                        id = gridItemOverlayId,
+                        gridItems = gridItems,
+                        onResizeGridItem = onResizeGridItem,
+                        showMenu = showMenu,
+                        showResize = showResize,
+                        onDismissRequest = {
+                            showMenu = false
                         },
-                        onResize = {
-                            showOverlay = false
-                            showResize = true
+                        onResizeEnd = {
+                            showResize = false
+                        },
+                        gridItemContent = { overlay ->
+                            EmptyGridItem(
+                                modifier = Modifier.pointerInput(key1 = overlay) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            val down = awaitFirstDown(requireUnconsumed = false)
+
+                                            val longPressChange =
+                                                awaitLongPressOrCancellation(down.id) ?: continue
+
+                                            if (!longPressChange.isConsumed) {
+                                                dragOffset = dragOffset.copy(
+                                                    x = overlay.x.toFloat(),
+                                                    y = overlay.y.toFloat(),
+                                                )
+
+                                                gridItemOverlay = overlay
+                                            }
+                                        }
+                                    }
+                                },
+                            )
+                        },
+                        menuContent = {
+                            MenuOverlay(
+                                onEdit = {
+
+                                },
+                                onResize = {
+                                    showOverlay = false
+                                    showResize = true
+                                },
+                            )
                         },
                     )
-                },
-            )
+                }
+            }
+
+            SuccessUiState.Applications -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    items(eblanApplicationInfos) { eblanApplicationInfo ->
+                        Column(
+                            modifier = Modifier.pointerInput(key1 = eblanApplicationInfo) {
+
+                            },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            AsyncImage(
+                                model = eblanApplicationInfo.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                            )
+
+                            Text(
+                                text = eblanApplicationInfo.label,
+                            )
+                        }
+                    }
+                }
+            }
+
+            SuccessUiState.Widgets -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    items(appWidgetProviderInfos) { (eblanApplicationInfo, appWidgetProviderInfos) ->
+                        Column(
+                            modifier = Modifier.pointerInput(Unit) {
+
+                            },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            AsyncImage(
+                                model = eblanApplicationInfo.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                            )
+
+                            Text(
+                                text = eblanApplicationInfo.label,
+                            )
+
+                            appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
+                                AsyncImage(
+                                    model = appWidgetProviderInfo.loadPreviewImage(context, 0),
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
+
 
         if (showOverlay) {
             val boundingBoxWidthDp = with(density) {
@@ -419,7 +480,7 @@ fun Success(
                         modifier = Modifier
                             .size(100.dp)
                             .clickable {
-                                showEblanApplicationInfosBottomSheet = true
+                                successUiState = SuccessUiState.Applications
                             },
                     ) {
                         Icon(imageVector = Icons.Default.Android, contentDescription = null)
@@ -431,80 +492,12 @@ fun Success(
                         modifier = Modifier
                             .size(100.dp)
                             .clickable {
-                                showAppWidgetProviderInfosBottomSheet = true
+                                successUiState = SuccessUiState.Widgets
                             },
                     ) {
                         Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
 
                         Text(text = "Widgets")
-                    }
-                }
-            }
-        }
-
-        if (showEblanApplicationInfosBottomSheet) {
-            val eblanApplicationInfosBottomSheet = rememberModalBottomSheetState()
-
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showEblanApplicationInfosBottomSheet = false
-                },
-                sheetState = eblanApplicationInfosBottomSheet,
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    items(eblanApplicationInfos) { eblanApplicationInfo ->
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp),
-                            )
-
-                            Text(
-                                text = eblanApplicationInfo.label,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        if (showAppWidgetProviderInfosBottomSheet) {
-            val appWidgetProviderInfosBottomSheet = rememberModalBottomSheetState()
-
-            val context = LocalContext.current
-
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showAppWidgetProviderInfosBottomSheet = false
-                },
-                sheetState = appWidgetProviderInfosBottomSheet,
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    items(appWidgetProviderInfos) { (eblanApplicationInfo, appWidgetProviderInfos) ->
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp),
-                            )
-
-                            Text(
-                                text = eblanApplicationInfo.label,
-                            )
-
-                            appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
-                                AsyncImage(
-                                    model = appWidgetProviderInfo.loadPreviewImage(context, 0),
-                                    contentDescription = null,
-                                )
-                            }
-                        }
                     }
                 }
             }

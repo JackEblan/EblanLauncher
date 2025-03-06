@@ -4,7 +4,6 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -31,6 +30,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import kotlin.math.roundToInt
 
@@ -55,7 +55,7 @@ fun GridSubcomposeLayout(
     ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable () -> Unit,
+    gridItemContent: @Composable (GridItemOverlay) -> Unit,
     menuContent: @Composable () -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
@@ -73,7 +73,19 @@ fun GridSubcomposeLayout(
                         startColumn = gridItem.startColumn,
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
-                        content = gridItemContent,
+                        content = { width, height, x, y ->
+                            gridItemContent(
+                                GridItemOverlay(
+                                    gridItem = gridItem,
+                                    width = width,
+                                    height = height,
+                                    x = x,
+                                    y = y,
+                                    screenWidth = constraints.maxWidth,
+                                    screenHeight = constraints.maxHeight,
+                                ),
+                            )
+                        },
                     )
                 }.forEach { measurable ->
                     val gridItemParentData = measurable.parentData as GridItemParentData
@@ -162,7 +174,7 @@ private fun GridItemContainer(
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
-    content: @Composable () -> Unit,
+    content: @Composable (width: Int, height: Int, x: Int, y: Int) -> Unit,
 ) {
     val width by animateIntAsState(targetValue = columnSpan * cellWidth)
 
@@ -176,7 +188,9 @@ private fun GridItemContainer(
         modifier = modifier.gridItem(
             width = width, height = height, x = x, y = y,
         ),
-        content = content,
+        content = {
+            content(width, height, x, y)
+        },
     )
 }
 
@@ -247,19 +261,12 @@ private fun GridItemResize(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
-    val commonModifier = Modifier
+    val circleModifier = Modifier
         .size(30.dp)
         .background(Color.White, shape = CircleShape)
 
     Box(
         modifier = modifier
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onResizeEnd()
-                    },
-                )
-            }
             .gridItem(
                 width = width,
                 height = height,
@@ -272,7 +279,7 @@ private fun GridItemResize(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset((-15).dp, (-15).dp)
-                .then(commonModifier)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragEnd = onResizeEnd,
@@ -310,7 +317,7 @@ private fun GridItemResize(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(15.dp, (-15).dp)
-                .then(commonModifier)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragEnd = onResizeEnd,
@@ -347,7 +354,7 @@ private fun GridItemResize(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .offset((-15).dp, 15.dp)
-                .then(commonModifier)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragEnd = onResizeEnd,
@@ -384,7 +391,7 @@ private fun GridItemResize(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(15.dp, 15.dp)
-                .then(commonModifier)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragEnd = onResizeEnd,

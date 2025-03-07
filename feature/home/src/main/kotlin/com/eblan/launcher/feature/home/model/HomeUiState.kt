@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home
+package com.eblan.launcher.feature.home.model
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemOverlay
@@ -19,8 +19,4 @@ sealed interface GridItemOverlayUiState {
     ) : GridItemOverlayUiState
 
     data object Idle : GridItemOverlayUiState
-}
-
-enum class SuccessUiState {
-    Pager, Applications, Widgets
 }

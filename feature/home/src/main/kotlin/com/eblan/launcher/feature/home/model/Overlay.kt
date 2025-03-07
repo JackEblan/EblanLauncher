@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home
+package com.eblan.launcher.feature.home.model
 
 data class Overlay(
     val width: Int,

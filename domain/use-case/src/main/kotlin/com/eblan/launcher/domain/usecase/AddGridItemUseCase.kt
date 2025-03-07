@@ -7,14 +7,17 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class AddApplicationGridItemUseCase @Inject constructor(
+class AddGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
+    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
         x: Int,
         y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): Int {
@@ -33,10 +36,20 @@ class AddApplicationGridItemUseCase @Inject constructor(
             page = page,
             startRow = startRow,
             startColumn = startColumn,
-            rowSpan = 1,
-            columnSpan = 1,
+            rowSpan = rowSpan,
+            columnSpan = columnSpan,
         )
 
-        return gridRepository.upsertGridItem(gridItem = gridItem).toInt()
+        val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
+
+        val movingGridItem = gridRepository.getGridItem(id = gridItemId)
+
+        return if (movingGridItem != null) {
+            aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
+
+            movingGridItem.id
+        } else {
+            -1
+        }
     }
 }

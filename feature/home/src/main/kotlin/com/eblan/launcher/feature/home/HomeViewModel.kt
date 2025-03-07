@@ -7,10 +7,11 @@ import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.AddApplicationGridItemUseCase
+import com.eblan.launcher.domain.usecase.AddGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +32,7 @@ class HomeViewModel @Inject constructor(
     gridRepository: GridRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val addApplicationGridItemUseCase: AddApplicationGridItemUseCase,
+    private val addGridItemUseCase: AddGridItemUseCase,
     private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
@@ -81,9 +82,9 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
-    private var _addApplicationGridItemId = MutableStateFlow(-2)
+    private var _addGridItemId = MutableStateFlow(-2)
 
-    val addApplicationGridItemId = _addApplicationGridItemId.asStateFlow()
+    val addGridItemId = _addGridItemId.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -129,19 +130,23 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addApplicationGridItem(
+    fun addGridItem(
         page: Int,
         x: Int,
         y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _addApplicationGridItemId.update {
-                addApplicationGridItemUseCase(
+            _addGridItemId.update {
+                addGridItemUseCase(
                     page = page,
                     x = x,
                     y = y,
+                    rowSpan = rowSpan,
+                    columnSpan = columnSpan,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )
@@ -170,9 +175,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetGridItemByCoordinates() {
+        _gridItemByCoordinates.update {
+            null
+        }
+    }
+
+    fun resetOverlay() {
         viewModelScope.launch {
-            _gridItemByCoordinates.update {
-                null
+            _addGridItemId.update {
+                -2
             }
         }
     }

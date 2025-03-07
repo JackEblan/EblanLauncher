@@ -66,6 +66,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.menu.MenuOverlay
+import com.eblan.launcher.feature.home.model.HomeType
+import com.eblan.launcher.feature.home.model.HomeUiState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
@@ -85,7 +87,7 @@ fun HomeRoute(
 
     val appWidgetProviderInfos by viewModel.appWidgetProviderInfos.collectAsStateWithLifecycle()
 
-    val addApplicationGridItemId by viewModel.addApplicationGridItemId.collectAsStateWithLifecycle()
+    val addGridItemId by viewModel.addGridItemId.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
@@ -94,12 +96,13 @@ fun HomeRoute(
         gridItemByCoordinates = gridItemByCoordinates,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
-        addApplicationGridItemId = addApplicationGridItemId,
+        addGridItemId = addGridItemId,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
-        onAddApplicationGridItem = viewModel::addApplicationGridItem,
+        onAddGridItem = viewModel::addGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onResetGridItemByCoordinates = viewModel::resetGridItemByCoordinates,
+        onResetOverlay = viewModel::resetOverlay,
         onEdit = onEdit,
     )
 }
@@ -112,7 +115,7 @@ fun HomeScreen(
     gridItemByCoordinates: Boolean?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
-    addApplicationGridItemId: Int,
+    addGridItemId: Int,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -130,10 +133,12 @@ fun HomeScreen(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
-    onAddApplicationGridItem: (
+    onAddGridItem: (
         page: Int,
         x: Int,
         y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -145,6 +150,7 @@ fun HomeScreen(
         screenHeight: Int,
     ) -> Unit,
     onResetGridItemByCoordinates: () -> Unit,
+    onResetOverlay: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
     Scaffold { paddingValues ->
@@ -167,12 +173,13 @@ fun HomeScreen(
                         gridItemByCoordinates = gridItemByCoordinates,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
-                        addApplicationGridItemId = addApplicationGridItemId,
+                        addGridItemId = addGridItemId,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
-                        onAddApplicationGridItem = onAddApplicationGridItem,
+                        onAddGridItem = onAddGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
                         onResetGridItemByCoordinates = onResetGridItemByCoordinates,
+                        onResetOverlay = onResetOverlay,
                         onEdit = onEdit,
                     )
                 }
@@ -191,7 +198,7 @@ fun Success(
     gridItemByCoordinates: Boolean?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
-    addApplicationGridItemId: Int,
+    addGridItemId: Int,
     onMoveGridItem: (
         page: Int,
         id: Int,
@@ -209,10 +216,12 @@ fun Success(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
-    onAddApplicationGridItem: (
+    onAddGridItem: (
         page: Int,
         x: Int,
         y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -224,6 +233,7 @@ fun Success(
         screenHeight: Int,
     ) -> Unit,
     onResetGridItemByCoordinates: () -> Unit,
+    onResetOverlay: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -246,11 +256,11 @@ fun Success(
 
     var showResize by remember { mutableStateOf(false) }
 
-    var gridItemOverlayWidth by remember { mutableIntStateOf(-1) }
+    var overlayWidth by remember { mutableIntStateOf(-1) }
 
-    var gridItemOverlayHeight by remember { mutableIntStateOf(-1) }
+    var overlayHeight by remember { mutableIntStateOf(-1) }
 
-    var successUiState by remember { mutableStateOf(SuccessUiState.Pager) }
+    var homeType by remember { mutableStateOf(HomeType.Pager) }
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -268,12 +278,12 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = addApplicationGridItemId) {
+    LaunchedEffect(key1 = addGridItemId) {
         snapshotFlow { dragOffset }.onEach { offset ->
-            if (addApplicationGridItemId > -1) {
+            if (addGridItemId > -1) {
                 onMoveGridItem(
                     pagerState.currentPage,
-                    addApplicationGridItemId,
+                    addGridItemId,
                     offset.x.roundToInt(),
                     offset.y.roundToInt(),
                     screenSize.width,
@@ -285,21 +295,6 @@ fun Success(
 
     Box(
         modifier = modifier
-            .pointerInput(Unit) {
-                detectDragGesturesAfterLongPress(
-                    onDragEnd = {
-                        showOverlay = false
-                        showResize = false
-                    },
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        dragOffset += dragAmount
-
-                        showMenu = false
-                        showResize = false
-                    },
-                )
-            }
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
@@ -314,6 +309,7 @@ fun Success(
                     onDragEnd = {
                         showOverlay = false
                         showResize = false
+                        onResetOverlay()
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -329,8 +325,8 @@ fun Success(
                 screenSize = intSize
             },
     ) {
-        when (successUiState) {
-            SuccessUiState.Pager -> {
+        when (homeType) {
+            HomeType.Pager -> {
                 var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
 
                 LaunchedEffect(key1 = true) {
@@ -385,8 +381,8 @@ fun Success(
                                                 )
 
                                                 gridItemOverlayId = gridItem.id
-                                                gridItemOverlayWidth = width
-                                                gridItemOverlayHeight = height
+                                                overlayWidth = width
+                                                overlayHeight = height
 
                                                 showOverlay = true
                                                 showMenu = true
@@ -411,7 +407,7 @@ fun Success(
                 }
             }
 
-            SuccessUiState.Applications -> {
+            HomeType.Applications -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(4),
                     modifier = Modifier.fillMaxWidth(),
@@ -434,20 +430,22 @@ fun Success(
                                             if (!longPressChange.isConsumed) {
                                                 dragOffset = eblanApplicationInfoOffset
 
-                                                gridItemOverlayWidth =
+                                                overlayWidth =
                                                     eblanApplicationInfoIntSize.width
-                                                gridItemOverlayHeight =
+                                                overlayHeight =
                                                     eblanApplicationInfoIntSize.height
 
-                                                onAddApplicationGridItem(
+                                                onAddGridItem(
                                                     pagerState.currentPage,
                                                     eblanApplicationInfoOffset.x.roundToInt(),
                                                     eblanApplicationInfoOffset.y.roundToInt(),
+                                                    1,
+                                                    1,
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
 
-                                                successUiState = SuccessUiState.Pager
+                                                homeType = HomeType.Pager
 
                                                 showOverlay = true
                                                 showMenu = true
@@ -478,7 +476,7 @@ fun Success(
                 }
             }
 
-            SuccessUiState.Widgets -> {
+            HomeType.Widgets -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -514,11 +512,11 @@ fun Success(
 
         if (showOverlay) {
             val boundingBoxWidthDp = with(density) {
-                gridItemOverlayWidth.toDp()
+                overlayWidth.toDp()
             }
 
             val boundingBoxHeightDp = with(density) {
-                gridItemOverlayHeight.toDp()
+                overlayHeight.toDp()
             }
 
             val widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
@@ -550,7 +548,7 @@ fun Success(
                         modifier = Modifier
                             .size(100.dp)
                             .clickable {
-                                successUiState = SuccessUiState.Applications
+                                homeType = HomeType.Applications
                             },
                     ) {
                         Icon(imageVector = Icons.Default.Android, contentDescription = null)
@@ -562,7 +560,7 @@ fun Success(
                         modifier = Modifier
                             .size(100.dp)
                             .clickable {
-                                successUiState = SuccessUiState.Widgets
+                                homeType = HomeType.Widgets
                             },
                     ) {
                         Icon(imageVector = Icons.Default.Widgets, contentDescription = null)

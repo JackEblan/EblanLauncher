@@ -30,7 +30,6 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import kotlin.math.roundToInt
 
@@ -55,7 +54,7 @@ fun GridSubcomposeLayout(
     ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable (GridItemOverlay) -> Unit,
+    gridItemContent: @Composable (gridItem: GridItem, width: Int, height: Int, x: Int, y: Int) -> Unit,
     menuContent: @Composable () -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
@@ -67,25 +66,14 @@ fun GridSubcomposeLayout(
             gridItems[page]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
                     GridItemContainer(
-                        cellWidth = cellWidth,
-                        cellHeight = cellHeight,
+                        gridItem = gridItem,
                         startRow = gridItem.startRow,
                         startColumn = gridItem.startColumn,
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
-                        content = { width, height, x, y ->
-                            gridItemContent(
-                                GridItemOverlay(
-                                    gridItem = gridItem,
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y,
-                                    screenWidth = constraints.maxWidth,
-                                    screenHeight = constraints.maxHeight,
-                                ),
-                            )
-                        },
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        content = gridItemContent,
                     )
                 }.forEach { measurable ->
                     val gridItemParentData = measurable.parentData as GridItemParentData
@@ -168,13 +156,14 @@ fun GridSubcomposeLayout(
 @Composable
 private fun GridItemContainer(
     modifier: Modifier = Modifier,
-    cellWidth: Int,
-    cellHeight: Int,
+    gridItem: GridItem,
     startRow: Int,
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
-    content: @Composable (width: Int, height: Int, x: Int, y: Int) -> Unit,
+    cellWidth: Int,
+    cellHeight: Int,
+    content: @Composable (gridItem: GridItem, width: Int, height: Int, x: Int, y: Int) -> Unit,
 ) {
     val width by animateIntAsState(targetValue = columnSpan * cellWidth)
 
@@ -189,7 +178,7 @@ private fun GridItemContainer(
             width = width, height = height, x = x, y = y,
         ),
         content = {
-            content(width, height, x, y)
+            content(gridItem, width, height, x, y)
         },
     )
 }

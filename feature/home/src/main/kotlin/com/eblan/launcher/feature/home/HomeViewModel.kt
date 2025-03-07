@@ -7,7 +7,7 @@ import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.AddGridItemUseCase
+import com.eblan.launcher.domain.usecase.AddApplicationGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
@@ -31,9 +31,9 @@ class HomeViewModel @Inject constructor(
     gridRepository: GridRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val addGridItemUseCase: AddGridItemUseCase,
+    private val addApplicationGridItemUseCase: AddApplicationGridItemUseCase,
     private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
 ) : ViewModel() {
     val homeUiState =
@@ -81,6 +81,10 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
+    private var _addApplicationGridItemId = MutableStateFlow(-2)
+
+    val addApplicationGridItemId = _addApplicationGridItemId.asStateFlow()
+
     fun moveGridItem(
         page: Int,
         id: Int,
@@ -125,7 +129,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addGridItem(
+    fun addApplicationGridItem(
         page: Int,
         x: Int,
         y: Int,
@@ -133,13 +137,15 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            addGridItemUseCase(
-                page = page,
-                x = x,
-                y = y,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-            )
+            _addApplicationGridItemId.update {
+                addApplicationGridItemUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
         }
     }
 

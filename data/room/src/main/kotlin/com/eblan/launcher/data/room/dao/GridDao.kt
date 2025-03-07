@@ -15,7 +15,7 @@ interface GridDao {
     suspend fun upsertGridItemEntities(entities: List<GridItemEntity>)
 
     @Upsert
-    suspend fun upsertGridItemEntity(entity: GridItemEntity)
+    suspend fun upsertGridItemEntity(entity: GridItemEntity): Long
 //
 //    @Query("UPDATE GridItemEntity SET data = :data WHERE id = :id")
 //    suspend fun updateGridItemData(id: Int, data: GridItemData): Int

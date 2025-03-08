@@ -7,7 +7,7 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class AddGridItemUseCase @Inject constructor(
+class AddAppWidgetProviderInfoUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
@@ -18,10 +18,28 @@ class AddGridItemUseCase @Inject constructor(
         y: Int,
         rowSpan: Int,
         columnSpan: Int,
+        minWidth: Int,
+        minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): Int {
         val userData = userDataRepository.userData.first()
+
+        val cellWidth = screenWidth / userData.columns
+
+        val cellHeight = screenHeight / userData.rows
+
+        val newRowSpan = if (rowSpan == 0) {
+            (minHeight + cellHeight - 1) / cellHeight
+        } else {
+            rowSpan
+        }
+
+        val newColumnSpan = if (columnSpan == 0) {
+            (minWidth + cellWidth - 1) / cellWidth
+        } else {
+            columnSpan
+        }
 
         val (startRow, startColumn) = coordinatesToStartPosition(
             x = x,
@@ -36,8 +54,8 @@ class AddGridItemUseCase @Inject constructor(
             page = page,
             startRow = startRow,
             startColumn = startColumn,
-            rowSpan = rowSpan,
-            columnSpan = columnSpan,
+            rowSpan = newRowSpan,
+            columnSpan = newColumnSpan,
         )
 
         val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()

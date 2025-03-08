@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -46,7 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -70,6 +71,7 @@ import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlin.math.roundToInt
 
 @Composable
@@ -99,7 +101,8 @@ fun HomeRoute(
         addGridItemId = addGridItemId,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
-        onAddGridItem = viewModel::addGridItem,
+        onAddApplicationInfoGridItem = viewModel::addApplicationInfoGridItem,
+        onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onResetGridItemByCoordinates = viewModel::resetGridItemByCoordinates,
         onResetOverlay = viewModel::resetOverlay,
@@ -133,12 +136,23 @@ fun HomeScreen(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
-    onAddGridItem: (
+    onAddApplicationInfoGridItem: (
         page: Int,
         x: Int,
         y: Int,
         rowSpan: Int,
         columnSpan: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) -> Unit,
+    onAddAppWidgetProviderInfoGridItem: (
+        page: Int,
+        x: Int,
+        y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        minWidth: Int,
+        minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -176,7 +190,8 @@ fun HomeScreen(
                         addGridItemId = addGridItemId,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
-                        onAddGridItem = onAddGridItem,
+                        onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
+                        onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
                         onResetGridItemByCoordinates = onResetGridItemByCoordinates,
                         onResetOverlay = onResetOverlay,
@@ -216,12 +231,23 @@ fun Success(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
-    onAddGridItem: (
+    onAddApplicationInfoGridItem: (
         page: Int,
         x: Int,
         y: Int,
         rowSpan: Int,
         columnSpan: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) -> Unit,
+    onAddAppWidgetProviderInfoGridItem: (
+        page: Int,
+        x: Int,
+        y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        minWidth: Int,
+        minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -279,7 +305,11 @@ fun Success(
     }
 
     LaunchedEffect(key1 = addGridItemId) {
-        snapshotFlow { dragOffset }.onEach { offset ->
+        snapshotFlow { dragOffset }.onStart {
+            if (addGridItemId > -1) {
+                homeType = HomeType.Pager
+            }
+        }.onEach { offset ->
             if (addGridItemId > -1) {
                 onMoveGridItem(
                     pagerState.currentPage,
@@ -430,12 +460,10 @@ fun Success(
                                             if (!longPressChange.isConsumed) {
                                                 dragOffset = eblanApplicationInfoOffset
 
-                                                overlayWidth =
-                                                    eblanApplicationInfoIntSize.width
-                                                overlayHeight =
-                                                    eblanApplicationInfoIntSize.height
+                                                overlayWidth = eblanApplicationInfoIntSize.width
+                                                overlayHeight = eblanApplicationInfoIntSize.height
 
-                                                onAddGridItem(
+                                                onAddApplicationInfoGridItem(
                                                     pagerState.currentPage,
                                                     eblanApplicationInfoOffset.x.roundToInt(),
                                                     eblanApplicationInfoOffset.y.roundToInt(),
@@ -444,8 +472,6 @@ fun Success(
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
-
-                                                homeType = HomeType.Pager
 
                                                 showOverlay = true
                                                 showMenu = true
@@ -458,7 +484,7 @@ fun Success(
                                 }
                                 .onGloballyPositioned { layoutCoordinates ->
                                     eblanApplicationInfoOffset =
-                                        layoutCoordinates.positionInParent()
+                                        layoutCoordinates.positionOnScreen()
                                 },
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
@@ -482,9 +508,6 @@ fun Success(
                 ) {
                     items(appWidgetProviderInfos) { (eblanApplicationInfo, appWidgetProviderInfos) ->
                         Column(
-                            modifier = Modifier.pointerInput(Unit) {
-
-                            },
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             AsyncImage(
@@ -498,7 +521,70 @@ fun Success(
                             )
 
                             appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
+                                var appWidgetProviderInfoIntSize = IntSize.Zero
+
+                                var appWidgetProviderInfoOffset = Offset.Zero
+
                                 AsyncImage(
+                                    modifier = Modifier
+                                        .pointerInput(key1 = appWidgetProviderInfo) {
+                                            awaitPointerEventScope {
+                                                while (true) {
+                                                    val down =
+                                                        awaitFirstDown(requireUnconsumed = false)
+
+                                                    val longPressChange =
+                                                        awaitLongPressOrCancellation(down.id)
+                                                            ?: continue
+
+                                                    if (!longPressChange.isConsumed) {
+                                                        dragOffset = appWidgetProviderInfoOffset
+
+                                                        overlayWidth =
+                                                            appWidgetProviderInfoIntSize.width
+                                                        overlayHeight =
+                                                            appWidgetProviderInfoIntSize.height
+
+                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                            onAddAppWidgetProviderInfoGridItem(
+                                                                pagerState.currentPage,
+                                                                appWidgetProviderInfoOffset.x.roundToInt(),
+                                                                appWidgetProviderInfoOffset.y.roundToInt(),
+                                                                appWidgetProviderInfo.targetCellWidth,
+                                                                appWidgetProviderInfo.targetCellHeight,
+                                                                appWidgetProviderInfo.minWidth,
+                                                                appWidgetProviderInfo.minHeight,
+                                                                screenSize.width,
+                                                                screenSize.height,
+                                                            )
+                                                        } else {
+                                                            onAddAppWidgetProviderInfoGridItem(
+                                                                pagerState.currentPage,
+                                                                appWidgetProviderInfoOffset.x.roundToInt(),
+                                                                appWidgetProviderInfoOffset.y.roundToInt(),
+                                                                0,
+                                                                0,
+                                                                appWidgetProviderInfo.minWidth,
+                                                                appWidgetProviderInfo.minHeight,
+                                                                screenSize.width,
+                                                                screenSize.height,
+                                                            )
+                                                        }
+
+                                                        showOverlay = true
+                                                        showMenu = true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .onSizeChanged { intSize ->
+                                            appWidgetProviderInfoIntSize = intSize
+                                        }
+                                        .onGloballyPositioned { layoutCoordinates ->
+                                            appWidgetProviderInfoOffset =
+                                                layoutCoordinates.positionOnScreen()
+                                        },
+
                                     model = appWidgetProviderInfo.loadPreviewImage(context, 0),
                                     contentDescription = null,
                                 )
@@ -538,7 +624,7 @@ fun Success(
             }
         }
 
-        if (gridItemByCoordinates != null && gridItemByCoordinates.not()) {
+        if (gridItemByCoordinates != null && gridItemByCoordinates.not() && homeType == HomeType.Pager) {
             ModalBottomSheet(
                 onDismissRequest = onResetGridItemByCoordinates,
                 sheetState = sheetState,

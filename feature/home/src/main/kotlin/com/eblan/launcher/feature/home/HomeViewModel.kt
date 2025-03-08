@@ -7,7 +7,8 @@ import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.AddGridItemUseCase
+import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
+import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
@@ -32,10 +33,11 @@ class HomeViewModel @Inject constructor(
     gridRepository: GridRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val addGridItemUseCase: AddGridItemUseCase,
+    private val addApplicationInfoUseCase: AddApplicationInfoUseCase,
     private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
+    private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
 ) : ViewModel() {
     val homeUiState =
         combine(gridRepository.gridItems, userDataRepository.userData) { gridItems, userData ->
@@ -130,7 +132,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addGridItem(
+    fun addApplicationInfoGridItem(
         page: Int,
         x: Int,
         y: Int,
@@ -141,12 +143,40 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _addGridItemId.update {
-                addGridItemUseCase(
+                addApplicationInfoUseCase(
                     page = page,
                     x = x,
                     y = y,
                     rowSpan = rowSpan,
                     columnSpan = columnSpan,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
+        }
+    }
+
+    fun addAppWidgetProviderInfoGridItem(
+        page: Int,
+        x: Int,
+        y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        minWidth: Int,
+        minHeight: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _addGridItemId.update {
+                addAppWidgetProviderInfoUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    rowSpan = rowSpan,
+                    columnSpan = columnSpan,
+                    minWidth = minWidth,
+                    minHeight = minHeight,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )

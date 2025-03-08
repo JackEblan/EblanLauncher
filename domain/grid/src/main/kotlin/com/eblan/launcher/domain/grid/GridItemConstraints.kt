@@ -1,44 +1,7 @@
 package com.eblan.launcher.domain.grid
 
-import com.eblan.launcher.domain.model.BoundingBox
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
-
-/**
- * Calculates the bounding box for a grid item in pixel dimensions based on its spans.
- *
- * Computes the width and height of the grid item based on the grid cell dimensions derived from the
- * provided screen size and grid configuration. The grid item's width is calculated as:
- *   width = gridItem.columnSpan * cellWidth
- * and the height as:
- *   height = gridItem.rowSpan * cellHeight
- *
- * Here, the dimensions of a single grid cell are computed as:
- *   cellWidth = screenWidth / totalColumns
- *   cellHeight = screenHeight / totalRows
- *
- * @param gridItem The [GridItem] whose bounding box is to be calculated.
- * @param rows The number of rows in the grid.
- * @param columns The number of columns in the grid.
- * @param screenWidth The total width of the screen (or container) in pixels.
- * @param screenHeight The total height of the screen (or container) in pixels.
- * @return A [BoundingBox] object containing the computed width and height.
- */
-fun calculateBoundingBox(
-    gridItem: GridItem,
-    rows: Int,
-    columns: Int,
-    screenWidth: Int,
-    screenHeight: Int,
-): BoundingBox {
-    val cellWidth = screenWidth / columns
-    val cellHeight = screenHeight / rows
-
-    val width = gridItem.columnSpan * cellWidth
-    val height = gridItem.rowSpan * cellHeight
-
-    return BoundingBox(width = width, height = height)
-}
 
 /**
  * Validates that grid item span within the acceptable grid bounds.

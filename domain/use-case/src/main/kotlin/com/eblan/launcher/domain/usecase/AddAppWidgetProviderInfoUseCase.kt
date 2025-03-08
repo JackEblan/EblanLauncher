@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -57,6 +58,15 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             rowSpan = newRowSpan,
             columnSpan = newColumnSpan,
         )
+
+        if (isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                rows = userData.rows,
+                columns = userData.columns,
+            ).not()
+        ) {
+            return -1
+        }
 
         val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
 

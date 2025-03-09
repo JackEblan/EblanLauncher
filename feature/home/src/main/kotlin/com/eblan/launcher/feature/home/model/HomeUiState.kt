@@ -1,6 +1,7 @@
-package com.eblan.launcher.feature.home
+package com.eblan.launcher.feature.home.model
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemOverlay
 import com.eblan.launcher.domain.model.UserData
 
 sealed interface HomeUiState {
@@ -10,4 +11,11 @@ sealed interface HomeUiState {
         val gridItems: Map<Int, List<GridItem>>,
         val userData: UserData,
     ) : HomeUiState
+}
+
+sealed interface GridItemOverlayUiState {
+    data class Success(
+        val gridItemOverlay: GridItemOverlay?,
+    ) : GridItemOverlayUiState
+
 }

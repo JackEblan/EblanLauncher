@@ -4,15 +4,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItemBoundary
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.AddGridItemUseCase
+import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
+import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
+import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.feature.home.model.HomeUiState
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,7 +33,11 @@ class HomeViewModel @Inject constructor(
     gridRepository: GridRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val addGridItemUseCase: AddGridItemUseCase,
+    private val addApplicationInfoUseCase: AddApplicationInfoUseCase,
+    private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
+    eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
+    private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
 ) : ViewModel() {
     val homeUiState =
         combine(gridRepository.gridItems, userDataRepository.userData) { gridItems, userData ->
@@ -32,7 +45,7 @@ class HomeViewModel @Inject constructor(
                 gridItems = gridItems.groupBy { gridItem -> gridItem.page },
                 userData = userData,
             )
-        }.stateIn(
+        }.flowOn(Dispatchers.Default).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = HomeUiState.Loading,
@@ -46,11 +59,41 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
+    private var _gridItemByCoordinates = MutableStateFlow<Boolean?>(null)
+
+    val gridItemByCoordinates = _gridItemByCoordinates.asStateFlow()
+
+    val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
+    )
+
+    val appWidgetProviderInfos =
+        eblanApplicationInfoRepository.eblanApplicationInfos.map { applicationInfos ->
+            applicationInfos.map { eblanApplicationInfo ->
+                eblanApplicationInfo to appWidgetManagerWrapper.getInstalledProviderByPackageName(
+                    packageName = eblanApplicationInfo.packageName,
+                )
+            }.filter { (_, appWidgetProviderInfos) ->
+                appWidgetProviderInfos.isNotEmpty()
+            }
+        }.flowOn(Dispatchers.Default).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
+
+    private var _addGridItemId = MutableStateFlow(-2)
+
+    val addGridItemId = _addGridItemId.asStateFlow()
+
     fun moveGridItem(
         page: Int,
         id: Int,
         x: Int,
         y: Int,
+        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) {
@@ -61,6 +104,7 @@ class HomeViewModel @Inject constructor(
                     id = id,
                     x = x,
                     y = y,
+                    width = width,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )
@@ -73,8 +117,8 @@ class HomeViewModel @Inject constructor(
         id: Int,
         width: Int,
         height: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        cellWidth: Int,
+        cellHeight: Int,
         anchor: Anchor,
     ) {
         viewModelScope.launch {
@@ -83,14 +127,66 @@ class HomeViewModel @Inject constructor(
                 id = id,
                 width = width,
                 height = height,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
                 anchor = anchor,
             )
         }
     }
 
-    fun addGridItem(
+    fun addApplicationInfoGridItem(
+        page: Int,
+        x: Int,
+        y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _addGridItemId.update {
+                addApplicationInfoUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    rowSpan = rowSpan,
+                    columnSpan = columnSpan,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
+        }
+    }
+
+    fun addAppWidgetProviderInfoGridItem(
+        page: Int,
+        x: Int,
+        y: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        minWidth: Int,
+        minHeight: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _addGridItemId.update {
+                addAppWidgetProviderInfoUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    rowSpan = rowSpan,
+                    columnSpan = columnSpan,
+                    minWidth = minWidth,
+                    minHeight = minHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
+        }
+    }
+
+    fun getGridItemByCoordinates(
         page: Int,
         x: Int,
         y: Int,
@@ -98,13 +194,29 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            addGridItemUseCase(
-                page = page,
-                x = x,
-                y = y,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-            )
+            _gridItemByCoordinates.update {
+                getGridItemByCoordinatesUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                ) != null
+            }
+        }
+    }
+
+    fun resetGridItemByCoordinates() {
+        _gridItemByCoordinates.update {
+            null
+        }
+    }
+
+    fun resetOverlay() {
+        viewModelScope.launch {
+            _addGridItemId.update {
+                -2
+            }
         }
     }
 }

@@ -3,6 +3,9 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
       <module name="EblanLauncher.domain.framework" target="21" />
+      <module name="EblanLauncher.domain.geometry" target="21" />
+      <module name="EblanLauncher.feature.applications" target="21" />
+      <module name="EblanLauncher.feature.widgets" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.grid.getGridItemBoundaryCenter
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.GridRepository
@@ -12,7 +14,6 @@ import javax.inject.Inject
 class MoveGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val gridItemBoundaryUseCase: GridItemBoundaryUseCase,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
@@ -20,6 +21,7 @@ class MoveGridItemUseCase @Inject constructor(
         id: Int,
         x: Int,
         y: Int,
+        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): GridItemBoundary? {
@@ -28,30 +30,38 @@ class MoveGridItemUseCase @Inject constructor(
 
             val gridItems = gridRepository.gridItems.first()
 
-            val movingGridItem = gridItems.find { gridItem ->
-                gridItem.id == id
-            }?.let { gridItem ->
-                moveGridItemWithCoordinates(
-                    gridItem = gridItem,
-                    x = x,
-                    y = y,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                ).copy(page = page)
-            }
-
-            if (movingGridItem != null && movingGridItem !in gridItems) {
-                aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
-            }
-
-            gridItemBoundaryUseCase(
-                id = id,
+            val gridItemBoundary = getGridItemBoundaryCenter(
                 x = x,
+                width = width,
                 screenWidth = screenWidth,
-                screenHeight = screenHeight,
             )
+
+            if (gridItemBoundary == null) {
+                val movingGridItem = gridItems.find { gridItem ->
+                    gridItem.id == id
+                }?.let { gridItem ->
+                    moveGridItemWithCoordinates(
+                        gridItem = gridItem,
+                        x = x,
+                        y = y,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                    ).copy(page = page)
+                }
+
+                if (movingGridItem != null && movingGridItem !in gridItems && isGridItemSpanWithinBounds(
+                        gridItem = movingGridItem,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                    )
+                ) {
+                    aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
+                }
+            }
+
+            gridItemBoundary
         }
     }
 }

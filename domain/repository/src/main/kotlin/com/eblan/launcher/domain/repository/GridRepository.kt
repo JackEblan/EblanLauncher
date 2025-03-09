@@ -9,7 +9,7 @@ interface GridRepository {
 
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 
-    suspend fun upsertGridItem(gridItem: GridItem)
+    suspend fun upsertGridItem(gridItem: GridItem): Long
 
     suspend fun updateGridItemData(id: Int, data: GridItemData): Int
 

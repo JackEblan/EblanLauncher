@@ -3,7 +3,6 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -11,7 +10,6 @@ import javax.inject.Inject
 
 class ResizeGridItemUseCase @Inject constructor(
     private val gridRepository: GridRepository,
-    private val userDataRepository: UserDataRepository,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
@@ -19,13 +17,11 @@ class ResizeGridItemUseCase @Inject constructor(
         id: Int,
         width: Int,
         height: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        cellWidth: Int,
+        cellHeight: Int,
         anchor: Anchor,
     ) {
         withContext(Dispatchers.Default) {
-            val userData = userDataRepository.userData.first()
-
             val gridItems = gridRepository.gridItems.first()
 
             val movingGridItem = gridItems.find { gridItem ->
@@ -35,8 +31,8 @@ class ResizeGridItemUseCase @Inject constructor(
                     gridItem = gridItem,
                     width = width,
                     height = height,
-                    gridCellWidth = screenWidth / userData.rows,
-                    gridCellHeight = screenHeight / userData.columns,
+                    gridCellWidth = cellWidth,
+                    gridCellHeight = cellHeight,
                     anchor = anchor,
                 ).copy(page = page)
             }

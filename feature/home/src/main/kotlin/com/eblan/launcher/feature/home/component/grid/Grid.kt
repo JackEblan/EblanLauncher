@@ -25,10 +25,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import com.eblan.launcher.domain.geometry.calculateResizableBoundingBox
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.BoundingBox
-import com.eblan.launcher.domain.model.Coordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import kotlin.math.roundToInt
@@ -127,24 +124,15 @@ fun GridSubcomposeLayout(
                     }.forEach { measurable ->
                         val gridItemParentData = measurable.parentData as GridItemParentData
 
-                        val resizableBoundingBox = calculateResizableBoundingBox(
-                            coordinates = Coordinates(
-                                x = gridItemParentData.x, y = gridItemParentData.y,
-                            ),
-                            boundingBox = BoundingBox(
-                                width = gridItemParentData.width,
-                                height = gridItemParentData.height,
-                            ),
-                        )
-
                         measurable.measure(
                             Constraints(
-                                minWidth = resizableBoundingBox.width,
-                                minHeight = resizableBoundingBox.height,
+                                minWidth = gridItemParentData.width,
+                                minHeight = gridItemParentData.height,
                             ),
                         ).placeRelative(
-                            x = resizableBoundingBox.x,
-                            y = resizableBoundingBox.y,
+                            x = gridItemParentData.x,
+                            y = gridItemParentData.y,
+                            zIndex = 1f,
                         )
                     }
                 }

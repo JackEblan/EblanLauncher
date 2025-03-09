@@ -18,5 +18,4 @@ sealed interface GridItemOverlayUiState {
         val gridItemOverlay: GridItemOverlay?,
     ) : GridItemOverlayUiState
 
-    data object Idle : GridItemOverlayUiState
 }

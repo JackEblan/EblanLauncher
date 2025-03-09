@@ -21,6 +21,7 @@ class MoveGridItemUseCase @Inject constructor(
         id: Int,
         x: Int,
         y: Int,
+        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): GridItemBoundary? {
@@ -29,40 +30,38 @@ class MoveGridItemUseCase @Inject constructor(
 
             val gridItems = gridRepository.gridItems.first()
 
-            val cellWidth = screenWidth / userData.columns
+            val gridItemBoundary = getGridItemBoundaryCenter(
+                x = x,
+                width = width,
+                screenWidth = screenWidth,
+            )
 
-            val movingGridItem = gridItems.find { gridItem ->
-                gridItem.id == id
-            }?.let { gridItem ->
-                moveGridItemWithCoordinates(
-                    gridItem = gridItem,
-                    x = x,
-                    y = y,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                ).copy(page = page)
+            if (gridItemBoundary == null) {
+                val movingGridItem = gridItems.find { gridItem ->
+                    gridItem.id == id
+                }?.let { gridItem ->
+                    moveGridItemWithCoordinates(
+                        gridItem = gridItem,
+                        x = x,
+                        y = y,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                    ).copy(page = page)
+                }
+
+                if (movingGridItem != null && movingGridItem !in gridItems && isGridItemSpanWithinBounds(
+                        gridItem = movingGridItem,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                    )
+                ) {
+                    aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
+                }
             }
 
-            if (movingGridItem != null && movingGridItem !in gridItems && isGridItemSpanWithinBounds(
-                    gridItem = movingGridItem,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                )
-            ) {
-                val width = movingGridItem.columnSpan * cellWidth
-
-                aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
-
-                getGridItemBoundaryCenter(
-                    x = x,
-                    width = width,
-                    screenWidth = screenWidth,
-                )
-            } else {
-                null
-            }
+            gridItemBoundary
         }
     }
 }

@@ -93,6 +93,7 @@ class HomeViewModel @Inject constructor(
         id: Int,
         x: Int,
         y: Int,
+        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) {
@@ -103,6 +104,7 @@ class HomeViewModel @Inject constructor(
                     id = id,
                     x = x,
                     y = y,
+                    width = width,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )

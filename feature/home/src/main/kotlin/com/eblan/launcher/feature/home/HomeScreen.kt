@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -124,6 +125,7 @@ fun HomeScreen(
         id: Int,
         x: Int,
         y: Int,
+        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -219,6 +221,7 @@ fun Success(
         id: Int,
         x: Int,
         y: Int,
+        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -308,6 +311,8 @@ fun Success(
         snapshotFlow { dragOffset }.onStart {
             if (addGridItemId > -1) {
                 homeType = HomeType.Pager
+                showOverlay = true
+                showMenu = true
             }
         }.onEach { offset ->
             if (addGridItemId > -1) {
@@ -316,6 +321,7 @@ fun Success(
                     addGridItemId,
                     offset.x.roundToInt(),
                     offset.y.roundToInt(),
+                    overlayWidth,
                     screenSize.width,
                     screenSize.height,
                 )
@@ -327,15 +333,6 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
-                    onDragStart = { offset ->
-                        onGetGridItemByCoordinates(
-                            pagerState.currentPage,
-                            offset.x.roundToInt(),
-                            offset.y.roundToInt(),
-                            size.width,
-                            size.height,
-                        )
-                    },
                     onDragEnd = {
                         showOverlay = false
                         showResize = false
@@ -367,6 +364,7 @@ fun Success(
                                 id,
                                 offset.x.roundToInt(),
                                 offset.y.roundToInt(),
+                                overlayWidth,
                                 screenSize.width,
                                 screenSize.height,
                             )
@@ -376,7 +374,28 @@ fun Success(
 
                 HorizontalPager(state = pagerState) { page ->
                     GridSubcomposeLayout(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val down = awaitFirstDown(requireUnconsumed = false)
+
+                                        val longPressChange =
+                                            awaitLongPressOrCancellation(down.id) ?: continue
+
+                                        if (!longPressChange.isConsumed) {
+                                            onGetGridItemByCoordinates(
+                                                pagerState.currentPage,
+                                                longPressChange.position.x.roundToInt(),
+                                                longPressChange.position.y.roundToInt(),
+                                                size.width,
+                                                size.height,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            .fillMaxSize(),
                         page = page,
                         rows = userData.rows,
                         columns = userData.columns,
@@ -472,9 +491,6 @@ fun Success(
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
-
-                                                showOverlay = true
-                                                showMenu = true
                                             }
                                         }
                                     }
@@ -525,6 +541,13 @@ fun Success(
 
                                 var appWidgetProviderInfoOffset = Offset.Zero
 
+                                val previewDpSize = with(density) {
+                                    DpSize(
+                                        width = appWidgetProviderInfo.minWidth.toDp(),
+                                        height = appWidgetProviderInfo.minHeight.toDp(),
+                                    )
+                                }
+
                                 AsyncImage(
                                     modifier = Modifier
                                         .pointerInput(key1 = appWidgetProviderInfo) {
@@ -570,13 +593,11 @@ fun Success(
                                                                 screenSize.height,
                                                             )
                                                         }
-
-                                                        showOverlay = true
-                                                        showMenu = true
                                                     }
                                                 }
                                             }
                                         }
+                                        .size(previewDpSize)
                                         .onSizeChanged { intSize ->
                                             appWidgetProviderInfoIntSize = intSize
                                         }
@@ -624,7 +645,7 @@ fun Success(
             }
         }
 
-        if (gridItemByCoordinates != null && gridItemByCoordinates.not() && homeType == HomeType.Pager) {
+        if (gridItemByCoordinates != null && gridItemByCoordinates.not()) {
             ModalBottomSheet(
                 onDismissRequest = onResetGridItemByCoordinates,
                 sheetState = sheetState,
@@ -635,6 +656,8 @@ fun Success(
                             .size(100.dp)
                             .clickable {
                                 homeType = HomeType.Applications
+
+                                onResetGridItemByCoordinates()
                             },
                     ) {
                         Icon(imageVector = Icons.Default.Android, contentDescription = null)
@@ -647,6 +670,8 @@ fun Success(
                             .size(100.dp)
                             .clickable {
                                 homeType = HomeType.Widgets
+
+                                onResetGridItemByCoordinates()
                             },
                     ) {
                         Icon(imageVector = Icons.Default.Widgets, contentDescription = null)

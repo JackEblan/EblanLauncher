@@ -243,8 +243,8 @@ private fun GridItemResize(
     Box(
         modifier = modifier
             .gridItem(
-                width = width,
-                height = height,
+                width = width.coerceAtLeast(cellWidth),
+                height = height.coerceAtLeast(cellHeight),
                 x = x,
                 y = y,
             )

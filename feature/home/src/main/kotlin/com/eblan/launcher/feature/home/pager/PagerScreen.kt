@@ -74,19 +74,17 @@ fun PagerScreen(
     var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(key1 = dragOffset) {
-        snapshotFlow { dragOffset }.onEach { offset ->
-            gridItemOverlayId?.let { id ->
-                onMoveGridItem(
-                    pagerState.currentPage,
-                    id,
-                    offset.x.roundToInt(),
-                    offset.y.roundToInt(),
-                    overlaySize.width,
-                    screenSize.width,
-                    screenSize.height,
-                )
-            }
-        }.collect()
+        gridItemOverlayId?.let { id ->
+            onMoveGridItem(
+                pagerState.currentPage,
+                id,
+                dragOffset.x.roundToInt(),
+                dragOffset.y.roundToInt(),
+                overlaySize.width,
+                screenSize.width,
+                screenSize.height,
+            )
+        }
     }
 
     HorizontalPager(state = pagerState) { page ->

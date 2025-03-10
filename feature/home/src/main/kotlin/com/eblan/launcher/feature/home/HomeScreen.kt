@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
@@ -35,7 +34,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,10 +64,9 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.menu.MenuOverlay
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
+import com.eblan.launcher.feature.home.pager.PagerScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -285,9 +282,7 @@ fun Success(
 
     var showResize by remember { mutableStateOf(false) }
 
-    var overlayWidth by remember { mutableIntStateOf(-1) }
-
-    var overlayHeight by remember { mutableIntStateOf(-1) }
+    var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
     var homeType by remember { mutableStateOf(HomeType.Pager) }
 
@@ -321,7 +316,7 @@ fun Success(
                     addGridItemId,
                     offset.x.roundToInt(),
                     offset.y.roundToInt(),
-                    overlayWidth,
+                    overlaySize.width,
                     screenSize.width,
                     screenSize.height,
                 )
@@ -354,106 +349,43 @@ fun Success(
     ) {
         when (homeType) {
             HomeType.Pager -> {
-                var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
+                PagerScreen(
+                    pagerState = pagerState,
+                    overlaySize = overlaySize,
+                    screenSize = screenSize,
+                    dragOffset = dragOffset,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    gridItems = gridItems,
+                    showOverlay = showOverlay,
+                    showMenu = showMenu,
+                    showResize = showResize,
+                    onResizeGridItem = onResizeGridItem,
+                    onDismissRequest = {
+                        showMenu = false
+                    },
+                    onResizeEnd = {
+                        showResize = false
+                    },
+                    onMoveGridItem = onMoveGridItem,
+                    onMoveEnd = {
+                        dragOffset = Offset.Zero
+                    },
+                    onGetGridItemByCoordinates = onGetGridItemByCoordinates,
+                    onLongPressGridItem = { offset, size ->
+                        dragOffset = offset
+                        overlaySize = size
+                        showOverlay = true
+                        showMenu = true
+                    },
+                    onEdit = {
 
-                LaunchedEffect(key1 = true) {
-                    snapshotFlow { dragOffset }.onEach { offset ->
-                        gridItemOverlayId?.let { id ->
-                            onMoveGridItem(
-                                pagerState.currentPage,
-                                id,
-                                offset.x.roundToInt(),
-                                offset.y.roundToInt(),
-                                overlayWidth,
-                                screenSize.width,
-                                screenSize.height,
-                            )
-                        }
-                    }.collect()
-                }
-
-                HorizontalPager(state = pagerState) { page ->
-                    GridSubcomposeLayout(
-                        modifier = Modifier
-                            .pointerInput(Unit) {
-                                awaitPointerEventScope {
-                                    while (true) {
-                                        val down = awaitFirstDown(requireUnconsumed = false)
-
-                                        val longPressChange =
-                                            awaitLongPressOrCancellation(down.id) ?: continue
-
-                                        if (!longPressChange.isConsumed) {
-                                            onGetGridItemByCoordinates(
-                                                pagerState.currentPage,
-                                                longPressChange.position.x.roundToInt(),
-                                                longPressChange.position.y.roundToInt(),
-                                                size.width,
-                                                size.height,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            .fillMaxSize(),
-                        page = page,
-                        rows = userData.rows,
-                        columns = userData.columns,
-                        id = gridItemOverlayId,
-                        gridItems = gridItems,
-                        onResizeGridItem = onResizeGridItem,
-                        showMenu = showMenu,
-                        showResize = showResize,
-                        onDismissRequest = {
-                            showMenu = false
-                        },
-                        onResizeEnd = {
-                            showResize = false
-                        },
-                        gridItemContent = { gridItem, width, height, x, y ->
-                            EmptyGridItem(
-                                modifier = Modifier.pointerInput(key1 = showOverlay) {
-                                    awaitPointerEventScope {
-                                        while (true) {
-                                            val down = awaitFirstDown(requireUnconsumed = false)
-
-                                            val longPressChange =
-                                                awaitLongPressOrCancellation(down.id) ?: continue
-
-                                            if (!longPressChange.isConsumed) {
-                                                gridItemOverlayId = null
-                                                dragOffset = Offset.Zero
-
-                                                dragOffset = dragOffset.copy(
-                                                    x = x.toFloat(),
-                                                    y = y.toFloat(),
-                                                )
-
-                                                gridItemOverlayId = gridItem.id
-                                                overlayWidth = width
-                                                overlayHeight = height
-
-                                                showOverlay = true
-                                                showMenu = true
-                                            }
-                                        }
-                                    }
-                                },
-                            )
-                        },
-                        menuContent = {
-                            MenuOverlay(
-                                onEdit = {
-
-                                },
-                                onResize = {
-                                    showOverlay = false
-                                    showResize = true
-                                },
-                            )
-                        },
-                    )
-                }
+                    },
+                    onResize = {
+                        showOverlay = false
+                        showResize = true
+                    },
+                )
             }
 
             HomeType.Applications -> {
@@ -462,7 +394,7 @@ fun Success(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
-                        var eblanApplicationInfoIntSize = IntSize.Zero
+                        var eblanApplicationInfoSize = IntSize.Zero
 
                         var eblanApplicationInfoOffset = Offset.Zero
 
@@ -479,8 +411,7 @@ fun Success(
                                             if (!longPressChange.isConsumed) {
                                                 dragOffset = eblanApplicationInfoOffset
 
-                                                overlayWidth = eblanApplicationInfoIntSize.width
-                                                overlayHeight = eblanApplicationInfoIntSize.height
+                                                overlaySize = eblanApplicationInfoSize
 
                                                 onAddApplicationInfoGridItem(
                                                     pagerState.currentPage,
@@ -496,7 +427,7 @@ fun Success(
                                     }
                                 }
                                 .onSizeChanged { intSize ->
-                                    eblanApplicationInfoIntSize = intSize
+                                    eblanApplicationInfoSize = intSize
                                 }
                                 .onGloballyPositioned { layoutCoordinates ->
                                     eblanApplicationInfoOffset =
@@ -537,7 +468,7 @@ fun Success(
                             )
 
                             appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
-                                var appWidgetProviderInfoIntSize = IntSize.Zero
+                                var appWidgetProviderInfoSize = IntSize.Zero
 
                                 var appWidgetProviderInfoOffset = Offset.Zero
 
@@ -563,10 +494,7 @@ fun Success(
                                                     if (!longPressChange.isConsumed) {
                                                         dragOffset = appWidgetProviderInfoOffset
 
-                                                        overlayWidth =
-                                                            appWidgetProviderInfoIntSize.width
-                                                        overlayHeight =
-                                                            appWidgetProviderInfoIntSize.height
+                                                        overlaySize = appWidgetProviderInfoSize
 
                                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                                             onAddAppWidgetProviderInfoGridItem(
@@ -599,7 +527,7 @@ fun Success(
                                         }
                                         .size(previewDpSize)
                                         .onSizeChanged { intSize ->
-                                            appWidgetProviderInfoIntSize = intSize
+                                            appWidgetProviderInfoSize = intSize
                                         }
                                         .onGloballyPositioned { layoutCoordinates ->
                                             appWidgetProviderInfoOffset =
@@ -619,11 +547,11 @@ fun Success(
 
         if (showOverlay) {
             val boundingBoxWidthDp = with(density) {
-                overlayWidth.toDp()
+                overlaySize.width.toDp()
             }
 
             val boundingBoxHeightDp = with(density) {
-                overlayHeight.toDp()
+                overlaySize.height.toDp()
             }
 
             val widthDp by remember { mutableStateOf(boundingBoxWidthDp) }

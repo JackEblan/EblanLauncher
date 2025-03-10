@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.component.menu
+package com.eblan.launcher.feature.home.pager.component.menu
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect

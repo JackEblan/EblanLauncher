@@ -1,11 +1,14 @@
 package com.eblan.launcher.feature.home.pager
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,13 +18,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.viewinterop.AndroidView
+import coil.compose.AsyncImage
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.EmptyGridItem
-import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.menu.MenuOverlay
+import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.feature.home.pager.component.grid.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.pager.component.menu.MenuOverlay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
@@ -153,4 +161,52 @@ fun PagerScreen(
             },
         )
     }
+}
+
+@Composable
+fun ApplicationInfoGridItem(
+    modifier: Modifier = Modifier,
+    gridItemData: GridItemData.ApplicationInfo,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Blue),
+    ) {
+        AsyncImage(model = gridItemData.icon, contentDescription = null)
+
+        Text(text = gridItemData.label)
+    }
+}
+
+@Composable
+fun EmptyGridItem(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Red),
+    ) {
+        Text(text = "Empty")
+    }
+}
+
+@Composable
+private fun WidgetGridItem(
+    modifier: Modifier = Modifier,
+    appWidgetId: Int,
+) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    AndroidView(
+        modifier = modifier.fillMaxSize(),
+        factory = {
+            val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
+
+            appWidgetHost.createView(appWidgetId, appWidgetInfo)
+        },
+    )
 }

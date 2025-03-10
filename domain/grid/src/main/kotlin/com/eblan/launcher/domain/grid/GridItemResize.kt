@@ -52,8 +52,7 @@ fun resizeGridItemWithPixels(
  * @param height The height in pixels to be converted.
  * @param gridCellWidth The width of a single grid cell in pixels.
  * @param gridCellHeight The height of a single grid cell in pixels.
- * @return A [Pair] where the first component is the number of cells that fit horizontally,
- *         and the second is the number of cells that fit vertically.
+ * @return A [Pair] where the first component is the number of cells that fit horizontally, and the second is the number of cells that fit vertically.
  */
 private fun pixelDimensionsToGridSpan(
     width: Int,
@@ -61,8 +60,9 @@ private fun pixelDimensionsToGridSpan(
     gridCellWidth: Int,
     gridCellHeight: Int,
 ): Pair<Int, Int> {
-    val spanWidth = (width / gridCellWidth).coerceAtLeast(1)
-    val spanHeight = (height / gridCellHeight).coerceAtLeast(1)
+    // Calculate the number of cells by rounding up (ceiling division).
+    val spanWidth = ((width + gridCellWidth - 1) / gridCellWidth).coerceAtLeast(1)
+    val spanHeight = ((height + gridCellHeight - 1) / gridCellHeight).coerceAtLeast(1)
     return spanWidth to spanHeight
 }
 

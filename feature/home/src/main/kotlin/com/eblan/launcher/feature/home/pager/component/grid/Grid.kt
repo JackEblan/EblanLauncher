@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.component.grid
+package com.eblan.launcher.feature.home.pager.component.grid
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
@@ -18,16 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
+import com.eblan.launcher.feature.home.pager.component.menu.MenuPositionProvider
 import kotlin.math.roundToInt
 
 @Composable
@@ -400,25 +398,3 @@ private fun GridItemResize(
         )
     }
 }
-
-data class GridItemParentData(
-    val width: Int,
-    val height: Int,
-    val x: Int,
-    val y: Int,
-)
-
-fun Modifier.gridItem(
-    width: Int,
-    height: Int,
-    x: Int,
-    y: Int,
-): Modifier = then(
-    object : ParentDataModifier {
-        override fun Density.modifyParentData(parentData: Any?): Any {
-            return GridItemParentData(
-                width = width, height = height, x = x, y = y,
-            )
-        }
-    },
-)

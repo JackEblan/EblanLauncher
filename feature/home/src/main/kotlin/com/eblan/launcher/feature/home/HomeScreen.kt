@@ -1,26 +1,17 @@
 package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
@@ -29,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,35 +30,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionOnScreen
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.application.ApplicationScreen
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.pager.PagerScreen
+import com.eblan.launcher.feature.home.widget.WidgetScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -262,10 +246,6 @@ fun Success(
     onResetOverlay: () -> Unit,
     onEdit: (Int) -> Unit,
 ) {
-    val density = LocalDensity.current
-
-    val context = LocalContext.current
-
     val pagerState = rememberPagerState(
         pageCount = {
             userData.pageCount
@@ -388,274 +368,123 @@ fun Success(
                 )
             }
 
-            HomeType.Applications -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    items(eblanApplicationInfos) { eblanApplicationInfo ->
-                        var eblanApplicationInfoSize = IntSize.Zero
-
-                        var eblanApplicationInfoOffset = Offset.Zero
-
-                        Column(
-                            modifier = Modifier
-                                .pointerInput(key1 = eblanApplicationInfo) {
-                                    awaitPointerEventScope {
-                                        while (true) {
-                                            val down = awaitFirstDown(requireUnconsumed = false)
-
-                                            val longPressChange =
-                                                awaitLongPressOrCancellation(down.id) ?: continue
-
-                                            if (!longPressChange.isConsumed) {
-                                                dragOffset = eblanApplicationInfoOffset
-
-                                                overlaySize = eblanApplicationInfoSize
-
-                                                onAddApplicationInfoGridItem(
-                                                    pagerState.currentPage,
-                                                    eblanApplicationInfoOffset.x.roundToInt(),
-                                                    eblanApplicationInfoOffset.y.roundToInt(),
-                                                    1,
-                                                    1,
-                                                    screenSize.width,
-                                                    screenSize.height,
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                .onSizeChanged { intSize ->
-                                    eblanApplicationInfoSize = intSize
-                                }
-                                .onGloballyPositioned { layoutCoordinates ->
-                                    eblanApplicationInfoOffset =
-                                        layoutCoordinates.positionOnScreen()
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp),
-                            )
-
-                            Text(
-                                text = eblanApplicationInfo.label,
-                            )
-                        }
-                    }
-                }
+            HomeType.Application -> {
+                ApplicationScreen(
+                    pagerState = pagerState,
+                    screenSize = screenSize,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    onLongPressApplicationInfo = { offset, size ->
+                        dragOffset = offset
+                        overlaySize = size
+                    },
+                    onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
+                )
             }
 
-            HomeType.Widgets -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    items(appWidgetProviderInfos) { (eblanApplicationInfo, appWidgetProviderInfos) ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp),
-                            )
-
-                            Text(
-                                text = eblanApplicationInfo.label,
-                            )
-
-                            appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
-                                var appWidgetProviderInfoSize = IntSize.Zero
-
-                                var appWidgetProviderInfoOffset = Offset.Zero
-
-                                val previewDpSize = with(density) {
-                                    DpSize(
-                                        width = appWidgetProviderInfo.minWidth.toDp(),
-                                        height = appWidgetProviderInfo.minHeight.toDp(),
-                                    )
-                                }
-
-                                AsyncImage(
-                                    modifier = Modifier
-                                        .pointerInput(key1 = appWidgetProviderInfo) {
-                                            awaitPointerEventScope {
-                                                while (true) {
-                                                    val down =
-                                                        awaitFirstDown(requireUnconsumed = false)
-
-                                                    val longPressChange =
-                                                        awaitLongPressOrCancellation(down.id)
-                                                            ?: continue
-
-                                                    if (!longPressChange.isConsumed) {
-                                                        dragOffset = appWidgetProviderInfoOffset
-
-                                                        overlaySize = appWidgetProviderInfoSize
-
-                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                                            onAddAppWidgetProviderInfoGridItem(
-                                                                pagerState.currentPage,
-                                                                appWidgetProviderInfoOffset.x.roundToInt(),
-                                                                appWidgetProviderInfoOffset.y.roundToInt(),
-                                                                appWidgetProviderInfo.targetCellWidth,
-                                                                appWidgetProviderInfo.targetCellHeight,
-                                                                appWidgetProviderInfo.minWidth,
-                                                                appWidgetProviderInfo.minHeight,
-                                                                screenSize.width,
-                                                                screenSize.height,
-                                                            )
-                                                        } else {
-                                                            onAddAppWidgetProviderInfoGridItem(
-                                                                pagerState.currentPage,
-                                                                appWidgetProviderInfoOffset.x.roundToInt(),
-                                                                appWidgetProviderInfoOffset.y.roundToInt(),
-                                                                0,
-                                                                0,
-                                                                appWidgetProviderInfo.minWidth,
-                                                                appWidgetProviderInfo.minHeight,
-                                                                screenSize.width,
-                                                                screenSize.height,
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .size(previewDpSize)
-                                        .onSizeChanged { intSize ->
-                                            appWidgetProviderInfoSize = intSize
-                                        }
-                                        .onGloballyPositioned { layoutCoordinates ->
-                                            appWidgetProviderInfoOffset =
-                                                layoutCoordinates.positionOnScreen()
-                                        },
-
-                                    model = appWidgetProviderInfo.loadPreviewImage(context, 0),
-                                    contentDescription = null,
-                                )
-                            }
-                        }
-                    }
-                }
+            HomeType.Widget -> {
+                WidgetScreen(
+                    pagerState = pagerState,
+                    screenSize = screenSize,
+                    appWidgetProviderInfos = appWidgetProviderInfos,
+                    onLongPressAppWidgetProviderInfo = { offset, size ->
+                        dragOffset = offset
+                        overlaySize = size
+                    },
+                    onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
+                )
             }
         }
 
 
         if (showOverlay) {
-            val boundingBoxWidthDp = with(density) {
-                overlaySize.width.toDp()
-            }
-
-            val boundingBoxHeightDp = with(density) {
-                overlaySize.height.toDp()
-            }
-
-            val widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
-
-            val heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
-
-            Box(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = dragOffset.x.roundToInt(),
-                            y = dragOffset.y.roundToInt(),
-                        )
-                    }
-                    .size(width = widthDp, height = heightDp)
-                    .background(Color.Green),
-            ) {
-                Text(text = "Drag")
-            }
+            HomeOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
         }
 
         if (gridItemByCoordinates != null && gridItemByCoordinates.not()) {
-            ModalBottomSheet(
-                onDismissRequest = onResetGridItemByCoordinates,
+            HomeBottomSheet(
                 sheetState = sheetState,
+                onResetGridItemByCoordinates = onResetGridItemByCoordinates,
+                onHomeType = { type ->
+                    homeType = type
+                },
+            )
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun HomeBottomSheet(
+    sheetState: SheetState,
+    onResetGridItemByCoordinates: () -> Unit,
+    onHomeType: (HomeType) -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onResetGridItemByCoordinates,
+        sheetState = sheetState,
+    ) {
+        Row {
+            Column(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clickable {
+                        onHomeType(HomeType.Application)
+
+                        onResetGridItemByCoordinates()
+                    },
             ) {
-                Row {
-                    Column(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clickable {
-                                homeType = HomeType.Applications
+                Icon(imageVector = Icons.Default.Android, contentDescription = null)
 
-                                onResetGridItemByCoordinates()
-                            },
-                    ) {
-                        Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                Text(text = "Application")
+            }
 
-                        Text(text = "Application")
-                    }
+            Column(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clickable {
+                        onHomeType(HomeType.Widget)
 
-                    Column(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clickable {
-                                homeType = HomeType.Widgets
+                        onResetGridItemByCoordinates()
+                    },
+            ) {
+                Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
 
-                                onResetGridItemByCoordinates()
-                            },
-                    ) {
-                        Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
-
-                        Text(text = "Widgets")
-                    }
-                }
+                Text(text = "Widgets")
             }
         }
     }
 }
 
 @Composable
-fun ApplicationInfoGridItem(
-    modifier: Modifier = Modifier,
-    gridItemData: GridItemData.ApplicationInfo,
+private fun HomeOverlay(
+    overlaySize: IntSize,
+    dragOffset: Offset,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Blue),
-    ) {
-        AsyncImage(model = gridItemData.icon, contentDescription = null)
+    val density = LocalDensity.current
 
-        Text(text = gridItemData.label)
+    val boundingBoxWidthDp = with(density) {
+        overlaySize.width.toDp()
     }
-}
 
-@Composable
-fun EmptyGridItem(
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Red),
-    ) {
-        Text(text = "Empty")
+    val boundingBoxHeightDp = with(density) {
+        overlaySize.height.toDp()
     }
-}
 
-@Composable
-private fun WidgetGridItem(
-    modifier: Modifier = Modifier,
-    appWidgetId: Int,
-) {
-    val appWidgetHost = LocalAppWidgetHost.current
+    val widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
 
-    val appWidgetManager = LocalAppWidgetManager.current
+    val heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
 
-    AndroidView(
-        modifier = modifier.fillMaxSize(),
-        factory = {
-            val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
-
-            appWidgetHost.createView(appWidgetId, appWidgetInfo)
-        },
-    )
+    Box(
+        modifier = Modifier
+            .offset {
+                IntOffset(
+                    x = dragOffset.x.roundToInt(),
+                    y = dragOffset.y.roundToInt(),
+                )
+            }
+            .size(width = widthDp, height = heightDp)
+            .background(Color.Green),
+    ) {
+        Text(text = "Drag")
+    }
 }

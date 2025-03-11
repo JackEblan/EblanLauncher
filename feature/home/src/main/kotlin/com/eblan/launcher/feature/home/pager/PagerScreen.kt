@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home.pager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -15,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -30,8 +28,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.pager.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.pager.component.menu.MenuOverlay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
 @Composable
@@ -59,7 +55,6 @@ fun PagerScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onMoveEnd: () -> Unit,
     onGetGridItemByCoordinates: (
         page: Int,
         x: Int,
@@ -140,11 +135,6 @@ fun PagerScreen(
                                     )
 
                                     gridItemOverlayId = gridItem.id
-                                }
-
-                                if (waitForUpOrCancellation() == null) {
-                                    gridItemOverlayId = null
-                                    onMoveEnd()
                                 }
                             }
                         }

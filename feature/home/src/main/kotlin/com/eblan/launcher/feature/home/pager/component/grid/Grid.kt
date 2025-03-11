@@ -122,14 +122,40 @@ fun GridSubcomposeLayout(
                     }.forEach { measurable ->
                         val gridItemParentData = measurable.parentData as GridItemParentData
 
+                        val allowMeasurement =
+                            gridItemParentData.width > cellWidth && gridItemParentData.height > cellHeight
+
+                        val gridItemX = if (allowMeasurement) {
+                            gridItemParentData.x
+                        } else {
+                            gridItemOverlay.startColumn * cellWidth
+                        }
+
+                        val gridItemY = if (allowMeasurement) {
+                            gridItemParentData.y
+                        } else {
+                            gridItemOverlay.startRow * cellHeight
+                        }
+
+                        val gridItemWidth = if (allowMeasurement) {
+                            gridItemParentData.width
+                        } else {
+                            gridItemOverlay.columnSpan * cellWidth
+                        }
+
+                        val gridItemHeight = if (allowMeasurement) {
+                            gridItemParentData.height
+                        } else {
+                            gridItemOverlay.rowSpan * cellHeight
+                        }
+
                         measurable.measure(
                             Constraints(
-                                minWidth = gridItemParentData.width,
-                                minHeight = gridItemParentData.height,
-                            ),
+                                minWidth = gridItemWidth, minHeight = gridItemHeight
+                            )
                         ).placeRelative(
-                            x = gridItemParentData.x,
-                            y = gridItemParentData.y,
+                            x = gridItemX,
+                            y = gridItemY,
                             zIndex = 1f,
                         )
                     }
@@ -243,8 +269,8 @@ private fun GridItemResize(
     Box(
         modifier = modifier
             .gridItem(
-                width = width.coerceAtLeast(cellWidth),
-                height = height.coerceAtLeast(cellHeight),
+                width = width,
+                height = height,
                 x = x,
                 y = y,
             )

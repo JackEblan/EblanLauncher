@@ -348,9 +348,6 @@ fun Success(
                         showResize = false
                     },
                     onMoveGridItem = onMoveGridItem,
-                    onMoveEnd = {
-                        dragOffset = Offset.Zero
-                    },
                     onGetGridItemByCoordinates = onGetGridItemByCoordinates,
                     onLongPressGridItem = { offset, size ->
                         dragOffset = offset

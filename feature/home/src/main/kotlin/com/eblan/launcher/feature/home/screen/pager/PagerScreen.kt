@@ -3,6 +3,7 @@ package com.eblan.launcher.feature.home.screen.pager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -116,7 +117,7 @@ fun PagerScreen(
             onDismissRequest = onDismissRequest,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem, width, height, x, y ->
-                EmptyGridItem(
+                Box(
                     modifier = Modifier.pointerInput(key1 = showOverlay) {
                         awaitPointerEventScope {
                             while (true) {
@@ -139,7 +140,19 @@ fun PagerScreen(
                             }
                         }
                     },
-                )
+                ) {
+                    when (val gridItemData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            ApplicationInfoGridItem(
+                                gridItemData = gridItemData,
+                            )
+                        }
+
+                        is GridItemData.Widget -> {
+                            WidgetGridItem(appWidgetId = gridItemData.appWidgetId)
+                        }
+                    }
+                }
             },
             menuContent = {
                 MenuOverlay(
@@ -168,19 +181,6 @@ fun ApplicationInfoGridItem(
 }
 
 @Composable
-fun EmptyGridItem(
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Red),
-    ) {
-        Text(text = "Empty")
-    }
-}
-
-@Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     appWidgetId: Int,
@@ -189,12 +189,16 @@ private fun WidgetGridItem(
 
     val appWidgetManager = LocalAppWidgetManager.current
 
-    AndroidView(
-        modifier = modifier.fillMaxSize(),
-        factory = {
-            val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
 
-            appWidgetHost.createView(appWidgetId, appWidgetInfo)
-        },
-    )
+    println(appWidgetInfo)
+
+    if (appWidgetInfo != null) {
+        AndroidView(
+            modifier = modifier.fillMaxSize(),
+            factory = {
+                appWidgetHost.createView(appWidgetId, appWidgetInfo)
+            },
+        )
+    }
 }

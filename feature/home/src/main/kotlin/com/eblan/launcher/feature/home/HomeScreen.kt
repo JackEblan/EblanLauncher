@@ -346,6 +346,7 @@ fun Success(
                     onDragEnd = {
                         showOverlay = false
                         showResize = false
+
                         onResetOverlay()
 
                         when (val result = currentAddGridItemResult) {
@@ -360,21 +361,23 @@ fun Success(
                                     }
 
                                     is GridItemData.Widget -> {
+                                        val appWidgetId = data.appWidgetId
+
                                         val provider =
                                             ComponentName.unflattenFromString(data.componentName)
 
                                         if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                                                appWidgetId = data.appWidgetId,
+                                                appWidgetId = appWidgetId,
                                                 provider = provider,
                                             )
                                         ) {
-                                            //Grid item data already saved
+                                            //Widget created already
                                         } else {
                                             val intent =
                                                 Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                                                     putExtra(
                                                         AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                                        data.appWidgetId,
+                                                        appWidgetId,
                                                     )
                                                     putExtra(
                                                         AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,

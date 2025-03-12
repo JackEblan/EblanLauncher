@@ -56,11 +56,11 @@ fun WidgetScreen(
 
     val context = LocalContext.current
 
-    val appWidgetHost = LocalAppWidgetHost.current
-
     val cellWidth = screenSize.width / columns
 
     val cellHeight = screenSize.height / rows
+
+    val appWidgetHost = LocalAppWidgetHost.current
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),

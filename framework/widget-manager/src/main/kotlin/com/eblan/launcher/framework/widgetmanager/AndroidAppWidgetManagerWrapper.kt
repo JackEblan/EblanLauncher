@@ -45,7 +45,7 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
         }
     }
 
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo {
+    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? {
         return appWidgetManager.getAppWidgetInfo(appWidgetId)
     }
 

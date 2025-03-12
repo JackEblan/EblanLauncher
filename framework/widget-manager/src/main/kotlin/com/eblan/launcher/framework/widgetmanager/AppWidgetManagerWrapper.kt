@@ -11,7 +11,7 @@ interface AppWidgetManagerWrapper {
 
     suspend fun getInstalledProviderByPackageName(packageName: String): List<AppWidgetProviderInfo>
 
-    fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo
+    fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo?
 
     fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean
 

@@ -6,6 +6,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.AddGridItemResult
@@ -29,6 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val gridRepository: GridRepository,
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
@@ -211,16 +213,6 @@ class HomeViewModel @Inject constructor(
 
     fun resetOverlay() {
         viewModelScope.launch {
-            when(addGridItemResult.value){
-                AddGridItemResult.Failed -> {
-
-                }
-                is AddGridItemResult.Success -> {
-
-                }
-                null -> Unit
-            }
-
             _addGridItemResult.update {
                 null
             }

@@ -11,7 +11,7 @@ data class GridItemParentData(
     val y: Int,
 )
 
-fun Modifier.gridItem(
+fun Modifier.animateGridItemPlacement(
     width: Int,
     height: Int,
     x: Int,
@@ -20,7 +20,10 @@ fun Modifier.gridItem(
     object : ParentDataModifier {
         override fun Density.modifyParentData(parentData: Any?): Any {
             return GridItemParentData(
-                width = width, height = height, x = x, y = y,
+                width = width,
+                height = height,
+                x = x,
+                y = y,
             )
         }
     },

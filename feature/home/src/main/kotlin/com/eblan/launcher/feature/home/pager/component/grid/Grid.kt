@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -61,14 +62,20 @@ fun GridSubcomposeLayout(
             gridItems[page]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
                     GridItemContainer(
-                        gridItem = gridItem,
-                        startRow = gridItem.startRow,
-                        startColumn = gridItem.startColumn,
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
+                        startRow = gridItem.startRow,
+                        startColumn = gridItem.startColumn,
                         cellWidth = cellWidth,
                         cellHeight = cellHeight,
-                        content = gridItemContent,
+                        content = {
+                            gridItemContent(
+                                gridItem, gridItem.columnSpan * cellWidth,
+                                gridItem.rowSpan * cellHeight,
+                                gridItem.startColumn * cellWidth,
+                                gridItem.startRow * cellHeight,
+                            )
+                        },
                     )
                 }.forEach { measurable ->
                     val gridItemParentData = measurable.parentData as GridItemParentData
@@ -122,40 +129,14 @@ fun GridSubcomposeLayout(
                     }.forEach { measurable ->
                         val gridItemParentData = measurable.parentData as GridItemParentData
 
-                        val allowMeasurement =
-                            gridItemParentData.width > cellWidth && gridItemParentData.height > cellHeight
-
-                        val gridItemX = if (allowMeasurement) {
-                            gridItemParentData.x
-                        } else {
-                            gridItemOverlay.startColumn * cellWidth
-                        }
-
-                        val gridItemY = if (allowMeasurement) {
-                            gridItemParentData.y
-                        } else {
-                            gridItemOverlay.startRow * cellHeight
-                        }
-
-                        val gridItemWidth = if (allowMeasurement) {
-                            gridItemParentData.width
-                        } else {
-                            gridItemOverlay.columnSpan * cellWidth
-                        }
-
-                        val gridItemHeight = if (allowMeasurement) {
-                            gridItemParentData.height
-                        } else {
-                            gridItemOverlay.rowSpan * cellHeight
-                        }
-
                         measurable.measure(
                             Constraints(
-                                minWidth = gridItemWidth, minHeight = gridItemHeight
-                            )
+                                minWidth = gridItemParentData.width,
+                                minHeight = gridItemParentData.height,
+                            ),
                         ).placeRelative(
-                            x = gridItemX,
-                            y = gridItemY,
+                            x = gridItemParentData.x,
+                            y = gridItemParentData.y,
                             zIndex = 1f,
                         )
                     }
@@ -168,14 +149,13 @@ fun GridSubcomposeLayout(
 @Composable
 private fun GridItemContainer(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    startRow: Int,
-    startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
+    startRow: Int,
+    startColumn: Int,
     cellWidth: Int,
     cellHeight: Int,
-    content: @Composable (gridItem: GridItem, width: Int, height: Int, x: Int, y: Int) -> Unit,
+    content: @Composable () -> Unit,
 ) {
     val width by animateIntAsState(targetValue = columnSpan * cellWidth)
 
@@ -186,12 +166,13 @@ private fun GridItemContainer(
     val y by animateIntAsState(targetValue = startRow * cellHeight)
 
     Surface(
-        modifier = modifier.gridItem(
-            width = width, height = height, x = x, y = y,
+        modifier = modifier.animateGridItemPlacement(
+            width = width,
+            height = height,
+            x = x,
+            y = y,
         ),
-        content = {
-            content(gridItem, width, height, x, y)
-        },
+        content = content,
     )
 }
 
@@ -262,17 +243,45 @@ private fun GridItemResize(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
+    val allowX by remember {
+        derivedStateOf {
+            width >= cellWidth / 2
+        }
+    }
+
+    val allowY by remember {
+        derivedStateOf {
+            height >= cellHeight / 2
+        }
+    }
+
     val circleModifier = Modifier
         .size(30.dp)
         .background(Color.White, shape = CircleShape)
 
     Box(
         modifier = modifier
-            .gridItem(
-                width = width,
-                height = height,
-                x = x,
-                y = y,
+            .animateGridItemPlacement(
+                width = if (allowX) {
+                    width
+                } else {
+                    columnSpan * cellWidth
+                },
+                height = if (allowY) {
+                    height
+                } else {
+                    rowSpan * cellHeight
+                },
+                x = if (allowX) {
+                    x
+                } else {
+                    startColumn * cellWidth
+                },
+                y = if (allowY) {
+                    y
+                } else {
+                    startRow * cellHeight
+                },
             )
             .border(width = 2.dp, color = Color.White),
     ) {
@@ -346,6 +355,7 @@ private fun GridItemResize(
                                 cellHeight,
                                 Anchor.BOTTOM_START,
                             )
+
                         },
                     )
                 },

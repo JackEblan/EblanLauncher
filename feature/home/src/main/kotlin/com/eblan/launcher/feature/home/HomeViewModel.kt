@@ -5,11 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
+import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -19,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -29,8 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    userDataRepository: UserDataRepository,
-    gridRepository: GridRepository,
+    groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val addApplicationInfoUseCase: AddApplicationInfoUseCase,
@@ -39,17 +36,11 @@ class HomeViewModel @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
 ) : ViewModel() {
-    val homeUiState =
-        combine(gridRepository.gridItems, userDataRepository.userData) { gridItems, userData ->
-            HomeUiState.Success(
-                gridItems = gridItems.groupBy { gridItem -> gridItem.page },
-                userData = userData,
-            )
-        }.flowOn(Dispatchers.Default).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = HomeUiState.Loading,
-        )
+    val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = HomeUiState.Loading,
+    )
 
     private var _gridItemBoundary = MutableStateFlow<GridItemBoundary?>(null)
 

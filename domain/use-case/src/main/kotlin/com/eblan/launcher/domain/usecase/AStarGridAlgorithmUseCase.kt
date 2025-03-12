@@ -18,14 +18,12 @@ class AStarGridAlgorithmUseCase @Inject constructor(
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-                gridItem = movingGridItem,
-                rows = userData.rows,
-                columns = userData.columns,
-            )
-
             val gridItems = gridRepository.gridItems.first().filter { gridItem ->
-                isGridItemSpanWithinBounds && gridItem.id != movingGridItem.id && gridItem.page == movingGridItem.page
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                ) && gridItem.id != movingGridItem.id && gridItem.page == movingGridItem.page
             }
 
             val resolvedConflictsGridItems = resolveConflicts(

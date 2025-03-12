@@ -66,10 +66,10 @@ fun PagerScreen(
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
+    var gridItemId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(key1 = dragOffset) {
-        gridItemOverlayId?.let { id ->
+        gridItemId?.let { id ->
             onMoveGridItem(
                 pagerState.currentPage,
                 id,
@@ -108,7 +108,7 @@ fun PagerScreen(
             page = page,
             rows = rows,
             columns = columns,
-            id = gridItemOverlayId,
+            id = gridItemId,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,
             showMenu = showMenu,
@@ -134,7 +134,7 @@ fun PagerScreen(
                                         IntSize(width = width, height = height),
                                     )
 
-                                    gridItemOverlayId = gridItem.id
+                                    gridItemId = gridItem.id
                                 }
                             }
                         }

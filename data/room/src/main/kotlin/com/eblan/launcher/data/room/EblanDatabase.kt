@@ -19,6 +19,8 @@ package com.eblan.launcher.data.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.eblan.launcher.data.room.converter.EblanTypeConverters
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.GridDao
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
@@ -29,6 +31,7 @@ import com.eblan.launcher.data.room.entity.GridItemEntity
     version = 1,
     exportSchema = true,
 )
+@TypeConverters(EblanTypeConverters::class)
 internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun gridDao(): GridDao
 

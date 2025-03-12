@@ -2,6 +2,7 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eblan.launcher.domain.model.GridItemData
 
 @Entity
 data class GridItemEntity(
@@ -11,4 +12,5 @@ data class GridItemEntity(
     val startColumn: Int,
     val rowSpan: Int,
     val columnSpan: Int,
+    val data: GridItemData,
 )

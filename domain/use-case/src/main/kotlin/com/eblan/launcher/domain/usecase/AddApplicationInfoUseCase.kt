@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
@@ -20,7 +21,8 @@ class AddApplicationInfoUseCase @Inject constructor(
         columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): Int {
+        data: GridItemData,
+    ): AddGridItemResult {
         val userData = userDataRepository.userData.first()
 
         val (startRow, startColumn) = coordinatesToStartPosition(
@@ -38,6 +40,7 @@ class AddApplicationInfoUseCase @Inject constructor(
             startColumn = startColumn,
             rowSpan = rowSpan,
             columnSpan = columnSpan,
+            data = data,
         )
 
         val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
@@ -47,9 +50,9 @@ class AddApplicationInfoUseCase @Inject constructor(
         return if (movingGridItem != null) {
             aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
 
-            movingGridItem.id
+            AddGridItemResult.Success(gridItem = movingGridItem)
         } else {
-            -1
+            AddGridItemResult.Failed
         }
     }
 }

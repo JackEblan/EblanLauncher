@@ -7,4 +7,5 @@ data class GridItem(
     val startColumn: Int,
     val rowSpan: Int,
     val columnSpan: Int,
+    val data: GridItemData,
 )

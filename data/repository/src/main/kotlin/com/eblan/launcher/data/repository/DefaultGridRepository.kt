@@ -29,7 +29,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
     }
 
     override suspend fun updateGridItemData(id: Int, data: GridItemData): Int {
-        return 0 /*gridDao.updateGridItemData(id = id, data = data)*/
+        return gridDao.updateGridItemData(id = id, data = data)
     }
 
     override suspend fun getGridItem(id: Int): GridItem? {
@@ -44,6 +44,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
             startColumn = startColumn,
             rowSpan = rowSpan,
             columnSpan = columnSpan,
+            data = data,
         )
     }
 
@@ -55,6 +56,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
             startColumn = startColumn,
             rowSpan = rowSpan,
             columnSpan = columnSpan,
+            data = data,
         )
     }
 }

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.GridItemEntity
+import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,9 +17,9 @@ interface GridDao {
 
     @Upsert
     suspend fun upsertGridItemEntity(entity: GridItemEntity): Long
-//
-//    @Query("UPDATE GridItemEntity SET data = :data WHERE id = :id")
-//    suspend fun updateGridItemData(id: Int, data: GridItemData): Int
+
+    @Query("UPDATE GridItemEntity SET data = :data WHERE id = :id")
+    suspend fun updateGridItemData(id: Int, data: GridItemData): Int
 
     @Query("SELECT * FROM GridItemEntity WHERE id = :id")
     suspend fun getGridItemEntity(id: Int): GridItemEntity?

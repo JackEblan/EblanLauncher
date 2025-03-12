@@ -3,6 +3,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
@@ -23,7 +24,8 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): Int {
+        data: GridItemData,
+    ): AddGridItemResult {
         val userData = userDataRepository.userData.first()
 
         val cellWidth = screenWidth / userData.columns
@@ -57,6 +59,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             startColumn = startColumn,
             rowSpan = newRowSpan,
             columnSpan = newColumnSpan,
+            data = data,
         )
 
         if (isGridItemSpanWithinBounds(
@@ -65,7 +68,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
                 columns = userData.columns,
             ).not()
         ) {
-            return -1
+            return AddGridItemResult.Failed
         }
 
         val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
@@ -75,9 +78,15 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         return if (movingGridItem != null) {
             aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
 
-            movingGridItem.id
+            AddGridItemResult.Success(gridItem = movingGridItem)
         } else {
-            -1
+            AddGridItemResult.Failed
         }
     }
+}
+
+sealed interface AddGridItemResult {
+    data class Success(val gridItem: GridItem) : AddGridItemResult
+
+    data object Failed : AddGridItemResult
 }

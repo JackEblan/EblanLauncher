@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
 import coil.compose.AsyncImage
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.GridItemData
 import kotlin.math.roundToInt
 
 @Composable
@@ -47,11 +49,14 @@ fun WidgetScreen(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
+        data: GridItemData,
     ) -> Unit,
 ) {
     val density = LocalDensity.current
 
     val context = LocalContext.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
 
     val cellWidth = screenSize.width / columns
 
@@ -102,6 +107,13 @@ fun WidgetScreen(
                                             awaitLongPressOrCancellation(down.id) ?: continue
 
                                         if (!longPressChange.isConsumed) {
+                                            val appWidgetId = appWidgetHost.allocateAppWidgetId()
+
+                                            val data = GridItemData.Widget(
+                                                appWidgetId = appWidgetId,
+                                                componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                            )
+
                                             onLongPressAppWidgetProviderInfo(
                                                 appWidgetProviderInfoOffset,
                                                 previewDpSize.toSize().roundToIntSize(),
@@ -118,6 +130,7 @@ fun WidgetScreen(
                                                     appWidgetProviderInfo.minHeight,
                                                     screenSize.width,
                                                     screenSize.height,
+                                                    data,
                                                 )
                                             } else {
                                                 onAddAppWidgetProviderInfoGridItem(
@@ -130,6 +143,7 @@ fun WidgetScreen(
                                                     appWidgetProviderInfo.minHeight,
                                                     screenSize.width,
                                                     screenSize.height,
+                                                    data,
                                                 )
                                             }
                                         }

@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItemBoundary
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
+import com.eblan.launcher.domain.usecase.AddGridItemResult
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
@@ -75,9 +77,9 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
-    private var _addGridItemId = MutableStateFlow(-2)
+    private var _addGridItemResult = MutableStateFlow<AddGridItemResult?>(null)
 
-    val addGridItemId = _addGridItemId.asStateFlow()
+    val addGridItemResult = _addGridItemResult.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -133,9 +135,10 @@ class HomeViewModel @Inject constructor(
         columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
+        data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItemId.update {
+            _addGridItemResult.update {
                 addApplicationInfoUseCase(
                     page = page,
                     x = x,
@@ -144,6 +147,7 @@ class HomeViewModel @Inject constructor(
                     columnSpan = columnSpan,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
+                    data = data,
                 )
             }
         }
@@ -159,9 +163,10 @@ class HomeViewModel @Inject constructor(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
+        data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItemId.update {
+            _addGridItemResult.update {
                 addAppWidgetProviderInfoUseCase(
                     page = page,
                     x = x,
@@ -172,6 +177,7 @@ class HomeViewModel @Inject constructor(
                     minHeight = minHeight,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
+                    data = data,
                 )
             }
         }
@@ -205,8 +211,18 @@ class HomeViewModel @Inject constructor(
 
     fun resetOverlay() {
         viewModelScope.launch {
-            _addGridItemId.update {
-                -2
+            when(addGridItemResult.value){
+                AddGridItemResult.Failed -> {
+
+                }
+                is AddGridItemResult.Success -> {
+
+                }
+                null -> Unit
+            }
+
+            _addGridItemResult.update {
+                null
             }
         }
     }

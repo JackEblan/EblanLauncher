@@ -19,9 +19,9 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
     ): GridItemOverlay? {
         val userData = userDataRepository.userData.first()
 
-        val cellWidth = screenWidth / userData.columns
+        val cellWidth = screenWidth / userData.rows
 
-        val cellHeight = screenHeight / userData.rows
+        val cellHeight = screenHeight / userData.columns
 
         val gridItem = gridRepository.gridItems.first().find { gridItem ->
             val startRow = y / cellHeight

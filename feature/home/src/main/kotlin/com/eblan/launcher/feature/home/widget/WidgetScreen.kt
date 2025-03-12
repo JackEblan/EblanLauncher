@@ -17,20 +17,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntSize
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import kotlin.math.roundToInt
 
 @Composable
 fun WidgetScreen(
-    modifier: Modifier = Modifier, pagerState: PagerState, screenSize: IntSize,
+    modifier: Modifier = Modifier,
+    pagerState: PagerState,
+    rows: Int,
+    columns: Int,
+    screenSize: IntSize,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     onLongPressAppWidgetProviderInfo: (Offset, IntSize) -> Unit,
     onAddAppWidgetProviderInfoGridItem: (
@@ -48,6 +52,10 @@ fun WidgetScreen(
     val density = LocalDensity.current
 
     val context = LocalContext.current
+
+    val cellWidth = screenSize.width / columns
+
+    val cellHeight = screenSize.height / rows
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -67,15 +75,20 @@ fun WidgetScreen(
                 )
 
                 appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
-                    var appWidgetProviderInfoSize = IntSize.Zero
-
                     var appWidgetProviderInfoOffset = Offset.Zero
 
                     val previewDpSize = with(density) {
-                        DpSize(
-                            width = appWidgetProviderInfo.minWidth.toDp(),
-                            height = appWidgetProviderInfo.minHeight.toDp(),
-                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && appWidgetProviderInfo.targetCellWidth != 0 && appWidgetProviderInfo.targetCellHeight != 0) {
+                            DpSize(
+                                width = (appWidgetProviderInfo.targetCellWidth * cellWidth).toDp(),
+                                height = (appWidgetProviderInfo.targetCellHeight * cellHeight).toDp(),
+                            )
+                        } else {
+                            DpSize(
+                                width = appWidgetProviderInfo.minWidth.toDp(),
+                                height = appWidgetProviderInfo.minHeight.toDp(),
+                            )
+                        }
                     }
 
                     AsyncImage(
@@ -91,7 +104,7 @@ fun WidgetScreen(
                                         if (!longPressChange.isConsumed) {
                                             onLongPressAppWidgetProviderInfo(
                                                 appWidgetProviderInfoOffset,
-                                                appWidgetProviderInfoSize,
+                                                previewDpSize.toSize().roundToIntSize(),
                                             )
 
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -99,8 +112,8 @@ fun WidgetScreen(
                                                     pagerState.currentPage,
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),
-                                                    appWidgetProviderInfo.targetCellWidth,
                                                     appWidgetProviderInfo.targetCellHeight,
+                                                    appWidgetProviderInfo.targetCellWidth,
                                                     appWidgetProviderInfo.minWidth,
                                                     appWidgetProviderInfo.minHeight,
                                                     screenSize.width,
@@ -124,9 +137,6 @@ fun WidgetScreen(
                                 }
                             }
                             .size(previewDpSize)
-                            .onSizeChanged { intSize ->
-                                appWidgetProviderInfoSize = intSize
-                            }
                             .onGloballyPositioned { layoutCoordinates ->
                                 appWidgetProviderInfoOffset = layoutCoordinates.positionOnScreen()
                             },
@@ -134,6 +144,15 @@ fun WidgetScreen(
                         model = appWidgetProviderInfo.loadPreviewImage(context, 0),
                         contentDescription = null,
                     )
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Text(
+                            text = "${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}",
+                        )
+                        Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
+                    } else {
+                        Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
+                    }
                 }
             }
         }

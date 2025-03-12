@@ -381,6 +381,8 @@ fun Success(
             HomeType.Widget -> {
                 WidgetScreen(
                     pagerState = pagerState,
+                    rows = userData.rows,
+                    columns = userData.columns,
                     screenSize = screenSize,
                     appWidgetProviderInfos = appWidgetProviderInfos,
                     onLongPressAppWidgetProviderInfo = { offset, size ->

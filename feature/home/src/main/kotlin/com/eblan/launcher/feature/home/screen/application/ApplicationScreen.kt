@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.application
+package com.eblan.launcher.feature.home.screen.application
 
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation

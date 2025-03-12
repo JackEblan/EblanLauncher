@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.pager
+package com.eblan.launcher.feature.home.screen.pager
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -26,8 +26,8 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.pager.component.grid.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.pager.component.menu.MenuOverlay
+import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
 
 @Composable

@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.pager.component.grid
+package com.eblan.launcher.feature.home.screen.pager.component.grid
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.pager.component.menu.MenuPositionProvider
+import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider
 import kotlin.math.roundToInt
 
 @Composable

@@ -46,11 +46,11 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemBoundary
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
-import com.eblan.launcher.feature.home.pager.PagerScreen
-import com.eblan.launcher.feature.home.widget.WidgetScreen
+import com.eblan.launcher.feature.home.screen.pager.PagerScreen
+import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart

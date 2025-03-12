@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.widget
+package com.eblan.launcher.feature.home.screen.widget
 
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Build

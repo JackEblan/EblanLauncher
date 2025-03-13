@@ -1,16 +1,15 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
-import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
+import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
+import java.util.UUID
 import javax.inject.Inject
 
 class AddAppWidgetProviderInfoUseCase @Inject constructor(
-    private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
@@ -25,7 +24,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         screenWidth: Int,
         screenHeight: Int,
         data: GridItemData,
-    ): AddGridItemResult {
+    ): GridItem {
         val userData = userDataRepository.userData.first()
 
         val cellWidth = screenWidth / userData.columns
@@ -54,6 +53,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         )
 
         val gridItem = GridItem(
+            id = UUID.randomUUID().toString(),
             page = page,
             startRow = startRow,
             startColumn = startColumn,
@@ -62,31 +62,18 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             data = data,
         )
 
-        if (isGridItemSpanWithinBounds(
-                gridItem = gridItem,
-                rows = userData.rows,
-                columns = userData.columns,
-            ).not()
-        ) {
-            return AddGridItemResult.Failed
-        }
+        val movingGridItem = moveGridItemWithCoordinates(
+            gridItem = gridItem,
+            x = x,
+            y = y,
+            rows = userData.rows,
+            columns = userData.columns,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+        ).copy(page = page)
 
-        val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
+        aStarGridAlgorithmUseCase(gridItem = movingGridItem)
 
-        val movingGridItem = gridRepository.getGridItem(id = gridItemId)
-
-        return if (movingGridItem != null) {
-            aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
-
-            AddGridItemResult.Success(gridItem = movingGridItem)
-        } else {
-            AddGridItemResult.Failed
-        }
+        return gridItem
     }
-}
-
-sealed interface AddGridItemResult {
-    data class Success(val gridItem: GridItem) : AddGridItemResult
-
-    data object Failed : AddGridItemResult
 }

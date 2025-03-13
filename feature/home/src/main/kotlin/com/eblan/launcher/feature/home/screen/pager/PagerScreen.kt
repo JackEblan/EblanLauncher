@@ -44,12 +44,20 @@ fun PagerScreen(
     showOverlay: Boolean,
     showMenu: Boolean,
     showResize: Boolean,
-    onResizeGridItem: (page: Int, id: Int, width: Int, height: Int, cellWidth: Int, cellHeight: Int, anchor: Anchor) -> Unit,
+    onResizeGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        width: Int,
+        height: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: Anchor,
+    ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
     onMoveGridItem: (
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         x: Int,
         y: Int,
         width: Int,
@@ -67,13 +75,13 @@ fun PagerScreen(
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    var gridItemId by remember { mutableStateOf<Int?>(null) }
+    var currentGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     LaunchedEffect(key1 = dragOffset) {
-        gridItemId?.let { id ->
+        currentGridItem?.let { gridItem ->
             onMoveGridItem(
                 pagerState.currentPage,
-                id,
+                gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
                 overlaySize.width,
@@ -109,7 +117,7 @@ fun PagerScreen(
             page = page,
             rows = rows,
             columns = columns,
-            id = gridItemId,
+            currentGridItem = currentGridItem,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,
             showMenu = showMenu,
@@ -135,7 +143,7 @@ fun PagerScreen(
                                         IntSize(width = width, height = height),
                                     )
 
-                                    gridItemId = gridItem.id
+                                    currentGridItem = gridItem
                                 }
                             }
                         }

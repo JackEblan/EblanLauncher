@@ -35,13 +35,13 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    id: Int?,
+    currentGridItem: GridItem?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     showResize: Boolean,
     onResizeGridItem: (
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         width: Int,
         height: Int,
         cellWidth: Int,
@@ -91,17 +91,17 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                val gridItemOverlay = gridItem.takeIf { it.id == id }
+                val gridItemOverlay = gridItem.id == currentGridItem?.id
 
-                if (showMenu && gridItemOverlay != null) {
+                if (showMenu && gridItemOverlay) {
                     subcompose("Menu") {
                         GridItemMenu(
                             cellWidth = cellWidth,
                             cellHeight = cellHeight,
-                            startRow = gridItemOverlay.startRow,
-                            startColumn = gridItemOverlay.startColumn,
-                            rowSpan = gridItemOverlay.rowSpan,
-                            columnSpan = gridItemOverlay.columnSpan,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
                             screenWidth = constraints.maxWidth,
                             screenHeight = constraints.maxHeight,
                             onDismissRequest = onDismissRequest,
@@ -112,17 +112,17 @@ fun GridSubcomposeLayout(
                     }
                 }
 
-                if (showResize && gridItemOverlay != null) {
+                if (showResize && gridItemOverlay) {
                     subcompose("Resize") {
                         GridItemResize(
                             page = page,
-                            id = gridItemOverlay.id,
+                            gridItem = gridItem,
                             cellWidth = cellWidth,
                             cellHeight = cellHeight,
-                            startRow = gridItemOverlay.startRow,
-                            startColumn = gridItemOverlay.startColumn,
-                            rowSpan = gridItemOverlay.rowSpan,
-                            columnSpan = gridItemOverlay.columnSpan,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
                             onResizeGridItem = onResizeGridItem,
                             onResizeEnd = onResizeEnd,
                         )
@@ -215,7 +215,7 @@ private fun GridItemMenu(
 private fun GridItemResize(
     modifier: Modifier = Modifier,
     page: Int,
-    id: Int,
+    gridItem: GridItem,
     cellWidth: Int,
     cellHeight: Int,
     startRow: Int,
@@ -224,7 +224,7 @@ private fun GridItemResize(
     columnSpan: Int,
     onResizeGridItem: (
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         widthPixel: Int,
         heightPixel: Int,
         cellWidth: Int,
@@ -311,7 +311,7 @@ private fun GridItemResize(
 
                             onResizeGridItem(
                                 page,
-                                id,
+                                gridItem,
                                 width,
                                 height,
                                 cellWidth,
@@ -348,7 +348,7 @@ private fun GridItemResize(
 
                             onResizeGridItem(
                                 page,
-                                id,
+                                gridItem,
                                 width,
                                 height,
                                 cellWidth,
@@ -386,7 +386,7 @@ private fun GridItemResize(
 
                             onResizeGridItem(
                                 page,
-                                id,
+                                gridItem,
                                 width,
                                 height,
                                 cellWidth,
@@ -421,7 +421,7 @@ private fun GridItemResize(
 
                             onResizeGridItem(
                                 page,
-                                id,
+                                gridItem,
                                 width,
                                 height,
                                 cellWidth,

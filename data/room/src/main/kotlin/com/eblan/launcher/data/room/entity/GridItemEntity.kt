@@ -6,7 +6,7 @@ import com.eblan.launcher.domain.model.GridItemData
 
 @Entity
 data class GridItemEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey val id: String,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,

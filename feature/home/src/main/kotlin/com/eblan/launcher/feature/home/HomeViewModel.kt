@@ -3,13 +3,13 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.GridItemBoundary
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
-import com.eblan.launcher.domain.usecase.AddGridItemResult
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
@@ -46,12 +46,12 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    private var _gridItemBoundary = MutableStateFlow<GridItemBoundary?>(null)
+    private var _gridItemMovement = MutableStateFlow<GridItemMovement>(GridItemMovement.Inside)
 
-    val gridItemBoundary = _gridItemBoundary.stateIn(
+    val gridItemMovement = _gridItemMovement.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
+        initialValue = GridItemMovement.Inside,
     )
 
     private var _gridItemByCoordinates = MutableStateFlow<Boolean?>(null)
@@ -79,13 +79,17 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
-    private var _addGridItemResult = MutableStateFlow<AddGridItemResult?>(null)
+    private var _addGridItem = MutableStateFlow<GridItem?>(null)
 
-    val addGridItemResult = _addGridItemResult.asStateFlow()
+    val addGridItem = _addGridItem.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
+    )
 
     fun moveGridItem(
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         x: Int,
         y: Int,
         width: Int,
@@ -93,10 +97,10 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemBoundary.update {
+            _gridItemMovement.update {
                 moveGridItemUseCase(
                     page = page,
-                    id = id,
+                    gridItem = gridItem,
                     x = x,
                     y = y,
                     width = width,
@@ -109,7 +113,7 @@ class HomeViewModel @Inject constructor(
 
     fun resizeGridItem(
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         width: Int,
         height: Int,
         cellWidth: Int,
@@ -119,7 +123,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             resizeGridItemUseCase(
                 page = page,
-                id = id,
+                gridItem = gridItem,
                 width = width,
                 height = height,
                 cellWidth = cellWidth,
@@ -140,7 +144,7 @@ class HomeViewModel @Inject constructor(
         data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItemResult.update {
+            _addGridItem.update {
                 addApplicationInfoUseCase(
                     page = page,
                     x = x,
@@ -168,7 +172,7 @@ class HomeViewModel @Inject constructor(
         data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItemResult.update {
+            _addGridItem.update {
                 addAppWidgetProviderInfoUseCase(
                     page = page,
                     x = x,
@@ -211,9 +215,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetOverlay() {
+    fun resetAddGridItem() {
         viewModelScope.launch {
-            _addGridItemResult.update {
+            _addGridItem.update {
                 null
             }
         }

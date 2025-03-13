@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    private var _gridItemMovement = MutableStateFlow<GridItemMovement>(GridItemMovement.Inside)
+    private var _gridItemMovement = MutableStateFlow(GridItemMovement.Inside)
 
     val gridItemMovement = _gridItemMovement.stateIn(
         scope = viewModelScope,
@@ -205,6 +205,21 @@ class HomeViewModel @Inject constructor(
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 ) != null
+            }
+        }
+    }
+
+    fun updateWidget(id: String?, appWidgetId: Int?) {
+        viewModelScope.launch {
+            if (id != null && appWidgetId != null) {
+                val gridItemData = gridRepository.getGridItem(id = id)?.data
+
+                if (gridItemData is GridItemData.Widget) {
+                    gridRepository.updateGridItemData(
+                        id = id,
+                        data = gridItemData.copy(appWidgetId = appWidgetId),
+                    )
+                }
             }
         }
     }

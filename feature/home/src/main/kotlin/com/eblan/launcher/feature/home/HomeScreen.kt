@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -68,7 +69,7 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeRoute(
     modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltViewModel(),
-    onEdit: (Int) -> Unit,
+    onEdit: (String) -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -95,6 +96,7 @@ fun HomeRoute(
         onAddApplicationInfoGridItem = viewModel::addApplicationInfoGridItem,
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
+        onUpdateWidget = viewModel::updateWidget,
         onResetGridItemByCoordinates = viewModel::resetGridItemByCoordinates,
         onResetOverlay = viewModel::resetAddGridItem,
         onEdit = onEdit,
@@ -157,9 +159,10 @@ fun HomeScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
+    onUpdateWidget: (id: String?, appWidgetId: Int?) -> Unit,
     onResetGridItemByCoordinates: () -> Unit,
     onResetOverlay: () -> Unit,
-    onEdit: (Int) -> Unit,
+    onEdit: (String) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Box(
@@ -187,6 +190,7 @@ fun HomeScreen(
                         onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
+                        onUpdateWidget = onUpdateWidget,
                         onResetGridItemByCoordinates = onResetGridItemByCoordinates,
                         onResetOverlay = onResetOverlay,
                         onEdit = onEdit,
@@ -255,9 +259,10 @@ fun Success(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
+    onUpdateWidget: (id: String?, appWidgetId: Int?) -> Unit,
     onResetGridItemByCoordinates: () -> Unit,
     onResetOverlay: () -> Unit,
-    onEdit: (Int) -> Unit,
+    onEdit: (String) -> Unit,
 ) {
     val pagerState = rememberPagerState(
         pageCount = {
@@ -285,15 +290,22 @@ fun Success(
 
     val appWidgetManager = LocalAppWidgetManager.current
 
+    val appWidgetHost = LocalAppWidgetHost.current
+
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             println("Widget created")
+            val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+
+            onUpdateWidget(currentAddGridItem?.id, appWidgetId)
         } else {
             println("Widget cancelled")
             //Delete the Grid item in the database
         }
+
+        onResetOverlay()
     }
 
     LaunchedEffect(key1 = gridItemMovement) {
@@ -340,11 +352,11 @@ fun Success(
 
                         when (val data = currentAddGridItem?.data) {
                             is GridItemData.ApplicationInfo -> {
-                                // Do something when application is added?
+                                onResetOverlay()
                             }
 
                             is GridItemData.Widget -> {
-                                val appWidgetId = data.appWidgetId
+                                val appWidgetId = appWidgetHost.allocateAppWidgetId()
 
                                 val provider = ComponentName.unflattenFromString(data.componentName)
 
@@ -373,8 +385,6 @@ fun Success(
 
                             null -> Unit
                         }
-
-                        onResetOverlay()
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()

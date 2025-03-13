@@ -19,8 +19,8 @@ interface GridDao {
     suspend fun upsertGridItemEntity(entity: GridItemEntity): Long
 
     @Query("UPDATE GridItemEntity SET data = :data WHERE id = :id")
-    suspend fun updateGridItemData(id: Int, data: GridItemData): Int
+    suspend fun updateGridItemData(id: String, data: GridItemData): Int
 
     @Query("SELECT * FROM GridItemEntity WHERE id = :id")
-    suspend fun getGridItemEntity(id: Int): GridItemEntity?
+    suspend fun getGridItemEntity(id: String): GridItemEntity?
 }

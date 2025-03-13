@@ -84,7 +84,7 @@ class EditViewModel @Inject constructor(
             )
 
             val rowsAffected = gridRepository.updateGridItemData(
-                id = editRouteData.id,
+                id = "",
                 data = data,
             )
 
@@ -170,7 +170,7 @@ class EditViewModel @Inject constructor(
     private fun getGridItem() {
         viewModelScope.launch {
             _gridItem.update {
-                gridRepository.getGridItem(id = editRouteData.id)
+                gridRepository.getGridItem(id = "")
             }
         }
     }

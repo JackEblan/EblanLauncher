@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
 import coil.compose.AsyncImage
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItemData
 import kotlin.math.roundToInt
@@ -59,8 +58,6 @@ fun WidgetScreen(
     val cellWidth = screenSize.width / columns
 
     val cellHeight = screenSize.height / rows
-
-    val appWidgetHost = LocalAppWidgetHost.current
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -107,10 +104,8 @@ fun WidgetScreen(
                                             awaitLongPressOrCancellation(down.id) ?: continue
 
                                         if (!longPressChange.isConsumed) {
-                                            val appWidgetId = appWidgetHost.allocateAppWidgetId()
-
                                             val data = GridItemData.Widget(
-                                                appWidgetId = appWidgetId,
+                                                appWidgetId = -1,
                                                 componentName = appWidgetProviderInfo.provider.flattenToString(),
                                             )
 

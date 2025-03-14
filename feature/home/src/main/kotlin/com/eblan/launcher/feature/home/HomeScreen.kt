@@ -142,6 +142,7 @@ fun HomeScreen(
     ) -> Unit,
     onAddAppWidgetProviderInfoGridItem: (
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
@@ -150,7 +151,6 @@ fun HomeScreen(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-        data: GridItemData,
     ) -> Unit,
     onGridItemByCoordinates: (
         page: Int,
@@ -242,6 +242,7 @@ fun Success(
     ) -> Unit,
     onAddAppWidgetProviderInfoGridItem: (
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
@@ -250,7 +251,6 @@ fun Success(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-        data: GridItemData,
     ) -> Unit,
     onGetGridItemByCoordinates: (
         page: Int,

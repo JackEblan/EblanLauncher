@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.GridItemData
 import kotlin.math.roundToInt
 
 @Composable
@@ -40,6 +39,7 @@ fun WidgetScreen(
     onLongPressAppWidgetProviderInfo: (Offset, IntSize) -> Unit,
     onAddAppWidgetProviderInfoGridItem: (
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
@@ -48,7 +48,6 @@ fun WidgetScreen(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-        data: GridItemData,
     ) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -104,11 +103,6 @@ fun WidgetScreen(
                                             awaitLongPressOrCancellation(down.id) ?: continue
 
                                         if (!longPressChange.isConsumed) {
-                                            val data = GridItemData.Widget(
-                                                appWidgetId = -1,
-                                                componentName = appWidgetProviderInfo.provider.flattenToString(),
-                                            )
-
                                             onLongPressAppWidgetProviderInfo(
                                                 appWidgetProviderInfoOffset,
                                                 previewDpSize.toSize().roundToIntSize(),
@@ -117,6 +111,7 @@ fun WidgetScreen(
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                                 onAddAppWidgetProviderInfoGridItem(
                                                     pagerState.currentPage,
+                                                    appWidgetProviderInfo.provider.flattenToString(),
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),
                                                     appWidgetProviderInfo.targetCellHeight,
@@ -125,11 +120,11 @@ fun WidgetScreen(
                                                     appWidgetProviderInfo.minHeight,
                                                     screenSize.width,
                                                     screenSize.height,
-                                                    data,
                                                 )
                                             } else {
                                                 onAddAppWidgetProviderInfoGridItem(
                                                     pagerState.currentPage,
+                                                    appWidgetProviderInfo.provider.flattenToString(),
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),
                                                     0,
@@ -138,7 +133,6 @@ fun WidgetScreen(
                                                     appWidgetProviderInfo.minHeight,
                                                     screenSize.width,
                                                     screenSize.height,
-                                                    data,
                                                 )
                                             }
                                         }

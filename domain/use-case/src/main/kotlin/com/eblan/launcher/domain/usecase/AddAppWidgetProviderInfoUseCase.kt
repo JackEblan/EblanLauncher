@@ -15,6 +15,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
@@ -23,7 +24,6 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-        data: GridItemData,
     ): GridItem {
         val userData = userDataRepository.userData.first()
 
@@ -43,6 +43,18 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             columnSpan
         }
 
+        val newWidth = if (columnSpan == 0) {
+            minWidth
+        } else {
+            columnSpan * cellWidth
+        }
+
+        val newHeight = if (rowSpan == 0) {
+            minHeight
+        } else {
+            rowSpan * cellHeight
+        }
+
         val (startRow, startColumn) = coordinatesToStartPosition(
             x = x,
             y = y,
@@ -50,6 +62,13 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             columns = userData.columns,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
+        )
+
+        val data = GridItemData.Widget(
+            appWidgetId = -1,
+            componentName = componentName,
+            width = newWidth,
+            height = newHeight,
         )
 
         val gridItem = GridItem(

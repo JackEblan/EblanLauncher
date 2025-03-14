@@ -161,6 +161,7 @@ class HomeViewModel @Inject constructor(
 
     fun addAppWidgetProviderInfoGridItem(
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
@@ -169,12 +170,12 @@ class HomeViewModel @Inject constructor(
         minHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-        data: GridItemData,
     ) {
         viewModelScope.launch {
             _addGridItem.update {
                 addAppWidgetProviderInfoUseCase(
                     page = page,
+                    componentName = componentName,
                     x = x,
                     y = y,
                     rowSpan = rowSpan,
@@ -183,7 +184,6 @@ class HomeViewModel @Inject constructor(
                     minHeight = minHeight,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    data = data,
                 )
             }
         }

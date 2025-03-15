@@ -57,9 +57,9 @@ class HomeViewModel @Inject constructor(
         initialValue = GridItemMovement.Inside,
     )
 
-    private var _gridItemByCoordinates = MutableStateFlow<Boolean?>(null)
+    private var _gridItemIdByCoordinates = MutableStateFlow<String?>("")
 
-    val gridItemByCoordinates = _gridItemByCoordinates.asStateFlow()
+    val gridItemIdByCoordinates = _gridItemIdByCoordinates.asStateFlow()
 
     val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
@@ -232,14 +232,14 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemByCoordinates.update {
+            _gridItemIdByCoordinates.update {
                 getGridItemByCoordinatesUseCase(
                     page = page,
                     x = x,
                     y = y,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                ) != null
+                )?.id
             }
         }
     }
@@ -259,9 +259,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridItemByCoordinates() {
-        _gridItemByCoordinates.update {
-            null
+    fun resetGridItemIdByCoordinates() {
+        _gridItemIdByCoordinates.update {
+            ""
         }
     }
 

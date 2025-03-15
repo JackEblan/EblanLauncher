@@ -76,7 +76,7 @@ fun HomeRoute(
 
     val gridItemMovement by viewModel.gridItemMovement.collectAsStateWithLifecycle()
 
-    val gridItemByCoordinates by viewModel.gridItemByCoordinates.collectAsStateWithLifecycle()
+    val gridItemIdByCoordinates by viewModel.gridItemIdByCoordinates.collectAsStateWithLifecycle()
 
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
@@ -88,7 +88,7 @@ fun HomeRoute(
         modifier = modifier,
         gridItemMovement = gridItemMovement,
         homeUiState = homeUiState,
-        gridItemByCoordinates = gridItemByCoordinates,
+        gridItemIdByCoordinates = gridItemIdByCoordinates,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
         addGridItem = addGridItem,
@@ -99,7 +99,7 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onUpdateWidget = viewModel::updateWidget,
-        onResetGridItemByCoordinates = viewModel::resetGridItemByCoordinates,
+        onResetGridItemByCoordinates = viewModel::resetGridItemIdByCoordinates,
         onResetOverlay = viewModel::resetAddGridItem,
         onEdit = onEdit,
     )
@@ -110,7 +110,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemMovement: GridItemMovement,
     homeUiState: HomeUiState,
-    gridItemByCoordinates: Boolean?,
+    gridItemIdByCoordinates: String?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
@@ -197,7 +197,7 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         gridItemMovement = gridItemMovement,
-                        gridItemByCoordinates = gridItemByCoordinates,
+                        gridItemIdByCoordinates = gridItemIdByCoordinates,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         addGridItem = addGridItem,
@@ -225,7 +225,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemMovement: GridItemMovement,
-    gridItemByCoordinates: Boolean?,
+    gridItemIdByCoordinates: String?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
@@ -305,6 +305,8 @@ fun Success(
 
     var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
 
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     var showOverlay by remember { mutableStateOf(false) }
 
     var showMenu by remember { mutableStateOf(false) }
@@ -377,6 +379,9 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
+                    onDragStart = {
+                        showBottomSheet = true
+                    },
                     onDragEnd = {
                         showOverlay = false
                         showResize = false
@@ -440,6 +445,7 @@ fun Success(
                     dragOffset = dragOffset,
                     rows = userData.rows,
                     columns = userData.columns,
+                    gridItemIdByCoordinates = gridItemIdByCoordinates,
                     gridItems = gridItems,
                     showOverlay = showOverlay,
                     showMenu = showMenu,
@@ -460,6 +466,7 @@ fun Success(
                         showOverlay = true
                         showMenu = true
                     },
+                    onResetGridItemByCoordinates = onResetGridItemByCoordinates,
                     onEdit = {
 
                     },
@@ -478,6 +485,8 @@ fun Success(
                     onLongPressApplicationInfo = { offset, size ->
                         dragOffset = offset
                         overlaySize = size
+                        onResetGridItemByCoordinates()
+                        showBottomSheet = false
                     },
                     onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
                 )
@@ -493,6 +502,8 @@ fun Success(
                     onLongPressAppWidgetProviderInfo = { offset, size ->
                         dragOffset = offset
                         overlaySize = size
+                        onResetGridItemByCoordinates()
+                        showBottomSheet = false
                     },
                     onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                 )
@@ -504,10 +515,13 @@ fun Success(
             HomeOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
         }
 
-        if (gridItemByCoordinates != null && gridItemByCoordinates.not()) {
+        if (gridItemIdByCoordinates == null && showBottomSheet) {
             HomeBottomSheet(
                 sheetState = sheetState,
-                onResetGridItemByCoordinates = onResetGridItemByCoordinates,
+                onDismissRequest = {
+                    onResetGridItemByCoordinates()
+                    showBottomSheet = false
+                },
                 onHomeType = { type ->
                     homeType = type
                 },
@@ -520,11 +534,11 @@ fun Success(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun HomeBottomSheet(
     sheetState: SheetState,
-    onResetGridItemByCoordinates: () -> Unit,
+    onDismissRequest: () -> Unit,
     onHomeType: (HomeType) -> Unit,
 ) {
     ModalBottomSheet(
-        onDismissRequest = onResetGridItemByCoordinates,
+        onDismissRequest = onDismissRequest,
         sheetState = sheetState,
     ) {
         Row {
@@ -534,7 +548,7 @@ private fun HomeBottomSheet(
                     .clickable {
                         onHomeType(HomeType.Application)
 
-                        onResetGridItemByCoordinates()
+                        onDismissRequest()
                     },
             ) {
                 Icon(imageVector = Icons.Default.Android, contentDescription = null)
@@ -548,7 +562,7 @@ private fun HomeBottomSheet(
                     .clickable {
                         onHomeType(HomeType.Widget)
 
-                        onResetGridItemByCoordinates()
+                        onDismissRequest()
                     },
             ) {
                 Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
@@ -558,6 +572,7 @@ private fun HomeBottomSheet(
         }
     }
 }
+
 
 @Composable
 private fun HomeOverlay(

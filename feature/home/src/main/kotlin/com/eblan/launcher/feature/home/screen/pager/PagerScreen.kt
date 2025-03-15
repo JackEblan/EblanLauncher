@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +34,7 @@ import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcompos
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PagerScreen(
     modifier: Modifier = Modifier,
@@ -42,6 +44,7 @@ fun PagerScreen(
     dragOffset: Offset,
     rows: Int,
     columns: Int,
+    gridItemIdByCoordinates: String?,
     gridItems: Map<Int, List<GridItem>>,
     showOverlay: Boolean,
     showMenu: Boolean,
@@ -83,22 +86,25 @@ fun PagerScreen(
         screenHeight: Int,
     ) -> Unit,
     onLongPressGridItem: (Offset, IntSize) -> Unit,
+    onResetGridItemByCoordinates: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
     var currentGridItem by remember { mutableStateOf<GridItem?>(null) }
 
-    LaunchedEffect(key1 = dragOffset) {
+    LaunchedEffect(key1 = dragOffset, key2 = currentGridItem, key3 = gridItemIdByCoordinates) {
         currentGridItem?.let { gridItem ->
-            onMoveGridItem(
-                pagerState.currentPage,
-                gridItem,
-                dragOffset.x.roundToInt(),
-                dragOffset.y.roundToInt(),
-                overlaySize.width,
-                screenSize.width,
-                screenSize.height,
-            )
+            if (gridItem.id == gridItemIdByCoordinates) {
+                onMoveGridItem(
+                    pagerState.currentPage,
+                    gridItem,
+                    dragOffset.x.roundToInt(),
+                    dragOffset.y.roundToInt(),
+                    overlaySize.width,
+                    screenSize.width,
+                    screenSize.height,
+                )
+            }
         }
     }
 
@@ -181,6 +187,7 @@ fun PagerScreen(
                 )
             },
         )
+
     }
 }
 

@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.model.GridItemOverlay
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
@@ -16,14 +16,14 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
         y: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): GridItemOverlay? {
+    ): GridItem? {
         val userData = userDataRepository.userData.first()
 
         val cellWidth = screenWidth / userData.rows
 
         val cellHeight = screenHeight / userData.columns
 
-        val gridItem = gridRepository.gridItems.first().find { gridItem ->
+        return gridRepository.gridItems.first().find { gridItem ->
             val startRow = y / cellHeight
 
             val startColumn = x / cellWidth
@@ -35,28 +35,6 @@ class GetGridItemByCoordinatesUseCase @Inject constructor(
                 startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
 
             gridItem.page == page && rowInSpan && columnInSpan
-        }
-
-        return if (gridItem != null) {
-            val gridItemWidth = gridItem.columnSpan * cellWidth
-
-            val gridItemHeight = gridItem.rowSpan * cellHeight
-
-            val gridItemX = gridItem.startColumn * cellWidth
-
-            val gridItemY = gridItem.startRow * cellHeight
-
-            GridItemOverlay(
-                gridItem = gridItem,
-                width = gridItemWidth,
-                height = gridItemHeight,
-                x = gridItemX,
-                y = gridItemY,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-            )
-        } else {
-            null
         }
     }
 }

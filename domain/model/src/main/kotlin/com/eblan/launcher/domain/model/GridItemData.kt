@@ -17,5 +17,10 @@ sealed interface GridItemData {
         val componentName: String,
         val width: Int,
         val height: Int,
+        val resizeMode: Int,
+        val minResizeWidth: Int,
+        val minResizeHeight: Int,
+        val maxResizeWidth: Int,
+        val maxResizeHeight: Int,
     ) : GridItemData
 }

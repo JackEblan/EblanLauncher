@@ -27,6 +27,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
@@ -52,6 +53,15 @@ fun PagerScreen(
         cellWidth: Int,
         cellHeight: Int,
         anchor: Anchor,
+    ) -> Unit,
+    onResizeWidgetGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        widthPixel: Int,
+        heightPixel: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: SideAnchor,
     ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
@@ -120,6 +130,7 @@ fun PagerScreen(
             currentGridItem = currentGridItem,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,
+            onResizeWidgetGridItem = onResizeWidgetGridItem,
             showMenu = showMenu,
             showResize = showResize,
             onDismissRequest = onDismissRequest,
@@ -157,7 +168,7 @@ fun PagerScreen(
                         }
 
                         is GridItemData.Widget -> {
-                            WidgetGridItem(appWidgetId = gridItemData.appWidgetId)
+                            WidgetGridItem(gridItemData = gridItemData)
                         }
                     }
                 }
@@ -191,22 +202,23 @@ fun ApplicationInfoGridItem(
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
-    appWidgetId: Int,
+    gridItemData: GridItemData.Widget,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
 
-    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
-
-    println(appWidgetInfo)
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
     if (appWidgetInfo != null) {
         AndroidView(
-            modifier = modifier.fillMaxSize(),
             factory = {
-                appWidgetHost.createView(appWidgetId, appWidgetInfo)
+                appWidgetHost.createView(
+                    appWidgetId = gridItemData.appWidgetId,
+                    appWidgetProviderInfo = appWidgetInfo,
+                )
             },
+            modifier = modifier,
         )
     }
 }

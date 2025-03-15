@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.SideAnchor
 
 /**
  * Resizes a [GridItem] based on new pixel dimensions.
@@ -34,6 +35,44 @@ fun resizeGridItemWithPixels(
     )
 
     return resizeGridItem(
+        gridItem = gridItem,
+        newWidth = newWidth,
+        newHeight = newHeight,
+        anchor = anchor,
+    )
+}
+
+/**
+ * Resizes a [GridItem] based on new pixel dimensions.
+ *
+ * Converts the desired new pixel width and height into grid cell dimensions by taking into account
+ * the size of a single grid cell ([gridCellWidth] and [gridCellHeight]). The calculated grid cell dimensions
+ * are then used to resize the grid item by updating its spans and (depending on [anchor]) its starting position.
+ *
+ * @param gridItem The grid item to be resized.
+ * @param width The new desired width in pixels for the grid item.
+ * @param height The new desired height in pixels for the grid item.
+ * @param gridCellWidth The width of a single grid cell in pixels.
+ * @param gridCellHeight The height of a single grid cell in pixels.
+ * @param anchor The side that remains fixed during resizing.
+ * @return A new [GridItem] with updated starting position and spans.
+ */
+fun resizeWidgetGridItemWithPixels(
+    gridItem: GridItem,
+    width: Int,
+    height: Int,
+    gridCellWidth: Int,
+    gridCellHeight: Int,
+    anchor: SideAnchor,
+): GridItem {
+    val (newWidth, newHeight) = pixelDimensionsToGridSpan(
+        width = width,
+        height = height,
+        gridCellWidth = gridCellWidth,
+        gridCellHeight = gridCellHeight,
+    )
+
+    return resizeGridItemWithSideAnchor(
         gridItem = gridItem,
         newWidth = newWidth,
         newHeight = newHeight,
@@ -115,6 +154,61 @@ private fun resizeGridItem(
         Anchor.BOTTOM_END -> {
             // Preserve the bottom-right corner.
             newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
+            newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
+        }
+    }
+
+    return gridItem.copy(
+        startRow = newStartRow,
+        startColumn = newStartColumn,
+        rowSpan = newHeight,
+        columnSpan = newWidth,
+    )
+}
+
+/**
+ * Resizes a [GridItem] to a new size specified in grid cells,
+ * using a single side anchor to determine the fixed edge.
+ *
+ * When the anchor is:
+ * - TOP: the top edge remains fixed; the bottom edge expands or contracts.
+ * - BOTTOM: the bottom edge remains fixed; the top edge moves upward.
+ * - LEFT: the left edge remains fixed; the right edge expands or contracts.
+ * - RIGHT: the right edge remains fixed; the left edge shifts.
+ *
+ * @param gridItem The grid item to be resized.
+ * @param newWidth The new desired width in grid cells (column span).
+ * @param newHeight The new desired height in grid cells (row span).
+ * @param anchor The side that remains fixed during resizing.
+ * @return A new [GridItem] with updated starting position and spans.
+ */
+private fun resizeGridItemWithSideAnchor(
+    gridItem: GridItem,
+    newWidth: Int,
+    newHeight: Int,
+    anchor: SideAnchor,
+): GridItem {
+    val newStartRow: Int
+    val newStartColumn: Int
+
+    when (anchor) {
+        SideAnchor.TOP -> {
+            newStartRow = gridItem.startRow
+            newStartColumn = gridItem.startColumn
+        }
+
+        SideAnchor.BOTTOM -> {
+            newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
+            newStartColumn = gridItem.startColumn
+        }
+
+        SideAnchor.LEFT -> {
+            newStartRow = gridItem.startRow
+            newStartColumn = gridItem.startColumn
+        }
+
+        SideAnchor.RIGHT -> {
+            newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }
     }

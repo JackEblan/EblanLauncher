@@ -55,6 +55,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
+import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -93,6 +94,7 @@ fun HomeRoute(
         addGridItem = addGridItem,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
+        onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
         onAddApplicationInfoGridItem = viewModel::addApplicationInfoGridItem,
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
@@ -130,6 +132,15 @@ fun HomeScreen(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
+    onResizeWidgetGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        widthPixel: Int,
+        heightPixel: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: SideAnchor,
+    ) -> Unit,
     onAddApplicationInfoGridItem: (
         page: Int,
         x: Int,
@@ -149,6 +160,11 @@ fun HomeScreen(
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -187,6 +203,7 @@ fun HomeScreen(
                         addGridItem = addGridItem,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
+                        onResizeWidgetGridItem = onResizeWidgetGridItem,
                         onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
@@ -230,6 +247,15 @@ fun Success(
         cellHeight: Int,
         anchor: Anchor,
     ) -> Unit,
+    onResizeWidgetGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        widthPixel: Int,
+        heightPixel: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: SideAnchor,
+    ) -> Unit,
     onAddApplicationInfoGridItem: (
         page: Int,
         x: Int,
@@ -249,6 +275,11 @@ fun Success(
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -414,6 +445,7 @@ fun Success(
                     showMenu = showMenu,
                     showResize = showResize,
                     onResizeGridItem = onResizeGridItem,
+                    onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onDismissRequest = {
                         showMenu = false
                     },

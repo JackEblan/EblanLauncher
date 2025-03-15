@@ -46,6 +46,11 @@ fun WidgetScreen(
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -118,6 +123,11 @@ fun WidgetScreen(
                                                     appWidgetProviderInfo.targetCellWidth,
                                                     appWidgetProviderInfo.minWidth,
                                                     appWidgetProviderInfo.minHeight,
+                                                    appWidgetProviderInfo.resizeMode,
+                                                    appWidgetProviderInfo.minResizeWidth,
+                                                    appWidgetProviderInfo.minResizeHeight,
+                                                    appWidgetProviderInfo.maxResizeWidth,
+                                                    appWidgetProviderInfo.maxResizeHeight,
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
@@ -131,6 +141,11 @@ fun WidgetScreen(
                                                     0,
                                                     appWidgetProviderInfo.minWidth,
                                                     appWidgetProviderInfo.minHeight,
+                                                    appWidgetProviderInfo.resizeMode,
+                                                    appWidgetProviderInfo.minResizeWidth,
+                                                    appWidgetProviderInfo.minResizeHeight,
+                                                    0,
+                                                    0,
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
@@ -152,9 +167,20 @@ fun WidgetScreen(
                         Text(
                             text = "${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}",
                         )
+
                         Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
+
+                        Text(text = "ResizeMode = ${appWidgetProviderInfo.resizeMode}")
+
+                        Text(text = "MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}")
+
+                        Text(text = "MaxResizeWidth = ${appWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${appWidgetProviderInfo.maxResizeHeight}")
                     } else {
                         Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
+
+                        Text(text = "ResizeMode = ${appWidgetProviderInfo.resizeMode}")
+
+                        Text(text = "MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}")
                     }
                 }
             }

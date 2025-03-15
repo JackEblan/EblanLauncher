@@ -22,6 +22,11 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): GridItem {
@@ -69,6 +74,11 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             componentName = componentName,
             width = newWidth,
             height = newHeight,
+            resizeMode = resizeMode,
+            minResizeWidth = minResizeWidth,
+            minResizeHeight = minResizeHeight,
+            maxResizeWidth = maxResizeWidth,
+            maxResizeHeight = maxResizeHeight,
         )
 
         val gridItem = GridItem(

@@ -6,6 +6,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
+import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
@@ -14,6 +15,7 @@ import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +36,7 @@ class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
+    private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
     private val addApplicationInfoUseCase: AddApplicationInfoUseCase,
     private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
@@ -133,6 +136,28 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun resizeWidgetGridItem(
+        page: Int,
+        gridItem: GridItem,
+        width: Int,
+        height: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: SideAnchor,
+    ) {
+        viewModelScope.launch {
+            resizeWidgetGridItemUseCase(
+                page = page,
+                gridItem = gridItem,
+                width = width,
+                height = height,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                anchor = anchor,
+            )
+        }
+    }
+
     fun addApplicationInfoGridItem(
         page: Int,
         x: Int,
@@ -168,6 +193,11 @@ class HomeViewModel @Inject constructor(
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) {
@@ -182,6 +212,11 @@ class HomeViewModel @Inject constructor(
                     columnSpan = columnSpan,
                     minWidth = minWidth,
                     minHeight = minHeight,
+                    resizeMode = resizeMode,
+                    minResizeWidth = minResizeWidth,
+                    minResizeHeight = minResizeHeight,
+                    maxResizeWidth = maxResizeWidth,
+                    maxResizeHeight = maxResizeHeight,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )

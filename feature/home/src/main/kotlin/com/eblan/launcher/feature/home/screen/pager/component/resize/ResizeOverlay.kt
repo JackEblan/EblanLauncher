@@ -1,6 +1,8 @@
 package com.eblan.launcher.feature.home.screen.pager.component.resize
 
+import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,8 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.screen.pager.component.grid.animateGridItemPlacement
 import kotlin.math.roundToInt
@@ -257,11 +262,7 @@ fun WidgetGridItemResizeOverlay(
     gridItem: GridItem,
     cellWidth: Int,
     cellHeight: Int,
-    resizeMode: Int,
-    minResizeWidth: Int,
-    minResizeHeight: Int,
-    maxResizeWidth: Int,
-    maxResizeHeight: Int,
+    data: GridItemData.Widget,
     startRow: Int,
     startColumn: Int,
     rowSpan: Int,
@@ -287,10 +288,12 @@ fun WidgetGridItemResizeOverlay(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
+    val appWidgetManager = LocalAppWidgetManager.current
+
     val allowX by remember {
         derivedStateOf {
-            if (minResizeWidth > 0 && maxResizeWidth > 0) {
-                width in minResizeWidth..maxResizeWidth
+            if (data.minResizeWidth > 0 && data.maxResizeWidth > 0) {
+                width in data.minResizeWidth..data.maxResizeWidth
             } else {
                 width >= cellWidth / 2
             }
@@ -299,11 +302,25 @@ fun WidgetGridItemResizeOverlay(
 
     val allowY by remember {
         derivedStateOf {
-            if (minResizeHeight > 0 && maxResizeHeight > 0) {
-                height in minResizeHeight..maxResizeHeight
+            if (data.minResizeHeight > 0 && data.maxResizeHeight > 0) {
+                height in data.minResizeHeight..data.maxResizeHeight
             } else {
                 height >= cellHeight / 2
             }
+        }
+    }
+
+    LaunchedEffect(key1 = allowX, key2 = allowY) {
+        if (allowX && allowY) {
+            appWidgetManager.updateAppWidgetOptions(
+                data.appWidgetId,
+                Bundle().apply {
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, width)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, height)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, width)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, height)
+                },
+            )
         }
     }
 
@@ -339,7 +356,7 @@ fun WidgetGridItemResizeOverlay(
     ) {
         Box(
             modifier = Modifier.run {
-                if (resizeMode == AppWidgetProviderInfo.RESIZE_VERTICAL || resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
+                if (data.resizeMode == AppWidgetProviderInfo.RESIZE_VERTICAL || data.resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
                     align(Alignment.TopCenter)
                         .offset(y = (-15).dp)
                         .then(circleModifier)
@@ -374,7 +391,7 @@ fun WidgetGridItemResizeOverlay(
 
         Box(
             modifier = Modifier.run {
-                if (resizeMode == AppWidgetProviderInfo.RESIZE_HORIZONTAL || resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
+                if (data.resizeMode == AppWidgetProviderInfo.RESIZE_HORIZONTAL || data.resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
                     align(Alignment.CenterEnd)
                         .offset(15.dp)
                         .then(circleModifier)
@@ -407,7 +424,7 @@ fun WidgetGridItemResizeOverlay(
 
         Box(
             modifier = Modifier.run {
-                if (resizeMode == AppWidgetProviderInfo.RESIZE_VERTICAL || resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
+                if (data.resizeMode == AppWidgetProviderInfo.RESIZE_VERTICAL || data.resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
                     align(Alignment.BottomCenter)
                         .offset(y = 15.dp)
                         .then(circleModifier)
@@ -440,7 +457,7 @@ fun WidgetGridItemResizeOverlay(
 
         Box(
             modifier = Modifier.run {
-                if (resizeMode == AppWidgetProviderInfo.RESIZE_HORIZONTAL || resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
+                if (data.resizeMode == AppWidgetProviderInfo.RESIZE_HORIZONTAL || data.resizeMode == AppWidgetProviderInfo.RESIZE_BOTH) {
                     align(Alignment.CenterStart)
                         .offset((-15).dp)
                         .then(circleModifier)

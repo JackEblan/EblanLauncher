@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
@@ -219,6 +220,9 @@ private fun WidgetGridItem(
                 )
             },
             modifier = modifier,
+            update = { view ->
+                view.layoutParams = ViewGroup.LayoutParams(gridItemData.width, gridItemData.height)
+            },
         )
     }
 }

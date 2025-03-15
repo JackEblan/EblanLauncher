@@ -22,7 +22,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.eblan.launcher.feature.edit.EditRoute
 
-fun NavController.navigateToEdit(id: Int) {
+fun NavController.navigateToEdit(id: String) {
     navigate(EditRouteData(id = id))
 }
 

@@ -11,7 +11,7 @@ interface GridRepository {
 
     suspend fun upsertGridItem(gridItem: GridItem): Long
 
-    suspend fun updateGridItemData(id: Int, data: GridItemData): Int
+    suspend fun updateGridItemData(id: String, data: GridItemData): Int
 
-    suspend fun getGridItem(id: Int): GridItem?
+    suspend fun getGridItem(id: String): GridItem?
 }

@@ -1,11 +1,11 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
-import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.grid.resizeWidgetGridItemWithPixels
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.SideAnchor
 import javax.inject.Inject
 
-class ResizeGridItemUseCase @Inject constructor(
+class ResizeWidgetGridItemUseCase @Inject constructor(
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
@@ -15,9 +15,9 @@ class ResizeGridItemUseCase @Inject constructor(
         height: Int,
         cellWidth: Int,
         cellHeight: Int,
-        anchor: Anchor,
+        anchor: SideAnchor,
     ) {
-        val resizingGridItem = resizeGridItemWithPixels(
+        val resizingGridItem = resizeWidgetGridItemWithPixels(
             gridItem = gridItem,
             width = width,
             height = height,

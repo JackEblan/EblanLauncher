@@ -14,29 +14,34 @@ class AStarGridAlgorithmUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke(movingGridItem: GridItem) {
+    suspend operator fun invoke(gridItem: GridItem) {
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-                gridItem = movingGridItem,
-                rows = userData.rows,
-                columns = userData.columns,
-            )
+            if (isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                )
+            ) {
+                val gridItems = gridRepository.gridItems.first().filter { item ->
+                    isGridItemSpanWithinBounds(
+                        gridItem = item,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                    ) && item.id != gridItem.id && item.page == gridItem.page
+                }
 
-            val gridItems = gridRepository.gridItems.first().filter { gridItem ->
-                isGridItemSpanWithinBounds && gridItem.id != movingGridItem.id && gridItem.page == movingGridItem.page
-            }
+                val resolvedConflictsGridItems = resolveConflicts(
+                    gridItems = gridItems,
+                    movingGridItem = gridItem,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                )
 
-            val resolvedConflictsGridItems = resolveConflicts(
-                gridItems = gridItems,
-                movingGridItem = movingGridItem,
-                rows = userData.rows,
-                columns = userData.columns,
-            )
-
-            if (resolvedConflictsGridItems != null) {
-                gridRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+                if (resolvedConflictsGridItems != null) {
+                    gridRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+                }
             }
         }
     }

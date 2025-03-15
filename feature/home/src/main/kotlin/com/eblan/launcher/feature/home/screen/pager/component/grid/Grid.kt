@@ -1,33 +1,20 @@
 package com.eblan.launcher.feature.home.screen.pager.component.grid
 
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider
-import kotlin.math.roundToInt
+import com.eblan.launcher.feature.home.screen.pager.component.resize.GridItemResizeOverlay
+import com.eblan.launcher.feature.home.screen.pager.component.resize.WidgetGridItemResizeOverlay
 
 @Composable
 fun GridSubcomposeLayout(
@@ -35,18 +22,27 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    id: Int?,
+    currentGridItem: GridItem?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     showResize: Boolean,
     onResizeGridItem: (
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         width: Int,
         height: Int,
         cellWidth: Int,
         cellHeight: Int,
         anchor: Anchor,
+    ) -> Unit,
+    onResizeWidgetGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        widthPixel: Int,
+        heightPixel: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: SideAnchor,
     ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
@@ -91,17 +87,17 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                val gridItemOverlay = gridItem.takeIf { it.id == id }
+                val gridItemOverlay = gridItem.id == currentGridItem?.id
 
-                if (showMenu && gridItemOverlay != null) {
+                if (showMenu && gridItemOverlay) {
                     subcompose("Menu") {
                         GridItemMenu(
                             cellWidth = cellWidth,
                             cellHeight = cellHeight,
-                            startRow = gridItemOverlay.startRow,
-                            startColumn = gridItemOverlay.startColumn,
-                            rowSpan = gridItemOverlay.rowSpan,
-                            columnSpan = gridItemOverlay.columnSpan,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
                             screenWidth = constraints.maxWidth,
                             screenHeight = constraints.maxHeight,
                             onDismissRequest = onDismissRequest,
@@ -112,20 +108,40 @@ fun GridSubcomposeLayout(
                     }
                 }
 
-                if (showResize && gridItemOverlay != null) {
+                if (showResize && gridItemOverlay) {
                     subcompose("Resize") {
-                        GridItemResize(
-                            page = page,
-                            id = gridItemOverlay.id,
-                            cellWidth = cellWidth,
-                            cellHeight = cellHeight,
-                            startRow = gridItemOverlay.startRow,
-                            startColumn = gridItemOverlay.startColumn,
-                            rowSpan = gridItemOverlay.rowSpan,
-                            columnSpan = gridItemOverlay.columnSpan,
-                            onResizeGridItem = onResizeGridItem,
-                            onResizeEnd = onResizeEnd,
-                        )
+                        when (val data = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                GridItemResizeOverlay(
+                                    page = page,
+                                    gridItem = gridItem,
+                                    cellWidth = cellWidth,
+                                    cellHeight = cellHeight,
+                                    startRow = gridItem.startRow,
+                                    startColumn = gridItem.startColumn,
+                                    rowSpan = gridItem.rowSpan,
+                                    columnSpan = gridItem.columnSpan,
+                                    onResizeGridItem = onResizeGridItem,
+                                    onResizeEnd = onResizeEnd,
+                                )
+                            }
+
+                            is GridItemData.Widget -> {
+                                WidgetGridItemResizeOverlay(
+                                    page = page,
+                                    gridItem = gridItem,
+                                    cellWidth = cellWidth,
+                                    cellHeight = cellHeight,
+                                    data = data,
+                                    startRow = gridItem.startRow,
+                                    startColumn = gridItem.startColumn,
+                                    rowSpan = gridItem.rowSpan,
+                                    columnSpan = gridItem.columnSpan,
+                                    onResizeWidgetGridItem = onResizeWidgetGridItem,
+                                    onResizeEnd = onResizeEnd,
+                                )
+                            }
+                        }
                     }.forEach { measurable ->
                         val gridItemParentData = measurable.parentData as GridItemParentData
 
@@ -209,228 +225,4 @@ private fun GridItemMenu(
         onDismissRequest = onDismissRequest,
         content = content,
     )
-}
-
-@Composable
-private fun GridItemResize(
-    modifier: Modifier = Modifier,
-    page: Int,
-    id: Int,
-    cellWidth: Int,
-    cellHeight: Int,
-    startRow: Int,
-    startColumn: Int,
-    rowSpan: Int,
-    columnSpan: Int,
-    onResizeGridItem: (
-        page: Int,
-        id: Int,
-        widthPixel: Int,
-        heightPixel: Int,
-        cellWidth: Int,
-        cellHeight: Int,
-        anchor: Anchor,
-    ) -> Unit,
-    onResizeEnd: () -> Unit,
-) {
-    val density = LocalDensity.current
-
-    var width by remember { mutableIntStateOf(columnSpan * cellWidth) }
-
-    var height by remember { mutableIntStateOf(rowSpan * cellHeight) }
-
-    var x by remember { mutableIntStateOf(startColumn * cellWidth) }
-
-    var y by remember { mutableIntStateOf(startRow * cellHeight) }
-
-    val allowX by remember {
-        derivedStateOf {
-            width >= cellWidth / 2
-        }
-    }
-
-    val allowY by remember {
-        derivedStateOf {
-            height >= cellHeight / 2
-        }
-    }
-
-    val circleModifier = Modifier
-        .size(30.dp)
-        .background(Color.White, shape = CircleShape)
-
-    Box(
-        modifier = modifier
-            .animateGridItemPlacement(
-                width = if (allowX) {
-                    width
-                } else {
-                    columnSpan * cellWidth
-                },
-                height = if (allowY) {
-                    height
-                } else {
-                    rowSpan * cellHeight
-                },
-                x = if (allowX) {
-                    x
-                } else {
-                    startColumn * cellWidth
-                },
-                y = if (allowY) {
-                    y
-                } else {
-                    startRow * cellHeight
-                },
-            )
-            .border(width = 2.dp, color = Color.White),
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset((-15).dp, (-15).dp)
-                .then(circleModifier)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = onResizeEnd,
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx().roundToInt()
-                            }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx().roundToInt()
-                            }
-
-                            width += -dragAmountX
-                            height += -dragAmountY
-
-                            x += dragAmount.x.roundToInt()
-                            y += dragAmount.y.roundToInt()
-
-                            onResizeGridItem(
-                                page,
-                                id,
-                                width,
-                                height,
-                                cellWidth,
-                                cellHeight,
-                                Anchor.BOTTOM_END,
-                            )
-                        },
-                    )
-                },
-        )
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(15.dp, (-15).dp)
-                .then(circleModifier)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = onResizeEnd,
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx().roundToInt()
-                            }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx().roundToInt()
-                            }
-
-                            width += dragAmountX
-                            height += -dragAmountY
-
-                            y += dragAmount.y.roundToInt()
-
-                            onResizeGridItem(
-                                page,
-                                id,
-                                width,
-                                height,
-                                cellWidth,
-                                cellHeight,
-                                Anchor.BOTTOM_START,
-                            )
-
-                        },
-                    )
-                },
-        )
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset((-15).dp, 15.dp)
-                .then(circleModifier)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = onResizeEnd,
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx().roundToInt()
-                            }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx().roundToInt()
-                            }
-
-                            width += -dragAmountX
-                            height += dragAmountY
-
-                            x += dragAmount.x.roundToInt()
-
-                            onResizeGridItem(
-                                page,
-                                id,
-                                width,
-                                height,
-                                cellWidth,
-                                cellHeight,
-                                Anchor.TOP_END,
-                            )
-                        },
-                    )
-                },
-        )
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(15.dp, 15.dp)
-                .then(circleModifier)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = onResizeEnd,
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            val dragAmountX = with(density) {
-                                dragAmount.x.toDp().toPx().roundToInt()
-                            }
-
-                            val dragAmountY = with(density) {
-                                dragAmount.y.toDp().toPx().roundToInt()
-                            }
-
-                            width += dragAmountX
-                            height += dragAmountY
-
-                            onResizeGridItem(
-                                page,
-                                id,
-                                width,
-                                height,
-                                cellWidth,
-                                cellHeight,
-                                Anchor.TOP_START,
-                            )
-                        },
-                    )
-                },
-        )
-    }
 }

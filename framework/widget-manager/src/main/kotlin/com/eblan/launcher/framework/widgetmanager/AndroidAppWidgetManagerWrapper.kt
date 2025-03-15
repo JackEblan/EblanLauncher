@@ -45,11 +45,11 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
         }
     }
 
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo {
+    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? {
         return appWidgetManager.getAppWidgetInfo(appWidgetId)
     }
 
-    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName): Boolean {
+    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean {
         return appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
     }
 

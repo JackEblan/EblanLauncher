@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemBoundary
+import com.eblan.launcher.domain.model.GridItemMovement
 
 /**
  * Validates that grid item span within the acceptable grid bounds.
@@ -56,25 +56,4 @@ fun coordinatesToStartPosition(
     val startRow = y / cellHeight
 
     return startRow to startColumn
-}
-
-/**
- * Determines if the grid item exceeds the screen boundary based on its center horizontal position and dimensions.
- *
- * @param x The x-coordinate of the grid item's position.
- * @param width The width of the grid item's bounding box.
- * @param screenWidth The total width of the screen or container.
- * @return [GridItemBoundary] indicating whether the grid item is touching the left edge, right edge, or neither.
- */
-fun getGridItemBoundaryCenter(
-    x: Int, width: Int, screenWidth: Int,
-): GridItemBoundary? {
-    val touchesLeft = (x + width / 2) <= 0
-    val touchesRight = (x + width / 2) >= screenWidth
-
-    return when {
-        touchesLeft -> GridItemBoundary.Left
-        touchesRight -> GridItemBoundary.Right
-        else -> null
-    }
 }

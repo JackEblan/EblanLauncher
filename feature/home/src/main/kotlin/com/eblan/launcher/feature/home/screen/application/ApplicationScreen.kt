@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.GridItemData
 import kotlin.math.roundToInt
 
 @Composable
@@ -39,6 +40,7 @@ fun ApplicationScreen(
         columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
+        data: GridItemData,
     ) -> Unit,
 ) {
     LazyVerticalGrid(
@@ -61,6 +63,12 @@ fun ApplicationScreen(
                                     awaitLongPressOrCancellation(down.id) ?: continue
 
                                 if (!longPressChange.isConsumed) {
+                                    val data = GridItemData.ApplicationInfo(
+                                        packageName = eblanApplicationInfo.packageName,
+                                        icon = eblanApplicationInfo.icon,
+                                        label = eblanApplicationInfo.label,
+                                    )
+
                                     onLongPressApplicationInfo(
                                         eblanApplicationInfoOffset,
                                         eblanApplicationInfoSize,
@@ -74,6 +82,7 @@ fun ApplicationScreen(
                                         1,
                                         screenSize.width,
                                         screenSize.height,
+                                        data,
                                     )
                                 }
                             }

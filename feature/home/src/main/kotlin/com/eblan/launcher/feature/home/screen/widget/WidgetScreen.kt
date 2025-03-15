@@ -39,12 +39,18 @@ fun WidgetScreen(
     onLongPressAppWidgetProviderInfo: (Offset, IntSize) -> Unit,
     onAddAppWidgetProviderInfoGridItem: (
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -110,24 +116,36 @@ fun WidgetScreen(
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                                 onAddAppWidgetProviderInfoGridItem(
                                                     pagerState.currentPage,
+                                                    appWidgetProviderInfo.provider.flattenToString(),
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),
                                                     appWidgetProviderInfo.targetCellHeight,
                                                     appWidgetProviderInfo.targetCellWidth,
                                                     appWidgetProviderInfo.minWidth,
                                                     appWidgetProviderInfo.minHeight,
+                                                    appWidgetProviderInfo.resizeMode,
+                                                    appWidgetProviderInfo.minResizeWidth,
+                                                    appWidgetProviderInfo.minResizeHeight,
+                                                    appWidgetProviderInfo.maxResizeWidth,
+                                                    appWidgetProviderInfo.maxResizeHeight,
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
                                             } else {
                                                 onAddAppWidgetProviderInfoGridItem(
                                                     pagerState.currentPage,
+                                                    appWidgetProviderInfo.provider.flattenToString(),
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),
                                                     0,
                                                     0,
                                                     appWidgetProviderInfo.minWidth,
                                                     appWidgetProviderInfo.minHeight,
+                                                    appWidgetProviderInfo.resizeMode,
+                                                    appWidgetProviderInfo.minResizeWidth,
+                                                    appWidgetProviderInfo.minResizeHeight,
+                                                    0,
+                                                    0,
                                                     screenSize.width,
                                                     screenSize.height,
                                                 )
@@ -149,9 +167,20 @@ fun WidgetScreen(
                         Text(
                             text = "${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}",
                         )
+
                         Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
+
+                        Text(text = "ResizeMode = ${appWidgetProviderInfo.resizeMode}")
+
+                        Text(text = "MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}")
+
+                        Text(text = "MaxResizeWidth = ${appWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${appWidgetProviderInfo.maxResizeHeight}")
                     } else {
                         Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
+
+                        Text(text = "ResizeMode = ${appWidgetProviderInfo.resizeMode}")
+
+                        Text(text = "MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}")
                     }
                 }
             }

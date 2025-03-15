@@ -1,8 +1,10 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -26,6 +28,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
@@ -43,12 +46,29 @@ fun PagerScreen(
     showOverlay: Boolean,
     showMenu: Boolean,
     showResize: Boolean,
-    onResizeGridItem: (page: Int, id: Int, width: Int, height: Int, cellWidth: Int, cellHeight: Int, anchor: Anchor) -> Unit,
+    onResizeGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        width: Int,
+        height: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: Anchor,
+    ) -> Unit,
+    onResizeWidgetGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        widthPixel: Int,
+        heightPixel: Int,
+        cellWidth: Int,
+        cellHeight: Int,
+        anchor: SideAnchor,
+    ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
     onMoveGridItem: (
         page: Int,
-        id: Int,
+        gridItem: GridItem,
         x: Int,
         y: Int,
         width: Int,
@@ -66,13 +86,13 @@ fun PagerScreen(
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    var gridItemOverlayId by remember { mutableStateOf<Int?>(null) }
+    var currentGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     LaunchedEffect(key1 = dragOffset) {
-        gridItemOverlayId?.let { id ->
+        currentGridItem?.let { gridItem ->
             onMoveGridItem(
                 pagerState.currentPage,
-                id,
+                gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
                 overlaySize.width,
@@ -108,15 +128,16 @@ fun PagerScreen(
             page = page,
             rows = rows,
             columns = columns,
-            id = gridItemOverlayId,
+            currentGridItem = currentGridItem,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,
+            onResizeWidgetGridItem = onResizeWidgetGridItem,
             showMenu = showMenu,
             showResize = showResize,
             onDismissRequest = onDismissRequest,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem, width, height, x, y ->
-                EmptyGridItem(
+                Box(
                     modifier = Modifier.pointerInput(key1 = showOverlay) {
                         awaitPointerEventScope {
                             while (true) {
@@ -134,12 +155,24 @@ fun PagerScreen(
                                         IntSize(width = width, height = height),
                                     )
 
-                                    gridItemOverlayId = gridItem.id
+                                    currentGridItem = gridItem
                                 }
                             }
                         }
                     },
-                )
+                ) {
+                    when (val gridItemData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            ApplicationInfoGridItem(
+                                gridItemData = gridItemData,
+                            )
+                        }
+
+                        is GridItemData.Widget -> {
+                            WidgetGridItem(gridItemData = gridItemData)
+                        }
+                    }
+                }
             },
             menuContent = {
                 MenuOverlay(
@@ -168,33 +201,28 @@ fun ApplicationInfoGridItem(
 }
 
 @Composable
-fun EmptyGridItem(
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Red),
-    ) {
-        Text(text = "Empty")
-    }
-}
-
-@Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
-    appWidgetId: Int,
+    gridItemData: GridItemData.Widget,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
 
-    AndroidView(
-        modifier = modifier.fillMaxSize(),
-        factory = {
-            val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
-            appWidgetHost.createView(appWidgetId, appWidgetInfo)
-        },
-    )
+    if (appWidgetInfo != null) {
+        AndroidView(
+            factory = {
+                appWidgetHost.createView(
+                    appWidgetId = gridItemData.appWidgetId,
+                    appWidgetProviderInfo = appWidgetInfo,
+                )
+            },
+            modifier = modifier,
+            update = { view ->
+                view.layoutParams = ViewGroup.LayoutParams(gridItemData.width, gridItemData.height)
+            },
+        )
+    }
 }

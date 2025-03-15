@@ -21,7 +21,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.eblan.launcher.feature.home.HomeRoute
 
-fun NavGraphBuilder.homeScreen(onEdit: (Int) -> Unit) {
+fun NavGraphBuilder.homeScreen(onEdit: (String) -> Unit) {
     composable<HomeRouteData> {
         HomeRoute(onEdit = onEdit)
     }

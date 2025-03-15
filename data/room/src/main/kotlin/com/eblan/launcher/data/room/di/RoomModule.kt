@@ -20,6 +20,7 @@ package com.eblan.launcher.data.room.di
 import android.content.Context
 import androidx.room.Room
 import com.eblan.launcher.data.room.EblanDatabase
+import com.eblan.launcher.data.room.converter.EblanTypeConverters
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,9 +35,10 @@ internal object RoomModule {
     @Provides
     fun eblanLauncherDatabase(
         @ApplicationContext context: Context,
+        eblanTypeConverters: EblanTypeConverters,
     ): EblanDatabase = Room.databaseBuilder(
         context,
         EblanDatabase::class.java,
         EblanDatabase.DATABASE_NAME,
-    ).build()
+    ).addTypeConverter(eblanTypeConverters).build()
 }

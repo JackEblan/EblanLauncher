@@ -84,7 +84,7 @@ class EditViewModel @Inject constructor(
             )
 
             val rowsAffected = gridRepository.updateGridItemData(
-                id = editRouteData.id,
+                id = "",
                 data = data,
             )
 
@@ -108,20 +108,20 @@ class EditViewModel @Inject constructor(
         minHeight: Int,
     ) {
         viewModelScope.launch {
-            val data = GridItemData.Widget(
-                appWidgetId = appWidgetId,
-                minWidth = minWidth,
-                minHeight = minHeight,
-            )
-
-            val rowsAffected = gridRepository.updateGridItemData(
-                id = editRouteData.id,
-                data = data,
-            )
-
-            _gridRepositoryUpdate.update {
-                rowsAffected > 0
-            }
+//            val data = GridItemData.Widget(
+//                appWidgetId = appWidgetId,
+//                minWidth = minWidth,
+//                minHeight = minHeight,
+//            )
+//
+//            val rowsAffected = gridRepository.updateGridItemData(
+//                id = editRouteData.id,
+//                data = data,
+//            )
+//
+//            _gridRepositoryUpdate.update {
+//                rowsAffected > 0
+//            }
         }
     }
 
@@ -135,24 +135,24 @@ class EditViewModel @Inject constructor(
         targetCellHeight: Int,
     ) {
         viewModelScope.launch {
-            val data = GridItemData.WidgetAndroidTwelve(
-                appWidgetId = appWidgetId,
-                minWidth = minWidth,
-                minHeight = minHeight,
-                minResizeWidth = minResizeWidth,
-                minResizeHeight = minResizeHeight,
-                targetCellWidth = targetCellWidth,
-                targetCellHeight = targetCellHeight,
-            )
-
-            val rowsAffected = gridRepository.updateGridItemData(
-                id = editRouteData.id,
-                data = data,
-            )
-
-            _gridRepositoryUpdate.update {
-                rowsAffected > 0
-            }
+//            val data = GridItemData.WidgetAndroidTwelve(
+//                appWidgetId = appWidgetId,
+//                minWidth = minWidth,
+//                minHeight = minHeight,
+//                minResizeWidth = minResizeWidth,
+//                minResizeHeight = minResizeHeight,
+//                targetCellWidth = targetCellWidth,
+//                targetCellHeight = targetCellHeight,
+//            )
+//
+//            val rowsAffected = gridRepository.updateGridItemData(
+//                id = editRouteData.id,
+//                data = data,
+//            )
+//
+//            _gridRepositoryUpdate.update {
+//                rowsAffected > 0
+//            }
         }
     }
 
@@ -170,7 +170,7 @@ class EditViewModel @Inject constructor(
     private fun getGridItem() {
         viewModelScope.launch {
             _gridItem.update {
-                gridRepository.getGridItem(id = editRouteData.id)
+                gridRepository.getGridItem(id = "")
             }
         }
     }

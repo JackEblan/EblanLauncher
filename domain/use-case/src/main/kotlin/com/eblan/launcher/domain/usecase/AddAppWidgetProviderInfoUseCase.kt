@@ -1,29 +1,35 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
-import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
+import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
+import java.util.UUID
 import javax.inject.Inject
 
 class AddAppWidgetProviderInfoUseCase @Inject constructor(
-    private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
+        componentName: String,
         x: Int,
         y: Int,
         rowSpan: Int,
         columnSpan: Int,
         minWidth: Int,
         minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): Int {
+    ): GridItem {
         val userData = userDataRepository.userData.first()
 
         val cellWidth = screenWidth / userData.columns
@@ -42,6 +48,18 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             columnSpan
         }
 
+        val newWidth = if (columnSpan == 0) {
+            minWidth
+        } else {
+            columnSpan * cellWidth
+        }
+
+        val newHeight = if (rowSpan == 0) {
+            minHeight
+        } else {
+            rowSpan * cellHeight
+        }
+
         val (startRow, startColumn) = coordinatesToStartPosition(
             x = x,
             y = y,
@@ -51,33 +69,40 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             screenHeight = screenHeight,
         )
 
+        val data = GridItemData.Widget(
+            appWidgetId = -1,
+            componentName = componentName,
+            width = newWidth,
+            height = newHeight,
+            resizeMode = resizeMode,
+            minResizeWidth = minResizeWidth,
+            minResizeHeight = minResizeHeight,
+            maxResizeWidth = maxResizeWidth,
+            maxResizeHeight = maxResizeHeight,
+        )
+
         val gridItem = GridItem(
+            id = UUID.randomUUID().toString(),
             page = page,
             startRow = startRow,
             startColumn = startColumn,
             rowSpan = newRowSpan,
             columnSpan = newColumnSpan,
+            data = data,
         )
 
-        if (isGridItemSpanWithinBounds(
-                gridItem = gridItem,
-                rows = userData.rows,
-                columns = userData.columns,
-            ).not()
-        ) {
-            return -1
-        }
+        val movingGridItem = moveGridItemWithCoordinates(
+            gridItem = gridItem,
+            x = x,
+            y = y,
+            rows = userData.rows,
+            columns = userData.columns,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+        ).copy(page = page)
 
-        val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
+        aStarGridAlgorithmUseCase(gridItem = movingGridItem)
 
-        val movingGridItem = gridRepository.getGridItem(id = gridItemId)
-
-        return if (movingGridItem != null) {
-            aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
-
-            movingGridItem.id
-        } else {
-            -1
-        }
+        return gridItem
     }
 }

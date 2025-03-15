@@ -2,15 +2,14 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
+import java.util.UUID
 import javax.inject.Inject
 
 class AddApplicationInfoUseCase @Inject constructor(
-    private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -20,7 +19,8 @@ class AddApplicationInfoUseCase @Inject constructor(
         columnSpan: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): Int {
+        data: GridItemData,
+    ): GridItem {
         val userData = userDataRepository.userData.first()
 
         val (startRow, startColumn) = coordinatesToStartPosition(
@@ -33,23 +33,15 @@ class AddApplicationInfoUseCase @Inject constructor(
         )
 
         val gridItem = GridItem(
+            id = UUID.randomUUID().toString(),
             page = page,
             startRow = startRow,
             startColumn = startColumn,
             rowSpan = rowSpan,
             columnSpan = columnSpan,
+            data = data,
         )
 
-        val gridItemId = gridRepository.upsertGridItem(gridItem = gridItem).toInt()
-
-        val movingGridItem = gridRepository.getGridItem(id = gridItemId)
-
-        return if (movingGridItem != null) {
-            aStarGridAlgorithmUseCase(movingGridItem = movingGridItem)
-
-            movingGridItem.id
-        } else {
-            -1
-        }
+        return gridItem
     }
 }

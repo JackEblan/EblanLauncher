@@ -85,7 +85,6 @@ fun PagerScreen(
         screenHeight: Int,
     ) -> Unit,
     onLongPressGridItem: (Offset, IntSize) -> Unit,
-    onResetGridItemByCoordinates: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {

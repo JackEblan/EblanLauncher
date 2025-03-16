@@ -466,7 +466,6 @@ fun Success(
                         showOverlay = true
                         showMenu = true
                     },
-                    onResetGridItemByCoordinates = onResetGridItemByCoordinates,
                     onEdit = {
 
                     },
@@ -512,7 +511,7 @@ fun Success(
 
 
         if (showOverlay) {
-            HomeOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
+            GridItemOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
         }
 
         if (gridItemIdByCoordinates == null && showBottomSheet) {
@@ -575,7 +574,8 @@ private fun HomeBottomSheet(
 
 
 @Composable
-private fun HomeOverlay(
+private fun GridItemOverlay(
+    modifier: Modifier = Modifier,
     overlaySize: IntSize,
     dragOffset: Offset,
 ) {
@@ -594,7 +594,7 @@ private fun HomeOverlay(
     val heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .offset {
                 IntOffset(
                     x = dragOffset.x.roundToInt(),

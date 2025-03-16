@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +34,6 @@ import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcompos
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PagerScreen(
     modifier: Modifier = Modifier,
@@ -149,7 +147,7 @@ fun PagerScreen(
 
                             val longPressChange = awaitLongPressOrCancellation(down.id)
 
-                            if (longPressChange != null) {
+                            if (longPressChange != null && showOverlay.not()) {
                                 onLongPressGridItem(
                                     dragOffset.copy(
                                         x = x.toFloat(),

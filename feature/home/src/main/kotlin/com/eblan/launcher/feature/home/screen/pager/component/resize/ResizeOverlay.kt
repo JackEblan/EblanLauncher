@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager.component.resize
 
-import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
-import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -23,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -288,8 +284,6 @@ fun WidgetGridItemResizeOverlay(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
-    val appWidgetManager = LocalAppWidgetManager.current
-
     val allowX by remember {
         derivedStateOf {
             if (data.minResizeWidth > 0 && data.maxResizeWidth > 0) {
@@ -307,20 +301,6 @@ fun WidgetGridItemResizeOverlay(
             } else {
                 height >= cellHeight / 2
             }
-        }
-    }
-
-    LaunchedEffect(key1 = allowX, key2 = allowY) {
-        if (allowX && allowY) {
-            appWidgetManager.updateAppWidgetOptions(
-                data.appWidgetId,
-                Bundle().apply {
-                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, width)
-                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, height)
-                    putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, width)
-                    putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, height)
-                },
-            )
         }
     }
 

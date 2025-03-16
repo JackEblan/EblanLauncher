@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Box
@@ -112,21 +113,19 @@ fun PagerScreen(
         GridSubcomposeLayout(
             modifier = modifier
                 .pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val down = awaitFirstDown(requireUnconsumed = false)
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
 
-                            val longPressChange = awaitLongPressOrCancellation(down.id) ?: continue
+                        val longPress = awaitLongPressOrCancellation(down.id)
 
-                            if (!longPressChange.isConsumed) {
-                                onGetGridItemByCoordinates(
-                                    pagerState.currentPage,
-                                    longPressChange.position.x.roundToInt(),
-                                    longPressChange.position.y.roundToInt(),
-                                    size.width,
-                                    size.height,
-                                )
-                            }
+                        if (longPress != null) {
+                            onGetGridItemByCoordinates(
+                                pagerState.currentPage,
+                                longPress.position.x.roundToInt(),
+                                longPress.position.y.roundToInt(),
+                                size.width,
+                                size.height,
+                            )
                         }
                     }
                 }
@@ -145,24 +144,21 @@ fun PagerScreen(
             gridItemContent = { gridItem, width, height, x, y ->
                 Box(
                     modifier = Modifier.pointerInput(key1 = showOverlay) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val down = awaitFirstDown(requireUnconsumed = false)
+                        awaitEachGesture {
+                            val down = awaitFirstDown()
 
-                                val longPressChange =
-                                    awaitLongPressOrCancellation(down.id) ?: continue
+                            val longPressChange = awaitLongPressOrCancellation(down.id)
 
-                                if (!longPressChange.isConsumed) {
-                                    onLongPressGridItem(
-                                        dragOffset.copy(
-                                            x = x.toFloat(),
-                                            y = y.toFloat(),
-                                        ),
-                                        IntSize(width = width, height = height),
-                                    )
+                            if (longPressChange != null) {
+                                onLongPressGridItem(
+                                    dragOffset.copy(
+                                        x = x.toFloat(),
+                                        y = y.toFloat(),
+                                    ),
+                                    IntSize(width = width, height = height),
+                                )
 
-                                    currentGridItem = gridItem
-                                }
+                                currentGridItem = gridItem
                             }
                         }
                     },
@@ -224,12 +220,16 @@ private fun WidgetGridItem(
                 appWidgetHost.createView(
                     appWidgetId = gridItemData.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
-                )
+                ).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+
+                    setAppWidget(appWidgetId, appWidgetInfo)
+                }
             },
             modifier = modifier,
-            update = { view ->
-                view.layoutParams = ViewGroup.LayoutParams(gridItemData.width, gridItemData.height)
-            },
         )
     }
 }

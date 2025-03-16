@@ -1,7 +1,7 @@
 package com.eblan.launcher.framework.widgetmanager
 
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
-import android.view.View
 
 interface AppWidgetHostWrapper {
     fun startListening()
@@ -10,5 +10,8 @@ interface AppWidgetHostWrapper {
 
     fun allocateAppWidgetId(): Int
 
-    fun createView(appWidgetId: Int, appWidgetProviderInfo: AppWidgetProviderInfo): View
+    fun createView(
+        appWidgetId: Int,
+        appWidgetProviderInfo: AppWidgetProviderInfo,
+    ): AppWidgetHostView
 }

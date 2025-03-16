@@ -1,9 +1,9 @@
 package com.eblan.launcher.framework.widgetmanager
 
 import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
-import android.view.View
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -23,9 +23,10 @@ internal class AndroidAppWidgetHostWrapper @Inject constructor(@ApplicationConte
         return appWidgetHost.allocateAppWidgetId()
     }
 
-    override fun createView(appWidgetId: Int, appWidgetProviderInfo: AppWidgetProviderInfo): View {
-        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo).apply {
-            setAppWidget(appWidgetId, appWidgetProviderInfo)
-        }
+    override fun createView(
+        appWidgetId: Int,
+        appWidgetProviderInfo: AppWidgetProviderInfo,
+    ): AppWidgetHostView {
+        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
     }
 }

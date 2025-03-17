@@ -34,7 +34,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -99,8 +98,8 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onUpdateWidget = viewModel::updateWidget,
-        onResetGridItemByCoordinates = viewModel::resetGridItemIdByCoordinates,
-        onResetOverlay = viewModel::resetAddGridItem,
+        onResetGridItemIdByCoordinates = viewModel::resetGridItemIdByCoordinates,
+        onResetAddGridItem = viewModel::resetAddGridItem,
         onEdit = onEdit,
     )
 }
@@ -175,9 +174,9 @@ fun HomeScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onUpdateWidget: (id: String?, appWidgetId: Int?) -> Unit,
-    onResetGridItemByCoordinates: () -> Unit,
-    onResetOverlay: () -> Unit,
+    onUpdateWidget: (id: String, appWidgetId: Int) -> Unit,
+    onResetGridItemIdByCoordinates: () -> Unit,
+    onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
     Scaffold { paddingValues ->
@@ -208,8 +207,8 @@ fun HomeScreen(
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
                         onUpdateWidget = onUpdateWidget,
-                        onResetGridItemByCoordinates = onResetGridItemByCoordinates,
-                        onResetOverlay = onResetOverlay,
+                        onResetGridItemIdByCoordinates = onResetGridItemIdByCoordinates,
+                        onResetAddGridItem = onResetAddGridItem,
                         onEdit = onEdit,
                     )
                 }
@@ -290,9 +289,9 @@ fun Success(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onUpdateWidget: (id: String?, appWidgetId: Int?) -> Unit,
-    onResetGridItemByCoordinates: () -> Unit,
-    onResetOverlay: () -> Unit,
+    onUpdateWidget: (id: String, appWidgetId: Int) -> Unit,
+    onResetGridItemIdByCoordinates: () -> Unit,
+    onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
     val pagerState = rememberPagerState(
@@ -319,7 +318,7 @@ fun Success(
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val currentAddGridItem by rememberUpdatedState(addGridItem)
+    var appWidgetId by remember { mutableStateOf<Int?>(null) }
 
     val appWidgetManager = LocalAppWidgetManager.current
 
@@ -330,15 +329,11 @@ fun Success(
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             println("Widget created")
-            val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-
-            onUpdateWidget(currentAddGridItem?.id, appWidgetId)
+            appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
         } else {
             println("Widget cancelled")
-            //Delete the Grid item in the database
+            appWidgetId = null
         }
-
-        onResetOverlay()
     }
 
     LaunchedEffect(key1 = gridItemMovement) {
@@ -375,6 +370,55 @@ fun Success(
         }
     }
 
+    LaunchedEffect(key1 = addGridItem, key2 = showOverlay) {
+        if (addGridItem != null && showOverlay.not()) {
+            when (val data = addGridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    onResetAddGridItem()
+                }
+
+                is GridItemData.Widget -> {
+                    val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
+
+                    val provider = ComponentName.unflattenFromString(data.componentName)
+
+                    if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                            appWidgetId = allocateAppWidgetId,
+                            provider = provider,
+                        )
+                    ) {
+                        //Widget created already
+                    } else {
+                        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                            putExtra(
+                                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                allocateAppWidgetId,
+                            )
+                            putExtra(
+                                AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                                provider,
+                            )
+                        }
+
+                        appWidgetLauncher.launch(intent)
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = addGridItem, key2 = appWidgetId) {
+        if (addGridItem != null && appWidgetId != null) {
+            appWidgetId?.let { id ->
+                onUpdateWidget(addGridItem.id, id)
+            }
+
+            appWidgetId = null
+
+            onResetAddGridItem()
+        }
+    }
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -385,42 +429,6 @@ fun Success(
                     onDragEnd = {
                         showOverlay = false
                         showResize = false
-
-                        when (val data = currentAddGridItem?.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                onResetOverlay()
-                            }
-
-                            is GridItemData.Widget -> {
-                                val appWidgetId = appWidgetHost.allocateAppWidgetId()
-
-                                val provider = ComponentName.unflattenFromString(data.componentName)
-
-                                if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                                        appWidgetId = appWidgetId,
-                                        provider = provider,
-                                    )
-                                ) {
-                                    //Widget created already
-                                } else {
-                                    val intent =
-                                        Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                                            putExtra(
-                                                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                                appWidgetId,
-                                            )
-                                            putExtra(
-                                                AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                                                provider,
-                                            )
-                                        }
-
-                                    appWidgetLauncher.launch(intent)
-                                }
-                            }
-
-                            null -> Unit
-                        }
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -484,7 +492,7 @@ fun Success(
                     onLongPressApplicationInfo = { offset, size ->
                         dragOffset = offset
                         overlaySize = size
-                        onResetGridItemByCoordinates()
+                        onResetGridItemIdByCoordinates()
                         showBottomSheet = false
                     },
                     onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
@@ -501,7 +509,7 @@ fun Success(
                     onLongPressAppWidgetProviderInfo = { offset, size ->
                         dragOffset = offset
                         overlaySize = size
-                        onResetGridItemByCoordinates()
+                        onResetGridItemIdByCoordinates()
                         showBottomSheet = false
                     },
                     onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
@@ -518,7 +526,7 @@ fun Success(
             HomeBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = {
-                    onResetGridItemByCoordinates()
+                    onResetGridItemIdByCoordinates()
                     showBottomSheet = false
                 },
                 onHomeType = { type ->

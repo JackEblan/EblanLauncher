@@ -16,7 +16,6 @@ import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
-import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,7 +42,6 @@ class HomeViewModel @Inject constructor(
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
-    private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -246,9 +244,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateWidget(id: String?, appWidgetId: Int?) {
+    fun updateWidget(id: String, appWidgetId: Int) {
         viewModelScope.launch {
-            updateWidgetGridItemDataUseCase(id = id, appWidgetId = appWidgetId)
+            val gridItemData = gridRepository.getGridItem(id = id)?.data
+
+            if (gridItemData is GridItemData.Widget) {
+                gridRepository.updateGridItemData(
+                    id = id,
+                    data = gridItemData.copy(appWidgetId = appWidgetId),
+                )
+            }
         }
     }
 

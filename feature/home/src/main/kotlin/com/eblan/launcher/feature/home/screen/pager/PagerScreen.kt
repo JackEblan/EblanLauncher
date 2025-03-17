@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -139,14 +138,11 @@ fun PagerScreen(
             onDismissRequest = onDismissRequest,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem, width, height, x, y ->
-                Box(
-                    modifier = Modifier.pointerInput(key1 = showOverlay) {
-                        awaitEachGesture {
-                            val down = awaitFirstDown()
-
-                            val longPressChange = awaitLongPressOrCancellation(down.id)
-
-                            if (longPressChange != null && showOverlay.not()) {
+                when (val gridItemData = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        ApplicationInfoGridItem(
+                            gridItemData = gridItemData,
+                            onLongPress = {
                                 onLongPressGridItem(
                                     dragOffset.copy(
                                         x = x.toFloat(),
@@ -156,20 +152,25 @@ fun PagerScreen(
                                 )
 
                                 currentGridItem = gridItem
-                            }
-                        }
-                    },
-                ) {
-                    when (val gridItemData = gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(
-                                gridItemData = gridItemData,
-                            )
-                        }
+                            },
+                        )
+                    }
 
-                        is GridItemData.Widget -> {
-                            WidgetGridItem(gridItemData = gridItemData)
-                        }
+                    is GridItemData.Widget -> {
+                        WidgetGridItem(
+                            gridItemData = gridItemData,
+                            onLongPress = {
+                                onLongPressGridItem(
+                                    dragOffset.copy(
+                                        x = x.toFloat(),
+                                        y = y.toFloat(),
+                                    ),
+                                    IntSize(width = width, height = height),
+                                )
+
+                                currentGridItem = gridItem
+                            },
+                        )
                     }
                 }
             },
@@ -188,9 +189,21 @@ fun PagerScreen(
 fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.ApplicationInfo,
+    onLongPress: () -> Unit,
 ) {
     Column(
         modifier = modifier
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+
+                    val longPress = awaitLongPressOrCancellation(down.id)
+
+                    if (longPress != null) {
+                        onLongPress()
+                    }
+                }
+            }
             .fillMaxSize()
             .background(Color.Blue),
     ) {
@@ -204,6 +217,7 @@ fun ApplicationInfoGridItem(
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.Widget,
+    onLongPress: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -219,14 +233,24 @@ private fun WidgetGridItem(
                     appWidgetProviderInfo = appWidgetInfo,
                 ).apply {
                     layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        gridItemData.width,
+                        gridItemData.height,
                     )
 
                     setAppWidget(appWidgetId, appWidgetInfo)
                 }
             },
-            modifier = modifier,
+            modifier = modifier.pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+
+                    val longPress = awaitLongPressOrCancellation(down.id)
+
+                    if (longPress != null) {
+                        onLongPress()
+                    }
+                }
+            },
         )
     }
 }

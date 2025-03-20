@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -90,19 +89,17 @@ fun PagerScreen(
 ) {
     var currentGridItem by remember { mutableStateOf<GridItem?>(null) }
 
-    LaunchedEffect(key1 = dragOffset, key2 = currentGridItem, key3 = gridItemIdByCoordinates) {
+    LaunchedEffect(key1 = dragOffset, key2 = currentGridItem) {
         currentGridItem?.let { gridItem ->
-            if (gridItem.id == gridItemIdByCoordinates) {
-                onMoveGridItem(
-                    pagerState.currentPage,
-                    gridItem,
-                    dragOffset.x.roundToInt(),
-                    dragOffset.y.roundToInt(),
-                    overlaySize.width,
-                    screenSize.width,
-                    screenSize.height,
-                )
-            }
+            onMoveGridItem(
+                pagerState.currentPage,
+                gridItem,
+                dragOffset.x.roundToInt(),
+                dragOffset.y.roundToInt(),
+                overlaySize.width,
+                screenSize.width,
+                screenSize.height,
+            )
         }
     }
 
@@ -139,20 +136,29 @@ fun PagerScreen(
             onDismissRequest = onDismissRequest,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem, width, height, x, y ->
+                var longPress by remember { mutableStateOf(false) }
+
+                LaunchedEffect(key1 = longPress) {
+                    if (longPress) {
+                        onLongPressGridItem(
+                            dragOffset.copy(
+                                x = x.toFloat(),
+                                y = y.toFloat(),
+                            ),
+                            IntSize(width = width, height = height),
+                        )
+
+                        currentGridItem = gridItem
+
+                        longPress = false
+                    }
+                }
                 when (val gridItemData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(
                             gridItemData = gridItemData,
                             onLongPress = {
-                                onLongPressGridItem(
-                                    dragOffset.copy(
-                                        x = x.toFloat(),
-                                        y = y.toFloat(),
-                                    ),
-                                    IntSize(width = width, height = height),
-                                )
-
-                                currentGridItem = gridItem
+                                longPress = true
                             },
                         )
                     }
@@ -161,15 +167,7 @@ fun PagerScreen(
                         WidgetGridItem(
                             gridItemData = gridItemData,
                             onLongPress = {
-                                onLongPressGridItem(
-                                    dragOffset.copy(
-                                        x = x.toFloat(),
-                                        y = y.toFloat(),
-                                    ),
-                                    IntSize(width = width, height = height),
-                                )
-
-                                currentGridItem = gridItem
+                                longPress = true
                             },
                         )
                     }
@@ -214,7 +212,6 @@ fun ApplicationInfoGridItem(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,

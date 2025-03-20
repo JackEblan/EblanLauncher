@@ -4,12 +4,13 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
+import com.android.launcher3.widget.LauncherAppWidgetHost
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 internal class AndroidAppWidgetHostWrapper @Inject constructor(@ApplicationContext private val context: Context) :
     AppWidgetHostWrapper {
-    private val appWidgetHost = AppWidgetHost(context, 2814)
+    private val appWidgetHost = LauncherAppWidgetHost(context, 2814)
 
     override fun startListening() {
         appWidgetHost.startListening()

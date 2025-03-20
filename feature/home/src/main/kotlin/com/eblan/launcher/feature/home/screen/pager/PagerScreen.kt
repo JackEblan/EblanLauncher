@@ -1,6 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -213,6 +214,7 @@ fun ApplicationInfoGridItem(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
@@ -232,25 +234,20 @@ private fun WidgetGridItem(
                     appWidgetId = gridItemData.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
                 ).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        gridItemData.width,
-                        gridItemData.height,
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
                     )
+
+                    setOnLongClickListener {
+                        onLongPress()
+                        true
+                    }
 
                     setAppWidget(appWidgetId, appWidgetInfo)
                 }
             },
-            modifier = modifier.pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-
-                    val longPress = awaitLongPressOrCancellation(down.id)
-
-                    if (longPress != null) {
-                        onLongPress()
-                    }
-                }
-            },
+            modifier = modifier,
         )
     }
 }

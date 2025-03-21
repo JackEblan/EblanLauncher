@@ -89,41 +89,25 @@ fun PagerScreen(
 ) {
     var currentGridItem by remember { mutableStateOf<GridItem?>(null) }
 
-    LaunchedEffect(key1 = dragOffset, key2 = currentGridItem) {
+    LaunchedEffect(key1 = dragOffset, key2 = currentGridItem, key3 = gridItemIdByCoordinates) {
         currentGridItem?.let { gridItem ->
-            onMoveGridItem(
-                pagerState.currentPage,
-                gridItem,
-                dragOffset.x.roundToInt(),
-                dragOffset.y.roundToInt(),
-                overlaySize.width,
-                screenSize.width,
-                screenSize.height,
-            )
+            if (gridItem.id == gridItemIdByCoordinates) {
+                onMoveGridItem(
+                    pagerState.currentPage,
+                    gridItem,
+                    dragOffset.x.roundToInt(),
+                    dragOffset.y.roundToInt(),
+                    overlaySize.width,
+                    screenSize.width,
+                    screenSize.height,
+                )
+            }
         }
     }
 
     HorizontalPager(state = pagerState) { page ->
         GridSubcomposeLayout(
-            modifier = modifier
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown()
-
-                        val longPress = awaitLongPressOrCancellation(down.id)
-
-                        if (longPress != null) {
-                            onGetGridItemByCoordinates(
-                                pagerState.currentPage,
-                                longPress.position.x.roundToInt(),
-                                longPress.position.y.roundToInt(),
-                                size.width,
-                                size.height,
-                            )
-                        }
-                    }
-                }
-                .fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             page = page,
             rows = rows,
             columns = columns,
@@ -138,8 +122,8 @@ fun PagerScreen(
             gridItemContent = { gridItem, width, height, x, y ->
                 var longPress by remember { mutableStateOf(false) }
 
-                LaunchedEffect(key1 = longPress) {
-                    if (longPress) {
+                LaunchedEffect(key1 = longPress, key2 = showOverlay) {
+                    if (longPress && showOverlay.not()) {
                         onLongPressGridItem(
                             dragOffset.copy(
                                 x = x.toFloat(),
@@ -149,10 +133,11 @@ fun PagerScreen(
                         )
 
                         currentGridItem = gridItem
-
-                        longPress = false
                     }
+
+                    longPress = false
                 }
+
                 when (val gridItemData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(

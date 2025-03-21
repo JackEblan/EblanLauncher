@@ -423,10 +423,21 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
-                    onDragStart = {
+                    onDragStart = { offset ->
                         showBottomSheet = true
+                        onGetGridItemByCoordinates(
+                            pagerState.currentPage,
+                            offset.x.roundToInt(),
+                            offset.y.roundToInt(),
+                            size.width,
+                            size.height,
+                        )
                     },
                     onDragEnd = {
+                        showOverlay = false
+                        showResize = false
+                    },
+                    onDragCancel = {
                         showOverlay = false
                         showResize = false
                     },

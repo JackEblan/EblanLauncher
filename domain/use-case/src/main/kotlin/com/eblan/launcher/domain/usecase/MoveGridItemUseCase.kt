@@ -19,7 +19,7 @@ class MoveGridItemUseCase @Inject constructor(
         width: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): GridItemMovement {
+    ): GridItemMovement? {
         val userData = userDataRepository.userData.first()
 
         return if ((x + width / 2) <= 0) {
@@ -37,9 +37,11 @@ class MoveGridItemUseCase @Inject constructor(
                 screenHeight = screenHeight,
             ).copy(page = page)
 
-            aStarGridAlgorithmUseCase(gridItem = movingGridItem)
-
-            GridItemMovement.Inside
+            if (aStarGridAlgorithmUseCase(gridItem = movingGridItem) != null) {
+                GridItemMovement.Inside
+            } else {
+                null
+            }
         }
     }
 }

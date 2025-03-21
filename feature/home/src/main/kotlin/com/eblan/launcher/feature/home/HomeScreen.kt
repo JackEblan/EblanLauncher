@@ -107,7 +107,7 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    gridItemMovement: GridItemMovement,
+    gridItemMovement: GridItemMovement?,
     homeUiState: HomeUiState,
     gridItemIdByCoordinates: String?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
@@ -223,7 +223,7 @@ fun Success(
     modifier: Modifier = Modifier,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
-    gridItemMovement: GridItemMovement,
+    gridItemMovement: GridItemMovement?,
     gridItemIdByCoordinates: String?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
@@ -344,7 +344,7 @@ fun Success(
                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
 
-            GridItemMovement.Inside -> Unit
+            GridItemMovement.Inside, null -> Unit
         }
     }
 
@@ -368,8 +368,8 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = addGridItem, key2 = showOverlay) {
-        if (addGridItem != null && showOverlay.not()) {
+    LaunchedEffect(key1 = addGridItem, key2 = showOverlay, key3 = gridItemMovement) {
+        if (addGridItem != null && showOverlay.not() && gridItemMovement != null) {
             when (val data = addGridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     onResetAddGridItem()

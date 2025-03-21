@@ -49,7 +49,7 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    private var _gridItemMovement = MutableStateFlow(GridItemMovement.Inside)
+    private var _gridItemMovement = MutableStateFlow<GridItemMovement?>(GridItemMovement.Inside)
 
     val gridItemMovement = _gridItemMovement.stateIn(
         scope = viewModelScope,

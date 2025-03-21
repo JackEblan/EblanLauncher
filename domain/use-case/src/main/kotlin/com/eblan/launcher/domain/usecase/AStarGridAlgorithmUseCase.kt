@@ -14,8 +14,8 @@ class AStarGridAlgorithmUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke(gridItem: GridItem) {
-        withContext(Dispatchers.Default) {
+    suspend operator fun invoke(gridItem: GridItem): List<GridItem>? {
+        return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
             if (isGridItemSpanWithinBounds(
@@ -42,6 +42,10 @@ class AStarGridAlgorithmUseCase @Inject constructor(
                 if (resolvedConflictsGridItems != null) {
                     gridRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
                 }
+
+                resolvedConflictsGridItems
+            } else {
+                null
             }
         }
     }

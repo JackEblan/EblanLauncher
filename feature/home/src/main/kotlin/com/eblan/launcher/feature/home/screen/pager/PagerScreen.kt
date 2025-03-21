@@ -107,7 +107,25 @@ fun PagerScreen(
 
     HorizontalPager(state = pagerState) { page ->
         GridSubcomposeLayout(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+
+                        val longPress = awaitLongPressOrCancellation(down.id)
+
+                        if (longPress != null) {
+                            onGetGridItemByCoordinates(
+                                pagerState.currentPage,
+                                longPress.position.x.roundToInt(),
+                                longPress.position.y.roundToInt(),
+                                size.width,
+                                size.height,
+                            )
+                        }
+                    }
+                }
+                .fillMaxSize(),
             page = page,
             rows = rows,
             columns = columns,

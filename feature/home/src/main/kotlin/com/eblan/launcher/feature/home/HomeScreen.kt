@@ -327,12 +327,10 @@ fun Success(
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            println("Widget created")
-            appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+        appWidgetId = if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
         } else {
-            println("Widget cancelled")
-            appWidgetId = null
+            null
         }
     }
 
@@ -423,15 +421,8 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
-                    onDragStart = { offset ->
+                    onDragStart = {
                         showBottomSheet = true
-                        onGetGridItemByCoordinates(
-                            pagerState.currentPage,
-                            offset.x.roundToInt(),
-                            offset.y.roundToInt(),
-                            size.width,
-                            size.height,
-                        )
                     },
                     onDragEnd = {
                         showOverlay = false

@@ -1,6 +1,5 @@
 package com.eblan.launcher.framework.widgetmanager
 
-import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
@@ -29,5 +28,9 @@ internal class AndroidAppWidgetHostWrapper @Inject constructor(@ApplicationConte
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): AppWidgetHostView {
         return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
+    }
+
+    override fun deleteAppWidgetId(appWidgetId: Int) {
+        appWidgetHost.deleteAppWidgetId(appWidgetId)
     }
 }

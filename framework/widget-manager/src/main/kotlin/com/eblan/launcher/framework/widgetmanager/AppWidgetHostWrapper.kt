@@ -14,4 +14,6 @@ interface AppWidgetHostWrapper {
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): AppWidgetHostView
+
+    fun deleteAppWidgetId(appWidgetId: Int)
 }

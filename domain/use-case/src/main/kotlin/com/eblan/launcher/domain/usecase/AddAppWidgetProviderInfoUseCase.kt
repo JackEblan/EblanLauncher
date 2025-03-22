@@ -11,7 +11,6 @@ import javax.inject.Inject
 
 class AddAppWidgetProviderInfoUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -100,8 +99,6 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             screenWidth = screenWidth,
             screenHeight = screenHeight,
         ).copy(page = page)
-
-        aStarGridAlgorithmUseCase(gridItem = movingGridItem)
 
         return gridItem
     }

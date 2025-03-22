@@ -257,6 +257,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun deleteGridItem(id: String) {
+        viewModelScope.launch {
+            val gridItem = gridRepository.getGridItem(id = id)
+
+            if (gridItem != null) {
+                gridRepository.deleteGridItem(gridItem)
+            }
+        }
+    }
+
     fun resetGridItemIdByCoordinates() {
         _gridItemIdByCoordinates.update {
             ""

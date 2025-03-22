@@ -98,6 +98,7 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onUpdateWidget = viewModel::updateWidget,
+        onDeleteGridItem = viewModel::deleteGridItem,
         onResetGridItemIdByCoordinates = viewModel::resetGridItemIdByCoordinates,
         onResetAddGridItem = viewModel::resetAddGridItem,
         onEdit = onEdit,
@@ -175,6 +176,7 @@ fun HomeScreen(
         screenHeight: Int,
     ) -> Unit,
     onUpdateWidget: (id: String, appWidgetId: Int) -> Unit,
+    onDeleteGridItem: (id: String) -> Unit,
     onResetGridItemIdByCoordinates: () -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -207,6 +209,7 @@ fun HomeScreen(
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
                         onUpdateWidget = onUpdateWidget,
+                        onDeleteGridItem = onDeleteGridItem,
                         onResetGridItemIdByCoordinates = onResetGridItemIdByCoordinates,
                         onResetAddGridItem = onResetAddGridItem,
                         onEdit = onEdit,
@@ -290,6 +293,7 @@ fun Success(
         screenHeight: Int,
     ) -> Unit,
     onUpdateWidget: (id: String, appWidgetId: Int) -> Unit,
+    onDeleteGridItem: (id: String) -> Unit,
     onResetGridItemIdByCoordinates: () -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -330,7 +334,7 @@ fun Success(
         appWidgetId = if (result.resultCode == Activity.RESULT_OK) {
             result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
         } else {
-            null
+            -1
         }
     }
 
@@ -407,8 +411,12 @@ fun Success(
 
     LaunchedEffect(key1 = addGridItem, key2 = appWidgetId) {
         if (addGridItem != null && appWidgetId != null) {
-            appWidgetId?.let { id ->
-                onUpdateWidget(addGridItem.id, id)
+            if (appWidgetId == -1) {
+                onDeleteGridItem(addGridItem.id)
+            } else {
+                appWidgetId?.let { id ->
+                    onUpdateWidget(addGridItem.id, id)
+                }
             }
 
             appWidgetId = null

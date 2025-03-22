@@ -447,23 +447,17 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = dragEnd, key2 = gridItemUiState) {
-        if (dragEnd && gridItemUiState != null) {
-            showOverlay = false
-            showResize = false
-            dragOffset = Offset.Zero
-        }
-    }
-
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragEnd = {
-                        dragEnd = true
+                        showOverlay = false
+                        showResize = false
                     },
                     onDragCancel = {
-                        dragEnd = true
+                        showOverlay = false
+                        showResize = false
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -499,7 +493,10 @@ fun Success(
                         showResize = false
                     },
                     onMoveGridItem = onMoveGridItem,
-                    onGetGridItemByCoordinates = onGetGridItemByCoordinates,
+                    onGetGridItemByCoordinates = { page, x, y, screenWidth, screenHeight ->
+                        dragOffset = Offset.Zero
+                        onGetGridItemByCoordinates(page, x, y, screenWidth, screenHeight)
+                    },
                     onEdit = {
 
                     },

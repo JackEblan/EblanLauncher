@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.model
 
-data class GridItemOverlay(
+data class GridItemByCoordinates(
     val gridItem: GridItem,
     val width: Int,
     val height: Int,

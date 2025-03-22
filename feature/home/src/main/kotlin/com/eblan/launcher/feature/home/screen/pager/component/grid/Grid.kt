@@ -12,6 +12,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
+import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.screen.pager.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.screen.pager.component.resize.WidgetGridItemResizeOverlay
@@ -22,7 +23,7 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    currentGridItem: GridItem?,
+    gridItemUiState: GridItemUiState?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     showResize: Boolean,
@@ -46,7 +47,7 @@ fun GridSubcomposeLayout(
     ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable (gridItem: GridItem, width: Int, height: Int, x: Int, y: Int) -> Unit,
+    gridItemContent: @Composable (gridItem: GridItem, x: Int, y: Int, screenWidth: Int, screenHeight: Int) -> Unit,
     menuContent: @Composable () -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
@@ -66,10 +67,11 @@ fun GridSubcomposeLayout(
                         cellHeight = cellHeight,
                         content = {
                             gridItemContent(
-                                gridItem, gridItem.columnSpan * cellWidth,
-                                gridItem.rowSpan * cellHeight,
+                                gridItem,
                                 gridItem.startColumn * cellWidth,
                                 gridItem.startRow * cellHeight,
+                                constraints.maxWidth,
+                                constraints.maxHeight,
                             )
                         },
                     )
@@ -87,7 +89,8 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                val gridItemOverlay = gridItem.id == currentGridItem?.id
+                val gridItemOverlay =
+                    gridItemUiState is GridItemUiState.Success && gridItemUiState.gridItemByCoordinates?.gridItem?.id == gridItem.id
 
                 if (showMenu && gridItemOverlay) {
                     subcompose("Menu") {

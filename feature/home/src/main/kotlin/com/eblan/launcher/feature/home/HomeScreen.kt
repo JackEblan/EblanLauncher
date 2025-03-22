@@ -56,6 +56,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -75,7 +76,7 @@ fun HomeRoute(
 
     val gridItemMovement by viewModel.gridItemMovement.collectAsStateWithLifecycle()
 
-    val gridItemIdByCoordinates by viewModel.gridItemIdByCoordinates.collectAsStateWithLifecycle()
+    val gridItemUiState by viewModel.gridItemUiState.collectAsStateWithLifecycle()
 
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
@@ -87,7 +88,7 @@ fun HomeRoute(
         modifier = modifier,
         gridItemMovement = gridItemMovement,
         homeUiState = homeUiState,
-        gridItemIdByCoordinates = gridItemIdByCoordinates,
+        gridItemUiState = gridItemUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
         addGridItem = addGridItem,
@@ -99,7 +100,7 @@ fun HomeRoute(
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onUpdateWidget = viewModel::updateWidget,
         onDeleteGridItem = viewModel::deleteGridItem,
-        onResetGridItemIdByCoordinates = viewModel::resetGridItemIdByCoordinates,
+        onResetGridItemIdByCoordinates = viewModel::resetGridItemUiState,
         onResetAddGridItem = viewModel::resetAddGridItem,
         onEdit = onEdit,
     )
@@ -110,7 +111,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemMovement: GridItemMovement?,
     homeUiState: HomeUiState,
-    gridItemIdByCoordinates: String?,
+    gridItemUiState: GridItemUiState?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
@@ -198,7 +199,7 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         gridItemMovement = gridItemMovement,
-                        gridItemIdByCoordinates = gridItemIdByCoordinates,
+                        gridItemUiState = gridItemUiState,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         addGridItem = addGridItem,
@@ -227,7 +228,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemMovement: GridItemMovement?,
-    gridItemIdByCoordinates: String?,
+    gridItemUiState: GridItemUiState?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
@@ -315,6 +316,8 @@ fun Success(
     var showMenu by remember { mutableStateOf(false) }
 
     var showResize by remember { mutableStateOf(false) }
+
+    var dragEnd by remember { mutableStateOf(false) }
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -425,20 +428,42 @@ fun Success(
         }
     }
 
+    LaunchedEffect(key1 = gridItemUiState) {
+        if (gridItemUiState is GridItemUiState.Success) {
+            if (gridItemUiState.gridItemByCoordinates != null) {
+                dragOffset = Offset(
+                    x = gridItemUiState.gridItemByCoordinates.x.toFloat(),
+                    y = gridItemUiState.gridItemByCoordinates.y.toFloat(),
+                )
+                overlaySize = IntSize(
+                    width = gridItemUiState.gridItemByCoordinates.width,
+                    height = gridItemUiState.gridItemByCoordinates.height,
+                )
+                showOverlay = true
+                showMenu = true
+            } else {
+                showBottomSheet = true
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = dragEnd, key2 = gridItemUiState) {
+        if (dragEnd && gridItemUiState != null) {
+            showOverlay = false
+            showResize = false
+            dragOffset = Offset.Zero
+        }
+    }
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
-                    onDragStart = {
-                        showBottomSheet = true
-                    },
                     onDragEnd = {
-                        showOverlay = false
-                        showResize = false
+                        dragEnd = true
                     },
                     onDragCancel = {
-                        showOverlay = false
-                        showResize = false
+                        dragEnd = true
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -458,14 +483,11 @@ fun Success(
             HomeType.Pager -> {
                 PagerScreen(
                     pagerState = pagerState,
-                    overlaySize = overlaySize,
-                    screenSize = screenSize,
                     dragOffset = dragOffset,
                     rows = userData.rows,
                     columns = userData.columns,
-                    gridItemIdByCoordinates = gridItemIdByCoordinates,
+                    gridItemUiState = gridItemUiState,
                     gridItems = gridItems,
-                    showOverlay = showOverlay,
                     showMenu = showMenu,
                     showResize = showResize,
                     onResizeGridItem = onResizeGridItem,
@@ -478,12 +500,6 @@ fun Success(
                     },
                     onMoveGridItem = onMoveGridItem,
                     onGetGridItemByCoordinates = onGetGridItemByCoordinates,
-                    onLongPressGridItem = { offset, size ->
-                        dragOffset = offset
-                        overlaySize = size
-                        showOverlay = true
-                        showMenu = true
-                    },
                     onEdit = {
 
                     },
@@ -532,7 +548,7 @@ fun Success(
             GridItemOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
         }
 
-        if (gridItemIdByCoordinates == null && showBottomSheet) {
+        if (showBottomSheet) {
             HomeBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = {

@@ -16,6 +16,7 @@ import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
+import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,9 +58,9 @@ class HomeViewModel @Inject constructor(
         initialValue = GridItemMovement.Inside,
     )
 
-    private var _gridItemIdByCoordinates = MutableStateFlow<String?>("")
+    private var _gridItemUiState = MutableStateFlow<GridItemUiState?>(null)
 
-    val gridItemIdByCoordinates = _gridItemIdByCoordinates.asStateFlow()
+    val gridItemUiState = _gridItemUiState.asStateFlow()
 
     val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
@@ -232,14 +233,16 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemIdByCoordinates.update {
-                getGridItemByCoordinatesUseCase(
-                    page = page,
-                    x = x,
-                    y = y,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                )?.id
+            _gridItemUiState.update {
+                GridItemUiState.Success(
+                    getGridItemByCoordinatesUseCase(
+                        page = page,
+                        x = x,
+                        y = y,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                    ),
+                )
             }
         }
     }
@@ -267,9 +270,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridItemIdByCoordinates() {
-        _gridItemIdByCoordinates.update {
-            ""
+    fun resetGridItemUiState() {
+        _gridItemUiState.update {
+            GridItemUiState.Idle
         }
     }
 

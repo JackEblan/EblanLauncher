@@ -52,6 +52,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
@@ -327,6 +328,8 @@ fun Success(
 
     var appWidgetId by remember { mutableStateOf<Int?>(null) }
 
+    var lastGridItemByCoordinates by remember { mutableStateOf<GridItemByCoordinates?>(null) }
+
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
@@ -375,8 +378,8 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = addGridItem, key2 = showOverlay, key3 = gridItemMovement) {
-        if (addGridItem != null && showOverlay.not() && gridItemMovement != null) {
+    LaunchedEffect(key1 = addGridItem, key2 = dragEnd, key3 = gridItemMovement) {
+        if (addGridItem != null && dragEnd && gridItemMovement != null) {
             when (val data = addGridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     onResetAddGridItem()
@@ -431,6 +434,8 @@ fun Success(
     LaunchedEffect(key1 = gridItemUiState) {
         if (gridItemUiState is GridItemUiState.Success) {
             if (gridItemUiState.gridItemByCoordinates != null) {
+                lastGridItemByCoordinates = gridItemUiState.gridItemByCoordinates
+
                 dragOffset = Offset(
                     x = gridItemUiState.gridItemByCoordinates.x.toFloat(),
                     y = gridItemUiState.gridItemByCoordinates.y.toFloat(),
@@ -447,17 +452,30 @@ fun Success(
         }
     }
 
+    LaunchedEffect(key1 = gridItemUiState, key2 = dragEnd) {
+        if (gridItemUiState is GridItemUiState.Success) {
+            if (gridItemUiState.gridItemByCoordinates != null && dragEnd) {
+                onResetGridItemIdByCoordinates()
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
+                    onDragStart = {
+                        dragEnd = false
+                    },
                     onDragEnd = {
                         showOverlay = false
                         showResize = false
+                        dragEnd = true
                     },
                     onDragCancel = {
                         showOverlay = false
                         showResize = false
+                        dragEnd = true
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -480,7 +498,7 @@ fun Success(
                     dragOffset = dragOffset,
                     rows = userData.rows,
                     columns = userData.columns,
-                    gridItemUiState = gridItemUiState,
+                    lastGridItemByCoordinates = lastGridItemByCoordinates,
                     gridItems = gridItems,
                     showMenu = showMenu,
                     showResize = showResize,
@@ -494,7 +512,7 @@ fun Success(
                     },
                     onMoveGridItem = onMoveGridItem,
                     onGetGridItemByCoordinates = { page, x, y, screenWidth, screenHeight ->
-                        dragOffset = Offset.Zero
+                        lastGridItemByCoordinates = null
                         onGetGridItemByCoordinates(page, x, y, screenWidth, screenHeight)
                     },
                     onEdit = {

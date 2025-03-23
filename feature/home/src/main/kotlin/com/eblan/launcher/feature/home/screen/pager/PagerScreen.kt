@@ -26,9 +26,9 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
@@ -40,7 +40,7 @@ fun PagerScreen(
     dragOffset: Offset,
     rows: Int,
     columns: Int,
-    gridItemUiState: GridItemUiState?,
+    lastGridItemByCoordinates: GridItemByCoordinates?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     showResize: Boolean,
@@ -83,23 +83,17 @@ fun PagerScreen(
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    LaunchedEffect(key1 = dragOffset, key2 = gridItemUiState) {
-        when (gridItemUiState) {
-            is GridItemUiState.Success -> {
-                if (gridItemUiState.gridItemByCoordinates != null && dragOffset != Offset.Zero) {
-                    onMoveGridItem(
-                        pagerState.currentPage,
-                        gridItemUiState.gridItemByCoordinates.gridItem,
-                        dragOffset.x.roundToInt(),
-                        dragOffset.y.roundToInt(),
-                        gridItemUiState.gridItemByCoordinates.width,
-                        gridItemUiState.gridItemByCoordinates.screenWidth,
-                        gridItemUiState.gridItemByCoordinates.screenHeight,
-                    )
-                }
-            }
-
-            else -> Unit
+    LaunchedEffect(key1 = dragOffset, key2 = lastGridItemByCoordinates) {
+        if (lastGridItemByCoordinates != null && dragOffset != Offset.Zero) {
+            onMoveGridItem(
+                pagerState.currentPage,
+                lastGridItemByCoordinates.gridItem,
+                dragOffset.x.roundToInt(),
+                dragOffset.y.roundToInt(),
+                lastGridItemByCoordinates.width,
+                lastGridItemByCoordinates.screenWidth,
+                lastGridItemByCoordinates.screenHeight,
+            )
         }
     }
 
@@ -127,7 +121,7 @@ fun PagerScreen(
             page = page,
             rows = rows,
             columns = columns,
-            gridItemUiState = gridItemUiState,
+            lastGridItemByCoordinates = lastGridItemByCoordinates,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,
             onResizeWidgetGridItem = onResizeWidgetGridItem,

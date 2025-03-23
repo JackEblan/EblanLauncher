@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.screen.pager.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.screen.pager.component.resize.WidgetGridItemResizeOverlay
@@ -23,7 +23,7 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    gridItemUiState: GridItemUiState?,
+    lastGridItemByCoordinates: GridItemByCoordinates?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     showResize: Boolean,
@@ -89,8 +89,7 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                val gridItemOverlay =
-                    gridItemUiState is GridItemUiState.Success && gridItemUiState.gridItemByCoordinates?.gridItem?.id == gridItem.id
+                val gridItemOverlay = lastGridItemByCoordinates?.gridItem?.id == gridItem.id
 
                 if (showMenu && gridItemOverlay) {
                     subcompose("Menu") {

@@ -24,13 +24,7 @@ class AStarGridAlgorithmUseCase @Inject constructor(
                     columns = userData.columns,
                 )
             ) {
-                val gridItems = gridRepository.gridItems.first().filter { item ->
-                    isGridItemSpanWithinBounds(
-                        gridItem = item,
-                        rows = userData.rows,
-                        columns = userData.columns,
-                    ) && item.id != gridItem.id && item.page == gridItem.page
-                }
+                val gridItems = gridRepository.gridItems.first()
 
                 val resolvedConflictsGridItems = resolveConflicts(
                     gridItems = gridItems,

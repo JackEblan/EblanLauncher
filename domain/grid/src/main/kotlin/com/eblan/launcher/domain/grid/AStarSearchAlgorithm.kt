@@ -41,7 +41,13 @@ fun resolveConflicts(
     resolvedItems.add(movingGridItem)
 
     // Partition items into non-conflicting and conflicting groups based on rectangle overlap.
-    val (conflicting, nonConflicting) = gridItems.partition { gridItem ->
+    val (conflicting, nonConflicting) = gridItems.filter { gridItem ->
+        isGridItemSpanWithinBounds(
+            gridItem = gridItem,
+            rows = rows,
+            columns = columns,
+        ) && gridItem.id != movingGridItem.id && gridItem.page == movingGridItem.page
+    }.partition { gridItem ->
         rectanglesOverlap(movingGridItem = movingGridItem, gridItem = gridItem)
     }
 

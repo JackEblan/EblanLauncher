@@ -92,6 +92,7 @@ fun HomeRoute(
         gridItemUiState = gridItemUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
+        onGridAlgorithm = viewModel::gridAlgorithm,
         addGridItem = addGridItem,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -116,6 +117,7 @@ fun HomeScreen(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
+    onGridAlgorithm: (GridItem) -> Unit,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -203,6 +205,7 @@ fun HomeScreen(
                         gridItemUiState = gridItemUiState,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
+                        onGridAlgorithm = onGridAlgorithm,
                         addGridItem = addGridItem,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
@@ -233,6 +236,7 @@ fun Success(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
+    onGridAlgorithm: (GridItem) -> Unit,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -354,7 +358,11 @@ fun Success(
                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
 
-            GridItemMovement.Inside, null -> Unit
+            is GridItemMovement.Inside -> {
+                onGridAlgorithm(gridItemMovement.gridItem)
+            }
+
+            null -> Unit
         }
     }
 

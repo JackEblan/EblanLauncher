@@ -5,12 +5,14 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
-import java.util.UUID
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class AddApplicationInfoUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
 ) {
+    @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
         page: Int,
         x: Int,
@@ -33,7 +35,7 @@ class AddApplicationInfoUseCase @Inject constructor(
         )
 
         val gridItem = GridItem(
-            id = UUID.randomUUID().toString(),
+            id = Uuid.random().toHexString(),
             page = page,
             startRow = startRow,
             startColumn = startColumn,

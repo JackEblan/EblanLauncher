@@ -60,6 +60,14 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
+    private var _addGridItemMovement = MutableStateFlow<GridItemMovement?>(null)
+
+    val addGridItemMovement = _addGridItemMovement.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
+    )
+
     private var _gridItemUiState = MutableStateFlow<GridItemUiState?>(null)
 
     val gridItemUiState = _gridItemUiState.asStateFlow()
@@ -110,6 +118,30 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _gridItemMovement.update {
+                moveGridItemUseCase(
+                    page = page,
+                    gridItem = gridItem,
+                    x = x,
+                    y = y,
+                    width = width,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
+        }
+    }
+
+    fun moveAddGridItem(
+        page: Int,
+        gridItem: GridItem,
+        x: Int,
+        y: Int,
+        width: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _addGridItemMovement.update {
                 moveGridItemUseCase(
                     page = page,
                     gridItem = gridItem,
@@ -282,11 +314,19 @@ class HomeViewModel @Inject constructor(
         _gridItemUiState.update {
             GridItemUiState.Idle
         }
+
+        _gridItemMovement.update {
+            null
+        }
     }
 
     fun resetAddGridItem() {
         viewModelScope.launch {
             _addGridItem.update {
+                null
+            }
+
+            _addGridItemMovement.update {
                 null
             }
         }

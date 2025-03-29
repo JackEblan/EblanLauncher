@@ -77,6 +77,8 @@ fun HomeRoute(
 
     val gridItemMovement by viewModel.gridItemMovement.collectAsStateWithLifecycle()
 
+    val addGridItemMovement by viewModel.addGridItemMovement.collectAsStateWithLifecycle()
+
     val gridItemUiState by viewModel.gridItemUiState.collectAsStateWithLifecycle()
 
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
@@ -88,12 +90,15 @@ fun HomeRoute(
     HomeScreen(
         modifier = modifier,
         gridItemMovement = gridItemMovement,
+        addGridItemMovement = addGridItemMovement,
         homeUiState = homeUiState,
         gridItemUiState = gridItemUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
+        onGridAlgorithm = viewModel::gridAlgorithm,
         addGridItem = addGridItem,
         onMoveGridItem = viewModel::moveGridItem,
+        onMoveAddGridItem = viewModel::moveAddGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
         onAddApplicationInfoGridItem = viewModel::addApplicationInfoGridItem,
@@ -111,12 +116,23 @@ fun HomeRoute(
 fun HomeScreen(
     modifier: Modifier = Modifier,
     gridItemMovement: GridItemMovement?,
+    addGridItemMovement: GridItemMovement?,
     homeUiState: HomeUiState,
     gridItemUiState: GridItemUiState?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
+    onGridAlgorithm: (GridItem) -> Unit,
     onMoveGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        x: Int,
+        y: Int,
+        width: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) -> Unit,
+    onMoveAddGridItem: (
         page: Int,
         gridItem: GridItem,
         x: Int,
@@ -200,11 +216,14 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         gridItemMovement = gridItemMovement,
+                        addGridItemMovement = addGridItemMovement,
                         gridItemUiState = gridItemUiState,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
+                        onGridAlgorithm = onGridAlgorithm,
                         addGridItem = addGridItem,
                         onMoveGridItem = onMoveGridItem,
+                        onMoveAddGridItem = onMoveAddGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
                         onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
@@ -229,11 +248,22 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     gridItemMovement: GridItemMovement?,
+    addGridItemMovement: GridItemMovement?,
     gridItemUiState: GridItemUiState?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
+    onGridAlgorithm: (GridItem) -> Unit,
     onMoveGridItem: (
+        page: Int,
+        gridItem: GridItem,
+        x: Int,
+        y: Int,
+        width: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) -> Unit,
+    onMoveAddGridItem: (
         page: Int,
         gridItem: GridItem,
         x: Int,
@@ -354,7 +384,64 @@ fun Success(
                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
 
-            GridItemMovement.Inside, null -> Unit
+            is GridItemMovement.Inside -> {
+                onGridAlgorithm(gridItemMovement.gridItem)
+            }
+
+            null -> Unit
+        }
+    }
+
+    LaunchedEffect(key1 = addGridItemMovement, key2 = dragEnd) {
+        when (addGridItemMovement) {
+            GridItemMovement.Left -> {
+                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+            }
+
+            GridItemMovement.Right -> {
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+            }
+
+            is GridItemMovement.Inside -> {
+                if (dragEnd) {
+                    when (val data = addGridItemMovement.gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            onResetAddGridItem()
+                        }
+
+                        is GridItemData.Widget -> {
+                            val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
+
+                            val provider = ComponentName.unflattenFromString(data.componentName)
+
+                            if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                                    appWidgetId = allocateAppWidgetId,
+                                    provider = provider,
+                                )
+                            ) {
+                                //Widget created already
+                            } else {
+                                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                                    putExtra(
+                                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                        allocateAppWidgetId,
+                                    )
+                                    putExtra(
+                                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                                        provider,
+                                    )
+                                }
+
+                                appWidgetLauncher.launch(intent)
+                            }
+                        }
+                    }
+                } else {
+                    onGridAlgorithm(addGridItemMovement.gridItem)
+                }
+            }
+
+            null -> Unit
         }
     }
 
@@ -365,7 +452,7 @@ fun Success(
                 showOverlay = true
                 showMenu = true
             }.onEach { offset ->
-                onMoveGridItem(
+                onMoveAddGridItem(
                     pagerState.currentPage,
                     addGridItem,
                     offset.x.roundToInt(),
@@ -375,43 +462,6 @@ fun Success(
                     screenSize.height,
                 )
             }.collect()
-        }
-    }
-
-    LaunchedEffect(key1 = addGridItem, key2 = dragEnd, key3 = gridItemMovement) {
-        if (addGridItem != null && dragEnd && gridItemMovement != null) {
-            when (val data = addGridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    onResetAddGridItem()
-                }
-
-                is GridItemData.Widget -> {
-                    val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
-
-                    val provider = ComponentName.unflattenFromString(data.componentName)
-
-                    if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                            appWidgetId = allocateAppWidgetId,
-                            provider = provider,
-                        )
-                    ) {
-                        //Widget created already
-                    } else {
-                        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                            putExtra(
-                                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                allocateAppWidgetId,
-                            )
-                            putExtra(
-                                AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                                provider,
-                            )
-                        }
-
-                        appWidgetLauncher.launch(intent)
-                    }
-                }
-            }
         }
     }
 

@@ -84,7 +84,7 @@ fun PagerScreen(
     onResize: () -> Unit,
 ) {
     LaunchedEffect(key1 = dragOffset, key2 = lastGridItemByCoordinates) {
-        if (lastGridItemByCoordinates != null && dragOffset != Offset.Zero) {
+        if (lastGridItemByCoordinates != null) {
             onMoveGridItem(
                 pagerState.currentPage,
                 lastGridItemByCoordinates.gridItem,

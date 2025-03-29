@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
@@ -35,6 +36,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val gridRepository: GridRepository,
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
+    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
@@ -50,12 +52,20 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    private var _gridItemMovement = MutableStateFlow<GridItemMovement?>(GridItemMovement.Inside)
+    private var _gridItemMovement = MutableStateFlow<GridItemMovement?>(null)
 
     val gridItemMovement = _gridItemMovement.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = GridItemMovement.Inside,
+        initialValue = null,
+    )
+
+    private var _addGridItemMovement = MutableStateFlow<GridItemMovement?>(null)
+
+    val addGridItemMovement = _addGridItemMovement.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
     )
 
     private var _gridItemUiState = MutableStateFlow<GridItemUiState?>(null)
@@ -91,6 +101,12 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
+    fun gridAlgorithm(gridItem: GridItem) {
+        viewModelScope.launch {
+            aStarGridAlgorithmUseCase(gridItem = gridItem)
+        }
+    }
+
     fun moveGridItem(
         page: Int,
         gridItem: GridItem,
@@ -102,6 +118,30 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _gridItemMovement.update {
+                moveGridItemUseCase(
+                    page = page,
+                    gridItem = gridItem,
+                    x = x,
+                    y = y,
+                    width = width,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                )
+            }
+        }
+    }
+
+    fun moveAddGridItem(
+        page: Int,
+        gridItem: GridItem,
+        x: Int,
+        y: Int,
+        width: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) {
+        viewModelScope.launch {
+            _addGridItemMovement.update {
                 moveGridItemUseCase(
                     page = page,
                     gridItem = gridItem,
@@ -274,11 +314,19 @@ class HomeViewModel @Inject constructor(
         _gridItemUiState.update {
             GridItemUiState.Idle
         }
+
+        _gridItemMovement.update {
+            null
+        }
     }
 
     fun resetAddGridItem() {
         viewModelScope.launch {
             _addGridItem.update {
+                null
+            }
+
+            _addGridItemMovement.update {
                 null
             }
         }

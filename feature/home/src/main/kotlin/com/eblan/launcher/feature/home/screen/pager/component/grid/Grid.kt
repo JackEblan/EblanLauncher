@@ -100,8 +100,6 @@ fun GridSubcomposeLayout(
                             startColumn = gridItem.startColumn,
                             rowSpan = gridItem.rowSpan,
                             columnSpan = gridItem.columnSpan,
-                            screenWidth = constraints.maxWidth,
-                            screenHeight = constraints.maxHeight,
                             onDismissRequest = onDismissRequest,
                             content = menuContent,
                         )
@@ -202,8 +200,6 @@ private fun GridItemMenu(
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
-    screenWidth: Int,
-    screenHeight: Int,
     onDismissRequest: (() -> Unit)?,
     content: @Composable () -> Unit,
 ) {
@@ -221,8 +217,6 @@ private fun GridItemMenu(
             y = y,
             width = width,
             height = height,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
         ),
         onDismissRequest = onDismissRequest,
         content = content,

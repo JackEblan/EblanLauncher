@@ -69,7 +69,6 @@ fun PagerScreen(
         gridItem: GridItem,
         x: Int,
         y: Int,
-        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
@@ -90,7 +89,6 @@ fun PagerScreen(
                 lastGridItemByCoordinates.gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
-                lastGridItemByCoordinates.width,
                 lastGridItemByCoordinates.screenWidth,
                 lastGridItemByCoordinates.screenHeight,
             )

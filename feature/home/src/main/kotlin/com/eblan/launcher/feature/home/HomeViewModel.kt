@@ -112,7 +112,6 @@ class HomeViewModel @Inject constructor(
         gridItem: GridItem,
         x: Int,
         y: Int,
-        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) {
@@ -123,7 +122,6 @@ class HomeViewModel @Inject constructor(
                     gridItem = gridItem,
                     x = x,
                     y = y,
-                    width = width,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )
@@ -136,7 +134,6 @@ class HomeViewModel @Inject constructor(
         gridItem: GridItem,
         x: Int,
         y: Int,
-        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ) {
@@ -147,7 +144,6 @@ class HomeViewModel @Inject constructor(
                     gridItem = gridItem,
                     x = x,
                     y = y,
-                    width = width,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                 )

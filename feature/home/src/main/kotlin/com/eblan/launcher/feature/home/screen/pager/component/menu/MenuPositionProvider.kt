@@ -11,8 +11,6 @@ class MenuPositionProvider(
     private val y: Int,
     private val width: Int,
     private val height: Int,
-    private val screenWidth: Int,
-    private val screenHeight: Int,
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -21,41 +19,38 @@ class MenuPositionProvider(
         popupContentSize: IntSize,
     ): IntOffset {
         val (x, y) = calculateMenuCoordinates(
-            parentX = x,
-            parentY = y,
-            parentWidth = width,
-            parentHeight = height,
-            childWidth = popupContentSize.width,
-            childHeight = popupContentSize.height,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            windowSize = windowSize,
+            popupContentSize = popupContentSize,
         )
+
         return IntOffset(x = x, y = y)
     }
 }
 
 private fun calculateMenuCoordinates(
-    parentX: Int,
-    parentY: Int,
-    parentWidth: Int,
-    parentHeight: Int,
-    childWidth: Int,
-    childHeight: Int,
-    screenWidth: Int,
-    screenHeight: Int,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    windowSize: IntSize,
+    popupContentSize: IntSize,
 ): Pair<Int, Int> {
     // Center the menu horizontally relative to the parent element.
-    val parentCenterX = parentX + parentWidth / 2
-    val childXInitial = parentCenterX - childWidth / 2
-    val childX = childXInitial.coerceIn(0, screenWidth - childWidth)
+    val parentCenterX = x + width / 2
+    val childXInitial = parentCenterX - popupContentSize.width / 2
+    val childX = childXInitial.coerceIn(0, windowSize.width - popupContentSize.width)
 
     // Calculate possible vertical positions.
-    val topPositionY = parentY - childHeight
-    val bottomPositionY = parentY + parentHeight
+    val topPositionY = y - popupContentSize.height
+    val bottomPositionY = y + height + popupContentSize.height
 
     // Choose the vertical position that keeps the menu on-screen.
     val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
-    val childY = childYInitial.coerceIn(0, screenHeight - childHeight)
+    val childY = childYInitial.coerceIn(0, windowSize.height - popupContentSize.height)
 
     return childX to childY
 }

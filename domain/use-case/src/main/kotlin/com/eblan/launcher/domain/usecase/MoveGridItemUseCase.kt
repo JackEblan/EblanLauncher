@@ -15,11 +15,14 @@ class MoveGridItemUseCase @Inject constructor(
         gridItem: GridItem,
         x: Int,
         y: Int,
-        width: Int,
         screenWidth: Int,
         screenHeight: Int,
     ): GridItemMovement {
         val userData = userDataRepository.userData.first()
+
+        val cellWidth = screenWidth / userData.columns
+
+        val width = gridItem.columnSpan * cellWidth
 
         return if ((x + width / 2) <= 0) {
             GridItemMovement.Left

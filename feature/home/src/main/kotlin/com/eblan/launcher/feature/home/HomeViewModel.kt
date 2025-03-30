@@ -8,15 +8,16 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
+import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
+import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -34,7 +35,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val gridRepository: GridRepository,
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
     private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
@@ -45,6 +45,8 @@ class HomeViewModel @Inject constructor(
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
+    private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
+    private val deleteGridItemUseCase: DeleteGridItemUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -285,24 +287,13 @@ class HomeViewModel @Inject constructor(
 
     fun updateWidget(id: String, appWidgetId: Int) {
         viewModelScope.launch {
-            val gridItemData = gridRepository.getGridItem(id = id)?.data
-
-            if (gridItemData is GridItemData.Widget) {
-                gridRepository.updateGridItemData(
-                    id = id,
-                    data = gridItemData.copy(appWidgetId = appWidgetId),
-                )
-            }
+            updateWidgetGridItemDataUseCase(id = id, appWidgetId = appWidgetId)
         }
     }
 
     fun deleteGridItem(id: String) {
         viewModelScope.launch {
-            val gridItem = gridRepository.getGridItem(id = id)
-
-            if (gridItem != null) {
-                gridRepository.deleteGridItem(gridItem)
-            }
+            deleteGridItemUseCase(id = id)
         }
     }
 

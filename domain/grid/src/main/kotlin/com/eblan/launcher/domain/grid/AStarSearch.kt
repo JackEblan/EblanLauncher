@@ -110,23 +110,6 @@ private fun markRegion(
 }
 
 /**
- * Checks if two grid items overlap.
- *
- * @param movingGridItem The first grid item.
- * @param gridItem The second grid item.
- * @return True if the rectangular regions defined by the items overlap.
- */
-private fun rectanglesOverlap(movingGridItem: GridItem, gridItem: GridItem): Boolean {
-    if (movingGridItem.startRow + movingGridItem.rowSpan <= gridItem.startRow || gridItem.startRow + gridItem.rowSpan <= movingGridItem.startRow) {
-        return false
-    }
-    if (movingGridItem.startColumn + movingGridItem.columnSpan <= gridItem.startColumn || gridItem.startColumn + gridItem.columnSpan <= movingGridItem.startColumn) {
-        return false
-    }
-    return true
-}
-
-/**
  * Data class representing a node used in the A* search algorithm.
  *
  * @property row The row position of the node.

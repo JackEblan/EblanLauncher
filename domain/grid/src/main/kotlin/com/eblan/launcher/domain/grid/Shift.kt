@@ -3,21 +3,12 @@ package com.eblan.launcher.domain.grid
 import com.eblan.launcher.domain.model.GridItem
 
 fun resolveConflictsWithShift(
-    gridItems: List<GridItem>,
+    gridItems: MutableList<GridItem>,
     movingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
-    // Create a mutable copy of the grid; if the moving grid item exists, update it; otherwise add it.
-    val grid = gridItems.toMutableList().apply {
-        val index = indexOfFirst { it.id == movingGridItem.id }
-        if (index != -1) {
-            set(index, movingGridItem)
-        } else {
-            add(movingGridItem)
-        }
-    }
-    return if (shiftConflicts(grid, movingGridItem, rows, columns)) grid else null
+    return if (shiftConflicts(gridItems, movingGridItem, rows, columns)) gridItems else null
 }
 
 /**
@@ -26,15 +17,21 @@ fun resolveConflictsWithShift(
  * If that placement exceeds the grid width, it wraps by resetting the column to 0 and moving down one row.
  * Returns null if the new position would be out of the grid's bounds.
  */
-fun shiftItem(movingGridItem: GridItem, other: GridItem, rows: Int, columns: Int): GridItem? {
+private fun shiftItem(
+    movingGridItem: GridItem,
+    other: GridItem,
+    rows: Int,
+    columns: Int,
+): GridItem? {
     var newColumn = movingGridItem.startColumn + movingGridItem.columnSpan
-    var newRow = movingGridItem.startRow
+    var newRow = other.startRow
 
     // Wrap horizontally if necessary.
     if (newColumn + other.columnSpan > columns) {
         newColumn = 0
-        newRow += 1
+        newRow = movingGridItem.startRow + movingGridItem.rowSpan
     }
+
     // Check vertical bounds.
     if (newRow + other.rowSpan > rows) {
         return null // No space left.
@@ -43,30 +40,41 @@ fun shiftItem(movingGridItem: GridItem, other: GridItem, rows: Int, columns: Int
 }
 
 /**
- * Recursively resolves conflicts in the [grid].
+ * Recursively resolves conflicts in the [gridItems].
  * For every grid item that overlaps with [movingItem] (except the moving grid item itself),
  * shift it using [shiftItem] (using [movingItem] as the reference) and update the grid.
  * Then, recursively process any conflicts that arise from the shifted item.
  */
-fun shiftConflicts(
-    grid: MutableList<GridItem>,
+private fun shiftConflicts(
+    gridItems: MutableList<GridItem>,
     movingItem: GridItem,
     rows: Int,
     columns: Int,
 ): Boolean {
-    for (gridItem in grid) {
+    for (gridItem in gridItems) {
         // Skip the moving grid item itself.
         if (gridItem.id == movingItem.id) continue
 
         if (rectanglesOverlap(movingItem, gridItem)) {
-            val shiftedItem = shiftItem(movingItem, gridItem, rows, columns) ?: return false
+            val shiftedItem = shiftItem(
+                movingGridItem = movingItem,
+                other = gridItem,
+                rows = rows,
+                columns = columns,
+            ) ?: return false
 
             // Update the grid with the shifted item.
-            val index = grid.indexOfFirst { it.id == gridItem.id }
-            grid[index] = shiftedItem
+            val index = gridItems.indexOfFirst { it.id == gridItem.id }
+            gridItems[index] = shiftedItem
 
             // Recursively resolve further conflicts from the shifted item.
-            if (!shiftConflicts(grid, shiftedItem, rows, columns)) {
+            if (!shiftConflicts(
+                    gridItems = gridItems,
+                    movingItem = shiftedItem,
+                    rows = rows,
+                    columns = columns,
+                )
+            ) {
                 return false
             }
         }

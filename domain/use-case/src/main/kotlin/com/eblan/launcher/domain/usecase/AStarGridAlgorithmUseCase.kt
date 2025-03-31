@@ -1,7 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.grid.resolveConflictsWithShift
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridRepository
@@ -25,7 +24,14 @@ class AStarGridAlgorithmUseCase @Inject constructor(
                     columns = userData.columns,
                 )
             ) {
-                val gridItems = gridRepository.gridItems.first()
+                val gridItems = gridRepository.gridItems.first().toMutableList().apply {
+                    val index = indexOfFirst { it.id == gridItem.id }
+                    if (index != -1) {
+                        set(index, gridItem)
+                    } else {
+                        add(gridItem)
+                    }
+                }
 
                 val resolvedConflictsGridItems = resolveConflictsWithShift(
                     gridItems = gridItems,

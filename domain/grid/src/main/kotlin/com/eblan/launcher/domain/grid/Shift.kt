@@ -1,15 +1,18 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemShift
 
 fun resolveConflictsWithShift(
     gridItems: MutableList<GridItem>,
+    gridItemShift: GridItemShift?,
     movingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
     return if (shiftConflicts(
             gridItems = gridItems,
+            gridItemShift = gridItemShift,
             movingItem = movingGridItem,
             rows = rows,
             columns = columns,
@@ -23,6 +26,7 @@ fun resolveConflictsWithShift(
 
 private fun shiftConflicts(
     gridItems: MutableList<GridItem>,
+    gridItemShift: GridItemShift?,
     movingItem: GridItem,
     rows: Int,
     columns: Int,
@@ -32,7 +36,8 @@ private fun shiftConflicts(
         if (gridItem.id == movingItem.id) continue
 
         if (rectanglesOverlap(movingItem, gridItem)) {
-            val shiftedItem = shiftItemToRight(
+            val shiftedItem = shiftItem(
+                gridItemShift = gridItemShift,
                 movingGridItem = movingItem,
                 other = gridItem,
                 rows = rows,
@@ -46,6 +51,7 @@ private fun shiftConflicts(
             // Recursively resolve further conflicts from the shifted item.
             if (!shiftConflicts(
                     gridItems = gridItems,
+                    gridItemShift = gridItemShift,
                     movingItem = shiftedItem,
                     rows = rows,
                     columns = columns,
@@ -56,6 +62,38 @@ private fun shiftConflicts(
         }
     }
     return true
+}
+
+private fun shiftItem(
+    gridItemShift: GridItemShift?,
+    movingGridItem: GridItem,
+    other: GridItem,
+    rows: Int,
+    columns: Int,
+): GridItem? {
+    return when (gridItemShift) {
+        GridItemShift.Up, GridItemShift.Left -> {
+            shiftItemToLeft(
+                movingGridItem = movingGridItem,
+                other = other,
+                rows = rows,
+                columns = columns,
+            )
+        }
+
+        GridItemShift.Down, GridItemShift.Right -> {
+            shiftItemToRight(
+                movingGridItem = movingGridItem,
+                other = other,
+                rows = rows,
+                columns = columns,
+            )
+        }
+
+        null -> {
+            null
+        }
+    }
 }
 
 private fun shiftItemToRight(
@@ -77,5 +115,30 @@ private fun shiftItemToRight(
     if (newRow + other.rowSpan > rows) {
         return null // No space left.
     }
+    return other.copy(startRow = newRow, startColumn = newColumn)
+}
+
+private fun shiftItemToLeft(
+    movingGridItem: GridItem,
+    other: GridItem,
+    rows: Int,
+    columns: Int,
+): GridItem? {
+    var newColumn = movingGridItem.startColumn - other.columnSpan
+    var newRow = other.startRow
+
+    if (newColumn < 0) {
+        newColumn = columns - other.columnSpan
+        newRow = other.startRow - 1
+    }
+
+    if (newRow < 0) {
+        return null
+    }
+
+    if (newRow + other.rowSpan > rows) {
+        return null
+    }
+
     return other.copy(startRow = newRow, startColumn = newColumn)
 }

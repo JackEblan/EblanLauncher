@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.usecase.AStarGridAlgorithmUseCase
+import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
@@ -18,7 +19,6 @@ import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
-import com.eblan.launcher.feature.home.model.GridItemUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +36,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
+    private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
@@ -70,9 +70,13 @@ class HomeViewModel @Inject constructor(
         initialValue = null,
     )
 
-    private var _gridItemUiState = MutableStateFlow<GridItemUiState?>(null)
+    private var _showBottomSheet = MutableStateFlow(false)
 
-    val gridItemUiState = _gridItemUiState.asStateFlow()
+    val showBottomSheet = _showBottomSheet.asStateFlow()
+
+    private var _gridItemByCoordinates = MutableStateFlow<GridItemByCoordinates?>(null)
+
+    val gridItemByCoordinates = _gridItemByCoordinates.asStateFlow()
 
     val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
@@ -105,7 +109,7 @@ class HomeViewModel @Inject constructor(
 
     fun gridAlgorithm(gridItem: GridItem) {
         viewModelScope.launch {
-            aStarGridAlgorithmUseCase(gridItem = gridItem)
+            shiftAlgorithmUseCase(gridItem = gridItem)
         }
     }
 
@@ -271,15 +275,23 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemUiState.update {
-                GridItemUiState.Success(
-                    getGridItemByCoordinatesUseCase(
-                        page = page,
-                        x = x,
-                        y = y,
-                        screenWidth = screenWidth,
-                        screenHeight = screenHeight,
-                    ),
+            _showBottomSheet.update {
+                getGridItemByCoordinatesUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                ) == null
+            }
+
+            _gridItemByCoordinates.update {
+                getGridItemByCoordinatesUseCase(
+                    page = page,
+                    x = x,
+                    y = y,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                 )
             }
         }
@@ -297,9 +309,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridItemUiState() {
-        _gridItemUiState.update {
-            GridItemUiState.Idle
+    fun resetGridItemByCoordinates() {
+        _showBottomSheet.update {
+            false
+        }
+
+        _gridItemByCoordinates.update {
+            null
         }
 
         _gridItemMovement.update {

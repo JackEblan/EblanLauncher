@@ -6,7 +6,7 @@ import com.eblan.launcher.domain.model.SideAnchor
 import javax.inject.Inject
 
 class ResizeWidgetGridItemUseCase @Inject constructor(
-    private val aStarGridAlgorithmUseCase: AStarGridAlgorithmUseCase,
+    private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -26,6 +26,6 @@ class ResizeWidgetGridItemUseCase @Inject constructor(
             anchor = anchor,
         ).copy(page = page)
 
-        aStarGridAlgorithmUseCase(gridItem = resizingGridItem)
+        shiftAlgorithmUseCase(gridItem = resizingGridItem)
     }
 }

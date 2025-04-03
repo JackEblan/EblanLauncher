@@ -139,12 +139,15 @@ fun PagerScreen(
                         WidgetGridItem(
                             modifier = modifier,
                             gridItemData = gridItemData,
-                            page = page,
-                            x = x,
-                            y = y,
-                            screenWidth = screenWidth,
-                            screenHeight = screenHeight,
-                            onGetGridItemByCoordinates = onGetGridItemByCoordinates,
+                            onLongPress = {
+                                onGetGridItemByCoordinates(
+                                    pagerState.currentPage,
+                                    x,
+                                    y,
+                                    screenWidth,
+                                    screenHeight,
+                                )
+                            },
                         )
                     }
                 }
@@ -180,12 +183,7 @@ fun ApplicationInfoGridItem(
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.Widget,
-    page: Int,
-    x: Int,
-    y: Int,
-    screenWidth: Int,
-    screenHeight: Int,
-    onGetGridItemByCoordinates: (page: Int, x: Int, y: Int, screenWidth: Int, screenHeight: Int) -> Unit,
+    onLongPress: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -193,13 +191,13 @@ private fun WidgetGridItem(
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
-    var longPress by remember { mutableStateOf(false) }
+    var isLongPress by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = longPress, key2 = gridItemData) {
-        if (longPress) {
-            onGetGridItemByCoordinates(page, x, y, screenWidth, screenHeight)
+    LaunchedEffect(key1 = isLongPress, key2 = gridItemData) {
+        if (isLongPress) {
+            onLongPress()
 
-            longPress = false
+            isLongPress = false
         }
     }
 
@@ -216,7 +214,7 @@ private fun WidgetGridItem(
                     )
 
                     setOnLongClickListener {
-                        longPress = true
+                        isLongPress = true
                         true
                     }
 

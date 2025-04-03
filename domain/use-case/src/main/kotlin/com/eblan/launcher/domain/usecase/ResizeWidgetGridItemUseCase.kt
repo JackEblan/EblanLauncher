@@ -26,6 +26,6 @@ class ResizeWidgetGridItemUseCase @Inject constructor(
             anchor = anchor,
         ).copy(page = page)
 
-        shiftAlgorithmUseCase(gridItem = resizingGridItem)
+        shiftAlgorithmUseCase(movingGridItem = resizingGridItem)
     }
 }

@@ -109,7 +109,7 @@ class HomeViewModel @Inject constructor(
 
     fun gridAlgorithm(gridItem: GridItem) {
         viewModelScope.launch {
-            shiftAlgorithmUseCase(gridItem = gridItem)
+            shiftAlgorithmUseCase(movingGridItem = gridItem)
         }
     }
 

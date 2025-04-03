@@ -15,37 +15,43 @@ class ShiftAlgorithmUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke(gridItem: GridItem): List<GridItem>? {
+    suspend operator fun invoke(movingGridItem: GridItem): List<GridItem>? {
         return withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
             if (isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
+                    gridItem = movingGridItem,
                     rows = userData.rows,
                     columns = userData.columns,
                 )
             ) {
-                val gridItems = gridRepository.gridItems.first().toMutableList()
+                val gridItems = gridRepository.gridItems.first().filter { gridItem ->
+                    isGridItemSpanWithinBounds(
+                        gridItem = gridItem,
+                        rows = userData.rows,
+                        columns = userData.columns,
+                    ) && gridItem.page == movingGridItem.page
+                }.toMutableList()
 
                 var gridItemShift: GridItemShift? = null
 
-                val index = gridItems.indexOfFirst { it.id == gridItem.id }
+                val index = gridItems.indexOfFirst { it.id == movingGridItem.id }
 
                 if (index != -1) {
                     gridItemShift = getGridItemShift(
                         oldGridItem = gridItems[index],
-                        newGridItem = gridItem,
+                        newGridItem = movingGridItem,
                     )
 
-                    gridItems[index] = gridItem
+                    gridItems[index] = movingGridItem
                 } else {
-                    gridItems.add(gridItem)
+                    gridItems.add(movingGridItem)
                 }
 
                 val resolvedConflictsGridItems = resolveConflictsWithShift(
                     gridItems = gridItems,
                     gridItemShift = gridItemShift,
-                    movingGridItem = gridItem,
+                    movingGridItem = movingGridItem,
                     rows = userData.rows,
                     columns = userData.columns,
                 )

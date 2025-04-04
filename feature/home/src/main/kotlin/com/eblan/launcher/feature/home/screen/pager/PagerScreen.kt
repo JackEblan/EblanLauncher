@@ -79,6 +79,7 @@ fun PagerScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
+    onResetLastGridItem: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
@@ -105,6 +106,8 @@ fun PagerScreen(
                         val longPress = awaitLongPressOrCancellation(down.id)
 
                         if (longPress != null) {
+                            onResetLastGridItem()
+
                             onGetGridItemByCoordinates(
                                 pagerState.currentPage,
                                 longPress.position.x.roundToInt(),

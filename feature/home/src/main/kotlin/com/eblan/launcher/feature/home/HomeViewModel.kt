@@ -9,15 +9,14 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
-import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
+import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -46,7 +45,6 @@ class HomeViewModel @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
     private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
-    private val deleteGridItemUseCase: DeleteGridItemUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -297,15 +295,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateWidget(id: String, appWidgetId: Int) {
+    fun updateWidget(gridItem: GridItem, appWidgetId: Int) {
         viewModelScope.launch {
-            updateWidgetGridItemDataUseCase(id = id, appWidgetId = appWidgetId)
-        }
-    }
-
-    fun deleteGridItem(id: String) {
-        viewModelScope.launch {
-            deleteGridItemUseCase(id = id)
+            updateWidgetGridItemDataUseCase(gridItem = gridItem, appWidgetId = appWidgetId)
         }
     }
 

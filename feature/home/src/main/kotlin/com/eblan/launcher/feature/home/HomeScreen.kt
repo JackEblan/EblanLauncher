@@ -58,6 +58,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -108,7 +109,6 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onGridItemByCoordinates = viewModel::getGridItemByCoordinates,
         onUpdateWidget = viewModel::updateWidget,
-        onDeleteGridItem = viewModel::deleteGridItem,
         onResetGridItemByCoordinates = viewModel::resetGridItemByCoordinates,
         onResetAddGridItem = viewModel::resetAddGridItem,
         onEdit = onEdit,
@@ -195,8 +195,7 @@ fun HomeScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onUpdateWidget: (id: String, appWidgetId: Int) -> Unit,
-    onDeleteGridItem: (id: String) -> Unit,
+    onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onResetGridItemByCoordinates: () -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -233,7 +232,6 @@ fun HomeScreen(
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onGetGridItemByCoordinates = onGridItemByCoordinates,
                         onUpdateWidget = onUpdateWidget,
-                        onDeleteGridItem = onDeleteGridItem,
                         onResetGridItemByCoordinates = onResetGridItemByCoordinates,
                         onResetAddGridItem = onResetAddGridItem,
                         onEdit = onEdit,
@@ -326,8 +324,7 @@ fun Success(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onUpdateWidget: (id: String, appWidgetId: Int) -> Unit,
-    onDeleteGridItem: (id: String) -> Unit,
+    onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onResetGridItemByCoordinates: () -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -348,11 +345,11 @@ fun Success(
 
     var showResize by remember { mutableStateOf(false) }
 
-    var dragEnd by remember { mutableStateOf(false) }
-
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
     var homeType by remember { mutableStateOf(HomeType.Pager) }
+
+    var dragType by remember { mutableStateOf(DragType.None) }
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -374,7 +371,7 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = gridItemMovement, key2 = dragEnd) {
+    LaunchedEffect(key1 = gridItemMovement, key2 = dragType) {
         when (gridItemMovement) {
             GridItemMovement.Left -> {
                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
@@ -387,7 +384,7 @@ fun Success(
             is GridItemMovement.Inside -> {
                 onGridAlgorithm(gridItemMovement.gridItem)
 
-                if (dragEnd) {
+                if (dragType == DragType.Cancel || dragType == DragType.End) {
                     onResetGridItemByCoordinates()
                 }
             }
@@ -396,7 +393,7 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = addGridItemMovement, key2 = dragEnd) {
+    LaunchedEffect(key1 = addGridItemMovement, key2 = dragType) {
         when (addGridItemMovement) {
             GridItemMovement.Left -> {
                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
@@ -407,7 +404,7 @@ fun Success(
             }
 
             is GridItemMovement.Inside -> {
-                if (dragEnd) {
+                if (dragType == DragType.End) {
                     when (val data = addGridItemMovement.gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             onResetAddGridItem()
@@ -470,13 +467,7 @@ fun Success(
 
     LaunchedEffect(key1 = addGridItem, key2 = appWidgetId) {
         if (addGridItem != null && appWidgetId != null) {
-            if (appWidgetId == -1) {
-                onDeleteGridItem(addGridItem.id)
-            } else {
-                appWidgetId?.let { id ->
-                    onUpdateWidget(addGridItem.id, id)
-                }
-            }
+            onUpdateWidget(addGridItem, appWidgetId!!)
 
             appWidgetId = null
 
@@ -502,29 +493,44 @@ fun Success(
         }
     }
 
+    LaunchedEffect(key1 = dragType) {
+        when (dragType) {
+            DragType.Start -> {
+                showResize = false
+            }
+
+            DragType.End, DragType.Cancel -> {
+                showOverlay = false
+                showResize = false
+            }
+
+            DragType.Drag -> {
+                showMenu = false
+                showResize = false
+            }
+
+            DragType.None -> Unit
+        }
+    }
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = {
-                        dragEnd = false
+                        dragType = DragType.Start
                     },
                     onDragEnd = {
-                        showOverlay = false
-                        showResize = false
-                        dragEnd = true
+                        dragType = DragType.End
                     },
                     onDragCancel = {
-                        showOverlay = false
-                        showResize = false
-                        dragEnd = true
+                        dragType = DragType.Cancel
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
                         dragOffset += dragAmount
 
-                        showMenu = false
-                        showResize = false
+                        dragType = DragType.Drag
                     },
                 )
             }
@@ -553,9 +559,9 @@ fun Success(
                         showResize = false
                     },
                     onMoveGridItem = onMoveGridItem,
-                    onGetGridItemByCoordinates = { page, x, y, screenWidth, screenHeight ->
+                    onGetGridItemByCoordinates = onGetGridItemByCoordinates,
+                    onResetLastGridItem = {
                         lastGridItemByCoordinates = null
-                        onGetGridItemByCoordinates(page, x, y, screenWidth, screenHeight)
                     },
                     onEdit = {
 

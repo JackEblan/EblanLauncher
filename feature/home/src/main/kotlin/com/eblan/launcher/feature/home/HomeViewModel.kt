@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
@@ -71,10 +70,6 @@ class HomeViewModel @Inject constructor(
     private var _showBottomSheet = MutableStateFlow(false)
 
     val showBottomSheet = _showBottomSheet.asStateFlow()
-
-    private var _gridItemByCoordinates = MutableStateFlow<GridItemByCoordinates?>(null)
-
-    val gridItemByCoordinates = _gridItemByCoordinates.asStateFlow()
 
     val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
@@ -265,7 +260,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getGridItemByCoordinates(
+    fun showBottomSheet(
         page: Int,
         x: Int,
         y: Int,
@@ -282,16 +277,6 @@ class HomeViewModel @Inject constructor(
                     screenHeight = screenHeight,
                 ) == null
             }
-
-            _gridItemByCoordinates.update {
-                getGridItemByCoordinatesUseCase(
-                    page = page,
-                    x = x,
-                    y = y,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                )
-            }
         }
     }
 
@@ -301,15 +286,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridItemByCoordinates() {
+    fun resetShowBottomSheet() {
         _showBottomSheet.update {
             false
         }
+    }
 
-        _gridItemByCoordinates.update {
-            null
-        }
-
+    fun resetGridItemMovement() {
         _gridItemMovement.update {
             null
         }

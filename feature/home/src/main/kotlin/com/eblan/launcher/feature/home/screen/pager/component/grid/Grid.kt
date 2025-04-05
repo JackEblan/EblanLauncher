@@ -47,7 +47,15 @@ fun GridSubcomposeLayout(
     ) -> Unit,
     onDismissRequest: (() -> Unit)?,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable (gridItem: GridItem, x: Int, y: Int, screenWidth: Int, screenHeight: Int) -> Unit,
+    gridItemContent: @Composable (
+        gridItem: GridItem,
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int,
+        screenWidth: Int,
+        screenHeight: Int,
+    ) -> Unit,
     menuContent: @Composable () -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
@@ -70,6 +78,8 @@ fun GridSubcomposeLayout(
                                 gridItem,
                                 gridItem.startColumn * cellWidth,
                                 gridItem.startRow * cellHeight,
+                                gridItem.columnSpan * cellWidth,
+                                gridItem.rowSpan * cellHeight,
                                 constraints.maxWidth,
                                 constraints.maxHeight,
                             )

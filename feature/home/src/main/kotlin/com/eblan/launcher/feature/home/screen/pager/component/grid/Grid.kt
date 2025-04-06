@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemByCoordinates
+import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider

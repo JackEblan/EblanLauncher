@@ -33,6 +33,7 @@
             <option value="$PROJECT_DIR$/design-system" />
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/domain/common" />
+            <option value="$PROJECT_DIR$/domain/framework" />
             <option value="$PROJECT_DIR$/domain/grid" />
             <option value="$PROJECT_DIR$/domain/model" />
             <option value="$PROJECT_DIR$/domain/repository" />

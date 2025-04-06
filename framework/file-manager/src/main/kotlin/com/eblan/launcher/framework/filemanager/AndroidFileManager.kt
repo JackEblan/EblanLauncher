@@ -1,6 +1,7 @@
 package com.eblan.launcher.framework.filemanager
 
 import android.content.Context
+import com.eblan.launcher.domain.framework.FileManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,19 +19,19 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
         }
     }
 
-    override suspend fun writeIconBytes(name: String, newIcon: ByteArray?): String? {
+    override suspend fun writeIconBytes(name: String, icon: ByteArray?): String? {
         return withContext(Dispatchers.IO) {
             val iconFile = File(iconsDir, name)
 
             val oldIcon = readIconBytes(iconFile = iconFile)
 
-            if (oldIcon.contentEquals(newIcon)) {
+            if (oldIcon.contentEquals(icon)) {
                 iconFile.absolutePath
             }
 
             try {
                 FileOutputStream(iconFile).use { fos ->
-                    fos.write(newIcon)
+                    fos.write(icon)
                 }
 
                 iconFile.absolutePath

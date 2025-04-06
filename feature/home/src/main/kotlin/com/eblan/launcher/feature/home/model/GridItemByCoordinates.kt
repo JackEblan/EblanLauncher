@@ -1,4 +1,6 @@
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.feature.home.model
+
+import com.eblan.launcher.domain.model.GridItem
 
 data class GridItemByCoordinates(
     val gridItem: GridItem,

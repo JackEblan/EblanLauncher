@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.framework.filemanager
 
+import com.eblan.launcher.domain.framework.FileManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

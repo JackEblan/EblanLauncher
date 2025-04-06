@@ -26,7 +26,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemByCoordinates
+import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
@@ -187,7 +187,6 @@ fun PagerScreen(
 
                     is GridItemData.Widget -> {
                         WidgetGridItem(
-                            modifier = modifier,
                             gridItemData = gridItemData,
                             onLongPress = {
                                 lastGridItemByCoordinates = GridItemByCoordinates(
@@ -230,7 +229,7 @@ fun ApplicationInfoGridItem(
 ) {
     var isLongPress by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = isLongPress, key2 = gridItemData) {
+    LaunchedEffect(key1 = isLongPress) {
         if (isLongPress) {
             onLongPress()
 
@@ -275,7 +274,7 @@ private fun WidgetGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = isLongPress, key2 = gridItemData) {
+    LaunchedEffect(key1 = isLongPress) {
         if (isLongPress) {
             onLongPress()
 

@@ -15,15 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.packagemanager
+package com.eblan.launcher.domain.model
 
-import android.content.pm.ApplicationInfo
-import android.graphics.drawable.Drawable
-
-interface PackageManagerWrapper {
-    suspend fun queryIntentActivities(): List<ApplicationInfo>
-
-    suspend fun getApplicationIcon(packageName: String): Drawable?
-
-    fun launchIntentForPackage(packageName: String)
-}
+data class PackageManagerApplicationInfo(
+    val packageName: String,
+    val icon: ByteArray?,
+    val label: String,
+)

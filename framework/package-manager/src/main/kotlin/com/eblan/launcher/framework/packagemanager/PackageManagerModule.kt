@@ -29,5 +29,5 @@ internal interface PackageManagerModule {
 
     @Binds
     @Singleton
-    fun packageManagerWrapper(impl: AndroidPackageManagerWrapper): PackageManagerWrapper
+    fun packageManagerWrapper(impl: AndroidPackageManagerWrapper): com.eblan.launcher.domain.framework.PackageManagerWrapper
 }

@@ -1,9 +1,12 @@
 # EblanLauncher
 
-EblanLauncher is an Android Launcher application built using Jetpack Compose from scratch. This project serves as a case study where a custom grid system is implemented, offering extensive customization for each grid cell. Each grid cell acts as a container for applications, widgets and many more!
+**EblanLauncher** is a custom Android Launcher made from scratch using Jetpack Compose. It uses a fully customizable grid system where each cell can hold apps, widgets, and more.
 
 ## Features
-- **Custom Grid System**: Each cell in the grid can be customized extensively:
-  - **Editing**: Modify cell content and appearance.
-  - **Dragging**: Rearrange grid cells via intuitive drag-and-drop across pages.
-  - **Resizing**: Adjust the dimensions of grid cells for a personalized layout.
+We welcome your contributions and feature ideas!
+- **Edit**
+- **Drag & Drop**
+- **Resize**
+
+## Demo
+[![Watch the video](https://img.youtube.com/vi/X8s19Em1Mjo/0.jpg)](https://www.youtube.com/watch?v=X8s19Em1Mjo)

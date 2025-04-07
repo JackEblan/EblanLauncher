@@ -11,13 +11,11 @@ class GetEblanApplicationInfoInstalledProvidersUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
 ) {
     suspend operator fun invoke(installedProviderPackageNames: List<String>): List<EblanApplicationInfo> {
-        val eblanApplicationInfos = withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.Default) {
             eblanApplicationInfoRepository.eblanApplicationInfos.first()
                 .filter { eblanApplicationInfo ->
                     eblanApplicationInfo.packageName in installedProviderPackageNames
                 }
         }
-
-        return eblanApplicationInfos
     }
 }

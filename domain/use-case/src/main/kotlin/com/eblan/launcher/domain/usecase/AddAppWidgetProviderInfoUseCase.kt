@@ -1,7 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
-import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -89,16 +88,6 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             columnSpan = newColumnSpan,
             data = data,
         )
-
-        val movingGridItem = moveGridItemWithCoordinates(
-            gridItem = gridItem,
-            x = x,
-            y = y,
-            rows = userData.rows,
-            columns = userData.columns,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-        ).copy(page = page)
 
         return gridItem
     }

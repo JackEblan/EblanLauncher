@@ -27,7 +27,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemMovement
+import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
@@ -46,7 +46,7 @@ fun PagerScreen(
     showMenu: Boolean,
     showResize: Boolean,
     dragType: DragType?,
-    gridItemMovement: GridItemMovement?,
+    pageDirection: PageDirection?,
     onGridAlgorithm: (GridItem) -> Unit,
     onResizeGridItem: (
         page: Int,
@@ -91,26 +91,18 @@ fun PagerScreen(
 ) {
     var lastGridItemByCoordinates by remember { mutableStateOf<GridItemByCoordinates?>(null) }
 
-    LaunchedEffect(key1 = gridItemMovement, key2 = dragType) {
-        when (gridItemMovement) {
-            GridItemMovement.Left -> {
+    LaunchedEffect(key1 = pageDirection) {
+        when (pageDirection) {
+            PageDirection.Left -> {
                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
             }
 
-            GridItemMovement.Right -> {
+            PageDirection.Right -> {
                 if (pagerState.currentPage + 1 == userData.pageCount) {
                     onUpdatePageCount(userData.pageCount + 1)
                 }
 
                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
-            }
-
-            is GridItemMovement.Inside -> {
-                onGridAlgorithm(gridItemMovement.gridItem)
-
-                if (dragType == DragType.Cancel || dragType == DragType.End) {
-                    onResetGridItemMovement()
-                }
             }
 
             null -> Unit

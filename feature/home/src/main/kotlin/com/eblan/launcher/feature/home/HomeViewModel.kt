@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemMovement
+import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -14,6 +14,7 @@ import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
+import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
 import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
@@ -46,20 +47,13 @@ class HomeViewModel @Inject constructor(
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
     private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
     private val userDataRepository: UserDataRepository,
+    private val movePageUseCase: MovePageUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,
     )
-
-    private var _gridItemMovement = MutableStateFlow<GridItemMovement?>(null)
-
-    val gridItemMovement = _gridItemMovement.asStateFlow()
-
-    private var _addGridItemMovement = MutableStateFlow<GridItemMovement?>(null)
-
-    val addGridItemMovement = _addGridItemMovement.asStateFlow()
 
     private var _showBottomSheet = MutableStateFlow(false)
 
@@ -86,6 +80,10 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
+    private var _pageDirection = MutableStateFlow<PageDirection?>(null)
+
+    val pageDirection = _pageDirection.asStateFlow()
+
     private var _addGridItem = MutableStateFlow<GridItem?>(null)
 
     val addGridItem = _addGridItem.asStateFlow()
@@ -105,16 +103,21 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _gridItemMovement.update {
-                moveGridItemUseCase(
-                    page = page,
+            _pageDirection.update {
+                movePageUseCase(
                     gridItem = gridItem,
                     x = x,
-                    y = y,
                     screenWidth = screenWidth,
-                    screenHeight = screenHeight,
                 )
             }
+            moveGridItemUseCase(
+                page = page,
+                gridItem = gridItem,
+                x = x,
+                y = y,
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
+            )
         }
     }
 
@@ -127,16 +130,22 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _addGridItemMovement.update {
-                moveGridItemUseCase(
-                    page = page,
+            _pageDirection.update {
+                movePageUseCase(
                     gridItem = gridItem,
                     x = x,
-                    y = y,
                     screenWidth = screenWidth,
-                    screenHeight = screenHeight,
                 )
             }
+
+            moveGridItemUseCase(
+                page = page,
+                gridItem = gridItem,
+                x = x,
+                y = y,
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
+            )
         }
     }
 
@@ -289,18 +298,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetGridItemMovement() {
-        _gridItemMovement.update {
-            null
-        }
     }
 
     fun resetAddGridItem() {
         viewModelScope.launch {
             _addGridItem.update {
-                null
-            }
-
-            _addGridItemMovement.update {
                 null
             }
         }

@@ -1,7 +1,6 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemMovement
 
 /**
  * Validates that grid item span within the acceptable grid bounds.

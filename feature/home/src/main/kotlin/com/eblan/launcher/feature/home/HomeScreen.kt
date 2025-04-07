@@ -54,7 +54,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemMovement
+import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
@@ -75,9 +75,7 @@ fun HomeRoute(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
-    val gridItemMovement by viewModel.gridItemMovement.collectAsStateWithLifecycle()
-
-    val addGridItemMovement by viewModel.addGridItemMovement.collectAsStateWithLifecycle()
+    val pageDirection by viewModel.pageDirection.collectAsStateWithLifecycle()
 
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
 
@@ -89,8 +87,7 @@ fun HomeRoute(
 
     HomeScreen(
         modifier = modifier,
-        gridItemMovement = gridItemMovement,
-        addGridItemMovement = addGridItemMovement,
+        pageDirection = pageDirection,
         homeUiState = homeUiState,
         showBottomSheet = showBottomSheet,
         eblanApplicationInfos = eblanApplicationInfos,
@@ -116,8 +113,7 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    gridItemMovement: GridItemMovement?,
-    addGridItemMovement: GridItemMovement?,
+    pageDirection: PageDirection?,
     homeUiState: HomeUiState,
     showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
@@ -215,8 +211,7 @@ fun HomeScreen(
                     Success(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
-                        gridItemMovement = gridItemMovement,
-                        addGridItemMovement = addGridItemMovement,
+                        pageDirection = pageDirection,
                         showBottomSheet = showBottomSheet,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
@@ -248,8 +243,7 @@ fun Success(
     modifier: Modifier = Modifier,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
-    gridItemMovement: GridItemMovement?,
-    addGridItemMovement: GridItemMovement?,
+    pageDirection: PageDirection?,
     showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
@@ -370,21 +364,24 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = addGridItemMovement, key2 = dragType) {
-        when (addGridItemMovement) {
-            GridItemMovement.Left -> {
-                pagerState.animateScrollToPage(pagerState.currentPage - 1)
-            }
-
-            GridItemMovement.Right -> {
-                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-            }
-
-            is GridItemMovement.Inside -> {
-                onGridAlgorithm(addGridItemMovement.gridItem)
+    LaunchedEffect(key1 = addGridItem, key2 = dragType) {
+        if (addGridItem != null) {
+            snapshotFlow { dragOffset }.onStart {
+                homeType = HomeType.Pager
+                showOverlay = true
+                showMenu = true
+            }.onEach { offset ->
+                onMoveAddGridItem(
+                    pagerState.currentPage,
+                    addGridItem,
+                    offset.x.roundToInt(),
+                    offset.y.roundToInt(),
+                    screenSize.width,
+                    screenSize.height,
+                )
 
                 if (dragType == DragType.End) {
-                    when (val data = addGridItemMovement.gridItem.data) {
+                    when (val data = addGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             onResetAddGridItem()
                         }
@@ -399,7 +396,7 @@ fun Success(
                                     provider = provider,
                                 )
                             ) {
-                                onUpdateWidget(addGridItemMovement.gridItem, allocateAppWidgetId)
+                                onUpdateWidget(addGridItem, allocateAppWidgetId)
                             } else {
                                 val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                                     putExtra(
@@ -417,27 +414,6 @@ fun Success(
                         }
                     }
                 }
-            }
-
-            null -> Unit
-        }
-    }
-
-    LaunchedEffect(key1 = addGridItem) {
-        if (addGridItem != null) {
-            snapshotFlow { dragOffset }.onStart {
-                homeType = HomeType.Pager
-                showOverlay = true
-                showMenu = true
-            }.onEach { offset ->
-                onMoveAddGridItem(
-                    pagerState.currentPage,
-                    addGridItem,
-                    offset.x.roundToInt(),
-                    offset.y.roundToInt(),
-                    screenSize.width,
-                    screenSize.height,
-                )
             }.collect()
         }
     }
@@ -508,7 +484,7 @@ fun Success(
                     showMenu = showMenu,
                     showResize = showResize,
                     dragType = dragType,
-                    gridItemMovement = gridItemMovement,
+                    pageDirection = pageDirection,
                     onGridAlgorithm = onGridAlgorithm,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,

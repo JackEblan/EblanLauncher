@@ -8,6 +8,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
@@ -44,6 +45,7 @@ class HomeViewModel @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
     private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
+    private val userDataRepository: UserDataRepository,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -283,6 +285,12 @@ class HomeViewModel @Inject constructor(
     fun updateWidget(gridItem: GridItem, appWidgetId: Int) {
         viewModelScope.launch {
             updateWidgetGridItemDataUseCase(gridItem = gridItem, appWidgetId = appWidgetId)
+        }
+    }
+
+    fun updatePageCount(pageCount: Int) {
+        viewModelScope.launch {
+            userDataRepository.updatePageCount(pageCount = pageCount)
         }
     }
 

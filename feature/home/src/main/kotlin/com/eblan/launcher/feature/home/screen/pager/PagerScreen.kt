@@ -26,11 +26,12 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemMovement
 import com.eblan.launcher.domain.model.SideAnchor
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
+import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
@@ -40,8 +41,7 @@ fun PagerScreen(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
     dragOffset: Offset,
-    rows: Int,
-    columns: Int,
+    userData: UserData,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     showResize: Boolean,
@@ -84,6 +84,7 @@ fun PagerScreen(
         screenHeight: Int,
     ) -> Unit,
     onLongPressedGridItem: (x: Int, y: Int, width: Int, height: Int) -> Unit,
+    onUpdatePageCount: (Int) -> Unit,
     onResetGridItemMovement: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
@@ -97,6 +98,10 @@ fun PagerScreen(
             }
 
             GridItemMovement.Right -> {
+                if (pagerState.currentPage + 1 == userData.pageCount) {
+                    onUpdatePageCount(userData.pageCount + 1)
+                }
+
                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
 
@@ -149,8 +154,8 @@ fun PagerScreen(
                 }
                 .fillMaxSize(),
             page = page,
-            rows = rows,
-            columns = columns,
+            rows = userData.rows,
+            columns = userData.columns,
             lastGridItemByCoordinates = lastGridItemByCoordinates,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,

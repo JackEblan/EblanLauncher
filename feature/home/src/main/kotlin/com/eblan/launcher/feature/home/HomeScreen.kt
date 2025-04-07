@@ -105,6 +105,7 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onShowBottomSheet = viewModel::showBottomSheet,
         onUpdateWidget = viewModel::updateWidget,
+        onUpdatePageCount = viewModel::updatePageCount,
         onResetShowBottomSheet = viewModel::resetShowBottomSheet,
         onResetGridItemMovement = viewModel::resetGridItemMovement,
         onResetAddGridItem = viewModel::resetAddGridItem,
@@ -192,6 +193,7 @@ fun HomeScreen(
         screenHeight: Int,
     ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
+    onUpdatePageCount: (Int) -> Unit,
     onResetShowBottomSheet: () -> Unit,
     onResetGridItemMovement: () -> Unit,
     onResetAddGridItem: () -> Unit,
@@ -228,6 +230,7 @@ fun HomeScreen(
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onShowBottomSheet = onShowBottomSheet,
                         onUpdateWidget = onUpdateWidget,
+                        onUpdatePageCount = onUpdatePageCount,
                         onResetShowBottomSheet = onResetShowBottomSheet,
                         onResetGridItemMovement = onResetGridItemMovement,
                         onResetAddGridItem = onResetAddGridItem,
@@ -321,6 +324,7 @@ fun Success(
         screenHeight: Int,
     ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
+    onUpdatePageCount: (Int) -> Unit,
     onResetShowBottomSheet: () -> Unit,
     onResetGridItemMovement: () -> Unit,
     onResetAddGridItem: () -> Unit,
@@ -499,8 +503,7 @@ fun Success(
                 PagerScreen(
                     pagerState = pagerState,
                     dragOffset = dragOffset,
-                    rows = userData.rows,
-                    columns = userData.columns,
+                    userData = userData,
                     gridItems = gridItems,
                     showMenu = showMenu,
                     showResize = showResize,
@@ -530,6 +533,7 @@ fun Success(
                         showOverlay = true
                         showMenu = true
                     },
+                    onUpdatePageCount = onUpdatePageCount,
                     onResetGridItemMovement = onResetGridItemMovement,
                     onEdit = {
 

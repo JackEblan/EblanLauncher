@@ -55,19 +55,11 @@ class HomeViewModel @Inject constructor(
 
     private var _gridItemMovement = MutableStateFlow<GridItemMovement?>(null)
 
-    val gridItemMovement = _gridItemMovement.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
+    val gridItemMovement = _gridItemMovement.asStateFlow()
 
     private var _addGridItemMovement = MutableStateFlow<GridItemMovement?>(null)
 
-    val addGridItemMovement = _addGridItemMovement.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
+    val addGridItemMovement = _addGridItemMovement.asStateFlow()
 
     private var _showBottomSheet = MutableStateFlow(false)
 
@@ -96,11 +88,7 @@ class HomeViewModel @Inject constructor(
 
     private var _addGridItem = MutableStateFlow<GridItem?>(null)
 
-    val addGridItem = _addGridItem.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
+    val addGridItem = _addGridItem.asStateFlow()
 
     fun gridAlgorithm(gridItem: GridItem) {
         viewModelScope.launch {

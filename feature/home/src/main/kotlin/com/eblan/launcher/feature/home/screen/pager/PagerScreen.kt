@@ -117,7 +117,7 @@ fun PagerScreen(
         }
     }
 
-    LaunchedEffect(key1 = dragOffset, key2 = lastGridItemByCoordinates) {
+    LaunchedEffect(key1 = dragOffset) {
         if (lastGridItemByCoordinates != null) {
             onMoveGridItem(
                 pagerState.currentPage,

@@ -77,6 +77,8 @@ fun HomeRoute(
 
     val pageDirection by viewModel.pageDirection.collectAsStateWithLifecycle()
 
+    val newPageDirection by viewModel.newPageDirection.collectAsStateWithLifecycle()
+
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
 
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
@@ -88,6 +90,7 @@ fun HomeRoute(
     HomeScreen(
         modifier = modifier,
         pageDirection = pageDirection,
+        newPageDirection = newPageDirection,
         homeUiState = homeUiState,
         showBottomSheet = showBottomSheet,
         eblanApplicationInfos = eblanApplicationInfos,
@@ -114,6 +117,7 @@ fun HomeRoute(
 fun HomeScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
+    newPageDirection: PageDirection?,
     homeUiState: HomeUiState,
     showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
@@ -212,6 +216,7 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         pageDirection = pageDirection,
+                        newPageDirection = newPageDirection,
                         showBottomSheet = showBottomSheet,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
@@ -244,6 +249,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     pageDirection: PageDirection?,
+    newPageDirection: PageDirection?,
     showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
@@ -485,6 +491,7 @@ fun Success(
                     showResize = showResize,
                     dragType = dragType,
                     pageDirection = pageDirection,
+                    newPageDirection = newPageDirection,
                     onGridAlgorithm = onGridAlgorithm,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,

@@ -84,6 +84,10 @@ class HomeViewModel @Inject constructor(
 
     val pageDirection = _pageDirection.asStateFlow()
 
+    private var _newPageDirection = MutableStateFlow<PageDirection?>(null)
+
+    val newPageDirection = _newPageDirection.asStateFlow()
+
     private var _addGridItem = MutableStateFlow<GridItem?>(null)
 
     val addGridItem = _addGridItem.asStateFlow()
@@ -288,6 +292,10 @@ class HomeViewModel @Inject constructor(
     fun updatePageCount(pageCount: Int) {
         viewModelScope.launch {
             userDataRepository.updatePageCount(pageCount = pageCount)
+
+            _newPageDirection.update {
+                PageDirection.Right
+            }
         }
     }
 

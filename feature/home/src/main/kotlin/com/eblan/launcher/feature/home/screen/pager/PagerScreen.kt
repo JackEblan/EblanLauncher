@@ -46,6 +46,7 @@ fun PagerScreen(
     showMenu: Boolean,
     showResize: Boolean,
     dragType: DragType?,
+    newPageDirection: PageDirection?,
     pageDirection: PageDirection?,
     onGridAlgorithm: (GridItem) -> Unit,
     onResizeGridItem: (
@@ -91,7 +92,7 @@ fun PagerScreen(
 ) {
     var lastGridItemByCoordinates by remember { mutableStateOf<GridItemByCoordinates?>(null) }
 
-    LaunchedEffect(key1 = pageDirection) {
+    LaunchedEffect(key1 = pageDirection, key2 = userData) {
         when (pageDirection) {
             PageDirection.Left -> {
                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
@@ -100,9 +101,9 @@ fun PagerScreen(
             PageDirection.Right -> {
                 if (pagerState.currentPage + 1 == userData.pageCount) {
                     onUpdatePageCount(userData.pageCount + 1)
+                } else {
+                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
                 }
-
-                pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
 
             null -> Unit

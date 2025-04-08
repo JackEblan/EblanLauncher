@@ -21,9 +21,9 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.feature.home.model.DragType
-import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import kotlin.math.roundToInt
 
 @Composable
@@ -35,9 +35,10 @@ fun GridScreen(
     columns: Int,
     pageCount: Int,
     dragOffset: Offset,
-    lastGridItemByCoordinates: GridItemByCoordinates?,
+    lastGridItemDimensions: GridItemDimensions?,
     gridItems: Map<Int, List<GridItem>>,
     dragType: DragType,
+    addGridItemDimensions: GridItemDimensions?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -106,14 +107,25 @@ fun GridScreen(
     }
 
     LaunchedEffect(key1 = dragOffset) {
-        if (lastGridItemByCoordinates != null) {
+        if (lastGridItemDimensions != null) {
             onMoveGridItem(
                 index,
-                lastGridItemByCoordinates.gridItem,
+                lastGridItemDimensions.gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
-                lastGridItemByCoordinates.screenWidth,
-                lastGridItemByCoordinates.screenHeight,
+                lastGridItemDimensions.screenWidth,
+                lastGridItemDimensions.screenHeight,
+            )
+        }
+
+        if (addGridItemDimensions != null) {
+            onMoveGridItem(
+                index,
+                addGridItemDimensions.gridItem,
+                dragOffset.x.roundToInt(),
+                dragOffset.y.roundToInt(),
+                addGridItemDimensions.screenWidth,
+                addGridItemDimensions.screenHeight,
             )
         }
     }

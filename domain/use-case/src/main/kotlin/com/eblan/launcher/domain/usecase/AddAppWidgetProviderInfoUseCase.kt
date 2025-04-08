@@ -3,6 +3,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
 import java.util.UUID
@@ -27,7 +28,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         maxResizeHeight: Int,
         screenWidth: Int,
         screenHeight: Int,
-    ): GridItem {
+    ): GridItemDimensions {
         val userData = userDataRepository.userData.first()
 
         val cellWidth = screenWidth / userData.columns
@@ -89,6 +90,14 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             data = data,
         )
 
-        return gridItem
+        return GridItemDimensions(
+            gridItem = gridItem,
+            width = gridItem.columnSpan * cellWidth,
+            height = gridItem.rowSpan * cellHeight,
+            x = gridItem.startColumn * cellWidth,
+            y = gridItem.startRow * cellHeight,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+        )
     }
 }

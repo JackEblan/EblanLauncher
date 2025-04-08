@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -82,9 +83,9 @@ class HomeViewModel @Inject constructor(
 
     val pageDirection = _pageDirection.asStateFlow()
 
-    private var _addGridItem = MutableStateFlow<GridItem?>(null)
+    private var _addGridItemDimensions = MutableStateFlow<GridItemDimensions?>(null)
 
-    val addGridItem = _addGridItem.asStateFlow()
+    val addGridItemDimensions = _addGridItemDimensions.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -196,7 +197,7 @@ class HomeViewModel @Inject constructor(
         data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItem.update {
+            _addGridItemDimensions.update {
                 addApplicationInfoUseCase(
                     page = page,
                     x = x,
@@ -229,7 +230,7 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _addGridItem.update {
+            _addGridItemDimensions.update {
                 addAppWidgetProviderInfoUseCase(
                     page = page,
                     componentName = componentName,
@@ -294,7 +295,7 @@ class HomeViewModel @Inject constructor(
 
     fun resetAddGridItem() {
         viewModelScope.launch {
-            _addGridItem.update {
+            _addGridItemDimensions.update {
                 null
             }
         }

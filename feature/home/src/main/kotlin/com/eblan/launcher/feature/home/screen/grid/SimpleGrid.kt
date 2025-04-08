@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.placeholder.component
+package com.eblan.launcher.feature.home.screen.grid
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.material3.Surface
@@ -8,11 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.screen.pager.component.grid.GridItemParentData
-import com.eblan.launcher.feature.home.screen.pager.component.grid.animateGridItemPlacement
 
 @Composable
-fun GridSubcomposeLayout(
+fun SimpleGridSubcomposeLayout(
     modifier: Modifier = Modifier,
     index: Int,
     rows: Int,

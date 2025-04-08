@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.placeholder
+package com.eblan.launcher.feature.home.screen.grid
 
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
@@ -24,11 +24,10 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.model.GridItemByCoordinates
-import com.eblan.launcher.feature.home.screen.placeholder.component.GridSubcomposeLayout
 import kotlin.math.roundToInt
 
 @Composable
-fun PlaceholderScreen(
+fun GridScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
     currentPage: Int,
@@ -58,20 +57,30 @@ fun PlaceholderScreen(
 
     var newPage by remember { mutableStateOf(false) }
 
+    var canScroll by remember { mutableStateOf(true) }
+
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
                 if (index == 0) {
+                    if (newPage) {
+                        index = pageCount - 1
+                    }
+
                     newPage = true
-                } else if (newPage.not()) {
+                } else if (canScroll) {
                     index -= 1
                 }
             }
 
             PageDirection.Right -> {
                 if (index == pageCount - 1) {
+                    if (newPage) {
+                        index = 0
+                    }
+
                     newPage = true
-                } else if (newPage.not()) {
+                } else if (canScroll) {
                     index += 1
                 }
             }
@@ -82,6 +91,8 @@ fun PlaceholderScreen(
 
     LaunchedEffect(key1 = newPage) {
         if (newPage) {
+            canScroll = false
+
             onUpdatePageCount(pageCount + 1)
         }
     }
@@ -89,6 +100,8 @@ fun PlaceholderScreen(
     LaunchedEffect(key1 = pageCount) {
         if (newPage) {
             index = pageCount - 1
+
+            canScroll = true
         }
     }
 
@@ -107,11 +120,21 @@ fun PlaceholderScreen(
 
     LaunchedEffect(key1 = dragType) {
         if (dragType == DragType.End || dragType == DragType.Cancel) {
-            onDragEnd(index)
+            val targetPage = run {
+                val offset = currentPage - (Int.MAX_VALUE / 2)
+                val currentReal = offset - Math.floorDiv(
+                    offset,
+                    pageCount,
+                ) * pageCount
+                val delta = index - currentReal
+                currentPage + delta
+            }
+
+            onDragEnd(targetPage)
         }
     }
 
-    GridSubcomposeLayout(
+    SimpleGridSubcomposeLayout(
         modifier = modifier
             .fillMaxSize()
             .background(Color.Gray),

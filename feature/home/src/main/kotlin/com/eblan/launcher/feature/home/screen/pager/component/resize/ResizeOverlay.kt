@@ -24,7 +24,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.screen.pager.component.grid.animateGridItemPlacement
+import com.eblan.launcher.feature.home.screen.grid.animateGridItemPlacement
 import kotlin.math.roundToInt
 
 @Composable

@@ -42,7 +42,7 @@ import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.feature.home.model.HomeType
-import com.eblan.launcher.feature.home.screen.pager.component.grid.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.screen.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
 import kotlin.math.roundToInt
 

@@ -51,8 +51,8 @@ import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.grid.GridScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
-import com.eblan.launcher.feature.home.screen.placeholder.PlaceholderScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -357,7 +357,7 @@ fun Success(
     LaunchedEffect(key1 = addGridItem, key2 = dragType) {
         if (addGridItem != null) {
             snapshotFlow { dragOffset }.onStart {
-                homeType = HomeType.Placeholder
+                homeType = HomeType.Grid
                 showOverlay = true
                 showMenu = true
             }.onEach { offset ->
@@ -505,7 +505,7 @@ fun Success(
                         )
                         showOverlay = true
                         showMenu = true
-                        homeType = HomeType.Placeholder
+                        homeType = HomeType.Grid
                     },
                     onHomeType = {
                         homeType = it
@@ -556,8 +556,8 @@ fun Success(
                 )
             }
 
-            HomeType.Placeholder -> {
-                PlaceholderScreen(
+            HomeType.Grid -> {
+                GridScreen(
                     pageDirection = pageDirection,
                     currentPage = pagerState.currentPage,
                     rows = userData.rows,
@@ -569,18 +569,7 @@ fun Success(
                     dragType = dragType,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
-                    onDragEnd = { index ->
-                        val targetPage = run {
-                            val currentPage = pagerState.currentPage
-                            val offset = currentPage - (Int.MAX_VALUE / 2)
-                            val currentReal = offset - Math.floorDiv(
-                                offset,
-                                userData.pageCount,
-                            ) * userData.pageCount
-                            val delta = index - currentReal
-                            currentPage + delta
-                        }
-
+                    onDragEnd = { targetPage ->
                         scope.launch {
                             pagerState.scrollToPage(targetPage)
                         }

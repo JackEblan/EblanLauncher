@@ -17,7 +17,6 @@ import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
-import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -36,7 +35,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
-    private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
@@ -84,19 +82,9 @@ class HomeViewModel @Inject constructor(
 
     val pageDirection = _pageDirection.asStateFlow()
 
-    private var _newPageDirection = MutableStateFlow<PageDirection?>(null)
-
-    val newPageDirection = _newPageDirection.asStateFlow()
-
     private var _addGridItem = MutableStateFlow<GridItem?>(null)
 
     val addGridItem = _addGridItem.asStateFlow()
-
-    fun gridAlgorithm(gridItem: GridItem) {
-        viewModelScope.launch {
-            shiftAlgorithmUseCase(movingGridItem = gridItem)
-        }
-    }
 
     fun moveGridItem(
         page: Int,
@@ -292,10 +280,6 @@ class HomeViewModel @Inject constructor(
     fun updatePageCount(pageCount: Int) {
         viewModelScope.launch {
             userDataRepository.updatePageCount(pageCount = pageCount)
-
-            _newPageDirection.update {
-                PageDirection.Right
-            }
         }
     }
 

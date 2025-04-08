@@ -8,29 +8,19 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +34,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,10 +47,12 @@ import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
+import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
+import com.eblan.launcher.feature.home.screen.placeholder.PlaceholderScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -77,8 +68,6 @@ fun HomeRoute(
 
     val pageDirection by viewModel.pageDirection.collectAsStateWithLifecycle()
 
-    val newPageDirection by viewModel.newPageDirection.collectAsStateWithLifecycle()
-
     val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
 
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
@@ -90,12 +79,10 @@ fun HomeRoute(
     HomeScreen(
         modifier = modifier,
         pageDirection = pageDirection,
-        newPageDirection = newPageDirection,
         homeUiState = homeUiState,
         showBottomSheet = showBottomSheet,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
-        onGridAlgorithm = viewModel::gridAlgorithm,
         addGridItem = addGridItem,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveAddGridItem = viewModel::moveAddGridItem,
@@ -117,13 +104,11 @@ fun HomeRoute(
 fun HomeScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
-    newPageDirection: PageDirection?,
     homeUiState: HomeUiState,
     showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
-    onGridAlgorithm: (GridItem) -> Unit,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -216,11 +201,9 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         pageDirection = pageDirection,
-                        newPageDirection = newPageDirection,
                         showBottomSheet = showBottomSheet,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
-                        onGridAlgorithm = onGridAlgorithm,
                         addGridItem = addGridItem,
                         onMoveGridItem = onMoveGridItem,
                         onMoveAddGridItem = onMoveAddGridItem,
@@ -242,19 +225,16 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     pageDirection: PageDirection?,
-    newPageDirection: PageDirection?,
     showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItem: GridItem?,
-    onGridAlgorithm: (GridItem) -> Unit,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -331,12 +311,18 @@ fun Success(
     onEdit: (String) -> Unit,
 ) {
     val pagerState = rememberPagerState(
+        initialPage = Int.MAX_VALUE / 2,
         pageCount = {
-            userData.pageCount
+            Int.MAX_VALUE
         },
     )
 
-    val sheetState = rememberModalBottomSheetState()
+    val currentPage by remember {
+        derivedStateOf {
+            val offset = pagerState.currentPage - (Int.MAX_VALUE / 2)
+            offset - offset.floorDiv(userData.pageCount) * userData.pageCount
+        }
+    }
 
     var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
 
@@ -356,6 +342,8 @@ fun Success(
 
     var appWidgetId by remember { mutableStateOf<Int?>(null) }
 
+    var lastGridItemByCoordinates by remember { mutableStateOf<GridItemByCoordinates?>(null) }
+
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
@@ -373,12 +361,12 @@ fun Success(
     LaunchedEffect(key1 = addGridItem, key2 = dragType) {
         if (addGridItem != null) {
             snapshotFlow { dragOffset }.onStart {
-                homeType = HomeType.Pager
+                homeType = HomeType.Placeholder
                 showOverlay = true
                 showMenu = true
             }.onEach { offset ->
                 onMoveAddGridItem(
-                    pagerState.currentPage,
+                    currentPage,
                     addGridItem,
                     offset.x.roundToInt(),
                     offset.y.roundToInt(),
@@ -389,6 +377,7 @@ fun Success(
                 if (dragType == DragType.End) {
                     when (val data = addGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
+                            homeType = HomeType.Pager
                             onResetAddGridItem()
                         }
 
@@ -430,6 +419,8 @@ fun Success(
 
             appWidgetId = null
 
+            homeType = HomeType.Pager
+
             onResetAddGridItem()
         }
     }
@@ -443,6 +434,7 @@ fun Success(
             DragType.End, DragType.Cancel -> {
                 showOverlay = false
                 showResize = false
+                homeType = HomeType.Pager
             }
 
             DragType.Drag -> {
@@ -484,15 +476,12 @@ fun Success(
             HomeType.Pager -> {
                 PagerScreen(
                     pagerState = pagerState,
-                    dragOffset = dragOffset,
+                    lastGridItemByCoordinates = lastGridItemByCoordinates,
                     userData = userData,
                     gridItems = gridItems,
                     showMenu = showMenu,
                     showResize = showResize,
-                    dragType = dragType,
-                    pageDirection = pageDirection,
-                    newPageDirection = newPageDirection,
-                    onGridAlgorithm = onGridAlgorithm,
+                    showBottomSheet = showBottomSheet,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onDismissRequest = {
@@ -501,9 +490,10 @@ fun Success(
                     onResizeEnd = {
                         showResize = false
                     },
-                    onMoveGridItem = onMoveGridItem,
                     onShowBottomSheet = onShowBottomSheet,
-                    onLongPressedGridItem = { x, y, width, height ->
+                    onLongPressedGridItem = { gridItemByCoordinates, x, y, width, height ->
+                        lastGridItemByCoordinates = gridItemByCoordinates
+
                         dragOffset = IntOffset(
                             x = x,
                             y = y,
@@ -515,9 +505,15 @@ fun Success(
                         )
                         showOverlay = true
                         showMenu = true
+                        homeType = HomeType.Placeholder
                     },
-                    onUpdatePageCount = onUpdatePageCount,
-                    onResetGridItemMovement = onResetGridItemMovement,
+                    onHomeType = {
+                        homeType = it
+                    },
+                    onResetLastGridItemByCoordinates = {
+                        lastGridItemByCoordinates = null
+                    },
+                    onResetShowBottomSheet = onResetShowBottomSheet,
                     onEdit = {
 
                     },
@@ -530,7 +526,7 @@ fun Success(
 
             HomeType.Application -> {
                 ApplicationScreen(
-                    pagerState = pagerState,
+                    page = currentPage,
                     screenSize = screenSize,
                     eblanApplicationInfos = eblanApplicationInfos,
                     onLongPressApplicationInfo = { offset, size ->
@@ -544,7 +540,7 @@ fun Success(
 
             HomeType.Widget -> {
                 WidgetScreen(
-                    pagerState = pagerState,
+                    page = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     screenSize = screenSize,
@@ -557,68 +553,27 @@ fun Success(
                     onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                 )
             }
+
+            HomeType.Placeholder -> {
+                PlaceholderScreen(
+                    pageDirection = pageDirection,
+                    page = currentPage,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    gridItems = gridItems,
+                    dragOffset = dragOffset,
+                    lastGridItemByCoordinates = lastGridItemByCoordinates,
+                    onMoveGridItem = onMoveGridItem,
+                )
+            }
         }
 
 
         if (showOverlay) {
             GridItemOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
         }
-
-        if (showBottomSheet) {
-            HomeBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = onResetShowBottomSheet,
-                onHomeType = { type ->
-                    homeType = type
-                },
-            )
-        }
     }
 }
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun HomeBottomSheet(
-    sheetState: SheetState,
-    onDismissRequest: () -> Unit,
-    onHomeType: (HomeType) -> Unit,
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        sheetState = sheetState,
-    ) {
-        Row {
-            Column(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clickable {
-                        onHomeType(HomeType.Application)
-
-                        onDismissRequest()
-                    },
-            ) {
-                Icon(imageVector = Icons.Default.Android, contentDescription = null)
-
-                Text(text = "Application")
-            }
-
-            Column(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clickable {
-                        onHomeType(HomeType.Widget)
-
-                        onDismissRequest()
-                    },
-            ) {
-                Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
-
-                Text(text = "Widgets")
-            }
-        }
-    }
-}
-
 
 @Composable
 private fun GridItemOverlay(

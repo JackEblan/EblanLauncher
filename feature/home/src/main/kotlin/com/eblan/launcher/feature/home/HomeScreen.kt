@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -56,6 +57,7 @@ import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -336,6 +338,8 @@ fun Success(
 
     var lastGridItemByCoordinates by remember { mutableStateOf<GridItemByCoordinates?>(null) }
 
+    val scope = rememberCoroutineScope()
+
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
@@ -562,8 +566,25 @@ fun Success(
                     gridItems = gridItems,
                     dragOffset = dragOffset,
                     lastGridItemByCoordinates = lastGridItemByCoordinates,
+                    dragType = dragType,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
+                    onDragEnd = { index ->
+                        val targetPage = run {
+                            val currentPage = pagerState.currentPage
+                            val offset = currentPage - (Int.MAX_VALUE / 2)
+                            val currentReal = offset - Math.floorDiv(
+                                offset,
+                                userData.pageCount,
+                            ) * userData.pageCount
+                            val delta = index - currentReal
+                            currentPage + delta
+                        }
+
+                        scope.launch {
+                            pagerState.scrollToPage(targetPage)
+                        }
+                    },
                 )
             }
         }

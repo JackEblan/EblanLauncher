@@ -22,6 +22,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
+import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.model.GridItemByCoordinates
 import com.eblan.launcher.feature.home.screen.placeholder.component.GridSubcomposeLayout
 import kotlin.math.roundToInt
@@ -37,6 +38,7 @@ fun PlaceholderScreen(
     dragOffset: Offset,
     lastGridItemByCoordinates: GridItemByCoordinates?,
     gridItems: Map<Int, List<GridItem>>,
+    dragType: DragType,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -46,6 +48,7 @@ fun PlaceholderScreen(
         screenHeight: Int,
     ) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
+    onDragEnd: (Int) -> Unit,
 ) {
     val z = currentPage - (Int.MAX_VALUE / 2)
 
@@ -99,6 +102,12 @@ fun PlaceholderScreen(
                 lastGridItemByCoordinates.screenWidth,
                 lastGridItemByCoordinates.screenHeight,
             )
+        }
+    }
+
+    LaunchedEffect(key1 = dragType) {
+        if (dragType == DragType.End || dragType == DragType.Cancel) {
+            onDragEnd(index)
         }
     }
 

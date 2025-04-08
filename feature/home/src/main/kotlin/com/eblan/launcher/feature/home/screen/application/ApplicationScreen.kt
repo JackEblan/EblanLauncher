@@ -27,7 +27,8 @@ import kotlin.math.roundToInt
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
-    page: Int,
+    currentPage: Int,
+    pageCount: Int,
     screenSize: IntSize,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onLongPressApplicationInfo: (Offset, IntSize) -> Unit,
@@ -42,6 +43,10 @@ fun ApplicationScreen(
         data: GridItemData,
     ) -> Unit,
 ) {
+    val z = currentPage - (Int.MAX_VALUE / 2)
+
+    val page = z - z.floorDiv(pageCount) * pageCount
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         modifier = modifier.fillMaxWidth(),

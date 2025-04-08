@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -317,13 +316,6 @@ fun Success(
         },
     )
 
-    val currentPage by remember {
-        derivedStateOf {
-            val offset = pagerState.currentPage - (Int.MAX_VALUE / 2)
-            offset - offset.floorDiv(userData.pageCount) * userData.pageCount
-        }
-    }
-
     var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
 
     var showOverlay by remember { mutableStateOf(false) }
@@ -365,8 +357,12 @@ fun Success(
                 showOverlay = true
                 showMenu = true
             }.onEach { offset ->
+                val z = pagerState.currentPage - (Int.MAX_VALUE / 2)
+
+                val page = z - z.floorDiv(userData.pageCount) * userData.pageCount
+
                 onMoveAddGridItem(
-                    currentPage,
+                    page,
                     addGridItem,
                     offset.x.roundToInt(),
                     offset.y.roundToInt(),
@@ -526,7 +522,8 @@ fun Success(
 
             HomeType.Application -> {
                 ApplicationScreen(
-                    page = currentPage,
+                    currentPage = pagerState.currentPage,
+                    pageCount = userData.pageCount,
                     screenSize = screenSize,
                     eblanApplicationInfos = eblanApplicationInfos,
                     onLongPressApplicationInfo = { offset, size ->
@@ -540,7 +537,8 @@ fun Success(
 
             HomeType.Widget -> {
                 WidgetScreen(
-                    page = currentPage,
+                    currentPage = pagerState.currentPage,
+                    pageCount = userData.pageCount,
                     rows = userData.rows,
                     columns = userData.columns,
                     screenSize = screenSize,
@@ -557,17 +555,18 @@ fun Success(
             HomeType.Placeholder -> {
                 PlaceholderScreen(
                     pageDirection = pageDirection,
-                    page = currentPage,
+                    currentPage = pagerState.currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
+                    pageCount = userData.pageCount,
                     gridItems = gridItems,
                     dragOffset = dragOffset,
                     lastGridItemByCoordinates = lastGridItemByCoordinates,
                     onMoveGridItem = onMoveGridItem,
+                    onUpdatePageCount = onUpdatePageCount,
                 )
             }
         }
-
 
         if (showOverlay) {
             GridItemOverlay(overlaySize = overlaySize, dragOffset = dragOffset)

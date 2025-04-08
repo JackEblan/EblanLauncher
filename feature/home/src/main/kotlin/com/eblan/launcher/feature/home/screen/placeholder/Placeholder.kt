@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -29,9 +30,10 @@ import kotlin.math.roundToInt
 fun PlaceholderScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
-    page: Int,
+    currentPage: Int,
     rows: Int,
     columns: Int,
+    pageCount: Int,
     dragOffset: Offset,
     lastGridItemByCoordinates: GridItemByCoordinates?,
     gridItems: Map<Int, List<GridItem>>,
@@ -43,20 +45,47 @@ fun PlaceholderScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
+    onUpdatePageCount: (Int) -> Unit,
 ) {
+    val z = currentPage - (Int.MAX_VALUE / 2)
+
+    val page = z - z.floorDiv(pageCount) * pageCount
+
     var index by remember { mutableIntStateOf(page) }
+
+    var newPage by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
-                index -= 1
+                if (index == 0) {
+                    newPage = true
+                } else if (newPage.not()) {
+                    index -= 1
+                }
             }
 
             PageDirection.Right -> {
-                index += 1
+                if (index == pageCount - 1) {
+                    newPage = true
+                } else if (newPage.not()) {
+                    index += 1
+                }
             }
 
             null -> Unit
+        }
+    }
+
+    LaunchedEffect(key1 = newPage) {
+        if (newPage) {
+            onUpdatePageCount(pageCount + 1)
+        }
+    }
+
+    LaunchedEffect(key1 = pageCount) {
+        if (newPage) {
+            index = pageCount - 1
         }
     }
 

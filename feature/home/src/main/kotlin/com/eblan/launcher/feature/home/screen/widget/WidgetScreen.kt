@@ -30,7 +30,8 @@ import kotlin.math.roundToInt
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
-    page: Int,
+    currentPage: Int,
+    pageCount: Int,
     rows: Int,
     columns: Int,
     screenSize: IntSize,
@@ -61,6 +62,10 @@ fun WidgetScreen(
     val cellWidth = screenSize.width / columns
 
     val cellHeight = screenSize.height / rows
+
+    val z = currentPage - (Int.MAX_VALUE / 2)
+
+    val page = z - z.floorDiv(pageCount) * pageCount
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),

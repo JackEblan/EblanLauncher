@@ -74,22 +74,14 @@ fun PagerScreen(
 ) {
     var hitCounter by remember { mutableIntStateOf(0) }
 
-    var isLongPress by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = isLongPress) {
-        if (isLongPress) {
-            if (hitCounter == 1) {
+    LaunchedEffect(key1 = dragType) {
+        if (dragType == DragType.Start) {
+            if (hitCounter > 1) {
+                onDragStart()
+            } else {
                 onResetLastGridDimensions()
                 onShowBottomSheet()
             }
-
-            isLongPress = false
-        }
-    }
-
-    LaunchedEffect(key1 = dragType) {
-        if (dragType == DragType.Start && hitCounter > 1) {
-            onDragStart()
         }
     }
 
@@ -102,15 +94,9 @@ fun PagerScreen(
             modifier = modifier
                 .pointerInput(Unit) {
                     awaitEachGesture {
-                        val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                        awaitFirstDown(pass = PointerEventPass.Initial)
 
                         hitCounter = 1
-
-                        val longPress = awaitLongPressOrCancellation(down.id)
-
-                        if (longPress != null) {
-                            isLongPress = true
-                        }
                     }
                 }
                 .fillMaxSize(),

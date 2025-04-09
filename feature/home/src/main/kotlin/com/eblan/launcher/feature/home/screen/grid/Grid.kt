@@ -10,8 +10,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.screen.pager.component.resize.GridItemResizeOverlay
@@ -45,7 +45,7 @@ fun GridSubcomposeLayout(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onDismissRequest: (() -> Unit)?,
+    onDismissRequest: () -> Unit,
     onResizeEnd: () -> Unit,
     gridItemContent: @Composable (
         gridItem: GridItem,
@@ -210,7 +210,7 @@ private fun GridItemMenu(
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
-    onDismissRequest: (() -> Unit)?,
+    onDismissRequest: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val width = columnSpan * cellWidth

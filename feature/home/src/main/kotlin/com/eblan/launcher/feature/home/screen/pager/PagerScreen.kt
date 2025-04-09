@@ -2,35 +2,25 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
@@ -38,15 +28,12 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.domain.model.GridItemDimensions
-import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.screen.grid.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
-import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PagerScreen(
     modifier: Modifier = Modifier,
@@ -56,7 +43,6 @@ fun PagerScreen(
     lastGridItemDimensions: GridItemDimensions?,
     showMenu: Boolean,
     showResize: Boolean,
-    showBottomSheet: Boolean,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -75,29 +61,26 @@ fun PagerScreen(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onDismissRequest: (() -> Unit)?,
+    onDismissRequest: () -> Unit,
     onResizeEnd: () -> Unit,
-    onShowBottomSheet: (
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
-    onLongPressedGridItem: (
-        gridItemDimensions: GridItemDimensions,
-        x: Int,
-        y: Int,
-        width: Int,
-        height: Int,
-    ) -> Unit,
-    onHomeType: (HomeType) -> Unit,
-    onResetLastGridItemByCoordinates: () -> Unit,
-    onResetShowBottomSheet: () -> Unit,
+    onShowBottomSheet: () -> Unit,
+    onLongPressedGridItem: (gridItemDimensions: GridItemDimensions) -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    var hit by remember { mutableIntStateOf(0) }
+
+    var isLongPress by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = isLongPress) {
+        if (isLongPress) {
+            if (hit == 1) {
+                onShowBottomSheet()
+            }
+
+            isLongPress = false
+        }
+    }
 
     HorizontalPager(state = pagerState) { index ->
         val offset = index - (Int.MAX_VALUE / 2)
@@ -108,20 +91,14 @@ fun PagerScreen(
             modifier = modifier
                 .pointerInput(Unit) {
                     awaitEachGesture {
-                        val down = awaitFirstDown()
+                        val down = awaitFirstDown(pass = PointerEventPass.Initial)
+
+                        hit = 1
 
                         val longPress = awaitLongPressOrCancellation(down.id)
 
                         if (longPress != null) {
-                            onResetLastGridItemByCoordinates()
-
-                            onShowBottomSheet(
-                                pagerState.currentPage,
-                                longPress.position.x.roundToInt(),
-                                longPress.position.y.roundToInt(),
-                                size.width,
-                                size.height,
-                            )
+                            isLongPress = true
                         }
                     }
                 }
@@ -142,6 +119,9 @@ fun PagerScreen(
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(
                             gridItemData = gridItemData,
+                            onTap = {
+                                hit += 1
+                            },
                             onLongPress = {
                                 val gridItemDimensions = GridItemDimensions(
                                     gridItem = gridItem,
@@ -153,13 +133,7 @@ fun PagerScreen(
                                     screenHeight = screenHeight,
                                 )
 
-                                onLongPressedGridItem(
-                                    gridItemDimensions,
-                                    x,
-                                    y,
-                                    width,
-                                    height,
-                                )
+                                onLongPressedGridItem(gridItemDimensions)
                             },
                         )
                     }
@@ -168,6 +142,7 @@ fun PagerScreen(
                         WidgetGridItem(
                             gridItemData = gridItemData,
                             onLongPress = {
+                                hit += 1
                                 val gridItemDimensions = GridItemDimensions(
                                     gridItem = gridItem,
                                     width = width,
@@ -178,13 +153,7 @@ fun PagerScreen(
                                     screenHeight = screenHeight,
                                 )
 
-                                onLongPressedGridItem(
-                                    gridItemDimensions,
-                                    x,
-                                    y,
-                                    width,
-                                    height,
-                                )
+                                onLongPressedGridItem(gridItemDimensions)
                             },
                         )
                     }
@@ -199,20 +168,13 @@ fun PagerScreen(
         )
 
     }
-
-    if (showBottomSheet) {
-        HomeBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = onResetShowBottomSheet,
-            onHomeType = onHomeType,
-        )
-    }
 }
 
 @Composable
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.ApplicationInfo,
+    onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
     var isLongPress by remember { mutableStateOf(false) }
@@ -230,6 +192,8 @@ private fun ApplicationInfoGridItem(
             .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
+
+                    onTap()
 
                     val longPress = awaitLongPressOrCancellation(down.id)
 
@@ -292,48 +256,5 @@ private fun WidgetGridItem(
             },
             modifier = modifier,
         )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun HomeBottomSheet(
-    sheetState: SheetState,
-    onDismissRequest: () -> Unit,
-    onHomeType: (HomeType) -> Unit,
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        sheetState = sheetState,
-    ) {
-        Row {
-            Column(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clickable {
-                        onHomeType(HomeType.Application)
-
-                        onDismissRequest()
-                    },
-            ) {
-                Icon(imageVector = Icons.Default.Android, contentDescription = null)
-
-                Text(text = "Application")
-            }
-
-            Column(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clickable {
-                        onHomeType(HomeType.Widget)
-
-                        onDismissRequest()
-                    },
-            ) {
-                Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
-
-                Text(text = "Widgets")
-            }
-        }
     }
 }

@@ -8,16 +8,27 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +44,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,8 +77,6 @@ fun HomeRoute(
 
     val pageDirection by viewModel.pageDirection.collectAsStateWithLifecycle()
 
-    val showBottomSheet by viewModel.showBottomSheet.collectAsStateWithLifecycle()
-
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
     val appWidgetProviderInfos by viewModel.appWidgetProviderInfos.collectAsStateWithLifecycle()
@@ -77,21 +87,16 @@ fun HomeRoute(
         modifier = modifier,
         pageDirection = pageDirection,
         homeUiState = homeUiState,
-        showBottomSheet = showBottomSheet,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
         addGridItemDimensions = addGridItemDimensions,
         onMoveGridItem = viewModel::moveGridItem,
-        onMoveAddGridItem = viewModel::moveAddGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
         onAddApplicationInfoGridItem = viewModel::addApplicationInfoGridItem,
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
-        onShowBottomSheet = viewModel::showBottomSheet,
         onUpdateWidget = viewModel::updateWidget,
         onUpdatePageCount = viewModel::updatePageCount,
-        onResetShowBottomSheet = viewModel::resetShowBottomSheet,
-        onResetGridItemMovement = viewModel::resetGridItemMovement,
         onResetAddGridItem = viewModel::resetAddGridItem,
         onEdit = onEdit,
     )
@@ -102,19 +107,10 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
     homeUiState: HomeUiState,
-    showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItemDimensions: GridItemDimensions?,
     onMoveGridItem: (
-        page: Int,
-        gridItem: GridItem,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
-    onMoveAddGridItem: (
         page: Int,
         gridItem: GridItem,
         x: Int,
@@ -167,17 +163,8 @@ fun HomeScreen(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onShowBottomSheet: (
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
-    onResetShowBottomSheet: () -> Unit,
-    onResetGridItemMovement: () -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
@@ -198,21 +185,16 @@ fun HomeScreen(
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         pageDirection = pageDirection,
-                        showBottomSheet = showBottomSheet,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         addGridItemDimensions = addGridItemDimensions,
                         onMoveGridItem = onMoveGridItem,
-                        onMoveAddGridItem = onMoveAddGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
                         onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
-                        onShowBottomSheet = onShowBottomSheet,
                         onUpdateWidget = onUpdateWidget,
                         onUpdatePageCount = onUpdatePageCount,
-                        onResetShowBottomSheet = onResetShowBottomSheet,
-                        onResetGridItemMovement = onResetGridItemMovement,
                         onResetAddGridItem = onResetAddGridItem,
                         onEdit = onEdit,
                     )
@@ -222,25 +204,17 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     pageDirection: PageDirection?,
-    showBottomSheet: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     addGridItemDimensions: GridItemDimensions?,
     onMoveGridItem: (
-        page: Int,
-        gridItem: GridItem,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
-    onMoveAddGridItem: (
         page: Int,
         gridItem: GridItem,
         x: Int,
@@ -293,17 +267,8 @@ fun Success(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    onShowBottomSheet: (
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
-    onResetShowBottomSheet: () -> Unit,
-    onResetGridItemMovement: () -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
@@ -314,6 +279,8 @@ fun Success(
         },
     )
 
+    val sheetState = rememberModalBottomSheetState()
+
     var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
 
     var showOverlay by remember { mutableStateOf(false) }
@@ -321,6 +288,8 @@ fun Success(
     var showMenu by remember { mutableStateOf(false) }
 
     var showResize by remember { mutableStateOf(false) }
+
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -462,7 +431,6 @@ fun Success(
                     gridItems = gridItems,
                     showMenu = showMenu,
                     showResize = showResize,
-                    showBottomSheet = showBottomSheet,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onDismissRequest = {
@@ -471,30 +439,25 @@ fun Success(
                     onResizeEnd = {
                         showResize = false
                     },
-                    onShowBottomSheet = onShowBottomSheet,
-                    onLongPressedGridItem = { gridItemByCoordinates, x, y, width, height ->
-                        lastGridItemDimensions = gridItemByCoordinates
+                    onShowBottomSheet = {
+                        showBottomSheet = true
+                    },
+                    onLongPressedGridItem = { gridItemDimensions ->
+                        lastGridItemDimensions = gridItemDimensions
 
                         dragOffset = IntOffset(
-                            x = x,
-                            y = y,
+                            x = gridItemDimensions.x,
+                            y = gridItemDimensions.y,
                         ).toOffset()
 
                         overlaySize = IntSize(
-                            width = width,
-                            height = height,
+                            width = gridItemDimensions.width,
+                            height = gridItemDimensions.height,
                         )
                         showOverlay = true
                         showMenu = true
                         homeType = HomeType.Grid
                     },
-                    onHomeType = {
-                        homeType = it
-                    },
-                    onResetLastGridItemByCoordinates = {
-                        lastGridItemDimensions = null
-                    },
-                    onResetShowBottomSheet = onResetShowBottomSheet,
                     onEdit = {
 
                     },
@@ -514,7 +477,7 @@ fun Success(
                     onLongPressApplicationInfo = { offset, size ->
                         dragOffset = offset
                         overlaySize = size
-                        onResetShowBottomSheet()
+                        showBottomSheet = false
                     },
                     onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
                 )
@@ -531,7 +494,7 @@ fun Success(
                     onLongPressAppWidgetProviderInfo = { offset, size ->
                         dragOffset = offset
                         overlaySize = size
-                        onResetShowBottomSheet()
+                        showBottomSheet = false
                     },
                     onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                 )
@@ -562,6 +525,17 @@ fun Success(
 
         if (showOverlay) {
             GridItemOverlay(overlaySize = overlaySize, dragOffset = dragOffset)
+        }
+        if (showBottomSheet) {
+            HomeBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                onHomeType = {
+                    homeType = it
+                },
+            )
         }
     }
 }
@@ -598,5 +572,48 @@ private fun GridItemOverlay(
             .background(Color.Green),
     ) {
         Text(text = "Drag")
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun HomeBottomSheet(
+    sheetState: SheetState,
+    onDismissRequest: () -> Unit,
+    onHomeType: (HomeType) -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+    ) {
+        Row {
+            Column(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clickable {
+                        onHomeType(HomeType.Application)
+
+                        onDismissRequest()
+                    },
+            ) {
+                Icon(imageVector = Icons.Default.Android, contentDescription = null)
+
+                Text(text = "Application")
+            }
+
+            Column(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clickable {
+                        onHomeType(HomeType.Widget)
+
+                        onDismissRequest()
+                    },
+            ) {
+                Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
+
+                Text(text = "Widgets")
+            }
+        }
     }
 }

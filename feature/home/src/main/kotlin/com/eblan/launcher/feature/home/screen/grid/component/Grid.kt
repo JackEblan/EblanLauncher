@@ -1,7 +1,9 @@
 package com.eblan.launcher.feature.home.screen.grid.component
 
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
@@ -11,8 +13,8 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.screen.pager.component.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.screen.pager.component.MenuPositionProvider
+import com.eblan.launcher.feature.home.screen.pager.component.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.screen.pager.component.WidgetGridItemResizeOverlay
 
 @Composable
@@ -63,37 +65,37 @@ fun GridSubcomposeLayout(
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[page]?.forEach { gridItem ->
-                val width = gridItem.columnSpan * cellWidth
-
-                val height = gridItem.rowSpan * cellHeight
-
-                val x = gridItem.startColumn * cellWidth
-
-                val y = gridItem.startRow * cellHeight
-
                 subcompose(gridItem.id) {
-                    AnimatedGridItemContainer(
+                    GridItemContainer(
+                        rowSpan = gridItem.rowSpan,
+                        columnSpan = gridItem.columnSpan,
+                        startRow = gridItem.startRow,
+                        startColumn = gridItem.startColumn,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
                         content = {
                             gridItemContent(
                                 gridItem,
-                                x,
-                                y,
-                                width,
-                                height,
+                                gridItem.startColumn * cellWidth,
+                                gridItem.startRow * cellHeight,
+                                gridItem.columnSpan * cellWidth,
+                                gridItem.rowSpan * cellHeight,
                                 constraints.maxWidth,
                                 constraints.maxHeight,
                             )
                         },
                     )
                 }.forEach { measurable ->
+                    val gridItemParentData = measurable.parentData as GridItemParentData
+
                     measurable.measure(
                         Constraints(
-                            maxWidth = width,
-                            maxHeight = height,
+                            maxWidth = gridItemParentData.width,
+                            maxHeight = gridItemParentData.height,
                         ),
                     ).placeRelative(
-                        x = x,
-                        y = y,
+                        x = gridItemParentData.x,
+                        y = gridItemParentData.y,
                     )
                 }
 
@@ -171,12 +173,31 @@ fun GridSubcomposeLayout(
 }
 
 @Composable
-private fun AnimatedGridItemContainer(
+fun GridItemContainer(
     modifier: Modifier = Modifier,
+    rowSpan: Int,
+    columnSpan: Int,
+    startRow: Int,
+    startColumn: Int,
+    cellWidth: Int,
+    cellHeight: Int,
     content: @Composable () -> Unit,
 ) {
+    val width by animateIntAsState(targetValue = columnSpan * cellWidth)
+
+    val height by animateIntAsState(targetValue = rowSpan * cellHeight)
+
+    val x by animateIntAsState(targetValue = startColumn * cellWidth)
+
+    val y by animateIntAsState(targetValue = startRow * cellHeight)
+
     Surface(
-        modifier = modifier,
+        modifier = modifier.animateGridItemPlacement(
+            width = width,
+            height = height,
+            x = x,
+            y = y,
+        ),
         content = content,
     )
 }

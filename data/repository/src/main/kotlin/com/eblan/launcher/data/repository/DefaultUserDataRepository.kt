@@ -15,13 +15,13 @@ internal class DefaultUserDataRepository @Inject constructor() : UserDataReposit
         get() = _userData.replayCache.firstOrNull() ?: UserData(
             rows = 5,
             columns = 5,
-            pageCount = 3,
+            pageCount = 1,
         )
 
     override val userData = _userData.asSharedFlow()
 
     init {
-        _userData.tryEmit(UserData(rows = 5, columns = 5, pageCount = 3))
+        _userData.tryEmit(UserData(rows = 5, columns = 5, pageCount = 1))
     }
 
     override fun updatePageCount(pageCount: Int) {

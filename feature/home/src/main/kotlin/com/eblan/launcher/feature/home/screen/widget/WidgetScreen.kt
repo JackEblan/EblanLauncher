@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +30,8 @@ import kotlin.math.roundToInt
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
-    pagerState: PagerState,
+    currentPage: Int,
+    pageCount: Int,
     rows: Int,
     columns: Int,
     screenSize: IntSize,
@@ -62,6 +62,10 @@ fun WidgetScreen(
     val cellWidth = screenSize.width / columns
 
     val cellHeight = screenSize.height / rows
+
+    val z = currentPage - (Int.MAX_VALUE / 2)
+
+    val page = z - z.floorDiv(pageCount) * pageCount
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -115,7 +119,7 @@ fun WidgetScreen(
 
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                                 onAddAppWidgetProviderInfoGridItem(
-                                                    pagerState.currentPage,
+                                                    page,
                                                     appWidgetProviderInfo.provider.flattenToString(),
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),
@@ -133,7 +137,7 @@ fun WidgetScreen(
                                                 )
                                             } else {
                                                 onAddAppWidgetProviderInfoGridItem(
-                                                    pagerState.currentPage,
+                                                    page,
                                                     appWidgetProviderInfo.provider.flattenToString(),
                                                     appWidgetProviderInfoOffset.x.roundToInt(),
                                                     appWidgetProviderInfoOffset.y.roundToInt(),

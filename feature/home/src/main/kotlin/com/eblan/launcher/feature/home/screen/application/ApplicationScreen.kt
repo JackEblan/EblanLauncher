@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +27,8 @@ import kotlin.math.roundToInt
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
-    pagerState: PagerState,
+    currentPage: Int,
+    pageCount: Int,
     screenSize: IntSize,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onLongPressApplicationInfo: (Offset, IntSize) -> Unit,
@@ -43,6 +43,10 @@ fun ApplicationScreen(
         data: GridItemData,
     ) -> Unit,
 ) {
+    val z = currentPage - (Int.MAX_VALUE / 2)
+
+    val page = z - z.floorDiv(pageCount) * pageCount
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         modifier = modifier.fillMaxWidth(),
@@ -75,7 +79,7 @@ fun ApplicationScreen(
                                     )
 
                                     onAddApplicationInfoGridItem(
-                                        pagerState.currentPage,
+                                        page,
                                         eblanApplicationInfoOffset.x.roundToInt(),
                                         eblanApplicationInfoOffset.y.roundToInt(),
                                         1,

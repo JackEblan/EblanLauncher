@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -17,7 +18,6 @@ import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
-import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -36,7 +36,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
-    private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
@@ -84,19 +83,9 @@ class HomeViewModel @Inject constructor(
 
     val pageDirection = _pageDirection.asStateFlow()
 
-    private var _newPageDirection = MutableStateFlow<PageDirection?>(null)
+    private var _addGridItemDimensions = MutableStateFlow<GridItemDimensions?>(null)
 
-    val newPageDirection = _newPageDirection.asStateFlow()
-
-    private var _addGridItem = MutableStateFlow<GridItem?>(null)
-
-    val addGridItem = _addGridItem.asStateFlow()
-
-    fun gridAlgorithm(gridItem: GridItem) {
-        viewModelScope.launch {
-            shiftAlgorithmUseCase(movingGridItem = gridItem)
-        }
-    }
+    val addGridItemDimensions = _addGridItemDimensions.asStateFlow()
 
     fun moveGridItem(
         page: Int,
@@ -208,7 +197,7 @@ class HomeViewModel @Inject constructor(
         data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItem.update {
+            _addGridItemDimensions.update {
                 addApplicationInfoUseCase(
                     page = page,
                     x = x,
@@ -241,7 +230,7 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _addGridItem.update {
+            _addGridItemDimensions.update {
                 addAppWidgetProviderInfoUseCase(
                     page = page,
                     componentName = componentName,
@@ -292,10 +281,6 @@ class HomeViewModel @Inject constructor(
     fun updatePageCount(pageCount: Int) {
         viewModelScope.launch {
             userDataRepository.updatePageCount(pageCount = pageCount)
-
-            _newPageDirection.update {
-                PageDirection.Right
-            }
         }
     }
 
@@ -310,7 +295,7 @@ class HomeViewModel @Inject constructor(
 
     fun resetAddGridItem() {
         viewModelScope.launch {
-            _addGridItem.update {
+            _addGridItemDimensions.update {
                 null
             }
         }

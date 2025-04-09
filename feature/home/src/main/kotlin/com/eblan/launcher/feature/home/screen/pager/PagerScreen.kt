@@ -31,8 +31,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.screen.grid.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuOverlay
+import com.eblan.launcher.feature.home.screen.grid.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.screen.pager.component.MenuOverlay
 
 @Composable
 fun PagerScreen(
@@ -64,6 +64,7 @@ fun PagerScreen(
     onDismissRequest: () -> Unit,
     onResizeEnd: () -> Unit,
     onShowBottomSheet: () -> Unit,
+    onResetLastGridDimensions: () -> Unit,
     onLongPressedGridItem: (gridItemDimensions: GridItemDimensions) -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
@@ -98,6 +99,7 @@ fun PagerScreen(
                         val longPress = awaitLongPressOrCancellation(down.id)
 
                         if (longPress != null) {
+                            onResetLastGridDimensions()
                             isLongPress = true
                         }
                     }
@@ -141,8 +143,10 @@ fun PagerScreen(
                     is GridItemData.Widget -> {
                         WidgetGridItem(
                             gridItemData = gridItemData,
-                            onLongPress = {
+                            onTap = {
                                 hit += 1
+                            },
+                            onLongPress = {
                                 val gridItemDimensions = GridItemDimensions(
                                     gridItem = gridItem,
                                     width = width,
@@ -216,6 +220,7 @@ private fun ApplicationInfoGridItem(
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.Widget,
+    onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
@@ -245,6 +250,10 @@ private fun WidgetGridItem(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT,
                     )
+
+                    setOnClickListener {
+                        onTap()
+                    }
 
                     setOnLongClickListener {
                         isLongPress = true

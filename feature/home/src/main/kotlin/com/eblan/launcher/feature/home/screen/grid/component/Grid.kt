@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.grid
+package com.eblan.launcher.feature.home.screen.grid.component
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.material3.Surface
@@ -13,9 +13,9 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.screen.pager.component.menu.MenuPositionProvider
-import com.eblan.launcher.feature.home.screen.pager.component.resize.GridItemResizeOverlay
-import com.eblan.launcher.feature.home.screen.pager.component.resize.WidgetGridItemResizeOverlay
+import com.eblan.launcher.feature.home.screen.pager.component.MenuPositionProvider
+import com.eblan.launcher.feature.home.screen.pager.component.GridItemResizeOverlay
+import com.eblan.launcher.feature.home.screen.pager.component.WidgetGridItemResizeOverlay
 
 @Composable
 fun GridSubcomposeLayout(

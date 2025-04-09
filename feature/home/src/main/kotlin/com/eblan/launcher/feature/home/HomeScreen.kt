@@ -97,7 +97,7 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onUpdateWidget = viewModel::updateWidget,
         onUpdatePageCount = viewModel::updatePageCount,
-        onResetAddGridItem = viewModel::resetAddGridItem,
+        onResetAddGridItem = viewModel::resetAddGridItemDimensions,
         onEdit = onEdit,
     )
 }
@@ -319,7 +319,7 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = addGridItemDimensions, key2 = dragType) {
+    LaunchedEffect(key1 = dragType) {
         if (addGridItemDimensions != null) {
             homeType = HomeType.Grid
             showOverlay = true
@@ -363,6 +363,14 @@ fun Success(
         }
     }
 
+    LaunchedEffect(key1 = lastGridItemDimensions, key2 = dragType) {
+        if (dragType == DragType.Start && lastGridItemDimensions != null) {
+            showOverlay = true
+            showMenu = true
+            homeType = HomeType.Grid
+        }
+    }
+
     LaunchedEffect(key1 = appWidgetId) {
         if (addGridItemDimensions != null && appWidgetId != null) {
             onUpdateWidget(addGridItemDimensions.gridItem, appWidgetId!!)
@@ -372,27 +380,6 @@ fun Success(
             homeType = HomeType.Pager
 
             onResetAddGridItem()
-        }
-    }
-
-    LaunchedEffect(key1 = dragType) {
-        when (dragType) {
-            DragType.Start -> {
-                showResize = false
-            }
-
-            DragType.End, DragType.Cancel -> {
-                showOverlay = false
-                showResize = false
-                homeType = HomeType.Pager
-            }
-
-            DragType.Drag -> {
-                showMenu = false
-                showResize = false
-            }
-
-            DragType.None -> Unit
         }
     }
 
@@ -442,6 +429,9 @@ fun Success(
                     onShowBottomSheet = {
                         showBottomSheet = true
                     },
+                    onResetLastGridDimensions = {
+                        lastGridItemDimensions = null
+                    },
                     onLongPressedGridItem = { gridItemDimensions ->
                         lastGridItemDimensions = gridItemDimensions
 
@@ -454,9 +444,6 @@ fun Success(
                             width = gridItemDimensions.width,
                             height = gridItemDimensions.height,
                         )
-                        showOverlay = true
-                        showMenu = true
-                        homeType = HomeType.Grid
                     },
                     onEdit = {
 
@@ -515,6 +502,9 @@ fun Success(
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onDragEnd = { targetPage ->
+                        showOverlay = false
+                        homeType = HomeType.Pager
+
                         scope.launch {
                             pagerState.scrollToPage(targetPage)
                         }
@@ -533,6 +523,7 @@ fun Success(
                     showBottomSheet = false
                 },
                 onHomeType = {
+                    lastGridItemDimensions = null
                     homeType = it
                 },
             )

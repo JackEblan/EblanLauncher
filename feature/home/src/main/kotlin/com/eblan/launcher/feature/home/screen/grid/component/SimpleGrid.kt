@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.grid
+package com.eblan.launcher.feature.home.screen.grid.component
 
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.material3.Surface

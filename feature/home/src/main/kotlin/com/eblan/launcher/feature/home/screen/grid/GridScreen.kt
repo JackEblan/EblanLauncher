@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.feature.home.model.DragType
+import com.eblan.launcher.feature.home.screen.grid.component.SimpleGridSubcomposeLayout
 import kotlin.math.roundToInt
 
 @Composable

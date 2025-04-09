@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.pager.component.resize
+package com.eblan.launcher.feature.home.screen.pager.component
 
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.background
@@ -24,7 +24,7 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.screen.grid.animateGridItemPlacement
+import com.eblan.launcher.feature.home.screen.grid.component.animateGridItemPlacement
 import kotlin.math.roundToInt
 
 @Composable

@@ -60,6 +60,7 @@ public class CheckLongPressHelper {
     public void onTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN: {
+                mView.performClick();
                 // Just in case the previous long press hasn't been cleared, we make sure to
                 // start fresh on touch down.
                 cancelLongPress();

@@ -12,7 +12,6 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
-import com.eblan.launcher.domain.usecase.GetGridItemByCoordinatesUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.MovePageUseCase
@@ -40,7 +39,6 @@ class HomeViewModel @Inject constructor(
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
     private val addApplicationInfoUseCase: AddApplicationInfoUseCase,
-    private val getGridItemByCoordinatesUseCase: GetGridItemByCoordinatesUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val addAppWidgetProviderInfoUseCase: AddAppWidgetProviderInfoUseCase,
@@ -53,10 +51,6 @@ class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,
     )
-
-    private var _showBottomSheet = MutableStateFlow(false)
-
-    val showBottomSheet = _showBottomSheet.asStateFlow()
 
     val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
@@ -103,34 +97,6 @@ class HomeViewModel @Inject constructor(
                     screenWidth = screenWidth,
                 )
             }
-            moveGridItemUseCase(
-                page = page,
-                gridItem = gridItem,
-                x = x,
-                y = y,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-            )
-        }
-    }
-
-    fun moveAddGridItem(
-        page: Int,
-        gridItem: GridItem,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) {
-        viewModelScope.launch {
-            _pageDirection.update {
-                movePageUseCase(
-                    gridItem = gridItem,
-                    x = x,
-                    screenWidth = screenWidth,
-                )
-            }
-
             moveGridItemUseCase(
                 page = page,
                 gridItem = gridItem,
@@ -252,26 +218,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showBottomSheet(
-        page: Int,
-        x: Int,
-        y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) {
-        viewModelScope.launch {
-            _showBottomSheet.update {
-                getGridItemByCoordinatesUseCase(
-                    page = page,
-                    x = x,
-                    y = y,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                ) == null
-            }
-        }
-    }
-
     fun updateWidget(gridItem: GridItem, appWidgetId: Int) {
         viewModelScope.launch {
             updateWidgetGridItemDataUseCase(gridItem = gridItem, appWidgetId = appWidgetId)
@@ -284,16 +230,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetShowBottomSheet() {
-        _showBottomSheet.update {
-            false
-        }
-    }
-
-    fun resetGridItemMovement() {
-    }
-
-    fun resetAddGridItem() {
+    fun resetAddGridItemDimensions() {
         viewModelScope.launch {
             _addGridItemDimensions.update {
                 null

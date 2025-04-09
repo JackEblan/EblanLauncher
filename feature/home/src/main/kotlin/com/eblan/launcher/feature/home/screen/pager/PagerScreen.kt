@@ -31,6 +31,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.screen.grid.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.screen.pager.component.MenuOverlay
 
@@ -43,6 +44,7 @@ fun PagerScreen(
     lastGridItemDimensions: GridItemDimensions?,
     showMenu: Boolean,
     showResize: Boolean,
+    dragType: DragType,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -66,20 +68,28 @@ fun PagerScreen(
     onShowBottomSheet: () -> Unit,
     onResetLastGridDimensions: () -> Unit,
     onLongPressedGridItem: (gridItemDimensions: GridItemDimensions) -> Unit,
+    onDragStart: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    var hit by remember { mutableIntStateOf(0) }
+    var hitCounter by remember { mutableIntStateOf(0) }
 
     var isLongPress by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = isLongPress) {
         if (isLongPress) {
-            if (hit == 1) {
+            if (hitCounter == 1) {
+                onResetLastGridDimensions()
                 onShowBottomSheet()
             }
 
             isLongPress = false
+        }
+    }
+
+    LaunchedEffect(key1 = dragType) {
+        if (dragType == DragType.Start && hitCounter > 1) {
+            onDragStart()
         }
     }
 
@@ -94,12 +104,11 @@ fun PagerScreen(
                     awaitEachGesture {
                         val down = awaitFirstDown(pass = PointerEventPass.Initial)
 
-                        hit = 1
+                        hitCounter = 1
 
                         val longPress = awaitLongPressOrCancellation(down.id)
 
                         if (longPress != null) {
-                            onResetLastGridDimensions()
                             isLongPress = true
                         }
                     }
@@ -122,7 +131,7 @@ fun PagerScreen(
                         ApplicationInfoGridItem(
                             gridItemData = gridItemData,
                             onTap = {
-                                hit += 1
+                                hitCounter += 1
                             },
                             onLongPress = {
                                 val gridItemDimensions = GridItemDimensions(
@@ -144,7 +153,7 @@ fun PagerScreen(
                         WidgetGridItem(
                             gridItemData = gridItemData,
                             onTap = {
-                                hit += 1
+                                hitCounter += 1
                             },
                             onLongPress = {
                                 val gridItemDimensions = GridItemDimensions(

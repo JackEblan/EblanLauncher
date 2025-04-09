@@ -26,7 +26,7 @@ fun SimpleGridSubcomposeLayout(
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[index]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
-                    GridItemContainer(
+                    AnimatedGridItemContainer(
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
                         startRow = gridItem.startRow,
@@ -56,7 +56,7 @@ fun SimpleGridSubcomposeLayout(
 }
 
 @Composable
-private fun GridItemContainer(
+private fun AnimatedGridItemContainer(
     modifier: Modifier = Modifier,
     rowSpan: Int,
     columnSpan: Int,

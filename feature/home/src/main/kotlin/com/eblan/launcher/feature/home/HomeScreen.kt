@@ -363,14 +363,6 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = lastGridItemDimensions, key2 = dragType) {
-        if (dragType == DragType.Start && lastGridItemDimensions != null) {
-            showOverlay = true
-            showMenu = true
-            homeType = HomeType.Grid
-        }
-    }
-
     LaunchedEffect(key1 = appWidgetId) {
         if (addGridItemDimensions != null && appWidgetId != null) {
             onUpdateWidget(addGridItemDimensions.gridItem, appWidgetId!!)
@@ -418,6 +410,7 @@ fun Success(
                     gridItems = gridItems,
                     showMenu = showMenu,
                     showResize = showResize,
+                    dragType = dragType,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onDismissRequest = {
@@ -444,6 +437,11 @@ fun Success(
                             width = gridItemDimensions.width,
                             height = gridItemDimensions.height,
                         )
+                    },
+                    onDragStart = {
+                        showOverlay = true
+                        showMenu = true
+                        homeType = HomeType.Grid
                     },
                     onEdit = {
 
@@ -522,8 +520,7 @@ fun Success(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                onHomeType = {
-                    lastGridItemDimensions = null
+                onChangeHomeType = {
                     homeType = it
                 },
             )
@@ -571,7 +568,7 @@ private fun GridItemOverlay(
 private fun HomeBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onHomeType: (HomeType) -> Unit,
+    onChangeHomeType: (HomeType) -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -582,7 +579,7 @@ private fun HomeBottomSheet(
                 modifier = Modifier
                     .size(100.dp)
                     .clickable {
-                        onHomeType(HomeType.Application)
+                        onChangeHomeType(HomeType.Application)
 
                         onDismissRequest()
                     },
@@ -596,7 +593,7 @@ private fun HomeBottomSheet(
                 modifier = Modifier
                     .size(100.dp)
                     .clickable {
-                        onHomeType(HomeType.Widget)
+                        onChangeHomeType(HomeType.Widget)
 
                         onDismissRequest()
                     },

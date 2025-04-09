@@ -1,6 +1,13 @@
 package com.eblan.launcher.feature.home.screen.grid
 
 import android.widget.FrameLayout
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -147,26 +154,40 @@ fun GridScreen(
         }
     }
 
-    SimpleGridSubcomposeLayout(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Gray),
-        index = index,
-        rows = rows,
-        columns = columns,
-        gridItems = gridItems,
-        gridItemContent = { gridItem ->
-            when (val gridItemData = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(gridItemData = gridItemData)
-                }
-
-                is GridItemData.Widget -> {
-                    WidgetGridItem(gridItemData = gridItemData)
-                }
-            }
+    AnimatedContent(
+        targetState = index,
+        transitionSpec = {
+            if (pageDirection == PageDirection.Right) {
+                slideInHorizontally { width -> width } + fadeIn() togetherWith slideOutHorizontally { width -> -width } + fadeOut()
+            } else {
+                slideInHorizontally { width -> -width } + fadeIn() togetherWith slideOutHorizontally { width -> width } + fadeOut()
+            }.using(
+                SizeTransform(clip = false),
+            )
         },
-    )
+        label = "animated content",
+    ) { targetCount ->
+        SimpleGridSubcomposeLayout(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color.Gray),
+            index = targetCount,
+            rows = rows,
+            columns = columns,
+            gridItems = gridItems,
+            gridItemContent = { gridItem ->
+                when (val gridItemData = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        ApplicationInfoGridItem(gridItemData = gridItemData)
+                    }
+
+                    is GridItemData.Widget -> {
+                        WidgetGridItem(gridItemData = gridItemData)
+                    }
+                }
+            },
+        )
+    }
 }
 
 @Composable

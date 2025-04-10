@@ -86,9 +86,15 @@ fun PagerScreen(
     }
 
     HorizontalPager(state = pagerState) { index ->
-        val offset = index - (Int.MAX_VALUE / 2)
+        val page = run {
+            if (userData.infiniteScroll) {
+                val offsetIndex = index - (Int.MAX_VALUE / 2)
 
-        val page = offset - offset.floorDiv(userData.pageCount) * userData.pageCount
+                offsetIndex - offsetIndex.floorDiv(userData.pageCount) * userData.pageCount
+            } else {
+                index
+            }
+        }
 
         GridSubcomposeLayout(
             modifier = modifier

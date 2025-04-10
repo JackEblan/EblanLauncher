@@ -30,8 +30,11 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.PageDirection
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.screen.grid.component.SimpleGridSubcomposeLayout
+import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.calculateTargetPage
 import kotlin.math.roundToInt
 
 @Composable
@@ -39,9 +42,7 @@ fun GridScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
     currentPage: Int,
-    rows: Int,
-    columns: Int,
-    pageCount: Int,
+    userData: UserData,
     dragOffset: Offset,
     lastGridItemDimensions: GridItemDimensions?,
     gridItems: Map<Int, List<GridItem>>,
@@ -58,9 +59,11 @@ fun GridScreen(
     onUpdatePageCount: (Int) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
-    val z = currentPage - (Int.MAX_VALUE / 2)
-
-    val page = z - z.floorDiv(pageCount) * pageCount
+    val page = calculatePage(
+        index = currentPage,
+        infiniteScroll = userData.infiniteScroll,
+        pageCount = userData.pageCount,
+    )
 
     var index by remember { mutableIntStateOf(page) }
 
@@ -71,25 +74,21 @@ fun GridScreen(
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
-                if (index == 0) {
-                    if (newPage) {
-                        index = pageCount - 1
-                    }
-
+                if (index == 0 && userData.infiniteScroll && newPage) {
+                    index = userData.pageCount - 1
+                } else if (index == 0 && userData.infiniteScroll) {
                     newPage = true
-                } else if (canScroll) {
+                } else if (index > 0 && canScroll) {
                     index -= 1
                 }
             }
 
             PageDirection.Right -> {
-                if (index == pageCount - 1) {
-                    if (newPage) {
-                        index = 0
-                    }
-
+                if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage) {
+                    index = 0
+                } else if (index == userData.pageCount - 1 && userData.infiniteScroll) {
                     newPage = true
-                } else if (canScroll) {
+                } else if (index < userData.pageCount - 1 && canScroll) {
                     index += 1
                 }
             }
@@ -102,13 +101,13 @@ fun GridScreen(
         if (newPage) {
             canScroll = false
 
-            onUpdatePageCount(pageCount + 1)
+            onUpdatePageCount(userData.pageCount + 1)
         }
     }
 
-    LaunchedEffect(key1 = pageCount) {
+    LaunchedEffect(key1 = userData.pageCount) {
         if (newPage) {
-            index = pageCount - 1
+            index = userData.pageCount - 1
 
             canScroll = true
         }
@@ -140,15 +139,12 @@ fun GridScreen(
 
     LaunchedEffect(key1 = dragType) {
         if (dragType == DragType.End || dragType == DragType.Cancel) {
-            val targetPage = run {
-                val offset = currentPage - (Int.MAX_VALUE / 2)
-                val currentReal = offset - Math.floorDiv(
-                    offset,
-                    pageCount,
-                ) * pageCount
-                val delta = index - currentReal
-                currentPage + delta
-            }
+            val targetPage = calculateTargetPage(
+                currentPage = currentPage,
+                index = index,
+                infiniteScroll = userData.infiniteScroll,
+                pageCount = userData.pageCount,
+            )
 
             onDragEnd(targetPage)
         }
@@ -172,8 +168,8 @@ fun GridScreen(
                 .fillMaxSize()
                 .background(Color.Gray),
             index = targetCount,
-            rows = rows,
-            columns = columns,
+            rows = userData.rows,
+            columns = userData.columns,
             gridItems = gridItems,
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {

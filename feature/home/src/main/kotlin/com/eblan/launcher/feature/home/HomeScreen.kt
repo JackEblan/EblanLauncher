@@ -273,9 +273,13 @@ fun Success(
     onEdit: (String) -> Unit,
 ) {
     val pagerState = rememberPagerState(
-        initialPage = Int.MAX_VALUE / 2,
+        initialPage = if (userData.infiniteScroll) Int.MAX_VALUE / 2 else 0,
         pageCount = {
-            Int.MAX_VALUE
+            if (userData.infiniteScroll) {
+                Int.MAX_VALUE
+            } else {
+                userData.pageCount
+            }
         },
     )
 
@@ -489,9 +493,7 @@ fun Success(
                 GridScreen(
                     pageDirection = pageDirection,
                     currentPage = pagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
+                    userData = userData,
                     gridItems = gridItems,
                     dragOffset = dragOffset,
                     lastGridItemDimensions = lastGridItemDimensions,

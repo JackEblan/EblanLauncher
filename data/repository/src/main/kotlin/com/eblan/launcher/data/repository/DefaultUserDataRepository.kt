@@ -8,20 +8,23 @@ import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
 internal class DefaultUserDataRepository @Inject constructor() : UserDataRepository {
+    private val defaultUserData = UserData(
+        rows = 5,
+        columns = 5,
+        pageCount = 1,
+        infiniteScroll = true,
+    )
+
     private val _userData =
         MutableSharedFlow<UserData>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     private val currentUserData
-        get() = _userData.replayCache.firstOrNull() ?: UserData(
-            rows = 5,
-            columns = 5,
-            pageCount = 1,
-        )
+        get() = _userData.replayCache.firstOrNull() ?: defaultUserData
 
     override val userData = _userData.asSharedFlow()
 
     init {
-        _userData.tryEmit(UserData(rows = 5, columns = 5, pageCount = 1))
+        _userData.tryEmit(defaultUserData)
     }
 
     override fun updatePageCount(pageCount: Int) {

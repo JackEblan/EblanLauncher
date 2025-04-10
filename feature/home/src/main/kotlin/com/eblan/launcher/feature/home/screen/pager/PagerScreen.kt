@@ -33,6 +33,7 @@ import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.screen.grid.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.screen.pager.component.MenuOverlay
 
 @Composable
@@ -86,15 +87,11 @@ fun PagerScreen(
     }
 
     HorizontalPager(state = pagerState) { index ->
-        val page = run {
-            if (userData.infiniteScroll) {
-                val offsetIndex = index - (Int.MAX_VALUE / 2)
-
-                offsetIndex - offsetIndex.floorDiv(userData.pageCount) * userData.pageCount
-            } else {
-                index
-            }
-        }
+        val page = calculatePage(
+            index = index,
+            infiniteScroll = userData.infiniteScroll,
+            pageCount = userData.pageCount,
+        )
 
         GridSubcomposeLayout(
             modifier = modifier

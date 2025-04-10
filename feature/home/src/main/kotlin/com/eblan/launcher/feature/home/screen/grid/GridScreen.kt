@@ -33,6 +33,8 @@ import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.screen.grid.component.SimpleGridSubcomposeLayout
+import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.calculateTargetPage
 import kotlin.math.roundToInt
 
 @Composable
@@ -57,15 +59,11 @@ fun GridScreen(
     onUpdatePageCount: (Int) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
-    val page = run {
-        if (userData.infiniteScroll) {
-            val offsetIndex = currentPage - (Int.MAX_VALUE / 2)
-
-            offsetIndex - offsetIndex.floorDiv(userData.pageCount) * userData.pageCount
-        } else {
-            currentPage
-        }
-    }
+    val page = calculatePage(
+        index = currentPage,
+        infiniteScroll = userData.infiniteScroll,
+        pageCount = userData.pageCount,
+    )
 
     var index by remember { mutableIntStateOf(page) }
 
@@ -78,7 +76,7 @@ fun GridScreen(
             PageDirection.Left -> {
                 if (index == 0 && userData.infiniteScroll && newPage) {
                     index = userData.pageCount - 1
-                } else if (index == 0 && userData.infiniteScroll && newPage.not()) {
+                } else if (index == 0 && userData.infiniteScroll) {
                     newPage = true
                 } else if (index > 0 && canScroll) {
                     index -= 1
@@ -88,7 +86,7 @@ fun GridScreen(
             PageDirection.Right -> {
                 if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage) {
                     index = 0
-                } else if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage.not()) {
+                } else if (index == userData.pageCount - 1 && userData.infiniteScroll) {
                     newPage = true
                 } else if (index < userData.pageCount - 1 && canScroll) {
                     index += 1
@@ -141,19 +139,12 @@ fun GridScreen(
 
     LaunchedEffect(key1 = dragType) {
         if (dragType == DragType.End || dragType == DragType.Cancel) {
-            val targetPage = run {
-                if (userData.infiniteScroll) {
-                    val offset = currentPage - (Int.MAX_VALUE / 2)
-                    val currentReal = offset - Math.floorDiv(
-                        offset,
-                        userData.pageCount,
-                    ) * userData.pageCount
-                    val delta = index - currentReal
-                    currentPage + delta
-                } else {
-                    index
-                }
-            }
+            val targetPage = calculateTargetPage(
+                currentPage = currentPage,
+                index = index,
+                infiniteScroll = userData.infiniteScroll,
+                pageCount = userData.pageCount,
+            )
 
             onDragEnd(targetPage)
         }

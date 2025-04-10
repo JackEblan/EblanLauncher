@@ -76,28 +76,21 @@ fun GridScreen(
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
-                if (index == 0) {
-                    if (userData.infiniteScroll) {
-                        if (newPage) {
-                            index = userData.pageCount - 1
-                        }
-
-                        newPage = true
-                    }
-
-                } else if (canScroll) {
+                if (index == 0 && userData.infiniteScroll && newPage) {
+                    index = userData.pageCount - 1
+                } else if (index == 0 && userData.infiniteScroll && newPage.not()) {
+                    newPage = true
+                } else if (index > 0 && canScroll) {
                     index -= 1
                 }
             }
 
             PageDirection.Right -> {
-                if (index == userData.pageCount - 1) {
-                    if (newPage && userData.infiniteScroll) {
-                        index = 0
-                    }
-
+                if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage) {
+                    index = 0
+                } else if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage.not()) {
                     newPage = true
-                } else if (canScroll) {
+                } else if (index < userData.pageCount - 1 && canScroll) {
                     index += 1
                 }
             }

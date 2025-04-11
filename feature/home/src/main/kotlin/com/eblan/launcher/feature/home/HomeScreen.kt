@@ -424,10 +424,8 @@ fun Success(
                         showResize = false
                     },
                     onShowBottomSheet = {
-                        showBottomSheet = true
-                    },
-                    onResetLastGridDimensions = {
                         lastGridItemDimensions = null
+                        showBottomSheet = true
                     },
                     onLongPressedGridItem = { gridItemDimensions ->
                         lastGridItemDimensions = gridItemDimensions

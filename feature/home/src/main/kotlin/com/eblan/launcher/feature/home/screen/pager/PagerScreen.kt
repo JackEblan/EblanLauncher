@@ -67,7 +67,6 @@ fun PagerScreen(
     onDismissRequest: () -> Unit,
     onResizeEnd: () -> Unit,
     onShowBottomSheet: () -> Unit,
-    onResetLastGridDimensions: () -> Unit,
     onLongPressedGridItem: (gridItemDimensions: GridItemDimensions) -> Unit,
     onDragStart: () -> Unit,
     onEdit: () -> Unit,
@@ -80,7 +79,6 @@ fun PagerScreen(
             if (hitCounter > 1) {
                 onDragStart()
             } else {
-                onResetLastGridDimensions()
                 onShowBottomSheet()
             }
         }

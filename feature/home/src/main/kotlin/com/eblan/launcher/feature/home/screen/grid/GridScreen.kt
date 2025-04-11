@@ -35,6 +35,7 @@ import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.screen.grid.component.SimpleGridSubcomposeLayout
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable

@@ -20,12 +20,10 @@ class MovePageUseCase @Inject constructor(
 
         val width = gridItem.columnSpan * cellWidth
 
-        return if (x < 0) {
-            PageDirection.Left
-        } else if (x + width > screenWidth) {
-            PageDirection.Right
-        } else {
-            null
+        return when {
+            (x + width * 0.25) < 0 -> PageDirection.Left
+            (x + width * 0.75) > screenWidth -> PageDirection.Right
+            else -> null
         }
     }
 }

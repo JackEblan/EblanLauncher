@@ -35,7 +35,6 @@ import com.eblan.launcher.feature.home.model.DragType
 import com.eblan.launcher.feature.home.screen.grid.component.SimpleGridSubcomposeLayout
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
@@ -75,21 +74,41 @@ fun GridScreen(
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
-                if (index == 0 && userData.infiniteScroll && newPage) {
+                if (index == 0 &&
+                    userData.infiniteScroll &&
+                    newPage &&
+                    dragType == DragType.Drag
+                ) {
                     index = userData.pageCount - 1
-                } else if (index == 0 && userData.infiniteScroll) {
+                } else if (index == 0 &&
+                    userData.infiniteScroll &&
+                    dragType == DragType.Drag
+                ) {
                     newPage = true
-                } else if (index > 0 && canScroll) {
+                } else if (index > 0 &&
+                    canScroll &&
+                    dragType == DragType.Drag
+                ) {
                     index -= 1
                 }
             }
 
             PageDirection.Right -> {
-                if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage) {
+                if (index == userData.pageCount - 1 &&
+                    userData.infiniteScroll &&
+                    newPage &&
+                    dragType == DragType.Drag
+                ) {
                     index = 0
-                } else if (index == userData.pageCount - 1 && userData.infiniteScroll) {
+                } else if (index == userData.pageCount - 1 &&
+                    userData.infiniteScroll &&
+                    dragType == DragType.Drag
+                ) {
                     newPage = true
-                } else if (index < userData.pageCount - 1 && canScroll) {
+                } else if (index < userData.pageCount - 1 &&
+                    canScroll &&
+                    dragType == DragType.Drag
+                ) {
                     index += 1
                 }
             }

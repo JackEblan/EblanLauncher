@@ -22,9 +22,11 @@ import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -75,7 +77,12 @@ class HomeViewModel @Inject constructor(
 
     private var _pageDirection = MutableStateFlow<PageDirection?>(null)
 
-    val pageDirection = _pageDirection.asStateFlow()
+    @OptIn(FlowPreview::class)
+    val pageDirection = _pageDirection.debounce(1000).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null,
+    )
 
     private var _addGridItemDimensions = MutableStateFlow<GridItemDimensions?>(null)
 

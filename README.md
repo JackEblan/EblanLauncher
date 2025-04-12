@@ -1,4 +1,4 @@
-# Eblan Launcher
+## Eblan Launcher
 
 **Eblan Launcher** is a custom Android Launcher made from scratch using Jetpack Compose. It uses a fully customizable grid system where each cell can hold apps, widgets, and more.
 
@@ -8,6 +8,6 @@ We welcome your contributions and feature ideas! I have also created a playlist 
 - **Drag & Drop**
 - **Resize**
 
-# License
+## License
 **Eblan Launcher** is licensed under the GNU General Public License v3.0. See the [license](LICENSE) for more
 information.

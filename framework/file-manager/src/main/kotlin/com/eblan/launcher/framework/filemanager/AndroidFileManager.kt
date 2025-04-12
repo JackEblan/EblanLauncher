@@ -26,7 +26,7 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
             val oldIcon = readIconBytes(iconFile = iconFile)
 
             if (oldIcon.contentEquals(icon)) {
-                iconFile.absolutePath
+                return@withContext iconFile.absolutePath
             }
 
             try {

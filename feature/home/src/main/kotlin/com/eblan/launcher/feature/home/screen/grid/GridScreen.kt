@@ -134,7 +134,7 @@ fun GridScreen(
     }
 
     LaunchedEffect(key1 = dragOffset) {
-        if (lastGridItemDimensions != null && dragType == DragType.Drag) {
+        if (lastGridItemDimensions != null) {
             onMoveGridItem(
                 index,
                 lastGridItemDimensions.gridItem,
@@ -145,7 +145,7 @@ fun GridScreen(
             )
         }
 
-        if (addGridItemDimensions != null && dragType == DragType.Drag) {
+        if (addGridItemDimensions != null) {
             onMoveGridItem(
                 index,
                 addGridItemDimensions.gridItem,

@@ -16,4 +16,8 @@ interface GridRepository {
     suspend fun getGridItem(id: String): GridItem?
 
     suspend fun deleteGridItem(gridItem: GridItem)
+
+    suspend fun shiftPagesAfterDeletedPage(page: Int)
+
+    suspend fun deleteItemsOnPage(page: Int)
 }

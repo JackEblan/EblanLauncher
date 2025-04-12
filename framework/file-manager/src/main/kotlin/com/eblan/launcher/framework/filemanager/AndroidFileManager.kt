@@ -26,17 +26,17 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
             val oldIcon = readIconBytes(iconFile = iconFile)
 
             if (oldIcon.contentEquals(icon)) {
-                return@withContext iconFile.absolutePath
-            }
-
-            try {
-                FileOutputStream(iconFile).use { fos ->
-                    fos.write(icon)
-                }
-
                 iconFile.absolutePath
-            } catch (_: IOException) {
-                null
+            } else {
+                try {
+                    FileOutputStream(iconFile).use { fos ->
+                        fos.write(icon)
+                    }
+
+                    iconFile.absolutePath
+                } catch (_: IOException) {
+                    null
+                }
             }
         }
     }

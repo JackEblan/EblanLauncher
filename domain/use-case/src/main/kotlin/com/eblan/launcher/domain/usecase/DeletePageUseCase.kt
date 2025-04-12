@@ -12,10 +12,12 @@ class DeletePageUseCase @Inject constructor(
     suspend operator fun invoke(page: Int) {
         val userData = userDataRepository.userData.first()
 
-        userDataRepository.updatePageCount(pageCount = userData.pageCount - 1)
+        if (userData.pageCount > 1) {
+            userDataRepository.updatePageCount(pageCount = userData.pageCount - 1)
 
-        gridRepository.deleteItemsOnPage(page = page)
+            gridRepository.deleteItemsOnPage(page = page)
 
-        gridRepository.shiftPagesAfterDeletedPage(page = page)
+            gridRepository.shiftPagesAfterDeletedPage(page = page)
+        }
     }
 }

@@ -34,7 +34,7 @@ private suspend fun shiftConflicts(
     columns: Int,
 ): Boolean {
     for (gridItem in gridItems) {
-        if (coroutineContext.isActive.not()) return false
+        if (!coroutineContext.isActive) return false
 
         // Skip the moving grid item itself.
         if (gridItem.id == movingItem.id) continue

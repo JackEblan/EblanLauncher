@@ -15,7 +15,7 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
     FileManager {
     private val iconsDir: File by lazy {
         File(context.filesDir, "icons").apply {
-            if (exists().not()) mkdirs()
+            if (!exists()) mkdirs()
         }
     }
 

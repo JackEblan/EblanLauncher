@@ -12,6 +12,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
+import com.eblan.launcher.domain.usecase.DeletePageUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.MovePageUseCase
@@ -48,6 +49,7 @@ class HomeViewModel @Inject constructor(
     private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
     private val userDataRepository: UserDataRepository,
     private val movePageUseCase: MovePageUseCase,
+    private val deletePageUseCase: DeletePageUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -253,6 +255,12 @@ class HomeViewModel @Inject constructor(
     fun updatePageCount(pageCount: Int) {
         viewModelScope.launch {
             userDataRepository.updatePageCount(pageCount = pageCount)
+        }
+    }
+
+    fun deletePage(page: Int) {
+        viewModelScope.launch {
+            deletePageUseCase(page = page)
         }
     }
 

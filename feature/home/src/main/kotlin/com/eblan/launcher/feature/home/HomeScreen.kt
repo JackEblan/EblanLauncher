@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -65,6 +66,7 @@ import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.grid.GridScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
+import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -97,6 +99,7 @@ fun HomeRoute(
         onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onUpdateWidget = viewModel::updateWidget,
         onUpdatePageCount = viewModel::updatePageCount,
+        onDeletePage = viewModel::deletePage,
         onResetAddGridItem = viewModel::resetAddGridItemDimensions,
         onEdit = onEdit,
     )
@@ -165,6 +168,7 @@ fun HomeScreen(
     ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
+    onDeletePage: (Int) -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
@@ -195,6 +199,7 @@ fun HomeScreen(
                         onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onUpdateWidget = onUpdateWidget,
                         onUpdatePageCount = onUpdatePageCount,
+                        onDeletePage = onDeletePage,
                         onResetAddGridItem = onResetAddGridItem,
                         onEdit = onEdit,
                     )
@@ -269,6 +274,7 @@ fun Success(
     ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
+    onDeletePage: (Int) -> Unit,
     onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
@@ -523,6 +529,15 @@ fun Success(
                 onChangeHomeType = {
                     homeType = it
                 },
+                onDeletePage = {
+                    val page = calculatePage(
+                        index = pagerState.currentPage,
+                        infiniteScroll = userData.infiniteScroll,
+                        pageCount = userData.pageCount,
+                    )
+
+                    onDeletePage(page)
+                }
             )
         }
     }
@@ -569,6 +584,7 @@ private fun HomeBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onChangeHomeType: (HomeType) -> Unit,
+    onDeletePage: () -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -601,6 +617,20 @@ private fun HomeBottomSheet(
                 Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
 
                 Text(text = "Widgets")
+            }
+
+            Column(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clickable {
+                        onDeletePage()
+
+                        onDismissRequest()
+                    },
+            ) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+
+                Text(text = "Delete page")
             }
         }
     }

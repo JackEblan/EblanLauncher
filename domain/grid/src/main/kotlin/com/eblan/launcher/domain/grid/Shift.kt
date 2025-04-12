@@ -2,8 +2,10 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemShift
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.isActive
 
-fun resolveConflictsWithShift(
+fun CoroutineScope.resolveConflictsWithShift(
     gridItems: MutableList<GridItem>,
     gridItemShift: GridItemShift?,
     movingGridItem: GridItem,
@@ -11,6 +13,7 @@ fun resolveConflictsWithShift(
     columns: Int,
 ): List<GridItem>? {
     return if (shiftConflicts(
+            isActive = isActive,
             gridItems = gridItems,
             gridItemShift = gridItemShift,
             movingItem = movingGridItem,
@@ -25,6 +28,7 @@ fun resolveConflictsWithShift(
 }
 
 private fun shiftConflicts(
+    isActive: Boolean,
     gridItems: MutableList<GridItem>,
     gridItemShift: GridItemShift?,
     movingItem: GridItem,
@@ -32,6 +36,8 @@ private fun shiftConflicts(
     columns: Int,
 ): Boolean {
     for (gridItem in gridItems) {
+        if (isActive.not()) return false
+
         // Skip the moving grid item itself.
         if (gridItem.id == movingItem.id) continue
 
@@ -50,6 +56,7 @@ private fun shiftConflicts(
 
             // Recursively resolve further conflicts from the shifted item.
             if (!shiftConflicts(
+                    isActive = isActive,
                     gridItems = gridItems,
                     gridItemShift = gridItemShift,
                     movingItem = shiftedItem,

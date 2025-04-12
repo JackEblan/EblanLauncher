@@ -22,11 +22,12 @@ import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -77,16 +78,13 @@ class HomeViewModel @Inject constructor(
 
     private var _pageDirection = MutableStateFlow<PageDirection?>(null)
 
-    @OptIn(FlowPreview::class)
-    val pageDirection = _pageDirection.debounce(1000).stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
+    val pageDirection = _pageDirection.asStateFlow()
 
     private var _addGridItemDimensions = MutableStateFlow<GridItemDimensions?>(null)
 
     val addGridItemDimensions = _addGridItemDimensions.asStateFlow()
+
+    private var moveGridItemJob: Job? = null
 
     fun moveGridItem(
         page: Int,
@@ -97,21 +95,28 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _pageDirection.update {
-                movePageUseCase(
+            moveGridItemJob?.cancelAndJoin()
+
+            moveGridItemJob = launch {
+                delay(500)
+
+                _pageDirection.update {
+                    movePageUseCase(
+                        gridItem = gridItem,
+                        x = x,
+                        screenWidth = screenWidth,
+                    )
+                }
+
+                moveGridItemUseCase(
+                    page = page,
                     gridItem = gridItem,
                     x = x,
+                    y = y,
                     screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                 )
             }
-            moveGridItemUseCase(
-                page = page,
-                gridItem = gridItem,
-                x = x,
-                y = y,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-            )
         }
     }
 

@@ -84,7 +84,9 @@ class HomeViewModel @Inject constructor(
 
     val addGridItemDimensions = _addGridItemDimensions.asStateFlow()
 
-    private var moveGridItemJob: Job? = null
+    private var gridItemJob: Job? = null
+
+    private var gridItemDelayTimeInMillis = 500L
 
     fun moveGridItem(
         page: Int,
@@ -95,10 +97,10 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
+            gridItemJob?.cancelAndJoin()
 
-            moveGridItemJob = launch {
-                delay(500)
+            gridItemJob = launch {
+                delay(gridItemDelayTimeInMillis)
 
                 _pageDirection.update {
                     movePageUseCase(
@@ -130,15 +132,21 @@ class HomeViewModel @Inject constructor(
         anchor: Anchor,
     ) {
         viewModelScope.launch {
-            resizeGridItemUseCase(
-                page = page,
-                gridItem = gridItem,
-                width = width,
-                height = height,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                anchor = anchor,
-            )
+            gridItemJob?.cancelAndJoin()
+
+            gridItemJob = launch {
+                delay(gridItemDelayTimeInMillis)
+
+                resizeGridItemUseCase(
+                    page = page,
+                    gridItem = gridItem,
+                    width = width,
+                    height = height,
+                    cellWidth = cellWidth,
+                    cellHeight = cellHeight,
+                    anchor = anchor,
+                )
+            }
         }
     }
 
@@ -152,15 +160,21 @@ class HomeViewModel @Inject constructor(
         anchor: SideAnchor,
     ) {
         viewModelScope.launch {
-            resizeWidgetGridItemUseCase(
-                page = page,
-                gridItem = gridItem,
-                width = width,
-                height = height,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                anchor = anchor,
-            )
+            gridItemJob?.cancelAndJoin()
+
+            gridItemJob = launch {
+                delay(gridItemDelayTimeInMillis)
+
+                resizeWidgetGridItemUseCase(
+                    page = page,
+                    gridItem = gridItem,
+                    width = width,
+                    height = height,
+                    cellWidth = cellWidth,
+                    cellHeight = cellHeight,
+                    anchor = anchor,
+                )
+            }
         }
     }
 

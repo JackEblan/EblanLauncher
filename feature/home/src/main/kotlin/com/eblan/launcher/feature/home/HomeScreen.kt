@@ -85,12 +85,15 @@ fun HomeRoute(
 
     val addGridItemDimensions by viewModel.addGridItemDimensions.collectAsStateWithLifecycle()
 
+    val gridCacheItems by viewModel.gridCacheItems.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         pageDirection = pageDirection,
         homeUiState = homeUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
+        gridCacheItems = gridCacheItems,
         addGridItemDimensions = addGridItemDimensions,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -112,6 +115,7 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
+    gridCacheItems: Map<Int, List<GridItem>>,
     addGridItemDimensions: GridItemDimensions?,
     onMoveGridItem: (
         page: Int,
@@ -191,6 +195,7 @@ fun HomeScreen(
                         pageDirection = pageDirection,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
+                        gridCacheItems = gridCacheItems,
                         addGridItemDimensions = addGridItemDimensions,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
@@ -218,6 +223,7 @@ fun Success(
     pageDirection: PageDirection?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
+    gridCacheItems: Map<Int, List<GridItem>>,
     addGridItemDimensions: GridItemDimensions?,
     onMoveGridItem: (
         page: Int,
@@ -498,7 +504,7 @@ fun Success(
                     pageDirection = pageDirection,
                     currentPage = pagerState.currentPage,
                     userData = userData,
-                    gridItems = gridItems,
+                    gridCacheItems = gridCacheItems,
                     dragOffset = dragOffset,
                     lastGridItemDimensions = lastGridItemDimensions,
                     addGridItemDimensions = addGridItemDimensions,
@@ -537,7 +543,7 @@ fun Success(
                     )
 
                     onDeletePage(page)
-                }
+                },
             )
         }
     }

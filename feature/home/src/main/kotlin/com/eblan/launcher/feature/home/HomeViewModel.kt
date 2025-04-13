@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.model.GridItemDimensions
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
@@ -50,6 +51,7 @@ class HomeViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val movePageUseCase: MovePageUseCase,
     private val deletePageUseCase: DeletePageUseCase,
+    gridCacheRepository: GridCacheRepository,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -78,6 +80,14 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
+    val gridCacheItems = gridCacheRepository.gridCacheItems.map { gridItems ->
+        gridItems.groupBy { gridItem -> gridItem.page }
+    }.flowOn(Dispatchers.Default).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyMap(),
+    )
+
     private var _pageDirection = MutableStateFlow<PageDirection?>(null)
 
     val pageDirection = _pageDirection.asStateFlow()
@@ -88,7 +98,7 @@ class HomeViewModel @Inject constructor(
 
     private var gridItemJob: Job? = null
 
-    private var gridItemDelayTimeInMillis = 500L
+    private var gridItemDelayTimeInMillis = 300L
 
     fun moveGridItem(
         page: Int,

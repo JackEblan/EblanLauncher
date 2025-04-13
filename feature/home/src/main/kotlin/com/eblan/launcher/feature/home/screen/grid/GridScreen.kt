@@ -45,7 +45,7 @@ fun GridScreen(
     userData: UserData,
     dragOffset: Offset,
     lastGridItemDimensions: GridItemDimensions?,
-    gridItems: Map<Int, List<GridItem>>,
+    gridCacheItems: Map<Int, List<GridItem>>,
     dragType: DragType,
     addGridItemDimensions: GridItemDimensions?,
     onMoveGridItem: (
@@ -190,7 +190,7 @@ fun GridScreen(
             index = targetCount,
             rows = userData.rows,
             columns = userData.columns,
-            gridItems = gridItems,
+            gridItems = gridCacheItems,
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {

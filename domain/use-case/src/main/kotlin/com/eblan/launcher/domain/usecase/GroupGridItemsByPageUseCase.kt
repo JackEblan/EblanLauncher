@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GroupGridItemsByPageUseCase @Inject constructor(
-    private val gridRepository: GridRepository, private val userDataRepository: UserDataRepository
+    private val gridRepository: GridRepository,
+    private val userDataRepository: UserDataRepository,
 ) {
     operator fun invoke(): Flow<GridItemsByPage> {
         return combine(
-            gridRepository.gridItems, userDataRepository.userData
+            gridRepository.gridItems, userDataRepository.userData,
         ) { gridItems, userData ->
-
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,

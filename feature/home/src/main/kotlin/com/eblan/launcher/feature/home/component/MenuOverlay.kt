@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.pager.component
+package com.eblan.launcher.feature.home.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape

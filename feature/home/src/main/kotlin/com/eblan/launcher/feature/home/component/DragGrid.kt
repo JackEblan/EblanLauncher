@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.grid.component
+package com.eblan.launcher.feature.home.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.Constraints
 import com.eblan.launcher.domain.model.GridItem
 
 @Composable
-fun SimpleGridSubcomposeLayout(
+fun DragGridSubcomposeLayout(
     modifier: Modifier = Modifier,
     index: Int,
     rows: Int,
@@ -23,7 +23,7 @@ fun SimpleGridSubcomposeLayout(
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[index]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
-                    GridItemContainer(
+                    AnimatedGridItemContainer(
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
                         startRow = gridItem.startRow,

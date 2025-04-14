@@ -4,7 +4,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWithShift
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemShift
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ShiftAlgorithmUseCase @Inject constructor(
-    private val gridRepository: GridRepository,
+    private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
 ) {
     suspend operator fun invoke(movingGridItem: GridItem): List<GridItem>? {
@@ -25,7 +25,7 @@ class ShiftAlgorithmUseCase @Inject constructor(
                     columns = userData.columns,
                 )
             ) {
-                val gridItems = gridRepository.gridItems.first().filter { gridItem ->
+                val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
                     isGridItemSpanWithinBounds(
                         gridItem = gridItem,
                         rows = userData.rows,
@@ -57,7 +57,7 @@ class ShiftAlgorithmUseCase @Inject constructor(
                 )
 
                 if (resolvedConflictsGridItems != null) {
-                    gridRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+                    gridCacheRepository.updateGridItems(gridItems = resolvedConflictsGridItems)
                 }
 
                 resolvedConflictsGridItems

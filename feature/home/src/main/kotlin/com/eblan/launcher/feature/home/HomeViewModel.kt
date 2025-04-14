@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
+import com.eblan.launcher.feature.home.model.HomeType
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -99,9 +100,9 @@ class HomeViewModel @Inject constructor(
 
     val addGridItemLayoutInfo = _addGridItemLayoutInfo.asStateFlow()
 
-    private var _showGrid = MutableStateFlow<Boolean?>(null)
+    private var _homeType = MutableStateFlow(HomeType.Pager)
 
-    val showGrid = _showGrid.asStateFlow()
+    val homeType = _homeType.asStateFlow()
 
     private var gridItemJob: Job? = null
 
@@ -220,6 +221,8 @@ class HomeViewModel @Inject constructor(
                     data = data,
                 )
             }
+
+            showGridCache(HomeType.Drag)
         }
     }
 
@@ -260,6 +263,8 @@ class HomeViewModel @Inject constructor(
                     screenHeight = screenHeight,
                 )
             }
+
+            showGridCache(HomeType.Drag)
         }
     }
 
@@ -281,30 +286,40 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showGrid() {
+    fun updateHomeType(homeType: HomeType) {
+        _homeType.update {
+            homeType
+        }
+    }
+
+    fun showGridCache(homeType: HomeType) {
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
-            _showGrid.update {
-                true
+            _homeType.update {
+                homeType
             }
         }
     }
 
-    fun resetGrid() {
+    fun resetGridCache() {
         viewModelScope.launch {
             gridRepository.upsertGridItems(gridItems = gridCacheRepository.gridCacheItems.first())
 
-            _showGrid.update {
-                false
+            _homeType.update {
+                HomeType.Pager
             }
         }
     }
 
-    fun resetAddGridItemDimensions() {
+    fun resetAddGridItemLayoutInfo() {
         viewModelScope.launch {
             _addGridItemLayoutInfo.update {
                 null
+            }
+
+            _homeType.update {
+                HomeType.Pager
             }
         }
     }

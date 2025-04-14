@@ -25,16 +25,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
-import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.MenuOverlay
 import com.eblan.launcher.feature.home.model.DragType
-import com.eblan.launcher.feature.home.screen.grid.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.feature.home.screen.pager.component.MenuOverlay
 
 @Composable
 fun PagerScreen(
@@ -44,28 +42,8 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
-    showResize: Boolean,
     dragType: DragType,
-    onResizeGridItem: (
-        page: Int,
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        cellWidth: Int,
-        cellHeight: Int,
-        anchor: Anchor,
-    ) -> Unit,
-    onResizeWidgetGridItem: (
-        page: Int,
-        gridItem: GridItem,
-        widthPixel: Int,
-        heightPixel: Int,
-        cellWidth: Int,
-        cellHeight: Int,
-        anchor: SideAnchor,
-    ) -> Unit,
     onDismissRequest: () -> Unit,
-    onResizeEnd: () -> Unit,
     onShowBottomSheet: () -> Unit,
     onLongPressedGridItem: (gridItemLayoutInfo: GridItemLayoutInfo) -> Unit,
     onDragStart: () -> Unit,
@@ -106,12 +84,8 @@ fun PagerScreen(
             columns = userData.columns,
             lastGridItemLayoutInfo = lastGridItemLayoutInfo,
             gridItems = gridItems,
-            onResizeGridItem = onResizeGridItem,
-            onResizeWidgetGridItem = onResizeWidgetGridItem,
             showMenu = showMenu,
-            showResize = showResize,
             onDismissRequest = onDismissRequest,
-            onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem, x, y, width, height, screenWidth, screenHeight ->
                 when (val gridItemData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {

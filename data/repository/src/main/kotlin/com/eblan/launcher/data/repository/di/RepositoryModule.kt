@@ -18,9 +18,11 @@
 package com.eblan.launcher.data.repository.di
 
 import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
+import com.eblan.launcher.data.repository.DefaultGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultGridRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import dagger.Binds
@@ -44,4 +46,8 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun eblanApplicationInfoRepository(impl: DefaultEblanApplicationInfoRepository): EblanApplicationInfoRepository
+
+    @Binds
+    @Singleton
+    fun gridCacheRepository(impl: DefaultGridCacheRepository): GridCacheRepository
 }

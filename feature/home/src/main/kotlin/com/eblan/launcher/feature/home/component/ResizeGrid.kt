@@ -1,32 +1,23 @@
-package com.eblan.launcher.feature.home.screen.grid.component
+package com.eblan.launcher.feature.home.component
 
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.screen.pager.component.MenuPositionProvider
-import com.eblan.launcher.feature.home.screen.pager.component.GridItemResizeOverlay
-import com.eblan.launcher.feature.home.screen.pager.component.WidgetGridItemResizeOverlay
 
 @Composable
-fun GridSubcomposeLayout(
+fun ResizeGridSubcomposeLayout(
     modifier: Modifier = Modifier,
     page: Int,
     rows: Int,
     columns: Int,
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
-    showMenu: Boolean,
-    showResize: Boolean,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -45,18 +36,8 @@ fun GridSubcomposeLayout(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onDismissRequest: () -> Unit,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable (
-        gridItem: GridItem,
-        x: Int,
-        y: Int,
-        width: Int,
-        height: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
-    menuContent: @Composable () -> Unit,
+    gridItemContent: @Composable (gridItem: GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns
@@ -66,7 +47,7 @@ fun GridSubcomposeLayout(
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[page]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
-                    GridItemContainer(
+                    AnimatedGridItemContainer(
                         rowSpan = gridItem.rowSpan,
                         columnSpan = gridItem.columnSpan,
                         startRow = gridItem.startRow,
@@ -76,12 +57,6 @@ fun GridSubcomposeLayout(
                         content = {
                             gridItemContent(
                                 gridItem,
-                                gridItem.startColumn * cellWidth,
-                                gridItem.startRow * cellHeight,
-                                gridItem.columnSpan * cellWidth,
-                                gridItem.rowSpan * cellHeight,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
                             )
                         },
                     )
@@ -101,24 +76,7 @@ fun GridSubcomposeLayout(
 
                 val gridItemOverlay = lastGridItemLayoutInfo?.gridItem?.id == gridItem.id
 
-                if (showMenu && gridItemOverlay) {
-                    subcompose("Menu") {
-                        GridItemMenu(
-                            cellWidth = cellWidth,
-                            cellHeight = cellHeight,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            onDismissRequest = onDismissRequest,
-                            content = menuContent,
-                        )
-                    }.forEach { measurable ->
-                        measurable.measure(Constraints()).placeRelative(x = 0, y = 0)
-                    }
-                }
-
-                if (showResize && gridItemOverlay) {
+                if (gridItemOverlay) {
                     subcompose("Resize") {
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
@@ -170,65 +128,4 @@ fun GridSubcomposeLayout(
             }
         }
     }
-}
-
-@Composable
-fun GridItemContainer(
-    modifier: Modifier = Modifier,
-    rowSpan: Int,
-    columnSpan: Int,
-    startRow: Int,
-    startColumn: Int,
-    cellWidth: Int,
-    cellHeight: Int,
-    content: @Composable () -> Unit,
-) {
-    val width by animateIntAsState(targetValue = columnSpan * cellWidth)
-
-    val height by animateIntAsState(targetValue = rowSpan * cellHeight)
-
-    val x by animateIntAsState(targetValue = startColumn * cellWidth)
-
-    val y by animateIntAsState(targetValue = startRow * cellHeight)
-
-    Surface(
-        modifier = modifier.animateGridItemPlacement(
-            width = width,
-            height = height,
-            x = x,
-            y = y,
-        ),
-        content = content,
-    )
-}
-
-@Composable
-private fun GridItemMenu(
-    cellWidth: Int,
-    cellHeight: Int,
-    startRow: Int,
-    startColumn: Int,
-    rowSpan: Int,
-    columnSpan: Int,
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    val width = columnSpan * cellWidth
-
-    val height = rowSpan * cellHeight
-
-    val x = startColumn * cellWidth
-
-    val y = startRow * cellHeight
-
-    Popup(
-        popupPositionProvider = MenuPositionProvider(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-        ),
-        onDismissRequest = onDismissRequest,
-        content = content,
-    )
 }

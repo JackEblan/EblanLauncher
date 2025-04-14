@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.grid.component
+package com.eblan.launcher.feature.home.component
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ParentDataModifier

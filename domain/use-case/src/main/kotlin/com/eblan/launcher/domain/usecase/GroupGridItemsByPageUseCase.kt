@@ -2,7 +2,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.GridItemsByPage
-import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -15,14 +14,11 @@ import javax.inject.Inject
 class GroupGridItemsByPageUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val gridCacheRepository: GridCacheRepository,
 ) {
     operator fun invoke(): Flow<GridItemsByPage> {
         return combine(
             gridRepository.gridItems, userDataRepository.userData,
         ) { gridItems, userData ->
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,

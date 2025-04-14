@@ -28,7 +28,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemDimensions
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.DragType
@@ -44,10 +44,10 @@ fun GridScreen(
     currentPage: Int,
     userData: UserData,
     dragOffset: Offset,
-    lastGridItemDimensions: GridItemDimensions?,
+    lastGridItemLayoutInfo: GridItemLayoutInfo?,
     gridCacheItems: Map<Int, List<GridItem>>,
     dragType: DragType,
-    addGridItemDimensions: GridItemDimensions?,
+    addGridItemLayoutInfo: GridItemLayoutInfo?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -134,25 +134,25 @@ fun GridScreen(
     }
 
     LaunchedEffect(key1 = dragOffset) {
-        if (lastGridItemDimensions != null) {
+        if (lastGridItemLayoutInfo != null) {
             onMoveGridItem(
                 index,
-                lastGridItemDimensions.gridItem,
+                lastGridItemLayoutInfo.gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
-                lastGridItemDimensions.screenWidth,
-                lastGridItemDimensions.screenHeight,
+                lastGridItemLayoutInfo.screenWidth,
+                lastGridItemLayoutInfo.screenHeight,
             )
         }
 
-        if (addGridItemDimensions != null) {
+        if (addGridItemLayoutInfo != null) {
             onMoveGridItem(
                 index,
-                addGridItemDimensions.gridItem,
+                addGridItemLayoutInfo.gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
-                addGridItemDimensions.screenWidth,
-                addGridItemDimensions.screenHeight,
+                addGridItemLayoutInfo.screenWidth,
+                addGridItemLayoutInfo.screenHeight,
             )
         }
     }

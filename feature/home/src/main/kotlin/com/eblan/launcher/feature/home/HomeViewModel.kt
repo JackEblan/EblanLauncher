@@ -5,11 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemDimensions
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddAppWidgetProviderInfoUseCase
 import com.eblan.launcher.domain.usecase.AddApplicationInfoUseCase
@@ -30,6 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -51,7 +53,8 @@ class HomeViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val movePageUseCase: MovePageUseCase,
     private val deletePageUseCase: DeletePageUseCase,
-    gridCacheRepository: GridCacheRepository,
+    private val gridRepository: GridRepository,
+    private val gridCacheRepository: GridCacheRepository,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -92,9 +95,13 @@ class HomeViewModel @Inject constructor(
 
     val pageDirection = _pageDirection.asStateFlow()
 
-    private var _addGridItemDimensions = MutableStateFlow<GridItemDimensions?>(null)
+    private var _addGridItemLayoutInfo = MutableStateFlow<GridItemLayoutInfo?>(null)
 
-    val addGridItemDimensions = _addGridItemDimensions.asStateFlow()
+    val addGridItemLayoutInfo = _addGridItemLayoutInfo.asStateFlow()
+
+    private var _showGrid = MutableStateFlow<Boolean?>(null)
+
+    val showGrid = _showGrid.asStateFlow()
 
     private var gridItemJob: Job? = null
 
@@ -201,7 +208,7 @@ class HomeViewModel @Inject constructor(
         data: GridItemData,
     ) {
         viewModelScope.launch {
-            _addGridItemDimensions.update {
+            _addGridItemLayoutInfo.update {
                 addApplicationInfoUseCase(
                     page = page,
                     x = x,
@@ -234,7 +241,7 @@ class HomeViewModel @Inject constructor(
         screenHeight: Int,
     ) {
         viewModelScope.launch {
-            _addGridItemDimensions.update {
+            _addGridItemLayoutInfo.update {
                 addAppWidgetProviderInfoUseCase(
                     page = page,
                     componentName = componentName,
@@ -274,9 +281,29 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun showGrid() {
+        viewModelScope.launch {
+            gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
+
+            _showGrid.update {
+                true
+            }
+        }
+    }
+
+    fun resetGrid() {
+        viewModelScope.launch {
+            gridRepository.upsertGridItems(gridItems = gridCacheRepository.gridCacheItems.first())
+
+            _showGrid.update {
+                false
+            }
+        }
+    }
+
     fun resetAddGridItemDimensions() {
         viewModelScope.launch {
-            _addGridItemDimensions.update {
+            _addGridItemLayoutInfo.update {
                 null
             }
         }

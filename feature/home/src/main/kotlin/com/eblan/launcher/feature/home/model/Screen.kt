@@ -1,5 +1,5 @@
 package com.eblan.launcher.feature.home.model
 
-enum class HomeType {
+enum class Screen {
     Pager, Application, Widget, Drag, Resize
 }

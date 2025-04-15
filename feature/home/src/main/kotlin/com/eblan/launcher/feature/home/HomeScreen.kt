@@ -55,14 +55,16 @@ import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.model.DragType
-import com.eblan.launcher.feature.home.model.HomeType
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.HomeUiState
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.application.rememberApplicationState
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
+import com.eblan.launcher.feature.home.screen.widget.rememberWidgetState
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 
@@ -79,33 +81,27 @@ fun HomeRoute(
 
     val appWidgetProviderInfos by viewModel.appWidgetProviderInfos.collectAsStateWithLifecycle()
 
-    val addGridItemLayoutInfo by viewModel.addGridItemLayoutInfo.collectAsStateWithLifecycle()
-
     val gridCacheItems by viewModel.gridCacheItems.collectAsStateWithLifecycle()
 
-    val homeType by viewModel.homeType.collectAsStateWithLifecycle()
+    val screen by viewModel.screen.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
-        homeType = homeType,
+        screen = screen,
         pageDirection = pageDirection,
         homeUiState = homeUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
         gridCacheItems = gridCacheItems,
-        addGridItemLayoutInfo = addGridItemLayoutInfo,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
-        onAddApplicationInfoGridItem = viewModel::addApplicationInfoGridItem,
-        onAddAppWidgetProviderInfoGridItem = viewModel::addAppWidgetProviderInfoGridItem,
         onUpdateWidget = viewModel::updateWidget,
         onUpdatePageCount = viewModel::updatePageCount,
         onDeletePage = viewModel::deletePage,
         onShowGridCache = viewModel::showGridCache,
-        onUpdateHomeType = viewModel::updateHomeType,
+        onUpdateScreen = viewModel::updateScreen,
         onResetGridCache = viewModel::resetGridCache,
-        onResetAddGridItem = viewModel::resetAddGridItemLayoutInfo,
         onEdit = onEdit,
     )
 }
@@ -113,13 +109,12 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    homeType: HomeType,
+    screen: Screen,
     pageDirection: PageDirection?,
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     gridCacheItems: Map<Int, List<GridItem>>,
-    addGridItemLayoutInfo: GridItemLayoutInfo?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -146,40 +141,12 @@ fun HomeScreen(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onAddApplicationInfoGridItem: (
-        page: Int,
-        x: Int,
-        y: Int,
-        rowSpan: Int,
-        columnSpan: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-        data: GridItemData,
-    ) -> Unit,
-    onAddAppWidgetProviderInfoGridItem: (
-        page: Int,
-        componentName: String,
-        x: Int,
-        y: Int,
-        rowSpan: Int,
-        columnSpan: Int,
-        minWidth: Int,
-        minHeight: Int,
-        resizeMode: Int,
-        minResizeWidth: Int,
-        minResizeHeight: Int,
-        maxResizeWidth: Int,
-        maxResizeHeight: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onDeletePage: (Int) -> Unit,
-    onShowGridCache: (HomeType) -> Unit,
-    onUpdateHomeType: (HomeType) -> Unit,
+    onShowGridCache: (Screen) -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
     onResetGridCache: () -> Unit,
-    onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
     Scaffold { paddingValues ->
@@ -196,26 +163,22 @@ fun HomeScreen(
 
                 is HomeUiState.Success -> {
                     Success(
-                        homeType = homeType,
+                        screen = screen,
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
                         pageDirection = pageDirection,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         gridCacheItems = gridCacheItems,
-                        addGridItemLayoutInfo = addGridItemLayoutInfo,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
-                        onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
-                        onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
                         onUpdateWidget = onUpdateWidget,
                         onUpdatePageCount = onUpdatePageCount,
                         onDeletePage = onDeletePage,
                         onShowGridCache = onShowGridCache,
-                        onUpdateHomeType = onUpdateHomeType,
+                        onUpdateScreen = onUpdateScreen,
                         onResetGridCache = onResetGridCache,
-                        onResetAddGridItem = onResetAddGridItem,
                         onEdit = onEdit,
                     )
                 }
@@ -228,14 +191,13 @@ fun HomeScreen(
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
-    homeType: HomeType,
+    screen: Screen,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     pageDirection: PageDirection?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
     gridCacheItems: Map<Int, List<GridItem>>,
-    addGridItemLayoutInfo: GridItemLayoutInfo?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -262,40 +224,12 @@ fun Success(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onAddApplicationInfoGridItem: (
-        page: Int,
-        x: Int,
-        y: Int,
-        rowSpan: Int,
-        columnSpan: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-        data: GridItemData,
-    ) -> Unit,
-    onAddAppWidgetProviderInfoGridItem: (
-        page: Int,
-        componentName: String,
-        x: Int,
-        y: Int,
-        rowSpan: Int,
-        columnSpan: Int,
-        minWidth: Int,
-        minHeight: Int,
-        resizeMode: Int,
-        minResizeWidth: Int,
-        minResizeHeight: Int,
-        maxResizeWidth: Int,
-        maxResizeHeight: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
     onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onDeletePage: (Int) -> Unit,
-    onShowGridCache: (HomeType) -> Unit,
-    onUpdateHomeType: (HomeType) -> Unit,
+    onShowGridCache: (Screen) -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
     onResetGridCache: () -> Unit,
-    onResetAddGridItem: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
     val pagerState = rememberPagerState(
@@ -319,13 +253,15 @@ fun Success(
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
-    var dragType by remember { mutableStateOf(DragType.None) }
+    var drag by remember { mutableStateOf(Drag.None) }
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
 
     var appWidgetId by remember { mutableStateOf<Int?>(null) }
 
     var lastGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
+
+    var addGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
     val scope = rememberCoroutineScope()
 
@@ -343,12 +279,16 @@ fun Success(
         }
     }
 
-    LaunchedEffect(key1 = dragType) {
+    val applicationState = rememberApplicationState()
+
+    val widgetState = rememberWidgetState()
+
+    LaunchedEffect(key1 = drag) {
         if (addGridItemLayoutInfo != null) {
-            if (dragType == DragType.End) {
-                when (val data = addGridItemLayoutInfo.gridItem.data) {
+            if (drag == Drag.End) {
+                when (val data = addGridItemLayoutInfo!!.gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
-                        onResetAddGridItem()
+                        addGridItemLayoutInfo = null
                     }
 
                     is GridItemData.Widget -> {
@@ -361,7 +301,10 @@ fun Success(
                                 provider = provider,
                             )
                         ) {
-                            onUpdateWidget(addGridItemLayoutInfo.gridItem, allocateAppWidgetId)
+                            onUpdateWidget(
+                                addGridItemLayoutInfo!!.gridItem,
+                                allocateAppWidgetId,
+                            )
                         } else {
                             val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                                 putExtra(
@@ -384,11 +327,11 @@ fun Success(
 
     LaunchedEffect(key1 = appWidgetId) {
         if (addGridItemLayoutInfo != null && appWidgetId != null) {
-            onUpdateWidget(addGridItemLayoutInfo.gridItem, appWidgetId!!)
+            onUpdateWidget(addGridItemLayoutInfo!!.gridItem, appWidgetId!!)
 
             appWidgetId = null
 
-            onResetAddGridItem()
+            addGridItemLayoutInfo = null
         }
     }
 
@@ -397,19 +340,19 @@ fun Success(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = {
-                        dragType = DragType.Start
+                        drag = Drag.Start
                     },
                     onDragEnd = {
-                        dragType = DragType.End
+                        drag = Drag.End
                     },
                     onDragCancel = {
-                        dragType = DragType.Cancel
+                        drag = Drag.Cancel
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
                         dragOffset += dragAmount
 
-                        dragType = DragType.Drag
+                        drag = Drag.Drag
                     },
                 )
             }
@@ -418,15 +361,15 @@ fun Success(
                 screenSize = intSize
             },
     ) {
-        when (homeType) {
-            HomeType.Pager -> {
+        when (screen) {
+            Screen.Pager -> {
                 PagerScreen(
                     pagerState = pagerState,
                     lastGridItemLayoutInfo = lastGridItemLayoutInfo,
                     userData = userData,
                     gridItems = gridItems,
                     showMenu = showMenu,
-                    dragType = dragType,
+                    drag = drag,
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -448,50 +391,72 @@ fun Success(
                         )
                     },
                     onDragStart = {
-                        onShowGridCache(HomeType.Drag)
+                        onShowGridCache(Screen.Drag)
                     },
                     onEdit = {
 
                     },
                     onResize = {
-                        onShowGridCache(HomeType.Resize)
+                        onShowGridCache(Screen.Resize)
                     },
                 )
             }
 
-            HomeType.Application -> {
+            Screen.Application -> {
                 ApplicationScreen(
+                    applicationState = applicationState,
                     currentPage = pagerState.currentPage,
-                    pageCount = userData.pageCount,
+                    userData = userData,
                     screenSize = screenSize,
+                    drag = drag,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    onLongPressApplicationInfo = { offset, size ->
-                        dragOffset = offset
-                        overlaySize = size
-                        showBottomSheet = false
+                    onLongPressedApplicationInfo = { gridItemLayoutInfo ->
+                        addGridItemLayoutInfo = gridItemLayoutInfo
+
+                        dragOffset = IntOffset(
+                            x = gridItemLayoutInfo.x,
+                            y = gridItemLayoutInfo.y,
+                        ).toOffset()
+
+                        overlaySize = IntSize(
+                            width = gridItemLayoutInfo.width,
+                            height = gridItemLayoutInfo.height,
+                        )
                     },
-                    onAddApplicationInfoGridItem = onAddApplicationInfoGridItem,
+                    onDragStart = {
+                        onShowGridCache(Screen.Drag)
+                    },
                 )
             }
 
-            HomeType.Widget -> {
+            Screen.Widget -> {
                 WidgetScreen(
+                    widgetState = widgetState,
                     currentPage = pagerState.currentPage,
-                    pageCount = userData.pageCount,
-                    rows = userData.rows,
-                    columns = userData.columns,
+                    userData = userData,
                     screenSize = screenSize,
+                    drag = drag,
                     appWidgetProviderInfos = appWidgetProviderInfos,
-                    onLongPressAppWidgetProviderInfo = { offset, size ->
-                        dragOffset = offset
-                        overlaySize = size
-                        showBottomSheet = false
+                    onLongPressAppWidgetProviderInfo = { gridItemLayoutInfo ->
+                        addGridItemLayoutInfo = gridItemLayoutInfo
+
+                        dragOffset = IntOffset(
+                            x = gridItemLayoutInfo.x,
+                            y = gridItemLayoutInfo.y,
+                        ).toOffset()
+
+                        overlaySize = IntSize(
+                            width = gridItemLayoutInfo.width,
+                            height = gridItemLayoutInfo.height,
+                        )
                     },
-                    onAddAppWidgetProviderInfoGridItem = onAddAppWidgetProviderInfoGridItem,
+                    onDragStart = {
+                        onShowGridCache(Screen.Drag)
+                    },
                 )
             }
 
-            HomeType.Drag -> {
+            Screen.Drag -> {
                 DragScreen(
                     pageDirection = pageDirection,
                     currentPage = pagerState.currentPage,
@@ -500,7 +465,7 @@ fun Success(
                     dragOffset = dragOffset,
                     lastGridItemLayoutInfo = lastGridItemLayoutInfo,
                     addGridItemLayoutInfo = addGridItemLayoutInfo,
-                    dragType = dragType,
+                    drag = drag,
                     overlaySize = overlaySize,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
@@ -516,7 +481,7 @@ fun Success(
                 )
             }
 
-            HomeType.Resize -> {
+            Screen.Resize -> {
                 ResizeScreen(
                     currentPage = pagerState.currentPage,
                     lastGridItemLayoutInfo = lastGridItemLayoutInfo,
@@ -537,7 +502,7 @@ fun Success(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                onUpdateHomeType = onUpdateHomeType,
+                onUpdateScreen = onUpdateScreen,
                 onDeletePage = {
                     val page = calculatePage(
                         index = pagerState.currentPage,
@@ -557,7 +522,7 @@ fun Success(
 private fun HomeBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onUpdateHomeType: (HomeType) -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
     onDeletePage: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -569,7 +534,7 @@ private fun HomeBottomSheet(
                 modifier = Modifier
                     .size(100.dp)
                     .clickable {
-                        onUpdateHomeType(HomeType.Application)
+                        onUpdateScreen(Screen.Application)
 
                         onDismissRequest()
                     },
@@ -583,7 +548,7 @@ private fun HomeBottomSheet(
                 modifier = Modifier
                     .size(100.dp)
                     .clickable {
-                        onUpdateHomeType(HomeType.Widget)
+                        onUpdateScreen(Screen.Widget)
 
                         onDismissRequest()
                     },

@@ -1,20 +1,31 @@
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.feature.home.screen.widget
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.IntSize
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
-import com.eblan.launcher.domain.repository.UserDataRepository
-import kotlinx.coroutines.flow.first
-import java.util.UUID
-import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-class AddAppWidgetProviderInfoUseCase @Inject constructor(
-    private val userDataRepository: UserDataRepository,
-) {
-    suspend operator fun invoke(
+@Composable
+fun rememberWidgetState(): WidgetState {
+    return remember {
+        WidgetState()
+    }
+}
+
+@Stable
+class WidgetState {
+    @OptIn(ExperimentalUuidApi::class)
+    fun getGridItemLayoutInfo(
         page: Int,
         componentName: String,
+        rows: Int,
+        columns: Int,
         x: Int,
         y: Int,
         rowSpan: Int,
@@ -26,14 +37,11 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         minResizeHeight: Int,
         maxResizeWidth: Int,
         maxResizeHeight: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        screenSize: IntSize,
     ): GridItemLayoutInfo {
-        val userData = userDataRepository.userData.first()
+        val cellWidth = screenSize.width / columns
 
-        val cellWidth = screenWidth / userData.columns
-
-        val cellHeight = screenHeight / userData.rows
+        val cellHeight = screenSize.height / rows
 
         val newRowSpan = if (rowSpan == 0) {
             (minHeight + cellHeight - 1) / cellHeight
@@ -62,10 +70,10 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         val (startRow, startColumn) = coordinatesToStartPosition(
             x = x,
             y = y,
-            rows = userData.rows,
-            columns = userData.columns,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
+            rows = rows,
+            columns = columns,
+            screenWidth = screenSize.width,
+            screenHeight = screenSize.height,
         )
 
         val data = GridItemData.Widget(
@@ -81,7 +89,7 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
         )
 
         val gridItem = GridItem(
-            id = UUID.randomUUID().toString(),
+            id = Uuid.random().toHexString(),
             page = page,
             startRow = startRow,
             startColumn = startColumn,
@@ -96,8 +104,9 @@ class AddAppWidgetProviderInfoUseCase @Inject constructor(
             height = gridItem.rowSpan * cellHeight,
             x = gridItem.startColumn * cellWidth,
             y = gridItem.startRow * cellHeight,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
+            screenWidth = screenSize.width,
+            screenHeight = screenSize.height,
         )
     }
+
 }

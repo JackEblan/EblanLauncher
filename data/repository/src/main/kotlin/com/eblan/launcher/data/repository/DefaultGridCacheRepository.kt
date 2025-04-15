@@ -34,6 +34,10 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
                 if (index != -1 && updatedGridItems[index] != gridItem) {
                     updatedGridItems[index] = gridItem
                 }
+
+                if (index == -1) {
+                    updatedGridItems.add(gridItem)
+                }
             }
 
             _gridCacheItems.emit(updatedGridItems)

@@ -35,7 +35,7 @@ import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
-import com.eblan.launcher.feature.home.model.DragType
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
 import kotlin.math.roundToInt
@@ -48,9 +48,9 @@ fun DragScreen(
     userData: UserData,
     dragOffset: Offset,
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
-    gridItems: Map<Int, List<GridItem>>,
-    dragType: DragType,
     addGridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItems: Map<Int, List<GridItem>>,
+    drag: Drag,
     overlaySize: IntSize,
     onMoveGridItem: (
         page: Int,
@@ -81,17 +81,17 @@ fun DragScreen(
                 if (index == 0 &&
                     userData.infiniteScroll &&
                     newPage &&
-                    dragType == DragType.Drag
+                    drag == Drag.Drag
                 ) {
                     index = userData.pageCount - 1
                 } else if (index == 0 &&
                     userData.infiniteScroll &&
-                    dragType == DragType.Drag
+                    drag == Drag.Drag
                 ) {
                     newPage = true
                 } else if (index > 0 &&
                     canScroll &&
-                    dragType == DragType.Drag
+                    drag == Drag.Drag
                 ) {
                     index -= 1
                 }
@@ -101,17 +101,17 @@ fun DragScreen(
                 if (index == userData.pageCount - 1 &&
                     userData.infiniteScroll &&
                     newPage &&
-                    dragType == DragType.Drag
+                    drag == Drag.Drag
                 ) {
                     index = 0
                 } else if (index == userData.pageCount - 1 &&
                     userData.infiniteScroll &&
-                    dragType == DragType.Drag
+                    drag == Drag.Drag
                 ) {
                     newPage = true
                 } else if (index < userData.pageCount - 1 &&
                     canScroll &&
-                    dragType == DragType.Drag
+                    drag == Drag.Drag
                 ) {
                     index += 1
                 }
@@ -161,8 +161,8 @@ fun DragScreen(
         }
     }
 
-    LaunchedEffect(key1 = dragType) {
-        if (dragType == DragType.End || dragType == DragType.Cancel) {
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End || drag == Drag.Cancel) {
             val targetPage = calculateTargetPage(
                 currentPage = currentPage,
                 index = index,

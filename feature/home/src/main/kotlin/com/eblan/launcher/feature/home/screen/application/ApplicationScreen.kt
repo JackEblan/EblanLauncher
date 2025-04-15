@@ -10,51 +10,54 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
+import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.math.roundToInt
 
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
+    applicationState: ApplicationState,
     currentPage: Int,
-    pageCount: Int,
+    userData: UserData,
     screenSize: IntSize,
+    drag: Drag,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onLongPressApplicationInfo: (Offset, IntSize) -> Unit,
-    onAddApplicationInfoGridItem: (
-        page: Int,
-        x: Int,
-        y: Int,
-        rowSpan: Int,
-        columnSpan: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-        data: GridItemData,
-    ) -> Unit,
+    onLongPressedApplicationInfo: (GridItemLayoutInfo) -> Unit,
+    onDragStart: () -> Unit,
 ) {
-    val z = currentPage - (Int.MAX_VALUE / 2)
+    val page = calculatePage(
+        index = currentPage,
+        infiniteScroll = userData.infiniteScroll,
+        pageCount = userData.pageCount,
+    )
 
-    val page = z - z.floorDiv(pageCount) * pageCount
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start) {
+            onDragStart()
+        }
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         modifier = modifier.fillMaxWidth(),
     ) {
         items(eblanApplicationInfos) { eblanApplicationInfo ->
-            var eblanApplicationInfoSize = IntSize.Zero
-
-            var eblanApplicationInfoOffset = Offset.Zero
+            var offset = Offset.Zero
 
             Column(
                 modifier = Modifier
@@ -64,39 +67,32 @@ fun ApplicationScreen(
                                 val down = awaitFirstDown(requireUnconsumed = false)
 
                                 val longPressChange =
-                                    awaitLongPressOrCancellation(down.id) ?: continue
+                                    awaitLongPressOrCancellation(down.id)
 
-                                if (!longPressChange.isConsumed) {
+                                if (longPressChange != null) {
                                     val data = GridItemData.ApplicationInfo(
                                         packageName = eblanApplicationInfo.packageName,
                                         icon = eblanApplicationInfo.icon,
                                         label = eblanApplicationInfo.label,
                                     )
 
-                                    onLongPressApplicationInfo(
-                                        eblanApplicationInfoOffset,
-                                        eblanApplicationInfoSize,
-                                    )
-
-                                    onAddApplicationInfoGridItem(
-                                        page,
-                                        eblanApplicationInfoOffset.x.roundToInt(),
-                                        eblanApplicationInfoOffset.y.roundToInt(),
-                                        1,
-                                        1,
-                                        screenSize.width,
-                                        screenSize.height,
-                                        data,
+                                    onLongPressedApplicationInfo(
+                                        applicationState.getGridItemLayoutInfo(
+                                            page = page,
+                                            rows = userData.rows,
+                                            columns = userData.columns,
+                                            x = offset.x.roundToInt(),
+                                            y = offset.y.roundToInt(),
+                                            screenSize,
+                                            data = data
+                                        )
                                     )
                                 }
                             }
                         }
                     }
-                    .onSizeChanged { intSize ->
-                        eblanApplicationInfoSize = intSize
-                    }
                     .onGloballyPositioned { layoutCoordinates ->
-                        eblanApplicationInfoOffset = layoutCoordinates.positionOnScreen()
+                        offset = layoutCoordinates.positionOnScreen()
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

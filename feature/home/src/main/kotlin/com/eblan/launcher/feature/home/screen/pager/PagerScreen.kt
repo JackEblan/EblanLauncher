@@ -31,7 +31,7 @@ import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuOverlay
-import com.eblan.launcher.feature.home.model.DragType
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @Composable
@@ -42,18 +42,18 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
-    dragType: DragType,
+    drag: Drag,
     onDismissRequest: () -> Unit,
     onShowBottomSheet: () -> Unit,
-    onLongPressedGridItem: (gridItemLayoutInfo: GridItemLayoutInfo) -> Unit,
+    onLongPressedGridItem: (GridItemLayoutInfo) -> Unit,
     onDragStart: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
     var hitCounter by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(key1 = dragType) {
-        if (dragType == DragType.Start) {
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start) {
             if (hitCounter > 1) {
                 onDragStart()
             } else {
@@ -140,7 +140,6 @@ fun PagerScreen(
                 )
             },
         )
-
     }
 }
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -22,50 +23,45 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.roundToIntSize
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
+import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.math.roundToInt
 
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
+    widgetState: WidgetState,
     currentPage: Int,
-    pageCount: Int,
-    rows: Int,
-    columns: Int,
+    userData: UserData,
     screenSize: IntSize,
+    drag: Drag,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
-    onLongPressAppWidgetProviderInfo: (Offset, IntSize) -> Unit,
-    onAddAppWidgetProviderInfoGridItem: (
-        page: Int,
-        componentName: String,
-        x: Int,
-        y: Int,
-        rowSpan: Int,
-        columnSpan: Int,
-        minWidth: Int,
-        minHeight: Int,
-        resizeMode: Int,
-        minResizeWidth: Int,
-        minResizeHeight: Int,
-        maxResizeWidth: Int,
-        maxResizeHeight: Int,
-        screenWidth: Int,
-        screenHeight: Int,
-    ) -> Unit,
+    onLongPressAppWidgetProviderInfo: (GridItemLayoutInfo) -> Unit,
+    onDragStart: () -> Unit,
 ) {
     val density = LocalDensity.current
 
     val context = LocalContext.current
 
-    val cellWidth = screenSize.width / columns
+    val cellWidth = screenSize.width / userData.columns
 
-    val cellHeight = screenSize.height / rows
+    val cellHeight = screenSize.height / userData.rows
 
-    val z = currentPage - (Int.MAX_VALUE / 2)
+    val page = calculatePage(
+        index = currentPage,
+        infiniteScroll = userData.infiniteScroll,
+        pageCount = userData.pageCount,
+    )
 
-    val page = z - z.floorDiv(pageCount) * pageCount
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start) {
+            onDragStart()
+        }
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -109,51 +105,51 @@ fun WidgetScreen(
                                         val down = awaitFirstDown(requireUnconsumed = false)
 
                                         val longPressChange =
-                                            awaitLongPressOrCancellation(down.id) ?: continue
+                                            awaitLongPressOrCancellation(down.id)
 
-                                        if (!longPressChange.isConsumed) {
-                                            onLongPressAppWidgetProviderInfo(
-                                                appWidgetProviderInfoOffset,
-                                                previewDpSize.toSize().roundToIntSize(),
-                                            )
+                                        if (longPressChange != null) {
+                                            val gridItemLayoutInfo =
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                    widgetState.getGridItemLayoutInfo(
+                                                        page = page,
+                                                        componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                                        rows = userData.rows,
+                                                        columns = userData.columns,
+                                                        x = appWidgetProviderInfoOffset.x.roundToInt(),
+                                                        y = appWidgetProviderInfoOffset.y.roundToInt(),
+                                                        rowSpan = appWidgetProviderInfo.targetCellHeight,
+                                                        columnSpan = appWidgetProviderInfo.targetCellWidth,
+                                                        minWidth = appWidgetProviderInfo.minWidth,
+                                                        minHeight = appWidgetProviderInfo.minHeight,
+                                                        resizeMode = appWidgetProviderInfo.resizeMode,
+                                                        minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                                                        minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                                                        maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                                                        maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                                                        screenSize = screenSize,
+                                                    )
+                                                } else {
+                                                    widgetState.getGridItemLayoutInfo(
+                                                        page = page,
+                                                        componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                                        rows = userData.rows,
+                                                        columns = userData.columns,
+                                                        x = appWidgetProviderInfoOffset.x.roundToInt(),
+                                                        y = appWidgetProviderInfoOffset.y.roundToInt(),
+                                                        rowSpan = 0,
+                                                        columnSpan = 0,
+                                                        minWidth = appWidgetProviderInfo.minWidth,
+                                                        minHeight = appWidgetProviderInfo.minHeight,
+                                                        resizeMode = appWidgetProviderInfo.resizeMode,
+                                                        minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                                                        minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                                                        maxResizeWidth = 0,
+                                                        maxResizeHeight = 0,
+                                                        screenSize = screenSize,
+                                                    )
+                                                }
 
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                                onAddAppWidgetProviderInfoGridItem(
-                                                    page,
-                                                    appWidgetProviderInfo.provider.flattenToString(),
-                                                    appWidgetProviderInfoOffset.x.roundToInt(),
-                                                    appWidgetProviderInfoOffset.y.roundToInt(),
-                                                    appWidgetProviderInfo.targetCellHeight,
-                                                    appWidgetProviderInfo.targetCellWidth,
-                                                    appWidgetProviderInfo.minWidth,
-                                                    appWidgetProviderInfo.minHeight,
-                                                    appWidgetProviderInfo.resizeMode,
-                                                    appWidgetProviderInfo.minResizeWidth,
-                                                    appWidgetProviderInfo.minResizeHeight,
-                                                    appWidgetProviderInfo.maxResizeWidth,
-                                                    appWidgetProviderInfo.maxResizeHeight,
-                                                    screenSize.width,
-                                                    screenSize.height,
-                                                )
-                                            } else {
-                                                onAddAppWidgetProviderInfoGridItem(
-                                                    page,
-                                                    appWidgetProviderInfo.provider.flattenToString(),
-                                                    appWidgetProviderInfoOffset.x.roundToInt(),
-                                                    appWidgetProviderInfoOffset.y.roundToInt(),
-                                                    0,
-                                                    0,
-                                                    appWidgetProviderInfo.minWidth,
-                                                    appWidgetProviderInfo.minHeight,
-                                                    appWidgetProviderInfo.resizeMode,
-                                                    appWidgetProviderInfo.minResizeWidth,
-                                                    appWidgetProviderInfo.minResizeHeight,
-                                                    0,
-                                                    0,
-                                                    screenSize.width,
-                                                    screenSize.height,
-                                                )
-                                            }
+                                            onLongPressAppWidgetProviderInfo(gridItemLayoutInfo)
                                         }
                                     }
                                 }

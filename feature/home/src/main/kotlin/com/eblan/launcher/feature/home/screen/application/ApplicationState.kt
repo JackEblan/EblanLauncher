@@ -30,9 +30,9 @@ class ApplicationState {
         screenSize: IntSize,
         data: GridItemData,
     ): GridItemLayoutInfo {
-        val cellWidth = screenSize.width / rows
+        val cellWidth = screenSize.width / columns
 
-        val cellHeight = screenSize.height / columns
+        val cellHeight = screenSize.height / rows
 
         val (startRow, startColumn) = coordinatesToStartPosition(
             x = x,

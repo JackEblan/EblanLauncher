@@ -53,7 +53,7 @@ fun PagerScreen(
     var hitCounter by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start) {
+        if (drag is Drag.Start) {
             if (hitCounter > 1) {
                 onDragStart()
             } else {

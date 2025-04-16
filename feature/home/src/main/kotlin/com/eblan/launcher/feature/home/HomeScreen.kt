@@ -251,7 +251,7 @@ fun Success(
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
-    var drag by remember { mutableStateOf(Drag.None) }
+    var drag by remember { mutableStateOf<Drag>(Drag.None) }
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -279,7 +279,7 @@ fun Success(
 
     LaunchedEffect(key1 = drag) {
         if (addGridItemLayoutInfo != null) {
-            if (drag == Drag.End) {
+            if (drag is Drag.End) {
                 when (val data = addGridItemLayoutInfo!!.gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         addGridItemLayoutInfo = null
@@ -333,8 +333,8 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
-                    onDragStart = {
-                        drag = Drag.Start
+                    onDragStart = { offset ->
+                        drag = Drag.Start(offset = offset, size = size)
                     },
                     onDragEnd = {
                         drag = Drag.End
@@ -346,7 +346,7 @@ fun Success(
                         change.consume()
                         dragOffset += dragAmount
 
-                        drag = Drag.Drag
+                        drag = Drag.Dragging
                     },
                 )
             }
@@ -400,17 +400,15 @@ fun Success(
                 ApplicationScreen(
                     currentPage = pagerState.currentPage,
                     userData = userData,
-                    screenSize = screenSize,
                     drag = drag,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    onLongPressedApplicationInfo = { offset, size, gridItemLayoutInfo ->
+                    onDragStart = { offset, size, gridItemLayoutInfo ->
                         addGridItemLayoutInfo = gridItemLayoutInfo
 
                         dragOffset = offset.toOffset()
 
                         overlaySize = size
-                    },
-                    onDragStart = {
+
                         onShowGridCache(Screen.Drag)
                     },
                 )
@@ -423,14 +421,13 @@ fun Success(
                     screenSize = screenSize,
                     drag = drag,
                     appWidgetProviderInfos = appWidgetProviderInfos,
-                    onLongPressAppWidgetProviderInfo = { offset, size, gridItemLayoutInfo ->
+                    onDragStart = { offset, size, gridItemLayoutInfo ->
                         addGridItemLayoutInfo = gridItemLayoutInfo
 
                         dragOffset = offset.toOffset()
 
                         overlaySize = size
-                    },
-                    onDragStart = {
+
                         onShowGridCache(Screen.Drag)
                     },
                 )

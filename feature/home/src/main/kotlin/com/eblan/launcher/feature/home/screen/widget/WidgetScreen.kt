@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.widget
 
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Build
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Column
@@ -12,11 +13,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -34,6 +37,7 @@ import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -45,12 +49,11 @@ fun WidgetScreen(
     screenSize: IntSize,
     drag: Drag,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
-    onLongPressAppWidgetProviderInfo: (
+    onDragStart: (
         offset: IntOffset,
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
-    onDragStart: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -62,9 +65,33 @@ fun WidgetScreen(
         pageCount = userData.pageCount,
     )
 
+    var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start) {
-            onDragStart()
+        if (drag is Drag.Start && providerInfo != null) {
+            val addGridItemLayoutInfo = getGridItemLayoutInfo(
+                page = page,
+                appWidgetProviderInfo = providerInfo!!,
+                userData = userData,
+                appWidgetProviderInfoOffset = drag.offset.round(),
+                screenSize = drag.size,
+            )
+
+            val size = IntSize(
+                addGridItemLayoutInfo.width,
+                addGridItemLayoutInfo.height,
+            )
+
+            val offset = IntOffset(
+                drag.offset.x.roundToInt() - size.width / 2,
+                drag.offset.y.roundToInt() - size.height / 2,
+            )
+
+            onDragStart(
+                offset,
+                size,
+                addGridItemLayoutInfo,
+            )
         }
     }
 
@@ -86,9 +113,6 @@ fun WidgetScreen(
                 )
 
                 appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
-                    var offset = IntOffset.Zero
-                    var size = IntSize.Zero
-
                     val previewDpSize = getPreviewDpSize(
                         rows = userData.rows,
                         columns = userData.columns,
@@ -99,38 +123,18 @@ fun WidgetScreen(
 
                     AsyncImage(
                         modifier = Modifier
-                            .pointerInput(key1 = appWidgetProviderInfo) {
-                                awaitPointerEventScope {
-                                    while (true) {
-                                        val down = awaitFirstDown(requireUnconsumed = false)
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    val down = awaitFirstDown(requireUnconsumed = false)
 
-                                        val longPressChange = awaitLongPressOrCancellation(down.id)
+                                    val longPressChange = awaitLongPressOrCancellation(down.id)
 
-                                        if (longPressChange != null) {
-                                            val gridItemLayoutInfo = getGridItemLayoutInfo(
-                                                page = page,
-                                                appWidgetProviderInfo = appWidgetProviderInfo,
-                                                userData = userData,
-                                                appWidgetProviderInfoOffset = offset,
-                                                screenSize = screenSize,
-                                            )
-
-                                            onLongPressAppWidgetProviderInfo(
-                                                offset,
-                                                size,
-                                                gridItemLayoutInfo,
-                                            )
-                                        }
+                                    if (longPressChange != null) {
+                                        providerInfo = appWidgetProviderInfo
                                     }
                                 }
                             }
-                            .size(previewDpSize)
-                            .onGloballyPositioned { layoutCoordinates ->
-                                offset = layoutCoordinates.positionOnScreen().round()
-
-                                size = layoutCoordinates.size
-                            },
-
+                            .size(previewDpSize),
                         model = appWidgetProviderInfo.loadPreviewImage(context, 0),
                         contentDescription = null,
                     )

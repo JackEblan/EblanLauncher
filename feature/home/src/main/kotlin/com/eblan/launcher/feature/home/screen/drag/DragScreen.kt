@@ -84,17 +84,17 @@ fun DragScreen(
                 if (index == 0 &&
                     userData.infiniteScroll &&
                     newPage &&
-                    drag == Drag.Drag
+                    drag == Drag.Dragging
                 ) {
                     index = userData.pageCount - 1
                 } else if (index == 0 &&
                     userData.infiniteScroll &&
-                    drag == Drag.Drag
+                    drag == Drag.Dragging
                 ) {
                     newPage = true
                 } else if (index > 0 &&
                     canScroll &&
-                    drag == Drag.Drag
+                    drag == Drag.Dragging
                 ) {
                     index -= 1
                 }
@@ -104,17 +104,17 @@ fun DragScreen(
                 if (index == userData.pageCount - 1 &&
                     userData.infiniteScroll &&
                     newPage &&
-                    drag == Drag.Drag
+                    drag == Drag.Dragging
                 ) {
                     index = 0
                 } else if (index == userData.pageCount - 1 &&
                     userData.infiniteScroll &&
-                    drag == Drag.Drag
+                    drag == Drag.Dragging
                 ) {
                     newPage = true
                 } else if (index < userData.pageCount - 1 &&
                     canScroll &&
-                    drag == Drag.Drag
+                    drag == Drag.Dragging
                 ) {
                     index += 1
                 }

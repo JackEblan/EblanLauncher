@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Column
@@ -11,15 +12,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -29,6 +31,7 @@ import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -37,15 +40,13 @@ fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     userData: UserData,
-    screenSize: IntSize,
     drag: Drag,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onLongPressedApplicationInfo: (
+    onDragStart: (
         offset: IntOffset,
         size: IntSize,
-        gridItemLayoutInfo: GridItemLayoutInfo,
+        GridItemLayoutInfo,
     ) -> Unit,
-    onDragStart: () -> Unit,
 ) {
     val page = calculatePage(
         index = currentPage,
@@ -53,9 +54,35 @@ fun ApplicationScreen(
         pageCount = userData.pageCount,
     )
 
+    var data by remember { mutableStateOf<GridItemData?>(null) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start) {
-            onDragStart()
+        if (drag is Drag.Start && data != null) {
+            val addGridItemLayoutInfo = getGridItemLayoutInfo(
+                page = page,
+                rows = userData.rows,
+                columns = userData.columns,
+                x = drag.offset.x.roundToInt(),
+                y = drag.offset.y.roundToInt(),
+                screenSize = drag.size,
+                data = data!!,
+            )
+
+            val size = IntSize(
+                addGridItemLayoutInfo.width,
+                addGridItemLayoutInfo.height,
+            )
+
+            val offset = IntOffset(
+                drag.offset.x.roundToInt() - size.width / 2,
+                drag.offset.y.roundToInt() - size.height / 2,
+            )
+
+            onDragStart(
+                offset,
+                size,
+                addGridItemLayoutInfo,
+            )
         }
     }
 
@@ -64,46 +91,22 @@ fun ApplicationScreen(
         modifier = modifier.fillMaxWidth(),
     ) {
         items(eblanApplicationInfos) { eblanApplicationInfo ->
-            var offset = IntOffset.Zero
-            var intSize = IntSize.Zero
-
             Column(
                 modifier = Modifier
-                    .pointerInput(key1 = eblanApplicationInfo) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val down = awaitFirstDown(requireUnconsumed = false)
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
 
-                                val longPressChange = awaitLongPressOrCancellation(down.id)
+                            val longPressChange = awaitLongPressOrCancellation(down.id)
 
-                                if (longPressChange != null) {
-                                    val data = GridItemData.ApplicationInfo(
-                                        packageName = eblanApplicationInfo.packageName,
-                                        icon = eblanApplicationInfo.icon,
-                                        label = eblanApplicationInfo.label,
-                                    )
-
-                                    onLongPressedApplicationInfo(
-                                        offset,
-                                        intSize,
-                                        getGridItemLayoutInfo(
-                                            page = page,
-                                            rows = userData.rows,
-                                            columns = userData.columns,
-                                            x = offset.x,
-                                            y = offset.y,
-                                            screenSize = screenSize,
-                                            data = data,
-                                        ),
-                                    )
-                                }
+                            if (longPressChange != null) {
+                                data = GridItemData.ApplicationInfo(
+                                    packageName = eblanApplicationInfo.packageName,
+                                    icon = eblanApplicationInfo.icon,
+                                    label = eblanApplicationInfo.label,
+                                )
                             }
                         }
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        offset = layoutCoordinates.positionOnScreen().round()
-
-                        intSize = layoutCoordinates.size
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

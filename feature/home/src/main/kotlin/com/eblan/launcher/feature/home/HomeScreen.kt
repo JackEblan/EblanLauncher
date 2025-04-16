@@ -403,18 +403,12 @@ fun Success(
                     screenSize = screenSize,
                     drag = drag,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    onLongPressedApplicationInfo = { gridItemLayoutInfo ->
+                    onLongPressedApplicationInfo = { offset, size, gridItemLayoutInfo ->
                         addGridItemLayoutInfo = gridItemLayoutInfo
 
-                        dragOffset = IntOffset(
-                            x = gridItemLayoutInfo.x,
-                            y = gridItemLayoutInfo.y,
-                        ).toOffset()
+                        dragOffset = offset.toOffset()
 
-                        overlaySize = IntSize(
-                            width = gridItemLayoutInfo.width,
-                            height = gridItemLayoutInfo.height,
-                        )
+                        overlaySize = size
                     },
                     onDragStart = {
                         onShowGridCache(Screen.Drag)
@@ -429,18 +423,12 @@ fun Success(
                     screenSize = screenSize,
                     drag = drag,
                     appWidgetProviderInfos = appWidgetProviderInfos,
-                    onLongPressAppWidgetProviderInfo = { gridItemLayoutInfo ->
+                    onLongPressAppWidgetProviderInfo = { offset, size, gridItemLayoutInfo ->
                         addGridItemLayoutInfo = gridItemLayoutInfo
 
-                        dragOffset = IntOffset(
-                            x = gridItemLayoutInfo.x,
-                            y = gridItemLayoutInfo.y,
-                        ).toOffset()
+                        dragOffset = offset.toOffset()
 
-                        overlaySize = IntSize(
-                            width = gridItemLayoutInfo.width,
-                            height = gridItemLayoutInfo.height,
-                        )
+                        overlaySize = size
                     },
                     onDragStart = {
                         onShowGridCache(Screen.Drag)

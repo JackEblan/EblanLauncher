@@ -40,7 +40,11 @@ fun ApplicationScreen(
     screenSize: IntSize,
     drag: Drag,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onLongPressedApplicationInfo: (GridItemLayoutInfo) -> Unit,
+    onLongPressedApplicationInfo: (
+        offset: IntOffset,
+        size: IntSize,
+        gridItemLayoutInfo: GridItemLayoutInfo,
+    ) -> Unit,
     onDragStart: () -> Unit,
 ) {
     val page = calculatePage(
@@ -61,6 +65,7 @@ fun ApplicationScreen(
     ) {
         items(eblanApplicationInfos) { eblanApplicationInfo ->
             var offset = IntOffset.Zero
+            var intSize = IntSize.Zero
 
             Column(
                 modifier = Modifier
@@ -69,8 +74,7 @@ fun ApplicationScreen(
                             while (true) {
                                 val down = awaitFirstDown(requireUnconsumed = false)
 
-                                val longPressChange =
-                                    awaitLongPressOrCancellation(down.id)
+                                val longPressChange = awaitLongPressOrCancellation(down.id)
 
                                 if (longPressChange != null) {
                                     val data = GridItemData.ApplicationInfo(
@@ -80,13 +84,15 @@ fun ApplicationScreen(
                                     )
 
                                     onLongPressedApplicationInfo(
+                                        offset,
+                                        intSize,
                                         getGridItemLayoutInfo(
                                             page = page,
                                             rows = userData.rows,
                                             columns = userData.columns,
                                             x = offset.x,
                                             y = offset.y,
-                                            screenSize,
+                                            screenSize = screenSize,
                                             data = data,
                                         ),
                                     )
@@ -96,6 +102,8 @@ fun ApplicationScreen(
                     }
                     .onGloballyPositioned { layoutCoordinates ->
                         offset = layoutCoordinates.positionOnScreen().round()
+
+                        intSize = layoutCoordinates.size
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

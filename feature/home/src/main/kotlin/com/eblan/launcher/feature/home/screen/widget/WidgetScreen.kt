@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
@@ -22,8 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -33,7 +34,6 @@ import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -45,7 +45,11 @@ fun WidgetScreen(
     screenSize: IntSize,
     drag: Drag,
     appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
-    onLongPressAppWidgetProviderInfo: (GridItemLayoutInfo) -> Unit,
+    onLongPressAppWidgetProviderInfo: (
+        offset: IntOffset,
+        size: IntSize,
+        GridItemLayoutInfo,
+    ) -> Unit,
     onDragStart: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -82,7 +86,8 @@ fun WidgetScreen(
                 )
 
                 appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
-                    var appWidgetProviderInfoOffset = Offset.Zero
+                    var offset = IntOffset.Zero
+                    var size = IntSize.Zero
 
                     val previewDpSize = getPreviewDpSize(
                         rows = userData.rows,
@@ -99,26 +104,31 @@ fun WidgetScreen(
                                     while (true) {
                                         val down = awaitFirstDown(requireUnconsumed = false)
 
-                                        val longPressChange =
-                                            awaitLongPressOrCancellation(down.id)
+                                        val longPressChange = awaitLongPressOrCancellation(down.id)
 
                                         if (longPressChange != null) {
                                             val gridItemLayoutInfo = getGridItemLayoutInfo(
                                                 page = page,
                                                 appWidgetProviderInfo = appWidgetProviderInfo,
                                                 userData = userData,
-                                                appWidgetProviderInfoOffset = appWidgetProviderInfoOffset,
+                                                appWidgetProviderInfoOffset = offset,
                                                 screenSize = screenSize,
                                             )
 
-                                            onLongPressAppWidgetProviderInfo(gridItemLayoutInfo)
+                                            onLongPressAppWidgetProviderInfo(
+                                                offset,
+                                                size,
+                                                gridItemLayoutInfo,
+                                            )
                                         }
                                     }
                                 }
                             }
                             .size(previewDpSize)
                             .onGloballyPositioned { layoutCoordinates ->
-                                appWidgetProviderInfoOffset = layoutCoordinates.positionOnScreen()
+                                offset = layoutCoordinates.positionOnScreen().round()
+
+                                size = layoutCoordinates.size
                             },
 
                         model = appWidgetProviderInfo.loadPreviewImage(context, 0),
@@ -180,7 +190,7 @@ private fun getGridItemLayoutInfo(
     page: Int,
     appWidgetProviderInfo: AppWidgetProviderInfo,
     userData: UserData,
-    appWidgetProviderInfoOffset: Offset,
+    appWidgetProviderInfoOffset: IntOffset,
     screenSize: IntSize,
 ): GridItemLayoutInfo {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -189,8 +199,8 @@ private fun getGridItemLayoutInfo(
             componentName = appWidgetProviderInfo.provider.flattenToString(),
             rows = userData.rows,
             columns = userData.columns,
-            x = appWidgetProviderInfoOffset.x.roundToInt(),
-            y = appWidgetProviderInfoOffset.y.roundToInt(),
+            x = appWidgetProviderInfoOffset.x,
+            y = appWidgetProviderInfoOffset.y,
             rowSpan = appWidgetProviderInfo.targetCellHeight,
             columnSpan = appWidgetProviderInfo.targetCellWidth,
             minWidth = appWidgetProviderInfo.minWidth,
@@ -208,8 +218,8 @@ private fun getGridItemLayoutInfo(
             componentName = appWidgetProviderInfo.provider.flattenToString(),
             rows = userData.rows,
             columns = userData.columns,
-            x = appWidgetProviderInfoOffset.x.roundToInt(),
-            y = appWidgetProviderInfoOffset.y.roundToInt(),
+            x = appWidgetProviderInfoOffset.x,
+            y = appWidgetProviderInfoOffset.y,
             rowSpan = 0,
             columnSpan = 0,
             minWidth = appWidgetProviderInfo.minWidth,

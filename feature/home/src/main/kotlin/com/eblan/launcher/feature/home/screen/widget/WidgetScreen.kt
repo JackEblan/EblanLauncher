@@ -20,21 +20,26 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.math.roundToInt
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
-    widgetState: WidgetState,
     currentPage: Int,
     userData: UserData,
     screenSize: IntSize,
@@ -46,10 +51,6 @@ fun WidgetScreen(
     val density = LocalDensity.current
 
     val context = LocalContext.current
-
-    val cellWidth = screenSize.width / userData.columns
-
-    val cellHeight = screenSize.height / userData.rows
 
     val page = calculatePage(
         index = currentPage,
@@ -83,19 +84,13 @@ fun WidgetScreen(
                 appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
                     var appWidgetProviderInfoOffset = Offset.Zero
 
-                    val previewDpSize = with(density) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && appWidgetProviderInfo.targetCellWidth != 0 && appWidgetProviderInfo.targetCellHeight != 0) {
-                            DpSize(
-                                width = (appWidgetProviderInfo.targetCellWidth * cellWidth).toDp(),
-                                height = (appWidgetProviderInfo.targetCellHeight * cellHeight).toDp(),
-                            )
-                        } else {
-                            DpSize(
-                                width = appWidgetProviderInfo.minWidth.toDp(),
-                                height = appWidgetProviderInfo.minHeight.toDp(),
-                            )
-                        }
-                    }
+                    val previewDpSize = getPreviewDpSize(
+                        rows = userData.rows,
+                        columns = userData.columns,
+                        screenSize = screenSize,
+                        density = density,
+                        appWidgetProviderInfo = appWidgetProviderInfo,
+                    )
 
                     AsyncImage(
                         modifier = Modifier
@@ -108,46 +103,13 @@ fun WidgetScreen(
                                             awaitLongPressOrCancellation(down.id)
 
                                         if (longPressChange != null) {
-                                            val gridItemLayoutInfo =
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                                    widgetState.getGridItemLayoutInfo(
-                                                        page = page,
-                                                        componentName = appWidgetProviderInfo.provider.flattenToString(),
-                                                        rows = userData.rows,
-                                                        columns = userData.columns,
-                                                        x = appWidgetProviderInfoOffset.x.roundToInt(),
-                                                        y = appWidgetProviderInfoOffset.y.roundToInt(),
-                                                        rowSpan = appWidgetProviderInfo.targetCellHeight,
-                                                        columnSpan = appWidgetProviderInfo.targetCellWidth,
-                                                        minWidth = appWidgetProviderInfo.minWidth,
-                                                        minHeight = appWidgetProviderInfo.minHeight,
-                                                        resizeMode = appWidgetProviderInfo.resizeMode,
-                                                        minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                                                        minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                                                        maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
-                                                        maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
-                                                        screenSize = screenSize,
-                                                    )
-                                                } else {
-                                                    widgetState.getGridItemLayoutInfo(
-                                                        page = page,
-                                                        componentName = appWidgetProviderInfo.provider.flattenToString(),
-                                                        rows = userData.rows,
-                                                        columns = userData.columns,
-                                                        x = appWidgetProviderInfoOffset.x.roundToInt(),
-                                                        y = appWidgetProviderInfoOffset.y.roundToInt(),
-                                                        rowSpan = 0,
-                                                        columnSpan = 0,
-                                                        minWidth = appWidgetProviderInfo.minWidth,
-                                                        minHeight = appWidgetProviderInfo.minHeight,
-                                                        resizeMode = appWidgetProviderInfo.resizeMode,
-                                                        minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                                                        minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                                                        maxResizeWidth = 0,
-                                                        maxResizeHeight = 0,
-                                                        screenSize = screenSize,
-                                                    )
-                                                }
+                                            val gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                page = page,
+                                                appWidgetProviderInfo = appWidgetProviderInfo,
+                                                userData = userData,
+                                                appWidgetProviderInfoOffset = appWidgetProviderInfoOffset,
+                                                screenSize = screenSize,
+                                            )
 
                                             onLongPressAppWidgetProviderInfo(gridItemLayoutInfo)
                                         }
@@ -186,4 +148,167 @@ fun WidgetScreen(
             }
         }
     }
+}
+
+private fun getPreviewDpSize(
+    rows: Int,
+    columns: Int,
+    screenSize: IntSize,
+    density: Density,
+    appWidgetProviderInfo: AppWidgetProviderInfo,
+): DpSize {
+    val cellWidth = screenSize.width / columns
+
+    val cellHeight = screenSize.height / rows
+
+    return with(density) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && appWidgetProviderInfo.targetCellWidth != 0 && appWidgetProviderInfo.targetCellHeight != 0) {
+            DpSize(
+                width = (appWidgetProviderInfo.targetCellWidth * cellWidth).toDp(),
+                height = (appWidgetProviderInfo.targetCellHeight * cellHeight).toDp(),
+            )
+        } else {
+            DpSize(
+                width = appWidgetProviderInfo.minWidth.toDp(),
+                height = appWidgetProviderInfo.minHeight.toDp(),
+            )
+        }
+    }
+}
+
+private fun getGridItemLayoutInfo(
+    page: Int,
+    appWidgetProviderInfo: AppWidgetProviderInfo,
+    userData: UserData,
+    appWidgetProviderInfoOffset: Offset,
+    screenSize: IntSize,
+): GridItemLayoutInfo {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        getGridItemLayoutInfo(
+            page = page,
+            componentName = appWidgetProviderInfo.provider.flattenToString(),
+            rows = userData.rows,
+            columns = userData.columns,
+            x = appWidgetProviderInfoOffset.x.roundToInt(),
+            y = appWidgetProviderInfoOffset.y.roundToInt(),
+            rowSpan = appWidgetProviderInfo.targetCellHeight,
+            columnSpan = appWidgetProviderInfo.targetCellWidth,
+            minWidth = appWidgetProviderInfo.minWidth,
+            minHeight = appWidgetProviderInfo.minHeight,
+            resizeMode = appWidgetProviderInfo.resizeMode,
+            minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+            minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+            maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+            maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+            screenSize = screenSize,
+        )
+    } else {
+        getGridItemLayoutInfo(
+            page = page,
+            componentName = appWidgetProviderInfo.provider.flattenToString(),
+            rows = userData.rows,
+            columns = userData.columns,
+            x = appWidgetProviderInfoOffset.x.roundToInt(),
+            y = appWidgetProviderInfoOffset.y.roundToInt(),
+            rowSpan = 0,
+            columnSpan = 0,
+            minWidth = appWidgetProviderInfo.minWidth,
+            minHeight = appWidgetProviderInfo.minHeight,
+            resizeMode = appWidgetProviderInfo.resizeMode,
+            minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+            minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+            maxResizeWidth = 0,
+            maxResizeHeight = 0,
+            screenSize = screenSize,
+        )
+    }
+}
+
+@OptIn(ExperimentalUuidApi::class)
+private fun getGridItemLayoutInfo(
+    page: Int,
+    componentName: String,
+    rows: Int,
+    columns: Int,
+    x: Int,
+    y: Int,
+    rowSpan: Int,
+    columnSpan: Int,
+    minWidth: Int,
+    minHeight: Int,
+    resizeMode: Int,
+    minResizeWidth: Int,
+    minResizeHeight: Int,
+    maxResizeWidth: Int,
+    maxResizeHeight: Int,
+    screenSize: IntSize,
+): GridItemLayoutInfo {
+    val cellWidth = screenSize.width / columns
+
+    val cellHeight = screenSize.height / rows
+
+    val newRowSpan = if (rowSpan == 0) {
+        (minHeight + cellHeight - 1) / cellHeight
+    } else {
+        rowSpan
+    }
+
+    val newColumnSpan = if (columnSpan == 0) {
+        (minWidth + cellWidth - 1) / cellWidth
+    } else {
+        columnSpan
+    }
+
+    val newWidth = if (columnSpan == 0) {
+        minWidth
+    } else {
+        columnSpan * cellWidth
+    }
+
+    val newHeight = if (rowSpan == 0) {
+        minHeight
+    } else {
+        rowSpan * cellHeight
+    }
+
+    val (startRow, startColumn) = coordinatesToStartPosition(
+        x = x,
+        y = y,
+        rows = rows,
+        columns = columns,
+        screenWidth = screenSize.width,
+        screenHeight = screenSize.height,
+    )
+
+    val data = GridItemData.Widget(
+        appWidgetId = -1,
+        componentName = componentName,
+        width = newWidth,
+        height = newHeight,
+        resizeMode = resizeMode,
+        minResizeWidth = minResizeWidth,
+        minResizeHeight = minResizeHeight,
+        maxResizeWidth = maxResizeWidth,
+        maxResizeHeight = maxResizeHeight,
+    )
+
+    val gridItem = GridItem(
+        id = Uuid.random().toHexString(),
+        page = page,
+        startRow = startRow,
+        startColumn = startColumn,
+        rowSpan = newRowSpan,
+        columnSpan = newColumnSpan,
+        data = data,
+    )
+
+    return GridItemLayoutInfo(
+        gridItem = gridItem,
+        width = gridItem.columnSpan * cellWidth,
+        height = gridItem.rowSpan * cellHeight,
+        x = gridItem.startColumn * cellWidth,
+        y = gridItem.startRow * cellHeight,
+        screenWidth = screenSize.width,
+        screenHeight = screenSize.height,
+    )
 }

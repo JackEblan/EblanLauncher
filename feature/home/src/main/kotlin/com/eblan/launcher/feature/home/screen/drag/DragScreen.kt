@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -182,7 +185,7 @@ fun DragScreen(
         GridItemOverlay(
             modifier = Modifier.zIndex(1f),
             overlaySize = overlaySize,
-            dragOffset = dragOffset,
+            dragOffset = dragOffset.round(),
         )
 
         AnimatedContent(
@@ -223,31 +226,30 @@ fun DragScreen(
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     overlaySize: IntSize,
-    dragOffset: Offset,
+    dragOffset: IntOffset,
 ) {
     val density = LocalDensity.current
 
-    val boundingBoxWidthDp = with(density) {
+    val width = with(density) {
         overlaySize.width.toDp()
     }
 
-    val boundingBoxHeightDp = with(density) {
+    val height = with(density) {
         overlaySize.height.toDp()
     }
 
-    val widthDp by remember { mutableStateOf(boundingBoxWidthDp) }
-
-    val heightDp by remember { mutableStateOf(boundingBoxHeightDp) }
+    val size by remember {
+        derivedStateOf {
+            DpSize(width = width, height = height)
+        }
+    }
 
     Box(
         modifier = modifier
             .offset {
-                IntOffset(
-                    x = dragOffset.x.roundToInt(),
-                    y = dragOffset.y.roundToInt(),
-                )
+                dragOffset
             }
-            .size(width = widthDp, height = heightDp)
+            .size(size)
             .background(Color.Green),
     ) {
         Text(text = "Drag")

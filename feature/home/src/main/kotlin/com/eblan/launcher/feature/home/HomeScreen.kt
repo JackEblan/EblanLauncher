@@ -59,12 +59,10 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
-import com.eblan.launcher.feature.home.screen.application.rememberApplicationState
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
-import com.eblan.launcher.feature.home.screen.widget.rememberWidgetState
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 
@@ -279,10 +277,6 @@ fun Success(
         }
     }
 
-    val applicationState = rememberApplicationState()
-
-    val widgetState = rememberWidgetState()
-
     LaunchedEffect(key1 = drag) {
         if (addGridItemLayoutInfo != null) {
             if (drag == Drag.End) {
@@ -404,7 +398,6 @@ fun Success(
 
             Screen.Application -> {
                 ApplicationScreen(
-                    applicationState = applicationState,
                     currentPage = pagerState.currentPage,
                     userData = userData,
                     screenSize = screenSize,
@@ -431,7 +424,6 @@ fun Success(
 
             Screen.Widget -> {
                 WidgetScreen(
-                    widgetState = widgetState,
                     currentPage = pagerState.currentPage,
                     userData = userData,
                     screenSize = screenSize,

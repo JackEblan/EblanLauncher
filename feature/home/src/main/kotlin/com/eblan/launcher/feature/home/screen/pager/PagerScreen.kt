@@ -18,7 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.viewinterop.AndroidView
@@ -27,11 +31,11 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @Composable
@@ -45,7 +49,10 @@ fun PagerScreen(
     drag: Drag,
     onDismissRequest: () -> Unit,
     onShowBottomSheet: () -> Unit,
-    onLongPressedGridItem: (GridItemLayoutInfo) -> Unit,
+    onLongPressedGridItem: (
+        imageBitmap: ImageBitmap,
+        gridItemLayoutInfo: GridItemLayoutInfo,
+    ) -> Unit,
     onDragStart: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
@@ -94,7 +101,7 @@ fun PagerScreen(
                             onTap = {
                                 hitCounter += 1
                             },
-                            onLongPress = {
+                            onLongPress = { preview ->
                                 val gridItemLayoutInfo = GridItemLayoutInfo(
                                     gridItem = gridItem,
                                     width = width,
@@ -105,7 +112,10 @@ fun PagerScreen(
                                     screenHeight = screenHeight,
                                 )
 
-                                onLongPressedGridItem(gridItemLayoutInfo)
+                                onLongPressedGridItem(
+                                    preview,
+                                    gridItemLayoutInfo,
+                                )
                             },
                         )
                     }
@@ -116,7 +126,7 @@ fun PagerScreen(
                             onTap = {
                                 hitCounter += 1
                             },
-                            onLongPress = {
+                            onLongPress = { preview ->
                                 val gridItemLayoutInfo = GridItemLayoutInfo(
                                     gridItem = gridItem,
                                     width = width,
@@ -127,7 +137,10 @@ fun PagerScreen(
                                     screenHeight = screenHeight,
                                 )
 
-                                onLongPressedGridItem(gridItemLayoutInfo)
+                                onLongPressedGridItem(
+                                    preview,
+                                    gridItemLayoutInfo,
+                                )
                             },
                         )
                     }
@@ -148,13 +161,15 @@ private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
 ) {
+    val graphicsLayer = rememberGraphicsLayer()
+
     var isLongPress by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = isLongPress) {
         if (isLongPress) {
-            onLongPress()
+            onLongPress(graphicsLayer.toImageBitmap())
 
             isLongPress = false
         }
@@ -162,6 +177,13 @@ private fun ApplicationInfoGridItem(
 
     Column(
         modifier = modifier
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
             .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
@@ -190,7 +212,7 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.Widget,
     onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -200,9 +222,11 @@ private fun WidgetGridItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val graphicsLayer = rememberGraphicsLayer()
+
     LaunchedEffect(key1 = isLongPress) {
         if (isLongPress) {
-            onLongPress()
+            onLongPress(graphicsLayer.toImageBitmap())
 
             isLongPress = false
         }
@@ -232,7 +256,13 @@ private fun WidgetGridItem(
                     setAppWidget(appWidgetId, appWidgetInfo)
                 }
             },
-            modifier = modifier,
+            modifier = modifier.drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            },
         )
     }
 }

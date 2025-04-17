@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
@@ -51,11 +52,11 @@ import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -261,6 +262,8 @@ fun Success(
 
     var addGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
+    var preview by remember { mutableStateOf<ImageBitmap?>(null) }
+
     val scope = rememberCoroutineScope()
 
     val appWidgetManager = LocalAppWidgetManager.current
@@ -371,7 +374,9 @@ fun Success(
                         lastGridItemLayoutInfo = null
                         showBottomSheet = true
                     },
-                    onLongPressedGridItem = { gridItemLayoutInfo ->
+                    onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
+                        preview = imageBitmap
+
                         lastGridItemLayoutInfo = gridItemLayoutInfo
 
                         dragOffset = IntOffset(
@@ -402,6 +407,9 @@ fun Success(
                     userData = userData,
                     drag = drag,
                     eblanApplicationInfos = eblanApplicationInfos,
+                    onLongPressApplicationInfo = { imageBitmap ->
+                        preview = imageBitmap
+                    },
                     onDragStart = { offset, size, gridItemLayoutInfo ->
                         addGridItemLayoutInfo = gridItemLayoutInfo
 
@@ -421,6 +429,9 @@ fun Success(
                     screenSize = screenSize,
                     drag = drag,
                     appWidgetProviderInfos = appWidgetProviderInfos,
+                    onLongPressWidget = { imageBitmap ->
+                        preview = imageBitmap
+                    },
                     onDragStart = { offset, size, gridItemLayoutInfo ->
                         addGridItemLayoutInfo = gridItemLayoutInfo
 
@@ -444,6 +455,7 @@ fun Success(
                     addGridItemLayoutInfo = addGridItemLayoutInfo,
                     drag = drag,
                     overlaySize = overlaySize,
+                    preview = preview,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onDragEnd = { targetPage ->

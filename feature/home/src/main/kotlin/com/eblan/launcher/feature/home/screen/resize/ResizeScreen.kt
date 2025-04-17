@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem

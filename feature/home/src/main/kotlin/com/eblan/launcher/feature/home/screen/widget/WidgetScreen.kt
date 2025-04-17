@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import android.appwidget.AppWidgetProviderInfo
+import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -19,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -28,14 +31,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -49,6 +53,7 @@ fun WidgetScreen(
     screenSize: IntSize,
     drag: Drag,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    onLongPressWidget: (ImageBitmap) -> Unit,
     onDragStart: (
         offset: IntOffset,
         size: IntSize,
@@ -99,6 +104,18 @@ fun WidgetScreen(
         modifier = modifier.fillMaxWidth(),
     ) {
         items(appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
+            var isLongPress by remember { mutableStateOf(false) }
+
+            var preview by remember { mutableStateOf<Drawable?>(null) }
+
+            LaunchedEffect(key1 = isLongPress) {
+                if (isLongPress) {
+                    onLongPressWidget(preview!!.toBitmap().asImageBitmap())
+
+                    isLongPress = false
+                }
+            }
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -131,6 +148,10 @@ fun WidgetScreen(
 
                                     if (longPressChange != null) {
                                         providerInfo = appWidgetProviderInfo
+
+                                        preview = appWidgetProviderInfo.loadPreviewImage(context, 0)
+
+                                        isLongPress = true
                                     }
                                 }
                             }

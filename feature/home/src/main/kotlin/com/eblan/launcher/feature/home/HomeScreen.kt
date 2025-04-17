@@ -111,7 +111,7 @@ fun HomeScreen(
     pageDirection: PageDirection?,
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     gridCacheItems: Map<Int, List<GridItem>>,
     onMoveGridItem: (
         page: Int,
@@ -194,7 +194,7 @@ fun Success(
     userData: UserData,
     pageDirection: PageDirection?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     gridCacheItems: Map<Int, List<GridItem>>,
     onMoveGridItem: (
         page: Int,

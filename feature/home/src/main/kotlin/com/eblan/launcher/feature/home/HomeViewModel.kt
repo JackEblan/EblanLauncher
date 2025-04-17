@@ -65,17 +65,15 @@ class HomeViewModel @Inject constructor(
 
     val appWidgetProviderInfos =
         eblanApplicationInfoRepository.eblanApplicationInfos.map { applicationInfos ->
-            applicationInfos.map { eblanApplicationInfo ->
-                eblanApplicationInfo to appWidgetManagerWrapper.getInstalledProviderByPackageName(
+            applicationInfos.associateWith { eblanApplicationInfo ->
+                appWidgetManagerWrapper.getInstalledProviderByPackageName(
                     packageName = eblanApplicationInfo.packageName,
                 )
-            }.filter { (_, appWidgetProviderInfos) ->
-                appWidgetProviderInfos.isNotEmpty()
-            }
+            }.filterValues { it.isNotEmpty() }
         }.flowOn(Dispatchers.Default).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
+            initialValue = emptyMap(),
         )
 
     val gridCacheItems = gridCacheRepository.gridCacheItems.map { gridItems ->

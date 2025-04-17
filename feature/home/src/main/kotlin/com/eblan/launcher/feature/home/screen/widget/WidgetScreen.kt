@@ -48,7 +48,7 @@ fun WidgetScreen(
     userData: UserData,
     screenSize: IntSize,
     drag: Drag,
-    appWidgetProviderInfos: List<Pair<EblanApplicationInfo, List<AppWidgetProviderInfo>>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     onDragStart: (
         offset: IntOffset,
         size: IntSize,
@@ -98,7 +98,7 @@ fun WidgetScreen(
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
     ) {
-        items(appWidgetProviderInfos) { (eblanApplicationInfo, appWidgetProviderInfos) ->
+        items(appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -112,7 +112,7 @@ fun WidgetScreen(
                     text = eblanApplicationInfo.label,
                 )
 
-                appWidgetProviderInfos.forEach { appWidgetProviderInfo ->
+                appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
                     val previewDpSize = getPreviewDpSize(
                         rows = userData.rows,
                         columns = userData.columns,

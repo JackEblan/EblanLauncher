@@ -18,6 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -27,9 +31,9 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -42,6 +46,7 @@ fun ApplicationScreen(
     userData: UserData,
     drag: Drag,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
         offset: IntOffset,
         size: IntSize,
@@ -91,8 +96,27 @@ fun ApplicationScreen(
         modifier = modifier.fillMaxWidth(),
     ) {
         items(eblanApplicationInfos) { eblanApplicationInfo ->
+            val graphicsLayer = rememberGraphicsLayer()
+
+            var isLongPress by remember { mutableStateOf(false) }
+
+            LaunchedEffect(key1 = isLongPress) {
+                if (isLongPress) {
+                    onLongPressApplicationInfo(graphicsLayer.toImageBitmap())
+
+                    isLongPress = false
+                }
+            }
+
             Column(
                 modifier = Modifier
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+
+                        drawLayer(graphicsLayer)
+                    }
                     .pointerInput(Unit) {
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
@@ -105,6 +129,8 @@ fun ApplicationScreen(
                                     icon = eblanApplicationInfo.icon,
                                     label = eblanApplicationInfo.label,
                                 )
+
+                                isLongPress = true
                             }
                         }
                     },

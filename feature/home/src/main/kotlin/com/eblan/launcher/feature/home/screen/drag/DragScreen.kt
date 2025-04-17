@@ -7,12 +7,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -22,8 +22,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
@@ -32,13 +34,13 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
 import kotlin.math.roundToInt
@@ -55,6 +57,7 @@ fun DragScreen(
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
     overlaySize: IntSize,
+    preview: ImageBitmap?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -182,11 +185,23 @@ fun DragScreen(
             .fillMaxSize()
             .background(Color.Gray),
     ) {
-        GridItemOverlay(
-            modifier = Modifier.zIndex(1f),
-            overlaySize = overlaySize,
-            dragOffset = dragOffset.round(),
-        )
+        if (lastGridItemLayoutInfo != null) {
+            GridItemOverlay(
+                modifier = Modifier.zIndex(1f),
+                preview = preview,
+                gridItemLayoutInfo = lastGridItemLayoutInfo,
+                dragOffset = dragOffset.round(),
+            )
+        }
+
+        if (addGridItemLayoutInfo != null) {
+            AddGridItemOverlay(
+                modifier = Modifier.zIndex(1f),
+                preview = preview,
+                overlaySize = overlaySize,
+                dragOffset = dragOffset.round(),
+            )
+        }
 
         AnimatedContent(
             targetState = index,
@@ -225,6 +240,44 @@ fun DragScreen(
 @Composable
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
+    preview: ImageBitmap?,
+    gridItemLayoutInfo: GridItemLayoutInfo,
+    dragOffset: IntOffset,
+) {
+    val density = LocalDensity.current
+
+    val width = with(density) {
+        gridItemLayoutInfo.width.toDp()
+    }
+
+    val height = with(density) {
+        gridItemLayoutInfo.height.toDp()
+    }
+
+    val size by remember {
+        derivedStateOf {
+            DpSize(width = width, height = height)
+        }
+    }
+
+    if (preview != null) {
+        Image(
+            bitmap = preview,
+            modifier = modifier
+                .offset {
+                    dragOffset
+                }
+                .size(size)
+                .alpha(0.5f),
+            contentDescription = null,
+        )
+    }
+}
+
+@Composable
+private fun AddGridItemOverlay(
+    modifier: Modifier = Modifier,
+    preview: ImageBitmap?,
     overlaySize: IntSize,
     dragOffset: IntOffset,
 ) {
@@ -244,14 +297,16 @@ private fun GridItemOverlay(
         }
     }
 
-    Box(
-        modifier = modifier
-            .offset {
-                dragOffset
-            }
-            .size(size)
-            .background(Color.Green),
-    ) {
-        Text(text = "Drag")
+    if (preview != null) {
+        Image(
+            bitmap = preview,
+            modifier = modifier
+                .offset {
+                    dragOffset
+                }
+                .size(size)
+                .alpha(0.5f),
+            contentDescription = null,
+        )
     }
 }

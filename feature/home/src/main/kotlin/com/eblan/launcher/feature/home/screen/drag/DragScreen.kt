@@ -84,41 +84,21 @@ fun DragScreen(
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
-                if (index == 0 &&
-                    userData.infiniteScroll &&
-                    newPage &&
-                    drag == Drag.Dragging
-                ) {
+                if (index == 0 && userData.infiniteScroll && newPage && drag == Drag.Dragging) {
                     index = userData.pageCount - 1
-                } else if (index == 0 &&
-                    userData.infiniteScroll &&
-                    drag == Drag.Dragging
-                ) {
+                } else if (index == 0 && userData.infiniteScroll && drag == Drag.Dragging) {
                     newPage = true
-                } else if (index > 0 &&
-                    canScroll &&
-                    drag == Drag.Dragging
-                ) {
+                } else if (index > 0 && canScroll && drag == Drag.Dragging) {
                     index -= 1
                 }
             }
 
             PageDirection.Right -> {
-                if (index == userData.pageCount - 1 &&
-                    userData.infiniteScroll &&
-                    newPage &&
-                    drag == Drag.Dragging
-                ) {
+                if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage && drag == Drag.Dragging) {
                     index = 0
-                } else if (index == userData.pageCount - 1 &&
-                    userData.infiniteScroll &&
-                    drag == Drag.Dragging
-                ) {
+                } else if (index == userData.pageCount - 1 && userData.infiniteScroll && drag == Drag.Dragging) {
                     newPage = true
-                } else if (index < userData.pageCount - 1 &&
-                    canScroll &&
-                    drag == Drag.Dragging
-                ) {
+                } else if (index < userData.pageCount - 1 && canScroll && drag == Drag.Dragging) {
                     index += 1
                 }
             }
@@ -246,18 +226,11 @@ private fun GridItemOverlay(
 ) {
     val density = LocalDensity.current
 
-    val width = with(density) {
-        gridItemLayoutInfo.width.toDp()
-    }
-
-    val height = with(density) {
-        gridItemLayoutInfo.height.toDp()
-    }
-
-    val size by remember {
-        derivedStateOf {
-            DpSize(width = width, height = height)
-        }
+    val size = with(density) {
+        DpSize(
+            width = gridItemLayoutInfo.width.toDp(),
+            height = gridItemLayoutInfo.height.toDp(),
+        )
     }
 
     if (preview != null) {

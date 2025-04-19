@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -16,7 +17,6 @@ import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
-import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -44,7 +44,6 @@ class HomeViewModel @Inject constructor(
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
-    private val updateWidgetGridItemDataUseCase: UpdateWidgetGridItemDataUseCase,
     private val userDataRepository: UserDataRepository,
     private val movePageUseCase: MovePageUseCase,
     private val deletePageUseCase: DeletePageUseCase,
@@ -186,9 +185,20 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateWidget(gridItem: GridItem, appWidgetId: Int) {
+    fun updateWidgetGridItem(id: String, data: GridItemData, appWidgetId: Int) {
         viewModelScope.launch {
-            updateWidgetGridItemDataUseCase(gridItem = gridItem, appWidgetId = appWidgetId)
+            if (data is GridItemData.Widget) {
+                gridCacheRepository.updateGridItem(
+                    id = id,
+                    data = data.copy(appWidgetId = appWidgetId),
+                )
+            }
+        }
+    }
+
+    fun deleteGridItem(gridItem: GridItem) {
+        viewModelScope.launch {
+            gridCacheRepository.deleteGridItem(gridItem = gridItem)
         }
     }
 

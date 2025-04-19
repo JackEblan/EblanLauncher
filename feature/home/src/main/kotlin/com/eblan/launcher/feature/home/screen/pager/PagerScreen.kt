@@ -44,7 +44,7 @@ fun PagerScreen(
     pagerState: PagerState,
     userData: UserData,
     gridItems: Map<Int, List<GridItem>>,
-    lastGridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
     drag: Drag,
     onDismissRequest: () -> Unit,
@@ -89,7 +89,7 @@ fun PagerScreen(
             page = page,
             rows = userData.rows,
             columns = userData.columns,
-            lastGridItemLayoutInfo = lastGridItemLayoutInfo,
+            gridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
             showMenu = showMenu,
             onDismissRequest = onDismissRequest,
@@ -102,19 +102,17 @@ fun PagerScreen(
                                 hitCounter += 1
                             },
                             onLongPress = { preview ->
-                                val gridItemLayoutInfo = GridItemLayoutInfo(
-                                    gridItem = gridItem,
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y,
-                                    screenWidth = screenWidth,
-                                    screenHeight = screenHeight,
-                                )
-
                                 onLongPressedGridItem(
                                     preview,
-                                    gridItemLayoutInfo,
+                                    GridItemLayoutInfo(
+                                        gridItem = gridItem,
+                                        width = width,
+                                        height = height,
+                                        x = x,
+                                        y = y,
+                                        screenWidth = screenWidth,
+                                        screenHeight = screenHeight,
+                                    ),
                                 )
                             },
                         )
@@ -127,19 +125,17 @@ fun PagerScreen(
                                 hitCounter += 1
                             },
                             onLongPress = { preview ->
-                                val gridItemLayoutInfo = GridItemLayoutInfo(
-                                    gridItem = gridItem,
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y,
-                                    screenWidth = screenWidth,
-                                    screenHeight = screenHeight,
-                                )
-
                                 onLongPressedGridItem(
                                     preview,
-                                    gridItemLayoutInfo,
+                                    GridItemLayoutInfo(
+                                        gridItem = gridItem,
+                                        width = width,
+                                        height = height,
+                                        x = x,
+                                        y = y,
+                                        screenWidth = screenWidth,
+                                        screenHeight = screenHeight,
+                                    ),
                                 )
                             },
                         )

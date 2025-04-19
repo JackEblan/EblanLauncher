@@ -22,7 +22,7 @@ fun ResizeScreen(
     currentPage: Int,
     userData: UserData,
     gridItems: Map<Int, List<GridItem>>,
-    lastGridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -56,7 +56,7 @@ fun ResizeScreen(
         page = page,
         rows = userData.rows,
         columns = userData.columns,
-        lastGridItemLayoutInfo = lastGridItemLayoutInfo,
+        lastGridItemLayoutInfo = gridItemLayoutInfo,
         gridItems = gridItems,
         onResizeGridItem = onResizeGridItem,
         onResizeWidgetGridItem = onResizeWidgetGridItem,

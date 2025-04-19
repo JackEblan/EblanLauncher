@@ -1,6 +1,7 @@
 package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -22,6 +23,34 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
 
     override suspend fun insertGridItems(gridItems: List<GridItem>) {
         _gridCacheItems.emit(gridItems)
+    }
+
+    override suspend fun updateGridItem(id: String, data: GridItemData) {
+        val updatedGridItems = currentGridCacheItems.toMutableList()
+
+        withContext(Dispatchers.Default) {
+            val index = updatedGridItems.indexOfFirst { it.id == id }
+
+            if (index != -1) {
+                updatedGridItems[index] = updatedGridItems[index].copy(data = data)
+            }
+
+            _gridCacheItems.emit(updatedGridItems)
+        }
+    }
+
+    override suspend fun deleteGridItem(gridItem: GridItem) {
+        val updatedGridItems = currentGridCacheItems.toMutableList()
+
+        withContext(Dispatchers.Default) {
+            val index = updatedGridItems.indexOfFirst { it.id == gridItem.id }
+
+            if (index != -1) {
+                updatedGridItems.removeAt(index)
+            }
+
+            _gridCacheItems.emit(updatedGridItems)
+        }
     }
 
     override suspend fun updateGridItems(gridItems: List<GridItem>) {

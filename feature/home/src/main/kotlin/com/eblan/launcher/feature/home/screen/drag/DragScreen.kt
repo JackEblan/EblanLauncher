@@ -1,5 +1,11 @@
 package com.eblan.launcher.feature.home.screen.drag
 
+import android.app.Activity
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -29,15 +35,17 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.GridItemSource
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
@@ -52,11 +60,10 @@ fun DragScreen(
     currentPage: Int,
     userData: UserData,
     dragOffset: Offset,
-    lastGridItemLayoutInfo: GridItemLayoutInfo?,
-    addGridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItemSource: GridItemSource?,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
-    overlaySize: IntSize,
     preview: ImageBitmap?,
     onMoveGridItem: (
         page: Int,
@@ -67,6 +74,12 @@ fun DragScreen(
         screenHeight: Int,
     ) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
+    onUpdateWidget: (
+        id: String,
+        data: GridItemData,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
     val page = calculatePage(
@@ -80,6 +93,33 @@ fun DragScreen(
     var newPage by remember { mutableStateOf(false) }
 
     var canScroll by remember { mutableStateOf(true) }
+
+    var appWidgetId by remember { mutableIntStateOf(0) }
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        appWidgetId = if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        } else {
+            -1
+        }
+    }
+
+    val targetPage by remember {
+        derivedStateOf {
+            calculateTargetPage(
+                currentPage = currentPage,
+                index = index,
+                infiniteScroll = userData.infiniteScroll,
+                pageCount = userData.pageCount,
+            )
+        }
+    }
 
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
@@ -124,37 +164,86 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = dragOffset) {
-        if (lastGridItemLayoutInfo != null) {
+        if (gridItemLayoutInfo != null) {
             onMoveGridItem(
                 index,
-                lastGridItemLayoutInfo.gridItem,
+                gridItemLayoutInfo.gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
-                lastGridItemLayoutInfo.screenWidth,
-                lastGridItemLayoutInfo.screenHeight,
-            )
-        }
-
-        if (addGridItemLayoutInfo != null) {
-            onMoveGridItem(
-                index,
-                addGridItemLayoutInfo.gridItem,
-                dragOffset.x.roundToInt(),
-                dragOffset.y.roundToInt(),
-                addGridItemLayoutInfo.screenWidth,
-                addGridItemLayoutInfo.screenHeight,
+                gridItemLayoutInfo.screenWidth,
+                gridItemLayoutInfo.screenHeight,
             )
         }
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.End || drag == Drag.Cancel) {
-            val targetPage = calculateTargetPage(
-                currentPage = currentPage,
-                index = index,
-                infiniteScroll = userData.infiniteScroll,
-                pageCount = userData.pageCount,
+        when (gridItemSource) {
+            GridItemSource.New -> {
+                if (gridItemLayoutInfo != null && drag == Drag.End) {
+                    when (val data = gridItemLayoutInfo.gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            onDragEnd(targetPage)
+                        }
+
+                        is GridItemData.Widget -> {
+                            val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
+
+                            val provider = ComponentName.unflattenFromString(data.componentName)
+
+                            if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                                    appWidgetId = allocateAppWidgetId,
+                                    provider = provider,
+                                )
+                            ) {
+                                onUpdateWidget(
+                                    gridItemLayoutInfo.gridItem.id,
+                                    gridItemLayoutInfo.gridItem.data,
+                                    allocateAppWidgetId,
+                                )
+
+                                onDragEnd(targetPage)
+                            } else {
+                                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                                    putExtra(
+                                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                        allocateAppWidgetId,
+                                    )
+                                    putExtra(
+                                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                                        provider,
+                                    )
+                                }
+
+                                appWidgetLauncher.launch(intent)
+                            }
+                        }
+                    }
+                }
+            }
+
+            GridItemSource.Existing -> {
+                if (gridItemLayoutInfo != null && drag == Drag.End) {
+                    onDragEnd(targetPage)
+                }
+            }
+
+            null -> Unit
+        }
+    }
+
+    LaunchedEffect(key1 = appWidgetId) {
+        if (gridItemLayoutInfo != null && appWidgetId > 0) {
+            onUpdateWidget(
+                gridItemLayoutInfo.gridItem.id,
+                gridItemLayoutInfo.gridItem.data,
+                appWidgetId,
             )
+
+            onDragEnd(targetPage)
+        }
+
+        if (gridItemLayoutInfo != null && appWidgetId < 0) {
+            onDeleteGridItem(gridItemLayoutInfo.gridItem)
 
             onDragEnd(targetPage)
         }
@@ -165,20 +254,10 @@ fun DragScreen(
             .fillMaxSize()
             .background(Color.Gray),
     ) {
-        if (lastGridItemLayoutInfo != null) {
+        if (gridItemLayoutInfo != null) {
             GridItemOverlay(
-                modifier = Modifier.zIndex(1f),
                 preview = preview,
-                gridItemLayoutInfo = lastGridItemLayoutInfo,
-                dragOffset = dragOffset.round(),
-            )
-        }
-
-        if (addGridItemLayoutInfo != null) {
-            AddGridItemOverlay(
-                modifier = Modifier.zIndex(1f),
-                preview = preview,
-                overlaySize = overlaySize,
+                gridItemLayoutInfo = gridItemLayoutInfo,
                 dragOffset = dragOffset.round(),
             )
         }
@@ -241,44 +320,8 @@ private fun GridItemOverlay(
                     dragOffset
                 }
                 .size(size)
-                .alpha(0.5f),
-            contentDescription = null,
-        )
-    }
-}
-
-@Composable
-private fun AddGridItemOverlay(
-    modifier: Modifier = Modifier,
-    preview: ImageBitmap?,
-    overlaySize: IntSize,
-    dragOffset: IntOffset,
-) {
-    val density = LocalDensity.current
-
-    val width = with(density) {
-        overlaySize.width.toDp()
-    }
-
-    val height = with(density) {
-        overlaySize.height.toDp()
-    }
-
-    val size by remember {
-        derivedStateOf {
-            DpSize(width = width, height = height)
-        }
-    }
-
-    if (preview != null) {
-        Image(
-            bitmap = preview,
-            modifier = modifier
-                .offset {
-                    dragOffset
-                }
-                .size(size)
-                .alpha(0.5f),
+                .alpha(0.5f)
+                .zIndex(1f),
             contentDescription = null,
         )
     }

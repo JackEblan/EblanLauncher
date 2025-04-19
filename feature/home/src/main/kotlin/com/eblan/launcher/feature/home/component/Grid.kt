@@ -17,7 +17,7 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    lastGridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     onDismissRequest: () -> Unit,
@@ -63,9 +63,7 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                val gridItemOverlay = lastGridItemLayoutInfo?.gridItem?.id == gridItem.id
-
-                if (showMenu && gridItemOverlay) {
+                if (showMenu && gridItemLayoutInfo?.gridItem?.id == gridItem.id) {
                     subcompose("Menu") {
                         GridItemMenu(
                             cellWidth = cellWidth,

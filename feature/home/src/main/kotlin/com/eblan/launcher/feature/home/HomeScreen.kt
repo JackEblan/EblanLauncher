@@ -1,12 +1,6 @@
 package com.eblan.launcher.feature.home
 
-import android.app.Activity
-import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
-import android.content.ComponentName
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -29,7 +23,6 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,8 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -54,6 +45,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.component.GridItemSource
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -94,7 +86,8 @@ fun HomeRoute(
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
-        onUpdateWidget = viewModel::updateWidget,
+        onUpdateWidget = viewModel::updateWidgetGridItem,
+        onDeleteGridItem = viewModel::deleteGridItem,
         onUpdatePageCount = viewModel::updatePageCount,
         onDeletePage = viewModel::deletePage,
         onShowGridCache = viewModel::showGridCache,
@@ -139,7 +132,12 @@ fun HomeScreen(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
+    onUpdateWidget: (
+        id: String,
+        data: GridItemData,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onDeletePage: (Int) -> Unit,
     onShowGridCache: (Screen) -> Unit,
@@ -172,6 +170,7 @@ fun HomeScreen(
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
                         onUpdateWidget = onUpdateWidget,
+                        onDeleteGridItem = onDeleteGridItem,
                         onUpdatePageCount = onUpdatePageCount,
                         onDeletePage = onDeletePage,
                         onShowGridCache = onShowGridCache,
@@ -222,7 +221,12 @@ fun Success(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onUpdateWidget: (gridItem: GridItem, appWidgetId: Int) -> Unit,
+    onUpdateWidget: (
+        id: String,
+        data: GridItemData,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onDeletePage: (Int) -> Unit,
     onShowGridCache: (Screen) -> Unit,
@@ -253,81 +257,13 @@ fun Success(
 
     var drag by remember { mutableStateOf<Drag>(Drag.None) }
 
-    var appWidgetId by remember { mutableStateOf<Int?>(null) }
-
-    var lastGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
-
-    var addGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
+    var selectedGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
+    var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
+
     val scope = rememberCoroutineScope()
-
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
-    val appWidgetLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-    ) { result ->
-        appWidgetId = if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-        } else {
-            -1
-        }
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (addGridItemLayoutInfo != null) {
-            if (drag is Drag.End) {
-                when (val data = addGridItemLayoutInfo!!.gridItem.data) {
-                    is GridItemData.ApplicationInfo -> {
-                        addGridItemLayoutInfo = null
-                    }
-
-                    is GridItemData.Widget -> {
-                        val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
-
-                        val provider = ComponentName.unflattenFromString(data.componentName)
-
-                        if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                                appWidgetId = allocateAppWidgetId,
-                                provider = provider,
-                            )
-                        ) {
-                            onUpdateWidget(
-                                addGridItemLayoutInfo!!.gridItem,
-                                allocateAppWidgetId,
-                            )
-                        } else {
-                            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                                putExtra(
-                                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                    allocateAppWidgetId,
-                                )
-                                putExtra(
-                                    AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                                    provider,
-                                )
-                            }
-
-                            appWidgetLauncher.launch(intent)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(key1 = appWidgetId) {
-        if (addGridItemLayoutInfo != null && appWidgetId != null) {
-            onUpdateWidget(addGridItemLayoutInfo!!.gridItem, appWidgetId!!)
-
-            appWidgetId = null
-
-            addGridItemLayoutInfo = null
-        }
-    }
 
     Box(
         modifier = modifier
@@ -344,6 +280,7 @@ fun Success(
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
+
                         dragOffset += dragAmount
 
                         drag = Drag.Dragging
@@ -356,7 +293,7 @@ fun Success(
             Screen.Pager -> {
                 PagerScreen(
                     pagerState = pagerState,
-                    lastGridItemLayoutInfo = lastGridItemLayoutInfo,
+                    gridItemLayoutInfo = selectedGridItemLayoutInfo,
                     userData = userData,
                     gridItems = gridItems,
                     showMenu = showMenu,
@@ -365,13 +302,16 @@ fun Success(
                         showMenu = false
                     },
                     onShowBottomSheet = {
-                        lastGridItemLayoutInfo = null
+                        selectedGridItemLayoutInfo = null
+
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
                         preview = imageBitmap
 
-                        lastGridItemLayoutInfo = gridItemLayoutInfo
+                        selectedGridItemLayoutInfo = gridItemLayoutInfo
+
+                        gridItemSource = GridItemSource.Existing
 
                         dragOffset = IntOffset(
                             x = gridItemLayoutInfo.x,
@@ -405,7 +345,9 @@ fun Success(
                         preview = imageBitmap
                     },
                     onDragStart = { offset, size, gridItemLayoutInfo ->
-                        addGridItemLayoutInfo = gridItemLayoutInfo
+                        selectedGridItemLayoutInfo = gridItemLayoutInfo
+
+                        gridItemSource = GridItemSource.New
 
                         dragOffset = offset.toOffset()
 
@@ -426,7 +368,9 @@ fun Success(
                         preview = imageBitmap
                     },
                     onDragStart = { offset, size, gridItemLayoutInfo ->
-                        addGridItemLayoutInfo = gridItemLayoutInfo
+                        selectedGridItemLayoutInfo = gridItemLayoutInfo
+
+                        gridItemSource = GridItemSource.New
 
                         dragOffset = offset.toOffset()
 
@@ -444,13 +388,14 @@ fun Success(
                     userData = userData,
                     gridItems = gridCacheItems,
                     dragOffset = dragOffset,
-                    lastGridItemLayoutInfo = lastGridItemLayoutInfo,
-                    addGridItemLayoutInfo = addGridItemLayoutInfo,
+                    gridItemSource = gridItemSource,
+                    gridItemLayoutInfo = selectedGridItemLayoutInfo,
                     drag = drag,
-                    overlaySize = overlaySize,
                     preview = preview,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
+                    onUpdateWidget = onUpdateWidget,
+                    onDeleteGridItem = onDeleteGridItem,
                     onDragEnd = { targetPage ->
                         showMenu = true
 
@@ -466,7 +411,7 @@ fun Success(
             Screen.Resize -> {
                 ResizeScreen(
                     currentPage = pagerState.currentPage,
-                    lastGridItemLayoutInfo = lastGridItemLayoutInfo,
+                    gridItemLayoutInfo = selectedGridItemLayoutInfo,
                     userData = userData,
                     gridItems = gridCacheItems,
                     onResizeGridItem = onResizeGridItem,

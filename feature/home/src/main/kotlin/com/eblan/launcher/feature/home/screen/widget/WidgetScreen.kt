@@ -3,6 +3,7 @@ package com.eblan.launcher.feature.home.screen.widget
 import android.appwidget.AppWidgetProviderInfo
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.DisplayMetrics
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
@@ -24,9 +25,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -50,7 +48,6 @@ fun WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     userData: UserData,
-    screenSize: IntSize,
     drag: Drag,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     onLongPressWidget: (ImageBitmap) -> Unit,
@@ -60,8 +57,6 @@ fun WidgetScreen(
         GridItemLayoutInfo,
     ) -> Unit,
 ) {
-    val density = LocalDensity.current
-
     val context = LocalContext.current
 
     val page = calculatePage(
@@ -130,14 +125,6 @@ fun WidgetScreen(
                 )
 
                 appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
-                    val previewDpSize = getPreviewDpSize(
-                        rows = userData.rows,
-                        columns = userData.columns,
-                        screenSize = screenSize,
-                        density = density,
-                        appWidgetProviderInfo = appWidgetProviderInfo,
-                    )
-
                     AsyncImage(
                         modifier = Modifier
                             .pointerInput(Unit) {
@@ -154,9 +141,14 @@ fun WidgetScreen(
                                         isLongPress = true
                                     }
                                 }
-                            }
-                            .size(previewDpSize),
-                        model = appWidgetProviderInfo.loadPreviewImage(context, 0),
+                            },
+                        model = appWidgetProviderInfo.loadPreviewImage(
+                            context,
+                            DisplayMetrics.DENSITY_DEFAULT,
+                        ) ?: appWidgetProviderInfo.loadIcon(
+                            context,
+                            DisplayMetrics.DENSITY_DEFAULT,
+                        ),
                         contentDescription = null,
                     )
 
@@ -181,32 +173,6 @@ fun WidgetScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-private fun getPreviewDpSize(
-    rows: Int,
-    columns: Int,
-    screenSize: IntSize,
-    density: Density,
-    appWidgetProviderInfo: AppWidgetProviderInfo,
-): DpSize {
-    val cellWidth = screenSize.width / columns
-
-    val cellHeight = screenSize.height / rows
-
-    return with(density) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && appWidgetProviderInfo.targetCellWidth != 0 && appWidgetProviderInfo.targetCellHeight != 0) {
-            DpSize(
-                width = (appWidgetProviderInfo.targetCellWidth * cellWidth).toDp(),
-                height = (appWidgetProviderInfo.targetCellHeight * cellHeight).toDp(),
-            )
-        } else {
-            DpSize(
-                width = appWidgetProviderInfo.minWidth.toDp(),
-                height = appWidgetProviderInfo.minHeight.toDp(),
-            )
         }
     }
 }

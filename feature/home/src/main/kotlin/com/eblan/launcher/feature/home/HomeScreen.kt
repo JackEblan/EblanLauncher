@@ -39,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -254,8 +253,6 @@ fun Success(
 
     var drag by remember { mutableStateOf<Drag>(Drag.None) }
 
-    var screenSize by remember { mutableStateOf(IntSize.Zero) }
-
     var appWidgetId by remember { mutableStateOf<Int?>(null) }
 
     var lastGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
@@ -353,10 +350,7 @@ fun Success(
                     },
                 )
             }
-            .fillMaxSize()
-            .onSizeChanged { intSize ->
-                screenSize = intSize
-            },
+            .fillMaxSize(),
     ) {
         when (screen) {
             Screen.Pager -> {
@@ -426,7 +420,6 @@ fun Success(
                 WidgetScreen(
                     currentPage = pagerState.currentPage,
                     userData = userData,
-                    screenSize = screenSize,
                     drag = drag,
                     appWidgetProviderInfos = appWidgetProviderInfos,
                     onLongPressWidget = { imageBitmap ->

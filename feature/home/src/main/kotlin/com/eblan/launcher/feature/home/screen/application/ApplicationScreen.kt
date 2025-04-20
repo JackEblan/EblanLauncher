@@ -31,7 +31,6 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -43,7 +42,10 @@ import kotlin.uuid.Uuid
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    userData: UserData,
+    rows: Int,
+    columns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
     drag: Drag,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
@@ -55,8 +57,8 @@ fun ApplicationScreen(
 ) {
     val page = calculatePage(
         index = currentPage,
-        infiniteScroll = userData.infiniteScroll,
-        pageCount = userData.pageCount,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
     )
 
     var data by remember { mutableStateOf<GridItemData?>(null) }
@@ -65,8 +67,8 @@ fun ApplicationScreen(
         if (drag is Drag.Start && data != null) {
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
-                rows = userData.rows,
-                columns = userData.columns,
+                rows = rows,
+                columns = columns,
                 x = drag.offset.x.roundToInt(),
                 y = drag.offset.y.roundToInt(),
                 screenSize = drag.size,

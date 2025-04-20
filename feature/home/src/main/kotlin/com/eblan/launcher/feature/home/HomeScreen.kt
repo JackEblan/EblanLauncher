@@ -45,9 +45,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.component.GridItemSource
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -257,8 +256,6 @@ fun Success(
 
     var drag by remember { mutableStateOf<Drag>(Drag.None) }
 
-    var selectedGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
-
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
@@ -293,8 +290,11 @@ fun Success(
             Screen.Pager -> {
                 PagerScreen(
                     pagerState = pagerState,
-                    gridItemLayoutInfo = selectedGridItemLayoutInfo,
-                    userData = userData,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
+                    gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
                     showMenu = showMenu,
                     drag = drag,
@@ -302,16 +302,17 @@ fun Success(
                         showMenu = false
                     },
                     onShowBottomSheet = {
-                        selectedGridItemLayoutInfo = null
+                        gridItemSource = null
 
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
                         preview = imageBitmap
 
-                        selectedGridItemLayoutInfo = gridItemLayoutInfo
-
-                        gridItemSource = GridItemSource.Existing
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.Old,
+                        )
 
                         dragOffset = IntOffset(
                             x = gridItemLayoutInfo.x,
@@ -338,16 +339,20 @@ fun Success(
             Screen.Application -> {
                 ApplicationScreen(
                     currentPage = pagerState.currentPage,
-                    userData = userData,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
                     drag = drag,
                     eblanApplicationInfos = eblanApplicationInfos,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
                     },
                     onDragStart = { offset, size, gridItemLayoutInfo ->
-                        selectedGridItemLayoutInfo = gridItemLayoutInfo
-
-                        gridItemSource = GridItemSource.New
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.New,
+                        )
 
                         dragOffset = offset.toOffset()
 
@@ -361,16 +366,20 @@ fun Success(
             Screen.Widget -> {
                 WidgetScreen(
                     currentPage = pagerState.currentPage,
-                    userData = userData,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
                     drag = drag,
                     appWidgetProviderInfos = appWidgetProviderInfos,
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
                     },
                     onDragStart = { offset, size, gridItemLayoutInfo ->
-                        selectedGridItemLayoutInfo = gridItemLayoutInfo
-
-                        gridItemSource = GridItemSource.New
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.New,
+                        )
 
                         dragOffset = offset.toOffset()
 
@@ -385,11 +394,13 @@ fun Success(
                 DragScreen(
                     pageDirection = pageDirection,
                     currentPage = pagerState.currentPage,
-                    userData = userData,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
                     gridItems = gridCacheItems,
                     dragOffset = dragOffset,
                     gridItemSource = gridItemSource,
-                    gridItemLayoutInfo = selectedGridItemLayoutInfo,
                     drag = drag,
                     preview = preview,
                     onMoveGridItem = onMoveGridItem,
@@ -411,8 +422,11 @@ fun Success(
             Screen.Resize -> {
                 ResizeScreen(
                     currentPage = pagerState.currentPage,
-                    gridItemLayoutInfo = selectedGridItemLayoutInfo,
-                    userData = userData,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
+                    gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridCacheItems,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,

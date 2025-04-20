@@ -8,19 +8,21 @@ import androidx.compose.ui.graphics.Color
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    userData: UserData,
+    rows: Int,
+    columns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     onResizeGridItem: (
@@ -45,8 +47,8 @@ fun ResizeScreen(
 ) {
     val page = calculatePage(
         index = currentPage,
-        infiniteScroll = userData.infiniteScroll,
-        pageCount = userData.pageCount,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
     )
 
     ResizeGridSubcomposeLayout(
@@ -54,8 +56,8 @@ fun ResizeScreen(
             .fillMaxSize()
             .background(Color.Gray),
         page = page,
-        rows = userData.rows,
-        columns = userData.columns,
+        rows = rows,
+        columns = columns,
         lastGridItemLayoutInfo = gridItemLayoutInfo,
         gridItems = gridItems,
         onResizeGridItem = onResizeGridItem,

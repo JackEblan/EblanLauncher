@@ -31,7 +31,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
@@ -42,7 +41,10 @@ import com.eblan.launcher.feature.home.util.calculatePage
 fun PagerScreen(
     modifier: Modifier = Modifier,
     pagerState: PagerState,
-    userData: UserData,
+    rows: Int,
+    columns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
@@ -72,8 +74,8 @@ fun PagerScreen(
     HorizontalPager(state = pagerState) { index ->
         val page = calculatePage(
             index = index,
-            infiniteScroll = userData.infiniteScroll,
-            pageCount = userData.pageCount,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
         )
 
         GridSubcomposeLayout(
@@ -87,8 +89,8 @@ fun PagerScreen(
                 }
                 .fillMaxSize(),
             page = page,
-            rows = userData.rows,
-            columns = userData.columns,
+            rows = rows,
+            columns = columns,
             gridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
             showMenu = showMenu,

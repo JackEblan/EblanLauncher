@@ -35,7 +35,6 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -47,7 +46,10 @@ import kotlin.uuid.Uuid
 fun WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    userData: UserData,
+    rows: Int,
+    columns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
     drag: Drag,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     onLongPressWidget: (ImageBitmap) -> Unit,
@@ -61,8 +63,8 @@ fun WidgetScreen(
 
     val page = calculatePage(
         index = currentPage,
-        infiniteScroll = userData.infiniteScroll,
-        pageCount = userData.pageCount,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
     )
 
     var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
@@ -72,7 +74,8 @@ fun WidgetScreen(
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 appWidgetProviderInfo = providerInfo!!,
-                userData = userData,
+                rows = rows,
+                columns = columns,
                 appWidgetProviderInfoOffset = drag.offset.round(),
                 screenSize = drag.size,
             )
@@ -180,7 +183,8 @@ fun WidgetScreen(
 private fun getGridItemLayoutInfo(
     page: Int,
     appWidgetProviderInfo: AppWidgetProviderInfo,
-    userData: UserData,
+    rows: Int,
+    columns: Int,
     appWidgetProviderInfoOffset: IntOffset,
     screenSize: IntSize,
 ): GridItemLayoutInfo {
@@ -188,8 +192,8 @@ private fun getGridItemLayoutInfo(
         getGridItemLayoutInfo(
             page = page,
             componentName = appWidgetProviderInfo.provider.flattenToString(),
-            rows = userData.rows,
-            columns = userData.columns,
+            rows = rows,
+            columns = columns,
             x = appWidgetProviderInfoOffset.x,
             y = appWidgetProviderInfoOffset.y,
             rowSpan = appWidgetProviderInfo.targetCellHeight,
@@ -207,8 +211,8 @@ private fun getGridItemLayoutInfo(
         getGridItemLayoutInfo(
             page = page,
             componentName = appWidgetProviderInfo.provider.flattenToString(),
-            rows = userData.rows,
-            columns = userData.columns,
+            rows = rows,
+            columns = columns,
             x = appWidgetProviderInfoOffset.x,
             y = appWidgetProviderInfoOffset.y,
             rowSpan = 0,

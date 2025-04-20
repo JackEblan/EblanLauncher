@@ -42,13 +42,12 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.GridItemSource
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
 import kotlin.math.roundToInt
@@ -58,10 +57,12 @@ fun DragScreen(
     modifier: Modifier = Modifier,
     pageDirection: PageDirection?,
     currentPage: Int,
-    userData: UserData,
+    rows: Int,
+    columns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
     dragOffset: Offset,
     gridItemSource: GridItemSource?,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
     preview: ImageBitmap?,
@@ -84,8 +85,8 @@ fun DragScreen(
 ) {
     val page = calculatePage(
         index = currentPage,
-        infiniteScroll = userData.infiniteScroll,
-        pageCount = userData.pageCount,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
     )
 
     var index by remember { mutableIntStateOf(page) }
@@ -115,8 +116,8 @@ fun DragScreen(
             calculateTargetPage(
                 currentPage = currentPage,
                 index = index,
-                infiniteScroll = userData.infiniteScroll,
-                pageCount = userData.pageCount,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
             )
         }
     }
@@ -124,9 +125,9 @@ fun DragScreen(
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
-                if (index == 0 && userData.infiniteScroll && newPage && drag == Drag.Dragging) {
-                    index = userData.pageCount - 1
-                } else if (index == 0 && userData.infiniteScroll && drag == Drag.Dragging) {
+                if (index == 0 && infiniteScroll && newPage && drag == Drag.Dragging) {
+                    index = pageCount - 1
+                } else if (index == 0 && infiniteScroll && drag == Drag.Dragging) {
                     newPage = true
                 } else if (index > 0 && canScroll && drag == Drag.Dragging) {
                     index -= 1
@@ -134,11 +135,11 @@ fun DragScreen(
             }
 
             PageDirection.Right -> {
-                if (index == userData.pageCount - 1 && userData.infiniteScroll && newPage && drag == Drag.Dragging) {
+                if (index == pageCount - 1 && infiniteScroll && newPage && drag == Drag.Dragging) {
                     index = 0
-                } else if (index == userData.pageCount - 1 && userData.infiniteScroll && drag == Drag.Dragging) {
+                } else if (index == pageCount - 1 && infiniteScroll && drag == Drag.Dragging) {
                     newPage = true
-                } else if (index < userData.pageCount - 1 && canScroll && drag == Drag.Dragging) {
+                } else if (index < pageCount - 1 && canScroll && drag == Drag.Dragging) {
                     index += 1
                 }
             }
@@ -151,36 +152,36 @@ fun DragScreen(
         if (newPage) {
             canScroll = false
 
-            onUpdatePageCount(userData.pageCount + 1)
+            onUpdatePageCount(pageCount + 1)
         }
     }
 
-    LaunchedEffect(key1 = userData.pageCount) {
+    LaunchedEffect(key1 = pageCount) {
         if (newPage) {
-            index = userData.pageCount - 1
+            index = pageCount - 1
 
             canScroll = true
         }
     }
 
     LaunchedEffect(key1 = dragOffset) {
-        if (gridItemLayoutInfo != null) {
+        if (gridItemSource?.gridItemLayoutInfo != null) {
             onMoveGridItem(
                 index,
-                gridItemLayoutInfo.gridItem,
+                gridItemSource.gridItemLayoutInfo.gridItem,
                 dragOffset.x.roundToInt(),
                 dragOffset.y.roundToInt(),
-                gridItemLayoutInfo.screenWidth,
-                gridItemLayoutInfo.screenHeight,
+                gridItemSource.gridItemLayoutInfo.screenWidth,
+                gridItemSource.gridItemLayoutInfo.screenHeight,
             )
         }
     }
 
     LaunchedEffect(key1 = drag) {
-        when (gridItemSource) {
-            GridItemSource.New -> {
-                if (gridItemLayoutInfo != null && drag == Drag.End) {
-                    when (val data = gridItemLayoutInfo.gridItem.data) {
+        when (gridItemSource?.type) {
+            GridItemSource.Type.New -> {
+                if (drag == Drag.End) {
+                    when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             onDragEnd(targetPage)
                         }
@@ -196,8 +197,8 @@ fun DragScreen(
                                 )
                             ) {
                                 onUpdateWidget(
-                                    gridItemLayoutInfo.gridItem.id,
-                                    gridItemLayoutInfo.gridItem.data,
+                                    gridItemSource.gridItemLayoutInfo.gridItem.id,
+                                    gridItemSource.gridItemLayoutInfo.gridItem.data,
                                     allocateAppWidgetId,
                                 )
 
@@ -221,8 +222,8 @@ fun DragScreen(
                 }
             }
 
-            GridItemSource.Existing -> {
-                if (gridItemLayoutInfo != null && drag == Drag.End) {
+            GridItemSource.Type.Old -> {
+                if (drag == Drag.End) {
                     onDragEnd(targetPage)
                 }
             }
@@ -232,18 +233,18 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = appWidgetId) {
-        if (gridItemLayoutInfo != null && appWidgetId > 0) {
+        if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId > 0) {
             onUpdateWidget(
-                gridItemLayoutInfo.gridItem.id,
-                gridItemLayoutInfo.gridItem.data,
+                gridItemSource.gridItemLayoutInfo.gridItem.id,
+                gridItemSource.gridItemLayoutInfo.gridItem.data,
                 appWidgetId,
             )
 
             onDragEnd(targetPage)
         }
 
-        if (gridItemLayoutInfo != null && appWidgetId < 0) {
-            onDeleteGridItem(gridItemLayoutInfo.gridItem)
+        if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
+            onDeleteGridItem(gridItemSource.gridItemLayoutInfo.gridItem)
 
             onDragEnd(targetPage)
         }
@@ -254,10 +255,10 @@ fun DragScreen(
             .fillMaxSize()
             .background(Color.Gray),
     ) {
-        if (gridItemLayoutInfo != null) {
+        if (gridItemSource?.gridItemLayoutInfo != null) {
             GridItemOverlay(
                 preview = preview,
-                gridItemLayoutInfo = gridItemLayoutInfo,
+                gridItemLayoutInfo = gridItemSource.gridItemLayoutInfo,
                 dragOffset = dragOffset.round(),
             )
         }
@@ -277,8 +278,8 @@ fun DragScreen(
             DragGridSubcomposeLayout(
                 modifier = Modifier.fillMaxSize(),
                 index = targetCount,
-                rows = userData.rows,
-                columns = userData.columns,
+                rows = rows,
+                columns = columns,
                 gridItems = gridItems,
                 gridItemContent = { gridItem ->
                     when (val gridItemData = gridItem.data) {

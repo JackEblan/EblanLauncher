@@ -3,12 +3,16 @@ package com.eblan.launcher.feature.home.screen.application
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +27,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -136,17 +141,26 @@ fun ApplicationScreen(
                             }
                         }
                     },
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Spacer(modifier = Modifier.height(5.dp))
+
                 AsyncImage(
                     model = eblanApplicationInfo.icon,
                     contentDescription = null,
                     modifier = Modifier.size(40.dp),
                 )
 
+                Spacer(modifier = Modifier.height(10.dp))
+
                 Text(
                     text = eblanApplicationInfo.label,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
+
+                Spacer(modifier = Modifier.height(5.dp))
             }
         }
     }

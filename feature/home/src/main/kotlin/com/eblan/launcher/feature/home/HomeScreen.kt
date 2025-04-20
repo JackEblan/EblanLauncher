@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -91,6 +92,7 @@ fun HomeRoute(
         onDeletePage = viewModel::deletePage,
         onShowGridCache = viewModel::showGridCache,
         onUpdateScreen = viewModel::updateScreen,
+        onLaunchApplication = viewModel::launchApplication,
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
     )
@@ -141,6 +143,7 @@ fun HomeScreen(
     onDeletePage: (Int) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
+    onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
@@ -174,6 +177,7 @@ fun HomeScreen(
                         onDeletePage = onDeletePage,
                         onShowGridCache = onShowGridCache,
                         onUpdateScreen = onUpdateScreen,
+                        onLaunchApplication = onLaunchApplication,
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
                     )
@@ -230,6 +234,7 @@ fun Success(
     onDeletePage: (Int) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
+    onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
 ) {
@@ -327,6 +332,7 @@ fun Success(
                     onDragStart = {
                         onShowGridCache(Screen.Drag)
                     },
+                    onLaunchApplication = onLaunchApplication,
                     onEdit = {
 
                     },
@@ -479,6 +485,7 @@ private fun HomeBottomSheet(
 
                         onDismissRequest()
                     },
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Icon(imageVector = Icons.Default.Android, contentDescription = null)
 
@@ -493,6 +500,7 @@ private fun HomeBottomSheet(
 
                         onDismissRequest()
                     },
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
 
@@ -507,6 +515,7 @@ private fun HomeBottomSheet(
 
                         onDismissRequest()
                     },
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
 

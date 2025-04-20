@@ -1,15 +1,12 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.widget.FrameLayout
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,20 +16,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.viewinterop.AndroidView
-import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuOverlay
+import com.eblan.launcher.feature.home.component.WidgetGridItemBody
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -56,6 +52,7 @@ fun PagerScreen(
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDragStart: () -> Unit,
+    onLaunchApplication: (String) -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
@@ -96,12 +93,15 @@ fun PagerScreen(
             showMenu = showMenu,
             onDismissRequest = onDismissRequest,
             gridItemContent = { gridItem, x, y, width, height, screenWidth, screenHeight ->
-                when (val gridItemData = gridItem.data) {
+                when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(
-                            gridItemData = gridItemData,
-                            onTap = {
+                            gridItemData = data,
+                            onFirstDown = {
                                 hitCounter += 1
+                            },
+                            onPress = {
+                                onLaunchApplication(data.packageName)
                             },
                             onLongPress = { preview ->
                                 onLongPressedGridItem(
@@ -122,8 +122,8 @@ fun PagerScreen(
 
                     is GridItemData.Widget -> {
                         WidgetGridItem(
-                            gridItemData = gridItemData,
-                            onTap = {
+                            gridItemData = data,
+                            onFirstDown = {
                                 hitCounter += 1
                             },
                             onLongPress = { preview ->
@@ -158,12 +158,15 @@ fun PagerScreen(
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.ApplicationInfo,
-    onTap: () -> Unit,
+    onFirstDown: () -> Unit,
+    onPress: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
     var isLongPress by remember { mutableStateOf(false) }
+
+    var isPress by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = isLongPress) {
         if (isLongPress) {
@@ -173,7 +176,16 @@ private fun ApplicationInfoGridItem(
         }
     }
 
-    Column(
+    LaunchedEffect(key1 = isPress) {
+        if (isPress) {
+            onPress()
+
+            isPress = false
+        }
+    }
+
+
+    ApplicationInfoGridItemBody(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
@@ -186,30 +198,27 @@ private fun ApplicationInfoGridItem(
                 awaitEachGesture {
                     val down = awaitFirstDown()
 
-                    onTap()
+                    onFirstDown()
 
                     val longPress = awaitLongPressOrCancellation(down.id)
 
                     if (longPress != null) {
                         isLongPress = true
+                    } else {
+                        isPress = true
                     }
                 }
             }
-
-            .fillMaxSize()
-            .background(Color.Blue),
-    ) {
-        AsyncImage(model = gridItemData.icon, contentDescription = null)
-
-        Text(text = gridItemData.label)
-    }
+            .fillMaxSize(),
+        gridItemData = gridItemData,
+    )
 }
 
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.Widget,
-    onTap: () -> Unit,
+    onFirstDown: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
@@ -231,35 +240,33 @@ private fun WidgetGridItem(
     }
 
     if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = gridItemData.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-
-                    setOnClickListener {
-                        onTap()
-                    }
-
-                    setOnLongClickListener {
-                        isLongPress = true
-                        true
-                    }
-
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
-            },
+        WidgetGridItemBody(
             modifier = modifier.drawWithContent {
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()
                 }
 
                 drawLayer(graphicsLayer)
+            },
+            appWidgetHostView = appWidgetHost.createView(
+                appWidgetId = gridItemData.appWidgetId,
+                appWidgetProviderInfo = appWidgetInfo,
+            ).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                )
+
+                setOnClickListener {
+                    onFirstDown()
+                }
+
+                setOnLongClickListener {
+                    isLongPress = true
+                    true
+                }
+
+                setAppWidget(appWidgetId, appWidgetInfo)
             },
         )
     }

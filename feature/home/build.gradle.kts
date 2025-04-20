@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.domain.framework)
     implementation(projects.domain.grid)
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)

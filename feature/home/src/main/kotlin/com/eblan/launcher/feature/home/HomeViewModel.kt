@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -49,6 +50,7 @@ class HomeViewModel @Inject constructor(
     private val deletePageUseCase: DeletePageUseCase,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
+    private val packageManagerWrapper: PackageManagerWrapper,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -228,6 +230,10 @@ class HomeViewModel @Inject constructor(
                 screen
             }
         }
+    }
+
+    fun launchApplication(packageName: String) {
+        packageManagerWrapper.launchIntentForPackage(packageName = packageName)
     }
 
     fun resetGridCache() {

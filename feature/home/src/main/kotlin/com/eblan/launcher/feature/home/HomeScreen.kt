@@ -317,6 +317,7 @@ fun Success(
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
                     showMenu = showMenu,
+                    showBottomSheet = showBottomSheet,
                     drag = drag,
                     onDismissRequest = {
                         showMenu = false

@@ -17,6 +17,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +39,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -65,6 +68,10 @@ fun ApplicationScreen(
     )
 
     var data by remember { mutableStateOf<GridItemData?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    val currentOnLongPressApplicationInfo by rememberUpdatedState(onLongPressApplicationInfo)
 
     LaunchedEffect(key1 = drag) {
         if (drag is Drag.Start && data != null) {
@@ -103,16 +110,6 @@ fun ApplicationScreen(
         items(eblanApplicationInfos) { eblanApplicationInfo ->
             val graphicsLayer = rememberGraphicsLayer()
 
-            var isLongPress by remember { mutableStateOf(false) }
-
-            LaunchedEffect(key1 = isLongPress) {
-                if (isLongPress) {
-                    onLongPressApplicationInfo(graphicsLayer.toImageBitmap())
-
-                    isLongPress = false
-                }
-            }
-
             Column(
                 modifier = Modifier
                     .drawWithContent {
@@ -131,7 +128,9 @@ fun ApplicationScreen(
                                     label = eblanApplicationInfo.label,
                                 )
 
-                                isLongPress = true
+                                scope.launch {
+                                    currentOnLongPressApplicationInfo(graphicsLayer.toImageBitmap())
+                                }
                             },
                         )
                     },

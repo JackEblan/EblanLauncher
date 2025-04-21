@@ -1,9 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.widget.FrameLayout
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -11,10 +8,8 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ImageBitmap
@@ -45,6 +40,7 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
+    showBottomSheet: Boolean,
     drag: Drag,
     onDismissRequest: () -> Unit,
     onShowBottomSheet: () -> Unit,
@@ -58,7 +54,7 @@ fun PagerScreen(
     onResize: () -> Unit,
 ) {
     LaunchedEffect(key1 = drag) {
-        if (drag is Drag.Start) {
+        if (drag is Drag.Start && !showBottomSheet) {
             onDragStart()
         }
     }
@@ -73,15 +69,11 @@ fun PagerScreen(
         GridSubcomposeLayout(
             modifier = modifier
                 .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown()
-
-                        val longPress = awaitLongPressOrCancellation(down.id)
-
-                        if (longPress != null) {
+                    detectTapGestures(
+                        onLongPress = {
                             onShowBottomSheet()
-                        }
-                    }
+                        },
+                    )
                 }
                 .fillMaxSize(),
             page = page,
@@ -196,17 +188,11 @@ private fun WidgetGridItem(
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
-    var isLongPress by remember { mutableStateOf(false) }
-
     val graphicsLayer = rememberGraphicsLayer()
 
-    LaunchedEffect(key1 = isLongPress) {
-        if (isLongPress) {
-            onLongPress(graphicsLayer.toImageBitmap())
+    val currentOnLongPress by rememberUpdatedState(onLongPress)
 
-            isLongPress = false
-        }
-    }
+    val scope = rememberCoroutineScope()
 
     if (appWidgetInfo != null) {
         WidgetGridItemBody(
@@ -227,7 +213,10 @@ private fun WidgetGridItem(
                 )
 
                 setOnLongClickListener {
-                    isLongPress = true
+                    scope.launch {
+                        currentOnLongPress(graphicsLayer.toImageBitmap())
+                    }
+
                     true
                 }
 

@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import android.appwidget.AppWidgetProviderInfo
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.DisplayMetrics
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -16,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -50,7 +50,7 @@ fun WidgetScreen(
     infiniteScroll: Boolean,
     drag: Drag,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
-    onLongPressWidget: (ImageBitmap) -> Unit,
+    onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
         offset: IntOffset,
         size: IntSize,
@@ -66,6 +66,8 @@ fun WidgetScreen(
     )
 
     var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
+
+    val currentOnLongPressWidget by rememberUpdatedState(onLongPressWidget)
 
     LaunchedEffect(key1 = drag) {
         if (drag is Drag.Start && providerInfo != null) {
@@ -100,18 +102,6 @@ fun WidgetScreen(
         modifier = modifier.fillMaxWidth(),
     ) {
         items(appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
-            var isLongPress by remember { mutableStateOf(false) }
-
-            var preview by remember { mutableStateOf<Drawable?>(null) }
-
-            LaunchedEffect(key1 = isLongPress) {
-                if (isLongPress) {
-                    onLongPressWidget(preview!!.toBitmap().asImageBitmap())
-
-                    isLongPress = false
-                }
-            }
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -133,9 +123,12 @@ fun WidgetScreen(
                                     onLongPress = {
                                         providerInfo = appWidgetProviderInfo
 
-                                        preview = appWidgetProviderInfo.loadPreviewImage(context, 0)
+                                        val preview =
+                                            appWidgetProviderInfo.loadPreviewImage(context, 0)
 
-                                        isLongPress = true
+                                        currentOnLongPressWidget(
+                                            preview.toBitmapOrNull()?.asImageBitmap(),
+                                        )
                                     },
                                 )
                             },

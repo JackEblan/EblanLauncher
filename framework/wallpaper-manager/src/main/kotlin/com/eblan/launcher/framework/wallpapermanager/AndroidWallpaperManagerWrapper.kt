@@ -14,7 +14,11 @@ internal class AndroidWallpaperManagerWrapper @Inject constructor(@ApplicationCo
 
     override suspend fun getWallpaper(): ByteArray? {
         return withContext(Dispatchers.IO) {
-            wallpaperManager.drawable?.toByteArray()
+            try {
+                wallpaperManager.drawable?.toByteArray()
+            } catch (e: SecurityException) {
+                null
+            }
         }
     }
 }

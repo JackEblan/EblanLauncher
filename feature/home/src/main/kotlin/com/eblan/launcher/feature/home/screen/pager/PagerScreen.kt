@@ -29,6 +29,7 @@ import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuOverlay
 import com.eblan.launcher.feature.home.component.WidgetGridItemBody
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
@@ -44,16 +45,24 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
+    drag: Drag,
     onDismissRequest: () -> Unit,
     onShowBottomSheet: () -> Unit,
     onLongPressedGridItem: (
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
+    onDragStart: () -> Unit,
     onLaunchApplication: (String) -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
+    LaunchedEffect(key1 = drag) {
+        if (drag is Drag.Start) {
+            onDragStart()
+        }
+    }
+
     HorizontalPager(state = pagerState) { index ->
         val page = calculatePage(
             index = index,
@@ -71,7 +80,6 @@ fun PagerScreen(
 
                         if (longPress != null) {
                             onShowBottomSheet()
-
                         }
                     }
                 }

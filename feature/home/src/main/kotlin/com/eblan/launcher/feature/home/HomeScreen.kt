@@ -317,6 +317,7 @@ fun Success(
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
                     showMenu = showMenu,
+                    drag = drag,
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -342,7 +343,8 @@ fun Success(
                             width = gridItemLayoutInfo.width,
                             height = gridItemLayoutInfo.height,
                         )
-
+                    },
+                    onDragStart = {
                         onShowGridCache(Screen.Drag)
                     },
                     onLaunchApplication = onLaunchApplication,

@@ -303,13 +303,14 @@ private fun GridItemOverlay(
 ) {
     val density = LocalDensity.current
 
-    val size = with(density) {
-        DpSize(
-            width = gridItemLayoutInfo.width.toDp(),
-            height = gridItemLayoutInfo.height.toDp(),
-        )
+    val size = remember {
+        with(density) {
+            DpSize(
+                width = gridItemLayoutInfo.width.toDp(),
+                height = gridItemLayoutInfo.height.toDp(),
+            )
+        }
     }
-
     if (preview != null) {
         Image(
             bitmap = preview,

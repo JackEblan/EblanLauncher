@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.component
 
 import android.appwidget.AppWidgetHostView
 import android.widget.FrameLayout
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,19 +68,21 @@ fun ApplicationInfoGridItemBody(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
             model = gridItemData.icon,
             contentDescription = null,
-            modifier = Modifier.size(width = 40.dp, height = 40.dp),
+            modifier = Modifier
+                .size(40.dp, 40.dp)
+                .weight(1f),
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = gridItemData.label,
+            modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center,
             fontSize = TextUnit(value = 10f, type = TextUnitType.Sp),
         )

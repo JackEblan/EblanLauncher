@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +60,8 @@ import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.atan2
 
 @Composable
 fun HomeRoute(
@@ -265,6 +268,8 @@ fun Success(
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
+    var userScrollEnabled by remember { mutableStateOf(false) }
+
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
     var drag by remember { mutableStateOf<Drag>(Drag.None) }
@@ -277,6 +282,45 @@ fun Success(
 
     Box(
         modifier = modifier
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = {
+                        userScrollEnabled = true
+                    },
+                    onDrag = { change, dragAmount ->
+                        // TODO: Implement gestures here in the future, when vertical gesture is detected, we disable the pager scroll
+
+                        val angle = atan2(
+                            dragAmount.y,
+                            dragAmount.x,
+                        ) * (180 / Math.PI)  // Calculate angle in degrees
+                        println("Swipe Angle: $angle")
+
+                        // Check for a horizontal swipe (right condition)
+                        if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                            // Right swipe (angle close to 0°)
+                            if (dragAmount.x > 0) {
+                                println("Horizontal swipe right (Angle: $angle)")
+                            }
+                            // Left swipe (angle close to ±180°)
+                            else {
+                                println("Horizontal swipe left (Angle: $angle)")
+                            }
+                        } else {
+                            userScrollEnabled = false
+
+                            // Vertical swipe (angle close to ±90°)
+                            if (dragAmount.y > 0) {
+                                println("Vertical swipe down (Angle: $angle)")
+                            } else {
+                                println("Vertical swipe up (Angle: $angle)")
+                            }
+                        }
+                        change.consume() // Consume the gesture to prevent further handling
+
+                    },
+                )
+            }
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
@@ -318,6 +362,7 @@ fun Success(
                     gridItems = gridItems,
                     showMenu = showMenu,
                     showBottomSheet = showBottomSheet,
+                    userScrollEnabled = userScrollEnabled,
                     drag = drag,
                     onDismissRequest = {
                         showMenu = false

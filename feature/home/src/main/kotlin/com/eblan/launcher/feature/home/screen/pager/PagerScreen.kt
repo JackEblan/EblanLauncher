@@ -41,6 +41,7 @@ fun PagerScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
     showBottomSheet: Boolean,
+    userScrollEnabled: Boolean,
     drag: Drag,
     onDismissRequest: () -> Unit,
     onShowBottomSheet: () -> Unit,
@@ -59,7 +60,7 @@ fun PagerScreen(
         }
     }
 
-    HorizontalPager(state = pagerState) { index ->
+    HorizontalPager(state = pagerState, userScrollEnabled = userScrollEnabled) { index ->
         val page = calculatePage(
             index = index,
             infiniteScroll = infiniteScroll,

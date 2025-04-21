@@ -73,7 +73,7 @@ fun DragScreen(
         screenHeight: Int,
     ) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
-    onUpdateWidget: (
+    onUpdateWidgetGridItem: (
         id: String,
         data: GridItemData,
         appWidgetId: Int,
@@ -194,7 +194,7 @@ fun DragScreen(
                                     provider = provider,
                                 )
                             ) {
-                                onUpdateWidget(
+                                onUpdateWidgetGridItem(
                                     gridItemSource.gridItemLayoutInfo.gridItem.id,
                                     gridItemSource.gridItemLayoutInfo.gridItem.data,
                                     allocateAppWidgetId,
@@ -232,7 +232,7 @@ fun DragScreen(
 
     LaunchedEffect(key1 = appWidgetId) {
         if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId > 0) {
-            onUpdateWidget(
+            onUpdateWidgetGridItem(
                 gridItemSource.gridItemLayoutInfo.gridItem.id,
                 gridItemSource.gridItemLayoutInfo.gridItem.data,
                 appWidgetId,

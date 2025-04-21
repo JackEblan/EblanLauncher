@@ -91,7 +91,7 @@ fun HomeRoute(
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
-        onUpdateWidget = viewModel::updateWidgetGridItem,
+        onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
         onUpdatePageCount = viewModel::updatePageCount,
         onDeletePage = viewModel::deletePage,
@@ -139,7 +139,7 @@ fun HomeScreen(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onUpdateWidget: (
+    onUpdateWidgetGridItem: (
         id: String,
         data: GridItemData,
         appWidgetId: Int,
@@ -178,7 +178,7 @@ fun HomeScreen(
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
-                        onUpdateWidget = onUpdateWidget,
+                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onDeleteGridItem = onDeleteGridItem,
                         onUpdatePageCount = onUpdatePageCount,
                         onDeletePage = onDeletePage,
@@ -232,7 +232,7 @@ fun Success(
         cellHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
-    onUpdateWidget: (
+    onUpdateWidgetGridItem: (
         id: String,
         data: GridItemData,
         appWidgetId: Int,
@@ -426,7 +426,7 @@ fun Success(
                     preview = preview,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
-                    onUpdateWidget = onUpdateWidget,
+                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragEnd = { targetPage ->
                         showMenu = true

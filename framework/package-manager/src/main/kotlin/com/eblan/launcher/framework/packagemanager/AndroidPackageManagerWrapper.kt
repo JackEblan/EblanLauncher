@@ -23,15 +23,12 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import androidx.core.graphics.drawable.toBitmap
+import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.PackageManagerApplicationInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 internal class AndroidPackageManagerWrapper @Inject constructor(
@@ -68,20 +65,14 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
     }
 
     private suspend fun ApplicationInfo.toPackageManagerApplicationInfo(): PackageManagerApplicationInfo {
+        val byteArray = withContext(Dispatchers.IO) {
+            loadIcon(packageManager).toByteArray()
+        }
+
         return PackageManagerApplicationInfo(
-            icon = loadIcon(packageManager).toByteArray(),
+            icon = byteArray,
             packageName = packageName,
             label = loadLabel(packageManager).toString(),
         )
-    }
-
-    private suspend fun Drawable.toByteArray(): ByteArray {
-        val stream = ByteArrayOutputStream()
-
-        withContext(Dispatchers.IO) {
-            toBitmap().compress(Bitmap.CompressFormat.PNG, 30, stream)
-        }
-
-        return stream.toByteArray()
     }
 }

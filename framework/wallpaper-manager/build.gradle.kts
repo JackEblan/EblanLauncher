@@ -17,21 +17,17 @@
  */
 
 plugins {
-    alias(libs.plugins.com.eblan.launcher.feature)
-    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+    alias(libs.plugins.com.eblan.launcher.library)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.roborazzi)
+    alias(libs.plugins.com.eblan.launcher.hilt)
 }
 
 android {
-    namespace = "com.eblan.launcher.feature.home"
+    namespace = "com.eblan.launcher.framework.wallpapermanager"
 }
 
 dependencies {
-    implementation(projects.domain.framework)
-    implementation(projects.domain.grid)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.wallpaperManager)
-    implementation(projects.framework.widgetManager)
+    implementation(projects.common)
+    implementation(projects.domain.common)
+    implementation(projects.domain.model)
 }

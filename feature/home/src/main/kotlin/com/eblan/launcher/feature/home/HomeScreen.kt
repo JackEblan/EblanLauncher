@@ -33,12 +33,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -75,6 +77,8 @@ fun HomeRoute(
 
     val screen by viewModel.screen.collectAsStateWithLifecycle()
 
+    val wallpaper by viewModel.wallpaper.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -83,6 +87,7 @@ fun HomeRoute(
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
         gridCacheItems = gridCacheItems,
+        wallpaper = wallpaper,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
@@ -107,6 +112,7 @@ fun HomeScreen(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     gridCacheItems: Map<Int, List<GridItem>>,
+    wallpaper: ByteArray?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -168,6 +174,7 @@ fun HomeScreen(
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         gridCacheItems = gridCacheItems,
+                        wallpaper = wallpaper,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
@@ -198,6 +205,7 @@ fun Success(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     gridCacheItems: Map<Int, List<GridItem>>,
+    wallpaper: ByteArray?,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -291,6 +299,13 @@ fun Success(
             }
             .fillMaxSize(),
     ) {
+        AsyncImage(
+            model = wallpaper,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+
         when (screen) {
             Screen.Pager -> {
                 PagerScreen(

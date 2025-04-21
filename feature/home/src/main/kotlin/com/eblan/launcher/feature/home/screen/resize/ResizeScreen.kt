@@ -1,10 +1,8 @@
 package com.eblan.launcher.feature.home.screen.resize
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -53,8 +51,7 @@ fun ResizeScreen(
 
     ResizeGridSubcomposeLayout(
         modifier = modifier
-            .fillMaxSize()
-            .background(Color.Gray),
+            .fillMaxSize(),
         page = page,
         rows = rows,
         columns = columns,

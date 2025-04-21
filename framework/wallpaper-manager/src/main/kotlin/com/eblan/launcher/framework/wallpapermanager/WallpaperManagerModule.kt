@@ -15,23 +15,19 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.wallpapermanager
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.feature)
-    alias(libs.plugins.com.eblan.launcher.libraryCompose)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.roborazzi)
-}
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-android {
-    namespace = "com.eblan.launcher.feature.home"
-}
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface WallpaperManagerModule {
 
-dependencies {
-    implementation(projects.domain.framework)
-    implementation(projects.domain.grid)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.wallpaperManager)
-    implementation(projects.framework.widgetManager)
+    @Binds
+    @Singleton
+    fun wallpaperManagerWrapper(impl: AndroidWallpaperManagerWrapper): WallpaperManagerWrapper
 }

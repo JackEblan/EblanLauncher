@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -125,12 +123,8 @@ fun ApplicationScreen(
                         drawLayer(graphicsLayer)
                     }
                     .pointerInput(Unit) {
-                        awaitEachGesture {
-                            val down = awaitFirstDown(requireUnconsumed = false)
-
-                            val longPressChange = awaitLongPressOrCancellation(down.id)
-
-                            if (longPressChange != null) {
+                        detectTapGestures(
+                            onLongPress = {
                                 data = GridItemData.ApplicationInfo(
                                     packageName = eblanApplicationInfo.packageName,
                                     icon = eblanApplicationInfo.icon,
@@ -138,8 +132,8 @@ fun ApplicationScreen(
                                 )
 
                                 isLongPress = true
-                            }
-                        }
+                            },
+                        )
                     },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,

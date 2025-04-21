@@ -4,9 +4,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.DisplayMetrics
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -131,19 +129,15 @@ fun WidgetScreen(
                     AsyncImage(
                         modifier = Modifier
                             .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    val down = awaitFirstDown(requireUnconsumed = false)
-
-                                    val longPressChange = awaitLongPressOrCancellation(down.id)
-
-                                    if (longPressChange != null) {
+                                detectTapGestures(
+                                    onLongPress = {
                                         providerInfo = appWidgetProviderInfo
 
                                         preview = appWidgetProviderInfo.loadPreviewImage(context, 0)
 
                                         isLongPress = true
-                                    }
-                                }
+                                    },
+                                )
                             },
                         model = appWidgetProviderInfo.loadPreviewImage(
                             context,

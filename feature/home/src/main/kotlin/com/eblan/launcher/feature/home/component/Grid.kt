@@ -40,17 +40,15 @@ fun GridSubcomposeLayout(
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[page]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
-                    Surface {
-                        gridItemContent(
-                            gridItem,
-                            gridItem.startColumn * cellWidth,
-                            gridItem.startRow * cellHeight,
-                            gridItem.columnSpan * cellWidth,
-                            gridItem.rowSpan * cellHeight,
-                            constraints.maxWidth,
-                            constraints.maxHeight,
-                        )
-                    }
+                    gridItemContent(
+                        gridItem,
+                        gridItem.startColumn * cellWidth,
+                        gridItem.startRow * cellHeight,
+                        gridItem.columnSpan * cellWidth,
+                        gridItem.rowSpan * cellHeight,
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                    )
                 }.forEach { measurable ->
                     measurable.measure(
                         Constraints(

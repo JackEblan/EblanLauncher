@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -81,13 +80,13 @@ fun DragScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
-    val page = calculatePage(
+    val startingPage = calculatePage(
         index = currentPage,
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
     )
 
-    var index by remember { mutableIntStateOf(page) }
+    var index by remember { mutableIntStateOf(startingPage) }
 
     var newPage by remember { mutableStateOf(false) }
 
@@ -106,17 +105,6 @@ fun DragScreen(
             result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
         } else {
             -1
-        }
-    }
-
-    val targetPage by remember {
-        derivedStateOf {
-            calculateTargetPage(
-                currentPage = currentPage,
-                index = index,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-            )
         }
     }
 
@@ -178,9 +166,16 @@ fun DragScreen(
     LaunchedEffect(key1 = drag) {
         when (gridItemSource?.type) {
             GridItemSource.Type.New -> {
-                if (drag == Drag.End) {
+                if (drag == Drag.End || drag == Drag.Cancel) {
                     when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
+                            val targetPage = calculateTargetPage(
+                                currentPage = currentPage,
+                                index = index,
+                                infiniteScroll = infiniteScroll,
+                                pageCount = pageCount,
+                            )
+
                             onDragEnd(targetPage)
                         }
 
@@ -198,6 +193,13 @@ fun DragScreen(
                                     gridItemSource.gridItemLayoutInfo.gridItem.id,
                                     gridItemSource.gridItemLayoutInfo.gridItem.data,
                                     allocateAppWidgetId,
+                                )
+
+                                val targetPage = calculateTargetPage(
+                                    currentPage = currentPage,
+                                    index = index,
+                                    infiniteScroll = infiniteScroll,
+                                    pageCount = pageCount,
                                 )
 
                                 onDragEnd(targetPage)
@@ -221,7 +223,14 @@ fun DragScreen(
             }
 
             GridItemSource.Type.Old -> {
-                if (drag == Drag.End) {
+                if (drag == Drag.End || drag == Drag.Cancel) {
+                    val targetPage = calculateTargetPage(
+                        currentPage = currentPage,
+                        index = index,
+                        infiniteScroll = infiniteScroll,
+                        pageCount = pageCount,
+                    )
+
                     onDragEnd(targetPage)
                 }
             }
@@ -238,11 +247,25 @@ fun DragScreen(
                 appWidgetId,
             )
 
+            val targetPage = calculateTargetPage(
+                currentPage = currentPage,
+                index = index,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+
             onDragEnd(targetPage)
         }
 
         if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
             onDeleteGridItem(gridItemSource.gridItemLayoutInfo.gridItem)
+
+            val targetPage = calculateTargetPage(
+                currentPage = currentPage,
+                index = index,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
 
             onDragEnd(targetPage)
         }

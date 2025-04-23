@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -103,6 +104,7 @@ fun WidgetScreen(
     ) {
         items(appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
             Column(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 AsyncImage(
@@ -131,7 +133,9 @@ fun WidgetScreen(
                                         )
                                     },
                                 )
-                            },
+                            }
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = 100.dp),
                         model = appWidgetProviderInfo.loadPreviewImage(
                             context,
                             DisplayMetrics.DENSITY_DEFAULT,

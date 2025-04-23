@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home.component
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -310,15 +309,6 @@ fun WidgetGridItemResizeOverlay(
 
     Box(
         modifier = modifier
-            .run {
-                if (data.resizeMode == AppWidgetProviderInfo.RESIZE_NONE) {
-                    clickable {
-                        onResizeEnd()
-                    }
-                } else {
-                    this
-                }
-            }
             .animateGridItemPlacement(
                 width = if (allowX) {
                     width

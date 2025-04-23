@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MenuOverlay(
+fun ApplicationInfoMenuOverlay(
     modifier: Modifier = Modifier,
     onEdit: () -> Unit,
     onResize: () -> Unit,
@@ -35,6 +35,45 @@ fun MenuOverlay(
                     onClick = onResize,
                 ) {
                     Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                }
+
+                IconButton(
+                    onClick = {
+
+                    },
+                ) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                }
+            }
+        },
+    )
+}
+
+@Composable
+fun WidgetMenuOverlay(
+    modifier: Modifier = Modifier,
+    showResize: Boolean,
+    onEdit: () -> Unit,
+    onResize: () -> Unit,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row(modifier = modifier) {
+                IconButton(
+                    onClick = onEdit,
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                }
+
+                if (showResize) {
+                    IconButton(
+                        onClick = onResize,
+                    ) {
+                        Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                    }
                 }
 
                 IconButton(

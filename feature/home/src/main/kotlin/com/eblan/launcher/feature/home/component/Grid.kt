@@ -30,7 +30,7 @@ fun GridSubcomposeLayout(
         screenWidth: Int,
         screenHeight: Int,
     ) -> Unit,
-    menuContent: @Composable () -> Unit,
+    menuContent: @Composable (GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns
@@ -71,7 +71,9 @@ fun GridSubcomposeLayout(
                             rowSpan = gridItem.rowSpan,
                             columnSpan = gridItem.columnSpan,
                             onDismissRequest = onDismissRequest,
-                            content = menuContent,
+                            content = {
+                                menuContent(gridItem)
+                            },
                         )
                     }.forEach { measurable ->
                         measurable.measure(Constraints()).placeRelative(x = 0, y = 0)

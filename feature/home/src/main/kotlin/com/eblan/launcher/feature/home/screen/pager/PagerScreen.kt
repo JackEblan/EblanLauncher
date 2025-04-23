@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,9 +22,10 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
+import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.MenuOverlay
 import com.eblan.launcher.feature.home.component.WidgetGridItemBody
+import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -130,11 +132,23 @@ fun PagerScreen(
                     }
                 }
             },
-            menuContent = {
-                MenuOverlay(
-                    onEdit = onEdit,
-                    onResize = onResize,
-                )
+            menuContent = { gridItem ->
+                when (val data = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        ApplicationInfoMenuOverlay(
+                            onEdit = onEdit,
+                            onResize = onResize,
+                        )
+                    }
+
+                    is GridItemData.Widget -> {
+                        WidgetMenuOverlay(
+                            showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE,
+                            onEdit = onEdit,
+                            onResize = onResize,
+                        )
+                    }
+                }
             },
         )
     }

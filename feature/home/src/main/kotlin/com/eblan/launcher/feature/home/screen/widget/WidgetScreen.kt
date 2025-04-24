@@ -32,10 +32,10 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.domain.model.ScreenSize
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -47,10 +47,10 @@ fun WidgetScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    drag: Drag,
     gridItemOffset: IntOffset,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     screenSize: ScreenSize,
+    drag: Drag,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
         offset: IntOffset,
@@ -60,16 +60,16 @@ fun WidgetScreen(
 ) {
     val context = LocalContext.current
 
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Start) {
+            val page = calculatePage(
+                index = currentPage,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 appWidgetProviderInfo = providerInfo!!,

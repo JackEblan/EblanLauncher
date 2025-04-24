@@ -35,10 +35,10 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.domain.model.ScreenSize
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -51,10 +51,10 @@ fun ApplicationScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    drag: Drag,
     gridItemOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     screenSize: ScreenSize,
+    drag: Drag,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
         offset: IntOffset,
@@ -62,18 +62,18 @@ fun ApplicationScreen(
         GridItemLayoutInfo,
     ) -> Unit,
 ) {
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     var data by remember { mutableStateOf<GridItemData?>(null) }
 
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Start) {
+            val page = calculatePage(
+                index = currentPage,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 rows = rows,
@@ -121,6 +121,8 @@ fun ApplicationScreen(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
+                                println(gridItemOffset)
+
                                 scope.launch {
                                     data = GridItemData.ApplicationInfo(
                                         packageName = eblanApplicationInfo.packageName,

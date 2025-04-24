@@ -39,6 +39,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
+import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
@@ -47,7 +48,6 @@ import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
-import com.eblan.launcher.domain.model.ScreenSize
 import kotlin.math.roundToInt
 
 @Composable
@@ -80,6 +80,7 @@ fun DragScreen(
         appWidgetId: Int,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
     val startingPage = calculatePage(
@@ -166,9 +167,13 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Cancel) {
+            onDragCancel()
+        }
+
         when (gridItemSource?.type) {
             GridItemSource.Type.New -> {
-                if (drag == Drag.End || drag == Drag.Cancel) {
+                if (drag == Drag.End) {
                     when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             val targetPage = calculateTargetPage(

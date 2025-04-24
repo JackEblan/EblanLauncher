@@ -284,6 +284,8 @@ fun Success(
 
     val windowManager = LocalWindowManager.current
 
+    println("drag $drag")
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -368,15 +370,13 @@ fun Success(
                     gridItems = gridItems,
                     showMenu = showMenu,
                     userScrollEnabled = userScrollEnabled,
-                    drag = drag,
                     screenSize = windowManager.getSize(),
                     onDismissRequest = {
                         showMenu = false
                     },
-                    onTapGrid = {
-                        gridItemSource = null
-                    },
                     onLongPressGrid = {
+                        gridItemSource = null
+
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
@@ -396,8 +396,7 @@ fun Success(
                             width = gridItemLayoutInfo.width,
                             height = gridItemLayoutInfo.height,
                         )
-                    },
-                    onDragStart = {
+
                         onShowGridCache(Screen.Drag)
                     },
                     onLaunchApplication = onLaunchApplication,
@@ -417,10 +416,10 @@ fun Success(
                     columns = userData.columns,
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
-                    drag = drag,
                     gridItemOffset = gridItemOffset.round(),
                     eblanApplicationInfos = eblanApplicationInfos,
                     screenSize = windowManager.getSize(),
+                    drag = drag,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
                     },
@@ -446,10 +445,10 @@ fun Success(
                     columns = userData.columns,
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
-                    drag = drag,
                     gridItemOffset = gridItemOffset.round(),
                     appWidgetProviderInfos = appWidgetProviderInfos,
                     screenSize = windowManager.getSize(),
+                    drag = drag,
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
                     },
@@ -486,6 +485,9 @@ fun Success(
                     onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
+                    onDragCancel = {
+                        onResetGridCache()
+                    },
                     onDragEnd = { targetPage ->
                         showMenu = true
 

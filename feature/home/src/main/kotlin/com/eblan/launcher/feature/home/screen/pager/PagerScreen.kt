@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -21,15 +20,14 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemBody
 import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
-import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.domain.model.ScreenSize
 import kotlinx.coroutines.launch
 
 @Composable
@@ -44,26 +42,17 @@ fun PagerScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
     userScrollEnabled: Boolean,
-    drag: Drag,
     screenSize: ScreenSize,
     onDismissRequest: () -> Unit,
-    onTapGrid: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
-    onDragStart: () -> Unit,
     onLaunchApplication: (String) -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && gridItemLayoutInfo != null) {
-            onDragStart()
-        }
-    }
-
     HorizontalPager(
         state = pagerState,
         userScrollEnabled = userScrollEnabled,
@@ -78,9 +67,6 @@ fun PagerScreen(
             modifier = modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onTap = {
-                            onTapGrid()
-                        },
                         onLongPress = {
                             onLongPressGrid()
                         },

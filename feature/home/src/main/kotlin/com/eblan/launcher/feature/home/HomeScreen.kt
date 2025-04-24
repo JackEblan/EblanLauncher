@@ -373,9 +373,10 @@ fun Success(
                     onDismissRequest = {
                         showMenu = false
                     },
-                    onShowBottomSheet = {
+                    onTapGrid = {
                         gridItemSource = null
-
+                    },
+                    onLongPressGrid = {
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->

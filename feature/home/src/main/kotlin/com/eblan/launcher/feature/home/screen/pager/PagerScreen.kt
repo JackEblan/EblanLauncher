@@ -29,7 +29,7 @@ import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.windowmanager.ScreenSize
+import com.eblan.launcher.domain.model.ScreenSize
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,7 +47,8 @@ fun PagerScreen(
     drag: Drag,
     screenSize: ScreenSize,
     onDismissRequest: () -> Unit,
-    onShowBottomSheet: () -> Unit,
+    onTapGrid: () -> Unit,
+    onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
@@ -77,8 +78,11 @@ fun PagerScreen(
             modifier = modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
+                        onTap = {
+                            onTapGrid()
+                        },
                         onLongPress = {
-                            onShowBottomSheet()
+                            onLongPressGrid()
                         },
                     )
                 }

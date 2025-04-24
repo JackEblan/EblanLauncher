@@ -12,7 +12,7 @@ import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.windowmanager.ScreenSize
+import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun ResizeScreen(

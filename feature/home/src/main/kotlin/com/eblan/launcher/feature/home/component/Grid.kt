@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.framework.windowmanager.ScreenSize
+import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun GridSubcomposeLayout(

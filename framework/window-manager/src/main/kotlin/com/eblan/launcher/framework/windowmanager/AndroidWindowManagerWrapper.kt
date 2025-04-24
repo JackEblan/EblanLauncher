@@ -6,6 +6,7 @@ import android.graphics.Point
 import android.os.Build
 import android.view.WindowInsets
 import android.view.WindowManager
+import com.eblan.launcher.domain.model.ScreenSize
 import dagger.hilt.android.qualifiers.ActivityContext
 import javax.inject.Inject
 

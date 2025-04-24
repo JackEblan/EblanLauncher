@@ -47,7 +47,7 @@ import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
-import com.eblan.launcher.framework.windowmanager.ScreenSize
+import com.eblan.launcher.domain.model.ScreenSize
 import kotlin.math.roundToInt
 
 @Composable

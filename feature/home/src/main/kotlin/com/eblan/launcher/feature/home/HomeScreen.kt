@@ -38,10 +38,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.eblan.launcher.designsystem.local.LocalWindowManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -262,7 +264,7 @@ fun Success(
 
     val sheetState = rememberModalBottomSheetState()
 
-    var dragOffset by remember { mutableStateOf(Offset(x = -1f, y = -1f)) }
+    var gridItemOffset by remember { mutableStateOf(Offset.Zero) }
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -272,13 +274,15 @@ fun Success(
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
-    var drag by remember { mutableStateOf<Drag>(Drag.None) }
+    var drag by remember { mutableStateOf(Drag.None) }
 
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val scope = rememberCoroutineScope()
+
+    val windowManager = LocalWindowManager.current
 
     Box(
         modifier = modifier
@@ -316,15 +320,17 @@ fun Success(
                                 println("Vertical swipe up (Angle: $angle)")
                             }
                         }
-                        change.consume() // Consume the gesture to prevent further handling
 
+                        change.consume() // Consume the gesture to prevent further handling
                     },
                 )
             }
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
-                        drag = Drag.Start(offset = offset, size = size)
+                        drag = Drag.Start
+
+                        gridItemOffset = offset
                     },
                     onDragEnd = {
                         drag = Drag.End
@@ -335,9 +341,9 @@ fun Success(
                     onDrag = { change, dragAmount ->
                         change.consume()
 
-                        dragOffset += dragAmount
-
                         drag = Drag.Dragging
+
+                        gridItemOffset += dragAmount
                     },
                 )
             }
@@ -364,6 +370,7 @@ fun Success(
                     showBottomSheet = showBottomSheet,
                     userScrollEnabled = userScrollEnabled,
                     drag = drag,
+                    screenSize = windowManager.getSize(),
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -380,7 +387,7 @@ fun Success(
                             type = GridItemSource.Type.Old,
                         )
 
-                        dragOffset = IntOffset(
+                        gridItemOffset = IntOffset(
                             x = gridItemLayoutInfo.x,
                             y = gridItemLayoutInfo.y,
                         ).toOffset()
@@ -411,7 +418,9 @@ fun Success(
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
                     drag = drag,
+                    gridItemOffset = gridItemOffset.round(),
                     eblanApplicationInfos = eblanApplicationInfos,
+                    screenSize = windowManager.getSize(),
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
                     },
@@ -421,7 +430,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        dragOffset = offset.toOffset()
+                        gridItemOffset = offset.toOffset()
 
                         overlaySize = size
 
@@ -438,7 +447,9 @@ fun Success(
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
                     drag = drag,
+                    gridItemOffset = gridItemOffset.round(),
                     appWidgetProviderInfos = appWidgetProviderInfos,
+                    screenSize = windowManager.getSize(),
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
                     },
@@ -448,7 +459,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        dragOffset = offset.toOffset()
+                        gridItemOffset = offset.toOffset()
 
                         overlaySize = size
 
@@ -466,10 +477,11 @@ fun Success(
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
                     gridItems = gridCacheItems,
-                    dragOffset = dragOffset,
+                    gridItemOffset = gridItemOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
                     preview = preview,
+                    screenSize = windowManager.getSize(),
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
@@ -495,6 +507,7 @@ fun Success(
                     infiniteScroll = userData.infiniteScroll,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridCacheItems,
+                    screenSize = windowManager.getSize(),
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onResizeEnd = {

@@ -29,6 +29,7 @@ import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.windowmanager.ScreenSize
 import kotlinx.coroutines.launch
 
 @Composable
@@ -45,6 +46,7 @@ fun PagerScreen(
     showBottomSheet: Boolean,
     userScrollEnabled: Boolean,
     drag: Drag,
+    screenSize: ScreenSize,
     onDismissRequest: () -> Unit,
     onShowBottomSheet: () -> Unit,
     onLongPressedGridItem: (
@@ -57,7 +59,7 @@ fun PagerScreen(
     onResize: () -> Unit,
 ) {
     LaunchedEffect(key1 = drag) {
-        if (drag is Drag.Start && !showBottomSheet) {
+        if (drag == Drag.Start && !showBottomSheet) {
             onDragStart()
         }
     }
@@ -85,8 +87,9 @@ fun PagerScreen(
             gridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
             showMenu = showMenu,
+            screenSize = screenSize,
             onDismissRequest = onDismissRequest,
-            gridItemContent = { gridItem, x, y, width, height, screenWidth, screenHeight ->
+            gridItemContent = { gridItem, x, y, width, height ->
                 when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(
@@ -103,8 +106,6 @@ fun PagerScreen(
                                         height = height,
                                         x = x,
                                         y = y,
-                                        screenWidth = screenWidth,
-                                        screenHeight = screenHeight,
                                     ),
                                 )
                             },
@@ -123,8 +124,6 @@ fun PagerScreen(
                                         height = height,
                                         x = x,
                                         y = y,
-                                        screenWidth = screenWidth,
-                                        screenHeight = screenHeight,
                                     ),
                                 )
                             },

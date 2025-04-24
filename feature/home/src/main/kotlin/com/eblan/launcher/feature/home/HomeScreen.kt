@@ -367,7 +367,6 @@ fun Success(
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
                     showMenu = showMenu,
-                    showBottomSheet = showBottomSheet,
                     userScrollEnabled = userScrollEnabled,
                     drag = drag,
                     screenSize = windowManager.getSize(),

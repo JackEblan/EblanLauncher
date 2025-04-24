@@ -43,7 +43,6 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
-    showBottomSheet: Boolean,
     userScrollEnabled: Boolean,
     drag: Drag,
     screenSize: ScreenSize,
@@ -59,12 +58,15 @@ fun PagerScreen(
     onResize: () -> Unit,
 ) {
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && !showBottomSheet) {
+        if (drag == Drag.Start && gridItemLayoutInfo != null) {
             onDragStart()
         }
     }
 
-    HorizontalPager(state = pagerState, userScrollEnabled = userScrollEnabled) { index ->
+    HorizontalPager(
+        state = pagerState,
+        userScrollEnabled = userScrollEnabled,
+    ) { index ->
         val page = calculatePage(
             index = index,
             infiniteScroll = infiniteScroll,

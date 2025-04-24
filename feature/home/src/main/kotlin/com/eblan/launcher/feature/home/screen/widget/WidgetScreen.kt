@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,8 +67,6 @@ fun WidgetScreen(
     )
 
     var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
-
-    val currentOnLongPressWidget by rememberUpdatedState(onLongPressWidget)
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Start) {
@@ -129,7 +126,7 @@ fun WidgetScreen(
                                         val preview =
                                             appWidgetProviderInfo.loadPreviewImage(context, 0)
 
-                                        currentOnLongPressWidget(
+                                        onLongPressWidget(
                                             preview.toBitmapOrNull()?.asImageBitmap(),
                                         )
                                     },

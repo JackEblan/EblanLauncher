@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,8 +72,6 @@ fun ApplicationScreen(
 
     val scope = rememberCoroutineScope()
 
-    val currentOnLongPressApplicationInfo by rememberUpdatedState(onLongPressApplicationInfo)
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Start) {
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
@@ -124,14 +121,14 @@ fun ApplicationScreen(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
-                                data = GridItemData.ApplicationInfo(
-                                    packageName = eblanApplicationInfo.packageName,
-                                    icon = eblanApplicationInfo.icon,
-                                    label = eblanApplicationInfo.label,
-                                )
-
                                 scope.launch {
-                                    currentOnLongPressApplicationInfo(graphicsLayer.toImageBitmap())
+                                    data = GridItemData.ApplicationInfo(
+                                        packageName = eblanApplicationInfo.packageName,
+                                        icon = eblanApplicationInfo.icon,
+                                        label = eblanApplicationInfo.label,
+                                    )
+
+                                    onLongPressApplicationInfo(graphicsLayer.toImageBitmap())
                                 }
                             },
                         )

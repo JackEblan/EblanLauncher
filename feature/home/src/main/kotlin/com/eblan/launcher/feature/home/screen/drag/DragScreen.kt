@@ -281,7 +281,7 @@ fun DragScreen(
             GridItemOverlay(
                 preview = preview,
                 gridItemLayoutInfo = gridItemSource.gridItemLayoutInfo,
-                dragOffset = gridItemOffset.round(),
+                offset = gridItemOffset.round(),
             )
         }
 
@@ -325,7 +325,7 @@ private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     preview: ImageBitmap?,
     gridItemLayoutInfo: GridItemLayoutInfo,
-    dragOffset: IntOffset,
+    offset: IntOffset,
 ) {
     val density = LocalDensity.current
 
@@ -342,7 +342,7 @@ private fun GridItemOverlay(
             bitmap = preview,
             modifier = modifier
                 .offset {
-                    dragOffset
+                    offset
                 }
                 .size(size)
                 .alpha(0.5f)

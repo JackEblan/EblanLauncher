@@ -51,7 +51,6 @@ dependencies {
     implementation(projects.data.repository)
     implementation(projects.designSystem)
     implementation(projects.domain.model)
-    implementation(projects.feature.edit)
     implementation(projects.feature.home)
     implementation(projects.framework.fileManager)
     implementation(projects.framework.packageManager)

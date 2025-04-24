@@ -121,8 +121,6 @@ fun ApplicationScreen(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
-                                println(gridItemOffset)
-
                                 scope.launch {
                                     data = GridItemData.ApplicationInfo(
                                         packageName = eblanApplicationInfo.packageName,

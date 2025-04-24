@@ -284,8 +284,6 @@ fun Success(
 
     val windowManager = LocalWindowManager.current
 
-    println("drag $drag")
-
     Box(
         modifier = modifier
             .pointerInput(Unit) {

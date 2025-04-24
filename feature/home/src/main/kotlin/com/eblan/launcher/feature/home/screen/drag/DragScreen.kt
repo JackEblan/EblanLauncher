@@ -230,7 +230,7 @@ fun DragScreen(
             }
 
             GridItemSource.Type.Old -> {
-                if (drag == Drag.End || drag == Drag.Cancel) {
+                if (drag == Drag.End) {
                     val targetPage = calculateTargetPage(
                         currentPage = currentPage,
                         index = index,

@@ -39,8 +39,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appWidgetHostWrapper.startListening()
-
         enableEdgeToEdge()
 
         setContent {
@@ -70,15 +68,14 @@ class MainActivity : ComponentActivity() {
 
         startService(applicationInfoServiceIntent)
 
+        appWidgetHostWrapper.startListening()
+
     }
 
     override fun onStop() {
         super.onStop()
         stopService(applicationInfoServiceIntent)
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
         appWidgetHostWrapper.stopListening()
     }
 }

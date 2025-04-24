@@ -8,6 +8,4 @@ data class GridItemLayoutInfo(
     val height: Int,
     val x: Int,
     val y: Int,
-    val screenWidth: Int,
-    val screenHeight: Int,
 )

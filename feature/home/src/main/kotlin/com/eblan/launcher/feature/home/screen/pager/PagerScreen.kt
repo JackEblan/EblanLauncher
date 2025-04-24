@@ -29,6 +29,7 @@ import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.domain.model.ScreenSize
 import kotlinx.coroutines.launch
 
 @Composable
@@ -42,11 +43,12 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
-    showBottomSheet: Boolean,
     userScrollEnabled: Boolean,
     drag: Drag,
+    screenSize: ScreenSize,
     onDismissRequest: () -> Unit,
-    onShowBottomSheet: () -> Unit,
+    onTapGrid: () -> Unit,
+    onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
@@ -57,12 +59,15 @@ fun PagerScreen(
     onResize: () -> Unit,
 ) {
     LaunchedEffect(key1 = drag) {
-        if (drag is Drag.Start && !showBottomSheet) {
+        if (drag == Drag.Start && gridItemLayoutInfo != null) {
             onDragStart()
         }
     }
 
-    HorizontalPager(state = pagerState, userScrollEnabled = userScrollEnabled) { index ->
+    HorizontalPager(
+        state = pagerState,
+        userScrollEnabled = userScrollEnabled,
+    ) { index ->
         val page = calculatePage(
             index = index,
             infiniteScroll = infiniteScroll,
@@ -73,8 +78,11 @@ fun PagerScreen(
             modifier = modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
+                        onTap = {
+                            onTapGrid()
+                        },
                         onLongPress = {
-                            onShowBottomSheet()
+                            onLongPressGrid()
                         },
                     )
                 }
@@ -85,8 +93,9 @@ fun PagerScreen(
             gridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
             showMenu = showMenu,
+            screenSize = screenSize,
             onDismissRequest = onDismissRequest,
-            gridItemContent = { gridItem, x, y, width, height, screenWidth, screenHeight ->
+            gridItemContent = { gridItem, x, y, width, height ->
                 when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(
@@ -103,8 +112,6 @@ fun PagerScreen(
                                         height = height,
                                         x = x,
                                         y = y,
-                                        screenWidth = screenWidth,
-                                        screenHeight = screenHeight,
                                     ),
                                 )
                             },
@@ -123,8 +130,6 @@ fun PagerScreen(
                                         height = height,
                                         x = x,
                                         y = y,
-                                        screenWidth = screenWidth,
-                                        screenHeight = screenHeight,
                                     ),
                                 )
                             },

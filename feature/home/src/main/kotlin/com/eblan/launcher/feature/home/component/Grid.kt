@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun GridSubcomposeLayout(
@@ -20,6 +21,7 @@ fun GridSubcomposeLayout(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
+    screenSize: ScreenSize,
     onDismissRequest: () -> Unit,
     gridItemContent: @Composable (
         gridItem: GridItem,
@@ -27,16 +29,14 @@ fun GridSubcomposeLayout(
         y: Int,
         width: Int,
         height: Int,
-        screenWidth: Int,
-        screenHeight: Int,
     ) -> Unit,
     menuContent: @Composable (GridItem) -> Unit,
 ) {
+    val cellWidth = screenSize.width / columns
+
+    val cellHeight = screenSize.height / rows
+
     SubcomposeLayout(modifier = modifier) { constraints ->
-        val cellWidth = constraints.maxWidth / columns
-
-        val cellHeight = constraints.maxHeight / rows
-
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[page]?.forEach { gridItem ->
                 subcompose(gridItem.id) {
@@ -46,8 +46,6 @@ fun GridSubcomposeLayout(
                         gridItem.startRow * cellHeight,
                         gridItem.columnSpan * cellWidth,
                         gridItem.rowSpan * cellHeight,
-                        constraints.maxWidth,
-                        constraints.maxHeight,
                     )
                 }.forEach { measurable ->
                     measurable.measure(

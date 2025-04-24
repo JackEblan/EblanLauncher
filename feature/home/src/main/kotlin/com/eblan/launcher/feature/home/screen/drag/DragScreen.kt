@@ -47,6 +47,7 @@ import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
+import com.eblan.launcher.domain.model.ScreenSize
 import kotlin.math.roundToInt
 
 @Composable
@@ -58,11 +59,12 @@ fun DragScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    dragOffset: Offset,
+    gridItemOffset: Offset,
     gridItemSource: GridItemSource?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
     preview: ImageBitmap?,
+    screenSize: ScreenSize,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -150,15 +152,15 @@ fun DragScreen(
         }
     }
 
-    LaunchedEffect(key1 = dragOffset) {
+    LaunchedEffect(key1 = gridItemOffset) {
         if (gridItemSource?.gridItemLayoutInfo != null) {
             onMoveGridItem(
                 index,
                 gridItemSource.gridItemLayoutInfo.gridItem,
-                dragOffset.x.roundToInt(),
-                dragOffset.y.roundToInt(),
-                gridItemSource.gridItemLayoutInfo.screenWidth,
-                gridItemSource.gridItemLayoutInfo.screenHeight,
+                gridItemOffset.x.roundToInt(),
+                gridItemOffset.y.roundToInt(),
+                screenSize.width,
+                screenSize.height,
             )
         }
     }
@@ -279,7 +281,7 @@ fun DragScreen(
             GridItemOverlay(
                 preview = preview,
                 gridItemLayoutInfo = gridItemSource.gridItemLayoutInfo,
-                dragOffset = dragOffset.round(),
+                offset = gridItemOffset.round(),
             )
         }
 
@@ -301,6 +303,7 @@ fun DragScreen(
                 rows = rows,
                 columns = columns,
                 gridItems = gridItems,
+                screenSize = screenSize,
                 gridItemContent = { gridItem ->
                     when (val gridItemData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
@@ -322,7 +325,7 @@ private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     preview: ImageBitmap?,
     gridItemLayoutInfo: GridItemLayoutInfo,
-    dragOffset: IntOffset,
+    offset: IntOffset,
 ) {
     val density = LocalDensity.current
 
@@ -339,7 +342,7 @@ private fun GridItemOverlay(
             bitmap = preview,
             modifier = modifier
                 .offset {
-                    dragOffset
+                    offset
                 }
                 .size(size)
                 .alpha(0.5f)

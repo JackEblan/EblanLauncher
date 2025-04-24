@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
@@ -37,7 +35,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlin.math.roundToInt
+import com.eblan.launcher.domain.model.ScreenSize
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -50,7 +48,9 @@ fun WidgetScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     drag: Drag,
+    gridItemOffset: IntOffset,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    screenSize: ScreenSize,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
         offset: IntOffset,
@@ -68,17 +68,15 @@ fun WidgetScreen(
 
     var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
 
-    val currentOnLongPressWidget by rememberUpdatedState(onLongPressWidget)
-
     LaunchedEffect(key1 = drag) {
-        if (drag is Drag.Start && providerInfo != null) {
+        if (drag == Drag.Start) {
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 appWidgetProviderInfo = providerInfo!!,
                 rows = rows,
                 columns = columns,
-                appWidgetProviderInfoOffset = drag.offset.round(),
-                screenSize = drag.size,
+                appWidgetProviderInfoOffset = gridItemOffset,
+                screenSize = screenSize,
             )
 
             val size = IntSize(
@@ -87,8 +85,8 @@ fun WidgetScreen(
             )
 
             val offset = IntOffset(
-                drag.offset.x.roundToInt() - size.width / 2,
-                drag.offset.y.roundToInt() - size.height / 2,
+                gridItemOffset.x - size.width / 2,
+                gridItemOffset.y - size.height / 2,
             )
 
             onDragStart(
@@ -128,7 +126,7 @@ fun WidgetScreen(
                                         val preview =
                                             appWidgetProviderInfo.loadPreviewImage(context, 0)
 
-                                        currentOnLongPressWidget(
+                                        onLongPressWidget(
                                             preview.toBitmapOrNull()?.asImageBitmap(),
                                         )
                                     },
@@ -177,7 +175,7 @@ private fun getGridItemLayoutInfo(
     rows: Int,
     columns: Int,
     appWidgetProviderInfoOffset: IntOffset,
-    screenSize: IntSize,
+    screenSize: ScreenSize,
 ): GridItemLayoutInfo {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getGridItemLayoutInfo(
@@ -237,7 +235,7 @@ private fun getGridItemLayoutInfo(
     minResizeHeight: Int,
     maxResizeWidth: Int,
     maxResizeHeight: Int,
-    screenSize: IntSize,
+    screenSize: ScreenSize,
 ): GridItemLayoutInfo {
     val cellWidth = screenSize.width / columns
 
@@ -304,7 +302,5 @@ private fun getGridItemLayoutInfo(
         height = gridItem.rowSpan * cellHeight,
         x = gridItem.startColumn * cellWidth,
         y = gridItem.startRow * cellHeight,
-        screenWidth = screenSize.width,
-        screenHeight = screenSize.height,
     )
 }

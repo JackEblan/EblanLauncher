@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,8 +38,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.domain.model.ScreenSize
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -53,7 +52,9 @@ fun ApplicationScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     drag: Drag,
+    gridItemOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    screenSize: ScreenSize,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
         offset: IntOffset,
@@ -71,17 +72,15 @@ fun ApplicationScreen(
 
     val scope = rememberCoroutineScope()
 
-    val currentOnLongPressApplicationInfo by rememberUpdatedState(onLongPressApplicationInfo)
-
     LaunchedEffect(key1 = drag) {
-        if (drag is Drag.Start && data != null) {
+        if (drag == Drag.Start) {
             val addGridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 rows = rows,
                 columns = columns,
-                x = drag.offset.x.roundToInt(),
-                y = drag.offset.y.roundToInt(),
-                screenSize = drag.size,
+                x = gridItemOffset.x,
+                y = gridItemOffset.y,
+                screenSize = screenSize,
                 data = data!!,
             )
 
@@ -91,8 +90,8 @@ fun ApplicationScreen(
             )
 
             val offset = IntOffset(
-                drag.offset.x.roundToInt() - size.width / 2,
-                drag.offset.y.roundToInt() - size.height / 2,
+                gridItemOffset.x - size.width / 2,
+                gridItemOffset.y - size.height / 2,
             )
 
             onDragStart(
@@ -122,14 +121,14 @@ fun ApplicationScreen(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onLongPress = {
-                                data = GridItemData.ApplicationInfo(
-                                    packageName = eblanApplicationInfo.packageName,
-                                    icon = eblanApplicationInfo.icon,
-                                    label = eblanApplicationInfo.label,
-                                )
-
                                 scope.launch {
-                                    currentOnLongPressApplicationInfo(graphicsLayer.toImageBitmap())
+                                    data = GridItemData.ApplicationInfo(
+                                        packageName = eblanApplicationInfo.packageName,
+                                        icon = eblanApplicationInfo.icon,
+                                        label = eblanApplicationInfo.label,
+                                    )
+
+                                    onLongPressApplicationInfo(graphicsLayer.toImageBitmap())
                                 }
                             },
                         )
@@ -166,7 +165,7 @@ private fun getGridItemLayoutInfo(
     columns: Int,
     x: Int,
     y: Int,
-    screenSize: IntSize,
+    screenSize: ScreenSize,
     data: GridItemData,
 ): GridItemLayoutInfo {
     val cellWidth = screenSize.width / columns
@@ -198,7 +197,5 @@ private fun getGridItemLayoutInfo(
         height = gridItem.rowSpan * cellHeight,
         x = gridItem.startColumn * cellWidth,
         y = gridItem.startRow * cellHeight,
-        screenWidth = screenSize.width,
-        screenHeight = screenSize.height,
     )
 }

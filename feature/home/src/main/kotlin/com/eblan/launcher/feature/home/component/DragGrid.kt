@@ -13,13 +13,13 @@ fun DragGridSubcomposeLayout(
     rows: Int,
     columns: Int,
     gridItems: Map<Int, List<GridItem>>,
-    constraintMaxWidth: Int,
-    constraintMaxHeight: Int,
+    constraintsMaxWidth: Int,
+    constraintsMaxHeight: Int,
     gridItemContent: @Composable (gridItem: GridItem) -> Unit,
 ) {
-    val cellWidth = constraintMaxWidth / columns
+    val cellWidth = constraintsMaxWidth / columns
 
-    val cellHeight = constraintMaxHeight / rows
+    val cellHeight = constraintsMaxHeight / rows
 
     SubcomposeLayout(modifier = modifier) { constraints ->
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {

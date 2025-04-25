@@ -63,8 +63,8 @@ fun DragScreen(
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
     preview: ImageBitmap?,
-    constraintMaxWidth: Int,
-    constraintMaxHeight: Int,
+    constraintsMaxWidth: Int,
+    constraintsMaxHeight: Int,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -160,8 +160,8 @@ fun DragScreen(
                 gridItemSource.gridItemLayoutInfo.gridItem,
                 gridItemOffset.x.roundToInt(),
                 gridItemOffset.y.roundToInt(),
-                constraintMaxWidth,
-                constraintMaxHeight,
+                constraintsMaxWidth,
+                constraintsMaxHeight,
             )
         }
     }
@@ -308,8 +308,8 @@ fun DragScreen(
                 rows = rows,
                 columns = columns,
                 gridItems = gridItems,
-                constraintMaxWidth = constraintMaxWidth,
-                constraintMaxHeight = constraintMaxHeight,
+                constraintsMaxWidth = constraintsMaxWidth,
+                constraintsMaxHeight = constraintsMaxHeight,
                 gridItemContent = { gridItem ->
                     when (val gridItemData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {

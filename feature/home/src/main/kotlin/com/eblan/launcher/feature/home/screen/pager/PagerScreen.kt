@@ -42,8 +42,8 @@ fun PagerScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
     userScrollEnabled: Boolean,
-    constraintMaxWidth: Int,
-    constraintMaxHeight: Int,
+    constraintsMaxWidth: Int,
+    constraintsMaxHeight: Int,
     drag: Drag,
     gridItemOffset: IntOffset,
     onDismissRequest: () -> Unit,
@@ -95,8 +95,8 @@ fun PagerScreen(
             gridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
             showMenu = showMenu,
-            constraintMaxWidth = constraintMaxWidth,
-            constraintMaxHeight = constraintMaxHeight,
+            constraintsMaxWidth = constraintsMaxWidth,
+            constraintsMaxHeight = constraintsMaxHeight,
             onDismissRequest = onDismissRequest,
             gridItemContent = { gridItem, x, y, width, height ->
                 when (val data = gridItem.data) {

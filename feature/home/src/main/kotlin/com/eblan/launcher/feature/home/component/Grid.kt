@@ -20,8 +20,8 @@ fun GridSubcomposeLayout(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
-    constraintMaxWidth: Int,
-    constraintMaxHeight: Int,
+    constraintsMaxWidth: Int,
+    constraintsMaxHeight: Int,
     onDismissRequest: () -> Unit,
     gridItemContent: @Composable (
         gridItem: GridItem,
@@ -32,9 +32,9 @@ fun GridSubcomposeLayout(
     ) -> Unit,
     menuContent: @Composable (GridItem) -> Unit,
 ) {
-    val cellWidth = constraintMaxWidth / columns
+    val cellWidth = constraintsMaxWidth / columns
 
-    val cellHeight = constraintMaxHeight / rows
+    val cellHeight = constraintsMaxHeight / rows
 
     SubcomposeLayout(modifier = modifier) { constraints ->
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {

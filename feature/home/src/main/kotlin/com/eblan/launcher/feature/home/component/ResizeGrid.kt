@@ -9,7 +9,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun ResizeGridSubcomposeLayout(
@@ -19,7 +18,8 @@ fun ResizeGridSubcomposeLayout(
     columns: Int,
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -41,9 +41,9 @@ fun ResizeGridSubcomposeLayout(
     onResizeEnd: () -> Unit,
     gridItemContent: @Composable (gridItem: GridItem) -> Unit,
 ) {
-    val cellWidth = screenSize.width / columns
+    val cellWidth = constraintMaxWidth / columns
 
-    val cellHeight = screenSize.height / rows
+    val cellHeight = constraintMaxHeight / rows
 
     SubcomposeLayout(modifier = modifier) { constraints ->
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {

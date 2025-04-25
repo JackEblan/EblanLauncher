@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun DragGridSubcomposeLayout(
@@ -14,12 +13,13 @@ fun DragGridSubcomposeLayout(
     rows: Int,
     columns: Int,
     gridItems: Map<Int, List<GridItem>>,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     gridItemContent: @Composable (gridItem: GridItem) -> Unit,
 ) {
-    val cellWidth = screenSize.width / columns
+    val cellWidth = constraintMaxWidth / columns
 
-    val cellHeight = screenSize.height / rows
+    val cellHeight = constraintMaxHeight / rows
 
     SubcomposeLayout(modifier = modifier) { constraints ->
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {

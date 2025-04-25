@@ -12,7 +12,6 @@ import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun ResizeScreen(
@@ -24,7 +23,8 @@ fun ResizeScreen(
     infiniteScroll: Boolean,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -59,7 +59,8 @@ fun ResizeScreen(
         columns = columns,
         lastGridItemLayoutInfo = gridItemLayoutInfo,
         gridItems = gridItems,
-        screenSize = screenSize,
+        constraintMaxWidth = constraintMaxWidth,
+        constraintMaxHeight = constraintMaxHeight,
         onResizeGridItem = onResizeGridItem,
         onResizeWidgetGridItem = onResizeWidgetGridItem,
         onResizeEnd = onResizeEnd,

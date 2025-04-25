@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.domain.model.ScreenSize
 
 @Composable
 fun GridSubcomposeLayout(
@@ -21,7 +20,8 @@ fun GridSubcomposeLayout(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     onDismissRequest: () -> Unit,
     gridItemContent: @Composable (
         gridItem: GridItem,
@@ -32,9 +32,9 @@ fun GridSubcomposeLayout(
     ) -> Unit,
     menuContent: @Composable (GridItem) -> Unit,
 ) {
-    val cellWidth = screenSize.width / columns
+    val cellWidth = constraintMaxWidth / columns
 
-    val cellHeight = screenSize.height / rows
+    val cellHeight = constraintMaxHeight / rows
 
     SubcomposeLayout(modifier = modifier) { constraints ->
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {

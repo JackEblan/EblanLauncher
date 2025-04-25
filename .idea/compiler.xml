@@ -6,6 +6,7 @@
       <module name="EblanLauncher.feature.applications" target="21" />
       <module name="EblanLauncher.feature.edit" target="21" />
       <module name="EblanLauncher.feature.widgets" target="21" />
+      <module name="EblanLauncher.framework.window-manager" target="21" />
       <module name="EblanLauncher.framework.window-metrics" target="21" />
     </bytecodeTargetLevel>
   </component>

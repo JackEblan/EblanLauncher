@@ -39,7 +39,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
-import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
@@ -64,7 +63,8 @@ fun DragScreen(
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
     preview: ImageBitmap?,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -160,8 +160,8 @@ fun DragScreen(
                 gridItemSource.gridItemLayoutInfo.gridItem,
                 gridItemOffset.x.roundToInt(),
                 gridItemOffset.y.roundToInt(),
-                screenSize.width,
-                screenSize.height,
+                constraintMaxWidth,
+                constraintMaxHeight,
             )
         }
     }
@@ -308,7 +308,8 @@ fun DragScreen(
                 rows = rows,
                 columns = columns,
                 gridItems = gridItems,
-                screenSize = screenSize,
+                constraintMaxWidth = constraintMaxWidth,
+                constraintMaxHeight = constraintMaxHeight,
                 gridItemContent = { gridItem ->
                     when (val gridItemData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {

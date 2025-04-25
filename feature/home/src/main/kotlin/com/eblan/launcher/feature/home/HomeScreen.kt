@@ -35,7 +35,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
@@ -284,6 +283,8 @@ fun Success(
 
     val windowManager = LocalWindowManager.current
 
+    println(drag)
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -369,6 +370,8 @@ fun Success(
                     showMenu = showMenu,
                     userScrollEnabled = userScrollEnabled,
                     screenSize = windowManager.getSize(),
+                    drag = drag,
+                    gridItemOffset = gridItemOffset.round(),
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -385,15 +388,14 @@ fun Success(
                             type = GridItemSource.Type.Old,
                         )
 
-                        gridItemOffset = IntOffset(
-                            x = gridItemLayoutInfo.x,
-                            y = gridItemLayoutInfo.y,
-                        ).toOffset()
-
                         overlaySize = IntSize(
                             width = gridItemLayoutInfo.width,
                             height = gridItemLayoutInfo.height,
                         )
+
+                    },
+                    onDragStart = { intOffset ->
+                        gridItemOffset = intOffset.toOffset()
 
                         onShowGridCache(Screen.Drag)
                     },

@@ -154,7 +154,7 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = gridItemOffset) {
-        if (gridItemSource?.gridItemLayoutInfo != null) {
+        if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
             onMoveGridItem(
                 index,
                 gridItemSource.gridItemLayoutInfo.gridItem,

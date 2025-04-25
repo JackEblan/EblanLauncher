@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
@@ -26,6 +30,7 @@ import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemBody
 import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
@@ -43,6 +48,8 @@ fun PagerScreen(
     showMenu: Boolean,
     userScrollEnabled: Boolean,
     screenSize: ScreenSize,
+    drag: Drag,
+    gridItemOffset: IntOffset,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -50,9 +57,22 @@ fun PagerScreen(
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onLaunchApplication: (String) -> Unit,
+    onDragStart: (IntOffset) -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && gridItemLayoutInfo != null) {
+            val offset = IntOffset(
+                gridItemOffset.x - gridItemLayoutInfo.width / 2,
+                gridItemOffset.y - gridItemLayoutInfo.height / 2,
+            )
+
+            onDragStart(offset)
+        }
+    }
+
     HorizontalPager(
         state = pagerState,
         userScrollEnabled = userScrollEnabled,
@@ -196,7 +216,7 @@ private fun WidgetGridItem(
 
     val graphicsLayer = rememberGraphicsLayer()
 
-    val currentOnLongPress by rememberUpdatedState(onLongPress)
+    var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
     val scope = rememberCoroutineScope()
 
@@ -220,7 +240,7 @@ private fun WidgetGridItem(
 
                 setOnLongClickListener {
                     scope.launch {
-                        currentOnLongPress(graphicsLayer.toImageBitmap())
+                        onLongPress(graphicsLayer.toImageBitmap())
                     }
 
                     true

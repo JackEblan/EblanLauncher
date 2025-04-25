@@ -295,70 +295,73 @@ fun Success(
         constraintsMaxHeight.toDp() - dockHeight
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = {
+                        userScrollEnabled = true
+                    },
+                    onDrag = { change, dragAmount ->
+                        // TODO: Implement gestures here in the future, when vertical gesture is detected, we disable the pager scroll
+
+                        val angle = atan2(
+                            dragAmount.y,
+                            dragAmount.x,
+                        ) * (180 / Math.PI)  // Calculate angle in degrees
+                        println("Swipe Angle: $angle")
+
+                        // Check for a horizontal swipe (right condition)
+                        if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                            // Right swipe (angle close to 0°)
+                            if (dragAmount.x > 0) {
+                                println("Horizontal swipe right (Angle: $angle)")
+                            }
+                            // Left swipe (angle close to ±180°)
+                            else {
+                                println("Horizontal swipe left (Angle: $angle)")
+                            }
+                        } else {
+                            userScrollEnabled = false
+
+                            // Vertical swipe (angle close to ±90°)
+                            if (dragAmount.y > 0) {
+                                println("Vertical swipe down (Angle: $angle)")
+                            } else {
+                                println("Vertical swipe up (Angle: $angle)")
+                            }
+                        }
+
+                        change.consume() // Consume the gesture to prevent further handling
+                    },
+                )
+            }
+            .pointerInput(Unit) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        drag = Drag.Start
+
+                        gridItemOffset = offset
+                    },
+                    onDragEnd = {
+                        drag = Drag.End
+                    },
+                    onDragCancel = {
+                        drag = Drag.Cancel
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+
+                        drag = Drag.Dragging
+
+                        gridItemOffset += dragAmount
+                    },
+                )
+            }
+            .fillMaxSize(),
+    ) {
         BoxWithConstraints(
             modifier = Modifier
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = {
-                            userScrollEnabled = true
-                        },
-                        onDrag = { change, dragAmount ->
-                            // TODO: Implement gestures here in the future, when vertical gesture is detected, we disable the pager scroll
-
-                            val angle = atan2(
-                                dragAmount.y,
-                                dragAmount.x,
-                            ) * (180 / Math.PI)  // Calculate angle in degrees
-                            println("Swipe Angle: $angle")
-
-                            // Check for a horizontal swipe (right condition)
-                            if (abs(dragAmount.x) > abs(dragAmount.y)) {
-                                // Right swipe (angle close to 0°)
-                                if (dragAmount.x > 0) {
-                                    println("Horizontal swipe right (Angle: $angle)")
-                                }
-                                // Left swipe (angle close to ±180°)
-                                else {
-                                    println("Horizontal swipe left (Angle: $angle)")
-                                }
-                            } else {
-                                userScrollEnabled = false
-
-                                // Vertical swipe (angle close to ±90°)
-                                if (dragAmount.y > 0) {
-                                    println("Vertical swipe down (Angle: $angle)")
-                                } else {
-                                    println("Vertical swipe up (Angle: $angle)")
-                                }
-                            }
-
-                            change.consume() // Consume the gesture to prevent further handling
-                        },
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = { offset ->
-                            drag = Drag.Start
-
-                            gridItemOffset = offset
-                        },
-                        onDragEnd = {
-                            drag = Drag.End
-                        },
-                        onDragCancel = {
-                            drag = Drag.Cancel
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-
-                            drag = Drag.Dragging
-
-                            gridItemOffset += dragAmount
-                        },
-                    )
-                }
                 .height(gridHeight),
         ) {
             AsyncImage(

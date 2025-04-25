@@ -8,11 +8,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ImageBitmap
@@ -24,7 +20,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
@@ -47,7 +42,8 @@ fun PagerScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
     userScrollEnabled: Boolean,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     drag: Drag,
     gridItemOffset: IntOffset,
     onDismissRequest: () -> Unit,
@@ -99,7 +95,8 @@ fun PagerScreen(
             gridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
             showMenu = showMenu,
-            screenSize = screenSize,
+            constraintMaxWidth = constraintMaxWidth,
+            constraintMaxHeight = constraintMaxHeight,
             onDismissRequest = onDismissRequest,
             gridItemContent = { gridItem, x, y, width, height ->
                 when (val data = gridItem.data) {
@@ -215,8 +212,6 @@ private fun WidgetGridItem(
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
     val graphicsLayer = rememberGraphicsLayer()
-
-    var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
     val scope = rememberCoroutineScope()
 

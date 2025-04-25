@@ -35,7 +35,6 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -53,7 +52,8 @@ fun ApplicationScreen(
     infiniteScroll: Boolean,
     gridItemOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     drag: Drag,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
@@ -80,7 +80,8 @@ fun ApplicationScreen(
                 columns = columns,
                 x = gridItemOffset.x,
                 y = gridItemOffset.y,
-                screenSize = screenSize,
+                constraintMaxWidth = constraintMaxWidth,
+                constraintMaxHeight = constraintMaxHeight,
                 data = data!!,
             )
 
@@ -165,20 +166,21 @@ private fun getGridItemLayoutInfo(
     columns: Int,
     x: Int,
     y: Int,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     data: GridItemData,
 ): GridItemLayoutInfo {
-    val cellWidth = screenSize.width / columns
+    val cellWidth = constraintMaxWidth / columns
 
-    val cellHeight = screenSize.height / rows
+    val cellHeight = constraintMaxHeight / rows
 
     val (startRow, startColumn) = coordinatesToStartPosition(
         x = x,
         y = y,
         rows = rows,
         columns = columns,
-        screenWidth = screenSize.width,
-        screenHeight = screenSize.height,
+        screenWidth = constraintMaxWidth,
+        screenHeight = constraintMaxHeight,
     )
 
     val gridItem = GridItem(

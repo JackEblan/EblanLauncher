@@ -11,13 +11,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.designsystem.local.LocalWindowManager
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
-import com.eblan.launcher.framework.windowmanager.WindowManagerWrapper
 import com.eblan.launcher.navigation.EblanNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,9 +31,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
 
-    @Inject
-    lateinit var windowManagerWrapper: WindowManagerWrapper
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -45,7 +40,6 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalAppWidgetHost provides appWidgetHostWrapper,
                 LocalAppWidgetManager provides appWidgetManagerWrapper,
-                LocalWindowManager provides windowManagerWrapper,
             ) {
                 val navController = rememberNavController()
 

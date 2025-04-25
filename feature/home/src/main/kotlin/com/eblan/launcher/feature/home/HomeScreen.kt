@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -42,7 +43,6 @@ import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.eblan.launcher.designsystem.local.LocalWindowManager
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -281,11 +281,7 @@ fun Success(
 
     val scope = rememberCoroutineScope()
 
-    val windowManager = LocalWindowManager.current
-
-    println(drag)
-
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGestures(
@@ -369,7 +365,8 @@ fun Success(
                     gridItems = gridItems,
                     showMenu = showMenu,
                     userScrollEnabled = userScrollEnabled,
-                    screenSize = windowManager.getSize(),
+                    constraintMaxWidth = constraints.maxWidth,
+                    constraintMaxHeight = constraints.maxHeight,
                     drag = drag,
                     gridItemOffset = gridItemOffset.round(),
                     onDismissRequest = {
@@ -418,7 +415,8 @@ fun Success(
                     infiniteScroll = userData.infiniteScroll,
                     gridItemOffset = gridItemOffset.round(),
                     eblanApplicationInfos = eblanApplicationInfos,
-                    screenSize = windowManager.getSize(),
+                    constraintMaxWidth = constraints.maxWidth,
+                    constraintMaxHeight = constraints.maxHeight,
                     drag = drag,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
@@ -447,7 +445,8 @@ fun Success(
                     infiniteScroll = userData.infiniteScroll,
                     gridItemOffset = gridItemOffset.round(),
                     appWidgetProviderInfos = appWidgetProviderInfos,
-                    screenSize = windowManager.getSize(),
+                    constraintMaxWidth = constraints.maxWidth,
+                    constraintMaxHeight = constraints.maxHeight,
                     drag = drag,
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
@@ -480,7 +479,8 @@ fun Success(
                     gridItemSource = gridItemSource,
                     drag = drag,
                     preview = preview,
-                    screenSize = windowManager.getSize(),
+                    constraintMaxWidth = constraints.maxWidth,
+                    constraintMaxHeight = constraints.maxHeight,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
@@ -509,7 +509,8 @@ fun Success(
                     infiniteScroll = userData.infiniteScroll,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridCacheItems,
-                    screenSize = windowManager.getSize(),
+                    constraintMaxWidth = constraints.maxWidth,
+                    constraintMaxHeight = constraints.maxHeight,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onResizeEnd = {

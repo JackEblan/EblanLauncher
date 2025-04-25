@@ -33,6 +33,5 @@ dependencies {
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)
     implementation(projects.framework.wallpaperManager)
-    implementation(projects.framework.windowManager)
     implementation(projects.framework.widgetManager)
 }

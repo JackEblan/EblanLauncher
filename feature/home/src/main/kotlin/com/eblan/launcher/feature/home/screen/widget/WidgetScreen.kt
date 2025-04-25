@@ -32,7 +32,6 @@ import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.ScreenSize
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -49,7 +48,8 @@ fun WidgetScreen(
     infiniteScroll: Boolean,
     gridItemOffset: IntOffset,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
     drag: Drag,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
@@ -76,7 +76,8 @@ fun WidgetScreen(
                 rows = rows,
                 columns = columns,
                 appWidgetProviderInfoOffset = gridItemOffset,
-                screenSize = screenSize,
+                constraintMaxWidth = constraintMaxWidth,
+                constraintMaxHeight = constraintMaxHeight,
             )
 
             val size = IntSize(
@@ -175,7 +176,8 @@ private fun getGridItemLayoutInfo(
     rows: Int,
     columns: Int,
     appWidgetProviderInfoOffset: IntOffset,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
 ): GridItemLayoutInfo {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getGridItemLayoutInfo(
@@ -194,7 +196,8 @@ private fun getGridItemLayoutInfo(
             minResizeHeight = appWidgetProviderInfo.minResizeHeight,
             maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
             maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
-            screenSize = screenSize,
+            constraintMaxWidth = constraintMaxWidth,
+            constraintMaxHeight = constraintMaxHeight,
         )
     } else {
         getGridItemLayoutInfo(
@@ -213,7 +216,8 @@ private fun getGridItemLayoutInfo(
             minResizeHeight = appWidgetProviderInfo.minResizeHeight,
             maxResizeWidth = 0,
             maxResizeHeight = 0,
-            screenSize = screenSize,
+            constraintMaxWidth = constraintMaxWidth,
+            constraintMaxHeight = constraintMaxHeight,
         )
     }
 }
@@ -235,11 +239,12 @@ private fun getGridItemLayoutInfo(
     minResizeHeight: Int,
     maxResizeWidth: Int,
     maxResizeHeight: Int,
-    screenSize: ScreenSize,
+    constraintMaxWidth: Int,
+    constraintMaxHeight: Int,
 ): GridItemLayoutInfo {
-    val cellWidth = screenSize.width / columns
+    val cellWidth = constraintMaxWidth / columns
 
-    val cellHeight = screenSize.height / rows
+    val cellHeight = constraintMaxHeight / rows
 
     val newRowSpan = if (rowSpan == 0) {
         (minHeight + cellHeight - 1) / cellHeight
@@ -270,8 +275,8 @@ private fun getGridItemLayoutInfo(
         y = y,
         rows = rows,
         columns = columns,
-        screenWidth = screenSize.width,
-        screenHeight = screenSize.height,
+        screenWidth = constraintMaxWidth,
+        screenHeight = constraintMaxHeight,
     )
 
     val data = GridItemData.Widget(

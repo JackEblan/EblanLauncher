@@ -12,17 +12,17 @@ class MovePageUseCase @Inject constructor(
     suspend operator fun invoke(
         gridItem: GridItem,
         x: Int,
-        screenWidth: Int,
+        gridWidth: Int,
     ): PageDirection? {
         val userData = userDataRepository.userData.first()
 
-        val cellWidth = screenWidth / userData.columns
+        val cellWidth = gridWidth / userData.columns
 
         val width = gridItem.columnSpan * cellWidth
 
         return when {
             (x + width * 0.25) < 0 -> PageDirection.Left
-            (x + width * 0.75) > screenWidth -> PageDirection.Right
+            (x + width * 0.75) > gridWidth -> PageDirection.Right
             else -> null
         }
     }

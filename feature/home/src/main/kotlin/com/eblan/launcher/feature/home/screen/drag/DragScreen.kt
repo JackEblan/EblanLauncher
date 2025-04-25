@@ -15,7 +15,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -40,6 +43,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.Dock
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
@@ -65,13 +69,15 @@ fun DragScreen(
     preview: ImageBitmap?,
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
+    dockHeight: Int,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
         x: Int,
         y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
     ) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onUpdateWidgetGridItem: (
@@ -109,6 +115,12 @@ fun DragScreen(
         } else {
             -1
         }
+    }
+
+    val density = LocalDensity.current
+
+    val dockHeightDp = with(density) {
+        dockHeight.toDp()
     }
 
     LaunchedEffect(key1 = pageDirection) {
@@ -162,6 +174,7 @@ fun DragScreen(
                 gridItemOffset.y.roundToInt(),
                 constraintsMaxWidth,
                 constraintsMaxHeight,
+                dockHeight,
             )
         }
     }
@@ -278,10 +291,7 @@ fun DragScreen(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         if (gridItemSource?.gridItemLayoutInfo != null) {
             GridItemOverlay(
                 preview = preview,
@@ -290,38 +300,47 @@ fun DragScreen(
             )
         }
 
-        AnimatedContent(
-            targetState = index,
-            transitionSpec = {
-                if (pageDirection == PageDirection.Right) {
-                    slideInHorizontally { width -> width } + fadeIn() togetherWith slideOutHorizontally { width -> -width } + fadeOut()
-                } else {
-                    slideInHorizontally { width -> -width } + fadeIn() togetherWith slideOutHorizontally { width -> width } + fadeOut()
-                }.using(
-                    SizeTransform(clip = false),
-                )
-            },
-        ) { targetCount ->
-            DragGridSubcomposeLayout(
-                modifier = Modifier.fillMaxSize(),
-                index = targetCount,
-                rows = rows,
-                columns = columns,
-                gridItems = gridItems,
-                constraintsMaxWidth = constraintsMaxWidth,
-                constraintsMaxHeight = constraintsMaxHeight,
-                gridItemContent = { gridItem ->
-                    when (val gridItemData = gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(gridItemData = gridItemData)
-                        }
-
-                        is GridItemData.Widget -> {
-                            WidgetGridItem(gridItemData = gridItemData)
-                        }
-                    }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+        ) {
+            AnimatedContent(
+                targetState = index,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                transitionSpec = {
+                    if (pageDirection == PageDirection.Right) {
+                        slideInHorizontally { width -> width } + fadeIn() togetherWith slideOutHorizontally { width -> -width } + fadeOut()
+                    } else {
+                        slideInHorizontally { width -> -width } + fadeIn() togetherWith slideOutHorizontally { width -> width } + fadeOut()
+                    }.using(
+                        SizeTransform(clip = false),
+                    )
                 },
-            )
+            ) { targetCount ->
+                DragGridSubcomposeLayout(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    index = targetCount,
+                    rows = rows,
+                    columns = columns,
+                    gridItems = gridItems,
+                    gridItemContent = { gridItem ->
+                        when (val gridItemData = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                ApplicationInfoGridItem(gridItemData = gridItemData)
+                            }
+
+                            is GridItemData.Widget -> {
+                                WidgetGridItem(gridItemData = gridItemData)
+                            }
+                        }
+                    },
+                )
+            }
+
+            Dock(modifier = Modifier.height(dockHeightDp))
         }
     }
 }

@@ -15,21 +15,26 @@ class MoveGridItemUseCase @Inject constructor(
         gridItem: GridItem,
         x: Int,
         y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
     ) {
         val userData = userDataRepository.userData.first()
 
-        val movingGridItem = moveGridItemWithCoordinates(
-            gridItem = gridItem,
-            x = x,
-            y = y,
-            rows = userData.rows,
-            columns = userData.columns,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
-        ).copy(page = page)
+        if (y > gridHeight - dockHeight) {
+            println("You are on the dock area bitch")
+        } else {
+            val movingGridItem = moveGridItemWithCoordinates(
+                gridItem = gridItem,
+                x = x,
+                y = y,
+                rows = userData.rows,
+                columns = userData.columns,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+            ).copy(page = page)
 
-        shiftAlgorithmUseCase(movingGridItem = movingGridItem)
+            shiftAlgorithmUseCase(movingGridItem = movingGridItem)
+        }
     }
 }

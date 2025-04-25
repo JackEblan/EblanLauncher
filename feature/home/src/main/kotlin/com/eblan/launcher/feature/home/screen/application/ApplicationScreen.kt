@@ -54,6 +54,7 @@ fun ApplicationScreen(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
+    dockHeight: Int,
     drag: Drag,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
@@ -80,8 +81,8 @@ fun ApplicationScreen(
                 columns = columns,
                 x = gridItemOffset.x,
                 y = gridItemOffset.y,
-                constraintsMaxWidth = constraintsMaxWidth,
-                constraintsMaxHeight = constraintsMaxHeight,
+                gridWidth = constraintsMaxWidth,
+                gridHeight = constraintsMaxHeight - dockHeight,
                 data = data!!,
             )
 
@@ -166,21 +167,21 @@ private fun getGridItemLayoutInfo(
     columns: Int,
     x: Int,
     y: Int,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     data: GridItemData,
 ): GridItemLayoutInfo {
-    val cellWidth = constraintsMaxWidth / columns
+    val cellWidth = gridWidth / columns
 
-    val cellHeight = constraintsMaxHeight / rows
+    val cellHeight = gridHeight / rows
 
     val (startRow, startColumn) = coordinatesToStartPosition(
         x = x,
         y = y,
         rows = rows,
         columns = columns,
-        screenWidth = constraintsMaxWidth,
-        screenHeight = constraintsMaxHeight,
+        gridWidth = gridWidth,
+        gridHeight = gridHeight,
     )
 
     val gridItem = GridItem(

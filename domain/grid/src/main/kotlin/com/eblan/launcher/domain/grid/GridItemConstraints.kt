@@ -36,8 +36,8 @@ fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boo
  * @param y The y-coordinate in pixels.
  * @param rows The total number of rows in the grid.
  * @param columns The total number of columns in the grid.
- * @param screenWidth The total width of the screen (or container) in pixels.
- * @param screenHeight The total height of the screen (or container) in pixels.
+ * @param gridWidth The total width of the screen (or container) in pixels.
+ * @param gridHeight The total height of the screen (or container) in pixels.
  * @return A [Pair] where the first element is the start row and the second element is the start column.
  */
 fun coordinatesToStartPosition(
@@ -45,11 +45,11 @@ fun coordinatesToStartPosition(
     y: Int,
     rows: Int,
     columns: Int,
-    screenWidth: Int,
-    screenHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
 ): Pair<Int, Int> {
-    val cellWidth = screenWidth / columns
-    val cellHeight = screenHeight / rows
+    val cellWidth = gridWidth / columns
+    val cellHeight = gridHeight / rows
 
     val startColumn = x / cellWidth
     val startRow = y / cellHeight

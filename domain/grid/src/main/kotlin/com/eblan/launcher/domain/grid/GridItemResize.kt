@@ -8,14 +8,14 @@ import com.eblan.launcher.domain.model.SideAnchor
  * Resizes a [GridItem] based on new pixel dimensions.
  *
  * Converts the desired new pixel width and height into grid cell dimensions by taking into account
- * the size of a single grid cell ([gridCellWidth] and [gridCellHeight]). The calculated grid cell dimensions
+ * the size of a single grid cell ([cellWidth] and [cellHeight]). The calculated grid cell dimensions
  * are then used to resize the grid item by updating its spans and (depending on [anchor]) its starting position.
  *
  * @param gridItem The grid item to be resized.
  * @param width The new desired width in pixels for the grid item.
  * @param height The new desired height in pixels for the grid item.
- * @param gridCellWidth The width of a single grid cell in pixels.
- * @param gridCellHeight The height of a single grid cell in pixels.
+ * @param cellWidth The width of a single grid cell in pixels.
+ * @param cellHeight The height of a single grid cell in pixels.
  * @param anchor The corner that remains fixed during resizing.
  * @return A new [GridItem] with updated starting position and spans.
  */
@@ -23,15 +23,15 @@ fun resizeGridItemWithPixels(
     gridItem: GridItem,
     width: Int,
     height: Int,
-    gridCellWidth: Int,
-    gridCellHeight: Int,
+    cellWidth: Int,
+    cellHeight: Int,
     anchor: Anchor,
 ): GridItem {
     val (newWidth, newHeight) = pixelDimensionsToGridSpan(
         width = width,
         height = height,
-        gridCellWidth = gridCellWidth,
-        gridCellHeight = gridCellHeight,
+        gridCellWidth = cellWidth,
+        gridCellHeight = cellHeight,
     )
 
     return resizeGridItem(
@@ -46,14 +46,14 @@ fun resizeGridItemWithPixels(
  * Resizes a [GridItem] based on new pixel dimensions.
  *
  * Converts the desired new pixel width and height into grid cell dimensions by taking into account
- * the size of a single grid cell ([gridCellWidth] and [gridCellHeight]). The calculated grid cell dimensions
+ * the size of a single grid cell ([cellWidth] and [cellHeight]). The calculated grid cell dimensions
  * are then used to resize the grid item by updating its spans and (depending on [anchor]) its starting position.
  *
  * @param gridItem The grid item to be resized.
  * @param width The new desired width in pixels for the grid item.
  * @param height The new desired height in pixels for the grid item.
- * @param gridCellWidth The width of a single grid cell in pixels.
- * @param gridCellHeight The height of a single grid cell in pixels.
+ * @param cellWidth The width of a single grid cell in pixels.
+ * @param cellHeight The height of a single grid cell in pixels.
  * @param anchor The side that remains fixed during resizing.
  * @return A new [GridItem] with updated starting position and spans.
  */
@@ -61,15 +61,15 @@ fun resizeWidgetGridItemWithPixels(
     gridItem: GridItem,
     width: Int,
     height: Int,
-    gridCellWidth: Int,
-    gridCellHeight: Int,
+    cellWidth: Int,
+    cellHeight: Int,
     anchor: SideAnchor,
 ): GridItem {
     val (newWidth, newHeight) = pixelDimensionsToGridSpan(
         width = width,
         height = height,
-        gridCellWidth = gridCellWidth,
-        gridCellHeight = gridCellHeight,
+        gridCellWidth = cellWidth,
+        gridCellHeight = cellHeight,
     )
 
     return resizeGridItemWithSideAnchor(

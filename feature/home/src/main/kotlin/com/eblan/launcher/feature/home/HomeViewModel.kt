@@ -115,8 +115,9 @@ class HomeViewModel @Inject constructor(
         gridItem: GridItem,
         x: Int,
         y: Int,
-        screenWidth: Int,
-        screenHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
     ) {
         viewModelScope.launch {
             gridItemJob?.cancelAndJoin()
@@ -128,7 +129,7 @@ class HomeViewModel @Inject constructor(
                     movePageUseCase(
                         gridItem = gridItem,
                         x = x,
-                        screenWidth = screenWidth,
+                        gridWidth = gridWidth,
                     )
                 }
 
@@ -137,8 +138,9 @@ class HomeViewModel @Inject constructor(
                     gridItem = gridItem,
                     x = x,
                     y = y,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                    dockHeight = dockHeight,
                 )
             }
         }

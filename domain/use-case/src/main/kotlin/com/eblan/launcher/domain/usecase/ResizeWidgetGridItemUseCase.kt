@@ -21,8 +21,8 @@ class ResizeWidgetGridItemUseCase @Inject constructor(
             gridItem = gridItem,
             width = width,
             height = height,
-            gridCellWidth = cellWidth,
-            gridCellHeight = cellHeight,
+            cellWidth = cellWidth,
+            cellHeight = cellHeight,
             anchor = anchor,
         ).copy(page = page)
 

@@ -13,8 +13,8 @@ import com.eblan.launcher.domain.model.GridItem
  * @param y The y-coordinate (in pixels) where the grid item is to be moved.
  * @param rows The total number of rows in the grid.
  * @param columns The total number of columns in the grid.
- * @param screenWidth The width of the screen (or container) in pixels.
- * @param screenHeight The height of the screen (or container) in pixels.
+ * @param gridWidth The width of the screen (or container) in pixels.
+ * @param gridHeight The height of the screen (or container) in pixels.
  * @return A new [GridItem] with updated starting position.
  */
 fun moveGridItemWithCoordinates(
@@ -23,16 +23,16 @@ fun moveGridItemWithCoordinates(
     y: Int,
     rows: Int,
     columns: Int,
-    screenWidth: Int,
-    screenHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
 ): GridItem {
     val (startRow, startColumn) = coordinatesToStartPosition(
         x = x,
         y = y,
         rows = rows,
         columns = columns,
-        screenWidth = screenWidth,
-        screenHeight = screenHeight,
+        gridWidth = gridWidth,
+        gridHeight = gridHeight,
     )
 
     return gridItem.copy(

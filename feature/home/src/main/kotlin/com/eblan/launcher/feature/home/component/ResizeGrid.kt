@@ -18,8 +18,6 @@ fun ResizeGridSubcomposeLayout(
     columns: Int,
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -41,11 +39,11 @@ fun ResizeGridSubcomposeLayout(
     onResizeEnd: () -> Unit,
     gridItemContent: @Composable (gridItem: GridItem) -> Unit,
 ) {
-    val cellWidth = constraintsMaxWidth / columns
-
-    val cellHeight = constraintsMaxHeight / rows
-
     SubcomposeLayout(modifier = modifier) { constraints ->
+        val cellWidth = constraints.maxWidth / columns
+
+        val cellHeight = constraints.maxHeight / rows
+
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems[page]?.forEach { gridItem ->
                 subcompose(gridItem.id) {

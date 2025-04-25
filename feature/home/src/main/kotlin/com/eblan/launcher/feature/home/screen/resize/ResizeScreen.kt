@@ -1,13 +1,17 @@
 package com.eblan.launcher.feature.home.screen.resize
 
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.Dock
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
@@ -23,8 +27,7 @@ fun ResizeScreen(
     infiniteScroll: Boolean,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
+    dockHeight: Int,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -51,33 +54,45 @@ fun ResizeScreen(
         pageCount = pageCount,
     )
 
-    ResizeGridSubcomposeLayout(
-        modifier = modifier
-            .fillMaxSize(),
-        page = page,
-        rows = rows,
-        columns = columns,
-        lastGridItemLayoutInfo = gridItemLayoutInfo,
-        gridItems = gridItems,
-        constraintsMaxWidth = constraintsMaxWidth,
-        constraintsMaxHeight = constraintsMaxHeight,
-        onResizeGridItem = onResizeGridItem,
-        onResizeWidgetGridItem = onResizeWidgetGridItem,
-        onResizeEnd = onResizeEnd,
-        gridItemContent = { gridItem ->
-            when (val gridItemData = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        gridItemData = gridItemData,
-                    )
-                }
+    val density = LocalDensity.current
 
-                is GridItemData.Widget -> {
-                    WidgetGridItem(
-                        gridItemData = gridItemData,
-                    )
+    val dockHeightDp = with(density) {
+        dockHeight.toDp()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+    ) {
+        ResizeGridSubcomposeLayout(
+            modifier = modifier
+                .fillMaxWidth()
+                .weight(1f),
+            page = page,
+            rows = rows,
+            columns = columns,
+            lastGridItemLayoutInfo = gridItemLayoutInfo,
+            gridItems = gridItems,
+            onResizeGridItem = onResizeGridItem,
+            onResizeWidgetGridItem = onResizeWidgetGridItem,
+            onResizeEnd = onResizeEnd,
+            gridItemContent = { gridItem ->
+                when (val gridItemData = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        ApplicationInfoGridItem(
+                            gridItemData = gridItemData,
+                        )
+                    }
+
+                    is GridItemData.Widget -> {
+                        WidgetGridItem(
+                            gridItemData = gridItemData,
+                        )
+                    }
                 }
-            }
-        },
-    )
+            },
+        )
+
+        Dock(modifier = Modifier.height(dockHeightDp))
+    }
 }

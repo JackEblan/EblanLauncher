@@ -18,12 +18,11 @@ class MoveGridItemUseCase @Inject constructor(
         y: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
     ) {
         val userData = userDataRepository.userData.first()
 
-        if (y > gridHeight - dockHeight) {
-            val dockY = y - (gridHeight - dockHeight)
+        if (y > gridHeight - userData.dockHeight) {
+            val dockY = y - (gridHeight - userData.dockHeight)
 
             val movingGridItem = moveGridItemWithCoordinates(
                 gridItem = gridItem,
@@ -32,7 +31,7 @@ class MoveGridItemUseCase @Inject constructor(
                 rows = userData.dockRows,
                 columns = userData.dockColumns,
                 gridWidth = gridWidth,
-                gridHeight = dockHeight,
+                gridHeight = userData.dockHeight,
             ).copy(
                 page = page,
                 associate = Associate.Dock,

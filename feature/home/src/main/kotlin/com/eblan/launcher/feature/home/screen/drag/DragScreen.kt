@@ -83,7 +83,6 @@ fun DragScreen(
         y: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
     ) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onUpdateWidgetGridItem: (
@@ -180,7 +179,6 @@ fun DragScreen(
                 gridItemOffset.y.roundToInt(),
                 constraintsMaxWidth,
                 constraintsMaxHeight,
-                dockHeight,
             )
         }
     }

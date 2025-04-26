@@ -7,4 +7,5 @@ data class UserData(
     val infiniteScroll: Boolean,
     val dockRows: Int,
     val dockColumns: Int,
+    val dockHeight: Int,
 )

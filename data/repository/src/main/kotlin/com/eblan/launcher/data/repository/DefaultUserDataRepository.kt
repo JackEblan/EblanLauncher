@@ -15,6 +15,7 @@ internal class DefaultUserDataRepository @Inject constructor() : UserDataReposit
         infiniteScroll = true,
         dockRows = 1,
         dockColumns = 5,
+        dockHeight = 300,
     )
 
     private val _userData =

@@ -120,7 +120,6 @@ fun HomeScreen(
         y: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -218,7 +217,6 @@ fun Success(
         y: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -282,8 +280,6 @@ fun Success(
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val scope = rememberCoroutineScope()
-
-    val dockHeight = 300
 
     Box(
         modifier = modifier
@@ -371,7 +367,7 @@ fun Success(
                     gridItems = gridItems,
                     showMenu = showMenu,
                     userScrollEnabled = userScrollEnabled,
-                    dockHeight = dockHeight,
+                    dockHeight = userData.dockHeight,
                     drag = drag,
                     gridItemOffset = gridItemOffset.round(),
                     dockGridItems = dockGridItems,
@@ -423,7 +419,7 @@ fun Success(
                     eblanApplicationInfos = eblanApplicationInfos,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = dockHeight,
+                    dockHeight = userData.dockHeight,
                     drag = drag,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
@@ -454,7 +450,7 @@ fun Success(
                     appWidgetProviderInfos = appWidgetProviderInfos,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = dockHeight,
+                    dockHeight = userData.dockHeight,
                     drag = drag,
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
@@ -491,7 +487,7 @@ fun Success(
                     preview = preview,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = dockHeight,
+                    dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
@@ -522,7 +518,7 @@ fun Success(
                     dockRows = userData.dockRows,
                     dockColumns = userData.dockColumns,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
-                    dockHeight = dockHeight,
+                    dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
                     gridItems = gridItems,
                     onResizeGridItem = onResizeGridItem,

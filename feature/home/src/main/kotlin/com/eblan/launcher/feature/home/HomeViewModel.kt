@@ -114,7 +114,6 @@ class HomeViewModel @Inject constructor(
         y: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
     ) {
         viewModelScope.launch {
             gridItemJob?.cancelAndJoin()
@@ -137,7 +136,6 @@ class HomeViewModel @Inject constructor(
                     y = y,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    dockHeight = dockHeight,
                 )
             }
         }

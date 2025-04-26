@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
@@ -28,6 +29,7 @@ fun ResizeScreen(
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     dockHeight: Int,
+    dockCacheItems: List<DockItem>,
     onResizeGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -93,6 +95,23 @@ fun ResizeScreen(
             },
         )
 
-        Dock(modifier = Modifier.height(dockHeightDp))
+        Dock(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dockHeightDp),
+            columns = columns,
+            rows = rows,
+            dockItems = dockCacheItems,
+        ) { dockItem, x, y, width, height ->
+            when (val gridItemData = dockItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(gridItemData = gridItemData)
+                }
+
+                is GridItemData.Widget -> {
+                    WidgetGridItem(gridItemData = gridItemData)
+                }
+            }
+        }
     }
 }

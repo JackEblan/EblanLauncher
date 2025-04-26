@@ -57,7 +57,7 @@ class ShiftAlgorithmUseCase @Inject constructor(
                 )
 
                 if (resolvedConflictsGridItems != null) {
-                    gridCacheRepository.updateGridItems(gridItems = resolvedConflictsGridItems)
+                    gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
                 }
 
                 resolvedConflictsGridItems

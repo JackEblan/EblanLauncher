@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
@@ -70,6 +72,7 @@ fun DragScreen(
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
     dockHeight: Int,
+    dockCacheItems: List<DockItem>,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -326,7 +329,7 @@ fun DragScreen(
                     rows = rows,
                     columns = columns,
                     gridItems = gridItems,
-                    gridItemContent = { gridItem ->
+                    content = { gridItem ->
                         when (val gridItemData = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 ApplicationInfoGridItem(gridItemData = gridItemData)
@@ -340,7 +343,24 @@ fun DragScreen(
                 )
             }
 
-            Dock(modifier = Modifier.height(dockHeightDp))
+            Dock(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dockHeightDp),
+                columns = columns,
+                rows = rows,
+                dockItems = dockCacheItems,
+            ) { dockItem, x, y, width, height ->
+                when (val gridItemData = dockItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        ApplicationInfoGridItem(gridItemData = gridItemData)
+                    }
+
+                    is GridItemData.Widget -> {
+                        WidgetGridItem(gridItemData = gridItemData)
+                    }
+                }
+            }
         }
     }
 }
@@ -363,8 +383,7 @@ private fun GridItemOverlay(
         }
     }
     if (preview != null) {
-        Image(
-            bitmap = preview,
+        Surface(
             modifier = modifier
                 .offset {
                     offset
@@ -372,7 +391,12 @@ private fun GridItemOverlay(
                 .size(size)
                 .alpha(0.5f)
                 .zIndex(1f),
-            contentDescription = null,
-        )
+        ) {
+            Image(
+                bitmap = preview,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }

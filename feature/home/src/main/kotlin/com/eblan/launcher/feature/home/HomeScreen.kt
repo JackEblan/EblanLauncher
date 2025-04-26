@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -83,6 +84,8 @@ fun HomeRoute(
 
     val wallpaper by viewModel.wallpaper.collectAsStateWithLifecycle()
 
+    val dockCacheItems by viewModel.dockCacheItems.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -92,6 +95,7 @@ fun HomeRoute(
         appWidgetProviderInfos = appWidgetProviderInfos,
         gridCacheItems = gridCacheItems,
         wallpaper = wallpaper,
+        dockCacheItems = dockCacheItems,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
@@ -117,6 +121,7 @@ fun HomeScreen(
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     gridCacheItems: Map<Int, List<GridItem>>,
     wallpaper: ByteArray?,
+    dockCacheItems: List<DockItem>,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -182,6 +187,8 @@ fun HomeScreen(
                         wallpaper = wallpaper,
                         constraintsMaxWidth = constraints.maxWidth,
                         constraintsMaxHeight = constraints.maxHeight,
+                        dockItems = homeUiState.gridItemsByPage.dockItems,
+                        dockCacheItems = dockCacheItems,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onResizeWidgetGridItem = onResizeWidgetGridItem,
@@ -215,6 +222,8 @@ fun Success(
     wallpaper: ByteArray?,
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
+    dockItems: List<DockItem>,
+    dockCacheItems: List<DockItem>,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -275,7 +284,7 @@ fun Success(
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    var userScrollEnabled by remember { mutableStateOf(false) }
+    var userScrollEnabled by remember { mutableStateOf(true) }
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -376,6 +385,7 @@ fun Success(
                     dockHeight = dockHeight,
                     drag = drag,
                     gridItemOffset = gridItemOffset.round(),
+                    dockItems = dockItems,
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -491,6 +501,7 @@ fun Success(
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
                     dockHeight = dockHeight,
+                    dockCacheItems = dockCacheItems,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
@@ -519,6 +530,7 @@ fun Success(
                     infiniteScroll = userData.infiniteScroll,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     dockHeight = dockHeight,
+                    dockCacheItems = dockCacheItems,
                     gridItems = gridCacheItems,
                     onResizeGridItem = onResizeGridItem,
                     onResizeWidgetGridItem = onResizeWidgetGridItem,

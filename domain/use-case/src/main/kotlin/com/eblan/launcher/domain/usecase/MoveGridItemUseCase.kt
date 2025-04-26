@@ -9,6 +9,7 @@ import javax.inject.Inject
 class MoveGridItemUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
+    private val dockGridItemUseCase: MoveDockGridItemUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -22,7 +23,11 @@ class MoveGridItemUseCase @Inject constructor(
         val userData = userDataRepository.userData.first()
 
         if (y > gridHeight - dockHeight) {
-            println("You are on the dock area bitch")
+            dockGridItemUseCase(
+                gridItem = gridItem,
+                x = x,
+                gridWidth = gridWidth,
+            )
         } else {
             val movingGridItem = moveGridItemWithCoordinates(
                 gridItem = gridItem,

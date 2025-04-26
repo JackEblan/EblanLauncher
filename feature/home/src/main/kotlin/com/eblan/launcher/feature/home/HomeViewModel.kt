@@ -8,6 +8,8 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
+import com.eblan.launcher.domain.repository.DockCacheRepository
+import com.eblan.launcher.domain.repository.DockRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -54,6 +56,8 @@ class HomeViewModel @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
+    private val dockRepository: DockRepository,
+    private val dockCacheRepository: DockCacheRepository,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -104,6 +108,12 @@ class HomeViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
+    )
+
+    val dockCacheItems = dockCacheRepository.dockCacheItems.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
     )
 
     private var gridItemJob: Job? = null
@@ -241,6 +251,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
+            dockCacheRepository.insertDockItems(dockItems = dockRepository.dockItems.first())
+
             _screen.update {
                 screen
             }
@@ -262,6 +274,8 @@ class HomeViewModel @Inject constructor(
     fun resetGridCache() {
         viewModelScope.launch {
             gridRepository.upsertGridItems(gridItems = gridCacheRepository.gridCacheItems.first())
+
+            dockRepository.upsertDockItems(dockItems = dockCacheRepository.dockCacheItems.first())
 
             _screen.update {
                 Screen.Pager

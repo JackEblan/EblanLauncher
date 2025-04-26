@@ -53,7 +53,7 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
         }
     }
 
-    override suspend fun updateGridItems(gridItems: List<GridItem>) {
+    override suspend fun upsertGridItems(gridItems: List<GridItem>) {
         val updatedGridItems = currentGridCacheItems.toMutableList()
 
         withContext(Dispatchers.Default) {

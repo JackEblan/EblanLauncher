@@ -72,7 +72,7 @@ fun GridItemResizeOverlay(
 
     Box(
         modifier = modifier
-            .animateGridItemPlacement(
+            .animatedGridItemPlacement(
                 width = if (allowX) {
                     width
                 } else {
@@ -289,7 +289,7 @@ fun WidgetGridItemResizeOverlay(
 
     Box(
         modifier = modifier
-            .animateGridItemPlacement(
+            .animatedGridItemPlacement(
                 width = if (allowX) {
                     width
                 } else {

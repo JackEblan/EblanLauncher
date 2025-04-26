@@ -1,15 +1,11 @@
 package com.eblan.launcher.feature.home.component
 
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 
 @Composable
 fun GridSubcomposeLayout(
@@ -17,7 +13,7 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItemId: String?,
     gridItems: Map<Int, List<GridItem>>,
     showMenu: Boolean,
     onDismissRequest: () -> Unit,
@@ -57,7 +53,7 @@ fun GridSubcomposeLayout(
                     )
                 }
 
-                if (showMenu && gridItemLayoutInfo?.gridItem?.id == gridItem.id) {
+                if (showMenu && gridItemId == gridItem.id) {
                     subcompose("Menu") {
                         GridItemMenu(
                             cellWidth = cellWidth,
@@ -78,36 +74,6 @@ fun GridSubcomposeLayout(
             }
         }
     }
-}
-
-@Composable
-fun AnimatedGridItemContainer(
-    modifier: Modifier = Modifier,
-    rowSpan: Int,
-    columnSpan: Int,
-    startRow: Int,
-    startColumn: Int,
-    cellWidth: Int,
-    cellHeight: Int,
-    content: @Composable () -> Unit,
-) {
-    val width by animateIntAsState(targetValue = columnSpan * cellWidth)
-
-    val height by animateIntAsState(targetValue = rowSpan * cellHeight)
-
-    val x by animateIntAsState(targetValue = startColumn * cellWidth)
-
-    val y by animateIntAsState(targetValue = startRow * cellHeight)
-
-    Surface(
-        modifier = modifier.animateGridItemPlacement(
-            width = width,
-            height = height,
-            x = x,
-            y = y,
-        ),
-        content = content,
-    )
 }
 
 @Composable

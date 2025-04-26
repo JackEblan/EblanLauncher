@@ -7,13 +7,13 @@ import androidx.compose.ui.unit.Constraints
 import com.eblan.launcher.domain.model.GridItem
 
 @Composable
-fun Dock(
+fun DockGrid(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
     dockGridItems: List<GridItem>,
-    content: @Composable (
-        gridItem: GridItem,
+    dockGridItemContent: @Composable (
+        GridItem,
         x: Int,
         y: Int,
         width: Int,
@@ -26,22 +26,22 @@ fun Dock(
         val cellHeight = constraints.maxHeight / rows
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
-            dockGridItems.forEach { dockItem ->
-                subcompose(dockItem.id) {
+            dockGridItems.forEach { dockGridItem ->
+                subcompose(dockGridItem.id) {
                     AnimatedGridItemContainer(
-                        rowSpan = dockItem.rowSpan,
-                        columnSpan = dockItem.columnSpan,
-                        startRow = dockItem.startRow,
-                        startColumn = dockItem.startColumn,
+                        rowSpan = dockGridItem.rowSpan,
+                        columnSpan = dockGridItem.columnSpan,
+                        startRow = dockGridItem.startRow,
+                        startColumn = dockGridItem.startColumn,
                         cellWidth = cellWidth,
                         cellHeight = cellHeight,
                         content = {
-                            content(
-                                dockItem,
-                                dockItem.startColumn * cellWidth,
-                                dockItem.startRow * cellHeight,
-                                dockItem.columnSpan * cellWidth,
-                                dockItem.rowSpan * cellHeight,
+                            dockGridItemContent(
+                                dockGridItem,
+                                dockGridItem.startColumn * cellWidth,
+                                dockGridItem.startRow * cellHeight,
+                                dockGridItem.columnSpan * cellWidth,
+                                dockGridItem.rowSpan * cellHeight,
                             )
                         },
                     )

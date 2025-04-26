@@ -11,7 +11,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.Dock
+import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
@@ -116,14 +116,14 @@ fun ResizeScreen(
             },
         )
 
-        Dock(
+        DockGrid(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,
             columns = dockColumns,
             dockGridItems = dockGridItems,
-        ) { dockItem, x, y, width, height ->
+        ) { dockItem, _, _, _, _ ->
             when (val gridItemData = dockItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(gridItemData = gridItemData)

@@ -26,7 +26,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
-import com.eblan.launcher.feature.home.component.Dock
+import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemBody
 import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
@@ -108,7 +108,7 @@ fun PagerScreen(
                 page = page,
                 rows = rows,
                 columns = columns,
-                gridItemLayoutInfo = gridItemLayoutInfo,
+                gridItemId = gridItemLayoutInfo?.gridItem?.id,
                 gridItems = gridItems,
                 showMenu = showMenu,
                 onDismissRequest = onDismissRequest,
@@ -175,7 +175,7 @@ fun PagerScreen(
             )
         }
 
-        Dock(
+        DockGrid(
             modifier = Modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
@@ -189,8 +189,8 @@ fun PagerScreen(
             rows = dockRows,
             columns = dockColumns,
             dockGridItems = dockGridItems,
-        ) { gridItem, x, y, width, height ->
-            when (val data = gridItem.data) {
+        ) { dockGridItem, x, y, width, height ->
+            when (val data = dockGridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
                         gridItemData = data,
@@ -201,7 +201,7 @@ fun PagerScreen(
                             onLongPressedGridItem(
                                 preview,
                                 GridItemLayoutInfo(
-                                    gridItem = gridItem,
+                                    gridItem = dockGridItem,
                                     width = width,
                                     height = height,
                                     x = x,
@@ -219,7 +219,7 @@ fun PagerScreen(
                             onLongPressedGridItem(
                                 preview,
                                 GridItemLayoutInfo(
-                                    gridItem = gridItem,
+                                    gridItem = dockGridItem,
                                     width = width,
                                     height = height,
                                     x = x,

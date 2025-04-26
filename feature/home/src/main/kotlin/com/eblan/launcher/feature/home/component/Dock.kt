@@ -4,16 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
-import com.eblan.launcher.domain.model.DockItem
+import com.eblan.launcher.domain.model.GridItem
 
 @Composable
 fun Dock(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    dockItems: List<DockItem>,
+    dockGridItems: List<GridItem>,
     content: @Composable (
-        dockItem: DockItem,
+        gridItem: GridItem,
         x: Int,
         y: Int,
         width: Int,
@@ -26,7 +26,7 @@ fun Dock(
         val cellHeight = constraints.maxHeight / rows
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
-            dockItems.forEach { dockItem ->
+            dockGridItems.forEach { dockItem ->
                 subcompose(dockItem.id) {
                     AnimatedGridItemContainer(
                         rowSpan = dockItem.rowSpan,

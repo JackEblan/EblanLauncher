@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
@@ -64,6 +63,8 @@ fun DragScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
+    dockRows: Int,
+    dockColumns: Int,
     gridItemOffset: Offset,
     gridItemSource: GridItemSource?,
     gridItems: Map<Int, List<GridItem>>,
@@ -72,7 +73,7 @@ fun DragScreen(
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
     dockHeight: Int,
-    dockCacheItems: List<DockItem>,
+    dockGridItems: List<GridItem>,
     onMoveGridItem: (
         page: Int,
         gridItem: GridItem,
@@ -347,9 +348,9 @@ fun DragScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(dockHeightDp),
-                columns = columns,
-                rows = rows,
-                dockItems = dockCacheItems,
+                rows = dockRows,
+                columns = dockColumns,
+                dockGridItems = dockGridItems,
             ) { dockItem, x, y, width, height ->
                 when (val gridItemData = dockItem.data) {
                     is GridItemData.ApplicationInfo -> {

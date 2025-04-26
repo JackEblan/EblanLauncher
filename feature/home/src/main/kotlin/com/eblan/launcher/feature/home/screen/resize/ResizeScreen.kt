@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import com.eblan.launcher.domain.model.Anchor
-import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
@@ -26,26 +25,28 @@ fun ResizeScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
+    dockRows: Int,
+    dockColumns: Int,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     dockHeight: Int,
-    dockCacheItems: List<DockItem>,
+    dockGridItems: List<GridItem>,
     onResizeGridItem: (
-        page: Int,
         gridItem: GridItem,
         width: Int,
         height: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onResizeWidgetGridItem: (
-        page: Int,
         gridItem: GridItem,
-        widthPixel: Int,
-        heightPixel: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        width: Int,
+        height: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
@@ -75,8 +76,28 @@ fun ResizeScreen(
             columns = columns,
             lastGridItemLayoutInfo = gridItemLayoutInfo,
             gridItems = gridItems,
-            onResizeGridItem = onResizeGridItem,
-            onResizeWidgetGridItem = onResizeWidgetGridItem,
+            onResizeGridItem = { gridItem, width, height, gridWidth, gridHeight, anchor ->
+                onResizeGridItem(
+                    gridItem,
+                    width,
+                    height,
+                    gridWidth,
+                    gridHeight,
+                    dockHeight,
+                    anchor,
+                )
+            },
+            onResizeWidgetGridItem = { gridItem, width, height, gridWidth, gridHeight, anchor ->
+                onResizeWidgetGridItem(
+                    gridItem,
+                    width,
+                    height,
+                    gridWidth,
+                    gridHeight,
+                    dockHeight,
+                    anchor,
+                )
+            },
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {
@@ -99,9 +120,9 @@ fun ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
-            columns = columns,
-            rows = rows,
-            dockItems = dockCacheItems,
+            rows = dockRows,
+            columns = dockColumns,
+            dockGridItems = dockGridItems,
         ) { dockItem, x, y, width, height ->
             when (val gridItemData = dockItem.data) {
                 is GridItemData.ApplicationInfo -> {

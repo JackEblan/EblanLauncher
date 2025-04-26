@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.grid.coordinatesToStartPosition
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -192,6 +193,7 @@ private fun getGridItemLayoutInfo(
         rowSpan = 1,
         columnSpan = 1,
         data = data,
+        associate = Associate.Grid,
     )
 
     return GridItemLayoutInfo(

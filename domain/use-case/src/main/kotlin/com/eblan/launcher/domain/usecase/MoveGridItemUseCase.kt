@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.first
@@ -9,7 +10,6 @@ import javax.inject.Inject
 class MoveGridItemUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
-    private val dockGridItemUseCase: MoveDockGridItemUseCase,
 ) {
     suspend operator fun invoke(
         page: Int,
@@ -23,10 +23,25 @@ class MoveGridItemUseCase @Inject constructor(
         val userData = userDataRepository.userData.first()
 
         if (y > gridHeight - dockHeight) {
-            dockGridItemUseCase(
+            val dockY = y - (gridHeight - dockHeight)
+
+            val movingGridItem = moveGridItemWithCoordinates(
                 gridItem = gridItem,
                 x = x,
+                y = dockY,
+                rows = userData.dockRows,
+                columns = userData.dockColumns,
                 gridWidth = gridWidth,
+                gridHeight = dockHeight,
+            ).copy(
+                page = page,
+                associate = Associate.Dock,
+            )
+
+            shiftAlgorithmUseCase(
+                rows = userData.dockRows,
+                columns = userData.dockColumns,
+                movingGridItem = movingGridItem,
             )
         } else {
             val movingGridItem = moveGridItemWithCoordinates(
@@ -37,9 +52,16 @@ class MoveGridItemUseCase @Inject constructor(
                 columns = userData.columns,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
-            ).copy(page = page)
+            ).copy(
+                page = page,
+                associate = Associate.Grid,
+            )
 
-            shiftAlgorithmUseCase(movingGridItem = movingGridItem)
+            shiftAlgorithmUseCase(
+                rows = userData.rows,
+                columns = userData.columns,
+                movingGridItem = movingGridItem,
+            )
         }
     }
 }

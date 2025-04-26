@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "01482fba772b54c0ee96f2a399776399",
+    "identityHash": "4a9784e8bdcd9260ae56cc333f860d0a",
     "entities": [
       {
         "tableName": "GridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `data` TEXT NOT NULL, `associate` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -47,6 +47,12 @@
           {
             "fieldPath": "data",
             "columnName": "data",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "associate",
+            "columnName": "associate",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -91,62 +97,12 @@
         },
         "indices": [],
         "foreignKeys": []
-      },
-      {
-        "tableName": "DockItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startRow",
-            "columnName": "startRow",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startColumn",
-            "columnName": "startColumn",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "rowSpan",
-            "columnName": "rowSpan",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "columnSpan",
-            "columnName": "columnSpan",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "data",
-            "columnName": "data",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '01482fba772b54c0ee96f2a399776399')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a9784e8bdcd9260ae56cc333f860d0a')"
     ]
   }
 }

@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
@@ -44,6 +43,8 @@ fun PagerScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
+    dockRows: Int,
+    dockColumns: Int,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
@@ -51,7 +52,7 @@ fun PagerScreen(
     dockHeight: Int,
     drag: Drag,
     gridItemOffset: IntOffset,
-    dockItems: List<DockItem>,
+    dockGridItems: List<GridItem>,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -185,11 +186,11 @@ fun PagerScreen(
                 }
                 .fillMaxWidth()
                 .height(dockHeightDp),
-            columns = columns,
-            rows = rows,
-            dockItems = dockItems,
-        ) { dockItem, x, y, width, height ->
-            when (val data = dockItem.data) {
+            rows = dockRows,
+            columns = dockColumns,
+            dockGridItems = dockGridItems,
+        ) { gridItem, x, y, width, height ->
+            when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
                         gridItemData = data,
@@ -197,22 +198,6 @@ fun PagerScreen(
                             onLaunchApplication(data.packageName)
                         },
                         onLongPress = { preview ->
-                            val page = calculatePage(
-                                index = pagerState.currentPage,
-                                infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
-                            )
-
-                            val gridItem = GridItem(
-                                id = dockItem.id,
-                                page = page,
-                                startRow = dockItem.startRow,
-                                startColumn = dockItem.startColumn,
-                                rowSpan = dockItem.rowSpan,
-                                columnSpan = dockItem.columnSpan,
-                                data = data,
-                            )
-
                             onLongPressedGridItem(
                                 preview,
                                 GridItemLayoutInfo(
@@ -231,22 +216,6 @@ fun PagerScreen(
                     WidgetGridItem(
                         gridItemData = data,
                         onLongPress = { preview ->
-                            val page = calculatePage(
-                                index = pagerState.currentPage,
-                                infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
-                            )
-
-                            val gridItem = GridItem(
-                                id = dockItem.id,
-                                page = page,
-                                startRow = dockItem.startRow,
-                                startColumn = dockItem.startColumn,
-                                rowSpan = dockItem.rowSpan,
-                                columnSpan = dockItem.columnSpan,
-                                data = data,
-                            )
-
                             onLongPressedGridItem(
                                 preview,
                                 GridItemLayoutInfo(

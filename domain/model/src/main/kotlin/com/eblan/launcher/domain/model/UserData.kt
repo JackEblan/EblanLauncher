@@ -5,4 +5,6 @@ data class UserData(
     val columns: Int,
     val pageCount: Int,
     val infiniteScroll: Boolean,
+    val dockRows: Int,
+    val dockColumns: Int,
 )

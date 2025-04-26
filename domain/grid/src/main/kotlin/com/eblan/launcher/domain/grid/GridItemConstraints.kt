@@ -1,6 +1,5 @@
 package com.eblan.launcher.domain.grid
 
-import com.eblan.launcher.domain.model.DockItem
 import com.eblan.launcher.domain.model.GridItem
 
 /**
@@ -17,22 +16,6 @@ import com.eblan.launcher.domain.model.GridItem
  */
 fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boolean {
     return gridItem.startRow in 0 until rows && gridItem.startColumn in 0 until columns && gridItem.startRow + gridItem.rowSpan <= rows && gridItem.startColumn + gridItem.columnSpan <= columns
-}
-
-/**
- * Validates that grid item span within the acceptable grid bounds.
- *
- * For each grid item, it checks that:
- * - The starting row and column are within bounds.
- * - The entire region (startRow + rowSpan, startColumn + colSpan) fits within the grid.
- *
- * @param dockItem to validate.
- * @param rows The total number of rows in the grid.
- * @param columns The total number of columns in the grid.
- * @return `true` if all grid items are within bounds; `false` if any item exceeds the grid limits.
- */
-fun isDockItemSpanWithinBounds(dockItem: DockItem, rows: Int, columns: Int): Boolean {
-    return dockItem.startRow in 0 until rows && dockItem.startColumn in 0 until columns && dockItem.startRow + dockItem.rowSpan <= rows && dockItem.startColumn + dockItem.columnSpan <= columns
 }
 
 /**

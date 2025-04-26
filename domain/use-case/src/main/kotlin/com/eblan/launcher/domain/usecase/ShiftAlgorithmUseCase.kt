@@ -5,7 +5,6 @@ import com.eblan.launcher.domain.grid.resolveConflictsWithShift
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemShift
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -13,23 +12,24 @@ import javax.inject.Inject
 
 class ShiftAlgorithmUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
-    private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke(movingGridItem: GridItem): List<GridItem>? {
+    suspend operator fun invoke(
+        rows: Int,
+        columns: Int,
+        movingGridItem: GridItem,
+    ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
-            val userData = userDataRepository.userData.first()
-
             if (isGridItemSpanWithinBounds(
                     gridItem = movingGridItem,
-                    rows = userData.rows,
-                    columns = userData.columns,
+                    rows = rows,
+                    columns = columns,
                 )
             ) {
                 val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
                     isGridItemSpanWithinBounds(
                         gridItem = gridItem,
-                        rows = userData.rows,
-                        columns = userData.columns,
+                        rows = rows,
+                        columns = columns,
                     ) && gridItem.page == movingGridItem.page
                 }.toMutableList()
 
@@ -52,8 +52,8 @@ class ShiftAlgorithmUseCase @Inject constructor(
                     gridItems = gridItems,
                     gridItemShift = gridItemShift,
                     movingGridItem = movingGridItem,
-                    rows = userData.rows,
-                    columns = userData.columns,
+                    rows = rows,
+                    columns = columns,
                 )
 
                 if (resolvedConflictsGridItems != null) {

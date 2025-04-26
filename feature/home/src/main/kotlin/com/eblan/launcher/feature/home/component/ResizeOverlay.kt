@@ -29,7 +29,6 @@ import kotlin.math.roundToInt
 @Composable
 fun GridItemResizeOverlay(
     modifier: Modifier = Modifier,
-    page: Int,
     gridItem: GridItem,
     cellWidth: Int,
     cellHeight: Int,
@@ -38,12 +37,9 @@ fun GridItemResizeOverlay(
     rowSpan: Int,
     columnSpan: Int,
     onResizeGridItem: (
-        page: Int,
         gridItem: GridItem,
-        widthPixel: Int,
-        heightPixel: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        width: Int,
+        height: Int,
         anchor: Anchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
@@ -125,12 +121,9 @@ fun GridItemResizeOverlay(
                             y += dragAmount.y.roundToInt()
 
                             onResizeGridItem(
-                                page,
                                 gridItem,
                                 width,
                                 height,
-                                cellWidth,
-                                cellHeight,
                                 Anchor.BOTTOM_END,
                             )
                         },
@@ -162,12 +155,9 @@ fun GridItemResizeOverlay(
                             y += dragAmount.y.roundToInt()
 
                             onResizeGridItem(
-                                page,
                                 gridItem,
                                 width,
                                 height,
-                                cellWidth,
-                                cellHeight,
                                 Anchor.BOTTOM_START,
                             )
 
@@ -200,12 +190,9 @@ fun GridItemResizeOverlay(
                             x += dragAmount.x.roundToInt()
 
                             onResizeGridItem(
-                                page,
                                 gridItem,
                                 width,
                                 height,
-                                cellWidth,
-                                cellHeight,
                                 Anchor.TOP_END,
                             )
                         },
@@ -235,12 +222,9 @@ fun GridItemResizeOverlay(
                             height += dragAmountY
 
                             onResizeGridItem(
-                                page,
                                 gridItem,
                                 width,
                                 height,
-                                cellWidth,
-                                cellHeight,
                                 Anchor.TOP_START,
                             )
                         },
@@ -253,7 +237,6 @@ fun GridItemResizeOverlay(
 @Composable
 fun WidgetGridItemResizeOverlay(
     modifier: Modifier = Modifier,
-    page: Int,
     gridItem: GridItem,
     cellWidth: Int,
     cellHeight: Int,
@@ -263,12 +246,9 @@ fun WidgetGridItemResizeOverlay(
     rowSpan: Int,
     columnSpan: Int,
     onResizeWidgetGridItem: (
-        page: Int,
         gridItem: GridItem,
-        widthPixel: Int,
-        heightPixel: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        width: Int,
+        height: Int,
         anchor: SideAnchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
@@ -353,12 +333,9 @@ fun WidgetGridItemResizeOverlay(
                                     y += dragAmount.y.roundToInt()
 
                                     onResizeWidgetGridItem(
-                                        page,
                                         gridItem,
                                         width,
                                         height,
-                                        cellWidth,
-                                        cellHeight,
                                         SideAnchor.BOTTOM,
                                     )
                                 },
@@ -386,12 +363,9 @@ fun WidgetGridItemResizeOverlay(
                                     width += dragAmountX
 
                                     onResizeWidgetGridItem(
-                                        page,
                                         gridItem,
                                         width,
                                         height,
-                                        cellWidth,
-                                        cellHeight,
                                         SideAnchor.LEFT,
                                     )
                                 },
@@ -419,12 +393,9 @@ fun WidgetGridItemResizeOverlay(
                                     height += dragAmountY
 
                                     onResizeWidgetGridItem(
-                                        page,
                                         gridItem,
                                         width,
                                         height,
-                                        cellWidth,
-                                        cellHeight,
                                         SideAnchor.TOP,
                                     )
                                 },
@@ -454,12 +425,9 @@ fun WidgetGridItemResizeOverlay(
                                     x += dragAmount.x.roundToInt()
 
                                     onResizeWidgetGridItem(
-                                        page,
                                         gridItem,
                                         width,
                                         height,
-                                        cellWidth,
-                                        cellHeight,
                                         SideAnchor.RIGHT,
                                     )
                                 },

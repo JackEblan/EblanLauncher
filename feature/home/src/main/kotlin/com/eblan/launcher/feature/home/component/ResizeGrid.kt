@@ -19,21 +19,19 @@ fun ResizeGridSubcomposeLayout(
     lastGridItemLayoutInfo: GridItemLayoutInfo?,
     gridItems: Map<Int, List<GridItem>>,
     onResizeGridItem: (
-        page: Int,
         gridItem: GridItem,
         width: Int,
         height: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onResizeWidgetGridItem: (
-        page: Int,
         gridItem: GridItem,
-        widthPixel: Int,
-        heightPixel: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        width: Int,
+        height: Int,
+        gridWidth: Int,
+        gridHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
@@ -81,7 +79,6 @@ fun ResizeGridSubcomposeLayout(
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 GridItemResizeOverlay(
-                                    page = page,
                                     gridItem = gridItem,
                                     cellWidth = cellWidth,
                                     cellHeight = cellHeight,
@@ -89,14 +86,22 @@ fun ResizeGridSubcomposeLayout(
                                     startColumn = gridItem.startColumn,
                                     rowSpan = gridItem.rowSpan,
                                     columnSpan = gridItem.columnSpan,
-                                    onResizeGridItem = onResizeGridItem,
+                                    onResizeGridItem = { gridItem, width, height, anchor ->
+                                        onResizeGridItem(
+                                            gridItem,
+                                            width,
+                                            height,
+                                            constraints.maxWidth,
+                                            constraints.maxHeight,
+                                            anchor,
+                                        )
+                                    },
                                     onResizeEnd = onResizeEnd,
                                 )
                             }
 
                             is GridItemData.Widget -> {
                                 WidgetGridItemResizeOverlay(
-                                    page = page,
                                     gridItem = gridItem,
                                     cellWidth = cellWidth,
                                     cellHeight = cellHeight,
@@ -105,7 +110,16 @@ fun ResizeGridSubcomposeLayout(
                                     startColumn = gridItem.startColumn,
                                     rowSpan = gridItem.rowSpan,
                                     columnSpan = gridItem.columnSpan,
-                                    onResizeWidgetGridItem = onResizeWidgetGridItem,
+                                    onResizeWidgetGridItem = { gridItem, width, height, anchor ->
+                                        onResizeWidgetGridItem(
+                                            gridItem,
+                                            width,
+                                            height,
+                                            constraints.maxWidth,
+                                            constraints.maxHeight,
+                                            anchor,
+                                        )
+                                    },
                                     onResizeEnd = onResizeEnd,
                                 )
                             }

@@ -8,4 +8,9 @@ data class GridItem(
     val rowSpan: Int,
     val columnSpan: Int,
     val data: GridItemData,
+    val associate: Associate,
 )
+
+enum class Associate {
+    Grid, Dock
+}

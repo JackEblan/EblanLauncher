@@ -57,6 +57,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
             rowSpan = rowSpan,
             columnSpan = columnSpan,
             data = data,
+            associate = associate,
         )
     }
 
@@ -69,6 +70,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
             rowSpan = rowSpan,
             columnSpan = columnSpan,
             data = data,
+            associate = associate,
         )
     }
 }

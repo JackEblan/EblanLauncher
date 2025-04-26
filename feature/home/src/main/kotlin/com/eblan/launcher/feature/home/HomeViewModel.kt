@@ -8,8 +8,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.domain.repository.DockCacheRepository
-import com.eblan.launcher.domain.repository.DockRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -33,6 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -56,10 +55,12 @@ class HomeViewModel @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
-    private val dockRepository: DockRepository,
-    private val dockCacheRepository: DockCacheRepository,
 ) : ViewModel() {
-    val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
+    private val _isCache = MutableStateFlow(false)
+
+    val homeUiState = _isCache.flatMapLatest { isCache ->
+        groupGridItemsByPageUseCase(isCache = isCache)
+    }.map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,
@@ -84,14 +85,6 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyMap(),
         )
 
-    val gridCacheItems = gridCacheRepository.gridCacheItems.map { gridItems ->
-        gridItems.groupBy { gridItem -> gridItem.page }
-    }.flowOn(Dispatchers.Default).stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyMap(),
-    )
-
     private var _pageDirection = MutableStateFlow<PageDirection?>(null)
 
     val pageDirection = _pageDirection.asStateFlow()
@@ -108,12 +101,6 @@ class HomeViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null,
-    )
-
-    val dockCacheItems = dockCacheRepository.dockCacheItems.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList(),
     )
 
     private var gridItemJob: Job? = null
@@ -157,12 +144,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resizeGridItem(
-        page: Int,
         gridItem: GridItem,
         width: Int,
         height: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
         anchor: Anchor,
     ) {
         viewModelScope.launch {
@@ -172,12 +159,12 @@ class HomeViewModel @Inject constructor(
                 delay(gridItemDelayTimeInMillis)
 
                 resizeGridItemUseCase(
-                    page = page,
                     gridItem = gridItem,
                     width = width,
                     height = height,
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                    dockHeight = dockHeight,
                     anchor = anchor,
                 )
             }
@@ -185,12 +172,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resizeWidgetGridItem(
-        page: Int,
         gridItem: GridItem,
         width: Int,
         height: Int,
-        cellWidth: Int,
-        cellHeight: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+        dockHeight: Int,
         anchor: SideAnchor,
     ) {
         viewModelScope.launch {
@@ -200,12 +187,12 @@ class HomeViewModel @Inject constructor(
                 delay(gridItemDelayTimeInMillis)
 
                 resizeWidgetGridItemUseCase(
-                    page = page,
                     gridItem = gridItem,
                     width = width,
                     height = height,
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                    dockHeight = dockHeight,
                     anchor = anchor,
                 )
             }
@@ -251,10 +238,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
-            dockCacheRepository.insertDockItems(dockItems = dockRepository.dockItems.first())
-
             _screen.update {
                 screen
+            }
+
+            _isCache.update {
+                true
             }
         }
     }
@@ -263,22 +252,24 @@ class HomeViewModel @Inject constructor(
         packageManagerWrapper.launchIntentForPackage(packageName = packageName)
     }
 
-    fun getWallpaper() {
-        viewModelScope.launch {
-            _wallpaper.update {
-                wallpaperManagerWrapper.getWallpaper()
-            }
-        }
-    }
-
     fun resetGridCache() {
         viewModelScope.launch {
             gridRepository.upsertGridItems(gridItems = gridCacheRepository.gridCacheItems.first())
 
-            dockRepository.upsertDockItems(dockItems = dockCacheRepository.dockCacheItems.first())
-
             _screen.update {
                 Screen.Pager
+            }
+
+            _isCache.update {
+                false
+            }
+        }
+    }
+
+    private fun getWallpaper() {
+        viewModelScope.launch {
+            _wallpaper.update {
+                wallpaperManagerWrapper.getWallpaper()
             }
         }
     }

@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
@@ -92,7 +93,10 @@ fun DragScreen(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onDragCancel: () -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragEnd: (
+        targetPage: Int,
+        associate: Associate,
+    ) -> Unit,
 ) {
     val startingPage = calculatePage(
         index = currentPage,
@@ -200,7 +204,10 @@ fun DragScreen(
                                 pageCount = pageCount,
                             )
 
-                            onDragEnd(targetPage)
+                            onDragEnd(
+                                targetPage,
+                                gridItemSource.gridItemLayoutInfo.gridItem.associate,
+                            )
                         }
 
                         is GridItemData.Widget -> {
@@ -226,7 +233,10 @@ fun DragScreen(
                                     pageCount = pageCount,
                                 )
 
-                                onDragEnd(targetPage)
+                                onDragEnd(
+                                    targetPage,
+                                    gridItemSource.gridItemLayoutInfo.gridItem.associate,
+                                )
                             } else {
                                 val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                                     putExtra(
@@ -255,7 +265,10 @@ fun DragScreen(
                         pageCount = pageCount,
                     )
 
-                    onDragEnd(targetPage)
+                    onDragEnd(
+                        targetPage,
+                        gridItemSource.gridItemLayoutInfo.gridItem.associate,
+                    )
                 }
             }
 
@@ -278,7 +291,10 @@ fun DragScreen(
                 pageCount = pageCount,
             )
 
-            onDragEnd(targetPage)
+            onDragEnd(
+                targetPage,
+                gridItemSource.gridItemLayoutInfo.gridItem.associate,
+            )
         }
 
         if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
@@ -291,7 +307,10 @@ fun DragScreen(
                 pageCount = pageCount,
             )
 
-            onDragEnd(targetPage)
+            onDragEnd(
+                targetPage,
+                gridItemSource.gridItemLayoutInfo.gridItem.associate,
+            )
         }
     }
 

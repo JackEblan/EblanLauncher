@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -499,8 +500,10 @@ fun Success(
                     onDragCancel = {
                         onResetGridCache()
                     },
-                    onDragEnd = { targetPage ->
-                        showMenu = true
+                    onDragEnd = { targetPage, associate ->
+                        if (associate == Associate.Grid) {
+                            showMenu = true
+                        }
 
                         onResetGridCache()
 

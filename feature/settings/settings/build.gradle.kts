@@ -24,7 +24,7 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.feature.settings"
+    namespace = "com.eblan.launcher.feature.settings.settings"
 }
 
 dependencies {

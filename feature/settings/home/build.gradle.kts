@@ -15,9 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.navigation
 
-import kotlinx.serialization.Serializable
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+    alias(libs.plugins.roborazzi)
+}
 
-@Serializable
-data object SettingsRouteData
+android {
+    namespace = "com.eblan.launcher.feature.settings.home"
+}
+
+dependencies {
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
+}

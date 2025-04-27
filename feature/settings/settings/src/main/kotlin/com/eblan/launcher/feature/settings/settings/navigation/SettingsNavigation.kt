@@ -15,14 +15,25 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.navigation
+package com.eblan.launcher.feature.settings.settings.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.settings.SettingsRoute
+import com.eblan.launcher.feature.settings.settings.SettingsRoute
 
-fun NavGraphBuilder.settingsScreen() {
+fun NavController.navigateToSettingsNavigation() {
+    navigate(SettingsNavigation)
+}
+
+fun NavGraphBuilder.settingsScreen(
+    onNavigateUp: () -> Unit,
+    onHome: () -> Unit,
+) {
     composable<SettingsRouteData> {
-        SettingsRoute()
+        SettingsRoute(
+            onNavigateUp = onNavigateUp,
+            onHome = onHome,
+        )
     }
 }

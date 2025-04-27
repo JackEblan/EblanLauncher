@@ -15,7 +15,7 @@ class DeletePageUseCase @Inject constructor(
         if (userData.pageCount > 1) {
             userDataRepository.updatePageCount(pageCount = userData.pageCount - 1)
 
-            gridRepository.deleteItemsOnPage(page = page)
+            gridRepository.deleteGridItemsByPage(page = page)
 
             gridRepository.shiftPagesAfterDeletedPage(page = page)
         }

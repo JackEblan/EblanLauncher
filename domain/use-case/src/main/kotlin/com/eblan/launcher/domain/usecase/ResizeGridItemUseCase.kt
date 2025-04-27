@@ -18,7 +18,6 @@ class ResizeGridItemUseCase @Inject constructor(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: Anchor,
     ) {
         val userData = userDataRepository.userData.first()
@@ -51,7 +50,7 @@ class ResizeGridItemUseCase @Inject constructor(
                     rows = userData.dockRows,
                     columns = userData.dockColumns,
                     gridWidth = gridWidth,
-                    gridHeight = dockHeight,
+                    gridHeight = userData.dockHeight,
                     anchor = anchor,
                 )
 

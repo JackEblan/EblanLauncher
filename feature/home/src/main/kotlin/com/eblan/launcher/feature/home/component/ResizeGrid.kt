@@ -1,19 +1,14 @@
 package com.eblan.launcher.feature.home.component
 
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 
 @Composable
 fun ResizeGridSubcomposeLayout(
@@ -21,7 +16,7 @@ fun ResizeGridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    lastGridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItemId: String?,
     gridItems: Map<Int, List<GridItem>>,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -40,7 +35,7 @@ fun ResizeGridSubcomposeLayout(
         anchor: SideAnchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable (gridItem: GridItem) -> Unit,
+    gridItemContent: @Composable BoxScope.(gridItem: GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns
@@ -77,9 +72,7 @@ fun ResizeGridSubcomposeLayout(
                     )
                 }
 
-                val gridItemOverlay = lastGridItemLayoutInfo?.gridItem?.id == gridItem.id
-
-                if (gridItemOverlay) {
+                if (gridItemId == gridItem.id) {
                     subcompose("Resize") {
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {

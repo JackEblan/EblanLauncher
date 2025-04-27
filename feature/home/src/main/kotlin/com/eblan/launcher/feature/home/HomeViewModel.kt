@@ -147,7 +147,6 @@ class HomeViewModel @Inject constructor(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: Anchor,
     ) {
         viewModelScope.launch {
@@ -162,7 +161,6 @@ class HomeViewModel @Inject constructor(
                     height = height,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    dockHeight = dockHeight,
                     anchor = anchor,
                 )
             }
@@ -175,7 +173,6 @@ class HomeViewModel @Inject constructor(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: SideAnchor,
     ) {
         viewModelScope.launch {
@@ -190,7 +187,6 @@ class HomeViewModel @Inject constructor(
                     height = height,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    dockHeight = dockHeight,
                     anchor = anchor,
                 )
             }

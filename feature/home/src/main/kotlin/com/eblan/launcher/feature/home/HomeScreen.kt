@@ -131,7 +131,6 @@ fun HomeScreen(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onResizeWidgetGridItem: (
@@ -140,7 +139,6 @@ fun HomeScreen(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
     onUpdateWidgetGridItem: (
@@ -230,7 +228,6 @@ fun Success(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onResizeWidgetGridItem: (
@@ -239,7 +236,6 @@ fun Success(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
     onUpdateWidgetGridItem: (

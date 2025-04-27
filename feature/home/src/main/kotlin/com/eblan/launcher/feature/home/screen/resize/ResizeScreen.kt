@@ -37,7 +37,6 @@ fun ResizeScreen(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: Anchor,
     ) -> Unit,
     onResizeWidgetGridItem: (
@@ -46,7 +45,6 @@ fun ResizeScreen(
         height: Int,
         gridWidth: Int,
         gridHeight: Int,
-        dockHeight: Int,
         anchor: SideAnchor,
     ) -> Unit,
     onResizeEnd: () -> Unit,
@@ -74,30 +72,10 @@ fun ResizeScreen(
             page = page,
             rows = rows,
             columns = columns,
-            lastGridItemLayoutInfo = gridItemLayoutInfo,
+            gridItemId = gridItemLayoutInfo?.gridItem?.id,
             gridItems = gridItems,
-            onResizeGridItem = { gridItem, width, height, gridWidth, gridHeight, anchor ->
-                onResizeGridItem(
-                    gridItem,
-                    width,
-                    height,
-                    gridWidth,
-                    gridHeight,
-                    dockHeight,
-                    anchor,
-                )
-            },
-            onResizeWidgetGridItem = { gridItem, width, height, gridWidth, gridHeight, anchor ->
-                onResizeWidgetGridItem(
-                    gridItem,
-                    width,
-                    height,
-                    gridWidth,
-                    gridHeight,
-                    dockHeight,
-                    anchor,
-                )
-            },
+            onResizeGridItem = onResizeGridItem,
+            onResizeWidgetGridItem = onResizeWidgetGridItem,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {

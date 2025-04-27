@@ -3,12 +3,13 @@ package com.eblan.launcher.feature.home.component
 import android.appwidget.AppWidgetHostView
 import android.widget.FrameLayout
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,7 +61,7 @@ fun AnimatedGridItemContainer(
     startColumn: Int,
     cellWidth: Int,
     cellHeight: Int,
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val width by animateIntAsState(targetValue = columnSpan * cellWidth)
 
@@ -70,7 +71,7 @@ fun AnimatedGridItemContainer(
 
     val y by animateIntAsState(targetValue = startRow * cellHeight)
 
-    Surface(
+    Box(
         modifier = modifier.animatedGridItemPlacement(
             width = width,
             height = height,

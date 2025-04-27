@@ -14,9 +14,9 @@ class ShiftAlgorithmUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
+        movingGridItem: GridItem,
         rows: Int,
         columns: Int,
-        movingGridItem: GridItem,
     ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
             if (isGridItemSpanWithinBounds(

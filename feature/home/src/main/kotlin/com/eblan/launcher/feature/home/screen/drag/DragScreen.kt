@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
@@ -59,7 +61,6 @@ import kotlin.math.roundToInt
 @Composable
 fun DragScreen(
     modifier: Modifier = Modifier,
-    pageDirection: PageDirection?,
     currentPage: Int,
     rows: Int,
     columns: Int,
@@ -77,12 +78,9 @@ fun DragScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     onMoveGridItem: (
-        page: Int,
         gridItem: GridItem,
-        x: Int,
-        y: Int,
-        gridWidth: Int,
-        gridHeight: Int,
+        rows: Int,
+        columns: Int,
     ) -> Unit,
     onUpdatePageCount: (Int) -> Unit,
     onUpdateWidgetGridItem: (
@@ -92,7 +90,10 @@ fun DragScreen(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onDragCancel: () -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragEnd: (
+        targetPage: Int,
+        associate: Associate,
+    ) -> Unit,
 ) {
     val startingPage = calculatePage(
         index = currentPage,
@@ -127,6 +128,8 @@ fun DragScreen(
     val dockHeightDp = with(density) {
         dockHeight.toDp()
     }
+
+    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
@@ -174,14 +177,47 @@ fun DragScreen(
 
     LaunchedEffect(key1 = gridItemOffset) {
         if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-            onMoveGridItem(
-                index,
-                gridItemSource.gridItemLayoutInfo.gridItem,
-                gridItemOffset.x.roundToInt(),
-                gridItemOffset.y.roundToInt(),
-                constraintsMaxWidth,
-                constraintsMaxHeight,
-            )
+            if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width * 0.25) < 0) {
+                pageDirection = PageDirection.Left
+            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width * 0.75) > constraintsMaxWidth) {
+                pageDirection = PageDirection.Right
+            } else {
+                pageDirection = null
+
+                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                    val dockY = gridItemOffset.y.roundToInt() - (constraintsMaxHeight - dockHeight)
+
+                    val gridItem = moveGridItemWithCoordinates(
+                        gridItem = gridItemSource.gridItemLayoutInfo.gridItem,
+                        x = gridItemOffset.x.roundToInt(),
+                        y = dockY,
+                        rows = dockRows,
+                        columns = dockColumns,
+                        gridWidth = constraintsMaxWidth,
+                        gridHeight = dockHeight,
+                    ).copy(
+                        page = index,
+                        associate = Associate.Dock,
+                    )
+
+                    onMoveGridItem(gridItem, dockRows, dockColumns)
+                } else {
+                    val gridItem = moveGridItemWithCoordinates(
+                        gridItem = gridItemSource.gridItemLayoutInfo.gridItem,
+                        x = gridItemOffset.x.roundToInt(),
+                        y = gridItemOffset.y.roundToInt(),
+                        rows = rows,
+                        columns = columns,
+                        gridWidth = constraintsMaxWidth,
+                        gridHeight = constraintsMaxHeight,
+                    ).copy(
+                        page = index,
+                        associate = Associate.Grid,
+                    )
+
+                    onMoveGridItem(gridItem, rows, columns)
+                }
+            }
         }
     }
 
@@ -202,7 +238,14 @@ fun DragScreen(
                                 pageCount = pageCount,
                             )
 
-                            onDragEnd(targetPage)
+                            val associate =
+                                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                                    Associate.Dock
+                                } else {
+                                    Associate.Grid
+                                }
+
+                            onDragEnd(targetPage, associate)
                         }
 
                         is GridItemData.Widget -> {
@@ -228,7 +271,14 @@ fun DragScreen(
                                     pageCount = pageCount,
                                 )
 
-                                onDragEnd(targetPage)
+                                val associate =
+                                    if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                                        Associate.Dock
+                                    } else {
+                                        Associate.Grid
+                                    }
+
+                                onDragEnd(targetPage, associate)
                             } else {
                                 val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                                     putExtra(
@@ -257,7 +307,14 @@ fun DragScreen(
                         pageCount = pageCount,
                     )
 
-                    onDragEnd(targetPage)
+                    val associate =
+                        if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                            Associate.Dock
+                        } else {
+                            Associate.Grid
+                        }
+
+                    onDragEnd(targetPage, associate)
                 }
             }
 
@@ -280,7 +337,14 @@ fun DragScreen(
                 pageCount = pageCount,
             )
 
-            onDragEnd(targetPage)
+            val associate =
+                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                    Associate.Dock
+                } else {
+                    Associate.Grid
+                }
+
+            onDragEnd(targetPage, associate)
         }
 
         if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
@@ -293,7 +357,14 @@ fun DragScreen(
                 pageCount = pageCount,
             )
 
-            onDragEnd(targetPage)
+            val associate =
+                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                    Associate.Dock
+                } else {
+                    Associate.Grid
+                }
+
+            onDragEnd(targetPage, associate)
         }
     }
 

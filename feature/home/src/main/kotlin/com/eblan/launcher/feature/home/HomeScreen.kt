@@ -45,10 +45,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
@@ -74,8 +74,6 @@ fun HomeRoute(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
-    val pageDirection by viewModel.pageDirection.collectAsStateWithLifecycle()
-
     val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
 
     val appWidgetProviderInfos by viewModel.appWidgetProviderInfos.collectAsStateWithLifecycle()
@@ -87,7 +85,6 @@ fun HomeRoute(
     HomeScreen(
         modifier = modifier,
         screen = screen,
-        pageDirection = pageDirection,
         homeUiState = homeUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
@@ -112,18 +109,14 @@ fun HomeRoute(
 fun HomeScreen(
     modifier: Modifier = Modifier,
     screen: Screen,
-    pageDirection: PageDirection?,
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     wallpaper: ByteArray?,
     onMoveGridItem: (
-        page: Int,
         gridItem: GridItem,
-        x: Int,
-        y: Int,
-        gridWidth: Int,
-        gridHeight: Int,
+        rows: Int,
+        columns: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -173,7 +166,6 @@ fun HomeScreen(
                         screen = screen,
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
-                        pageDirection = pageDirection,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
                         wallpaper = wallpaper,
@@ -207,7 +199,6 @@ fun Success(
     screen: Screen,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
-    pageDirection: PageDirection?,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     wallpaper: ByteArray?,
@@ -215,12 +206,9 @@ fun Success(
     constraintsMaxHeight: Int,
     dockGridItems: List<GridItem>,
     onMoveGridItem: (
-        page: Int,
         gridItem: GridItem,
-        x: Int,
-        y: Int,
-        gridWidth: Int,
-        gridHeight: Int,
+        rows: Int,
+        columns: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -283,6 +271,8 @@ fun Success(
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val scope = rememberCoroutineScope()
+
+    var associate by remember { mutableStateOf<Associate?>(null) }
 
     Box(
         modifier = modifier
@@ -376,6 +366,7 @@ fun Success(
                     dockGridItems = dockGridItems,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
+                    associate = associate,
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -477,7 +468,6 @@ fun Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    pageDirection = pageDirection,
                     currentPage = pagerState.currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
@@ -501,7 +491,9 @@ fun Success(
                     onDragCancel = {
                         onResetGridCache()
                     },
-                    onDragEnd = { targetPage ->
+                    onDragEnd = { targetPage, newAssociate ->
+                        associate = newAssociate
+
                         showMenu = true
 
                         onResetGridCache()

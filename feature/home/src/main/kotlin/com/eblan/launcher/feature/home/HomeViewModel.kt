@@ -6,7 +6,6 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -14,10 +13,9 @@ import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.DeletePageUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
-import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
-import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
+import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
@@ -43,18 +41,17 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
-    private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val userDataRepository: UserDataRepository,
-    private val movePageUseCase: MovePageUseCase,
     private val deletePageUseCase: DeletePageUseCase,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
+    private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
 ) : ViewModel() {
     private val _isCache = MutableStateFlow(false)
 
@@ -85,10 +82,6 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyMap(),
         )
 
-    private var _pageDirection = MutableStateFlow<PageDirection?>(null)
-
-    val pageDirection = _pageDirection.asStateFlow()
-
     private var _screen = MutableStateFlow(Screen.Pager)
 
     val screen = _screen.asStateFlow()
@@ -108,12 +101,9 @@ class HomeViewModel @Inject constructor(
     private var gridItemDelayTimeInMillis = 100L
 
     fun moveGridItem(
-        page: Int,
         gridItem: GridItem,
-        x: Int,
-        y: Int,
-        gridWidth: Int,
-        gridHeight: Int,
+        rows: Int,
+        columns: Int,
     ) {
         viewModelScope.launch {
             gridItemJob?.cancelAndJoin()
@@ -121,21 +111,10 @@ class HomeViewModel @Inject constructor(
             gridItemJob = launch {
                 delay(gridItemDelayTimeInMillis)
 
-                _pageDirection.update {
-                    movePageUseCase(
-                        gridItem = gridItem,
-                        x = x,
-                        gridWidth = gridWidth,
-                    )
-                }
-
-                moveGridItemUseCase(
-                    page = page,
-                    gridItem = gridItem,
-                    x = x,
-                    y = y,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                shiftAlgorithmUseCase(
+                    movingGridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
                 )
             }
         }

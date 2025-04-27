@@ -11,9 +11,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -26,6 +23,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
@@ -60,6 +58,7 @@ fun PagerScreen(
     dockGridItems: List<GridItem>,
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
+    associate: Associate?,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -75,12 +74,6 @@ fun PagerScreen(
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
-    }
-
-    val isDraggingOnDock by remember {
-        derivedStateOf {
-            gridItemOffset.y > constraintsMaxHeight - dockHeight
-        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -240,7 +233,7 @@ fun PagerScreen(
                 when (val data = gridItemLayoutInfo.gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoMenuOverlay(
-                            showResize = !isDraggingOnDock,
+                            showResize = associate == Associate.Grid,
                             onEdit = onEdit,
                             onResize = onResize,
                         )
@@ -248,7 +241,7 @@ fun PagerScreen(
 
                     is GridItemData.Widget -> {
                         val showResize =
-                            !isDraggingOnDock && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+                            associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
                         WidgetMenuOverlay(
                             showResize = showResize,

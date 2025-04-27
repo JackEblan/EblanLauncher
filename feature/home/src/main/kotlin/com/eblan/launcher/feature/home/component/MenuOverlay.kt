@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ApplicationInfoMenuOverlay(
     modifier: Modifier = Modifier,
+    showResize: Boolean,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
@@ -31,10 +32,12 @@ fun ApplicationInfoMenuOverlay(
                     Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                 }
 
-                IconButton(
-                    onClick = onResize,
-                ) {
-                    Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                if (showResize) {
+                    IconButton(
+                        onClick = onResize,
+                    ) {
+                        Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                    }
                 }
 
                 IconButton(

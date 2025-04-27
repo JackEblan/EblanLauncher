@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.window.Popup
 import com.eblan.launcher.domain.model.GridItem
 
 @Composable
@@ -13,10 +12,7 @@ fun GridSubcomposeLayout(
     page: Int,
     rows: Int,
     columns: Int,
-    gridItemId: String?,
     gridItems: Map<Int, List<GridItem>>,
-    showMenu: Boolean,
-    onDismissRequest: () -> Unit,
     gridItemContent: @Composable (
         gridItem: GridItem,
         x: Int,
@@ -24,7 +20,6 @@ fun GridSubcomposeLayout(
         width: Int,
         height: Int,
     ) -> Unit,
-    menuContent: @Composable (GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns
@@ -52,57 +47,7 @@ fun GridSubcomposeLayout(
                         y = gridItem.startRow * cellHeight,
                     )
                 }
-
-                if (showMenu && gridItemId == gridItem.id) {
-                    subcompose("Menu") {
-                        GridItemMenu(
-                            cellWidth = cellWidth,
-                            cellHeight = cellHeight,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            onDismissRequest = onDismissRequest,
-                            content = {
-                                menuContent(gridItem)
-                            },
-                        )
-                    }.forEach { measurable ->
-                        measurable.measure(Constraints()).placeRelative(x = 0, y = 0)
-                    }
-                }
             }
         }
     }
-}
-
-@Composable
-private fun GridItemMenu(
-    cellWidth: Int,
-    cellHeight: Int,
-    startRow: Int,
-    startColumn: Int,
-    rowSpan: Int,
-    columnSpan: Int,
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    val width = columnSpan * cellWidth
-
-    val height = rowSpan * cellHeight
-
-    val x = startColumn * cellWidth
-
-    val y = startRow * cellHeight
-
-    Popup(
-        popupPositionProvider = MenuPositionProvider(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-        ),
-        onDismissRequest = onDismissRequest,
-        content = content,
-    )
 }

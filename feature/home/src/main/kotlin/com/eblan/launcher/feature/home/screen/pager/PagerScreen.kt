@@ -11,6 +11,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -20,6 +23,7 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
@@ -28,6 +32,7 @@ import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.WidgetGridItemBody
 import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
@@ -53,6 +58,8 @@ fun PagerScreen(
     drag: Drag,
     gridItemOffset: IntOffset,
     dockGridItems: List<GridItem>,
+    constraintsMaxWidth: Int,
+    constraintsMaxHeight: Int,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -68,6 +75,12 @@ fun PagerScreen(
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
+    }
+
+    val isDraggingOnDock by remember {
+        derivedStateOf {
+            gridItemOffset.y > constraintsMaxHeight - dockHeight
+        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -108,10 +121,7 @@ fun PagerScreen(
                 page = page,
                 rows = rows,
                 columns = columns,
-                gridItemId = gridItemLayoutInfo?.gridItem?.id,
                 gridItems = gridItems,
-                showMenu = showMenu,
-                onDismissRequest = onDismissRequest,
                 gridItemContent = { gridItem, x, y, width, height ->
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
@@ -150,24 +160,6 @@ fun PagerScreen(
                                         ),
                                     )
                                 },
-                            )
-                        }
-                    }
-                },
-                menuContent = { gridItem ->
-                    when (val data = gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoMenuOverlay(
-                                onEdit = onEdit,
-                                onResize = onResize,
-                            )
-                        }
-
-                        is GridItemData.Widget -> {
-                            WidgetMenuOverlay(
-                                showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE,
-                                onEdit = onEdit,
-                                onResize = onResize,
                             )
                         }
                     }
@@ -231,6 +223,42 @@ fun PagerScreen(
                 }
             }
         }
+    }
+
+    if (showMenu && gridItemLayoutInfo?.gridItem != null) {
+        GridItemMenu(
+            rows = rows,
+            columns = columns,
+            constraintsMaxWidth = constraintsMaxWidth,
+            constraintsMaxHeight = constraintsMaxHeight,
+            x = gridItemOffset.x - gridItemLayoutInfo.width / 2,
+            y = gridItemOffset.y - gridItemLayoutInfo.height / 2,
+            rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
+            columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
+            onDismissRequest = onDismissRequest,
+            content = {
+                when (val data = gridItemLayoutInfo.gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        ApplicationInfoMenuOverlay(
+                            showResize = !isDraggingOnDock,
+                            onEdit = onEdit,
+                            onResize = onResize,
+                        )
+                    }
+
+                    is GridItemData.Widget -> {
+                        val showResize =
+                            !isDraggingOnDock && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+
+                        WidgetMenuOverlay(
+                            showResize = showResize,
+                            onEdit = onEdit,
+                            onResize = onResize,
+                        )
+                    }
+                }
+            },
+        )
     }
 }
 
@@ -317,4 +345,37 @@ private fun WidgetGridItem(
             },
         )
     }
+}
+
+@Composable
+fun GridItemMenu(
+    rows: Int,
+    columns: Int,
+    constraintsMaxWidth: Int,
+    constraintsMaxHeight: Int,
+    x: Int,
+    y: Int,
+    rowSpan: Int,
+    columnSpan: Int,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val cellWidth = constraintsMaxWidth / columns
+
+    val cellHeight = constraintsMaxHeight / rows
+
+    val width = columnSpan * cellWidth
+
+    val height = rowSpan * cellHeight
+
+    Popup(
+        popupPositionProvider = MenuPositionProvider(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+        ),
+        onDismissRequest = onDismissRequest,
+        content = content,
+    )
 }

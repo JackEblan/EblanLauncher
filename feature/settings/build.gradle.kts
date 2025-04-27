@@ -15,25 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import com.eblan.launcher.feature.home.navigation.HomeRouteData
-import com.eblan.launcher.feature.home.navigation.homeScreen
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+    alias(libs.plugins.roborazzi)
+}
 
-@Composable
-fun EblanNavHost(
-    navController: NavHostController,
-) {
-    NavHost(
-        navController = navController,
-        startDestination = HomeRouteData::class,
-    ) {
-        homeScreen(
-            onEdit = {},
-            onSettings = {},
-        )
-    }
+android {
+    namespace = "com.eblan.launcher.feature.settings"
+}
+
+dependencies {
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
 }

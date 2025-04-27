@@ -17,18 +17,45 @@
  */
 
 plugins {
+    alias(libs.plugins.protobuf)
     alias(libs.plugins.com.eblan.launcher.library)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
 }
 
 android {
-    namespace = "com.eblan.launcher.data.repository"
+    namespace = "com.eblan.launcher.data.datastore"
+
+    defaultConfig {
+        consumerProguardFiles("consumer-proguard-rules.pro")
+    }
+}
+
+// Setup protobuf configuration, generating lite Java and Kotlin classes
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                register("java") {
+                    option("lite")
+                }
+                register("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
 
 dependencies {
-    implementation(projects.data.datastore)
-    implementation(projects.data.room)
+    implementation(libs.androidx.dataStore.core)
+    implementation(libs.protobuf.kotlin.lite)
+
+    implementation(projects.common)
     implementation(projects.domain.common)
+    implementation(projects.domain.model)
     implementation(projects.domain.repository)
 }

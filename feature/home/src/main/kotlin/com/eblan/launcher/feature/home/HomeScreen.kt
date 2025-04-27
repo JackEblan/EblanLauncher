@@ -7,15 +7,17 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,7 +39,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,8 +67,10 @@ import kotlin.math.atan2
 
 @Composable
 fun HomeRoute(
-    modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
     onEdit: (String) -> Unit,
+    onSettings: () -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -101,6 +104,7 @@ fun HomeRoute(
         onLaunchApplication = viewModel::launchApplication,
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
+        onSettings = onSettings,
     )
 }
 
@@ -152,6 +156,7 @@ fun HomeScreen(
     onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
+    onSettings: () -> Unit,
 ) {
     Scaffold { paddingValues ->
         BoxWithConstraints(
@@ -189,6 +194,7 @@ fun HomeScreen(
                         onLaunchApplication = onLaunchApplication,
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
+                        onSettings = onSettings,
                     )
                 }
             }
@@ -249,6 +255,7 @@ fun Success(
     onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
+    onSettings: () -> Unit,
 ) {
     val pagerState = rememberPagerState(
         initialPage = if (userData.infiniteScroll) Int.MAX_VALUE / 2 else 0,
@@ -546,27 +553,31 @@ fun Success(
 
                     onDeletePage(page)
                 },
+                onSettings = onSettings,
             )
         }
     }
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 private fun HomeBottomSheet(
+    modifier: Modifier = Modifier,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onDeletePage: () -> Unit,
+    onSettings: () -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
+        modifier = modifier,
         sheetState = sheetState,
     ) {
-        Row {
+        FlowRow(modifier = Modifier.fillMaxWidth(), maxLines = 4) {
             Column(
                 modifier = Modifier
-                    .size(100.dp)
+                    .weight(1f)
                     .clickable {
                         onUpdateScreen(Screen.Application)
 
@@ -581,7 +592,7 @@ private fun HomeBottomSheet(
 
             Column(
                 modifier = Modifier
-                    .size(100.dp)
+                    .weight(1f)
                     .clickable {
                         onUpdateScreen(Screen.Widget)
 
@@ -596,7 +607,7 @@ private fun HomeBottomSheet(
 
             Column(
                 modifier = Modifier
-                    .size(100.dp)
+                    .weight(1f)
                     .clickable {
                         onDeletePage()
 
@@ -607,6 +618,21 @@ private fun HomeBottomSheet(
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
 
                 Text(text = "Delete page")
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        onSettings()
+
+                        onDismissRequest()
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+
+                Text(text = "Settings")
             }
         }
     }

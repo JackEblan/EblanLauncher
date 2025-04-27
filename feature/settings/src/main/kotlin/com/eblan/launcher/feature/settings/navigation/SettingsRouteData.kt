@@ -15,25 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.navigation
+package com.eblan.launcher.feature.settings.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import com.eblan.launcher.feature.home.navigation.HomeRouteData
-import com.eblan.launcher.feature.home.navigation.homeScreen
+import kotlinx.serialization.Serializable
 
-@Composable
-fun EblanNavHost(
-    navController: NavHostController,
-) {
-    NavHost(
-        navController = navController,
-        startDestination = HomeRouteData::class,
-    ) {
-        homeScreen(
-            onEdit = {},
-            onSettings = {},
-        )
-    }
-}
+@Serializable
+data object SettingsRouteData

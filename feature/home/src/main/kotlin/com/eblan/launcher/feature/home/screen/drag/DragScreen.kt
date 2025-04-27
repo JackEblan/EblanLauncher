@@ -149,6 +149,8 @@ fun DragScreen(
                     index = 0
                 } else if (index == pageCount - 1 && infiniteScroll && drag == Drag.Dragging) {
                     newPage = true
+                } else if (index == pageCount - 1 && drag == Drag.Dragging) {
+                    newPage = true
                 } else if (index < pageCount - 1 && canScroll && drag == Drag.Dragging) {
                     index += 1
                 }

@@ -377,6 +377,8 @@ fun Success(
                     dockGridItems = dockGridItems,
                     onDismissRequest = {
                         showMenu = false
+
+                        userScrollEnabled = true
                     },
                     onLongPressGrid = {
                         gridItemSource = null
@@ -503,6 +505,7 @@ fun Success(
                     onDragEnd = { targetPage, associate ->
                         if (associate == Associate.Grid) {
                             showMenu = true
+                            userScrollEnabled = false
                         }
 
                         onResetGridCache()

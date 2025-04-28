@@ -56,9 +56,6 @@ fun PagerScreen(
     drag: Drag,
     gridItemOffset: IntOffset,
     dockGridItems: List<GridItem>,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
-    associate: Associate?,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -220,20 +217,16 @@ fun PagerScreen(
 
     if (showMenu && gridItemLayoutInfo?.gridItem != null) {
         GridItemMenu(
-            rows = rows,
-            columns = columns,
-            constraintsMaxWidth = constraintsMaxWidth,
-            constraintsMaxHeight = constraintsMaxHeight,
-            x = gridItemOffset.x - gridItemLayoutInfo.width / 2,
-            y = gridItemOffset.y - gridItemLayoutInfo.height / 2,
-            rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
-            columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
+            x = gridItemLayoutInfo.x,
+            y = gridItemLayoutInfo.y - gridItemLayoutInfo.height / 2,
+            width = gridItemLayoutInfo.width,
+            height = gridItemLayoutInfo.height,
             onDismissRequest = onDismissRequest,
             content = {
                 when (val data = gridItemLayoutInfo.gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoMenuOverlay(
-                            showResize = associate == Associate.Grid,
+                            showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
                             onEdit = onEdit,
                             onResize = onResize,
                         )
@@ -241,7 +234,7 @@ fun PagerScreen(
 
                     is GridItemData.Widget -> {
                         val showResize =
-                            associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+                            gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
                         WidgetMenuOverlay(
                             showResize = showResize,
@@ -342,25 +335,13 @@ private fun WidgetGridItem(
 
 @Composable
 fun GridItemMenu(
-    rows: Int,
-    columns: Int,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
     x: Int,
     y: Int,
-    rowSpan: Int,
-    columnSpan: Int,
+    width: Int,
+    height: Int,
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val cellWidth = constraintsMaxWidth / columns
-
-    val cellHeight = constraintsMaxHeight / rows
-
-    val width = columnSpan * cellWidth
-
-    val height = rowSpan * cellHeight
-
     Popup(
         popupPositionProvider = MenuPositionProvider(
             x = x,

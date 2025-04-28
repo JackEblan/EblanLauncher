@@ -338,9 +338,6 @@ fun Success(
                     drag = drag,
                     gridItemOffset = gridItemOffset.round(),
                     dockGridItems = dockGridItems,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    associate = associate,
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -465,8 +462,9 @@ fun Success(
                     onDragCancel = {
                         onResetGridCache()
                     },
-                    onDragEnd = { targetPage, newAssociate ->
-                        associate = newAssociate
+                    onDragEnd = { targetPage, gridItemLayoutInfo ->
+                        gridItemSource =
+                            gridItemSource!!.copy(gridItemLayoutInfo = gridItemLayoutInfo)
 
                         showMenu = true
 

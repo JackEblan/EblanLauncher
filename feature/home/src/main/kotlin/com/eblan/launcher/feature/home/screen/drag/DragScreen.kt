@@ -92,7 +92,7 @@ fun DragScreen(
     onDragCancel: () -> Unit,
     onDragEnd: (
         targetPage: Int,
-        associate: Associate,
+        gridItemSource: GridItemLayoutInfo,
     ) -> Unit,
 ) {
     val startingPage = calculatePage(
@@ -130,6 +130,8 @@ fun DragScreen(
     }
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var gridItemLayoutInfo by remember { mutableStateOf(gridItemSource?.gridItemLayoutInfo) }
 
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
@@ -185,9 +187,13 @@ fun DragScreen(
                 pageDirection = null
 
                 if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                    val cellWidth = constraintsMaxWidth / dockColumns
+
+                    val cellHeight = dockHeight / dockRows
+
                     val dockY = gridItemOffset.y.roundToInt() - (constraintsMaxHeight - dockHeight)
 
-                    val gridItem = moveGridItemWithCoordinates(
+                    val movingGridItem = moveGridItemWithCoordinates(
                         gridItem = gridItemSource.gridItemLayoutInfo.gridItem,
                         x = gridItemOffset.x.roundToInt(),
                         y = dockY,
@@ -200,9 +206,21 @@ fun DragScreen(
                         associate = Associate.Dock,
                     )
 
-                    onMoveGridItem(gridItem, dockRows, dockColumns)
+                    gridItemLayoutInfo = GridItemLayoutInfo(
+                        gridItem = movingGridItem,
+                        width = movingGridItem.columnSpan * cellWidth,
+                        height = movingGridItem.rowSpan * cellHeight,
+                        x = movingGridItem.startColumn * cellWidth,
+                        y = movingGridItem.startRow * cellHeight,
+                    )
+
+                    onMoveGridItem(movingGridItem, dockRows, dockColumns)
                 } else {
-                    val gridItem = moveGridItemWithCoordinates(
+                    val cellWidth = constraintsMaxWidth / columns
+
+                    val cellHeight = constraintsMaxHeight / rows
+
+                    val movingGridItem = moveGridItemWithCoordinates(
                         gridItem = gridItemSource.gridItemLayoutInfo.gridItem,
                         x = gridItemOffset.x.roundToInt(),
                         y = gridItemOffset.y.roundToInt(),
@@ -215,7 +233,15 @@ fun DragScreen(
                         associate = Associate.Grid,
                     )
 
-                    onMoveGridItem(gridItem, rows, columns)
+                    gridItemLayoutInfo = GridItemLayoutInfo(
+                        gridItem = movingGridItem,
+                        width = movingGridItem.columnSpan * cellWidth,
+                        height = movingGridItem.rowSpan * cellHeight,
+                        x = movingGridItem.startColumn * cellWidth,
+                        y = movingGridItem.startRow * cellHeight,
+                    )
+
+                    onMoveGridItem(movingGridItem, rows, columns)
                 }
             }
         }
@@ -238,14 +264,7 @@ fun DragScreen(
                                 pageCount = pageCount,
                             )
 
-                            val associate =
-                                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
-                                    Associate.Dock
-                                } else {
-                                    Associate.Grid
-                                }
-
-                            onDragEnd(targetPage, associate)
+                            onDragEnd(targetPage, gridItemLayoutInfo!!)
                         }
 
                         is GridItemData.Widget -> {
@@ -271,14 +290,7 @@ fun DragScreen(
                                     pageCount = pageCount,
                                 )
 
-                                val associate =
-                                    if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
-                                        Associate.Dock
-                                    } else {
-                                        Associate.Grid
-                                    }
-
-                                onDragEnd(targetPage, associate)
+                                onDragEnd(targetPage, gridItemLayoutInfo!!)
                             } else {
                                 val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                                     putExtra(
@@ -307,14 +319,7 @@ fun DragScreen(
                         pageCount = pageCount,
                     )
 
-                    val associate =
-                        if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
-                            Associate.Dock
-                        } else {
-                            Associate.Grid
-                        }
-
-                    onDragEnd(targetPage, associate)
+                    onDragEnd(targetPage, gridItemLayoutInfo!!)
                 }
             }
 
@@ -337,14 +342,7 @@ fun DragScreen(
                 pageCount = pageCount,
             )
 
-            val associate =
-                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
-                    Associate.Dock
-                } else {
-                    Associate.Grid
-                }
-
-            onDragEnd(targetPage, associate)
+            onDragEnd(targetPage, gridItemLayoutInfo!!)
         }
 
         if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
@@ -357,14 +355,7 @@ fun DragScreen(
                 pageCount = pageCount,
             )
 
-            val associate =
-                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
-                    Associate.Dock
-                } else {
-                    Associate.Grid
-                }
-
-            onDragEnd(targetPage, associate)
+            onDragEnd(targetPage, gridItemLayoutInfo!!)
         }
     }
 
@@ -378,8 +369,7 @@ fun DragScreen(
         }
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             AnimatedContent(
                 targetState = index,
@@ -397,8 +387,7 @@ fun DragScreen(
                 },
             ) { targetCount ->
                 DragGridSubcomposeLayout(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     index = targetCount,
                     rows = rows,
                     columns = columns,

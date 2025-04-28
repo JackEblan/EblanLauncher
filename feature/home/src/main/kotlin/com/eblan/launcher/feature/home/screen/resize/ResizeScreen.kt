@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
@@ -31,22 +29,9 @@ fun ResizeScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
-    onResizeGridItem: (
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: Anchor,
-    ) -> Unit,
-    onResizeWidgetGridItem: (
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: SideAnchor,
-    ) -> Unit,
+    onResizeGridItem: (gridItem: GridItem,
+                    rows: Int,
+                    columns: Int,) -> Unit,
     onResizeEnd: () -> Unit,
 ) {
     val page = calculatePage(
@@ -62,8 +47,7 @@ fun ResizeScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         ResizeGridSubcomposeLayout(
             modifier = modifier
@@ -75,7 +59,6 @@ fun ResizeScreen(
             gridItemId = gridItemLayoutInfo?.gridItem?.id,
             gridItems = gridItems,
             onResizeGridItem = onResizeGridItem,
-            onResizeWidgetGridItem = onResizeWidgetGridItem,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {

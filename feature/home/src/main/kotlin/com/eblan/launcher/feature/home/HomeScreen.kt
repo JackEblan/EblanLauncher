@@ -44,12 +44,10 @@ import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -91,7 +89,6 @@ fun HomeRoute(
         wallpaper = wallpaper,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
-        onResizeWidgetGridItem = viewModel::resizeWidgetGridItem,
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
         onUpdatePageCount = viewModel::updatePageCount,
@@ -120,19 +117,8 @@ fun HomeScreen(
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: Anchor,
-    ) -> Unit,
-    onResizeWidgetGridItem: (
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: SideAnchor,
+        rows: Int,
+        columns: Int,
     ) -> Unit,
     onUpdateWidgetGridItem: (
         id: String,
@@ -174,7 +160,6 @@ fun HomeScreen(
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
-                        onResizeWidgetGridItem = onResizeWidgetGridItem,
                         onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onDeleteGridItem = onDeleteGridItem,
                         onUpdatePageCount = onUpdatePageCount,
@@ -212,19 +197,8 @@ fun Success(
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: Anchor,
-    ) -> Unit,
-    onResizeWidgetGridItem: (
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: SideAnchor,
+        rows: Int,
+        columns: Int,
     ) -> Unit,
     onUpdateWidgetGridItem: (
         id: String,
@@ -519,7 +493,6 @@ fun Success(
                     dockGridItems = dockGridItems,
                     gridItems = gridItems,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeWidgetGridItem = onResizeWidgetGridItem,
                     onResizeEnd = {
                         onResetGridCache()
                     },

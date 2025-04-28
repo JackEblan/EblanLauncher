@@ -3,18 +3,14 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.SideAnchor
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.DeletePageUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
-import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
-import com.eblan.launcher.domain.usecase.ResizeWidgetGridItemUseCase
 import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -41,8 +37,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
-    private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val resizeWidgetGridItemUseCase: ResizeWidgetGridItemUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val userDataRepository: UserDataRepository,
@@ -122,11 +116,8 @@ class HomeViewModel @Inject constructor(
 
     fun resizeGridItem(
         gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: Anchor,
+        rows: Int,
+        columns: Int,
     ) {
         viewModelScope.launch {
             gridItemJob?.cancelAndJoin()
@@ -134,39 +125,10 @@ class HomeViewModel @Inject constructor(
             gridItemJob = launch {
                 delay(gridItemDelayTimeInMillis)
 
-                resizeGridItemUseCase(
-                    gridItem = gridItem,
-                    width = width,
-                    height = height,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    anchor = anchor,
-                )
-            }
-        }
-    }
-
-    fun resizeWidgetGridItem(
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: SideAnchor,
-    ) {
-        viewModelScope.launch {
-            gridItemJob?.cancelAndJoin()
-
-            gridItemJob = launch {
-                delay(gridItemDelayTimeInMillis)
-
-                resizeWidgetGridItemUseCase(
-                    gridItem = gridItem,
-                    width = width,
-                    height = height,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    anchor = anchor,
+                shiftAlgorithmUseCase(
+                    movingGridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
                 )
             }
         }

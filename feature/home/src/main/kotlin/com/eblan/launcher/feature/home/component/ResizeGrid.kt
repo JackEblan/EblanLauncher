@@ -5,10 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
-import com.eblan.launcher.domain.model.Anchor
+import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
+import com.eblan.launcher.domain.grid.resizeWidgetGridItemWithPixels
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.SideAnchor
 
 @Composable
 fun ResizeGridSubcomposeLayout(
@@ -20,19 +20,8 @@ fun ResizeGridSubcomposeLayout(
     gridItems: Map<Int, List<GridItem>>,
     onResizeGridItem: (
         gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: Anchor,
-    ) -> Unit,
-    onResizeWidgetGridItem: (
-        gridItem: GridItem,
-        width: Int,
-        height: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        anchor: SideAnchor,
+        rows: Int,
+        columns: Int,
     ) -> Unit,
     onResizeEnd: () -> Unit,
     gridItemContent: @Composable BoxScope.(gridItem: GridItem) -> Unit,
@@ -85,14 +74,18 @@ fun ResizeGridSubcomposeLayout(
                                     rowSpan = gridItem.rowSpan,
                                     columnSpan = gridItem.columnSpan,
                                     onResizeGridItem = { gridItem, width, height, anchor ->
-                                        onResizeGridItem(
-                                            gridItem,
-                                            width,
-                                            height,
-                                            constraints.maxWidth,
-                                            constraints.maxHeight,
-                                            anchor,
+                                        val resizingGridItem = resizeGridItemWithPixels(
+                                            gridItem = gridItem,
+                                            width = width,
+                                            height = height,
+                                            rows = rows,
+                                            columns = columns,
+                                            gridWidth = constraints.maxWidth,
+                                            gridHeight = constraints.maxHeight,
+                                            anchor = anchor,
                                         )
+
+                                        onResizeGridItem(resizingGridItem, rows, columns)
                                     },
                                     onResizeEnd = onResizeEnd,
                                 )
@@ -109,14 +102,18 @@ fun ResizeGridSubcomposeLayout(
                                     rowSpan = gridItem.rowSpan,
                                     columnSpan = gridItem.columnSpan,
                                     onResizeWidgetGridItem = { gridItem, width, height, anchor ->
-                                        onResizeWidgetGridItem(
-                                            gridItem,
-                                            width,
-                                            height,
-                                            constraints.maxWidth,
-                                            constraints.maxHeight,
-                                            anchor,
+                                        val resizingGridItem = resizeWidgetGridItemWithPixels(
+                                            gridItem = gridItem,
+                                            width = width,
+                                            height = height,
+                                            rows = rows,
+                                            columns = columns,
+                                            gridWidth = constraints.maxWidth,
+                                            gridHeight = constraints.maxHeight,
+                                            anchor = anchor,
                                         )
+
+                                        onResizeGridItem(resizingGridItem, rows, columns)
                                     },
                                     onResizeEnd = onResizeEnd,
                                 )

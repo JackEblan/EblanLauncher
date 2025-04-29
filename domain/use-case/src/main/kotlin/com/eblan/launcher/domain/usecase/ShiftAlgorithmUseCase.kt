@@ -30,7 +30,7 @@ class ShiftAlgorithmUseCase @Inject constructor(
                         gridItem = gridItem,
                         rows = rows,
                         columns = columns,
-                    ) && gridItem.page == movingGridItem.page
+                    ) && gridItem.page == movingGridItem.page && gridItem.associate == movingGridItem.associate
                 }.toMutableList()
 
                 var gridItemShift: GridItemShift? = null

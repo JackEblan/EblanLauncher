@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -176,14 +175,9 @@ private fun getGridItemLayoutInfo(
 
     val cellHeight = gridHeight / rows
 
-    val (startRow, startColumn) = coordinatesToStartPosition(
-        x = x,
-        y = y,
-        rows = rows,
-        columns = columns,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
-    )
+    val startColumn = x / cellWidth
+
+    val startRow = y / cellHeight
 
     val gridItem = GridItem(
         id = Uuid.random().toHexString(),

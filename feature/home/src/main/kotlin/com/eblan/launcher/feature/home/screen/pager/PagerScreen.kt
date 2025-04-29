@@ -63,7 +63,7 @@ fun PagerScreen(
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onLaunchApplication: (String) -> Unit,
-    onDragStart: (IntOffset) -> Unit,
+    onDragStart: () -> Unit,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
@@ -73,18 +73,13 @@ fun PagerScreen(
         dockHeight.toDp()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        LaunchedEffect(key1 = drag) {
-            if (drag == Drag.Start && gridItemLayoutInfo != null) {
-                val offset = IntOffset(
-                    gridItemOffset.x - gridItemLayoutInfo.width / 2,
-                    gridItemOffset.y - gridItemLayoutInfo.height / 2,
-                )
-
-                onDragStart(offset)
-            }
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && gridItemLayoutInfo != null) {
+            onDragStart()
         }
+    }
 
+    Column(modifier = modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -218,7 +213,7 @@ fun PagerScreen(
     if (showMenu && gridItemLayoutInfo?.gridItem != null) {
         GridItemMenu(
             x = gridItemLayoutInfo.x,
-            y = gridItemLayoutInfo.y - gridItemLayoutInfo.height / 2,
+            y = gridItemLayoutInfo.y,
             width = gridItemLayoutInfo.width,
             height = gridItemLayoutInfo.height,
             onDismissRequest = onDismissRequest,

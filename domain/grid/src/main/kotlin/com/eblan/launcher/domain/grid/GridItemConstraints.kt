@@ -19,45 +19,6 @@ fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boo
 }
 
 /**
- * Converts pixel coordinates (x, y) into the corresponding grid cell indices (startRow, startColumn).
- *
- * The grid is organized as a matrix with a fixed number of rows and columns.
- * The size of a single grid cell is determined by the overall screen dimensions:
- *   - cellWidth = screenWidth / columns
- *   - cellHeight = screenHeight / rows
- *
- * The function then computes:
- *   - startColumn = x / cellWidth  (the horizontal index)
- *   - startRow = y / cellHeight    (the vertical index)
- *
- * These indices represent the grid cell in which the given pixel coordinates fall.
- *
- * @param x The x-coordinate in pixels.
- * @param y The y-coordinate in pixels.
- * @param rows The total number of rows in the grid.
- * @param columns The total number of columns in the grid.
- * @param gridWidth The total width of the screen (or container) in pixels.
- * @param gridHeight The total height of the screen (or container) in pixels.
- * @return A [Pair] where the first element is the start row and the second element is the start column.
- */
-fun coordinatesToStartPosition(
-    x: Int,
-    y: Int,
-    rows: Int,
-    columns: Int,
-    gridWidth: Int,
-    gridHeight: Int,
-): Pair<Int, Int> {
-    val cellWidth = gridWidth / columns
-    val cellHeight = gridHeight / rows
-
-    val startColumn = x / cellWidth
-    val startRow = y / cellHeight
-
-    return startRow to startColumn
-}
-
-/**
  * Checks if two grid items overlap.
  *
  * @param movingGridItem The first grid item.

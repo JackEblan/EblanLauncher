@@ -14,6 +14,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,18 +32,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.domain.grid.moveGridItemWithCoordinates
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -56,7 +54,6 @@ import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
-import kotlin.math.roundToInt
 
 @Composable
 fun DragScreen(
@@ -68,7 +65,7 @@ fun DragScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
-    gridItemOffset: Offset,
+    gridItemOffset: IntOffset,
     gridItemSource: GridItemSource?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
@@ -191,57 +188,45 @@ fun DragScreen(
 
                     val cellHeight = dockHeight / dockRows
 
-                    val dockY = gridItemOffset.y.roundToInt() - (constraintsMaxHeight - dockHeight)
+                    val dockY = gridItemOffset.y - (constraintsMaxHeight - dockHeight)
 
-                    val movingGridItem = moveGridItemWithCoordinates(
-                        gridItem = gridItemSource.gridItemLayoutInfo.gridItem,
-                        x = gridItemOffset.x.roundToInt(),
-                        y = dockY,
-                        rows = dockRows,
-                        columns = dockColumns,
-                        gridWidth = constraintsMaxWidth,
-                        gridHeight = dockHeight,
-                    ).copy(
+                    val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                         page = index,
+                        startRow = dockY / cellHeight,
+                        startColumn = gridItemOffset.x / cellWidth,
                         associate = Associate.Dock,
                     )
 
                     gridItemLayoutInfo = GridItemLayoutInfo(
-                        gridItem = movingGridItem,
-                        width = movingGridItem.columnSpan * cellWidth,
-                        height = movingGridItem.rowSpan * cellHeight,
-                        x = movingGridItem.startColumn * cellWidth,
-                        y = movingGridItem.startRow * cellHeight,
+                        gridItem = gridItem,
+                        width = gridItem.columnSpan * cellWidth,
+                        height = gridItem.rowSpan * cellHeight,
+                        x = gridItem.startColumn * cellWidth,
+                        y = gridItem.startRow * cellHeight,
                     )
 
-                    onMoveGridItem(movingGridItem, dockRows, dockColumns)
+                    onMoveGridItem(gridItem, dockRows, dockColumns)
                 } else {
                     val cellWidth = constraintsMaxWidth / columns
 
                     val cellHeight = constraintsMaxHeight / rows
 
-                    val movingGridItem = moveGridItemWithCoordinates(
-                        gridItem = gridItemSource.gridItemLayoutInfo.gridItem,
-                        x = gridItemOffset.x.roundToInt(),
-                        y = gridItemOffset.y.roundToInt(),
-                        rows = rows,
-                        columns = columns,
-                        gridWidth = constraintsMaxWidth,
-                        gridHeight = constraintsMaxHeight,
-                    ).copy(
+                    val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                         page = index,
+                        startRow = gridItemOffset.y / cellHeight,
+                        startColumn = gridItemOffset.x / cellWidth,
                         associate = Associate.Grid,
                     )
 
                     gridItemLayoutInfo = GridItemLayoutInfo(
-                        gridItem = movingGridItem,
-                        width = movingGridItem.columnSpan * cellWidth,
-                        height = movingGridItem.rowSpan * cellHeight,
-                        x = movingGridItem.startColumn * cellWidth,
-                        y = movingGridItem.startRow * cellHeight,
+                        gridItem = gridItem,
+                        width = gridItem.columnSpan * cellWidth,
+                        height = gridItem.rowSpan * cellHeight,
+                        x = gridItem.startColumn * cellWidth,
+                        y = gridItem.startRow * cellHeight,
                     )
 
-                    onMoveGridItem(movingGridItem, rows, columns)
+                    onMoveGridItem(gridItem, rows, columns)
                 }
             }
         }
@@ -364,7 +349,7 @@ fun DragScreen(
             GridItemOverlay(
                 preview = preview,
                 gridItemLayoutInfo = gridItemSource.gridItemLayoutInfo,
-                offset = gridItemOffset.round(),
+                offset = gridItemOffset,
             )
         }
 
@@ -417,7 +402,8 @@ fun DragScreen(
             DockGrid(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(dockHeightDp),
+                    .height(dockHeightDp)
+                    .background(color = Color.Gray),
                 rows = dockRows,
                 columns = dockColumns,
                 dockGridItems = dockGridItems,
@@ -465,7 +451,10 @@ private fun GridItemOverlay(
         Surface(
             modifier = modifier
                 .offset {
-                    offset
+                    IntOffset(
+                        x = offset.x - gridItemLayoutInfo.width / 2,
+                        y = offset.y - gridItemLayoutInfo.height / 2,
+                    )
                 }
                 .size(size)
                 .zIndex(1f),

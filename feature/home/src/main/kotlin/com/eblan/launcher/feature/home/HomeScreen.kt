@@ -34,17 +34,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -228,7 +226,7 @@ fun Success(
 
     val sheetState = rememberModalBottomSheetState()
 
-    var gridItemOffset by remember { mutableStateOf(Offset.Zero) }
+    var gridItemOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -245,8 +243,6 @@ fun Success(
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val scope = rememberCoroutineScope()
-
-    var associate by remember { mutableStateOf<Associate?>(null) }
 
     Box(
         modifier = modifier
@@ -294,7 +290,7 @@ fun Success(
                     onDragStart = { offset ->
                         drag = Drag.Start
 
-                        gridItemOffset = offset
+                        gridItemOffset = offset.round()
                     },
                     onDragEnd = {
                         drag = Drag.End
@@ -307,7 +303,7 @@ fun Success(
 
                         drag = Drag.Dragging
 
-                        gridItemOffset += dragAmount
+                        gridItemOffset += dragAmount.round()
                     },
                 )
             }
@@ -336,7 +332,7 @@ fun Success(
                     userScrollEnabled = userScrollEnabled,
                     dockHeight = userData.dockHeight,
                     drag = drag,
-                    gridItemOffset = gridItemOffset.round(),
+                    gridItemOffset = gridItemOffset,
                     dockGridItems = dockGridItems,
                     onDismissRequest = {
                         showMenu = false
@@ -360,9 +356,7 @@ fun Success(
                         )
 
                     },
-                    onDragStart = { intOffset ->
-                        gridItemOffset = intOffset.toOffset()
-
+                    onDragStart = {
                         onShowGridCache(Screen.Drag)
                     },
                     onLaunchApplication = onLaunchApplication,
@@ -382,7 +376,7 @@ fun Success(
                     columns = userData.columns,
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset.round(),
+                    gridItemOffset = gridItemOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
@@ -397,7 +391,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        gridItemOffset = offset.toOffset()
+                        gridItemOffset = offset
 
                         overlaySize = size
 
@@ -413,7 +407,7 @@ fun Success(
                     columns = userData.columns,
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset.round(),
+                    gridItemOffset = gridItemOffset,
                     appWidgetProviderInfos = appWidgetProviderInfos,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
@@ -428,7 +422,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        gridItemOffset = offset.toOffset()
+                        gridItemOffset = offset
 
                         overlaySize = size
 
@@ -464,7 +458,7 @@ fun Success(
                     },
                     onDragEnd = { targetPage, gridItemLayoutInfo ->
                         gridItemSource =
-                            gridItemSource!!.copy(gridItemLayoutInfo = gridItemLayoutInfo)
+                            gridItemSource?.copy(gridItemLayoutInfo = gridItemLayoutInfo)
 
                         showMenu = true
 

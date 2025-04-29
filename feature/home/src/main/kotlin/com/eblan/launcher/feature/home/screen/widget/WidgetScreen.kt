@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
-import com.eblan.launcher.domain.grid.coordinatesToStartPosition
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -272,14 +271,9 @@ private fun getGridItemLayoutInfo(
         rowSpan * cellHeight
     }
 
-    val (startRow, startColumn) = coordinatesToStartPosition(
-        x = x,
-        y = y,
-        rows = rows,
-        columns = columns,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
-    )
+    val startColumn = x / cellWidth
+
+    val startRow = y / cellHeight
 
     val data = GridItemData.Widget(
         appWidgetId = -1,

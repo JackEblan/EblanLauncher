@@ -385,13 +385,11 @@ fun Success(
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
                     },
-                    onDragStart = { offset, size, gridItemLayoutInfo ->
+                    onDragStart = { size, gridItemLayoutInfo ->
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.New,
                         )
-
-                        gridItemOffset = offset
 
                         overlaySize = size
 
@@ -416,13 +414,11 @@ fun Success(
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
                     },
-                    onDragStart = { offset, size, gridItemLayoutInfo ->
+                    onDragStart = { size, gridItemLayoutInfo ->
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.New,
                         )
-
-                        gridItemOffset = offset
 
                         overlaySize = size
 

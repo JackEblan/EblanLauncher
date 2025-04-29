@@ -58,7 +58,6 @@ fun ApplicationScreen(
     drag: Drag,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
-        offset: IntOffset,
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
@@ -91,13 +90,7 @@ fun ApplicationScreen(
                 addGridItemLayoutInfo.height,
             )
 
-            val offset = IntOffset(
-                x = gridItemOffset.x,
-                y = gridItemOffset.y,
-            )
-
             onDragStart(
-                offset,
                 size,
                 addGridItemLayoutInfo,
             )

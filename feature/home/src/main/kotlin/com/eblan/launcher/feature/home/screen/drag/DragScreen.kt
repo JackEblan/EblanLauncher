@@ -175,9 +175,9 @@ fun DragScreen(
 
     LaunchedEffect(key1 = gridItemOffset) {
         if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-            if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width) < 0) {
+            if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2) < 0) {
                 pageDirection = PageDirection.Left
-            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width) > constraintsMaxWidth) {
+            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth) {
                 pageDirection = PageDirection.Right
             } else {
                 pageDirection = null

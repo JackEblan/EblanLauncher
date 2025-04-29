@@ -54,7 +54,6 @@ fun WidgetScreen(
     drag: Drag,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
-        offset: IntOffset,
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
@@ -86,13 +85,7 @@ fun WidgetScreen(
                 addGridItemLayoutInfo.height,
             )
 
-            val offset = IntOffset(
-                x = gridItemOffset.x,
-                y = gridItemOffset.y,
-            )
-
             onDragStart(
-                offset,
                 size,
                 addGridItemLayoutInfo,
             )

@@ -174,15 +174,17 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = gridItemOffset) {
+        val isDraggingOnDock = gridItemOffset.y > constraintsMaxHeight - dockHeight
+
         if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-            if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2) < 0) {
+            if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2) < 0 && !isDraggingOnDock) {
                 pageDirection = PageDirection.Left
-            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth) {
+            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth && !isDraggingOnDock) {
                 pageDirection = PageDirection.Right
             } else {
                 pageDirection = null
 
-                if (gridItemOffset.y > constraintsMaxHeight - dockHeight) {
+                if (isDraggingOnDock) {
                     val cellWidth = constraintsMaxWidth / dockColumns
 
                     val cellHeight = dockHeight / dockRows

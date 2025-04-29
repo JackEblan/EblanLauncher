@@ -332,7 +332,6 @@ fun Success(
                     userScrollEnabled = userScrollEnabled,
                     dockHeight = userData.dockHeight,
                     drag = drag,
-                    gridItemOffset = gridItemOffset,
                     dockGridItems = dockGridItems,
                     onDismissRequest = {
                         showMenu = false

@@ -14,7 +14,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -207,9 +206,11 @@ fun DragScreen(
 
                     onMoveGridItem(gridItem, dockRows, dockColumns)
                 } else {
+                    val gridHeight = constraintsMaxHeight - dockHeight
+
                     val cellWidth = constraintsMaxWidth / columns
 
-                    val cellHeight = constraintsMaxHeight / rows
+                    val cellHeight = gridHeight / rows
 
                     val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                         page = index,
@@ -402,8 +403,7 @@ fun DragScreen(
             DockGrid(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(dockHeightDp)
-                    .background(color = Color.Gray),
+                    .height(dockHeightDp),
                 rows = dockRows,
                 columns = dockColumns,
                 dockGridItems = dockGridItems,

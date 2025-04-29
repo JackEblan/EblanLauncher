@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -54,7 +53,6 @@ fun PagerScreen(
     userScrollEnabled: Boolean,
     dockHeight: Int,
     drag: Drag,
-    gridItemOffset: IntOffset,
     dockGridItems: List<GridItem>,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,

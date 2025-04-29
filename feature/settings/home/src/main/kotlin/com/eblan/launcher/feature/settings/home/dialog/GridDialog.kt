@@ -78,7 +78,12 @@ fun GridDialog(
                     }
                     TextButton(
                         onClick = {
-                            onUpdateClick(currentRows.toInt(), currentColumns.toInt())
+                            onUpdateClick(
+                                currentRows.toInt().coerceAtLeast(1),
+                                currentColumns.toInt().coerceAtLeast(1),
+                            )
+
+                            onDismissRequest()
                         },
                     ) {
                         Text(text = "Update")

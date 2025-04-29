@@ -58,7 +58,9 @@ fun DockHeightDialog(
                     }
                     TextButton(
                         onClick = {
-                            onUpdateClick(currentDockHeight.toInt())
+                            onUpdateClick(currentDockHeight.toInt().coerceAtLeast(300))
+
+                            onDismissRequest()
                         },
                     ) {
                         Text(text = "Update")

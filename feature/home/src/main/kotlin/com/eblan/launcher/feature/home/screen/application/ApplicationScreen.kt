@@ -92,8 +92,8 @@ fun ApplicationScreen(
             )
 
             val offset = IntOffset(
-                gridItemOffset.x - size.width / 2,
-                gridItemOffset.y - size.height / 2,
+                x = gridItemOffset.x,
+                y = gridItemOffset.y,
             )
 
             onDragStart(

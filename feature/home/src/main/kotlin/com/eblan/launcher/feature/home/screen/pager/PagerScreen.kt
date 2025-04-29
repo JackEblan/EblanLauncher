@@ -54,6 +54,7 @@ fun PagerScreen(
     dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
+    constraintsMaxHeight: Int,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -209,35 +210,71 @@ fun PagerScreen(
     }
 
     if (showMenu && gridItemLayoutInfo?.gridItem != null) {
-        GridItemMenu(
-            x = gridItemLayoutInfo.x,
-            y = gridItemLayoutInfo.y,
-            width = gridItemLayoutInfo.width,
-            height = gridItemLayoutInfo.height,
-            onDismissRequest = onDismissRequest,
-            content = {
-                when (val data = gridItemLayoutInfo.gridItem.data) {
-                    is GridItemData.ApplicationInfo -> {
-                        ApplicationInfoMenuOverlay(
-                            showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
-                            onEdit = onEdit,
-                            onResize = onResize,
-                        )
-                    }
+        when (gridItemLayoutInfo.gridItem.associate) {
+            Associate.Grid -> {
+                GridItemMenu(
+                    x = gridItemLayoutInfo.x,
+                    y = gridItemLayoutInfo.y,
+                    width = gridItemLayoutInfo.width,
+                    height = gridItemLayoutInfo.height,
+                    onDismissRequest = onDismissRequest,
+                    content = {
+                        when (val data = gridItemLayoutInfo.gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                ApplicationInfoMenuOverlay(
+                                    showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
+                                    onEdit = onEdit,
+                                    onResize = onResize,
+                                )
+                            }
 
-                    is GridItemData.Widget -> {
-                        val showResize =
-                            gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+                            is GridItemData.Widget -> {
+                                val showResize =
+                                    gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
-                        WidgetMenuOverlay(
-                            showResize = showResize,
-                            onEdit = onEdit,
-                            onResize = onResize,
-                        )
-                    }
-                }
-            },
-        )
+                                WidgetMenuOverlay(
+                                    showResize = showResize,
+                                    onEdit = onEdit,
+                                    onResize = onResize,
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+
+            Associate.Dock -> {
+                GridItemMenu(
+                    x = gridItemLayoutInfo.x,
+                    y = constraintsMaxHeight - dockHeight,
+                    width = gridItemLayoutInfo.width,
+                    height = gridItemLayoutInfo.height,
+                    onDismissRequest = onDismissRequest,
+                    content = {
+                        when (val data = gridItemLayoutInfo.gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                ApplicationInfoMenuOverlay(
+                                    showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
+                                    onEdit = onEdit,
+                                    onResize = onResize,
+                                )
+                            }
+
+                            is GridItemData.Widget -> {
+                                val showResize =
+                                    gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+
+                                WidgetMenuOverlay(
+                                    showResize = showResize,
+                                    onEdit = onEdit,
+                                    onResize = onResize,
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+        }
     }
 }
 

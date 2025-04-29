@@ -333,6 +333,7 @@ fun Success(
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
+                    constraintsMaxHeight = constraintsMaxHeight,
                     onDismissRequest = {
                         showMenu = false
                     },

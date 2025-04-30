@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
@@ -16,7 +15,7 @@ import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
-import com.eblan.launcher.navigation.EblanNavHost
+import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -48,9 +47,17 @@ class MainActivity : ComponentActivity() {
                     darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
                     dynamicTheme = false,
                 ) {
-                    Surface {
-                        EblanNavHost(navController = navController)
-                    }
+                    MainNavHost(
+                        navController = navController,
+                        onSettings = {
+                            startActivity(
+                                Intent(
+                                    this,
+                                    SettingsActivity::class.java,
+                                ),
+                            )
+                        },
+                    )
                 }
             }
         }

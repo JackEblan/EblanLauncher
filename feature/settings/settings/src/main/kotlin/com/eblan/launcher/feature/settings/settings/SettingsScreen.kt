@@ -32,7 +32,7 @@ import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
 fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
-    onNavigateUp: () -> Unit,
+    onFinish: () -> Unit,
     onHome: () -> Unit,
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
@@ -40,7 +40,7 @@ fun SettingsRoute(
     SettingsScreen(
         modifier = modifier,
         settingsUiState = settingsUiState,
-        onNavigateUp = onNavigateUp,
+        onFinish = onFinish,
         onHome = onHome,
     )
 }
@@ -50,7 +50,7 @@ fun SettingsRoute(
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     settingsUiState: SettingsUiState,
-    onNavigateUp: () -> Unit,
+    onFinish: () -> Unit,
     onHome: () -> Unit,
 ) {
     Scaffold(
@@ -60,7 +60,7 @@ fun SettingsScreen(
                     Text(text = "Settings")
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
+                    IconButton(onClick = onFinish) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,

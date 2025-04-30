@@ -20,19 +20,13 @@ package com.eblan.launcher.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.navigation
 import com.eblan.launcher.feature.home.navigation.HomeRouteData
 import com.eblan.launcher.feature.home.navigation.homeScreen
-import com.eblan.launcher.feature.settings.home.navigation.homeSettingsScreen
-import com.eblan.launcher.feature.settings.home.navigation.navigateToHomeSettings
-import com.eblan.launcher.feature.settings.settings.navigation.SettingsNavigation
-import com.eblan.launcher.feature.settings.settings.navigation.SettingsRouteData
-import com.eblan.launcher.feature.settings.settings.navigation.navigateToSettingsNavigation
-import com.eblan.launcher.feature.settings.settings.navigation.settingsScreen
 
 @Composable
-fun EblanNavHost(
+fun MainNavHost(
     navController: NavHostController,
+    onSettings: () -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -40,18 +34,7 @@ fun EblanNavHost(
     ) {
         homeScreen(
             onEdit = {},
-            onSettings = navController::navigateToSettingsNavigation,
+            onSettings = onSettings,
         )
-
-        navigation<SettingsNavigation>(startDestination = SettingsRouteData) {
-            settingsScreen(
-                onNavigateUp = navController::navigateUp,
-                onHome = navController::navigateToHomeSettings,
-            )
-
-            homeSettingsScreen(
-                onNavigateUp = navController::navigateUp,
-            )
-        }
     }
 }

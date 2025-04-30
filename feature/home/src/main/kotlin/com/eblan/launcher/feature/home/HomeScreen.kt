@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -133,7 +134,7 @@ fun HomeScreen(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(containerColor = Color.Transparent) { paddingValues ->
         BoxWithConstraints(
             modifier = modifier
                 .fillMaxSize()

@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWithShift
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemShift
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -26,11 +27,23 @@ class ShiftAlgorithmUseCase @Inject constructor(
                 )
             ) {
                 val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
-                    isGridItemSpanWithinBounds(
-                        gridItem = gridItem,
-                        rows = rows,
-                        columns = columns,
-                    ) && gridItem.page == movingGridItem.page && gridItem.associate == movingGridItem.associate
+                    when (movingGridItem.associate) {
+                        Associate.Grid -> {
+                            isGridItemSpanWithinBounds(
+                                gridItem = gridItem,
+                                rows = rows,
+                                columns = columns,
+                            ) && gridItem.page == movingGridItem.page && gridItem.associate == Associate.Grid
+                        }
+
+                        Associate.Dock -> {
+                            isGridItemSpanWithinBounds(
+                                gridItem = gridItem,
+                                rows = rows,
+                                columns = columns,
+                            ) && gridItem.associate == Associate.Dock
+                        }
+                    }
                 }.toMutableList()
 
                 var gridItemShift: GridItemShift? = null

@@ -73,12 +73,22 @@ fun PagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && gridItemLayoutInfo != null) {
+        if (drag == Drag.Start && gridItemLayoutInfo != null && !pagerState.isScrollInProgress) {
             onDragStart()
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        onLongPressGrid()
+                    },
+                )
+            }
+            .fillMaxSize(),
+    ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -93,15 +103,7 @@ fun PagerScreen(
             )
 
             GridSubcomposeLayout(
-                modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = {
-                                onLongPressGrid()
-                            },
-                        )
-                    }
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 page = page,
                 rows = rows,
                 columns = columns,
@@ -153,13 +155,6 @@ fun PagerScreen(
 
         DockGrid(
             modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = {
-                            onLongPressGrid()
-                        },
-                    )
-                }
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,

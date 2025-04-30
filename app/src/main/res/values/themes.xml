@@ -13,8 +13,6 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:enforceStatusBarContrast" tools:targetApi="29">false</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
-
-        <item name="android:windowActivityTransitions">true</item>
     </style>
 
 </resources>

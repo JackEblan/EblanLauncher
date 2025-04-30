@@ -37,13 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -77,15 +75,12 @@ fun HomeRoute(
 
     val screen by viewModel.screen.collectAsStateWithLifecycle()
 
-    val wallpaper by viewModel.wallpaper.collectAsStateWithLifecycle()
-
     HomeScreen(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
-        wallpaper = wallpaper,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
@@ -108,7 +103,6 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
-    wallpaper: ByteArray?,
     onMoveGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -153,7 +147,6 @@ fun HomeScreen(
                         userData = homeUiState.gridItemsByPage.userData,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
-                        wallpaper = wallpaper,
                         constraintsMaxWidth = constraints.maxWidth,
                         constraintsMaxHeight = constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
@@ -185,7 +178,6 @@ fun Success(
     userData: UserData,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
-    wallpaper: ByteArray?,
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
     dockGridItems: List<GridItem>,
@@ -310,13 +302,6 @@ fun Success(
             }
             .fillMaxSize(),
     ) {
-        AsyncImage(
-            model = wallpaper,
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-        )
-
         when (screen) {
             Screen.Pager -> {
                 PagerScreen(

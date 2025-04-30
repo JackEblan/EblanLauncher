@@ -14,7 +14,6 @@ import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -44,7 +42,6 @@ class HomeViewModel @Inject constructor(
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
-    private val wallpaperManagerWrapper: WallpaperManagerWrapper,
     private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
 ) : ViewModel() {
     private val _isCache = MutableStateFlow(false)
@@ -79,16 +76,6 @@ class HomeViewModel @Inject constructor(
     private var _screen = MutableStateFlow(Screen.Pager)
 
     val screen = _screen.asStateFlow()
-
-    private var _wallpaper = MutableStateFlow<ByteArray?>(null)
-
-    val wallpaper = _wallpaper.onStart {
-        getWallpaper()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
 
     private var gridItemJob: Job? = null
 
@@ -197,14 +184,6 @@ class HomeViewModel @Inject constructor(
 
             _isCache.update {
                 false
-            }
-        }
-    }
-
-    private fun getWallpaper() {
-        viewModelScope.launch {
-            _wallpaper.update {
-                wallpaperManagerWrapper.getWallpaper()
             }
         }
     }

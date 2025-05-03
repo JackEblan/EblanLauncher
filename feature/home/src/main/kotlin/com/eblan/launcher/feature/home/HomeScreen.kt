@@ -38,8 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -238,10 +241,21 @@ fun Success(
 
     val scope = rememberCoroutineScope()
 
+    val density = LocalDensity.current
+
+    val configuration  = LocalConfiguration.current
+
+    val screenHeight = with(density){
+        configuration.screenHeightDp.dp.toPx()
+    }
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
+                    onDragStart = {
+                        onShowGridCache(Screen.Application)
+                    },
                     onDragEnd = {
                         userScrollEnabled = true
 
@@ -249,7 +263,9 @@ fun Success(
                             if (applicationScreenY.value < constraintsMaxHeight / 2) {
                                 applicationScreenY.animateTo(0f)
                             } else {
-                                applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
+                                applicationScreenY.animateTo(screenHeight)
+
+                                onShowGridCache(Screen.Pager)
                             }
                         }
                     },
@@ -342,6 +358,40 @@ fun Success(
             }
 
             Screen.Application -> {
+                ApplicationScreen(
+                    currentPage = pagerState.currentPage,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
+                    gridItemOffset = gridItemOffset,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    constraintsMaxWidth = constraintsMaxWidth,
+                    constraintsMaxHeight = constraintsMaxHeight,
+                    dockHeight = userData.dockHeight,
+                    drag = drag,
+                    applicationScreenY = applicationScreenY.value,
+                    onLongPressApplicationInfo = { imageBitmap ->
+                        preview = imageBitmap
+                    },
+                    onDragStart = { size, gridItemLayoutInfo ->
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.New,
+                        )
+
+                        overlaySize = size
+
+                        onShowGridCache(Screen.Drag)
+                    },
+                    onClose = {
+                        scope.launch {
+                            applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
+
+                            onShowGridCache(Screen.Pager)
+                        }
+                    },
+                )
             }
 
             Screen.Widget -> {
@@ -433,39 +483,6 @@ fun Success(
                 )
             }
         }
-
-        ApplicationScreen(
-            currentPage = pagerState.currentPage,
-            rows = userData.rows,
-            columns = userData.columns,
-            pageCount = userData.pageCount,
-            infiniteScroll = userData.infiniteScroll,
-            gridItemOffset = gridItemOffset,
-            eblanApplicationInfos = eblanApplicationInfos,
-            constraintsMaxWidth = constraintsMaxWidth,
-            constraintsMaxHeight = constraintsMaxHeight,
-            dockHeight = userData.dockHeight,
-            drag = drag,
-            applicationScreenY = applicationScreenY.value,
-            onLongPressApplicationInfo = { imageBitmap ->
-                preview = imageBitmap
-            },
-            onDragStart = { size, gridItemLayoutInfo ->
-                gridItemSource = GridItemSource(
-                    gridItemLayoutInfo = gridItemLayoutInfo,
-                    type = GridItemSource.Type.New,
-                )
-
-                overlaySize = size
-
-                onShowGridCache(Screen.Drag)
-            },
-            onClose = {
-                scope.launch {
-                    applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
-                }
-            },
-        )
 
         if (showBottomSheet) {
             HomeBottomSheet(

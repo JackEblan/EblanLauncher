@@ -227,8 +227,6 @@ fun Success(
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    var userScrollEnabled by remember { mutableStateOf(true) }
-
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
     var drag by remember { mutableStateOf(Drag.None) }
@@ -257,8 +255,6 @@ fun Success(
                         onShowGridCache(Screen.Application)
                     },
                     onDragEnd = {
-                        userScrollEnabled = true
-
                         scope.launch {
                             if (applicationScreenY.value < constraintsMaxHeight / 2) {
                                 applicationScreenY.animateTo(0f)
@@ -317,7 +313,6 @@ fun Success(
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
                     showMenu = showMenu,
-                    userScrollEnabled = userScrollEnabled,
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
@@ -384,8 +379,10 @@ fun Success(
 
                         onShowGridCache(Screen.Drag)
                     },
-                    onClose = {
+                    onClose = { y ->
                         scope.launch {
+                            applicationScreenY.snapTo(y)
+
                             applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
 
                             onShowGridCache(Screen.Pager)

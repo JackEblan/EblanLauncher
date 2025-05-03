@@ -50,7 +50,6 @@ fun PagerScreen(
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     showMenu: Boolean,
-    userScrollEnabled: Boolean,
     dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
@@ -94,7 +93,6 @@ fun PagerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            userScrollEnabled = userScrollEnabled,
         ) { index ->
             val page = calculatePage(
                 index = index,

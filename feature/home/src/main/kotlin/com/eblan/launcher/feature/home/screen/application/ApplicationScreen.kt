@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
@@ -72,14 +73,14 @@ fun ApplicationScreen(
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
-    onClose: () -> Unit,
+    onClose: (Float) -> Unit,
 ) {
     var data by remember { mutableStateOf<GridItemData?>(null) }
 
     val scope = rememberCoroutineScope()
     val gridState = rememberLazyGridState()
 
-    var accumulated by remember { mutableFloatStateOf(0f) }
+    var accumulated = remember { Animatable(0f) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -87,18 +88,17 @@ fun ApplicationScreen(
                 available: Offset,
                 source: NestedScrollSource,
             ): Offset {
-                val isAtTop = gridState.firstVisibleItemIndex == 0 &&
-                        gridState.firstVisibleItemScrollOffset == 0
+                val isAtTop =
+                    gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
 
                 if (isAtTop) {
-                    val newOffset = (accumulated + available.y).coerceAtLeast(0f)
+                    val newOffset = (accumulated.value + available.y).coerceAtLeast(0f)
 
-                    if (newOffset > (constraintsMaxHeight / 2.toFloat())) {
-                        onClose()
-                    }
+                    if (newOffset != accumulated.value) {
+                        scope.launch {
+                            accumulated.snapTo(newOffset)
+                        }
 
-                    if (newOffset != accumulated) {
-                        accumulated = newOffset
                         return Offset(0f, available.y) // consume scroll
                     }
                 }
@@ -110,11 +110,27 @@ fun ApplicationScreen(
                 available: Offset,
                 source: NestedScrollSource,
             ): Offset {
-                if (available.y < 0 && accumulated > 0f) {
-                    accumulated = (accumulated + available.y).coerceAtLeast(0f)
+                if (available.y < 0 && accumulated.value > 0f) {
+                    val newOffset = (accumulated.value + available.y).coerceAtLeast(0f)
+
+                    scope.launch {
+                        accumulated.snapTo(newOffset)
+                    }
+
                     return Offset(0f, available.y)
                 }
                 return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (accumulated.value > constraintsMaxHeight / 2) {
+                    onClose(accumulated.value)
+                } else {
+                    scope.launch {
+                        accumulated.animateTo(0f)
+                    }
+                }
+                return super.onPostFling(consumed, available)
             }
         }
     }
@@ -153,7 +169,7 @@ fun ApplicationScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
             modifier = modifier
-                .offset { IntOffset(0, accumulated.roundToInt()) }
+                .offset { IntOffset(0, accumulated.value.roundToInt()) }
                 .fillMaxWidth(),
             state = gridState,
         ) {

@@ -1,9 +1,10 @@
 package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -57,8 +58,6 @@ import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.math.atan2
 
 @Composable
 fun HomeRoute(
@@ -231,6 +230,8 @@ fun Success(
 
     var drag by remember { mutableStateOf(Drag.None) }
 
+    val applicationScreenY = remember { Animatable(constraintsMaxHeight.toFloat()) }
+
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
@@ -240,41 +241,26 @@ fun Success(
     Box(
         modifier = modifier
             .pointerInput(Unit) {
-                detectDragGestures(
+                detectVerticalDragGestures(
                     onDragEnd = {
                         userScrollEnabled = true
-                    },
-                    onDrag = { change, dragAmount ->
-                        // TODO: Implement gestures here in the future, when vertical gesture is detected, we disable the pager scroll
 
-                        val angle = atan2(
-                            dragAmount.y,
-                            dragAmount.x,
-                        ) * (180 / Math.PI)  // Calculate angle in degrees
-                        println("Swipe Angle: $angle")
-
-                        // Check for a horizontal swipe (right condition)
-                        if (abs(dragAmount.x) > abs(dragAmount.y)) {
-                            // Right swipe (angle close to 0°)
-                            if (dragAmount.x > 0) {
-                                println("Horizontal swipe right (Angle: $angle)")
-                            }
-                            // Left swipe (angle close to ±180°)
-                            else {
-                                println("Horizontal swipe left (Angle: $angle)")
-                            }
-                        } else {
-                            userScrollEnabled = false
-
-                            // Vertical swipe (angle close to ±90°)
-                            if (dragAmount.y > 0) {
-                                println("Vertical swipe down (Angle: $angle)")
+                        scope.launch {
+                            if (applicationScreenY.value < constraintsMaxHeight / 2) {
+                                applicationScreenY.animateTo(0f)
                             } else {
-                                println("Vertical swipe up (Angle: $angle)")
+                                applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
                             }
                         }
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        change.consume()
 
-                        change.consume() // Consume the gesture to prevent further handling
+                        scope.launch {
+                            val newY = applicationScreenY.value + dragAmount
+
+                            applicationScreenY.snapTo(newY)
+                        }
                     },
                 )
             }
@@ -356,32 +342,6 @@ fun Success(
             }
 
             Screen.Application -> {
-                ApplicationScreen(
-                    currentPage = pagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset,
-                    eblanApplicationInfos = eblanApplicationInfos,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = userData.dockHeight,
-                    drag = drag,
-                    onLongPressApplicationInfo = { imageBitmap ->
-                        preview = imageBitmap
-                    },
-                    onDragStart = { size, gridItemLayoutInfo ->
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
-                        )
-
-                        overlaySize = size
-
-                        onShowGridCache(Screen.Drag)
-                    },
-                )
             }
 
             Screen.Widget -> {
@@ -473,6 +433,39 @@ fun Success(
                 )
             }
         }
+
+        ApplicationScreen(
+            currentPage = pagerState.currentPage,
+            rows = userData.rows,
+            columns = userData.columns,
+            pageCount = userData.pageCount,
+            infiniteScroll = userData.infiniteScroll,
+            gridItemOffset = gridItemOffset,
+            eblanApplicationInfos = eblanApplicationInfos,
+            constraintsMaxWidth = constraintsMaxWidth,
+            constraintsMaxHeight = constraintsMaxHeight,
+            dockHeight = userData.dockHeight,
+            drag = drag,
+            applicationScreenY = applicationScreenY.value,
+            onLongPressApplicationInfo = { imageBitmap ->
+                preview = imageBitmap
+            },
+            onDragStart = { size, gridItemLayoutInfo ->
+                gridItemSource = GridItemSource(
+                    gridItemLayoutInfo = gridItemLayoutInfo,
+                    type = GridItemSource.Type.New,
+                )
+
+                overlaySize = size
+
+                onShowGridCache(Screen.Drag)
+            },
+            onClose = {
+                scope.launch {
+                    applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
+                }
+            },
+        )
 
         if (showBottomSheet) {
             HomeBottomSheet(

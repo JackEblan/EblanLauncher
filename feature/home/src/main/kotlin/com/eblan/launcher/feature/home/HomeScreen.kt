@@ -379,10 +379,8 @@ fun Success(
 
                         onShowGridCache(Screen.Drag)
                     },
-                    onClose = { y ->
+                    onClose = {
                         scope.launch {
-                            applicationScreenY.snapTo(y)
-
                             applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
 
                             onShowGridCache(Screen.Pager)

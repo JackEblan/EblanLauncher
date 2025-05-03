@@ -35,6 +35,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -73,14 +75,22 @@ fun ApplicationScreen(
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
-    onClose: (Float) -> Unit,
+    onClose: () -> Unit,
 ) {
     var data by remember { mutableStateOf<GridItemData?>(null) }
 
     val scope = rememberCoroutineScope()
     val gridState = rememberLazyGridState()
 
-    var accumulated = remember { Animatable(0f) }
+    val accumulated = remember { Animatable(0f) }
+
+    val density = LocalDensity.current
+
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = with(density) {
+        configuration.screenHeightDp.dp.toPx()
+    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -123,13 +133,16 @@ fun ApplicationScreen(
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (accumulated.value > constraintsMaxHeight / 2) {
-                    onClose(accumulated.value)
-                } else {
-                    scope.launch {
+                scope.launch {
+                    if (accumulated.value > constraintsMaxHeight / 2) {
+                        accumulated.animateTo(screenHeight)
+
+                        onClose()
+                    } else {
                         accumulated.animateTo(0f)
                     }
                 }
+
                 return super.onPostFling(consumed, available)
             }
         }

@@ -377,6 +377,10 @@ fun Success(
 
                         overlaySize = size
 
+                        scope.launch {
+                            applicationScreenY.snapTo(constraintsMaxHeight.toFloat())
+                        }
+
                         onShowGridCache(Screen.Drag)
                     },
                     onClose = {
@@ -485,7 +489,16 @@ fun Success(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                onUpdateScreen = onUpdateScreen,
+                onApplication = {
+                    scope.launch {
+                        applicationScreenY.snapTo(0f)
+                    }
+
+                    onUpdateScreen(Screen.Application)
+                },
+                onWidget = {
+                    onUpdateScreen(Screen.Widget)
+                },
                 onDeletePage = {
                     val page = calculatePage(
                         index = pagerState.currentPage,
@@ -507,7 +520,8 @@ private fun HomeBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onUpdateScreen: (Screen) -> Unit,
+    onApplication: () -> Unit,
+    onWidget: () -> Unit,
     onDeletePage: () -> Unit,
     onSettings: () -> Unit,
 ) {
@@ -521,7 +535,7 @@ private fun HomeBottomSheet(
                 modifier = Modifier
                     .weight(1f)
                     .clickable {
-                        onUpdateScreen(Screen.Application)
+                        onApplication()
 
                         onDismissRequest()
                     },
@@ -536,7 +550,7 @@ private fun HomeBottomSheet(
                 modifier = Modifier
                     .weight(1f)
                     .clickable {
-                        onUpdateScreen(Screen.Widget)
+                        onWidget()
 
                         onDismissRequest()
                     },

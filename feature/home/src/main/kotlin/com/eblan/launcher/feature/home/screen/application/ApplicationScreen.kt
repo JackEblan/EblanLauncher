@@ -135,7 +135,7 @@ fun ApplicationScreen(
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 scope.launch {
                     if (accumulated.value > constraintsMaxHeight / 2) {
-                        onClose()
+
                     } else {
                         accumulated.animateTo(0f)
                     }
@@ -172,15 +172,13 @@ fun ApplicationScreen(
     }
 
     Box(
-        modifier = Modifier
-            .offset { IntOffset(0, applicationScreenY.roundToInt()) }
+        modifier = modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
-            modifier = modifier
-                .offset { IntOffset(0, accumulated.value.roundToInt()) }
+            modifier = Modifier
                 .fillMaxWidth(),
             state = gridState,
         ) {

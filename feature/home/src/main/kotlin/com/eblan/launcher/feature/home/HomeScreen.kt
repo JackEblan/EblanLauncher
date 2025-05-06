@@ -251,28 +251,13 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
-                    onDragEnd = {
-                        scope.launch {
-                            if (applicationScreenY.value < constraintsMaxHeight / 2) {
-                                applicationScreenY.animateTo(0f)
-                            } else {
-                                applicationScreenY.animateTo(screenHeight)
-
-                                onShowGridCache(Screen.Pager)
-                            }
-                        }
-                    },
                     onVerticalDrag = { change, dragAmount ->
                         change.consume()
 
-                        scope.launch {
-                            val newY = applicationScreenY.value + dragAmount
-
-                            applicationScreenY.snapTo(newY)
-
-                            if (dragAmount < -50f) {
-                                onShowGridCache(Screen.Application)
-                            }
+                        if(dragAmount < 0f) {
+                            onShowGridCache(Screen.Application)
+                        } else {
+                            onShowGridCache(Screen.Pager)
                         }
                     },
                 )

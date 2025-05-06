@@ -135,8 +135,6 @@ fun ApplicationScreen(
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 scope.launch {
                     if (accumulated.value > constraintsMaxHeight / 2) {
-                        accumulated.animateTo(screenHeight)
-
                         onClose()
                     } else {
                         accumulated.animateTo(0f)

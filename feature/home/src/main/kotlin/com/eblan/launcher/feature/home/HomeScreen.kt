@@ -379,14 +379,14 @@ fun Success(
                         overlaySize = size
 
                         scope.launch {
-                            applicationScreenY.snapTo(constraintsMaxHeight.toFloat())
+                            applicationScreenY.snapTo(screenHeight)
                         }
 
                         onShowGridCache(Screen.Drag)
                     },
                     onClose = {
                         scope.launch {
-                            applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
+                            applicationScreenY.snapTo(screenHeight)
 
                             onShowGridCache(Screen.Pager)
                         }

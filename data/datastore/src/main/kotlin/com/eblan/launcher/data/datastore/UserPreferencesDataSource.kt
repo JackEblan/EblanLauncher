@@ -20,10 +20,12 @@ package com.eblan.launcher.data.datastore
 import androidx.datastore.core.DataStore
 import com.eblan.launcher.data.datastore.proto.UserPreferences
 import com.eblan.launcher.data.datastore.proto.copy
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import com.eblan.launcher.data.datastore.proto.TextColor as TextColorProto
 
 class UserPreferencesDataSource @Inject constructor(
     private val dataStore: DataStore<UserPreferences>,
@@ -37,6 +39,11 @@ class UserPreferencesDataSource @Inject constructor(
             dockRows = userPreferences.dockRows,
             dockColumns = userPreferences.dockColumns,
             dockHeight = userPreferences.dockHeight,
+            textColor = when (userPreferences.textColor) {
+                TextColorProto.White -> TextColor.White
+                TextColorProto.Black -> TextColor.Black
+                TextColorProto.UNRECOGNIZED, null -> TextColor.White
+            },
         )
     }
 

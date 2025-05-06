@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
@@ -29,9 +30,12 @@ fun ResizeScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
-    onResizeGridItem: (gridItem: GridItem,
-                    rows: Int,
-                    columns: Int,) -> Unit,
+    textColor: TextColor,
+    onResizeGridItem: (
+        gridItem: GridItem,
+        rows: Int,
+        columns: Int,
+    ) -> Unit,
     onResizeEnd: () -> Unit,
 ) {
     val page = calculatePage(
@@ -64,6 +68,7 @@ fun ResizeScreen(
                 when (val gridItemData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         ApplicationInfoGridItem(
+                            textColor = textColor,
                             gridItemData = gridItemData,
                         )
                     }
@@ -87,7 +92,10 @@ fun ResizeScreen(
         ) { dockItem, _, _, _, _ ->
             when (val gridItemData = dockItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(gridItemData = gridItemData)
+                    ApplicationInfoGridItem(
+                        textColor = textColor,
+                        gridItemData = gridItemData,
+                    )
                 }
 
                 is GridItemData.Widget -> {

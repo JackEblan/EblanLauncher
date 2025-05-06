@@ -8,4 +8,5 @@ data class UserData(
     val dockRows: Int,
     val dockColumns: Int,
     val dockHeight: Int,
+    val textColor: TextColor,
 )

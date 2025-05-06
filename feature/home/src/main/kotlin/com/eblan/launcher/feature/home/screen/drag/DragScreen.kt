@@ -44,6 +44,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
@@ -73,6 +74,7 @@ fun DragScreen(
     constraintsMaxHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
+    textColor: TextColor,
     onMoveGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -390,7 +392,10 @@ fun DragScreen(
                         } else {
                             when (val gridItemData = gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoGridItem(gridItemData = gridItemData)
+                                    ApplicationInfoGridItem(
+                                        textColor = textColor,
+                                        gridItemData = gridItemData,
+                                    )
                                 }
 
                                 is GridItemData.Widget -> {
@@ -419,7 +424,10 @@ fun DragScreen(
                 } else {
                     when (val gridItemData = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(gridItemData = gridItemData)
+                            ApplicationInfoGridItem(
+                                textColor = textColor,
+                                gridItemData = gridItemData,
+                            )
                         }
 
                         is GridItemData.Widget -> {

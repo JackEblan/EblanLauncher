@@ -25,6 +25,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.DockGrid
@@ -54,6 +55,7 @@ fun PagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     constraintsMaxHeight: Int,
+    textColor: TextColor,
     onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
@@ -110,6 +112,7 @@ fun PagerScreen(
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
+                                textColor = textColor,
                                 gridItemData = data,
                                 onTap = {
                                     onLaunchApplication(data.packageName)
@@ -162,6 +165,7 @@ fun PagerScreen(
             when (val data = dockGridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
+                        textColor = textColor,
                         gridItemData = data,
                         onTap = {
                             onLaunchApplication(data.packageName)
@@ -274,6 +278,7 @@ fun PagerScreen(
 @Composable
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
+    textColor: TextColor,
     gridItemData: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
@@ -304,6 +309,7 @@ private fun ApplicationInfoGridItem(
                 )
             }
             .fillMaxSize(),
+        textColor = textColor,
         gridItemData = gridItemData,
     )
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -26,6 +27,7 @@ import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 
 data class GridItemParentData(
     val width: Int,
@@ -85,10 +87,12 @@ fun AnimatedGridItemContainer(
 @Composable
 fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
+    textColor: TextColor,
     gridItemData: GridItemData.ApplicationInfo,
 ) {
     ApplicationInfoGridItemBody(
         modifier = modifier.fillMaxSize(),
+        textColor = textColor,
         gridItemData = gridItemData,
     )
 }
@@ -125,8 +129,14 @@ fun WidgetGridItem(
 @Composable
 fun ApplicationInfoGridItemBody(
     modifier: Modifier = Modifier,
+    textColor: TextColor,
     gridItemData: GridItemData.ApplicationInfo,
 ) {
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -144,6 +154,7 @@ fun ApplicationInfoGridItemBody(
         Text(
             text = gridItemData.label,
             modifier = Modifier.weight(1f),
+            color = color,
             textAlign = TextAlign.Center,
             fontSize = TextUnit(value = 10f, type = TextUnitType.Sp),
         )

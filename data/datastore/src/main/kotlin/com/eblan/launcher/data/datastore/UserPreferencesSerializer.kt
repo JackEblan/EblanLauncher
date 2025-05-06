@@ -19,6 +19,7 @@ package com.eblan.launcher.data.datastore
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
+import com.eblan.launcher.data.datastore.proto.TextColor
 import com.eblan.launcher.data.datastore.proto.UserPreferences
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -37,6 +38,7 @@ class UserPreferencesSerializer @Inject constructor() : Serializer<UserPreferenc
         dockRows = 1
         dockColumns = 5
         dockHeight = 300
+        textColor = TextColor.White
     }.build()
 
     override suspend fun readFrom(input: InputStream): UserPreferences = try {

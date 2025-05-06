@@ -318,6 +318,7 @@ fun Success(
                     drag = drag,
                     dockGridItems = dockGridItems,
                     constraintsMaxHeight = constraintsMaxHeight,
+                    textColor = userData.textColor,
                     onDismissRequest = {
                         showMenu = false
                     },
@@ -441,6 +442,7 @@ fun Success(
                     constraintsMaxHeight = constraintsMaxHeight,
                     dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
+                    textColor = userData.textColor,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
@@ -472,10 +474,11 @@ fun Success(
                     infiniteScroll = userData.infiniteScroll,
                     dockRows = userData.dockRows,
                     dockColumns = userData.dockColumns,
+                    gridItems = gridItems,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
-                    gridItems = gridItems,
+                    textColor = userData.textColor,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = {
                         onResetGridCache()

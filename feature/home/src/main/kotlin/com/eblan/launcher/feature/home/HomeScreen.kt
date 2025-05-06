@@ -241,9 +241,9 @@ fun Success(
 
     val density = LocalDensity.current
 
-    val configuration  = LocalConfiguration.current
+    val configuration = LocalConfiguration.current
 
-    val screenHeight = with(density){
+    val screenHeight = with(density) {
         configuration.screenHeightDp.dp.toPx()
     }
 
@@ -251,9 +251,6 @@ fun Success(
         modifier = modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
-                    onDragStart = {
-                        onShowGridCache(Screen.Application)
-                    },
                     onDragEnd = {
                         scope.launch {
                             if (applicationScreenY.value < constraintsMaxHeight / 2) {
@@ -272,6 +269,10 @@ fun Success(
                             val newY = applicationScreenY.value + dragAmount
 
                             applicationScreenY.snapTo(newY)
+
+                            if (dragAmount < -50f) {
+                                onShowGridCache(Screen.Application)
+                            }
                         }
                     },
                 )

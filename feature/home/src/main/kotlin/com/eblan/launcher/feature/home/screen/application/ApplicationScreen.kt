@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -45,6 +46,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -68,6 +70,7 @@ fun ApplicationScreen(
     dockHeight: Int,
     drag: Drag,
     applicationScreenY: Float,
+    textColor: TextColor,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
         size: IntSize,
@@ -81,6 +84,11 @@ fun ApplicationScreen(
     val gridState = rememberLazyGridState()
 
     val accumulated = remember { Animatable(0f) }
+
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -214,6 +222,7 @@ fun ApplicationScreen(
 
                     Text(
                         text = appInfo.label,
+                        color = color,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge,
                     )

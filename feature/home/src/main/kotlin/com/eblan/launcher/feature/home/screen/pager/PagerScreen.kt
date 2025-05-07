@@ -4,34 +4,43 @@ import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
+import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemBody
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuPositionProvider
-import com.eblan.launcher.feature.home.component.WidgetGridItemBody
 import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
@@ -287,7 +296,12 @@ private fun ApplicationInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    ApplicationInfoGridItemBody(
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
+    Column(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
@@ -309,9 +323,29 @@ private fun ApplicationInfoGridItem(
                 )
             }
             .fillMaxSize(),
-        textColor = textColor,
-        gridItemData = gridItemData,
-    )
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        AsyncImage(
+            model = gridItemData.icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp, 40.dp)
+                .weight(1f),
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = gridItemData.label,
+            modifier = Modifier.weight(1f),
+            color = color,
+            textAlign = TextAlign.Center,
+            fontSize = TextUnit(
+                value = 10f,
+                type = TextUnitType.Sp,
+            ),
+        )
+    }
 }
 
 @Composable
@@ -331,32 +365,34 @@ private fun WidgetGridItem(
     val scope = rememberCoroutineScope()
 
     if (appWidgetInfo != null) {
-        WidgetGridItemBody(
+        AndroidView(
+            factory = {
+                appWidgetHost.createView(
+                    appWidgetId = gridItemData.appWidgetId,
+                    appWidgetProviderInfo = appWidgetInfo,
+                ).apply {
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                    )
+
+                    setOnLongClickListener {
+                        scope.launch {
+                            onLongPress(graphicsLayer.toImageBitmap())
+                        }
+
+                        true
+                    }
+
+                    setAppWidget(appWidgetId, appWidgetInfo)
+                }
+            },
             modifier = modifier.drawWithContent {
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()
                 }
 
                 drawLayer(graphicsLayer)
-            },
-            appWidgetHostView = appWidgetHost.createView(
-                appWidgetId = gridItemData.appWidgetId,
-                appWidgetProviderInfo = appWidgetInfo,
-            ).apply {
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                )
-
-                setOnLongClickListener {
-                    scope.launch {
-                        onLongPress(graphicsLayer.toImageBitmap())
-                    }
-
-                    true
-                }
-
-                setAppWidget(appWidgetId, appWidgetInfo)
             },
         )
     }

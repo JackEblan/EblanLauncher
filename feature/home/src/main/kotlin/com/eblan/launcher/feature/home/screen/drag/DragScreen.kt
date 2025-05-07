@@ -4,6 +4,7 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
+import android.widget.FrameLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -17,12 +18,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,14 +33,20 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Associate
@@ -45,10 +54,8 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.WidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -392,14 +399,59 @@ fun DragScreen(
                         } else {
                             when (val gridItemData = gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoGridItem(
-                                        textColor = textColor,
-                                        gridItemData = gridItemData,
-                                    )
+                                    val color = when (textColor) {
+                                        TextColor.White -> Color.White
+                                        TextColor.Black -> Color.Black
+                                    }
+
+                                    Column(
+                                        modifier = modifier,
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        AsyncImage(
+                                            model = gridItemData.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(40.dp, 40.dp)
+                                                .weight(1f),
+                                        )
+
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text(
+                                            text = gridItemData.label,
+                                            modifier = Modifier.weight(1f),
+                                            color = color,
+                                            textAlign = TextAlign.Center,
+                                            fontSize = TextUnit(
+                                                value = 10f,
+                                                type = TextUnitType.Sp,
+                                            ),
+                                        )
+                                    }
                                 }
 
                                 is GridItemData.Widget -> {
-                                    WidgetGridItem(gridItemData = gridItemData)
+                                    val appWidgetInfo =
+                                        appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+                                    if (appWidgetInfo != null) {
+                                        AndroidView(
+                                            factory = {
+                                                appWidgetHost.createView(
+                                                    appWidgetId = gridItemData.appWidgetId,
+                                                    appWidgetProviderInfo = appWidgetInfo,
+                                                ).apply {
+                                                    layoutParams = FrameLayout.LayoutParams(
+                                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                                    )
+
+                                                    setAppWidget(appWidgetId, appWidgetInfo)
+                                                }
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -424,14 +476,59 @@ fun DragScreen(
                 } else {
                     when (val gridItemData = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(
-                                textColor = textColor,
-                                gridItemData = gridItemData,
-                            )
+                            val color = when (textColor) {
+                                TextColor.White -> Color.White
+                                TextColor.Black -> Color.Black
+                            }
+
+                            Column(
+                                modifier = modifier,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                AsyncImage(
+                                    model = gridItemData.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(40.dp, 40.dp)
+                                        .weight(1f),
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Text(
+                                    text = gridItemData.label,
+                                    modifier = Modifier.weight(1f),
+                                    color = color,
+                                    textAlign = TextAlign.Center,
+                                    fontSize = TextUnit(
+                                        value = 10f,
+                                        type = TextUnitType.Sp,
+                                    ),
+                                )
+                            }
                         }
 
                         is GridItemData.Widget -> {
-                            WidgetGridItem(gridItemData = gridItemData)
+                            val appWidgetInfo =
+                                appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+                            if (appWidgetInfo != null) {
+                                AndroidView(
+                                    factory = {
+                                        appWidgetHost.createView(
+                                            appWidgetId = gridItemData.appWidgetId,
+                                            appWidgetProviderInfo = appWidgetInfo,
+                                        ).apply {
+                                            layoutParams = FrameLayout.LayoutParams(
+                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                            )
+
+                                            setAppWidget(appWidgetId, appWidgetInfo)
+                                        }
+                                    },
+                                )
+                            }
                         }
                     }
                 }

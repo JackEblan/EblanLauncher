@@ -38,8 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
@@ -238,10 +236,6 @@ fun Success(
 
     val scope = rememberCoroutineScope()
 
-    val density = LocalDensity.current
-
-    val configuration = LocalConfiguration.current
-
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -363,6 +357,7 @@ fun Success(
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     applicationScreenY = applicationScreenY.value,
+                    textColor = userData.textColor,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
                     },

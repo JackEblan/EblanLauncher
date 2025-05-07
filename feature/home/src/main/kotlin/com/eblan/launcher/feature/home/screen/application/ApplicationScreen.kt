@@ -35,8 +35,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -83,14 +81,6 @@ fun ApplicationScreen(
     val gridState = rememberLazyGridState()
 
     val accumulated = remember { Animatable(0f) }
-
-    val density = LocalDensity.current
-
-    val configuration = LocalConfiguration.current
-
-    val screenHeight = with(density) {
-        configuration.screenHeightDp.dp.toPx()
-    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {

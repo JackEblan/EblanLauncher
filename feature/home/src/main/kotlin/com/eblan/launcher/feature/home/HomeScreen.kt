@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -243,10 +242,6 @@ fun Success(
 
     val configuration = LocalConfiguration.current
 
-    val screenHeight = with(density) {
-        configuration.screenHeightDp.dp.toPx()
-    }
-
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -256,7 +251,7 @@ fun Success(
                             if (applicationScreenY.value < constraintsMaxHeight / 2) {
                                 applicationScreenY.animateTo(0f)
                             } else {
-                                applicationScreenY.animateTo(screenHeight)
+                                applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
 
                                 onShowGridCache(Screen.Pager)
                             }
@@ -265,12 +260,12 @@ fun Success(
                     onVerticalDrag = { change, dragAmount ->
                         change.consume()
 
-                        scope.launch {
-                            val newY = applicationScreenY.value + dragAmount
+                        if (dragAmount < 0f) {
+                            scope.launch {
+                                val newY = applicationScreenY.value + dragAmount
 
-                            applicationScreenY.snapTo(newY)
+                                applicationScreenY.snapTo(newY)
 
-                            if (dragAmount < -50f) {
                                 onShowGridCache(Screen.Application)
                             }
                         }
@@ -380,14 +375,14 @@ fun Success(
                         overlaySize = size
 
                         scope.launch {
-                            applicationScreenY.snapTo(screenHeight)
+                            applicationScreenY.snapTo(constraintsMaxHeight.toFloat())
                         }
 
                         onShowGridCache(Screen.Drag)
                     },
                     onClose = {
                         scope.launch {
-                            applicationScreenY.snapTo(screenHeight)
+                            applicationScreenY.snapTo(constraintsMaxHeight.toFloat())
 
                             onShowGridCache(Screen.Pager)
                         }

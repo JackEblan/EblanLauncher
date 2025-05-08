@@ -405,7 +405,7 @@ fun DragScreen(
                                     }
 
                                     Column(
-                                        modifier = modifier,
+                                        modifier = Modifier.fillMaxSize(),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
                                         AsyncImage(
@@ -482,7 +482,7 @@ fun DragScreen(
                             }
 
                             Column(
-                                modifier = modifier,
+                                modifier = Modifier.fillMaxSize(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 AsyncImage(

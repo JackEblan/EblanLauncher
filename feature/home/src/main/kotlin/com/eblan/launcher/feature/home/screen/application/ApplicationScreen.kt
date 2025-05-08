@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,19 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
@@ -51,7 +44,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -69,79 +61,22 @@ fun ApplicationScreen(
     constraintsMaxHeight: Int,
     dockHeight: Int,
     drag: Drag,
-    applicationScreenY: Float,
     textColor: TextColor,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: (
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
-    onClose: () -> Unit,
 ) {
     var data by remember { mutableStateOf<GridItemData?>(null) }
 
     val scope = rememberCoroutineScope()
-    val gridState = rememberLazyGridState()
 
-    val accumulated = remember { Animatable(0f) }
+    val gridState = rememberLazyGridState()
 
     val color = when (textColor) {
         TextColor.White -> Color.White
         TextColor.Black -> Color.Black
-    }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                val isAtTop =
-                    gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
-
-                if (isAtTop) {
-                    val newOffset = (accumulated.value + available.y).coerceAtLeast(0f)
-
-                    if (newOffset != accumulated.value) {
-                        scope.launch {
-                            accumulated.snapTo(newOffset)
-                        }
-
-                        return Offset(0f, available.y) // consume scroll
-                    }
-                }
-                return Offset.Zero
-            }
-
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                if (available.y < 0 && accumulated.value > 0f) {
-                    val newOffset = (accumulated.value + available.y).coerceAtLeast(0f)
-
-                    scope.launch {
-                        accumulated.snapTo(newOffset)
-                    }
-
-                    return Offset(0f, available.y)
-                }
-                return Offset.Zero
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                scope.launch {
-                    if (accumulated.value > constraintsMaxHeight / 2) {
-                        onClose()
-                    } else {
-                        accumulated.animateTo(0f)
-                    }
-                }
-
-                return super.onPostFling(consumed, available)
-            }
-        }
     }
 
     LaunchedEffect(key1 = drag) {
@@ -170,16 +105,11 @@ fun ApplicationScreen(
     }
 
     Box(
-        modifier = Modifier
-            .offset { IntOffset(0, applicationScreenY.roundToInt()) }
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection),
+        modifier = modifier.fillMaxSize(),
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
-            modifier = modifier
-                .offset { IntOffset(0, accumulated.value.roundToInt()) }
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             state = gridState,
         ) {
             items(eblanApplicationInfos) { appInfo ->
@@ -206,7 +136,8 @@ fun ApplicationScreen(
                                     }
                                 },
                             )
-                        },
+                        }
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {

@@ -1,10 +1,8 @@
 package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -14,6 +12,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
@@ -205,7 +204,7 @@ fun Success(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
 ) {
-    val pagerState = rememberPagerState(
+    val horizontalPagerState = rememberPagerState(
         initialPage = if (userData.infiniteScroll) Int.MAX_VALUE / 2 else 0,
         pageCount = {
             if (userData.infiniteScroll) {
@@ -228,44 +227,19 @@ fun Success(
 
     var drag by remember { mutableStateOf(Drag.None) }
 
-    val applicationScreenY = remember { Animatable(constraintsMaxHeight.toFloat()) }
-
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val scope = rememberCoroutineScope()
 
+    val verticalPagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 2 },
+    )
+
     Box(
         modifier = modifier
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onDragEnd = {
-                        scope.launch {
-                            if (applicationScreenY.value < constraintsMaxHeight / 2) {
-                                applicationScreenY.animateTo(0f)
-                            } else {
-                                applicationScreenY.animateTo(constraintsMaxHeight.toFloat())
-
-                                onShowGridCache(Screen.Pager)
-                            }
-                        }
-                    },
-                    onVerticalDrag = { change, dragAmount ->
-                        change.consume()
-
-                        if (dragAmount < 0f) {
-                            scope.launch {
-                                val newY = applicationScreenY.value + dragAmount
-
-                                applicationScreenY.snapTo(newY)
-
-                                onShowGridCache(Screen.Application)
-                            }
-                        }
-                    },
-                )
-            }
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
@@ -290,190 +264,259 @@ fun Success(
             }
             .fillMaxSize(),
     ) {
-        when (screen) {
-            Screen.Pager -> {
-                PagerScreen(
-                    pagerState = pagerState,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
-                    gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
-                    gridItems = gridItems,
-                    showMenu = showMenu,
-                    dockHeight = userData.dockHeight,
-                    drag = drag,
-                    dockGridItems = dockGridItems,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    textColor = userData.textColor,
-                    onDismissRequest = {
-                        showMenu = false
-                    },
-                    onLongPressGrid = {
-                        gridItemSource = null
+        VerticalPager(
+            state = verticalPagerState,
+        ) { page ->
+            when (page) {
+                0 -> {
+                    when (screen) {
+                        Screen.Pager -> {
+                            PagerScreen(
+                                pagerState = horizontalPagerState,
+                                rows = userData.rows,
+                                columns = userData.columns,
+                                pageCount = userData.pageCount,
+                                infiniteScroll = userData.infiniteScroll,
+                                dockRows = userData.dockRows,
+                                dockColumns = userData.dockColumns,
+                                gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
+                                gridItems = gridItems,
+                                showMenu = showMenu,
+                                dockHeight = userData.dockHeight,
+                                drag = drag,
+                                dockGridItems = dockGridItems,
+                                constraintsMaxHeight = constraintsMaxHeight,
+                                textColor = userData.textColor,
+                                onDismissRequest = {
+                                    showMenu = false
+                                },
+                                onLongPressGrid = {
+                                    gridItemSource = null
 
-                        showBottomSheet = true
-                    },
-                    onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
-                        preview = imageBitmap
+                                    showBottomSheet = true
+                                },
+                                onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
+                                    preview = imageBitmap
 
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.Old,
-                        )
+                                    gridItemSource = GridItemSource(
+                                        gridItemLayoutInfo = gridItemLayoutInfo,
+                                        type = GridItemSource.Type.Old,
+                                    )
 
-                        overlaySize = IntSize(
-                            width = gridItemLayoutInfo.width,
-                            height = gridItemLayoutInfo.height,
-                        )
+                                    overlaySize = IntSize(
+                                        width = gridItemLayoutInfo.width,
+                                        height = gridItemLayoutInfo.height,
+                                    )
 
-                    },
-                    onDragStart = {
-                        onShowGridCache(Screen.Drag)
-                    },
-                    onLaunchApplication = onLaunchApplication,
-                    onEdit = {
+                                },
+                                onDragStart = {
+                                    onShowGridCache(Screen.Drag)
+                                },
+                                onLaunchApplication = onLaunchApplication,
+                                onEdit = {
 
-                    },
-                    onResize = {
-                        onShowGridCache(Screen.Resize)
-                    },
-                )
-            }
-
-            Screen.Application -> {
-                ApplicationScreen(
-                    currentPage = pagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset,
-                    eblanApplicationInfos = eblanApplicationInfos,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = userData.dockHeight,
-                    drag = drag,
-                    applicationScreenY = applicationScreenY.value,
-                    textColor = userData.textColor,
-                    onLongPressApplicationInfo = { imageBitmap ->
-                        preview = imageBitmap
-                    },
-                    onDragStart = { size, gridItemLayoutInfo ->
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
-                        )
-
-                        overlaySize = size
-
-                        scope.launch {
-                            applicationScreenY.snapTo(constraintsMaxHeight.toFloat())
+                                },
+                                onResize = {
+                                    onShowGridCache(Screen.Resize)
+                                },
+                            )
                         }
 
-                        onShowGridCache(Screen.Drag)
-                    },
-                    onClose = {
-                        scope.launch {
-                            applicationScreenY.snapTo(constraintsMaxHeight.toFloat())
+                        Screen.Application -> {
+                            ApplicationScreen(
+                                currentPage = horizontalPagerState.currentPage,
+                                rows = userData.rows,
+                                columns = userData.columns,
+                                pageCount = userData.pageCount,
+                                infiniteScroll = userData.infiniteScroll,
+                                gridItemOffset = gridItemOffset,
+                                eblanApplicationInfos = eblanApplicationInfos,
+                                constraintsMaxWidth = constraintsMaxWidth,
+                                constraintsMaxHeight = constraintsMaxHeight,
+                                dockHeight = userData.dockHeight,
+                                drag = drag,
+                                textColor = userData.textColor,
+                                onLongPressApplicationInfo = { imageBitmap ->
+                                    preview = imageBitmap
+                                },
+                                onDragStart = { size, gridItemLayoutInfo ->
+                                    gridItemSource = GridItemSource(
+                                        gridItemLayoutInfo = gridItemLayoutInfo,
+                                        type = GridItemSource.Type.New,
+                                    )
 
-                            onShowGridCache(Screen.Pager)
+                                    overlaySize = size
+
+                                    onShowGridCache(Screen.Drag)
+                                },
+                            )
                         }
-                    },
-                )
-            }
 
-            Screen.Widget -> {
-                WidgetScreen(
-                    currentPage = pagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset,
-                    appWidgetProviderInfos = appWidgetProviderInfos,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = userData.dockHeight,
-                    drag = drag,
-                    onLongPressWidget = { imageBitmap ->
-                        preview = imageBitmap
-                    },
-                    onDragStart = { size, gridItemLayoutInfo ->
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
+                        Screen.Widget -> {
+                            WidgetScreen(
+                                currentPage = horizontalPagerState.currentPage,
+                                rows = userData.rows,
+                                columns = userData.columns,
+                                pageCount = userData.pageCount,
+                                infiniteScroll = userData.infiniteScroll,
+                                gridItemOffset = gridItemOffset,
+                                appWidgetProviderInfos = appWidgetProviderInfos,
+                                constraintsMaxWidth = constraintsMaxWidth,
+                                constraintsMaxHeight = constraintsMaxHeight,
+                                dockHeight = userData.dockHeight,
+                                drag = drag,
+                                onLongPressWidget = { imageBitmap ->
+                                    preview = imageBitmap
+                                },
+                                onDragStart = { size, gridItemLayoutInfo ->
+                                    gridItemSource = GridItemSource(
+                                        gridItemLayoutInfo = gridItemLayoutInfo,
+                                        type = GridItemSource.Type.New,
+                                    )
+
+                                    overlaySize = size
+
+                                    onShowGridCache(Screen.Drag)
+                                },
+                            )
+                        }
+
+                        Screen.Drag -> {
+                            DragScreen(
+                                currentPage = horizontalPagerState.currentPage,
+                                rows = userData.rows,
+                                columns = userData.columns,
+                                pageCount = userData.pageCount,
+                                infiniteScroll = userData.infiniteScroll,
+                                dockRows = userData.dockRows,
+                                dockColumns = userData.dockColumns,
+                                gridItems = gridItems,
+                                gridItemOffset = gridItemOffset,
+                                gridItemSource = gridItemSource,
+                                drag = drag,
+                                preview = preview,
+                                constraintsMaxWidth = constraintsMaxWidth,
+                                constraintsMaxHeight = constraintsMaxHeight,
+                                dockHeight = userData.dockHeight,
+                                dockGridItems = dockGridItems,
+                                textColor = userData.textColor,
+                                onMoveGridItem = onMoveGridItem,
+                                onUpdatePageCount = onUpdatePageCount,
+                                onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                                onDeleteGridItem = onDeleteGridItem,
+                                onDragCancel = {
+                                    onResetGridCache()
+                                },
+                                onDragEnd = { targetPage, gridItemLayoutInfo ->
+                                    gridItemSource =
+                                        gridItemSource?.copy(gridItemLayoutInfo = gridItemLayoutInfo)
+
+                                    showMenu = true
+
+                                    onResetGridCache()
+
+                                    scope.launch {
+                                        horizontalPagerState.scrollToPage(targetPage)
+                                    }
+                                },
+                            )
+                        }
+
+                        Screen.Resize -> {
+                            ResizeScreen(
+                                currentPage = horizontalPagerState.currentPage,
+                                rows = userData.rows,
+                                columns = userData.columns,
+                                pageCount = userData.pageCount,
+                                infiniteScroll = userData.infiniteScroll,
+                                dockRows = userData.dockRows,
+                                dockColumns = userData.dockColumns,
+                                gridItems = gridItems,
+                                gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
+                                dockHeight = userData.dockHeight,
+                                dockGridItems = dockGridItems,
+                                textColor = userData.textColor,
+                                onResizeGridItem = onResizeGridItem,
+                                onResizeEnd = {
+                                    onResetGridCache()
+                                },
+                            )
+                        }
+                    }
+                }
+
+                1 -> {
+                    if (screen == Screen.Drag) {
+                        DragScreen(
+                            currentPage = horizontalPagerState.currentPage,
+                            rows = userData.rows,
+                            columns = userData.columns,
+                            pageCount = userData.pageCount,
+                            infiniteScroll = userData.infiniteScroll,
+                            dockRows = userData.dockRows,
+                            dockColumns = userData.dockColumns,
+                            gridItems = gridItems,
+                            gridItemOffset = gridItemOffset,
+                            gridItemSource = gridItemSource,
+                            drag = drag,
+                            preview = preview,
+                            constraintsMaxWidth = constraintsMaxWidth,
+                            constraintsMaxHeight = constraintsMaxHeight,
+                            dockHeight = userData.dockHeight,
+                            dockGridItems = dockGridItems,
+                            textColor = userData.textColor,
+                            onMoveGridItem = onMoveGridItem,
+                            onUpdatePageCount = onUpdatePageCount,
+                            onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                            onDeleteGridItem = onDeleteGridItem,
+                            onDragCancel = {
+                                onResetGridCache()
+                            },
+                            onDragEnd = { targetPage, gridItemLayoutInfo ->
+                                gridItemSource =
+                                    gridItemSource?.copy(gridItemLayoutInfo = gridItemLayoutInfo)
+
+                                showMenu = true
+
+                                onResetGridCache()
+
+                                scope.launch {
+                                    verticalPagerState.scrollToPage(0)
+
+                                    horizontalPagerState.scrollToPage(targetPage)
+                                }
+                            },
                         )
+                    } else {
+                        ApplicationScreen(
+                            currentPage = horizontalPagerState.currentPage,
+                            rows = userData.rows,
+                            columns = userData.columns,
+                            pageCount = userData.pageCount,
+                            infiniteScroll = userData.infiniteScroll,
+                            gridItemOffset = gridItemOffset,
+                            eblanApplicationInfos = eblanApplicationInfos,
+                            constraintsMaxWidth = constraintsMaxWidth,
+                            constraintsMaxHeight = constraintsMaxHeight,
+                            dockHeight = userData.dockHeight,
+                            drag = drag,
+                            textColor = userData.textColor,
+                            onLongPressApplicationInfo = { imageBitmap ->
+                                preview = imageBitmap
+                            },
+                            onDragStart = { size, gridItemLayoutInfo ->
+                                gridItemSource = GridItemSource(
+                                    gridItemLayoutInfo = gridItemLayoutInfo,
+                                    type = GridItemSource.Type.New,
+                                )
 
-                        overlaySize = size
+                                overlaySize = size
 
-                        onShowGridCache(Screen.Drag)
-                    },
-                )
-            }
-
-            Screen.Drag -> {
-                DragScreen(
-                    currentPage = pagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
-                    gridItems = gridItems,
-                    gridItemOffset = gridItemOffset,
-                    gridItemSource = gridItemSource,
-                    drag = drag,
-                    preview = preview,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = userData.dockHeight,
-                    dockGridItems = dockGridItems,
-                    textColor = userData.textColor,
-                    onMoveGridItem = onMoveGridItem,
-                    onUpdatePageCount = onUpdatePageCount,
-                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
-                    onDeleteGridItem = onDeleteGridItem,
-                    onDragCancel = {
-                        onResetGridCache()
-                    },
-                    onDragEnd = { targetPage, gridItemLayoutInfo ->
-                        gridItemSource =
-                            gridItemSource?.copy(gridItemLayoutInfo = gridItemLayoutInfo)
-
-                        showMenu = true
-
-                        onResetGridCache()
-
-                        scope.launch {
-                            pagerState.scrollToPage(targetPage)
-                        }
-                    },
-                )
-            }
-
-            Screen.Resize -> {
-                ResizeScreen(
-                    currentPage = pagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
-                    gridItems = gridItems,
-                    gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
-                    dockHeight = userData.dockHeight,
-                    dockGridItems = dockGridItems,
-                    textColor = userData.textColor,
-                    onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = {
-                        onResetGridCache()
-                    },
-                )
+                                onShowGridCache(Screen.Drag)
+                            },
+                        )
+                    }
+                }
             }
         }
 
@@ -484,10 +527,6 @@ fun Success(
                     showBottomSheet = false
                 },
                 onApplication = {
-                    scope.launch {
-                        applicationScreenY.snapTo(0f)
-                    }
-
                     onUpdateScreen(Screen.Application)
                 },
                 onWidget = {
@@ -495,7 +534,7 @@ fun Success(
                 },
                 onDeletePage = {
                     val page = calculatePage(
-                        index = pagerState.currentPage,
+                        index = horizontalPagerState.currentPage,
                         infiniteScroll = userData.infiniteScroll,
                         pageCount = userData.pageCount,
                     )

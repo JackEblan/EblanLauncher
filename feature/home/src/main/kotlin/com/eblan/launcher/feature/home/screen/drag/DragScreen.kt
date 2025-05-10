@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -552,7 +551,9 @@ private fun GridItemOverlay(
         }
     }
     if (preview != null) {
-        Surface(
+        Image(
+            bitmap = preview,
+            contentDescription = null,
             modifier = modifier
                 .offset {
                     IntOffset(
@@ -561,13 +562,8 @@ private fun GridItemOverlay(
                     )
                 }
                 .size(size)
-                .zIndex(1f),
-        ) {
-            Image(
-                bitmap = preview,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+                .zIndex(1f)
+                .fillMaxSize(),
+        )
     }
 }

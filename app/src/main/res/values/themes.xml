@@ -3,7 +3,7 @@
 
     <style name="Theme.EblanLauncher" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <style name="Theme.EblanLauncher.Wallpaper" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.EblanLauncher.Wallpaper" parent="android:Theme.Material.Wallpaper.NoTitleBar">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
         <item name="android:navigationBarColor" tools:targetApi="27">@android:color/transparent

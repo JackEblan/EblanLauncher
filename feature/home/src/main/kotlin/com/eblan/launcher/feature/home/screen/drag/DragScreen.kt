@@ -112,21 +112,10 @@ fun DragScreen(
 
     var canScroll by remember { mutableStateOf(true) }
 
-    var appWidgetId by remember { mutableIntStateOf(0) }
-
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
 
-    val appWidgetLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-    ) { result ->
-        appWidgetId = if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-        } else {
-            -1
-        }
-    }
 
     val density = LocalDensity.current
 
@@ -137,6 +126,46 @@ fun DragScreen(
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var gridItemLayoutInfo by remember { mutableStateOf(gridItemSource?.gridItemLayoutInfo) }
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+
+        if (result.resultCode == Activity.RESULT_OK) {
+            if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId > 0) {
+                onUpdateWidgetGridItem(
+                    gridItemSource.gridItemLayoutInfo.gridItem.id,
+                    gridItemSource.gridItemLayoutInfo.gridItem.data,
+                    appWidgetId,
+                )
+
+                val targetPage = calculateTargetPage(
+                    currentPage = currentPage,
+                    index = index,
+                    infiniteScroll = infiniteScroll,
+                    pageCount = pageCount,
+                )
+
+                onDragEnd(targetPage, gridItemLayoutInfo!!)
+            }
+        } else {
+            appWidgetHost.deleteAppWidgetId(appWidgetId = appWidgetId)
+
+            if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
+                onDeleteGridItem(gridItemSource.gridItemLayoutInfo.gridItem)
+
+                val targetPage = calculateTargetPage(
+                    currentPage = currentPage,
+                    index = index,
+                    infiniteScroll = infiniteScroll,
+                    pageCount = pageCount,
+                )
+
+                onDragEnd(targetPage, gridItemLayoutInfo!!)
+            }
+        }
+    }
 
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
@@ -321,38 +350,6 @@ fun DragScreen(
             }
 
             null -> Unit
-        }
-    }
-
-    LaunchedEffect(key1 = appWidgetId) {
-        if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId > 0) {
-            onUpdateWidgetGridItem(
-                gridItemSource.gridItemLayoutInfo.gridItem.id,
-                gridItemSource.gridItemLayoutInfo.gridItem.data,
-                appWidgetId,
-            )
-
-            val targetPage = calculateTargetPage(
-                currentPage = currentPage,
-                index = index,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-            )
-
-            onDragEnd(targetPage, gridItemLayoutInfo!!)
-        }
-
-        if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
-            onDeleteGridItem(gridItemSource.gridItemLayoutInfo.gridItem)
-
-            val targetPage = calculateTargetPage(
-                currentPage = currentPage,
-                index = index,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-            )
-
-            onDragEnd(targetPage, gridItemLayoutInfo!!)
         }
     }
 

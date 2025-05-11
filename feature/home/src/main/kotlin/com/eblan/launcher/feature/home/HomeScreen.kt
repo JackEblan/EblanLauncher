@@ -218,8 +218,6 @@ fun Success(
 
     var gridItemOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    var showMenu by remember { mutableStateOf(false) }
-
     var showBottomSheet by remember { mutableStateOf(false) }
 
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
@@ -270,7 +268,6 @@ fun Success(
                     dockColumns = userData.dockColumns,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
-                    showMenu = showMenu,
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
@@ -279,9 +276,6 @@ fun Success(
                     textColor = userData.textColor,
                     gridItemOffset = gridItemOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    onDismissRequest = {
-                        showMenu = false
-                    },
                     onLongPressGrid = {
                         gridItemSource = null
 
@@ -317,12 +311,6 @@ fun Success(
                         overlaySize = size
 
                         onShowGridCache(Screen.Drag)
-                    },
-                    onEdit = {
-
-                    },
-                    onResize = {
-                        onShowGridCache(Screen.Resize)
                     },
                 )
             }
@@ -412,17 +400,18 @@ fun Success(
                     onDragCancel = {
                         onResetGridCache()
                     },
-                    onDragEnd = { targetPage, gridItemLayoutInfo ->
-                        gridItemSource =
-                            gridItemSource?.copy(gridItemLayoutInfo = gridItemLayoutInfo)
-
-                        showMenu = true
-
+                    onDragEnd = { targetPage ->
                         onResetGridCache()
 
                         scope.launch {
                             horizontalPagerState.scrollToPage(targetPage)
                         }
+                    },
+                    onEdit = {
+
+                    },
+                    onResize = {
+                        onShowGridCache(Screen.Resize)
                     },
                 )
             }

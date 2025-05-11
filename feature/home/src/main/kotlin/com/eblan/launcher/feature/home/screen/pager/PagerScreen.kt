@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -37,16 +36,13 @@ import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuPositionProvider
-import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
@@ -65,7 +61,6 @@ fun PagerScreen(
     dockColumns: Int,
     gridItems: Map<Int, List<GridItem>>,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    showMenu: Boolean,
     dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
@@ -74,7 +69,6 @@ fun PagerScreen(
     gridItemOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     constraintsMaxWidth: Int,
-    onDismissRequest: () -> Unit,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
         imageBitmap: ImageBitmap,
@@ -84,8 +78,6 @@ fun PagerScreen(
     onDragStart: () -> Unit,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStartApplicationInfo: (size: IntSize, GridItemLayoutInfo) -> Unit,
-    onEdit: () -> Unit,
-    onResize: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -232,74 +224,6 @@ fun PagerScreen(
                                     },
                                 )
                             }
-                        }
-                    }
-                }
-
-                if (showMenu && gridItemLayoutInfo?.gridItem != null) {
-                    when (gridItemLayoutInfo.gridItem.associate) {
-                        Associate.Grid -> {
-                            GridItemMenu(
-                                x = gridItemLayoutInfo.x,
-                                y = gridItemLayoutInfo.y,
-                                width = gridItemLayoutInfo.width,
-                                height = gridItemLayoutInfo.height,
-                                onDismissRequest = onDismissRequest,
-                                content = {
-                                    when (val data = gridItemLayoutInfo.gridItem.data) {
-                                        is GridItemData.ApplicationInfo -> {
-                                            ApplicationInfoMenuOverlay(
-                                                showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
-                                                onEdit = onEdit,
-                                                onResize = onResize,
-                                            )
-                                        }
-
-                                        is GridItemData.Widget -> {
-                                            val showResize =
-                                                gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
-                                            WidgetMenuOverlay(
-                                                showResize = showResize,
-                                                onEdit = onEdit,
-                                                onResize = onResize,
-                                            )
-                                        }
-                                    }
-                                },
-                            )
-                        }
-
-                        Associate.Dock -> {
-                            GridItemMenu(
-                                x = gridItemLayoutInfo.x,
-                                y = constraintsMaxHeight - dockHeight,
-                                width = gridItemLayoutInfo.width,
-                                height = gridItemLayoutInfo.height,
-                                onDismissRequest = onDismissRequest,
-                                content = {
-                                    when (val data = gridItemLayoutInfo.gridItem.data) {
-                                        is GridItemData.ApplicationInfo -> {
-                                            ApplicationInfoMenuOverlay(
-                                                showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
-                                                onEdit = onEdit,
-                                                onResize = onResize,
-                                            )
-                                        }
-
-                                        is GridItemData.Widget -> {
-                                            val showResize =
-                                                gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
-                                            WidgetMenuOverlay(
-                                                showResize = showResize,
-                                                onEdit = onEdit,
-                                                onResize = onResize,
-                                            )
-                                        }
-                                    }
-                                },
-                            )
                         }
                     }
                 }

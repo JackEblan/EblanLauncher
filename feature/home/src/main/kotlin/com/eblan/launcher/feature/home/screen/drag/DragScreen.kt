@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.drag
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Intent
 import android.widget.FrameLayout
@@ -53,11 +54,14 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
 
@@ -94,10 +98,9 @@ fun DragScreen(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onDragCancel: () -> Unit,
-    onDragEnd: (
-        targetPage: Int,
-        gridItemSource: GridItemLayoutInfo,
-    ) -> Unit,
+    onDragEnd: (Int) -> Unit,
+    onEdit: () -> Unit,
+    onResize: () -> Unit,
 ) {
     val startingPage = calculatePage(
         index = currentPage,
@@ -115,7 +118,6 @@ fun DragScreen(
 
     val appWidgetHost = LocalAppWidgetHost.current
 
-
     val density = LocalDensity.current
 
     val dockHeightDp = with(density) {
@@ -124,7 +126,7 @@ fun DragScreen(
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    var gridItemLayoutInfo by remember { mutableStateOf(gridItemSource?.gridItemLayoutInfo) }
+    var showMenu by remember { mutableStateOf(false) }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -146,7 +148,7 @@ fun DragScreen(
                     pageCount = pageCount,
                 )
 
-                onDragEnd(targetPage, gridItemLayoutInfo!!)
+                onDragEnd(targetPage)
             }
         } else {
             appWidgetHost.deleteAppWidgetId(appWidgetId = appWidgetId)
@@ -161,7 +163,7 @@ fun DragScreen(
                     pageCount = pageCount,
                 )
 
-                onDragEnd(targetPage, gridItemLayoutInfo!!)
+                onDragEnd(targetPage)
             }
         }
     }
@@ -235,14 +237,6 @@ fun DragScreen(
                         associate = Associate.Dock,
                     )
 
-                    gridItemLayoutInfo = GridItemLayoutInfo(
-                        gridItem = gridItem,
-                        width = gridItem.columnSpan * cellWidth,
-                        height = gridItem.rowSpan * cellHeight,
-                        x = gridItem.startColumn * cellWidth,
-                        y = gridItem.startRow * cellHeight,
-                    )
-
                     onMoveGridItem(gridItem, dockRows, dockColumns)
                 } else {
                     val gridHeight = constraintsMaxHeight - dockHeight
@@ -258,14 +252,6 @@ fun DragScreen(
                         associate = Associate.Grid,
                     )
 
-                    gridItemLayoutInfo = GridItemLayoutInfo(
-                        gridItem = gridItem,
-                        width = gridItem.columnSpan * cellWidth,
-                        height = gridItem.rowSpan * cellHeight,
-                        x = gridItem.startColumn * cellWidth,
-                        y = gridItem.startRow * cellHeight,
-                    )
-
                     onMoveGridItem(gridItem, rows, columns)
                 }
             }
@@ -273,15 +259,72 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel) {
-            onDragCancel()
-        }
+        when (drag) {
+            Drag.Start -> {
+                showMenu = true
+            }
 
-        when (gridItemSource?.type) {
-            GridItemSource.Type.New -> {
-                if (drag == Drag.End) {
-                    when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
+            Drag.End -> {
+                if (!showMenu) {
+                    when (gridItemSource?.type) {
+                        GridItemSource.Type.New -> {
+                            when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    val targetPage = calculateTargetPage(
+                                        currentPage = currentPage,
+                                        index = index,
+                                        infiniteScroll = infiniteScroll,
+                                        pageCount = pageCount,
+                                    )
+
+                                    onDragEnd(targetPage)
+                                }
+
+                                is GridItemData.Widget -> {
+                                    val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
+
+                                    val provider =
+                                        ComponentName.unflattenFromString(data.componentName)
+
+                                    if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                                            appWidgetId = allocateAppWidgetId,
+                                            provider = provider,
+                                        )
+                                    ) {
+                                        onUpdateWidgetGridItem(
+                                            gridItemSource.gridItemLayoutInfo.gridItem.id,
+                                            gridItemSource.gridItemLayoutInfo.gridItem.data,
+                                            allocateAppWidgetId,
+                                        )
+
+                                        val targetPage = calculateTargetPage(
+                                            currentPage = currentPage,
+                                            index = index,
+                                            infiniteScroll = infiniteScroll,
+                                            pageCount = pageCount,
+                                        )
+
+                                        onDragEnd(targetPage)
+                                    } else {
+                                        val intent =
+                                            Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                                                putExtra(
+                                                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                                    allocateAppWidgetId,
+                                                )
+                                                putExtra(
+                                                    AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                                                    provider,
+                                                )
+                                            }
+
+                                        appWidgetLauncher.launch(intent)
+                                    }
+                                }
+                            }
+                        }
+
+                        GridItemSource.Type.Old -> {
                             val targetPage = calculateTargetPage(
                                 currentPage = currentPage,
                                 index = index,
@@ -289,66 +332,25 @@ fun DragScreen(
                                 pageCount = pageCount,
                             )
 
-                            onDragEnd(targetPage, gridItemLayoutInfo!!)
+                            onDragEnd(targetPage)
                         }
 
-                        is GridItemData.Widget -> {
-                            val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
-
-                            val provider = ComponentName.unflattenFromString(data.componentName)
-
-                            if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                                    appWidgetId = allocateAppWidgetId,
-                                    provider = provider,
-                                )
-                            ) {
-                                onUpdateWidgetGridItem(
-                                    gridItemSource.gridItemLayoutInfo.gridItem.id,
-                                    gridItemSource.gridItemLayoutInfo.gridItem.data,
-                                    allocateAppWidgetId,
-                                )
-
-                                val targetPage = calculateTargetPage(
-                                    currentPage = currentPage,
-                                    index = index,
-                                    infiniteScroll = infiniteScroll,
-                                    pageCount = pageCount,
-                                )
-
-                                onDragEnd(targetPage, gridItemLayoutInfo!!)
-                            } else {
-                                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                                    putExtra(
-                                        AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                        allocateAppWidgetId,
-                                    )
-                                    putExtra(
-                                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                                        provider,
-                                    )
-                                }
-
-                                appWidgetLauncher.launch(intent)
-                            }
-                        }
+                        null -> Unit
                     }
                 }
             }
 
-            GridItemSource.Type.Old -> {
-                if (drag == Drag.End) {
-                    val targetPage = calculateTargetPage(
-                        currentPage = currentPage,
-                        index = index,
-                        infiniteScroll = infiniteScroll,
-                        pageCount = pageCount,
-                    )
-
-                    onDragEnd(targetPage, gridItemLayoutInfo!!)
-                }
+            Drag.Dragging -> {
+                showMenu = false
             }
 
-            null -> Unit
+            Drag.Cancel -> {
+                onDragCancel()
+            }
+
+            Drag.None -> {
+
+            }
         }
     }
 
@@ -527,6 +529,92 @@ fun DragScreen(
                             }
                         }
                     }
+                }
+            }
+        }
+
+        if (showMenu && gridItemSource?.gridItemLayoutInfo?.gridItem != null) {
+            when (gridItemSource.gridItemLayoutInfo.gridItem.associate) {
+                Associate.Grid -> {
+                    GridItemMenu(
+                        x = gridItemSource.gridItemLayoutInfo.x,
+                        y = gridItemSource.gridItemLayoutInfo.y,
+                        width = gridItemSource.gridItemLayoutInfo.width,
+                        height = gridItemSource.gridItemLayoutInfo.height,
+                        onDismissRequest = {
+                            val targetPage = calculateTargetPage(
+                                currentPage = currentPage,
+                                index = index,
+                                infiniteScroll = infiniteScroll,
+                                pageCount = pageCount,
+                            )
+
+                            onDragEnd(targetPage)
+                        },
+                        content = {
+                            when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    ApplicationInfoMenuOverlay(
+                                        showResize = gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid,
+                                        onEdit = onEdit,
+                                        onResize = onResize,
+                                    )
+                                }
+
+                                is GridItemData.Widget -> {
+                                    val showResize =
+                                        gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+
+                                    WidgetMenuOverlay(
+                                        showResize = showResize,
+                                        onEdit = onEdit,
+                                        onResize = onResize,
+                                    )
+                                }
+                            }
+                        },
+                    )
+                }
+
+                Associate.Dock -> {
+                    GridItemMenu(
+                        x = gridItemSource.gridItemLayoutInfo.x,
+                        y = constraintsMaxHeight - dockHeight,
+                        width = gridItemSource.gridItemLayoutInfo.width,
+                        height = gridItemSource.gridItemLayoutInfo.height,
+                        onDismissRequest = {
+                            val targetPage = calculateTargetPage(
+                                currentPage = currentPage,
+                                index = index,
+                                infiniteScroll = infiniteScroll,
+                                pageCount = pageCount,
+                            )
+
+                            onDragEnd(targetPage)
+                        },
+                        content = {
+                            when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    ApplicationInfoMenuOverlay(
+                                        showResize = gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid,
+                                        onEdit = onEdit,
+                                        onResize = onResize,
+                                    )
+                                }
+
+                                is GridItemData.Widget -> {
+                                    val showResize =
+                                        gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+
+                                    WidgetMenuOverlay(
+                                        showResize = showResize,
+                                        onEdit = onEdit,
+                                        onResize = onResize,
+                                    )
+                                }
+                            }
+                        },
+                    )
                 }
             }
         }

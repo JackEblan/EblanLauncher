@@ -291,12 +291,13 @@ fun Success(
                             width = gridItemLayoutInfo.width,
                             height = gridItemLayoutInfo.height,
                         )
-
-                        onShowGridCache(Screen.Drag)
                     },
                     onLaunchApplication = onLaunchApplication,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
+                    },
+                    onDragStart = {
+                        onShowGridCache(Screen.Drag)
                     },
                     onDragStartApplicationInfo = { size, gridItemLayoutInfo ->
                         gridItemSource = GridItemSource(

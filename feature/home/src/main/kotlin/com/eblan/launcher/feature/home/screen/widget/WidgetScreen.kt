@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.widget
 
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Build
-import android.util.DisplayMetrics
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
@@ -124,10 +123,10 @@ fun WidgetScreen(
                     val drawable = remember {
                         appWidgetProviderInfo.loadPreviewImage(
                             context,
-                            DisplayMetrics.DENSITY_DEFAULT,
+                            0,
                         ) ?: appWidgetProviderInfo.loadIcon(
                             context,
-                            DisplayMetrics.DENSITY_DEFAULT,
+                            0,
                         )
                     }
 
@@ -138,17 +137,13 @@ fun WidgetScreen(
                                     onLongPress = {
                                         providerInfo = appWidgetProviderInfo
 
-                                        val preview =
-                                            appWidgetProviderInfo.loadPreviewImage(context, 0)
-
                                         onLongPressWidget(
-                                            preview.toBitmapOrNull()?.asImageBitmap(),
+                                            drawable?.toBitmapOrNull()?.asImageBitmap(),
                                         )
                                     },
                                 )
                             }
-                            .fillMaxWidth()
-                            .defaultMinSize(minHeight = 100.dp),
+                            .defaultMinSize(minWidth = 100.dp, minHeight = 100.dp),
                         model = drawable,
                         contentDescription = null,
                     )

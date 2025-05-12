@@ -356,6 +356,7 @@ fun Success(
                     constraintsMaxHeight = constraintsMaxHeight,
                     dockHeight = userData.dockHeight,
                     drag = drag,
+                    textColor = userData.textColor,
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
                     },

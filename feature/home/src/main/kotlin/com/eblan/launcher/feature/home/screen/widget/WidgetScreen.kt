@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -32,6 +35,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -52,6 +56,7 @@ fun WidgetScreen(
     constraintsMaxHeight: Int,
     dockHeight: Int,
     drag: Drag,
+    textColor: TextColor,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
         size: IntSize,
@@ -62,8 +67,13 @@ fun WidgetScreen(
 
     var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
 
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start) {
+        if (drag == Drag.Start && providerInfo != null) {
             val page = calculatePage(
                 index = currentPage,
                 infiniteScroll = infiniteScroll,
@@ -111,6 +121,16 @@ fun WidgetScreen(
                 )
 
                 appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
+                    val drawable = remember {
+                        appWidgetProviderInfo.loadPreviewImage(
+                            context,
+                            DisplayMetrics.DENSITY_DEFAULT,
+                        ) ?: appWidgetProviderInfo.loadIcon(
+                            context,
+                            DisplayMetrics.DENSITY_DEFAULT,
+                        )
+                    }
+
                     AsyncImage(
                         modifier = Modifier
                             .pointerInput(Unit) {
@@ -129,35 +149,31 @@ fun WidgetScreen(
                             }
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = 100.dp),
-                        model = appWidgetProviderInfo.loadPreviewImage(
-                            context,
-                            DisplayMetrics.DENSITY_DEFAULT,
-                        ) ?: appWidgetProviderInfo.loadIcon(
-                            context,
-                            DisplayMetrics.DENSITY_DEFAULT,
-                        ),
+                        model = drawable,
                         contentDescription = null,
                     )
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        Text(
-                            text = "${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}",
-                        )
-
-                        Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
-
-                        Text(text = "ResizeMode = ${appWidgetProviderInfo.resizeMode}")
-
-                        Text(text = "MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}")
-
-                        Text(text = "MaxResizeWidth = ${appWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${appWidgetProviderInfo.maxResizeHeight}")
+                    val infoText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        """
+    ${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}
+    MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}
+    ResizeMode = ${appWidgetProviderInfo.resizeMode}
+    MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}
+    MaxResizeWidth = ${appWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${appWidgetProviderInfo.maxResizeHeight}
+    """.trimIndent()
                     } else {
-                        Text(text = "MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}")
-
-                        Text(text = "ResizeMode = ${appWidgetProviderInfo.resizeMode}")
-
-                        Text(text = "MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}")
+                        """
+    MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}
+    ResizeMode = ${appWidgetProviderInfo.resizeMode}
+    MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}
+    """.trimIndent()
                     }
+
+                    Text(
+                        text = infoText, color = color,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
         }

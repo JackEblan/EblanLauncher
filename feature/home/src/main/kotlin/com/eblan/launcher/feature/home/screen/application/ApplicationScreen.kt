@@ -1,6 +1,8 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +34,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
@@ -40,8 +43,10 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
@@ -79,6 +84,10 @@ fun ApplicationScreen(
         TextColor.Black -> Color.Black
     }
 
+    var showMenu by remember { mutableStateOf(false) }
+
+    var gridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Start) {
             val page = calculatePage(
@@ -87,7 +96,7 @@ fun ApplicationScreen(
                 pageCount = pageCount,
             )
 
-            val layoutInfo = getGridItemLayoutInfo(
+            gridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 rows = rows,
                 columns = columns,
@@ -98,9 +107,15 @@ fun ApplicationScreen(
                 data = data!!,
             )
 
-            val size = IntSize(layoutInfo.width, layoutInfo.height)
+            showMenu = true
+        }
 
-            onDragStart(size, layoutInfo)
+        if (drag == Drag.Dragging) {
+            showMenu = false
+
+            val size = IntSize(gridItemLayoutInfo!!.width, gridItemLayoutInfo!!.height)
+
+            onDragStart(size, gridItemLayoutInfo!!)
         }
     }
 
@@ -112,7 +127,7 @@ fun ApplicationScreen(
             modifier = Modifier.fillMaxWidth(),
             state = gridState,
         ) {
-            items(eblanApplicationInfos) { appInfo ->
+            items(eblanApplicationInfos) { eblanApplicationInfo ->
                 val graphicsLayer = rememberGraphicsLayer()
 
                 Column(
@@ -124,18 +139,23 @@ fun ApplicationScreen(
                             drawLayer(graphicsLayer)
                         }
                         .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
+                            awaitEachGesture {
+                                val down = awaitFirstDown()
+
+                                val longPress = awaitLongPressOrCancellation(pointerId = down.id)
+
+                                if (longPress != null) {
                                     scope.launch {
                                         data = GridItemData.ApplicationInfo(
-                                            packageName = appInfo.packageName,
-                                            icon = appInfo.icon,
-                                            label = appInfo.label,
+                                            packageName = eblanApplicationInfo.packageName,
+                                            icon = eblanApplicationInfo.icon,
+                                            label = eblanApplicationInfo.label,
                                         )
+
                                         onLongPressApplicationInfo(graphicsLayer.toImageBitmap())
                                     }
-                                },
-                            )
+                                }
+                            }
                         }
                         .fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -144,23 +164,42 @@ fun ApplicationScreen(
                     Spacer(modifier = Modifier.height(5.dp))
 
                     AsyncImage(
-                        model = appInfo.icon,
+                        model = eblanApplicationInfo.icon,
                         contentDescription = null,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier
+                            .size(40.dp, 40.dp),
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = appInfo.label,
+                        text = eblanApplicationInfo.label,
                         color = color,
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = TextUnit(
+                            value = 10f,
+                            type = TextUnitType.Sp,
+                        ),
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))
                 }
             }
+        }
+
+        if (showMenu) {
+            GridItemMenu(
+                x = gridItemOffset.x - gridItemLayoutInfo!!.width / 2,
+                y = gridItemOffset.y - gridItemLayoutInfo!!.height / 2,
+                width = gridItemLayoutInfo!!.width,
+                height = gridItemLayoutInfo!!.height,
+                onDismissRequest = {
+                    showMenu = false
+                },
+                content = {
+                    ApplicationInfoMenu(onApplicationInfo = {})
+                },
+            )
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -95,6 +96,7 @@ fun WidgetGridItemMenu(
 fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     onApplicationInfo: () -> Unit,
+    onWidgets: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -107,6 +109,13 @@ fun ApplicationInfoMenu(
                 ) {
                     Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                 }
+
+                IconButton(
+                    onClick = onWidgets,
+                ) {
+                    Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
+                }
+
             }
         },
     )

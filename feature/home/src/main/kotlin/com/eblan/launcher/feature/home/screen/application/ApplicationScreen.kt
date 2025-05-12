@@ -197,7 +197,7 @@ fun ApplicationScreen(
                     showMenu = false
                 },
                 content = {
-                    ApplicationInfoMenu(onApplicationInfo = {})
+                    ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
                 },
             )
         }

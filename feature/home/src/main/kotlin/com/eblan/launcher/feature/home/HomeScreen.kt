@@ -277,8 +277,6 @@ fun Success(
                     gridItemOffset = gridItemOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
                     onLongPressGrid = {
-                        gridItemSource = null
-
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
@@ -397,9 +395,13 @@ fun Success(
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = {
+                        gridItemSource = null
+
                         onResetGridCache()
                     },
                     onDragEnd = { targetPage ->
+                        gridItemSource = null
+
                         onResetGridCache()
 
                         scope.launch {

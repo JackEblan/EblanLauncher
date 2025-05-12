@@ -541,16 +541,7 @@ fun DragScreen(
                         y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2,
                         width = gridItemSource.gridItemLayoutInfo.width,
                         height = gridItemSource.gridItemLayoutInfo.height,
-                        onDismissRequest = {
-                            val targetPage = calculateTargetPage(
-                                currentPage = currentPage,
-                                index = index,
-                                infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
-                            )
-
-                            onDragEnd(targetPage)
-                        },
+                        onDismissRequest = onDragCancel,
                         content = {
                             when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
@@ -582,16 +573,7 @@ fun DragScreen(
                         y = constraintsMaxHeight - dockHeight,
                         width = gridItemSource.gridItemLayoutInfo.width,
                         height = gridItemSource.gridItemLayoutInfo.height,
-                        onDismissRequest = {
-                            val targetPage = calculateTargetPage(
-                                currentPage = currentPage,
-                                index = index,
-                                infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
-                            )
-
-                            onDragEnd(targetPage)
-                        },
+                        onDismissRequest = onDragCancel,
                         content = {
                             when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {

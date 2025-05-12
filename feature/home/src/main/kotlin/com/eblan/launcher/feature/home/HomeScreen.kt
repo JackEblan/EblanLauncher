@@ -294,8 +294,6 @@ fun Success(
                             height = gridItemLayoutInfo.height,
                         )
 
-                    },
-                    onDragStart = {
                         onShowGridCache(Screen.Drag)
                     },
                     onLaunchApplication = onLaunchApplication,

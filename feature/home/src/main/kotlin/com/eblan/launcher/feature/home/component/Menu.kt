@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ApplicationInfoMenuOverlay(
+fun ApplicationInfoGridItemMenu(
     modifier: Modifier = Modifier,
     showResize: Boolean,
     onEdit: () -> Unit,
@@ -53,7 +53,7 @@ fun ApplicationInfoMenuOverlay(
 }
 
 @Composable
-fun WidgetMenuOverlay(
+fun WidgetGridItemMenu(
     modifier: Modifier = Modifier,
     showResize: Boolean,
     onEdit: () -> Unit,
@@ -85,6 +85,27 @@ fun WidgetMenuOverlay(
                     },
                 ) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                }
+            }
+        },
+    )
+}
+
+@Composable
+fun ApplicationInfoMenu(
+    modifier: Modifier = Modifier,
+    onApplicationInfo: () -> Unit,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row(modifier = modifier) {
+                IconButton(
+                    onClick = onApplicationInfo,
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                 }
             }
         },

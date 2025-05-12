@@ -54,10 +54,10 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.ApplicationInfoMenuOverlay
+import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.WidgetMenuOverlay
+import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -537,8 +537,8 @@ fun DragScreen(
             when (gridItemSource.gridItemLayoutInfo.gridItem.associate) {
                 Associate.Grid -> {
                     GridItemMenu(
-                        x = gridItemSource.gridItemLayoutInfo.x,
-                        y = gridItemSource.gridItemLayoutInfo.y,
+                        x = gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2,
+                        y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2,
                         width = gridItemSource.gridItemLayoutInfo.width,
                         height = gridItemSource.gridItemLayoutInfo.height,
                         onDismissRequest = {
@@ -554,7 +554,7 @@ fun DragScreen(
                         content = {
                             when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoMenuOverlay(
+                                    ApplicationInfoGridItemMenu(
                                         showResize = gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid,
                                         onEdit = onEdit,
                                         onResize = onResize,
@@ -565,7 +565,7 @@ fun DragScreen(
                                     val showResize =
                                         gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
-                                    WidgetMenuOverlay(
+                                    WidgetGridItemMenu(
                                         showResize = showResize,
                                         onEdit = onEdit,
                                         onResize = onResize,
@@ -595,7 +595,7 @@ fun DragScreen(
                         content = {
                             when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoMenuOverlay(
+                                    ApplicationInfoGridItemMenu(
                                         showResize = gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid,
                                         onEdit = onEdit,
                                         onResize = onResize,
@@ -606,7 +606,7 @@ fun DragScreen(
                                     val showResize =
                                         gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
-                                    WidgetMenuOverlay(
+                                    WidgetGridItemMenu(
                                         showResize = showResize,
                                         onEdit = onEdit,
                                         onResize = onResize,

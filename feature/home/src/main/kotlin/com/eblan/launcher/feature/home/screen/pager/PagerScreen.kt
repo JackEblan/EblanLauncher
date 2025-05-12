@@ -14,7 +14,6 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,7 +74,6 @@ fun PagerScreen(
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onLaunchApplication: (String) -> Unit,
-    onDragStart: () -> Unit,
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStartApplicationInfo: (size: IntSize, GridItemLayoutInfo) -> Unit,
 ) {
@@ -89,12 +87,6 @@ fun PagerScreen(
         initialPage = 0,
         pageCount = { 2 },
     )
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && gridItemLayoutInfo != null && !horizontalPagerState.isScrollInProgress) {
-            onDragStart()
-        }
-    }
 
     VerticalPager(
         state = verticalPagerState,

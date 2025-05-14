@@ -73,6 +73,7 @@ fun ApplicationScreen(
         GridItemLayoutInfo,
     ) -> Unit,
     onDragging: () -> Unit,
+    onDragEnd: () -> Unit,
 ) {
     var data by remember { mutableStateOf<GridItemData?>(null) }
 
@@ -90,35 +91,41 @@ fun ApplicationScreen(
     var gridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start) {
-            val page = calculatePage(
-                index = currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-            )
+        when (drag) {
+            Drag.Start -> {
+                val page = calculatePage(
+                    index = currentPage,
+                    infiniteScroll = infiniteScroll,
+                    pageCount = pageCount,
+                )
 
-            gridItemLayoutInfo = getGridItemLayoutInfo(
-                page = page,
-                rows = rows,
-                columns = columns,
-                x = gridItemOffset.x,
-                y = gridItemOffset.y,
-                gridWidth = constraintsMaxWidth,
-                gridHeight = constraintsMaxHeight - dockHeight,
-                data = data!!,
-            )
+                gridItemLayoutInfo = getGridItemLayoutInfo(
+                    page = page,
+                    rows = rows,
+                    columns = columns,
+                    x = gridItemOffset.x,
+                    y = gridItemOffset.y,
+                    gridWidth = constraintsMaxWidth,
+                    gridHeight = constraintsMaxHeight - dockHeight,
+                    data = data!!,
+                )
 
-            val size = IntSize(gridItemLayoutInfo!!.width, gridItemLayoutInfo!!.height)
+                val size = IntSize(gridItemLayoutInfo!!.width, gridItemLayoutInfo!!.height)
 
-            showMenu = true
+                showMenu = true
 
-            onDragStart(size, gridItemLayoutInfo!!)
-        }
+                onDragStart(size, gridItemLayoutInfo!!)
+            }
 
-        if (drag == Drag.Dragging) {
-            showMenu = false
+            Drag.End, Drag.Cancel, Drag.None -> {
+                onDragEnd()
+            }
 
-            onDragging()
+            Drag.Dragging -> {
+                showMenu = false
+
+                onDragging()
+            }
         }
     }
 

@@ -329,6 +329,9 @@ fun Success(
                     onDraggingApplicationInfo = {
                         onShowGridCache(Screen.Drag)
                     },
+                    onDragEndApplicationInfo = {
+                        showOverlay = false
+                    }
                 )
             }
 
@@ -361,6 +364,9 @@ fun Success(
                     },
                     onDragging = {
                         onShowGridCache(Screen.Drag)
+                    },
+                    onDragEnd = {
+                        showOverlay = false
                     },
                 )
             }
@@ -442,6 +448,8 @@ fun Success(
 
                     },
                     onResize = {
+                        showOverlay = false
+
                         onShowGridCache(Screen.Resize)
                     },
                 )

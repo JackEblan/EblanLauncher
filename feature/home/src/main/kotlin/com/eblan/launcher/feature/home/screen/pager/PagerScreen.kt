@@ -79,6 +79,7 @@ fun PagerScreen(
     onDragStart: () -> Unit,
     onDragStartApplicationInfo: (size: IntSize, GridItemLayoutInfo) -> Unit,
     onDraggingApplicationInfo: () -> Unit,
+    onDragEndApplicationInfo: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -91,17 +92,17 @@ fun PagerScreen(
         pageCount = { 2 },
     )
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && gridItemLayoutInfo != null && !horizontalPagerState.isScrollInProgress) {
-            onDragStart()
-        }
-    }
-
     VerticalPager(
         state = verticalPagerState,
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
+                LaunchedEffect(key1 = drag) {
+                    if (drag == Drag.Start && gridItemLayoutInfo != null && !horizontalPagerState.isScrollInProgress) {
+                        onDragStart()
+                    }
+                }
+
                 Column(
                     modifier = modifier
                         .pointerInput(Unit) {
@@ -247,6 +248,7 @@ fun PagerScreen(
                     onLongPressApplicationInfo = onLongPressApplicationInfo,
                     onDragStart = onDragStartApplicationInfo,
                     onDragging = onDraggingApplicationInfo,
+                    onDragEnd = onDragEndApplicationInfo,
                 )
 
             }

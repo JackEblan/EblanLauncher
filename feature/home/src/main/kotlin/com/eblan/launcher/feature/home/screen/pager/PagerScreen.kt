@@ -78,6 +78,7 @@ fun PagerScreen(
     onLongPressApplicationInfo: (ImageBitmap) -> Unit,
     onDragStart: () -> Unit,
     onDragStartApplicationInfo: (size: IntSize, GridItemLayoutInfo) -> Unit,
+    onDraggingApplicationInfo: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -245,6 +246,7 @@ fun PagerScreen(
                     textColor = textColor,
                     onLongPressApplicationInfo = onLongPressApplicationInfo,
                     onDragStart = onDragStartApplicationInfo,
+                    onDragging = onDraggingApplicationInfo,
                 )
 
             }

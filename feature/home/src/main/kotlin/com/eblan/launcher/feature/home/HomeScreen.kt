@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
@@ -36,9 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -46,6 +52,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -220,6 +227,8 @@ fun Success(
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
+    var showOverlay by remember { mutableStateOf(false) }
+
     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
 
     var drag by remember { mutableStateOf(Drag.None) }
@@ -282,6 +291,8 @@ fun Success(
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
                         preview = imageBitmap
 
+                        showOverlay = true
+
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.Old,
@@ -295,6 +306,8 @@ fun Success(
                     onLaunchApplication = onLaunchApplication,
                     onLongPressApplicationInfo = { imageBitmap ->
                         preview = imageBitmap
+
+                        showOverlay = true
                     },
                     onDragStart = {
                         onShowGridCache(Screen.Drag)
@@ -306,7 +319,8 @@ fun Success(
                         )
 
                         overlaySize = size
-
+                    },
+                    onDraggingApplicationInfo = {
                         onShowGridCache(Screen.Drag)
                     },
                 )
@@ -337,6 +351,9 @@ fun Success(
 
                         overlaySize = size
 
+                        showOverlay = true
+                    },
+                    onDragging = {
                         onShowGridCache(Screen.Drag)
                     },
                 )
@@ -358,6 +375,8 @@ fun Success(
                     textColor = userData.textColor,
                     onLongPressWidget = { imageBitmap ->
                         preview = imageBitmap
+
+                        showOverlay = true
                     },
                     onDragStart = { size, gridItemLayoutInfo ->
                         gridItemSource = GridItemSource(
@@ -385,7 +404,6 @@ fun Success(
                     gridItemOffset = gridItemOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
-                    preview = preview,
                     constraintsMaxWidth = constraintsMaxWidth,
                     constraintsMaxHeight = constraintsMaxHeight,
                     dockHeight = userData.dockHeight,
@@ -398,10 +416,14 @@ fun Success(
                     onDragCancel = {
                         gridItemSource = null
 
+                        showOverlay = false
+
                         onResetGridCache()
                     },
                     onDragEnd = { targetPage ->
                         gridItemSource = null
+
+                        showOverlay = false
 
                         onResetGridCache()
 
@@ -440,6 +462,14 @@ fun Success(
             }
         }
 
+        if (showOverlay && gridItemSource?.gridItemLayoutInfo != null) {
+            GridItemOverlay(
+                preview = preview,
+                gridItemLayoutInfo = gridItemSource!!.gridItemLayoutInfo,
+                offset = gridItemOffset,
+            )
+        }
+
         if (showBottomSheet) {
             HomeBottomSheet(
                 sheetState = sheetState,
@@ -464,6 +494,41 @@ fun Success(
                 onSettings = onSettings,
             )
         }
+    }
+}
+
+@Composable
+private fun GridItemOverlay(
+    modifier: Modifier = Modifier,
+    preview: ImageBitmap?,
+    gridItemLayoutInfo: GridItemLayoutInfo,
+    offset: IntOffset,
+) {
+    val density = LocalDensity.current
+
+    val size = remember {
+        with(density) {
+            DpSize(
+                width = gridItemLayoutInfo.width.toDp(),
+                height = gridItemLayoutInfo.height.toDp(),
+            )
+        }
+    }
+    if (preview != null) {
+        Image(
+            bitmap = preview,
+            contentDescription = null,
+            modifier = modifier
+                .offset {
+                    IntOffset(
+                        x = offset.x - gridItemLayoutInfo.width / 2,
+                        y = offset.y - gridItemLayoutInfo.height / 2,
+                    )
+                }
+                .size(size)
+                .zIndex(1f)
+                .fillMaxSize(),
+        )
     }
 }
 

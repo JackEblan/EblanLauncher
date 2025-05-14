@@ -15,7 +15,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,16 +34,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -59,7 +54,6 @@ import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -79,7 +73,6 @@ fun DragScreen(
     gridItemSource: GridItemSource?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
-    preview: ImageBitmap?,
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
     dockHeight: Int,
@@ -355,14 +348,6 @@ fun DragScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (gridItemSource?.gridItemLayoutInfo != null) {
-            GridItemOverlay(
-                preview = preview,
-                gridItemLayoutInfo = gridItemSource.gridItemLayoutInfo,
-                offset = gridItemOffset,
-            )
-        }
-
         Column(
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -600,40 +585,5 @@ fun DragScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun GridItemOverlay(
-    modifier: Modifier = Modifier,
-    preview: ImageBitmap?,
-    gridItemLayoutInfo: GridItemLayoutInfo,
-    offset: IntOffset,
-) {
-    val density = LocalDensity.current
-
-    val size = remember {
-        with(density) {
-            DpSize(
-                width = gridItemLayoutInfo.width.toDp(),
-                height = gridItemLayoutInfo.height.toDp(),
-            )
-        }
-    }
-    if (preview != null) {
-        Image(
-            bitmap = preview,
-            contentDescription = null,
-            modifier = modifier
-                .offset {
-                    IntOffset(
-                        x = offset.x - gridItemLayoutInfo.width / 2,
-                        y = offset.y - gridItemLayoutInfo.height / 2,
-                    )
-                }
-                .size(size)
-                .zIndex(1f)
-                .fillMaxSize(),
-        )
     }
 }

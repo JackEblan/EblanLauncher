@@ -72,6 +72,7 @@ fun ApplicationScreen(
         size: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
+    onDragging: () -> Unit,
 ) {
     var data by remember { mutableStateOf<GridItemData?>(null) }
 
@@ -107,15 +108,17 @@ fun ApplicationScreen(
                 data = data!!,
             )
 
+            val size = IntSize(gridItemLayoutInfo!!.width, gridItemLayoutInfo!!.height)
+
             showMenu = true
+
+            onDragStart(size, gridItemLayoutInfo!!)
         }
 
         if (drag == Drag.Dragging) {
             showMenu = false
 
-            val size = IntSize(gridItemLayoutInfo!!.width, gridItemLayoutInfo!!.height)
-
-            onDragStart(size, gridItemLayoutInfo!!)
+            onDragging()
         }
     }
 

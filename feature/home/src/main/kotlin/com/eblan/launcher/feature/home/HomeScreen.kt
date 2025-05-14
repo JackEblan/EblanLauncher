@@ -79,12 +79,15 @@ fun HomeRoute(
 
     val screen by viewModel.screen.collectAsStateWithLifecycle()
 
+    val shiftedAlgorithm by viewModel.shiftedAlgorithm.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         appWidgetProviderInfos = appWidgetProviderInfos,
+        shiftedAlgorithm = shiftedAlgorithm,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
@@ -107,6 +110,7 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -154,6 +158,7 @@ fun HomeScreen(
                         constraintsMaxWidth = constraints.maxWidth,
                         constraintsMaxHeight = constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
+                        shiftedAlgorithm = shiftedAlgorithm,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onUpdateWidgetGridItem = onUpdateWidgetGridItem,
@@ -185,6 +190,7 @@ fun Success(
     constraintsMaxWidth: Int,
     constraintsMaxHeight: Int,
     dockGridItems: List<GridItem>,
+    shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -409,6 +415,7 @@ fun Success(
                     dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
+                    shiftedAlgorithm = shiftedAlgorithm,
                     onMoveGridItem = onMoveGridItem,
                     onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,

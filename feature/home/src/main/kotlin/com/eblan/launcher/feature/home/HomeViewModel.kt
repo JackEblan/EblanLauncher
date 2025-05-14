@@ -81,6 +81,10 @@ class HomeViewModel @Inject constructor(
 
     private var gridItemDelayTimeInMillis = 100L
 
+    private var _shiftedAlgorithm = MutableStateFlow<Boolean?>(null)
+
+    val shiftedAlgorithm = _shiftedAlgorithm.asStateFlow()
+
     fun moveGridItem(
         gridItem: GridItem,
         rows: Int,
@@ -92,11 +96,13 @@ class HomeViewModel @Inject constructor(
             gridItemJob = launch {
                 delay(gridItemDelayTimeInMillis)
 
-                shiftAlgorithmUseCase(
-                    movingGridItem = gridItem,
-                    rows = rows,
-                    columns = columns,
-                )
+                _shiftedAlgorithm.update {
+                    shiftAlgorithmUseCase(
+                        movingGridItem = gridItem,
+                        rows = rows,
+                        columns = columns,
+                    ) != null
+                }
             }
         }
     }
@@ -112,11 +118,13 @@ class HomeViewModel @Inject constructor(
             gridItemJob = launch {
                 delay(gridItemDelayTimeInMillis)
 
-                shiftAlgorithmUseCase(
-                    movingGridItem = gridItem,
-                    rows = rows,
-                    columns = columns,
-                )
+                _shiftedAlgorithm.update {
+                    shiftAlgorithmUseCase(
+                        movingGridItem = gridItem,
+                        rows = rows,
+                        columns = columns,
+                    ) != null
+                }
             }
         }
     }

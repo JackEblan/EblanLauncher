@@ -78,6 +78,7 @@ fun DragScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
+    shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -275,22 +276,48 @@ fun DragScreen(
                                 }
 
                                 is GridItemData.Widget -> {
-                                    val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
+                                    if (shiftedAlgorithm != null && shiftedAlgorithm) {
+                                        val allocateAppWidgetId =
+                                            appWidgetHost.allocateAppWidgetId()
 
-                                    val provider =
-                                        ComponentName.unflattenFromString(data.componentName)
+                                        val provider =
+                                            ComponentName.unflattenFromString(data.componentName)
 
-                                    if (appWidgetManager.bindAppWidgetIdIfAllowed(
-                                            appWidgetId = allocateAppWidgetId,
-                                            provider = provider,
-                                        )
-                                    ) {
-                                        onUpdateWidgetGridItem(
-                                            gridItemSource.gridItemLayoutInfo.gridItem.id,
-                                            gridItemSource.gridItemLayoutInfo.gridItem.data,
-                                            allocateAppWidgetId,
-                                        )
+                                        if (appWidgetManager.bindAppWidgetIdIfAllowed(
+                                                appWidgetId = allocateAppWidgetId,
+                                                provider = provider,
+                                            )
+                                        ) {
+                                            onUpdateWidgetGridItem(
+                                                gridItemSource.gridItemLayoutInfo.gridItem.id,
+                                                gridItemSource.gridItemLayoutInfo.gridItem.data,
+                                                allocateAppWidgetId,
+                                            )
 
+                                            val targetPage = calculateTargetPage(
+                                                currentPage = currentPage,
+                                                index = index,
+                                                infiniteScroll = infiniteScroll,
+                                                pageCount = pageCount,
+                                            )
+
+                                            onDragEnd(targetPage)
+                                        } else {
+                                            val intent =
+                                                Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                                                    putExtra(
+                                                        AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                                        allocateAppWidgetId,
+                                                    )
+                                                    putExtra(
+                                                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                                                        provider,
+                                                    )
+                                                }
+
+                                            appWidgetLauncher.launch(intent)
+                                        }
+                                    } else {
                                         val targetPage = calculateTargetPage(
                                             currentPage = currentPage,
                                             index = index,
@@ -299,20 +326,6 @@ fun DragScreen(
                                         )
 
                                         onDragEnd(targetPage)
-                                    } else {
-                                        val intent =
-                                            Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                                                putExtra(
-                                                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                                                    allocateAppWidgetId,
-                                                )
-                                                putExtra(
-                                                    AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                                                    provider,
-                                                )
-                                            }
-
-                                        appWidgetLauncher.launch(intent)
                                     }
                                 }
                             }

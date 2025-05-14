@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.framework
 
+import java.io.File
+
 interface FileManager {
-    suspend fun writeIconBytes(name: String, icon: ByteArray?): String?
+    val iconsDirectory: File
 }

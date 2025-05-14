@@ -216,12 +216,14 @@ fun DragScreen(
             } else {
                 pageDirection = null
 
+                val gridHeight = constraintsMaxHeight - dockHeight
+
                 if (isDraggingOnDock) {
                     val cellWidth = constraintsMaxWidth / dockColumns
 
                     val cellHeight = dockHeight / dockRows
 
-                    val dockY = gridItemOffset.y - (constraintsMaxHeight - dockHeight)
+                    val dockY = gridItemOffset.y - gridHeight
 
                     val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                         page = index,
@@ -232,7 +234,6 @@ fun DragScreen(
 
                     onMoveGridItem(gridItem, dockRows, dockColumns)
                 } else {
-                    val gridHeight = constraintsMaxHeight - dockHeight
 
                     val cellWidth = constraintsMaxWidth / columns
 

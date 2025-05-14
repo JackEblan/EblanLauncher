@@ -29,8 +29,8 @@ class GroupGridItemsByPageUseCase @Inject constructor(
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = userDataRepository.userData.first().rows,
-                    columns = userDataRepository.userData.first().columns,
+                    rows = userData.rows,
+                    columns = userData.columns,
                 ) && gridItem.associate == Associate.Grid
             }.groupBy { gridItem -> gridItem.page }
 

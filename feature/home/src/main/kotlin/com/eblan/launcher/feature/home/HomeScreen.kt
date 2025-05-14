@@ -244,9 +244,9 @@ fun Success(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
-                        drag = Drag.Start
-
                         gridItemOffset = offset.round()
+
+                        drag = Drag.Start
                     },
                     onDragEnd = {
                         drag = Drag.End
@@ -291,8 +291,6 @@ fun Success(
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
                         preview = imageBitmap
 
-                        showOverlay = true
-
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.Old,
@@ -310,6 +308,8 @@ fun Success(
                         showOverlay = true
                     },
                     onDragStart = {
+                        showOverlay = true
+
                         onShowGridCache(Screen.Drag)
                     },
                     onDragStartApplicationInfo = { size, gridItemLayoutInfo ->
@@ -416,20 +416,20 @@ fun Success(
                     onDragCancel = {
                         gridItemSource = null
 
-                        showOverlay = false
-
                         onResetGridCache()
+
+                        showOverlay = false
                     },
                     onDragEnd = { targetPage ->
                         gridItemSource = null
-
-                        showOverlay = false
 
                         onResetGridCache()
 
                         scope.launch {
                             horizontalPagerState.scrollToPage(targetPage)
                         }
+
+                        showOverlay = false
                     },
                     onEdit = {
 

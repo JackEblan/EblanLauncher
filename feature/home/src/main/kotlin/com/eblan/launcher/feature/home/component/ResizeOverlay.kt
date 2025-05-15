@@ -66,6 +66,38 @@ fun GridItemResizeOverlay(
         }
     }
 
+    val validWidth by remember {
+        derivedStateOf {
+            width.coerceAtLeast(cellWidth)
+        }
+    }
+
+    val validHeight by remember {
+        derivedStateOf {
+            height.coerceAtLeast(cellHeight)
+        }
+    }
+
+    val validX by remember {
+        derivedStateOf {
+            if (width >= cellWidth) {
+                x
+            } else {
+                startColumn * cellWidth
+            }
+        }
+    }
+
+    val validY by remember {
+        derivedStateOf {
+            if (height >= cellHeight) {
+                y
+            } else {
+                startRow * cellHeight
+            }
+        }
+    }
+
     val circleModifier = Modifier
         .size(30.dp)
         .background(Color.White, shape = CircleShape)
@@ -73,26 +105,10 @@ fun GridItemResizeOverlay(
     Box(
         modifier = modifier
             .animatedGridItemPlacement(
-                width = if (allowX) {
-                    width
-                } else {
-                    columnSpan * cellWidth
-                },
-                height = if (allowY) {
-                    height
-                } else {
-                    rowSpan * cellHeight
-                },
-                x = if (allowX) {
-                    x
-                } else {
-                    startColumn * cellWidth
-                },
-                y = if (allowY) {
-                    y
-                } else {
-                    startRow * cellHeight
-                },
+                width = validWidth,
+                height = validHeight,
+                x = validX,
+                y = validY,
             )
             .border(width = 2.dp, color = Color.White),
     ) {

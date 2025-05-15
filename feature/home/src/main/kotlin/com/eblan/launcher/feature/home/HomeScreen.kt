@@ -331,7 +331,7 @@ fun Success(
                     },
                     onDragEndApplicationInfo = {
                         showOverlay = false
-                    }
+                    },
                 )
             }
 
@@ -471,6 +471,8 @@ fun Success(
                     textColor = userData.textColor,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = {
+                        gridItemSource = null
+
                         onResetGridCache()
                     },
                 )

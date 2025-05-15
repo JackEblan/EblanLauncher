@@ -316,6 +316,18 @@ fun WidgetGridItemResizeOverlay(
 ) {
     val density = LocalDensity.current
 
+    val minimumWidthValue = if (data.minResizeWidth > 0) {
+        data.minResizeWidth
+    } else {
+        cellWidth
+    }
+
+    val minimumHeightValue = if (data.minResizeHeight > 0) {
+        data.minResizeHeight
+    } else {
+        cellHeight
+    }
+
     var width by remember { mutableIntStateOf(columnSpan * cellWidth) }
 
     var height by remember { mutableIntStateOf(rowSpan * cellHeight) }
@@ -324,22 +336,45 @@ fun WidgetGridItemResizeOverlay(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
-    val allowX by remember {
+    var dragHandle by remember { mutableStateOf(Alignment.Center) }
+
+    val validWidth by remember {
         derivedStateOf {
-            if (data.minResizeWidth > 0 && data.maxResizeWidth > 0) {
-                width in data.minResizeWidth..data.maxResizeWidth
+            width.coerceAtLeast(cellWidth)
+        }
+    }
+
+    val validHeight by remember {
+        derivedStateOf {
+            height.coerceAtLeast(minimumValue = cellHeight)
+        }
+    }
+
+    val validX by remember {
+        derivedStateOf {
+            if (dragHandle == Alignment.CenterStart) {
+                if (width >= minimumWidthValue) {
+                    x
+                } else {
+                    // original x + width - cell width
+                    (startColumn * cellWidth) + (columnSpan * cellWidth) - minimumWidthValue
+                }
             } else {
-                width >= cellWidth / 2
+                startColumn * cellWidth
             }
         }
     }
 
-    val allowY by remember {
+    val validY by remember {
         derivedStateOf {
-            if (data.minResizeHeight > 0 && data.maxResizeHeight > 0) {
-                height in data.minResizeHeight..data.maxResizeHeight
+            if (dragHandle == Alignment.TopCenter) {
+                if (height >= minimumHeightValue) {
+                    y
+                } else {
+                    (startRow * cellHeight) + (rowSpan * cellHeight) - minimumHeightValue
+                }
             } else {
-                height >= cellHeight / 2
+                startRow * cellHeight
             }
         }
     }
@@ -351,26 +386,10 @@ fun WidgetGridItemResizeOverlay(
     Box(
         modifier = modifier
             .animatedGridItemPlacement(
-                width = if (allowX) {
-                    width
-                } else {
-                    columnSpan * cellWidth
-                },
-                height = if (allowY) {
-                    height
-                } else {
-                    rowSpan * cellHeight
-                },
-                x = if (allowX) {
-                    x
-                } else {
-                    startColumn * cellWidth
-                },
-                y = if (allowY) {
-                    y
-                } else {
-                    startRow * cellHeight
-                },
+                width = validWidth,
+                height = validHeight,
+                x = validX,
+                y = validY,
             )
             .border(width = 2.dp, color = Color.White),
     ) {
@@ -382,6 +401,9 @@ fun WidgetGridItemResizeOverlay(
                         .then(circleModifier)
                         .pointerInput(Unit) {
                             detectDragGestures(
+                                onDragStart = {
+                                    dragHandle = Alignment.TopCenter
+                                },
                                 onDragEnd = onResizeEnd,
                                 onDrag = { change, dragAmount ->
                                     change.consume()
@@ -425,8 +447,8 @@ fun WidgetGridItemResizeOverlay(
 
                                     onResizeWidgetGridItem(
                                         gridItem,
-                                        width,
-                                        height,
+                                        validWidth,
+                                        validHeight,
                                         SideAnchor.LEFT,
                                     )
                                 },
@@ -474,6 +496,9 @@ fun WidgetGridItemResizeOverlay(
                         .then(circleModifier)
                         .pointerInput(Unit) {
                             detectDragGestures(
+                                onDragStart = {
+                                    dragHandle = Alignment.CenterStart
+                                },
                                 onDragEnd = onResizeEnd,
                                 onDrag = { change, dragAmount ->
                                     change.consume()
@@ -487,8 +512,8 @@ fun WidgetGridItemResizeOverlay(
 
                                     onResizeWidgetGridItem(
                                         gridItem,
-                                        width,
-                                        height,
+                                        validWidth,
+                                        validHeight,
                                         SideAnchor.RIGHT,
                                     )
                                 },

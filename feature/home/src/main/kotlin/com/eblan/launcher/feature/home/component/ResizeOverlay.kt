@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,6 +55,8 @@ fun GridItemResizeOverlay(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
+    var dragHandle by remember { mutableStateOf(Alignment.Center) }
+
     val validWidth by remember {
         derivedStateOf {
             width.coerceAtLeast(cellWidth)
@@ -68,20 +71,62 @@ fun GridItemResizeOverlay(
 
     val validX by remember {
         derivedStateOf {
-            if (width >= cellWidth) {
-                x
+            if (dragHandle == Alignment.TopStart) {
+                if (width >= cellWidth) {
+                    x
+                } else {
+                    // original x + width - cell width
+                    (startColumn * cellWidth) + (columnSpan * cellWidth) - cellWidth
+                }
+            } else if (dragHandle == Alignment.TopEnd) {
+                if (width >= cellWidth) {
+                    x
+                } else {
+                    startColumn * cellWidth
+                }
+            } else if (dragHandle == Alignment.BottomStart) {
+                if (width >= cellWidth) {
+                    x
+                } else {
+                    (startColumn * cellWidth) + (columnSpan * cellWidth) - cellWidth
+                }
             } else {
-                startColumn * cellWidth
+                if (width >= cellWidth) {
+                    x
+                } else {
+                    startColumn * cellWidth
+                }
             }
         }
     }
 
     val validY by remember {
         derivedStateOf {
-            if (height >= cellHeight) {
-                y
+            if (dragHandle == Alignment.TopStart) {
+                if (height >= cellHeight) {
+                    y
+                } else {
+                    // original y + height - cell height
+                    (startRow * cellHeight) + (rowSpan * cellHeight) - cellHeight
+                }
+            } else if (dragHandle == Alignment.TopEnd) {
+                if (height >= cellHeight) {
+                    y
+                } else {
+                    (startRow * cellHeight) + (rowSpan * cellHeight) - cellHeight
+                }
+            } else if (dragHandle == Alignment.BottomStart) {
+                if (height >= cellHeight) {
+                    y
+                } else {
+                    startRow * cellHeight
+                }
             } else {
-                startRow * cellHeight
+                if (height >= cellHeight) {
+                    y
+                } else {
+                    startRow * cellHeight
+                }
             }
         }
     }
@@ -107,6 +152,9 @@ fun GridItemResizeOverlay(
                 .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
+                        onDragStart = {
+                            dragHandle = Alignment.TopStart
+                        },
                         onDragEnd = onResizeEnd,
                         onDrag = { change, dragAmount ->
                             change.consume()
@@ -142,6 +190,9 @@ fun GridItemResizeOverlay(
                 .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
+                        onDragStart = {
+                            dragHandle = Alignment.TopEnd
+                        },
                         onDragEnd = onResizeEnd,
                         onDrag = { change, dragAmount ->
                             change.consume()
@@ -177,6 +228,9 @@ fun GridItemResizeOverlay(
                 .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
+                        onDragStart = {
+                            dragHandle = Alignment.BottomStart
+                        },
                         onDragEnd = onResizeEnd,
                         onDrag = { change, dragAmount ->
                             change.consume()
@@ -211,6 +265,9 @@ fun GridItemResizeOverlay(
                 .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
+                        onDragStart = {
+                            dragHandle = Alignment.BottomEnd
+                        },
                         onDragEnd = onResizeEnd,
                         onDrag = { change, dragAmount ->
                             change.consume()

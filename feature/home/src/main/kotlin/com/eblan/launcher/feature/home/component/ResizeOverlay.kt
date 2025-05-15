@@ -54,18 +54,6 @@ fun GridItemResizeOverlay(
 
     var y by remember { mutableIntStateOf(startRow * cellHeight) }
 
-    val allowX by remember {
-        derivedStateOf {
-            width >= cellWidth / 2
-        }
-    }
-
-    val allowY by remember {
-        derivedStateOf {
-            height >= cellHeight / 2
-        }
-    }
-
     val validWidth by remember {
         derivedStateOf {
             width.coerceAtLeast(cellWidth)
@@ -138,8 +126,8 @@ fun GridItemResizeOverlay(
 
                             onResizeGridItem(
                                 gridItem,
-                                width,
-                                height,
+                                validWidth,
+                                validHeight,
                                 Anchor.BOTTOM_END,
                             )
                         },
@@ -172,8 +160,8 @@ fun GridItemResizeOverlay(
 
                             onResizeGridItem(
                                 gridItem,
-                                width,
-                                height,
+                                validWidth,
+                                validHeight,
                                 Anchor.BOTTOM_START,
                             )
 
@@ -207,8 +195,8 @@ fun GridItemResizeOverlay(
 
                             onResizeGridItem(
                                 gridItem,
-                                width,
-                                height,
+                                validWidth,
+                                validHeight,
                                 Anchor.TOP_END,
                             )
                         },
@@ -239,8 +227,8 @@ fun GridItemResizeOverlay(
 
                             onResizeGridItem(
                                 gridItem,
-                                width,
-                                height,
+                                validWidth,
+                                validHeight,
                                 Anchor.TOP_START,
                             )
                         },

@@ -81,12 +81,6 @@ fun PagerScreen(
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
 ) {
-    val density = LocalDensity.current
-
-    val dockHeightDp = with(density) {
-        dockHeight.toDp()
-    }
-
     val verticalPagerState = rememberPagerState(
         initialPage = 0,
         pageCount = { 2 },
@@ -94,141 +88,29 @@ fun PagerScreen(
 
     VerticalPager(
         state = verticalPagerState,
+        modifier = modifier,
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
-                LaunchedEffect(key1 = drag) {
-                    if (drag == Drag.Start && gridItemLayoutInfo != null && !horizontalPagerState.isScrollInProgress) {
-                        onDragStart()
-                    }
-                }
-
-                Column(
-                    modifier = modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    onLongPressGrid()
-                                },
-                            )
-                        }
-                        .fillMaxSize(),
-                ) {
-                    HorizontalPager(
-                        state = horizontalPagerState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                    ) { index ->
-                        val horizontalPage = calculatePage(
-                            index = index,
-                            infiniteScroll = infiniteScroll,
-                            pageCount = pageCount,
-                        )
-
-                        GridSubcomposeLayout(
-                            modifier = Modifier.fillMaxSize(),
-                            page = horizontalPage,
-                            rows = rows,
-                            columns = columns,
-                            gridItems = gridItems,
-                            gridItemContent = { gridItem, x, y, width, height ->
-                                when (val data = gridItem.data) {
-                                    is GridItemData.ApplicationInfo -> {
-                                        ApplicationInfoGridItem(
-                                            textColor = textColor,
-                                            gridItemData = data,
-                                            onTap = {
-                                                onLaunchApplication(data.packageName)
-                                            },
-                                            onLongPress = { preview ->
-                                                onLongPressedGridItem(
-                                                    preview,
-                                                    GridItemLayoutInfo(
-                                                        gridItem = gridItem,
-                                                        width = width,
-                                                        height = height,
-                                                        x = x,
-                                                        y = y,
-                                                    ),
-                                                )
-                                            },
-                                        )
-                                    }
-
-                                    is GridItemData.Widget -> {
-                                        WidgetGridItem(
-                                            gridItemData = data,
-                                            onLongPress = { preview ->
-                                                onLongPressedGridItem(
-                                                    preview,
-                                                    GridItemLayoutInfo(
-                                                        gridItem = gridItem,
-                                                        width = width,
-                                                        height = height,
-                                                        x = x,
-                                                        y = y,
-                                                    ),
-                                                )
-                                            },
-                                        )
-                                    }
-                                }
-                            },
-                        )
-                    }
-
-                    DockGrid(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(dockHeightDp),
-                        rows = dockRows,
-                        columns = dockColumns,
-                        dockGridItems = dockGridItems,
-                    ) { dockGridItem, x, y, width, height ->
-                        when (val data = dockGridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                ApplicationInfoGridItem(
-                                    textColor = textColor,
-                                    gridItemData = data,
-                                    onTap = {
-                                        onLaunchApplication(data.packageName)
-                                    },
-                                    onLongPress = { preview ->
-                                        onLongPressedGridItem(
-                                            preview,
-                                            GridItemLayoutInfo(
-                                                gridItem = dockGridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
-                                            ),
-                                        )
-                                    },
-                                )
-                            }
-
-                            is GridItemData.Widget -> {
-                                WidgetGridItem(
-                                    gridItemData = data,
-                                    onLongPress = { preview ->
-                                        onLongPressedGridItem(
-                                            preview,
-                                            GridItemLayoutInfo(
-                                                gridItem = dockGridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
-                                            ),
-                                        )
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
+                HorizontalPagerScreen(
+                    horizontalPagerState = horizontalPagerState,
+                    rows = rows,
+                    columns = columns,
+                    pageCount = pageCount,
+                    infiniteScroll = infiniteScroll,
+                    dockRows = dockRows,
+                    dockColumns = dockColumns,
+                    gridItems = gridItems,
+                    gridItemLayoutInfo = gridItemLayoutInfo,
+                    dockHeight = dockHeight,
+                    drag = drag,
+                    dockGridItems = dockGridItems,
+                    textColor = textColor,
+                    onLongPressGrid = onLongPressGrid,
+                    onLongPressedGridItem = onLongPressedGridItem,
+                    onLaunchApplication = onLaunchApplication,
+                    onDragStart = onDragStart,
+                )
             }
 
             1 -> {
@@ -251,6 +133,170 @@ fun PagerScreen(
                     onDragEnd = onDragEndApplicationInfo,
                 )
 
+            }
+        }
+    }
+}
+
+@Composable
+private fun HorizontalPagerScreen(
+    modifier: Modifier = Modifier,
+    horizontalPagerState: PagerState,
+    rows: Int,
+    columns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
+    dockRows: Int,
+    dockColumns: Int,
+    gridItems: Map<Int, List<GridItem>>,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
+    dockHeight: Int,
+    drag: Drag,
+    dockGridItems: List<GridItem>,
+    textColor: TextColor,
+    onLongPressGrid: () -> Unit,
+    onLongPressedGridItem: (
+        imageBitmap: ImageBitmap,
+        gridItemLayoutInfo: GridItemLayoutInfo,
+    ) -> Unit,
+    onLaunchApplication: (String) -> Unit,
+    onDragStart: () -> Unit,
+) {
+    val density = LocalDensity.current
+
+    val dockHeightDp = with(density) {
+        dockHeight.toDp()
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Start && gridItemLayoutInfo != null) {
+            onDragStart()
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        onLongPressGrid()
+                    },
+                )
+            }
+            .fillMaxSize(),
+    ) {
+        HorizontalPager(
+            state = horizontalPagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+        ) { index ->
+            val horizontalPage = calculatePage(
+                index = index,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+
+            GridSubcomposeLayout(
+                modifier = Modifier.fillMaxSize(),
+                page = horizontalPage,
+                rows = rows,
+                columns = columns,
+                gridItems = gridItems,
+                gridItemContent = { gridItem, x, y, width, height ->
+                    when (val data = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            ApplicationInfoGridItem(
+                                textColor = textColor,
+                                gridItemData = data,
+                                onTap = {
+                                    onLaunchApplication(data.packageName)
+                                },
+                                onLongPress = { preview ->
+                                    onLongPressedGridItem(
+                                        preview,
+                                        GridItemLayoutInfo(
+                                            gridItem = gridItem,
+                                            width = width,
+                                            height = height,
+                                            x = x,
+                                            y = y,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+
+                        is GridItemData.Widget -> {
+                            WidgetGridItem(
+                                gridItemData = data,
+                                onLongPress = { preview ->
+                                    onLongPressedGridItem(
+                                        preview,
+                                        GridItemLayoutInfo(
+                                            gridItem = gridItem,
+                                            width = width,
+                                            height = height,
+                                            x = x,
+                                            y = y,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                },
+            )
+        }
+
+        DockGrid(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dockHeightDp),
+            rows = dockRows,
+            columns = dockColumns,
+            dockGridItems = dockGridItems,
+        ) { dockGridItem, x, y, width, height ->
+            when (val data = dockGridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        textColor = textColor,
+                        gridItemData = data,
+                        onTap = {
+                            onLaunchApplication(data.packageName)
+                        },
+                        onLongPress = { preview ->
+                            onLongPressedGridItem(
+                                preview,
+                                GridItemLayoutInfo(
+                                    gridItem = dockGridItem,
+                                    width = width,
+                                    height = height,
+                                    x = x,
+                                    y = y,
+                                ),
+                            )
+                        },
+                    )
+                }
+
+                is GridItemData.Widget -> {
+                    WidgetGridItem(
+                        gridItemData = data,
+                        onLongPress = { preview ->
+                            onLongPressedGridItem(
+                                preview,
+                                GridItemLayoutInfo(
+                                    gridItem = dockGridItem,
+                                    width = width,
+                                    height = height,
+                                    x = x,
+                                    y = y,
+                                ),
+                            )
+                        },
+                    )
+                }
             }
         }
     }

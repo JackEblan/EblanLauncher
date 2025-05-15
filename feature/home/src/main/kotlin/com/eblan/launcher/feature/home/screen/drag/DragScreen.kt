@@ -122,6 +122,11 @@ fun DragScreen(
 
     var showMenu by remember { mutableStateOf(false) }
 
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -396,11 +401,6 @@ fun DragScreen(
                         } else {
                             when (val gridItemData = gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
-                                    val color = when (textColor) {
-                                        TextColor.White -> Color.White
-                                        TextColor.Black -> Color.Black
-                                    }
-
                                     Column(
                                         modifier = Modifier.fillMaxSize(),
                                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -473,11 +473,6 @@ fun DragScreen(
                 } else {
                     when (val gridItemData = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val color = when (textColor) {
-                                TextColor.White -> Color.White
-                                TextColor.Black -> Color.Black
-                            }
-
                             Column(
                                 modifier = Modifier.fillMaxSize(),
                                 horizontalAlignment = Alignment.CenterHorizontally,

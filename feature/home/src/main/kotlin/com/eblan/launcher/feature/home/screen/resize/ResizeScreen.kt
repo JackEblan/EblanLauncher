@@ -67,6 +67,11 @@ fun ResizeScreen(
 
     val appWidgetHost = LocalAppWidgetHost.current
 
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -84,11 +89,6 @@ fun ResizeScreen(
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
-                        val color = when (textColor) {
-                            TextColor.White -> Color.White
-                            TextColor.Black -> Color.Black
-                        }
-
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -152,11 +152,6 @@ fun ResizeScreen(
         ) { dockGridItem, _, _, _, _ ->
             when (val gridItemData = dockGridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    val color = when (textColor) {
-                        TextColor.White -> Color.White
-                        TextColor.Black -> Color.Black
-                    }
-
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,

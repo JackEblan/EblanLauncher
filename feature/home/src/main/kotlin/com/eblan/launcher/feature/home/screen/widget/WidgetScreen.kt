@@ -165,7 +165,8 @@ fun WidgetScreen(
                     }
 
                     Text(
-                        text = infoText, color = color,
+                        text = infoText,
+                        color = color,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodySmall,
                     )

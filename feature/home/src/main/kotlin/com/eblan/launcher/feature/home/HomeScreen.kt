@@ -291,6 +291,8 @@ fun Success(
                     eblanApplicationInfos = eblanApplicationInfos,
                     appDrawerColumns = userData.appDrawerColumns,
                     onLongPressGrid = {
+                        gridItemSource = null
+
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->

@@ -417,7 +417,6 @@ private fun WidgetGridItem(
                         MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE, MotionEvent.ACTION_CANCEL -> {
                             onWidgetActionUp()
                         }
-
                     }
                 }
 

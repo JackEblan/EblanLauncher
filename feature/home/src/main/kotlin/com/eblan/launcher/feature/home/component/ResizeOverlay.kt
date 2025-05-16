@@ -319,13 +319,13 @@ fun WidgetGridItemResizeOverlay(
     val minimumWidthValue = if (data.minResizeWidth > 0) {
         data.minResizeWidth
     } else {
-        cellWidth
+        data.width
     }
 
     val minimumHeightValue = if (data.minResizeHeight > 0) {
         data.minResizeHeight
     } else {
-        cellHeight
+        data.height
     }
 
     var width by remember { mutableIntStateOf(columnSpan * cellWidth) }
@@ -340,13 +340,13 @@ fun WidgetGridItemResizeOverlay(
 
     val validWidth by remember {
         derivedStateOf {
-            width.coerceAtLeast(cellWidth)
+            width.coerceAtLeast(minimumWidthValue)
         }
     }
 
     val validHeight by remember {
         derivedStateOf {
-            height.coerceAtLeast(minimumValue = cellHeight)
+            height.coerceAtLeast(minimumHeightValue)
         }
     }
 

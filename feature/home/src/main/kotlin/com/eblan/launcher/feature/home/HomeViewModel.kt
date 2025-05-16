@@ -17,9 +17,6 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,10 +74,6 @@ class HomeViewModel @Inject constructor(
 
     val screen = _screen.asStateFlow()
 
-    private var gridItemJob: Job? = null
-
-    private var gridItemDelayTimeInMillis = 100L
-
     private var _shiftedAlgorithm = MutableStateFlow<Boolean?>(null)
 
     val shiftedAlgorithm = _shiftedAlgorithm.asStateFlow()
@@ -91,18 +84,12 @@ class HomeViewModel @Inject constructor(
         columns: Int,
     ) {
         viewModelScope.launch {
-            gridItemJob?.cancelAndJoin()
-
-            gridItemJob = launch {
-                delay(gridItemDelayTimeInMillis)
-
-                _shiftedAlgorithm.update {
-                    shiftAlgorithmUseCase(
-                        movingGridItem = gridItem,
-                        rows = rows,
-                        columns = columns,
-                    ) != null
-                }
+            _shiftedAlgorithm.update {
+                shiftAlgorithmUseCase(
+                    movingGridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
+                ) != null
             }
         }
     }
@@ -113,18 +100,12 @@ class HomeViewModel @Inject constructor(
         columns: Int,
     ) {
         viewModelScope.launch {
-            gridItemJob?.cancelAndJoin()
-
-            gridItemJob = launch {
-                delay(gridItemDelayTimeInMillis)
-
-                _shiftedAlgorithm.update {
-                    shiftAlgorithmUseCase(
-                        movingGridItem = gridItem,
-                        rows = rows,
-                        columns = columns,
-                    ) != null
-                }
+            _shiftedAlgorithm.update {
+                shiftAlgorithmUseCase(
+                    movingGridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
+                ) != null
             }
         }
     }

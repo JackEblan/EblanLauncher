@@ -9,6 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,8 +33,15 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.MoveGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 
+@OptIn(FlowPreview::class)
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
@@ -72,6 +85,15 @@ fun ResizeScreen(
         TextColor.Black -> Color.Black
     }
 
+    var moveGridItem by remember { mutableStateOf<MoveGridItem?>(null) }
+
+    LaunchedEffect(key1 = moveGridItem) {
+        snapshotFlow { moveGridItem }.debounce(500L).filterNotNull()
+            .onEach { (gridItem, rows, columns) ->
+                onResizeGridItem(gridItem, rows, columns)
+            }.collect()
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -84,7 +106,9 @@ fun ResizeScreen(
             columns = columns,
             gridItemId = gridItemLayoutInfo?.gridItem?.id,
             gridItems = gridItems,
-            onResizeGridItem = onResizeGridItem,
+            onResizeGridItem = { gridItem, rows, columns ->
+                moveGridItem = MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
+            },
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem ->
                 when (val gridItemData = gridItem.data) {

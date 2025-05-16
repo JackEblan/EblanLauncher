@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,10 +56,18 @@ import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.MoveGridItem
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.calculateTargetPage
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 
+@OptIn(FlowPreview::class)
 @Composable
 fun DragScreen(
     modifier: Modifier = Modifier,
@@ -127,6 +136,8 @@ fun DragScreen(
         TextColor.Black -> Color.Black
     }
 
+    var moveGridItem by remember { mutableStateOf<MoveGridItem?>(null) }
+
     val appWidgetLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -170,6 +181,8 @@ fun DragScreen(
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
+                delay(1000L)
+
                 if (index == 0 && infiniteScroll && newPage && drag == Drag.Dragging) {
                     index = pageCount - 1
                 } else if (index == 0 && infiniteScroll && drag == Drag.Dragging) {
@@ -180,6 +193,8 @@ fun DragScreen(
             }
 
             PageDirection.Right -> {
+                delay(1000L)
+
                 if (index == pageCount - 1 && infiniteScroll && newPage && drag == Drag.Dragging) {
                     index = 0
                 } else if (index == pageCount - 1 && infiniteScroll && drag == Drag.Dragging) {
@@ -219,9 +234,9 @@ fun DragScreen(
 
             val isDraggingOnDock = y > constraintsMaxHeight - dockHeight
 
-            if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2) < 0 && !isDraggingOnDock) {
+            if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 4) < 0 && !isDraggingOnDock) {
                 pageDirection = PageDirection.Left
-            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth && !isDraggingOnDock) {
+            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 4) > constraintsMaxWidth && !isDraggingOnDock) {
                 pageDirection = PageDirection.Right
             } else {
                 pageDirection = null
@@ -241,8 +256,8 @@ fun DragScreen(
                         startColumn = x / cellWidth,
                         associate = Associate.Dock,
                     )
-
-                    onMoveGridItem(gridItem, dockRows, dockColumns)
+                    moveGridItem =
+                        MoveGridItem(gridItem = gridItem, rows = dockRows, columns = dockColumns)
                 } else {
 
                     val cellWidth = constraintsMaxWidth / columns
@@ -256,7 +271,7 @@ fun DragScreen(
                         associate = Associate.Grid,
                     )
 
-                    onMoveGridItem(gridItem, rows, columns)
+                    moveGridItem = MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
                 }
             }
         }
@@ -368,6 +383,13 @@ fun DragScreen(
 
             }
         }
+    }
+
+    LaunchedEffect(key1 = moveGridItem) {
+        snapshotFlow { moveGridItem }.debounce(500L).filterNotNull()
+            .onEach { (gridItem, rows, columns) ->
+                onMoveGridItem(gridItem, rows, columns)
+            }.collect()
     }
 
     Box(modifier = modifier.fillMaxSize()) {

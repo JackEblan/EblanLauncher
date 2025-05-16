@@ -39,4 +39,6 @@ message UserPreferences {
   int32 dockHeight = 7;
 
   TextColor textColor = 8;
+
+  int32 appDrawerColumns = 9;
 }

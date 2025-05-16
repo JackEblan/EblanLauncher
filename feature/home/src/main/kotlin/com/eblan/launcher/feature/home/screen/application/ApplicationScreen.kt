@@ -58,6 +58,7 @@ fun ApplicationScreen(
     currentPage: Int,
     rows: Int,
     columns: Int,
+    appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
     gridItemOffset: IntOffset,
@@ -133,7 +134,7 @@ fun ApplicationScreen(
         modifier = modifier.fillMaxSize(),
     ) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
+            columns = GridCells.Fixed(appDrawerColumns),
             modifier = Modifier.fillMaxWidth(),
             state = gridState,
         ) {

@@ -74,6 +74,7 @@ fun PagerScreen(
     gridItemOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     constraintsMaxWidth: Int,
+    appDrawerColumns: Int,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
         imageBitmap: ImageBitmap,
@@ -132,6 +133,7 @@ fun PagerScreen(
                     currentPage = horizontalPagerState.currentPage,
                     rows = rows,
                     columns = columns,
+                    appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
                     gridItemOffset = gridItemOffset,
@@ -146,7 +148,6 @@ fun PagerScreen(
                     onDragging = onDraggingApplicationInfo,
                     onDragEnd = onDragEndApplicationInfo,
                 )
-
             }
         }
     }

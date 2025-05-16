@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
@@ -56,7 +55,6 @@ import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -291,6 +289,7 @@ fun Success(
                     textColor = userData.textColor,
                     gridItemOffset = gridItemOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
+                    appDrawerColumns = userData.appDrawerColumns,
                     onLongPressGrid = {
                         showBottomSheet = true
                     },
@@ -330,42 +329,6 @@ fun Success(
                         onShowGridCache(Screen.Drag)
                     },
                     onDragEndApplicationInfo = {
-                        showOverlay = false
-                    },
-                )
-            }
-
-            Screen.Application -> {
-                ApplicationScreen(
-                    currentPage = horizontalPagerState.currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset,
-                    eblanApplicationInfos = eblanApplicationInfos,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
-                    dockHeight = userData.dockHeight,
-                    drag = drag,
-                    textColor = userData.textColor,
-                    onLongPressApplicationInfo = { imageBitmap ->
-                        preview = imageBitmap
-                    },
-                    onDragStart = { size, gridItemLayoutInfo ->
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
-                        )
-
-                        overlaySize = size
-
-                        showOverlay = true
-                    },
-                    onDragging = {
-                        onShowGridCache(Screen.Drag)
-                    },
-                    onDragEnd = {
                         showOverlay = false
                     },
                 )
@@ -493,9 +456,6 @@ fun Success(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                onApplication = {
-                    onUpdateScreen(Screen.Application)
-                },
                 onWidget = {
                     onUpdateScreen(Screen.Widget)
                 },
@@ -555,7 +515,6 @@ private fun HomeBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onApplication: () -> Unit,
     onWidget: () -> Unit,
     onDeletePage: () -> Unit,
     onSettings: () -> Unit,
@@ -566,21 +525,6 @@ private fun HomeBottomSheet(
         sheetState = sheetState,
     ) {
         FlowRow(modifier = Modifier.fillMaxWidth(), maxLines = 4) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        onApplication()
-
-                        onDismissRequest()
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(imageVector = Icons.Default.Android, contentDescription = null)
-
-                Text(text = "Application")
-            }
-
             Column(
                 modifier = Modifier
                     .weight(1f)

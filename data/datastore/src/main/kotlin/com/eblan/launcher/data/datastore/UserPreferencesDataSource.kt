@@ -44,6 +44,7 @@ class UserPreferencesDataSource @Inject constructor(
                 TextColorProto.Black -> TextColor.Black
                 TextColorProto.UNRECOGNIZED, null -> TextColor.White
             },
+            appDrawerColumns = userPreferences.appDrawerColumns,
         )
     }
 

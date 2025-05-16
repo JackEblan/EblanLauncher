@@ -427,16 +427,16 @@ fun Success(
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = {
-                        gridItemSource = null
-
                         onResetGridCache()
+
+                        gridItemSource = null
 
                         showOverlay = false
                     },
                     onDragEnd = { targetPage ->
-                        gridItemSource = null
-
                         onResetGridCache()
+
+                        gridItemSource = null
 
                         scope.launch {
                             horizontalPagerState.scrollToPage(targetPage)

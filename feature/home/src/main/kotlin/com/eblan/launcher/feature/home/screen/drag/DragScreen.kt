@@ -152,7 +152,7 @@ fun DragScreen(
         } else {
             appWidgetHost.deleteAppWidgetId(appWidgetId = appWidgetId)
 
-            if (gridItemSource?.gridItemLayoutInfo != null && appWidgetId < 0) {
+            if (gridItemSource?.gridItemLayoutInfo != null) {
                 onDeleteGridItem(gridItemSource.gridItemLayoutInfo.gridItem)
 
                 val targetPage = calculateTargetPage(
@@ -212,9 +212,13 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = gridItemOffset) {
-        val isDraggingOnDock = gridItemOffset.y > constraintsMaxHeight - dockHeight
-
         if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
+            val x = gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2
+
+            val y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2
+
+            val isDraggingOnDock = y > constraintsMaxHeight - dockHeight
+
             if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2) < 0 && !isDraggingOnDock) {
                 pageDirection = PageDirection.Left
             } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth && !isDraggingOnDock) {
@@ -229,12 +233,12 @@ fun DragScreen(
 
                     val cellHeight = dockHeight / dockRows
 
-                    val dockY = gridItemOffset.y - gridHeight
+                    val dockY = y - gridHeight
 
                     val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                         page = index,
                         startRow = dockY / cellHeight,
-                        startColumn = gridItemOffset.x / cellWidth,
+                        startColumn = x / cellWidth,
                         associate = Associate.Dock,
                     )
 
@@ -247,8 +251,8 @@ fun DragScreen(
 
                     val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                         page = index,
-                        startRow = gridItemOffset.y / cellHeight,
-                        startColumn = gridItemOffset.x / cellWidth,
+                        startRow = y / cellHeight,
+                        startColumn = x / cellWidth,
                         associate = Associate.Grid,
                     )
 

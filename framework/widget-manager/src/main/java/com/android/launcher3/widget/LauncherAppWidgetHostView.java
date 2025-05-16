@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.android.launcher3.CheckLongPressHelper;
+import com.android.launcher3.OnTouchEventListener;
 
 
 /**
@@ -30,6 +31,8 @@ import com.android.launcher3.CheckLongPressHelper;
 public class LauncherAppWidgetHostView extends AppWidgetHostView implements View.OnLongClickListener {
     private final CheckLongPressHelper mLongPressHelper;
 
+    private OnTouchEventListener onTouchEventListener;
+
     public LauncherAppWidgetHostView(Context context) {
         super(context);
         mLongPressHelper = new CheckLongPressHelper(this, this);
@@ -37,11 +40,17 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements View
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         mLongPressHelper.onTouchEvent(ev);
+
+        onTouchEventListener.onTouchEvent(ev);
+
         return mLongPressHelper.hasPerformedLongPress();
     }
 
     public boolean onTouchEvent(MotionEvent ev) {
         mLongPressHelper.onTouchEvent(ev);
+
+        onTouchEventListener.onTouchEvent(ev);
+
         // We want to keep receiving though events to be able to cancel long press on ACTION_UP
         return true;
     }
@@ -56,5 +65,9 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements View
     public void cancelLongPress() {
         super.cancelLongPress();
         mLongPressHelper.cancelLongPress();
+    }
+
+    public void setOnTouchEventListener(OnTouchEventListener onTouchEventListener) {
+        this.onTouchEventListener = onTouchEventListener;
     }
 }

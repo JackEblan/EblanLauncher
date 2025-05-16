@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -86,9 +91,12 @@ fun PagerScreen(
         pageCount = { 2 },
     )
 
+    var userScrollEnabled by remember { mutableStateOf(true) }
+
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
@@ -110,6 +118,12 @@ fun PagerScreen(
                     onLongPressedGridItem = onLongPressedGridItem,
                     onLaunchApplication = onLaunchApplication,
                     onDragStart = onDragStart,
+                    onWidgetActionDown = {
+                        userScrollEnabled = false
+                    },
+                    onWidgetActionUp = {
+                        userScrollEnabled = true
+                    },
                 )
             }
 
@@ -161,6 +175,8 @@ private fun HorizontalPagerScreen(
     ) -> Unit,
     onLaunchApplication: (String) -> Unit,
     onDragStart: () -> Unit,
+    onWidgetActionDown: () -> Unit,
+    onWidgetActionUp: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -242,6 +258,8 @@ private fun HorizontalPagerScreen(
                                         ),
                                     )
                                 },
+                                onWidgetActionDown = onWidgetActionDown,
+                                onWidgetActionUp = onWidgetActionUp,
                             )
                         }
                     }
@@ -295,6 +313,8 @@ private fun HorizontalPagerScreen(
                                 ),
                             )
                         },
+                        onWidgetActionDown = onWidgetActionDown,
+                        onWidgetActionUp = onWidgetActionUp,
                     )
                 }
             }
@@ -371,6 +391,8 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemData: GridItemData.Widget,
     onLongPress: (ImageBitmap) -> Unit,
+    onWidgetActionDown: () -> Unit,
+    onWidgetActionUp: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -385,6 +407,19 @@ private fun WidgetGridItem(
     if (appWidgetInfo != null) {
         AndroidView(
             factory = {
+                appWidgetHost.setOnTouchEventListener { event ->
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            onWidgetActionDown()
+                        }
+
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE, MotionEvent.ACTION_CANCEL -> {
+                            onWidgetActionUp()
+                        }
+
+                    }
+                }
+
                 appWidgetHost.createView(
                     appWidgetId = gridItemData.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,

@@ -21,12 +21,16 @@ import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 
+import com.android.launcher3.OnTouchEventListener;
+
 /**
  * Specific {@link AppWidgetHost} that creates our {@link LauncherAppWidgetHostView}
  * which correctly captures all long-press events. This ensures that users can
  * always pick up and move widgets.
  */
 public class LauncherAppWidgetHost extends AppWidgetHost {
+    private OnTouchEventListener onTouchEventListener;
+
     public LauncherAppWidgetHost(Context context, int hostId) {
         super(context, hostId);
     }
@@ -35,6 +39,15 @@ public class LauncherAppWidgetHost extends AppWidgetHost {
     protected AppWidgetHostView onCreateView(Context context, int appWidgetId,
                                              AppWidgetProviderInfo appWidget) {
         super.onCreateView(context, appWidgetId, appWidget);
-        return new LauncherAppWidgetHostView(context);
+
+        LauncherAppWidgetHostView launcherAppWidgetHostView = new LauncherAppWidgetHostView(context);
+
+        launcherAppWidgetHostView.setOnTouchEventListener(onTouchEventListener);
+
+        return launcherAppWidgetHostView;
+    }
+
+    public void setOnTouchEventListener(OnTouchEventListener onTouchEventListener) {
+        this.onTouchEventListener = onTouchEventListener;
     }
 }

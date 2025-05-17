@@ -63,6 +63,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlin.math.roundToInt
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -141,8 +142,14 @@ fun DragScreen(
 
     val horizontalPagerPadding = 20.dp
 
+    val cardPadding = 5.dp
+
     val horizontalPagerPaddingPx = with(density) {
-        horizontalPagerPadding.toPx()
+        horizontalPagerPadding.toPx().roundToInt()
+    }
+
+    val cardPaddingPx = with(density) {
+        cardPadding.toPx().roundToInt()
     }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
@@ -202,72 +209,6 @@ fun DragScreen(
             }
 
             null -> Unit
-        }
-    }
-
-    LaunchedEffect(key1 = gridItemOffset) {
-        if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-            val x = gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2
-
-            val y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2
-
-            val isDraggingOnDock = y > constraintsMaxHeight - dockHeight
-
-            val horizontalPage = calculatePage(
-                index = horizontalPagerState.currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = tempPageCount,
-            )
-
-            if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 4) < horizontalPagerPaddingPx && !isDraggingOnDock) {
-                pageDirection = PageDirection.Left
-
-                if (horizontalPage == 0 && infiniteScroll) {
-                    newPage = true
-                }
-
-            } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 4) > constraintsMaxWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
-                pageDirection = PageDirection.Right
-
-                if (horizontalPage == tempPageCount - 1) {
-                    newPage = true
-                }
-            } else {
-                pageDirection = null
-
-                val gridHeight = constraintsMaxHeight - dockHeight
-
-                if (isDraggingOnDock) {
-                    val cellWidth = constraintsMaxWidth / dockColumns
-
-                    val cellHeight = dockHeight / dockRows
-
-                    val dockY = y - gridHeight
-
-                    val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
-                        page = horizontalPage,
-                        startRow = dockY / cellHeight,
-                        startColumn = x / cellWidth,
-                        associate = Associate.Dock,
-                    )
-                    moveGridItem =
-                        MoveGridItem(gridItem = gridItem, rows = dockRows, columns = dockColumns)
-                } else {
-
-                    val cellWidth = constraintsMaxWidth / columns
-
-                    val cellHeight = gridHeight / rows
-
-                    val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
-                        page = horizontalPage,
-                        startRow = y / cellHeight,
-                        startColumn = x / cellWidth,
-                        associate = Associate.Grid,
-                    )
-
-                    moveGridItem = MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
-                }
-            }
         }
     }
 
@@ -391,6 +332,82 @@ fun DragScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
+        LaunchedEffect(key1 = gridItemOffset) {
+            if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
+                val x = gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2
+
+                val y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2
+
+                val gridPadding = horizontalPagerPaddingPx + cardPaddingPx
+
+                val isDraggingOnDock = y > constraintsMaxHeight - dockHeight
+
+                val horizontalPage = calculatePage(
+                    index = horizontalPagerState.currentPage,
+                    infiniteScroll = infiniteScroll,
+                    pageCount = tempPageCount,
+                )
+
+                if ((x - gridItemSource.gridItemLayoutInfo.width / 2) < gridPadding && !isDraggingOnDock) {
+                    pageDirection = PageDirection.Left
+
+                    if (horizontalPage == 0 && infiniteScroll) {
+                        newPage = true
+                    }
+
+                } else if ((x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth - gridPadding && !isDraggingOnDock) {
+                    pageDirection = PageDirection.Right
+
+                    if (horizontalPage == tempPageCount - 1) {
+                        newPage = true
+                    }
+                } else {
+                    pageDirection = null
+
+                    if (isDraggingOnDock) {
+                        val cellWidth = constraintsMaxWidth / dockColumns
+
+                        val cellHeight = dockHeight / dockRows
+
+                        val dockY = y - constraintsMaxHeight
+
+                        val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
+                            page = horizontalPage,
+                            startRow = dockY / cellHeight,
+                            startColumn = x / cellWidth,
+                            associate = Associate.Dock,
+                        )
+                        moveGridItem =
+                            MoveGridItem(gridItem = gridItem, rows = dockRows, columns = dockColumns)
+                    } else {
+                        val gridWidth = constraintsMaxWidth - gridPadding
+
+                        val gridHeight = constraintsMaxHeight - (gridPadding + dockHeight)
+
+                        val insideGrid = x >= gridPadding &&
+                                x <= gridPadding + gridWidth &&
+                                y >= gridPadding &&
+                                y <= gridPadding + gridHeight
+
+                        if(insideGrid) {
+                            val cellWidth = gridWidth / columns
+
+                            val cellHeight = gridHeight / rows
+
+                            val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
+                                page = horizontalPage,
+                                startRow = y / cellHeight,
+                                startColumn = x / cellWidth,
+                                associate = Associate.Grid,
+                            )
+
+                            moveGridItem = MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
+                        }
+                    }
+                }
+            }
+        }
+
         Column(modifier = Modifier.fillMaxSize()) {
             HorizontalPager(
                 state = horizontalPagerState,
@@ -406,7 +423,7 @@ fun DragScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(5.dp),
+                        .padding(cardPadding),
                 ) {
                     DragGridSubcomposeLayout(
                         modifier = Modifier.fillMaxSize(),

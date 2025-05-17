@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -506,7 +508,8 @@ private fun GridItemOverlay(
                 }
                 .size(size)
                 .zIndex(1f)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .border(width = 2.dp, color = Color.White),
         )
     }
 }

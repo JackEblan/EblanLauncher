@@ -102,10 +102,6 @@ fun DragScreen(
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
-    var newPageToRight by remember { mutableStateOf(false) }
-
-    var newPageToLeft by remember { mutableStateOf(false) }
-
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
@@ -127,13 +123,18 @@ fun DragScreen(
 
     var moveGridItem by remember { mutableStateOf<MoveGridItem?>(null) }
 
+    // Include an empty page
+    val tempPageCount = pageCount + 1
+
+    var newPage by remember { mutableStateOf(false) }
+
     val horizontalPagerState = rememberPagerState(
         initialPage = currentPage,
         pageCount = {
             if (infiniteScroll) {
                 Int.MAX_VALUE
             } else {
-                pageCount
+                tempPageCount
             }
         },
     )
@@ -141,7 +142,7 @@ fun DragScreen(
     val horizontalPagerPadding = 20.dp
 
     val horizontalPagerPaddingPx = with(density) {
-        20.dp.toPx()
+        horizontalPagerPadding.toPx()
     }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
@@ -157,20 +158,15 @@ fun DragScreen(
                     appWidgetId,
                 )
 
-                val horizontalPage = calculatePage(
-                    index = horizontalPagerState.currentPage,
+                onDragEnd(
                     infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
-                )
-
-                val targetPage = calculateTargetPage(
+                    tempPageCount = tempPageCount,
+                    horizontalPagerCurrentPage = horizontalPagerState.currentPage,
                     currentPage = currentPage,
-                    index = horizontalPage,
-                    infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
+                    newPage = newPage,
+                    onUpdatePageCount = onUpdatePageCount,
+                    onDragEnd = onDragEnd,
                 )
-
-                onDragEnd(targetPage)
             }
         } else {
             appWidgetHost.deleteAppWidgetId(appWidgetId = appWidgetId)
@@ -178,69 +174,34 @@ fun DragScreen(
             if (gridItemSource?.gridItemLayoutInfo != null) {
                 onDeleteGridItem(gridItemSource.gridItemLayoutInfo.gridItem)
 
-                val horizontalPage = calculatePage(
-                    index = horizontalPagerState.currentPage,
+                onDragEnd(
                     infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
-                )
-
-                val targetPage = calculateTargetPage(
+                    tempPageCount = tempPageCount,
+                    horizontalPagerCurrentPage = horizontalPagerState.currentPage,
                     currentPage = currentPage,
-                    index = horizontalPage,
-                    infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
+                    newPage = newPage,
+                    onUpdatePageCount = onUpdatePageCount,
+                    onDragEnd = onDragEnd,
                 )
-
-                onDragEnd(targetPage)
             }
         }
     }
 
     LaunchedEffect(key1 = pageDirection) {
-        val horizontalPage = calculatePage(
-            index = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
         when (pageDirection) {
             PageDirection.Left -> {
                 delay(1000L)
 
-                if (horizontalPage > 0) {
-                    horizontalPagerState.animateScrollToPage(horizontalPagerState.currentPage - 1)
-                } else if (infiniteScroll) {
-                    newPageToLeft = true
-                }
+                horizontalPagerState.animateScrollToPage(horizontalPagerState.currentPage - 1)
             }
 
             PageDirection.Right -> {
                 delay(1000L)
 
-                if (horizontalPage < pageCount - 1) {
-                    horizontalPagerState.animateScrollToPage(horizontalPagerState.currentPage + 1)
-                } else {
-                    newPageToRight = true
-                }
+                horizontalPagerState.animateScrollToPage(horizontalPagerState.currentPage + 1)
             }
 
             null -> Unit
-        }
-    }
-
-    LaunchedEffect(key1 = newPageToLeft, key2 = newPageToRight) {
-        if (newPageToLeft || newPageToRight) {
-            onUpdatePageCount(pageCount + 1)
-        }
-    }
-
-    LaunchedEffect(key1 = pageCount) {
-        if (newPageToLeft) {
-            horizontalPagerState.animateScrollToPage(horizontalPagerState.currentPage - 1)
-        }
-
-        if (newPageToRight) {
-            horizontalPagerState.animateScrollToPage(horizontalPagerState.currentPage + 1)
         }
     }
 
@@ -255,13 +216,22 @@ fun DragScreen(
             val horizontalPage = calculatePage(
                 index = horizontalPagerState.currentPage,
                 infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
+                pageCount = tempPageCount,
             )
 
             if ((gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 4) < horizontalPagerPaddingPx && !isDraggingOnDock) {
                 pageDirection = PageDirection.Left
+
+                if (horizontalPage == 0 && infiniteScroll) {
+                    newPage = true
+                }
+
             } else if ((gridItemOffset.x + gridItemSource.gridItemLayoutInfo.width / 4) > constraintsMaxWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
                 pageDirection = PageDirection.Right
+
+                if (horizontalPage == tempPageCount - 1) {
+                    newPage = true
+                }
             } else {
                 pageDirection = null
 
@@ -313,20 +283,15 @@ fun DragScreen(
                         GridItemSource.Type.New -> {
                             when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
-                                    val horizontalPage = calculatePage(
-                                        index = horizontalPagerState.currentPage,
+                                    onDragEnd(
                                         infiniteScroll = infiniteScroll,
-                                        pageCount = pageCount,
-                                    )
-
-                                    val targetPage = calculateTargetPage(
+                                        tempPageCount = tempPageCount,
+                                        horizontalPagerCurrentPage = horizontalPagerState.currentPage,
                                         currentPage = currentPage,
-                                        index = horizontalPage,
-                                        infiniteScroll = infiniteScroll,
-                                        pageCount = pageCount,
+                                        newPage = newPage,
+                                        onUpdatePageCount = onUpdatePageCount,
+                                        onDragEnd = onDragEnd,
                                     )
-
-                                    onDragEnd(targetPage)
                                 }
 
                                 is GridItemData.Widget -> {
@@ -348,20 +313,15 @@ fun DragScreen(
                                                 allocateAppWidgetId,
                                             )
 
-                                            val horizontalPage = calculatePage(
-                                                index = horizontalPagerState.currentPage,
+                                            onDragEnd(
                                                 infiniteScroll = infiniteScroll,
-                                                pageCount = pageCount,
-                                            )
-
-                                            val targetPage = calculateTargetPage(
+                                                tempPageCount = tempPageCount,
+                                                horizontalPagerCurrentPage = horizontalPagerState.currentPage,
                                                 currentPage = currentPage,
-                                                index = horizontalPage,
-                                                infiniteScroll = infiniteScroll,
-                                                pageCount = pageCount,
+                                                newPage = newPage,
+                                                onUpdatePageCount = onUpdatePageCount,
+                                                onDragEnd = onDragEnd,
                                             )
-
-                                            onDragEnd(targetPage)
                                         } else {
                                             val intent =
                                                 Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
@@ -378,40 +338,30 @@ fun DragScreen(
                                             appWidgetLauncher.launch(intent)
                                         }
                                     } else {
-                                        val horizontalPage = calculatePage(
-                                            index = horizontalPagerState.currentPage,
+                                        onDragEnd(
                                             infiniteScroll = infiniteScroll,
-                                            pageCount = pageCount,
-                                        )
-
-                                        val targetPage = calculateTargetPage(
+                                            tempPageCount = tempPageCount,
+                                            horizontalPagerCurrentPage = horizontalPagerState.currentPage,
                                             currentPage = currentPage,
-                                            index = horizontalPage,
-                                            infiniteScroll = infiniteScroll,
-                                            pageCount = pageCount,
+                                            newPage = newPage,
+                                            onUpdatePageCount = onUpdatePageCount,
+                                            onDragEnd = onDragEnd,
                                         )
-
-                                        onDragEnd(targetPage)
                                     }
                                 }
                             }
                         }
 
                         GridItemSource.Type.Old -> {
-                            val horizontalPage = calculatePage(
-                                index = horizontalPagerState.currentPage,
+                            onDragEnd(
                                 infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
-                            )
-
-                            val targetPage = calculateTargetPage(
+                                tempPageCount = tempPageCount,
+                                horizontalPagerCurrentPage = horizontalPagerState.currentPage,
                                 currentPage = currentPage,
-                                index = horizontalPage,
-                                infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
+                                newPage = newPage,
+                                onUpdatePageCount = onUpdatePageCount,
+                                onDragEnd = onDragEnd,
                             )
-
-                            onDragEnd(targetPage)
                         }
 
                         null -> Unit
@@ -450,7 +400,7 @@ fun DragScreen(
                 val horizontalPage = calculatePage(
                     index = index,
                     infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
+                    pageCount = tempPageCount,
                 )
 
                 Card(
@@ -668,4 +618,33 @@ fun DragScreen(
             }
         }
     }
+}
+
+private fun onDragEnd(
+    infiniteScroll: Boolean,
+    tempPageCount: Int,
+    horizontalPagerCurrentPage: Int,
+    currentPage: Int,
+    newPage: Boolean,
+    onUpdatePageCount: (Int) -> Unit,
+    onDragEnd: (Int) -> Unit,
+) {
+    val horizontalPage = calculatePage(
+        index = horizontalPagerCurrentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = tempPageCount,
+    )
+
+    val targetPage = calculateTargetPage(
+        currentPage = currentPage,
+        index = horizontalPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = tempPageCount,
+    )
+
+    if (newPage) {
+        onUpdatePageCount(tempPageCount)
+    }
+
+    onDragEnd(targetPage)
 }

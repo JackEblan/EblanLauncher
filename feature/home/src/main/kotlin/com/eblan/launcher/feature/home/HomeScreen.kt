@@ -155,8 +155,8 @@ fun HomeScreen(
                         userData = homeUiState.gridItemsByPage.userData,
                         eblanApplicationInfos = eblanApplicationInfos,
                         appWidgetProviderInfos = appWidgetProviderInfos,
-                        constraintsMaxWidth = constraints.maxWidth,
-                        constraintsMaxHeight = constraints.maxHeight,
+                        rootWidth = constraints.maxWidth,
+                        rootHeight = constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         shiftedAlgorithm = shiftedAlgorithm,
                         onMoveGridItem = onMoveGridItem,
@@ -187,8 +187,8 @@ fun Success(
     userData: UserData,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
+    rootWidth: Int,
+    rootHeight: Int,
     dockGridItems: List<GridItem>,
     shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
@@ -229,17 +229,19 @@ fun Success(
 
     val sheetState = rememberModalBottomSheetState()
 
-    var gridItemOffset by remember { mutableStateOf(IntOffset.Zero) }
+    var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
     var showOverlay by remember { mutableStateOf(false) }
 
-    var overlaySize by remember { mutableStateOf(IntSize.Zero) }
+    var overlayIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     var drag by remember { mutableStateOf(Drag.None) }
 
-    var preview by remember { mutableStateOf<ImageBitmap?>(null) }
+    var overlayImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -250,7 +252,7 @@ fun Success(
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = { offset ->
-                        gridItemOffset = offset.round()
+                        dragIntOffset = offset.round()
 
                         drag = Drag.Start
                     },
@@ -265,7 +267,9 @@ fun Success(
 
                         drag = Drag.Dragging
 
-                        gridItemOffset += dragAmount.round()
+                        dragIntOffset += dragAmount.round()
+
+                        overlayIntOffset += dragAmount.round()
                     },
                 )
             }
@@ -286,10 +290,10 @@ fun Success(
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
                     textColor = userData.textColor,
-                    gridItemOffset = gridItemOffset,
+                    dragIntOffset = dragIntOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
                     appDrawerColumns = userData.appDrawerColumns,
                     onLongPressGrid = {
@@ -298,21 +302,26 @@ fun Success(
                         showBottomSheet = true
                     },
                     onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
-                        preview = imageBitmap
+                        overlayImageBitmap = imageBitmap
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.Old,
                         )
 
-                        overlaySize = IntSize(
+                        overlayIntOffset =
+                            IntOffset(x = gridItemLayoutInfo.x, y = gridItemLayoutInfo.y)
+
+                        overlayIntSize = IntSize(
                             width = gridItemLayoutInfo.width,
                             height = gridItemLayoutInfo.height,
                         )
                     },
                     onLaunchApplication = onLaunchApplication,
-                    onLongPressApplicationInfo = { imageBitmap ->
-                        preview = imageBitmap
+                    onLongPressApplicationInfo = { imageBitmap, intSize ->
+                        overlayImageBitmap = imageBitmap
+
+                        overlayIntSize = intSize
 
                         showOverlay = true
                     },
@@ -321,13 +330,13 @@ fun Success(
 
                         onShowGridCache(Screen.Drag)
                     },
-                    onDragStartApplicationInfo = { size, gridItemLayoutInfo ->
+                    onDragStartApplicationInfo = { intOffset, gridItemLayoutInfo ->
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.New,
                         )
 
-                        overlaySize = size
+                        overlayIntOffset = intOffset
                     },
                     onDraggingApplicationInfo = {
                         onShowGridCache(Screen.Drag)
@@ -345,15 +354,15 @@ fun Success(
                     columns = userData.columns,
                     pageCount = userData.pageCount,
                     infiniteScroll = userData.infiniteScroll,
-                    gridItemOffset = gridItemOffset,
+                    dragIntOffset = dragIntOffset,
                     appWidgetProviderInfos = appWidgetProviderInfos,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     textColor = userData.textColor,
                     onLongPressWidget = { imageBitmap ->
-                        preview = imageBitmap
+                        overlayImageBitmap = imageBitmap
 
                         showOverlay = true
                     },
@@ -363,7 +372,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        overlaySize = size
+                        overlayIntSize = size
 
                         onShowGridCache(Screen.Drag)
                     },
@@ -380,11 +389,11 @@ fun Success(
                     dockRows = userData.dockRows,
                     dockColumns = userData.dockColumns,
                     gridItems = gridItems,
-                    gridItemOffset = gridItemOffset,
+                    dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
-                    constraintsMaxWidth = constraintsMaxWidth,
-                    constraintsMaxHeight = constraintsMaxHeight,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
                     dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
@@ -448,9 +457,9 @@ fun Success(
 
         if (showOverlay && gridItemSource?.gridItemLayoutInfo != null) {
             GridItemOverlay(
-                preview = preview,
+                preview = overlayImageBitmap,
                 gridItemLayoutInfo = gridItemSource!!.gridItemLayoutInfo,
-                offset = gridItemOffset,
+                overlayIntOffset = overlayIntOffset,
             )
         }
 
@@ -483,7 +492,7 @@ private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     preview: ImageBitmap?,
     gridItemLayoutInfo: GridItemLayoutInfo,
-    offset: IntOffset,
+    overlayIntOffset: IntOffset,
 ) {
     val density = LocalDensity.current
 
@@ -501,10 +510,7 @@ private fun GridItemOverlay(
             contentDescription = null,
             modifier = modifier
                 .offset {
-                    IntOffset(
-                        x = offset.x - gridItemLayoutInfo.width / 2,
-                        y = offset.y - gridItemLayoutInfo.height / 2,
-                    )
+                    overlayIntOffset
                 }
                 .size(size)
                 .zIndex(1f)

@@ -49,10 +49,10 @@ fun WidgetScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    gridItemOffset: IntOffset,
+    dragIntOffset: IntOffset,
     appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
+    rootWidth: Int,
+    rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
     textColor: TextColor,
@@ -84,9 +84,9 @@ fun WidgetScreen(
                 appWidgetProviderInfo = providerInfo!!,
                 rows = rows,
                 columns = columns,
-                appWidgetProviderInfoOffset = gridItemOffset,
-                gridWidth = constraintsMaxWidth,
-                gridHeight = constraintsMaxHeight - dockHeight,
+                appWidgetProviderInfoOffset = dragIntOffset,
+                gridWidth = rootWidth,
+                gridHeight = rootHeight - dockHeight,
             )
 
             val size = IntSize(

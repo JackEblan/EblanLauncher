@@ -76,12 +76,12 @@ fun DragScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
-    gridItemOffset: IntOffset,
+    dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
+    rootWidth: Int,
+    rootHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
@@ -332,15 +332,11 @@ fun DragScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        LaunchedEffect(key1 = gridItemOffset) {
+        LaunchedEffect(key1 = dragIntOffset) {
             if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-                val x = gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2
-
-                val y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2
-
                 val gridPadding = horizontalPagerPaddingPx + cardPaddingPx
 
-                val isDraggingOnDock = y > constraintsMaxHeight - dockHeight
+                val isDraggingOnDock = dragIntOffset.y > rootHeight - dockHeight
 
                 val horizontalPage = calculatePage(
                     index = horizontalPagerState.currentPage,
@@ -348,14 +344,14 @@ fun DragScreen(
                     pageCount = tempPageCount,
                 )
 
-                if ((x - gridItemSource.gridItemLayoutInfo.width / 2) < gridPadding && !isDraggingOnDock) {
+                if (dragIntOffset.x < gridPadding && !isDraggingOnDock) {
                     pageDirection = PageDirection.Left
 
                     if (horizontalPage == 0 && infiniteScroll) {
                         newPage = true
                     }
 
-                } else if ((x + gridItemSource.gridItemLayoutInfo.width / 2) > constraintsMaxWidth - gridPadding && !isDraggingOnDock) {
+                } else if (dragIntOffset.x > rootWidth - gridPadding && !isDraggingOnDock) {
                     pageDirection = PageDirection.Right
 
                     if (horizontalPage == tempPageCount - 1) {
@@ -365,43 +361,52 @@ fun DragScreen(
                     pageDirection = null
 
                     if (isDraggingOnDock) {
-                        val cellWidth = constraintsMaxWidth / dockColumns
+                        val cellWidth = rootWidth / dockColumns
 
                         val cellHeight = dockHeight / dockRows
 
-                        val dockY = y - constraintsMaxHeight
+                        val dockY = dragIntOffset.y - rootHeight
 
                         val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                             page = horizontalPage,
                             startRow = dockY / cellHeight,
-                            startColumn = x / cellWidth,
+                            startColumn = dragIntOffset.x / cellWidth,
                             associate = Associate.Dock,
                         )
                         moveGridItem =
-                            MoveGridItem(gridItem = gridItem, rows = dockRows, columns = dockColumns)
+                            MoveGridItem(
+                                gridItem = gridItem,
+                                rows = dockRows,
+                                columns = dockColumns,
+                            )
                     } else {
-                        val gridWidth = constraintsMaxWidth - gridPadding
+                        val gridWidth = rootWidth - gridPadding
 
-                        val gridHeight = constraintsMaxHeight - (gridPadding + dockHeight)
+                        val gridHeight = rootHeight - (gridPadding + dockHeight)
 
-                        val insideGrid = x >= gridPadding &&
-                                x <= gridPadding + gridWidth &&
-                                y >= gridPadding &&
-                                y <= gridPadding + gridHeight
+                        val gridX = dragIntOffset.x - gridPadding
 
-                        if(insideGrid) {
+                        val gridY = dragIntOffset.y - gridPadding
+
+                        val insideGrid = dragIntOffset.x >= gridPadding &&
+                                dragIntOffset.x <= gridPadding + gridWidth &&
+                                dragIntOffset.y >= gridPadding &&
+                                dragIntOffset.y <= gridPadding + gridHeight
+
+                        if (insideGrid) {
                             val cellWidth = gridWidth / columns
 
                             val cellHeight = gridHeight / rows
 
                             val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
                                 page = horizontalPage,
-                                startRow = y / cellHeight,
-                                startColumn = x / cellWidth,
+                                startRow = gridY / cellHeight,
+                                startColumn = gridX / cellWidth,
                                 associate = Associate.Grid,
                             )
 
-                            moveGridItem = MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
+                            moveGridItem =
+                                MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
                         }
                     }
                 }
@@ -571,8 +576,8 @@ fun DragScreen(
             when (gridItemSource.gridItemLayoutInfo.gridItem.associate) {
                 Associate.Grid -> {
                     GridItemMenu(
-                        x = gridItemOffset.x - gridItemSource.gridItemLayoutInfo.width / 2,
-                        y = gridItemOffset.y - gridItemSource.gridItemLayoutInfo.height / 2,
+                        x = dragIntOffset.x - gridItemSource.gridItemLayoutInfo.width / 2,
+                        y = dragIntOffset.y - gridItemSource.gridItemLayoutInfo.height / 2,
                         width = gridItemSource.gridItemLayoutInfo.width,
                         height = gridItemSource.gridItemLayoutInfo.height,
                         onDismissRequest = onDragCancel,
@@ -604,7 +609,7 @@ fun DragScreen(
                 Associate.Dock -> {
                     GridItemMenu(
                         x = gridItemSource.gridItemLayoutInfo.x,
-                        y = constraintsMaxHeight - dockHeight,
+                        y = rootHeight - dockHeight,
                         width = gridItemSource.gridItemLayoutInfo.width,
                         height = gridItemSource.gridItemLayoutInfo.height,
                         onDismissRequest = onDragCancel,

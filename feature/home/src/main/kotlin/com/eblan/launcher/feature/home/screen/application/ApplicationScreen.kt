@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -61,17 +62,20 @@ fun ApplicationScreen(
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    gridItemOffset: IntOffset,
+    dragIntOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    constraintsMaxWidth: Int,
-    constraintsMaxHeight: Int,
+    rootWidth: Int,
+    rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
     textColor: TextColor,
-    onLongPressApplicationInfo: (ImageBitmap) -> Unit,
+    onLongPressApplicationInfo: (
+        imageBitmap: ImageBitmap,
+        intSize: IntSize,
+    ) -> Unit,
     onDragStart: (
-        size: IntSize,
-        GridItemLayoutInfo,
+        intOffset: IntOffset,
+        gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDragging: () -> Unit,
     onDragEnd: () -> Unit,
@@ -104,18 +108,21 @@ fun ApplicationScreen(
                     page = page,
                     rows = rows,
                     columns = columns,
-                    x = gridItemOffset.x,
-                    y = gridItemOffset.y,
-                    gridWidth = constraintsMaxWidth,
-                    gridHeight = constraintsMaxHeight - dockHeight,
+                    x = dragIntOffset.x,
+                    y = dragIntOffset.y,
+                    gridWidth = rootWidth,
+                    gridHeight = rootHeight - dockHeight,
                     data = data!!,
                 )
 
-                val size = IntSize(gridItemLayoutInfo!!.width, gridItemLayoutInfo!!.height)
+                val intOffset = IntOffset(
+                    x = dragIntOffset.x - gridItemLayoutInfo!!.width / 2,
+                    y = dragIntOffset.y - gridItemLayoutInfo!!.height / 2,
+                )
 
                 showMenu = true
 
-                onDragStart(size, gridItemLayoutInfo!!)
+                onDragStart(intOffset, gridItemLayoutInfo!!)
             }
 
             Drag.End, Drag.Cancel, Drag.None -> {
@@ -141,6 +148,8 @@ fun ApplicationScreen(
             items(eblanApplicationInfos) { eblanApplicationInfo ->
                 val graphicsLayer = rememberGraphicsLayer()
 
+                var intSize by remember { mutableStateOf(IntSize.Zero) }
+
                 Column(
                     modifier = Modifier
                         .drawWithContent {
@@ -163,10 +172,16 @@ fun ApplicationScreen(
                                             label = eblanApplicationInfo.label,
                                         )
 
-                                        onLongPressApplicationInfo(graphicsLayer.toImageBitmap())
+                                        onLongPressApplicationInfo(
+                                            graphicsLayer.toImageBitmap(),
+                                            intSize,
+                                        )
                                     }
                                 }
                             }
+                        }
+                        .onSizeChanged {
+                            intSize = it
                         }
                         .fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -200,8 +215,8 @@ fun ApplicationScreen(
 
         if (showMenu) {
             GridItemMenu(
-                x = gridItemOffset.x - gridItemLayoutInfo!!.width / 2,
-                y = gridItemOffset.y - gridItemLayoutInfo!!.height / 2,
+                x = dragIntOffset.x - gridItemLayoutInfo!!.width / 2,
+                y = dragIntOffset.y - gridItemLayoutInfo!!.height / 2,
                 width = gridItemLayoutInfo!!.width,
                 height = gridItemLayoutInfo!!.height,
                 onDismissRequest = {

@@ -63,7 +63,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
-import kotlin.math.roundToInt
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -145,11 +144,7 @@ fun DragScreen(
     val cardPadding = 5.dp
 
     val horizontalPagerPaddingPx = with(density) {
-        horizontalPagerPadding.toPx().roundToInt()
-    }
-
-    val cardPaddingPx = with(density) {
-        cardPadding.toPx().roundToInt()
+        (horizontalPagerPadding + cardPadding).roundToPx()
     }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
@@ -334,8 +329,6 @@ fun DragScreen(
     Box(modifier = modifier.fillMaxSize()) {
         LaunchedEffect(key1 = dragIntOffset) {
             if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-                val gridPadding = horizontalPagerPaddingPx + cardPaddingPx
-
                 val isDraggingOnDock = dragIntOffset.y > rootHeight - dockHeight
 
                 val horizontalPage = calculatePage(
@@ -344,19 +337,15 @@ fun DragScreen(
                     pageCount = tempPageCount,
                 )
 
-                if (dragIntOffset.x < gridPadding && !isDraggingOnDock) {
+                if (dragIntOffset.x < horizontalPagerPaddingPx && !isDraggingOnDock) {
                     pageDirection = PageDirection.Left
 
-                    if (horizontalPage == 0 && infiniteScroll) {
-                        newPage = true
-                    }
+                    newPage = horizontalPage == 0 && infiniteScroll
 
-                } else if (dragIntOffset.x > rootWidth - gridPadding && !isDraggingOnDock) {
+                } else if (dragIntOffset.x > rootWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
                     pageDirection = PageDirection.Right
 
-                    if (horizontalPage == tempPageCount - 1) {
-                        newPage = true
-                    }
+                    newPage = horizontalPage == tempPageCount - 1
                 } else {
                     pageDirection = null
 
@@ -373,25 +362,22 @@ fun DragScreen(
                             startColumn = dragIntOffset.x / cellWidth,
                             associate = Associate.Dock,
                         )
-                        moveGridItem =
-                            MoveGridItem(
-                                gridItem = gridItem,
-                                rows = dockRows,
-                                columns = dockColumns,
-                            )
+                        moveGridItem = MoveGridItem(
+                            gridItem = gridItem,
+                            rows = dockRows,
+                            columns = dockColumns,
+                        )
                     } else {
-                        val gridWidth = rootWidth - gridPadding
+                        val gridWidth = rootWidth - horizontalPagerPaddingPx
 
-                        val gridHeight = rootHeight - (gridPadding + dockHeight)
+                        val gridHeight = rootHeight - (horizontalPagerPaddingPx + dockHeight)
 
-                        val gridX = dragIntOffset.x - gridPadding
+                        val gridX = dragIntOffset.x - horizontalPagerPaddingPx
 
-                        val gridY = dragIntOffset.y - gridPadding
+                        val gridY = dragIntOffset.y - horizontalPagerPaddingPx
 
-                        val insideGrid = dragIntOffset.x >= gridPadding &&
-                                dragIntOffset.x <= gridPadding + gridWidth &&
-                                dragIntOffset.y >= gridPadding &&
-                                dragIntOffset.y <= gridPadding + gridHeight
+                        val insideGrid =
+                            dragIntOffset.x >= horizontalPagerPaddingPx && dragIntOffset.x <= horizontalPagerPaddingPx + gridWidth && dragIntOffset.y >= horizontalPagerPaddingPx && dragIntOffset.y <= horizontalPagerPaddingPx + gridHeight
 
                         if (insideGrid) {
                             val cellWidth = gridWidth / columns

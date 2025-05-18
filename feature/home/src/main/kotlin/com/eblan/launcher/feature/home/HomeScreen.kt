@@ -290,11 +290,11 @@ fun Success(
                     dockHeight = userData.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
                     textColor = userData.textColor,
                     dragIntOffset = dragIntOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerColumns,
                     onLongPressGrid = {
                         gridItemSource = null

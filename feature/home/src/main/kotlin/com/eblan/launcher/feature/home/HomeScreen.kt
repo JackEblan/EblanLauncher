@@ -51,7 +51,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -451,8 +450,8 @@ fun Success(
         if (showOverlay && gridItemSource?.gridItemLayoutInfo != null) {
             GridItemOverlay(
                 preview = overlayImageBitmap,
-                gridItemLayoutInfo = gridItemSource!!.gridItemLayoutInfo,
                 overlayIntOffset = overlayIntOffset,
+                overlayIntSize = overlayIntSize,
             )
         }
 
@@ -475,19 +474,20 @@ fun Success(
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     preview: ImageBitmap?,
-    gridItemLayoutInfo: GridItemLayoutInfo,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
 ) {
     val density = LocalDensity.current
 
     val size = remember {
         with(density) {
             DpSize(
-                width = gridItemLayoutInfo.width.toDp(),
-                height = gridItemLayoutInfo.height.toDp(),
+                width = overlayIntSize.width.toDp(),
+                height = overlayIntSize.height.toDp(),
             )
         }
     }
+
     if (preview != null) {
         Image(
             bitmap = preview,

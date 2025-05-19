@@ -150,7 +150,7 @@ fun WidgetScreen(
                                     },
                                 )
                             }
-                            .defaultMinSize(minWidth = 100.dp, minHeight = 100.dp),
+                            .fillMaxWidth(fraction = 0.5f),
                         model = drawable,
                         contentDescription = null,
                     )

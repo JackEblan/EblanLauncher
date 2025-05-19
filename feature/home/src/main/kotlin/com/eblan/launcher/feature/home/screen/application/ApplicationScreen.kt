@@ -96,17 +96,17 @@ fun ApplicationScreen(
 
     var gridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
+    val horizontalPage = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Start -> {
-                val page = calculatePage(
-                    index = currentPage,
-                    infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
-                )
-
                 gridItemLayoutInfo = getGridItemLayoutInfo(
-                    page = page,
+                    page = horizontalPage,
                     rows = rows,
                     columns = columns,
                     x = dragIntOffset.x,
@@ -174,7 +174,7 @@ fun ApplicationScreen(
                                         )
 
                                         onLongPressApplicationInfo(
-                                            currentPage,
+                                            horizontalPage,
                                             graphicsLayer.toImageBitmap(),
                                             intSize,
                                         )
@@ -194,8 +194,7 @@ fun ApplicationScreen(
                     AsyncImage(
                         model = eblanApplicationInfo.icon,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(40.dp, 40.dp),
+                        modifier = Modifier.size(40.dp, 40.dp),
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))

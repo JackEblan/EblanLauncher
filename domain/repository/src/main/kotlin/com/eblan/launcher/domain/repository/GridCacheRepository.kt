@@ -14,4 +14,6 @@ interface GridCacheRepository {
     suspend fun deleteGridItem(gridItem: GridItem)
 
     suspend fun upsertGridItems(gridItems: List<GridItem>)
+
+    suspend fun shiftPagesAfterDeletedPage(page: Int)
 }

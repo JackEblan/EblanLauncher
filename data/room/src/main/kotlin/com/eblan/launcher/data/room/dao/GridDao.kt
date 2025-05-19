@@ -27,9 +27,4 @@ interface GridDao {
 
     @Delete
     suspend fun deleteGridItemEntity(entity: GridItemEntity)
-
-    @Query("UPDATE GridItemEntity SET page = page - 1 WHERE page > :page")
-    suspend fun shiftPagesAfterDeletedPage(page: Int)
-
-    @Query("DELETE FROM GridItemEntity WHERE page = :page AND associate = 'Grid'")
-    suspend fun deleteGridItemsByPage(page: Int)}
+}

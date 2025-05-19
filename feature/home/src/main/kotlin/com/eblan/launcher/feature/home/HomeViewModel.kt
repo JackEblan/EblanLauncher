@@ -8,10 +8,9 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.DeletePageUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -34,12 +33,11 @@ class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
-    private val userDataRepository: UserDataRepository,
-    private val deletePageUseCase: DeletePageUseCase,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
     private val _isCache = MutableStateFlow(false)
 
@@ -127,18 +125,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updatePageCount(pageCount: Int) {
-        viewModelScope.launch {
-            userDataRepository.updatePageCount(pageCount = pageCount)
-        }
-    }
-
-    fun deletePage(page: Int) {
-        viewModelScope.launch {
-            deletePageUseCase(page = page)
-        }
-    }
-
     fun updateScreen(screen: Screen) {
         _screen.update {
             screen
@@ -165,7 +151,7 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache() {
         viewModelScope.launch {
-            gridRepository.upsertGridItems(gridItems = gridCacheRepository.gridCacheItems.first())
+            updateGridItemsUseCase()
 
             _screen.update {
                 Screen.Pager

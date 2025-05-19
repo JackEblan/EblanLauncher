@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,9 +28,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,8 +59,6 @@ import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
-import com.eblan.launcher.feature.home.util.calculatePage
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeRoute(
@@ -92,8 +88,6 @@ fun HomeRoute(
         onResizeGridItem = viewModel::resizeGridItem,
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
-        onUpdatePageCount = viewModel::updatePageCount,
-        onDeletePage = viewModel::deletePage,
         onShowGridCache = viewModel::showGridCache,
         onUpdateScreen = viewModel::updateScreen,
         onLaunchApplication = viewModel::launchApplication,
@@ -127,8 +121,6 @@ fun HomeScreen(
         appWidgetId: Int,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onUpdatePageCount: (Int) -> Unit,
-    onDeletePage: (Int) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onLaunchApplication: (String) -> Unit,
@@ -163,8 +155,6 @@ fun HomeScreen(
                         onResizeGridItem = onResizeGridItem,
                         onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onDeleteGridItem = onDeleteGridItem,
-                        onUpdatePageCount = onUpdatePageCount,
-                        onDeletePage = onDeletePage,
                         onShowGridCache = onShowGridCache,
                         onUpdateScreen = onUpdateScreen,
                         onLaunchApplication = onLaunchApplication,
@@ -207,8 +197,6 @@ fun Success(
         appWidgetId: Int,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onUpdatePageCount: (Int) -> Unit,
-    onDeletePage: (Int) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
     onLaunchApplication: (String) -> Unit,
@@ -216,17 +204,6 @@ fun Success(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
 ) {
-    val horizontalPagerState = rememberPagerState(
-        initialPage = if (userData.infiniteScroll) Int.MAX_VALUE / 2 else 0,
-        pageCount = {
-            if (userData.infiniteScroll) {
-                Int.MAX_VALUE
-            } else {
-                userData.pageCount
-            }
-        },
-    )
-
     val sheetState = rememberModalBottomSheetState()
 
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -245,7 +222,7 @@ fun Success(
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
-    val scope = rememberCoroutineScope()
+    var targetPage by remember { mutableIntStateOf(0) }
 
     Box(
         modifier = modifier
@@ -278,7 +255,7 @@ fun Success(
         when (screen) {
             Screen.Pager -> {
                 PagerScreen(
-                    horizontalPagerState = horizontalPagerState,
+                    targetPage = targetPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -301,7 +278,9 @@ fun Success(
 
                         showBottomSheet = true
                     },
-                    onLongPressedGridItem = { imageBitmap, gridItemLayoutInfo ->
+                    onLongPressedGridItem = { currentPage, imageBitmap, gridItemLayoutInfo ->
+                        targetPage = currentPage
+
                         overlayImageBitmap = imageBitmap
 
                         gridItemSource = GridItemSource(
@@ -318,7 +297,9 @@ fun Success(
                         )
                     },
                     onLaunchApplication = onLaunchApplication,
-                    onLongPressApplicationInfo = { imageBitmap, intSize ->
+                    onLongPressApplicationInfo = { currentPage, imageBitmap, intSize ->
+                        targetPage = currentPage
+
                         overlayImageBitmap = imageBitmap
 
                         overlayIntSize = intSize
@@ -349,7 +330,7 @@ fun Success(
 
             Screen.Widget -> {
                 WidgetScreen(
-                    currentPage = horizontalPagerState.currentPage,
+                    currentPage = targetPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -381,7 +362,7 @@ fun Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    currentPage = horizontalPagerState.currentPage,
+                    targetPage = targetPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -399,7 +380,6 @@ fun Success(
                     textColor = userData.textColor,
                     shiftedAlgorithm = shiftedAlgorithm,
                     onMoveGridItem = onMoveGridItem,
-                    onUpdatePageCount = onUpdatePageCount,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = {
@@ -409,14 +389,12 @@ fun Success(
 
                         showOverlay = false
                     },
-                    onDragEnd = { targetPage ->
+                    onDragEnd = { newTargetPage ->
+                        targetPage = newTargetPage
+
                         onResetGridCache()
 
                         gridItemSource = null
-
-                        scope.launch {
-                            horizontalPagerState.scrollToPage(targetPage)
-                        }
 
                         showOverlay = false
                     },
@@ -433,7 +411,7 @@ fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    currentPage = horizontalPagerState.currentPage,
+                    currentPage = targetPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -471,15 +449,6 @@ fun Success(
                 },
                 onWidget = {
                     onUpdateScreen(Screen.Widget)
-                },
-                onDeletePage = {
-                    val page = calculatePage(
-                        index = horizontalPagerState.currentPage,
-                        infiniteScroll = userData.infiniteScroll,
-                        pageCount = userData.pageCount,
-                    )
-
-                    onDeletePage(page)
                 },
                 onSettings = onSettings,
             )
@@ -527,7 +496,6 @@ private fun HomeBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onWidget: () -> Unit,
-    onDeletePage: () -> Unit,
     onSettings: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -549,21 +517,6 @@ private fun HomeBottomSheet(
                 Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
 
                 Text(text = "Widgets")
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        onDeletePage()
-
-                        onDismissRequest()
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
-
-                Text(text = "Delete page")
             }
 
             Column(

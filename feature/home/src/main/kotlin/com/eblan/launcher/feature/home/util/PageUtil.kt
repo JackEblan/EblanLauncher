@@ -8,22 +8,3 @@ fun calculatePage(index: Int, infiniteScroll: Boolean, pageCount: Int): Int {
         index
     }
 }
-
-fun calculateTargetPage(
-    currentPage: Int,
-    index: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
-): Int {
-    return if (infiniteScroll) {
-        val offset = currentPage - (Int.MAX_VALUE / 2)
-        val currentReal = offset - Math.floorDiv(
-            offset,
-            pageCount,
-        ) * pageCount
-        val delta = index - currentReal
-        currentPage + delta
-    } else {
-        index
-    }
-}

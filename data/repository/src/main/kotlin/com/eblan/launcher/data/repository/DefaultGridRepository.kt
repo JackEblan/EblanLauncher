@@ -40,14 +40,6 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
         gridDao.deleteGridItemEntity(entity = gridItem.toGridItemEntity())
     }
 
-    override suspend fun shiftPagesAfterDeletedPage(page: Int) {
-        gridDao.shiftPagesAfterDeletedPage(page = page)
-    }
-
-    override suspend fun deleteGridItemsByPage(page: Int) {
-        gridDao.deleteGridItemsByPage(page = page)
-    }
-
     private fun GridItemEntity.toGridItem(): GridItem {
         return GridItem(
             id = id,

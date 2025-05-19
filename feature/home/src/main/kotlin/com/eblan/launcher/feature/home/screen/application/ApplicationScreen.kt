@@ -70,6 +70,7 @@ fun ApplicationScreen(
     drag: Drag,
     textColor: TextColor,
     onLongPressApplicationInfo: (
+        currentPage: Int,
         imageBitmap: ImageBitmap,
         intSize: IntSize,
     ) -> Unit,
@@ -173,6 +174,7 @@ fun ApplicationScreen(
                                         )
 
                                         onLongPressApplicationInfo(
+                                            currentPage,
                                             graphicsLayer.toImageBitmap(),
                                             intSize,
                                         )

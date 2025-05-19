@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PagerScreen(
     modifier: Modifier = Modifier,
-    horizontalPagerState: PagerState,
+    targetPage: Int,
     rows: Int,
     columns: Int,
     pageCount: Int,
@@ -77,11 +77,13 @@ fun PagerScreen(
     appDrawerColumns: Int,
     onLongPressGrid: () -> Unit,
     onLongPressedGridItem: (
+        currentPage: Int,
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onLaunchApplication: (String) -> Unit,
     onLongPressApplicationInfo: (
+        currentPage: Int,
         imageBitmap: ImageBitmap,
         size: IntSize,
     ) -> Unit,
@@ -93,6 +95,17 @@ fun PagerScreen(
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
 ) {
+    val horizontalPagerState = rememberPagerState(
+        initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
+        pageCount = {
+            if (infiniteScroll) {
+                Int.MAX_VALUE
+            } else {
+                pageCount
+            }
+        },
+    )
+
     val verticalPagerState = rememberPagerState(
         initialPage = 0,
         pageCount = { 2 },
@@ -179,6 +192,7 @@ private fun HorizontalPagerScreen(
     onLongPressGrid: () -> Unit,
     rootHeight: Int,
     onLongPressedGridItem: (
+        currentPage: Int,
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
@@ -239,6 +253,7 @@ private fun HorizontalPagerScreen(
                                 },
                                 onLongPress = { preview ->
                                     onLongPressedGridItem(
+                                        horizontalPage,
                                         preview,
                                         GridItemLayoutInfo(
                                             gridItem = gridItem,
@@ -257,6 +272,7 @@ private fun HorizontalPagerScreen(
                                 gridItemData = data,
                                 onLongPress = { preview ->
                                     onLongPressedGridItem(
+                                        horizontalPage,
                                         preview,
                                         GridItemLayoutInfo(
                                             gridItem = gridItem,
@@ -284,6 +300,12 @@ private fun HorizontalPagerScreen(
             columns = dockColumns,
             dockGridItems = dockGridItems,
         ) { dockGridItem, x, y, width, height ->
+            val horizontalPage = calculatePage(
+                index = horizontalPagerState.currentPage,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+
             when (val data = dockGridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
@@ -294,6 +316,7 @@ private fun HorizontalPagerScreen(
                         },
                         onLongPress = { preview ->
                             onLongPressedGridItem(
+                                horizontalPage,
                                 preview,
                                 GridItemLayoutInfo(
                                     gridItem = dockGridItem,
@@ -312,6 +335,7 @@ private fun HorizontalPagerScreen(
                         gridItemData = data,
                         onLongPress = { preview ->
                             onLongPressedGridItem(
+                                horizontalPage,
                                 preview,
                                 GridItemLayoutInfo(
                                     gridItem = dockGridItem,

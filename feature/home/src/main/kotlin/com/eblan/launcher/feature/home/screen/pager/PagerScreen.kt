@@ -75,7 +75,7 @@ fun PagerScreen(
     rootWidth: Int,
     rootHeight: Int,
     appDrawerColumns: Int,
-    onLongPressGrid: () -> Unit,
+    onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -189,7 +189,7 @@ private fun HorizontalPagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    onLongPressGrid: () -> Unit,
+    onLongPressGrid: (Int) -> Unit,
     rootHeight: Int,
     onLongPressedGridItem: (
         currentPage: Int,
@@ -218,7 +218,13 @@ private fun HorizontalPagerScreen(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = {
-                        onLongPressGrid()
+                        val horizontalPage = calculatePage(
+                            index = horizontalPagerState.currentPage,
+                            infiniteScroll = infiniteScroll,
+                            pageCount = pageCount,
+                        )
+
+                        onLongPressGrid(horizontalPage)
                     },
                 )
             }

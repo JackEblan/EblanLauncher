@@ -273,7 +273,9 @@ fun Success(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerColumns,
-                    onLongPressGrid = {
+                    onLongPressGrid = { currentPage ->
+                        targetPage = currentPage
+
                         gridItemSource = null
 
                         showBottomSheet = true
@@ -347,13 +349,15 @@ fun Success(
 
                         showOverlay = true
                     },
-                    onDragStart = { size, gridItemLayoutInfo ->
+                    onDragStart = { intOffset, intSize, gridItemLayoutInfo ->
+                        overlayIntOffset = intOffset
+
+                        overlayIntSize = intSize
+
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.New,
                         )
-
-                        overlayIntSize = size
 
                         onShowGridCache(Screen.Drag)
                     },

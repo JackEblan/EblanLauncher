@@ -58,7 +58,8 @@ fun WidgetScreen(
     textColor: TextColor,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
-        size: IntSize,
+        intOffset: IntOffset,
+        intSize: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
 ) {
@@ -79,7 +80,7 @@ fun WidgetScreen(
                 pageCount = pageCount,
             )
 
-            val addGridItemLayoutInfo = getGridItemLayoutInfo(
+            val gridItemLayoutInfo = getGridItemLayoutInfo(
                 page = page,
                 appWidgetProviderInfo = providerInfo!!,
                 rows = rows,
@@ -89,14 +90,20 @@ fun WidgetScreen(
                 gridHeight = rootHeight - dockHeight,
             )
 
-            val size = IntSize(
-                addGridItemLayoutInfo.width,
-                addGridItemLayoutInfo.height,
+            val intOffset = IntOffset(
+                x = dragIntOffset.x - gridItemLayoutInfo.width / 2,
+                y = dragIntOffset.y - gridItemLayoutInfo.height / 2,
+            )
+
+            val intSize = IntSize(
+                gridItemLayoutInfo.width,
+                gridItemLayoutInfo.height,
             )
 
             onDragStart(
-                size,
-                addGridItemLayoutInfo,
+                intOffset,
+                intSize,
+                gridItemLayoutInfo,
             )
         }
     }

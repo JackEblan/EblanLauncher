@@ -224,6 +224,8 @@ fun Success(
 
     var targetPage by remember { mutableIntStateOf(0) }
 
+    var addNewPage by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .pointerInput(Unit) {
@@ -280,8 +282,10 @@ fun Success(
 
                         showBottomSheet = true
                     },
-                    onLongPressedGridItem = { currentPage, imageBitmap, gridItemLayoutInfo ->
+                    onLongPressedGridItem = { currentPage, newPage, imageBitmap, gridItemLayoutInfo ->
                         targetPage = currentPage
+
+                        addNewPage = newPage
 
                         overlayImageBitmap = imageBitmap
 
@@ -301,6 +305,8 @@ fun Success(
                     onLaunchApplication = onLaunchApplication,
                     onLongPressApplicationInfo = { currentPage, imageBitmap, intSize ->
                         targetPage = currentPage
+
+                        addNewPage = true
 
                         overlayImageBitmap = imageBitmap
 
@@ -359,6 +365,8 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
+                        addNewPage = true
+
                         onShowGridCache(Screen.Drag)
                     },
                 )
@@ -383,6 +391,7 @@ fun Success(
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
                     shiftedAlgorithm = shiftedAlgorithm,
+                    addNewPage = addNewPage,
                     onMoveGridItem = onMoveGridItem,
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
@@ -395,6 +404,8 @@ fun Success(
                     },
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage
+
+                        addNewPage = false
 
                         onResetGridCache()
 

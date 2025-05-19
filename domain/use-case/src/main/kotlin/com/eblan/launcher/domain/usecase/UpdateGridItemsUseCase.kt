@@ -12,23 +12,25 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
 ) {
     suspend operator fun invoke() {
-        val groupedGridCacheItems =
-            gridCacheRepository.gridCacheItems.first().groupBy { gridItem -> gridItem.page }
+        val gridCacheItems = gridCacheRepository.gridCacheItems.first()
 
-        if (gridCacheRepository.gridCacheItems.first()
-                .maxOf { gridItem -> gridItem.page } > userDataRepository.userData.first().pageCount - 1
-        ) {
-            userDataRepository.updatePageCount(userDataRepository.userData.first().pageCount + 1)
+        var pageCount = userDataRepository.userData.first().pageCount
+
+        val lastPageIsNullOrEmpty =
+            gridCacheItems.groupBy { gridItem -> gridItem.page }[pageCount - 1].isNullOrEmpty()
+
+        if (lastPageIsNullOrEmpty) {
+            pageCount -= 1
+
+            userDataRepository.updatePageCount(pageCount)
         }
 
-        repeat(userDataRepository.userData.first().pageCount) { page ->
-            if (groupedGridCacheItems[page].isNullOrEmpty()) {
-                userDataRepository.updatePageCount(pageCount = userDataRepository.userData.first().pageCount - 1)
+        val hasNewPage = gridCacheItems.maxOf { gridItem -> gridItem.page } > pageCount - 1
 
-                gridCacheRepository.shiftPagesAfterDeletedPage(page = page)
-            }
+        if (hasNewPage) {
+            userDataRepository.updatePageCount(pageCount + 1)
         }
 
-        gridRepository.upsertGridItems(gridItems = gridCacheRepository.gridCacheItems.first())
+        gridRepository.upsertGridItems(gridItems = gridCacheItems)
     }
 }

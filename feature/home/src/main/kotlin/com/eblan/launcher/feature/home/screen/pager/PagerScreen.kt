@@ -70,7 +70,6 @@ fun PagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    dragIntOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     rootWidth: Int,
     rootHeight: Int,
@@ -86,13 +85,11 @@ fun PagerScreen(
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
-        size: IntSize,
-    ) -> Unit,
-    onDragStart: () -> Unit,
-    onDragStartApplicationInfo: (
         intOffset: IntOffset,
+        size: IntSize,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
+    onDragStart: () -> Unit,
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
 ) {
@@ -157,7 +154,6 @@ fun PagerScreen(
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
-                    dragIntOffset = dragIntOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
                     rootWidth = rootWidth,
                     dockHeight = dockHeight,
@@ -165,7 +161,6 @@ fun PagerScreen(
                     textColor = textColor,
                     rootHeight = rootHeight,
                     onLongPressApplicationInfo = onLongPressApplicationInfo,
-                    onDragStart = onDragStartApplicationInfo,
                     onDragging = onDraggingApplicationInfo,
                     onDragEnd = onDragEndApplicationInfo,
                 )

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,13 +30,16 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -62,7 +64,6 @@ fun ApplicationScreen(
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    dragIntOffset: IntOffset,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     rootWidth: Int,
     rootHeight: Int,
@@ -72,17 +73,13 @@ fun ApplicationScreen(
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
-        intSize: IntSize,
-    ) -> Unit,
-    onDragStart: (
         intOffset: IntOffset,
+        intSize: IntSize,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDragging: () -> Unit,
     onDragEnd: () -> Unit,
 ) {
-    var data by remember { mutableStateOf<GridItemData?>(null) }
-
     val scope = rememberCoroutineScope()
 
     val gridState = rememberLazyGridState()
@@ -94,7 +91,11 @@ fun ApplicationScreen(
 
     var showMenu by remember { mutableStateOf(false) }
 
-    var gridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
+    var selectedIntSize by remember { mutableStateOf(IntSize.Zero) }
+
+    var selectedIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var selectedGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
     val horizontalPage = calculatePage(
         index = currentPage,
@@ -105,25 +106,7 @@ fun ApplicationScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Start -> {
-                gridItemLayoutInfo = getGridItemLayoutInfo(
-                    page = horizontalPage,
-                    rows = rows,
-                    columns = columns,
-                    x = dragIntOffset.x,
-                    y = dragIntOffset.y,
-                    gridWidth = rootWidth,
-                    gridHeight = rootHeight - dockHeight,
-                    data = data!!,
-                )
-
-                val intOffset = IntOffset(
-                    x = dragIntOffset.x - gridItemLayoutInfo!!.width / 2,
-                    y = dragIntOffset.y - gridItemLayoutInfo!!.height / 2,
-                )
-
                 showMenu = true
-
-                onDragStart(intOffset, gridItemLayoutInfo!!)
             }
 
             Drag.End, Drag.Cancel, Drag.None -> {
@@ -143,13 +126,15 @@ fun ApplicationScreen(
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(appDrawerColumns),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             state = gridState,
         ) {
             items(eblanApplicationInfos) { eblanApplicationInfo ->
                 val graphicsLayer = rememberGraphicsLayer()
 
                 var intSize by remember { mutableStateOf(IntSize.Zero) }
+
+                var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
                 Column(
                     modifier = Modifier
@@ -167,16 +152,35 @@ fun ApplicationScreen(
 
                                 if (longPress != null) {
                                     scope.launch {
-                                        data = GridItemData.ApplicationInfo(
+                                        val data = GridItemData.ApplicationInfo(
                                             packageName = eblanApplicationInfo.packageName,
                                             icon = eblanApplicationInfo.icon,
                                             label = eblanApplicationInfo.label,
                                         )
 
+                                        val gridItemLayoutInfo = getGridItemLayoutInfo(
+                                            page = horizontalPage,
+                                            rows = rows,
+                                            columns = columns,
+                                            x = intOffset.x,
+                                            y = intOffset.y,
+                                            gridWidth = rootWidth,
+                                            gridHeight = rootHeight - dockHeight,
+                                            data = data,
+                                        )
+
+                                        selectedIntOffset = intOffset
+
+                                        selectedIntSize = intSize
+
+                                        selectedGridItemLayoutInfo = gridItemLayoutInfo
+
                                         onLongPressApplicationInfo(
                                             horizontalPage,
                                             graphicsLayer.toImageBitmap(),
+                                            intOffset,
                                             intSize,
+                                            gridItemLayoutInfo,
                                         )
                                     }
                                 }
@@ -184,6 +188,9 @@ fun ApplicationScreen(
                         }
                         .onSizeChanged {
                             intSize = it
+                        }
+                        .onGloballyPositioned {
+                            intOffset = it.positionInParent().round()
                         }
                         .fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -216,10 +223,10 @@ fun ApplicationScreen(
 
         if (showMenu) {
             GridItemMenu(
-                x = dragIntOffset.x - gridItemLayoutInfo!!.width / 2,
-                y = dragIntOffset.y - gridItemLayoutInfo!!.height / 2,
-                width = gridItemLayoutInfo!!.width,
-                height = gridItemLayoutInfo!!.height,
+                x = selectedIntOffset.x,
+                y = selectedIntOffset.y,
+                width = selectedIntSize.width,
+                height = selectedIntSize.height,
                 onDismissRequest = {
                     showMenu = false
                 },

@@ -269,7 +269,6 @@ fun Success(
                     drag = drag,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
-                    dragIntOffset = dragIntOffset,
                     eblanApplicationInfos = eblanApplicationInfos,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
@@ -302,14 +301,21 @@ fun Success(
                         )
                     },
                     onLaunchApplication = onLaunchApplication,
-                    onLongPressApplicationInfo = { currentPage, imageBitmap, intSize ->
+                    onLongPressApplicationInfo = { currentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
                         targetPage = currentPage
 
                         addNewPage = true
 
                         overlayImageBitmap = imageBitmap
 
+                        overlayIntOffset = intOffset
+
                         overlayIntSize = intSize
+
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.New,
+                        )
 
                         showOverlay = true
                     },
@@ -317,14 +323,6 @@ fun Success(
                         showOverlay = true
 
                         onShowGridCache(Screen.Drag)
-                    },
-                    onDragStartApplicationInfo = { intOffset, gridItemLayoutInfo ->
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
-                        )
-
-                        overlayIntOffset = intOffset
                     },
                     onDraggingApplicationInfo = {
                         onShowGridCache(Screen.Drag)

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -57,7 +56,6 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
-import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 
 @Composable
 fun HomeRoute(
@@ -88,7 +86,6 @@ fun HomeRoute(
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
         onShowGridCache = viewModel::showGridCache,
-        onUpdateScreen = viewModel::updateScreen,
         onLaunchApplication = viewModel::launchApplication,
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
@@ -121,7 +118,6 @@ fun HomeScreen(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
-    onUpdateScreen: (Screen) -> Unit,
     onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
@@ -155,7 +151,6 @@ fun HomeScreen(
                         onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onDeleteGridItem = onDeleteGridItem,
                         onShowGridCache = onShowGridCache,
-                        onUpdateScreen = onUpdateScreen,
                         onLaunchApplication = onLaunchApplication,
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
@@ -197,7 +192,6 @@ fun Success(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
-    onUpdateScreen: (Screen) -> Unit,
     onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
@@ -273,6 +267,8 @@ fun Success(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerColumns,
+                    dragIntOffset = dragIntOffset,
+                    appWidgetProviderInfos = appWidgetProviderInfos,
                     onLongPressGrid = { currentPage ->
                         targetPage = currentPage
 
@@ -330,29 +326,12 @@ fun Success(
                     onDragEndApplicationInfo = {
                         showOverlay = false
                     },
-                )
-            }
-
-            Screen.Widget -> {
-                WidgetScreen(
-                    currentPage = targetPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dragIntOffset = dragIntOffset,
-                    appWidgetProviderInfos = appWidgetProviderInfos,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
-                    dockHeight = userData.dockHeight,
-                    drag = drag,
-                    textColor = userData.textColor,
                     onLongPressWidget = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
 
                         showOverlay = true
                     },
-                    onDragStart = { intOffset, intSize, gridItemLayoutInfo ->
+                    onDragStartWidget = { intOffset, intSize, gridItemLayoutInfo ->
                         overlayIntOffset = intOffset
 
                         overlayIntSize = intSize
@@ -459,9 +438,6 @@ fun Success(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                onWidget = {
-                    onUpdateScreen(Screen.Widget)
-                },
                 onSettings = onSettings,
             )
         }
@@ -508,7 +484,6 @@ private fun HomeBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
-    onWidget: () -> Unit,
     onSettings: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -517,21 +492,6 @@ private fun HomeBottomSheet(
         sheetState = sheetState,
     ) {
         FlowRow(modifier = Modifier.fillMaxWidth(), maxLines = 4) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        onWidget()
-
-                        onDismissRequest()
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
-
-                Text(text = "Widgets")
-            }
-
             Column(
                 modifier = Modifier
                     .weight(1f)

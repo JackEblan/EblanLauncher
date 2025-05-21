@@ -125,12 +125,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateScreen(screen: Screen) {
-        _screen.update {
-            screen
-        }
-    }
-
     fun showGridCache(screen: Screen) {
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())

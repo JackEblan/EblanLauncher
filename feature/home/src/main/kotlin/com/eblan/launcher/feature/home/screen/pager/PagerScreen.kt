@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.appwidget.AppWidgetProviderInfo
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -51,6 +52,7 @@ import com.eblan.launcher.feature.home.component.MenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 
@@ -74,6 +76,8 @@ fun PagerScreen(
     rootWidth: Int,
     rootHeight: Int,
     appDrawerColumns: Int,
+    dragIntOffset: IntOffset,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
@@ -92,8 +96,10 @@ fun PagerScreen(
     onDragStart: () -> Unit,
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
+    onLongPressWidget: (ImageBitmap?) -> Unit,
+    onDragStartWidget: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
 ) {
-    val horizontalPagerState = rememberPagerState(
+    val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
         pageCount = {
             if (infiniteScroll) {
@@ -109,6 +115,13 @@ fun PagerScreen(
         pageCount = { 2 },
     )
 
+    val applicationHorizontalPagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = {
+            2
+        },
+    )
+
     var userScrollEnabled by remember { mutableStateOf(true) }
 
     VerticalPager(
@@ -119,7 +132,7 @@ fun PagerScreen(
         when (verticalPage) {
             0 -> {
                 HorizontalPagerScreen(
-                    horizontalPagerState = horizontalPagerState,
+                    horizontalPagerState = gridHorizontalPagerState,
                     rows = rows,
                     columns = columns,
                     pageCount = pageCount,
@@ -147,23 +160,48 @@ fun PagerScreen(
             }
 
             1 -> {
-                ApplicationScreen(
-                    currentPage = horizontalPagerState.currentPage,
-                    rows = rows,
-                    columns = columns,
-                    appDrawerColumns = appDrawerColumns,
-                    pageCount = pageCount,
-                    infiniteScroll = infiniteScroll,
-                    eblanApplicationInfos = eblanApplicationInfos,
-                    rootWidth = rootWidth,
-                    dockHeight = dockHeight,
-                    drag = drag,
-                    textColor = textColor,
-                    rootHeight = rootHeight,
-                    onLongPressApplicationInfo = onLongPressApplicationInfo,
-                    onDragging = onDraggingApplicationInfo,
-                    onDragEnd = onDragEndApplicationInfo,
-                )
+                HorizontalPager(state = applicationHorizontalPagerState) { page ->
+                    when (page) {
+                        0 -> {
+                            ApplicationScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                rows = rows,
+                                columns = columns,
+                                appDrawerColumns = appDrawerColumns,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanApplicationInfos = eblanApplicationInfos,
+                                rootWidth = rootWidth,
+                                dockHeight = dockHeight,
+                                drag = drag,
+                                textColor = textColor,
+                                rootHeight = rootHeight,
+                                onLongPressApplicationInfo = onLongPressApplicationInfo,
+                                onDragging = onDraggingApplicationInfo,
+                                onDragEnd = onDragEndApplicationInfo,
+                            )
+                        }
+
+                        1 -> {
+                            WidgetScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                rows = rows,
+                                columns = columns,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                dragIntOffset = dragIntOffset,
+                                appWidgetProviderInfos = appWidgetProviderInfos,
+                                rootWidth = rootWidth,
+                                rootHeight = rootHeight,
+                                dockHeight = dockHeight,
+                                drag = drag,
+                                textColor = textColor,
+                                onLongPressWidget = onLongPressWidget,
+                                onDragStart = onDragStartWidget,
+                            )
+                        }
+                    }
+                }
             }
         }
     }

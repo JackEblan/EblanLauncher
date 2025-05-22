@@ -181,6 +181,70 @@ fun DragScreen(
         }
     }
 
+    LaunchedEffect(key1 = dragIntOffset) {
+        if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
+            val isDraggingOnDock = dragIntOffset.y > rootHeight - dockHeight
+
+            val horizontalPage = calculatePage(
+                index = horizontalPagerState.currentPage,
+                infiniteScroll = infiniteScroll,
+                pageCount = tempPageCount,
+            )
+
+            if (dragIntOffset.x < horizontalPagerPaddingPx && !isDraggingOnDock) {
+                pageDirection = PageDirection.Left
+            } else if (dragIntOffset.x > rootWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
+                pageDirection = PageDirection.Right
+            } else {
+                pageDirection = null
+
+                if (isDraggingOnDock) {
+                    val cellWidth = rootWidth / dockColumns
+
+                    val cellHeight = dockHeight / dockRows
+
+                    val dockY = dragIntOffset.y - rootHeight
+
+                    val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
+                        page = horizontalPage,
+                        startRow = dockY / cellHeight,
+                        startColumn = dragIntOffset.x / cellWidth,
+                        associate = Associate.Dock,
+                    )
+                    moveGridItem = MoveGridItem(
+                        gridItem = gridItem,
+                        rows = dockRows,
+                        columns = dockColumns,
+                    )
+                } else {
+                    val gridWidth = rootWidth - horizontalPagerPaddingPx
+
+                    val gridHeight = rootHeight - (horizontalPagerPaddingPx + dockHeight)
+
+                    val insideGrid =
+                        dragIntOffset.x >= horizontalPagerPaddingPx && dragIntOffset.x <= horizontalPagerPaddingPx + gridWidth && dragIntOffset.y >= horizontalPagerPaddingPx && dragIntOffset.y <= horizontalPagerPaddingPx + gridHeight
+
+                    if (insideGrid) {
+                        val cellWidth = gridWidth / columns
+
+                        val cellHeight = gridHeight / rows
+
+                        val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
+                            page = horizontalPage,
+                            startRow = dragIntOffset.y / cellHeight,
+                            startColumn = dragIntOffset.x / cellWidth,
+                            associate = Associate.Grid,
+                        )
+
+                        moveGridItem =
+                            MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
+                    }
+                }
+            }
+        }
+    }
+
+
     LaunchedEffect(key1 = pageDirection) {
         when (pageDirection) {
             PageDirection.Left -> {
@@ -311,73 +375,6 @@ fun DragScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        LaunchedEffect(key1 = dragIntOffset) {
-            if (drag == Drag.Dragging && gridItemSource?.gridItemLayoutInfo != null) {
-                val isDraggingOnDock = dragIntOffset.y > rootHeight - dockHeight
-
-                val horizontalPage = calculatePage(
-                    index = horizontalPagerState.currentPage,
-                    infiniteScroll = infiniteScroll,
-                    pageCount = tempPageCount,
-                )
-
-                if (dragIntOffset.x < horizontalPagerPaddingPx && !isDraggingOnDock) {
-                    pageDirection = PageDirection.Left
-                } else if (dragIntOffset.x > rootWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
-                    pageDirection = PageDirection.Right
-                } else {
-                    pageDirection = null
-
-                    if (isDraggingOnDock) {
-                        val cellWidth = rootWidth / dockColumns
-
-                        val cellHeight = dockHeight / dockRows
-
-                        val dockY = dragIntOffset.y - rootHeight
-
-                        val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
-                            page = horizontalPage,
-                            startRow = dockY / cellHeight,
-                            startColumn = dragIntOffset.x / cellWidth,
-                            associate = Associate.Dock,
-                        )
-                        moveGridItem = MoveGridItem(
-                            gridItem = gridItem,
-                            rows = dockRows,
-                            columns = dockColumns,
-                        )
-                    } else {
-                        val gridWidth = rootWidth - horizontalPagerPaddingPx
-
-                        val gridHeight = rootHeight - (horizontalPagerPaddingPx + dockHeight)
-
-                        val gridX = dragIntOffset.x - horizontalPagerPaddingPx
-
-                        val gridY = dragIntOffset.y - horizontalPagerPaddingPx
-
-                        val insideGrid =
-                            dragIntOffset.x >= horizontalPagerPaddingPx && dragIntOffset.x <= horizontalPagerPaddingPx + gridWidth && dragIntOffset.y >= horizontalPagerPaddingPx && dragIntOffset.y <= horizontalPagerPaddingPx + gridHeight
-
-                        if (insideGrid) {
-                            val cellWidth = gridWidth / columns
-
-                            val cellHeight = gridHeight / rows
-
-                            val gridItem = gridItemSource.gridItemLayoutInfo.gridItem.copy(
-                                page = horizontalPage,
-                                startRow = gridY / cellHeight,
-                                startColumn = gridX / cellWidth,
-                                associate = Associate.Grid,
-                            )
-
-                            moveGridItem =
-                                MoveGridItem(gridItem = gridItem, rows = rows, columns = columns)
-                        }
-                    }
-                }
-            }
-        }
-
         Column(modifier = Modifier.fillMaxSize()) {
             HorizontalPager(
                 state = horizontalPagerState,

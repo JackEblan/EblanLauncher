@@ -1,7 +1,5 @@
 package com.eblan.launcher.feature.home
 
-import android.appwidget.AppWidgetProviderInfo
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -34,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
@@ -45,6 +42,8 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -99,7 +98,7 @@ fun HomeScreen(
     screen: Screen,
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
         gridItem: GridItem,
@@ -170,7 +169,7 @@ fun Success(
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     rootWidth: Int,
     rootHeight: Int,
     dockGridItems: List<GridItem>,
@@ -211,7 +210,7 @@ fun Success(
 
     var drag by remember { mutableStateOf(Drag.None) }
 
-    var overlayImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var overlayImage by remember { mutableStateOf<Any?>(null) }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -281,7 +280,7 @@ fun Success(
 
                         addNewPage = newPage
 
-                        overlayImageBitmap = imageBitmap
+                        overlayImage = imageBitmap
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
@@ -302,7 +301,7 @@ fun Success(
 
                         addNewPage = true
 
-                        overlayImageBitmap = imageBitmap
+                        overlayImage = imageBitmap
 
                         overlayIntOffset = intOffset
 
@@ -327,7 +326,7 @@ fun Success(
                         showOverlay = false
                     },
                     onLongPressWidget = { imageBitmap ->
-                        overlayImageBitmap = imageBitmap
+                        overlayImage = imageBitmap
 
                         showOverlay = true
                     },
@@ -426,7 +425,7 @@ fun Success(
 
         if (showOverlay && gridItemSource?.gridItemLayoutInfo != null) {
             GridItemOverlay(
-                preview = overlayImageBitmap,
+                model = overlayImage,
                 overlayIntOffset = overlayIntOffset,
                 overlayIntSize = overlayIntSize,
             )
@@ -447,7 +446,7 @@ fun Success(
 @Composable
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
-    preview: ImageBitmap?,
+    model: Any?,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
 ) {
@@ -462,9 +461,9 @@ private fun GridItemOverlay(
         }
     }
 
-    if (preview != null) {
-        Image(
-            bitmap = preview,
+    if (model != null) {
+        AsyncImage(
+            model = model,
             contentDescription = null,
             modifier = modifier
                 .offset {

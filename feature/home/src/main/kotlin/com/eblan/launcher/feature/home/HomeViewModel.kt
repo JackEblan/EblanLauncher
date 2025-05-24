@@ -58,9 +58,8 @@ class HomeViewModel @Inject constructor(
     val appWidgetProviderInfos =
         eblanApplicationInfoRepository.eblanApplicationInfos.map { applicationInfos ->
             applicationInfos.associateWith { eblanApplicationInfo ->
-                appWidgetManagerWrapper.getInstalledProviderByPackageName(
-                    packageName = eblanApplicationInfo.packageName,
-                )
+                appWidgetManagerWrapper.getInstalledProviders()
+                    .filter { eblanAppWidgetProviderInfo -> eblanAppWidgetProviderInfo.packageName == eblanApplicationInfo.packageName }
             }.filterValues { it.isNotEmpty() }
         }.flowOn(Dispatchers.Default).stateIn(
             scope = viewModelScope,

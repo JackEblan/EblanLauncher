@@ -1,10 +1,8 @@
 package com.eblan.launcher.feature.home.screen.widget
 
-import android.appwidget.AppWidgetProviderInfo
 import android.os.Build
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,17 +18,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -50,22 +45,20 @@ fun WidgetScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     dragIntOffset: IntOffset,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
     textColor: TextColor,
-    onLongPressWidget: (ImageBitmap?) -> Unit,
+    onLongPressWidget: (String?) -> Unit,
     onDragStart: (
         intOffset: IntOffset,
         intSize: IntSize,
         GridItemLayoutInfo,
     ) -> Unit,
 ) {
-    val context = LocalContext.current
-
-    var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
+    var providerInfo by remember { mutableStateOf<EblanAppWidgetProviderInfo?>(null) }
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -127,34 +120,6 @@ fun WidgetScreen(
                 )
 
                 appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
-                    val drawable = remember {
-                        appWidgetProviderInfo.loadPreviewImage(
-                            context,
-                            0,
-                        ) ?: appWidgetProviderInfo.loadIcon(
-                            context,
-                            0,
-                        )
-                    }
-
-                    AsyncImage(
-                        modifier = Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        providerInfo = appWidgetProviderInfo
-
-                                        onLongPressWidget(
-                                            drawable?.toBitmapOrNull()?.asImageBitmap(),
-                                        )
-                                    },
-                                )
-                            }
-                            .fillMaxWidth(fraction = 0.5f),
-                        model = drawable,
-                        contentDescription = null,
-                    )
-
                     val infoText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         """
     ${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}
@@ -185,7 +150,7 @@ fun WidgetScreen(
 
 private fun getGridItemLayoutInfo(
     page: Int,
-    appWidgetProviderInfo: AppWidgetProviderInfo,
+    appWidgetProviderInfo: EblanAppWidgetProviderInfo,
     rows: Int,
     columns: Int,
     appWidgetProviderInfoOffset: IntOffset,
@@ -195,7 +160,7 @@ private fun getGridItemLayoutInfo(
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getGridItemLayoutInfo(
             page = page,
-            componentName = appWidgetProviderInfo.provider.flattenToString(),
+            componentName = appWidgetProviderInfo.componentName,
             rows = rows,
             columns = columns,
             x = appWidgetProviderInfoOffset.x,
@@ -215,7 +180,7 @@ private fun getGridItemLayoutInfo(
     } else {
         getGridItemLayoutInfo(
             page = page,
-            componentName = appWidgetProviderInfo.provider.flattenToString(),
+            componentName = appWidgetProviderInfo.componentName,
             rows = rows,
             columns = columns,
             x = appWidgetProviderInfoOffset.x,

@@ -5,43 +5,54 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
-    AppWidgetManagerWrapper {
+internal class AndroidAppWidgetManagerWrapper @Inject constructor(
+    @ApplicationContext private val context: Context,
+) : AppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
     private val packageManager = context.packageManager
 
-    override fun getInstalledProviders(): List<AppWidgetProviderInfo> {
+    override suspend fun getInstalledProviders(): List<EblanAppWidgetProviderInfo> {
         return if (packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)) {
-            appWidgetManager.installedProviders
+            appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    EblanAppWidgetProviderInfo(
+                        packageName = appWidgetProviderInfo.provider.packageName,
+                        componentName = appWidgetProviderInfo.provider.flattenToString(),
+                        minWidth = appWidgetProviderInfo.minWidth,
+                        minHeight = appWidgetProviderInfo.minHeight,
+                        resizeMode = appWidgetProviderInfo.resizeMode,
+                        minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                        minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                        maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                        maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                        targetCellWidth = appWidgetProviderInfo.targetCellWidth,
+                        targetCellHeight = appWidgetProviderInfo.targetCellHeight,
+                    )
+                } else {
+                    EblanAppWidgetProviderInfo(
+                        packageName = appWidgetProviderInfo.provider.packageName,
+                        componentName = appWidgetProviderInfo.provider.flattenToString(),
+                        minWidth = appWidgetProviderInfo.minWidth,
+                        minHeight = appWidgetProviderInfo.minHeight,
+                        resizeMode = appWidgetProviderInfo.resizeMode,
+                        minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                        minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                        maxResizeWidth = 0,
+                        maxResizeHeight = 0,
+                        targetCellWidth = 0,
+                        targetCellHeight = 0,
+                    )
+                }
+            }
         } else {
             emptyList()
-        }
-    }
-
-    override suspend fun getInstalledProviderPackageNames(): List<String> {
-        return withContext(Dispatchers.Default) {
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)) {
-                appWidgetManager.installedProviders.map { it.provider.packageName }.distinct()
-            } else {
-                emptyList()
-            }
-        }
-    }
-
-    override suspend fun getInstalledProviderByPackageName(packageName: String): List<AppWidgetProviderInfo> {
-        return withContext(Dispatchers.Default) {
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)) {
-                appWidgetManager.installedProviders.filter { it.provider.packageName == packageName }
-            } else {
-                emptyList()
-            }
         }
     }
 

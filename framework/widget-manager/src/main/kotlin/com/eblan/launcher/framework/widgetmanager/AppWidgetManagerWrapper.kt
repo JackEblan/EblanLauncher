@@ -3,13 +3,10 @@ package com.eblan.launcher.framework.widgetmanager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.os.Bundle
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 
 interface AppWidgetManagerWrapper {
-    fun getInstalledProviders(): List<AppWidgetProviderInfo>
-
-    suspend fun getInstalledProviderPackageNames(): List<String>
-
-    suspend fun getInstalledProviderByPackageName(packageName: String): List<AppWidgetProviderInfo>
+    suspend fun getInstalledProviders(): List<EblanAppWidgetProviderInfo>
 
     fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo?
 

@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.appwidget.AppWidgetProviderInfo
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,6 +41,7 @@ import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -77,7 +77,7 @@ fun PagerScreen(
     rootHeight: Int,
     appDrawerColumns: Int,
     dragIntOffset: IntOffset,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    appWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
@@ -96,7 +96,7 @@ fun PagerScreen(
     onDragStart: () -> Unit,
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
-    onLongPressWidget: (ImageBitmap?) -> Unit,
+    onLongPressWidget: (String?) -> Unit,
     onDragStartWidget: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
 ) {
     val gridHorizontalPagerState = rememberPagerState(

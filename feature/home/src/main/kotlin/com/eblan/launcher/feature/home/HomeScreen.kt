@@ -374,8 +374,6 @@ fun Success(
                     onDragCancel = {
                         onResetGridCache()
 
-                        gridItemSource = null
-
                         showOverlay = false
                     },
                     onDragEnd = { newTargetPage ->
@@ -384,8 +382,6 @@ fun Success(
                         addNewPage = false
 
                         onResetGridCache()
-
-                        gridItemSource = null
 
                         showOverlay = false
                     },
@@ -415,16 +411,12 @@ fun Success(
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = {
-                        gridItemSource = null
-
-                        onResetGridCache()
-                    },
+                    onResizeEnd = onResetGridCache,
                 )
             }
         }
 
-        if (showOverlay && gridItemSource?.gridItemLayoutInfo != null) {
+        if (showOverlay) {
             GridItemOverlay(
                 preview = overlayImageBitmap,
                 overlayIntOffset = overlayIntOffset,

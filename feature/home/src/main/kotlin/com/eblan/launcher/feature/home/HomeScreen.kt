@@ -328,8 +328,6 @@ fun Success(
                     },
                     onLongPressWidget = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
-
-                        showOverlay = true
                     },
                     onDragStartWidget = { intOffset, intSize, gridItemLayoutInfo ->
                         overlayIntOffset = intOffset
@@ -342,6 +340,8 @@ fun Success(
                         )
 
                         addNewPage = true
+
+                        showOverlay = true
 
                         onShowGridCache(Screen.Drag)
                     },

@@ -371,10 +371,10 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = moveGridItem) {
-        snapshotFlow { moveGridItem }.debounce(500L).filterNotNull()
-            .onEach { (gridItem, rows, columns) ->
-                onMoveGridItem(gridItem, rows, columns)
-            }.collect()
+        moveGridItem?.let { (gridItem, rows, columns) ->
+            delay(500L)
+            onMoveGridItem(gridItem, rows, columns)
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {

@@ -95,10 +95,10 @@ private fun pixelDimensionsToGridSpan(
  * is adjusted so that a specific corner remains fixed.
  *
  * For example:
- * - [Anchor.TOP_START]: The top‑left corner remains fixed.
- * - [Anchor.TOP_END]: The top‑right corner remains fixed.
- * - [Anchor.BOTTOM_START]: The bottom‑left corner remains fixed.
- * - [Anchor.BOTTOM_END]: The bottom‑right corner remains fixed.
+ * - [Anchor.TopStart]: The top‑left corner remains fixed.
+ * - [Anchor.TopEnd]: The top‑right corner remains fixed.
+ * - [Anchor.BottomStart]: The bottom‑left corner remains fixed.
+ * - [Anchor.BottomEnd]: The bottom‑right corner remains fixed.
  *
  * @param gridItem The grid item to be resized.
  * @param newWidth The new desired width in grid cells (new column span).
@@ -116,24 +116,24 @@ private fun resizeGridItem(
     val newStartColumn: Int
 
     when (anchor) {
-        Anchor.TOP_START -> {
+        Anchor.TopStart -> {
             newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn
         }
 
-        Anchor.TOP_END -> {
+        Anchor.TopEnd -> {
             // Preserve the top-right corner.
             newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }
 
-        Anchor.BOTTOM_START -> {
+        Anchor.BottomStart -> {
             // Preserve the bottom-left corner.
             newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn
         }
 
-        Anchor.BOTTOM_END -> {
+        Anchor.BottomEnd -> {
             // Preserve the bottom-right corner.
             newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
@@ -174,22 +174,22 @@ private fun resizeGridItemWithSideAnchor(
     val newStartColumn: Int
 
     when (anchor) {
-        SideAnchor.TOP -> {
+        SideAnchor.Top -> {
             newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn
         }
 
-        SideAnchor.BOTTOM -> {
+        SideAnchor.Bottom -> {
             newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn
         }
 
-        SideAnchor.LEFT -> {
+        SideAnchor.Left -> {
             newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn
         }
 
-        SideAnchor.RIGHT -> {
+        SideAnchor.Right -> {
             newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }

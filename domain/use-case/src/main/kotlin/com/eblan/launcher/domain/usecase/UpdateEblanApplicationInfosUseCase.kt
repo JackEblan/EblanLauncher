@@ -1,0 +1,32 @@
+package com.eblan.launcher.domain.usecase
+
+import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import javax.inject.Inject
+
+class UpdateEblanApplicationInfosUseCase @Inject constructor(
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    private val packageManagerWrapper: PackageManagerWrapper,
+    private val fileManager: FileManager,
+) {
+    suspend operator fun invoke() {
+        val eblanApplicationInfos =
+            packageManagerWrapper.queryIntentActivities().map { packageManagerApplicationInfo ->
+                val icon = fileManager.writeIconBytes(
+                    iconsDirectory = fileManager.iconsDirectory,
+                    name = packageManagerApplicationInfo.packageName,
+                    icon = packageManagerApplicationInfo.icon,
+                )
+
+                EblanApplicationInfo(
+                    packageName = packageManagerApplicationInfo.packageName,
+                    icon = icon,
+                    label = packageManagerApplicationInfo.label,
+                )
+            }
+
+        eblanApplicationInfoRepository.upsertEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfos)
+    }
+}

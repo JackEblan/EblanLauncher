@@ -33,6 +33,10 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
             ?.toEblanApplicationInfo()
     }
 
+    override suspend fun deleteEblanApplication(packageName: String) {
+        eblanApplicationInfoDao.deleteEblanApplicationInfoEntity(packageName = packageName)
+    }
+
     private fun EblanApplicationInfoEntity.toEblanApplicationInfo(): EblanApplicationInfo {
         return EblanApplicationInfo(
             packageName = packageName,

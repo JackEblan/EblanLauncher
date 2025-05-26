@@ -64,8 +64,32 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getApplicationIcon(packageName: String): ByteArray? {
+        return withContext(Dispatchers.Default) {
+            try {
+                packageManager.getApplicationIcon(packageName).toByteArray()
+            } catch (e: PackageManager.NameNotFoundException) {
+                null
+            }
+        }
+    }
+
+    override suspend fun getApplicationLabel(packageName: String): String? {
+        return withContext(Dispatchers.Default) {
+            try {
+                val applicationInfo =
+                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+
+                packageManager.getApplicationLabel(applicationInfo).toString()
+
+            } catch (e: PackageManager.NameNotFoundException) {
+                null
+            }
+        }
+    }
+
     private suspend fun ApplicationInfo.toPackageManagerApplicationInfo(): PackageManagerApplicationInfo {
-        val byteArray = withContext(Dispatchers.IO) {
+        val byteArray = withContext(Dispatchers.Default) {
             loadIcon(packageManager).toByteArray()
         }
 

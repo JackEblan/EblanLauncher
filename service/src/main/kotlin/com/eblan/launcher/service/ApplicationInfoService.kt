@@ -6,7 +6,7 @@ import android.content.IntentFilter
 import android.os.IBinder
 import com.eblan.launcher.broadcastreceiver.PackageBroadcastReceiver
 import com.eblan.launcher.domain.common.qualifier.ApplicationScope
-import com.eblan.launcher.domain.usecase.WriteIconUseCase
+import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ApplicationInfoService : Service() {
     @Inject
-    lateinit var writeIconUseCase: WriteIconUseCase
+    lateinit var updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase
 
     @Inject
     @ApplicationScope
@@ -36,12 +36,15 @@ class ApplicationInfoService : Service() {
         val intentFilter = IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
         }
 
         registerReceiver(packageBroadcastReceiver, intentFilter)
 
+
         serviceJob = appScope.launch {
-            writeIconUseCase()
+            updateEblanApplicationInfosUseCase()
         }
 
         return super.onStartCommand(intent, flags, startId)

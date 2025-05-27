@@ -7,15 +7,20 @@ import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflictsWithShift(
     gridItems: MutableList<GridItem>,
-    gridItemShift: GridItemShift?,
+    oldGridItem: GridItem,
     movingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
+    val gridItemShift = getGridItemShift(
+        oldGridItem = oldGridItem,
+        movingGridItem = movingGridItem,
+    )
+
     return if (shiftConflicts(
             gridItems = gridItems,
             gridItemShift = gridItemShift,
-            movingItem = movingGridItem,
+            movingGridItem = movingGridItem,
             rows = rows,
             columns = columns,
         )
@@ -28,8 +33,8 @@ suspend fun resolveConflictsWithShift(
 
 private suspend fun shiftConflicts(
     gridItems: MutableList<GridItem>,
-    gridItemShift: GridItemShift?,
-    movingItem: GridItem,
+    gridItemShift: GridItemShift,
+    movingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): Boolean {
@@ -37,26 +42,27 @@ private suspend fun shiftConflicts(
         if (!coroutineContext.isActive) return false
 
         // Skip the moving grid item itself.
-        if (gridItem.id == movingItem.id) continue
+        if (gridItem.id == movingGridItem.id) continue
 
-        if (rectanglesOverlap(movingItem, gridItem)) {
+        if (rectanglesOverlap(movingGridItem, gridItem)) {
             val shiftedItem = shiftItem(
                 gridItemShift = gridItemShift,
-                movingGridItem = movingItem,
-                other = gridItem,
+                movingGridItem = movingGridItem,
+                conflictingGridItem = gridItem,
                 rows = rows,
                 columns = columns,
             ) ?: return false
 
             // Update the grid with the shifted item.
             val index = gridItems.indexOfFirst { it.id == gridItem.id }
+
             gridItems[index] = shiftedItem
 
             // Recursively resolve further conflicts from the shifted item.
             if (!shiftConflicts(
                     gridItems = gridItems,
                     gridItemShift = gridItemShift,
-                    movingItem = shiftedItem,
+                    movingGridItem = shiftedItem,
                     rows = rows,
                     columns = columns,
                 )
@@ -65,13 +71,14 @@ private suspend fun shiftConflicts(
             }
         }
     }
+
     return true
 }
 
 private fun shiftItem(
-    gridItemShift: GridItemShift?,
+    gridItemShift: GridItemShift,
     movingGridItem: GridItem,
-    other: GridItem,
+    conflictingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): GridItem? {
@@ -79,7 +86,7 @@ private fun shiftItem(
         GridItemShift.Up, GridItemShift.Left -> {
             shiftItemToLeft(
                 movingGridItem = movingGridItem,
-                other = other,
+                conflictingGridItem = conflictingGridItem,
                 rows = rows,
                 columns = columns,
             )
@@ -88,61 +95,82 @@ private fun shiftItem(
         GridItemShift.Down, GridItemShift.Right -> {
             shiftItemToRight(
                 movingGridItem = movingGridItem,
-                other = other,
+                conflictingGridItem = conflictingGridItem,
                 rows = rows,
                 columns = columns,
             )
-        }
-
-        null -> {
-            null
         }
     }
 }
 
 private fun shiftItemToRight(
     movingGridItem: GridItem,
-    other: GridItem,
+    conflictingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): GridItem? {
     var newColumn = movingGridItem.startColumn + movingGridItem.columnSpan
-    var newRow = other.startRow
+    var newRow = conflictingGridItem.startRow
 
     // Wrap horizontally if necessary.
-    if (newColumn + other.columnSpan > columns) {
+    if (newColumn + conflictingGridItem.columnSpan > columns) {
         newColumn = 0
         newRow = movingGridItem.startRow + movingGridItem.rowSpan
     }
 
     // Check vertical bounds.
-    if (newRow + other.rowSpan > rows) {
+    if (newRow + conflictingGridItem.rowSpan > rows) {
         return null // No space left.
     }
-    return other.copy(startRow = newRow, startColumn = newColumn)
+
+    return conflictingGridItem.copy(startRow = newRow, startColumn = newColumn)
 }
 
 private fun shiftItemToLeft(
     movingGridItem: GridItem,
-    other: GridItem,
+    conflictingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): GridItem? {
-    var newColumn = movingGridItem.startColumn - other.columnSpan
-    var newRow = other.startRow
+    var newColumn = movingGridItem.startColumn - conflictingGridItem.columnSpan
+    var newRow = conflictingGridItem.startRow
 
+    // Wrap horizontally if necessary
     if (newColumn < 0) {
-        newColumn = columns - other.columnSpan
-        newRow = other.startRow - 1
+        newColumn = columns - conflictingGridItem.columnSpan
+        newRow = conflictingGridItem.startRow - 1
     }
 
+    // Check vertical bounds
     if (newRow < 0) {
+        return null // No space left
+    }
+
+    if (newRow + conflictingGridItem.rowSpan > rows) {
         return null
     }
 
-    if (newRow + other.rowSpan > rows) {
-        return null
-    }
+    return conflictingGridItem.copy(startRow = newRow, startColumn = newColumn)
+}
 
-    return other.copy(startRow = newRow, startColumn = newColumn)
+private fun getGridItemShift(
+    oldGridItem: GridItem,
+    movingGridItem: GridItem,
+): GridItemShift {
+    val oldCenterRow = oldGridItem.startRow + oldGridItem.rowSpan / 2.0
+    val oldCenterColumn = oldGridItem.startColumn + oldGridItem.columnSpan / 2.0
+
+    val newCenterRow = movingGridItem.startRow + movingGridItem.rowSpan / 2.0
+    val newCenterColumn = movingGridItem.startColumn + movingGridItem.columnSpan / 2.0
+
+    val rowDiff = newCenterRow - oldCenterRow
+    val columnDiff = newCenterColumn - oldCenterColumn
+
+    return when {
+        rowDiff < 0 -> GridItemShift.Up
+        rowDiff > 0 -> GridItemShift.Down
+        columnDiff < 0 -> GridItemShift.Left
+        columnDiff > 0 -> GridItemShift.Right
+        else -> GridItemShift.Right
+    }
 }

@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home
 
-import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -45,14 +45,15 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.WidgetUiState
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -66,9 +67,9 @@ fun HomeRoute(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
-    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+    val applicationUiState by viewModel.applicationUiState.collectAsStateWithLifecycle()
 
-    val appWidgetProviderInfos by viewModel.appWidgetProviderInfos.collectAsStateWithLifecycle()
+    val widgetUiState by viewModel.widgetUiState.collectAsStateWithLifecycle()
 
     val screen by viewModel.screen.collectAsStateWithLifecycle()
 
@@ -78,8 +79,8 @@ fun HomeRoute(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
-        eblanApplicationInfos = eblanApplicationInfos,
-        appWidgetProviderInfos = appWidgetProviderInfos,
+        applicationUiState = applicationUiState,
+        widgetUiState = widgetUiState,
         shiftedAlgorithm = shiftedAlgorithm,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -98,8 +99,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeUiState: HomeUiState,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    applicationUiState: ApplicationUiState,
+    widgetUiState: WidgetUiState,
     shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
         gridItem: GridItem,
@@ -132,7 +133,7 @@ fun HomeScreen(
         ) {
             when (homeUiState) {
                 HomeUiState.Loading -> {
-
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
                 is HomeUiState.Success -> {
@@ -140,8 +141,8 @@ fun HomeScreen(
                         screen = screen,
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
-                        eblanApplicationInfos = eblanApplicationInfos,
-                        appWidgetProviderInfos = appWidgetProviderInfos,
+                        applicationUiState = applicationUiState,
+                        widgetUiState = widgetUiState,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
@@ -169,8 +170,8 @@ fun Success(
     screen: Screen,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    applicationUiState: ApplicationUiState,
+    widgetUiState: WidgetUiState,
     rootWidth: Int,
     rootHeight: Int,
     dockGridItems: List<GridItem>,
@@ -263,12 +264,12 @@ fun Success(
                     drag = drag,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
-                    eblanApplicationInfos = eblanApplicationInfos,
+                    applicationUiState = applicationUiState,
+                    widgetUiState = widgetUiState,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerColumns,
                     dragIntOffset = dragIntOffset,
-                    appWidgetProviderInfos = appWidgetProviderInfos,
                     onLongPressGrid = { currentPage ->
                         targetPage = currentPage
 

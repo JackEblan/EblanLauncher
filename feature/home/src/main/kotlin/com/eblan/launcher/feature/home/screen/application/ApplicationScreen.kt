@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,11 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
+import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
@@ -64,7 +65,7 @@ fun ApplicationScreen(
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    applicationUiState: ApplicationUiState,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
@@ -124,116 +125,125 @@ fun ApplicationScreen(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(appDrawerColumns),
-            modifier = Modifier.fillMaxSize(),
-            state = gridState,
-        ) {
-            items(eblanApplicationInfos) { eblanApplicationInfo ->
-                val graphicsLayer = rememberGraphicsLayer()
+        when (applicationUiState) {
+            ApplicationUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
 
-                var intSize by remember { mutableStateOf(IntSize.Zero) }
+            is ApplicationUiState.Success -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(appDrawerColumns),
+                    modifier = Modifier.fillMaxSize(),
+                    state = gridState,
+                ) {
+                    items(applicationUiState.eblanApplicationInfos) { eblanApplicationInfo ->
+                        val graphicsLayer = rememberGraphicsLayer()
 
-                var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+                        var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-                Column(
-                    modifier = Modifier
-                        .drawWithContent {
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-                            drawLayer(graphicsLayer)
-                        }
-                        .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown()
+                        var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-                                val longPress = awaitLongPressOrCancellation(pointerId = down.id)
+                        Column(
+                            modifier = Modifier
+                                .drawWithContent {
+                                    graphicsLayer.record {
+                                        this@drawWithContent.drawContent()
+                                    }
+                                    drawLayer(graphicsLayer)
+                                }
+                                .pointerInput(Unit) {
+                                    awaitEachGesture {
+                                        val down = awaitFirstDown()
 
-                                if (longPress != null) {
-                                    scope.launch {
-                                        val data = GridItemData.ApplicationInfo(
-                                            packageName = eblanApplicationInfo.packageName,
-                                            icon = eblanApplicationInfo.icon,
-                                            label = eblanApplicationInfo.label,
-                                        )
+                                        val longPress =
+                                            awaitLongPressOrCancellation(pointerId = down.id)
 
-                                        val gridItemLayoutInfo = getGridItemLayoutInfo(
-                                            page = horizontalPage,
-                                            rows = rows,
-                                            columns = columns,
-                                            x = intOffset.x,
-                                            y = intOffset.y,
-                                            gridWidth = rootWidth,
-                                            gridHeight = rootHeight - dockHeight,
-                                            data = data,
-                                        )
+                                        if (longPress != null) {
+                                            scope.launch {
+                                                val data = GridItemData.ApplicationInfo(
+                                                    packageName = eblanApplicationInfo.packageName,
+                                                    icon = eblanApplicationInfo.icon,
+                                                    label = eblanApplicationInfo.label,
+                                                )
 
-                                        selectedIntOffset = intOffset
+                                                val gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                    page = horizontalPage,
+                                                    rows = rows,
+                                                    columns = columns,
+                                                    x = intOffset.x,
+                                                    y = intOffset.y,
+                                                    gridWidth = rootWidth,
+                                                    gridHeight = rootHeight - dockHeight,
+                                                    data = data,
+                                                )
 
-                                        selectedIntSize = intSize
+                                                selectedIntOffset = intOffset
 
-                                        selectedGridItemLayoutInfo = gridItemLayoutInfo
+                                                selectedIntSize = intSize
 
-                                        onLongPressApplicationInfo(
-                                            horizontalPage,
-                                            graphicsLayer.toImageBitmap(),
-                                            intOffset,
-                                            intSize,
-                                            gridItemLayoutInfo,
-                                        )
+                                                selectedGridItemLayoutInfo = gridItemLayoutInfo
+
+                                                onLongPressApplicationInfo(
+                                                    horizontalPage,
+                                                    graphicsLayer.toImageBitmap(),
+                                                    intOffset,
+                                                    intSize,
+                                                    gridItemLayoutInfo,
+                                                )
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
-                        .onSizeChanged {
-                            intSize = it
-                        }
-                        .onGloballyPositioned {
-                            intOffset = it.positionInParent().round()
-                        }
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Spacer(modifier = Modifier.height(5.dp))
+                                .onSizeChanged {
+                                    intSize = it
+                                }
+                                .onGloballyPositioned {
+                                    intOffset = it.positionInParent().round()
+                                }
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Spacer(modifier = Modifier.height(5.dp))
 
-                    AsyncImage(
-                        model = eblanApplicationInfo.icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp, 40.dp),
+                            AsyncImage(
+                                model = eblanApplicationInfo.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp, 40.dp),
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = eblanApplicationInfo.label,
+                                color = color,
+                                textAlign = TextAlign.Center,
+                                fontSize = TextUnit(
+                                    value = 10f,
+                                    type = TextUnitType.Sp,
+                                ),
+                            )
+
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
+                    }
+                }
+
+                if (showMenu) {
+                    GridItemMenu(
+                        x = selectedIntOffset.x,
+                        y = selectedIntOffset.y,
+                        width = selectedIntSize.width,
+                        height = selectedIntSize.height,
+                        onDismissRequest = {
+                            showMenu = false
+                        },
+                        content = {
+                            ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
+                        },
                     )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = eblanApplicationInfo.label,
-                        color = color,
-                        textAlign = TextAlign.Center,
-                        fontSize = TextUnit(
-                            value = 10f,
-                            type = TextUnitType.Sp,
-                        ),
-                    )
-
-                    Spacer(modifier = Modifier.height(5.dp))
                 }
             }
-        }
-
-        if (showMenu) {
-            GridItemMenu(
-                x = selectedIntOffset.x,
-                y = selectedIntOffset.y,
-                width = selectedIntSize.width,
-                height = selectedIntSize.height,
-                onDismissRequest = {
-                    showMenu = false
-                },
-                content = {
-                    ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
-                },
-            )
         }
     }
 }

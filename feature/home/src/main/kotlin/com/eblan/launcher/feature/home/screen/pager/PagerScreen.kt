@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.appwidget.AppWidgetProviderInfo
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,15 +41,16 @@ import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuPositionProvider
+import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.WidgetUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -72,12 +72,12 @@ fun PagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    applicationUiState: ApplicationUiState,
+    widgetUiState: WidgetUiState,
     rootWidth: Int,
     rootHeight: Int,
     appDrawerColumns: Int,
     dragIntOffset: IntOffset,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
@@ -170,7 +170,7 @@ fun PagerScreen(
                                 appDrawerColumns = appDrawerColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
-                                eblanApplicationInfos = eblanApplicationInfos,
+                                applicationUiState = applicationUiState,
                                 rootWidth = rootWidth,
                                 dockHeight = dockHeight,
                                 drag = drag,
@@ -190,7 +190,7 @@ fun PagerScreen(
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 dragIntOffset = dragIntOffset,
-                                appWidgetProviderInfos = appWidgetProviderInfos,
+                                widgetUiState = widgetUiState,
                                 rootWidth = rootWidth,
                                 rootHeight = rootHeight,
                                 dockHeight = dockHeight,
@@ -360,7 +360,7 @@ private fun HorizontalPagerScreen(
                         onLongPress = { preview ->
                             onLongPressedGridItem(
                                 horizontalPage,
-                                (gridItems[horizontalPage]?.size ?: 0) > 1,
+                                !gridItems[horizontalPage].isNullOrEmpty(),
                                 preview,
                                 GridItemLayoutInfo(
                                     gridItem = dockGridItem,
@@ -380,7 +380,7 @@ private fun HorizontalPagerScreen(
                         onLongPress = { preview ->
                             onLongPressedGridItem(
                                 horizontalPage,
-                                (gridItems[horizontalPage]?.size ?: 0) > 1,
+                                !gridItems[horizontalPage].isNullOrEmpty(),
                                 preview,
                                 GridItemLayoutInfo(
                                     gridItem = dockGridItem,

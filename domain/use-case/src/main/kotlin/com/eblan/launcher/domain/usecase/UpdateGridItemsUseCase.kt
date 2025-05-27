@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -19,8 +20,12 @@ class UpdateGridItemsUseCase @Inject constructor(
         var pageCount = userDataRepository.userData.first().pageCount
 
         withContext(Dispatchers.Default) {
+            val gridCacheItemsByAssociateGrid = gridCacheItems.filter { gridItem ->
+                gridItem.associate == Associate.Grid
+            }
+
             val lastPageIsNullOrEmpty =
-                gridCacheItems.groupBy { gridItem -> gridItem.page }[pageCount - 1].isNullOrEmpty()
+                gridCacheItemsByAssociateGrid.groupBy { gridItem -> gridItem.page }[pageCount - 1].isNullOrEmpty()
 
             if (lastPageIsNullOrEmpty) {
                 pageCount -= 1
@@ -28,7 +33,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                 userDataRepository.updatePageCount(pageCount)
             }
 
-            val hasNewPage = gridCacheItems.maxOf { gridItem -> gridItem.page } > pageCount - 1
+            val hasNewPage =
+                gridCacheItemsByAssociateGrid.maxOf { gridItem -> gridItem.page } > pageCount - 1
 
             if (hasNewPage) {
                 userDataRepository.updatePageCount(pageCount + 1)

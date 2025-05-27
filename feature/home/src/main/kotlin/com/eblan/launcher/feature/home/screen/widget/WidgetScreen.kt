@@ -3,12 +3,14 @@ package com.eblan.launcher.feature.home.screen.widget
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Build
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.WidgetUiState
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -50,7 +52,7 @@ fun WidgetScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     dragIntOffset: IntOffset,
-    appWidgetProviderInfos: Map<EblanApplicationInfo, List<AppWidgetProviderInfo>>,
+    widgetUiState: WidgetUiState,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
@@ -65,7 +67,7 @@ fun WidgetScreen(
 ) {
     val context = LocalContext.current
 
-    var providerInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
+    var selectedAppWidgetProviderInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -73,113 +75,154 @@ fun WidgetScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && providerInfo != null) {
-            val page = calculatePage(
-                index = currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-            )
-
-            val gridItemLayoutInfo = getGridItemLayoutInfo(
-                page = page,
-                appWidgetProviderInfo = providerInfo!!,
-                rows = rows,
-                columns = columns,
-                appWidgetProviderInfoOffset = dragIntOffset,
-                gridWidth = rootWidth,
-                gridHeight = rootHeight - dockHeight,
-            )
-
-            val intOffset = IntOffset(
-                x = dragIntOffset.x - gridItemLayoutInfo.width / 2,
-                y = dragIntOffset.y - gridItemLayoutInfo.height / 2,
-            )
-
-            val intSize = IntSize(
-                gridItemLayoutInfo.width,
-                gridItemLayoutInfo.height,
-            )
-
-            onDragStart(
-                intOffset,
-                intSize,
-                gridItemLayoutInfo,
-            )
-        }
+        handleDrag(
+            drag = drag,
+            selectedAppWidgetProviderInfo = selectedAppWidgetProviderInfo,
+            currentPage = currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+            rows = rows,
+            columns = columns,
+            dragIntOffset = dragIntOffset,
+            rootWidth = rootWidth,
+            rootHeight = rootHeight,
+            dockHeight = dockHeight,
+            onDragStart = onDragStart,
+        )
     }
 
-    LazyColumn(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        items(appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                AsyncImage(
-                    model = eblanApplicationInfo.icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                )
+    Box(modifier = modifier.fillMaxSize()) {
+        when (widgetUiState) {
+            WidgetUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
 
-                Text(
-                    text = eblanApplicationInfo.label,
-                )
+            is WidgetUiState.Success -> {
+                LazyColumn(
+                    modifier = modifier.fillMaxWidth(),
+                ) {
+                    items(widgetUiState.appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            AsyncImage(
+                                model = eblanApplicationInfo.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                            )
 
-                appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
-                    val drawable = remember {
-                        appWidgetProviderInfo.loadPreviewImage(
-                            context,
-                            0,
-                        ) ?: appWidgetProviderInfo.loadIcon(
-                            context,
-                            0,
-                        )
-                    }
+                            Text(
+                                text = eblanApplicationInfo.label,
+                            )
 
-                    AsyncImage(
-                        modifier = Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        providerInfo = appWidgetProviderInfo
+                            widgetUiState.appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
+                                val drawable = remember {
+                                    appWidgetProviderInfo.loadPreviewImage(
+                                        context,
+                                        0,
+                                    ) ?: appWidgetProviderInfo.loadIcon(
+                                        context,
+                                        0,
+                                    )
+                                }
 
-                                        onLongPressWidget(
-                                            drawable?.toBitmapOrNull()?.asImageBitmap(),
-                                        )
-                                    },
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onLongPress = {
+                                                    selectedAppWidgetProviderInfo =
+                                                        appWidgetProviderInfo
+
+                                                    onLongPressWidget(
+                                                        drawable?.toBitmapOrNull()?.asImageBitmap(),
+                                                    )
+                                                },
+                                            )
+                                        }
+                                        .fillMaxWidth(fraction = 0.5f),
+                                    model = drawable,
+                                    contentDescription = null,
                                 )
-                            }
-                            .fillMaxWidth(fraction = 0.5f),
-                        model = drawable,
-                        contentDescription = null,
-                    )
 
-                    val infoText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        """
+                                val infoText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    """
     ${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}
     MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}
     ResizeMode = ${appWidgetProviderInfo.resizeMode}
     MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}
     MaxResizeWidth = ${appWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${appWidgetProviderInfo.maxResizeHeight}
     """.trimIndent()
-                    } else {
-                        """
+                                } else {
+                                    """
     MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}
     ResizeMode = ${appWidgetProviderInfo.resizeMode}
     MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}
     """.trimIndent()
-                    }
+                                }
 
-                    Text(
-                        text = infoText,
-                        color = color,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                                Text(
+                                    text = infoText,
+                                    color = color,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+private fun handleDrag(
+    drag: Drag,
+    selectedAppWidgetProviderInfo: AppWidgetProviderInfo?,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+    rows: Int,
+    columns: Int,
+    dragIntOffset: IntOffset,
+    rootWidth: Int,
+    rootHeight: Int,
+    dockHeight: Int,
+    onDragStart: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
+) {
+    if (drag == Drag.Start && selectedAppWidgetProviderInfo != null) {
+        val page = calculatePage(
+            index = currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+        )
+
+        val gridItemLayoutInfo = getGridItemLayoutInfo(
+            page = page,
+            appWidgetProviderInfo = selectedAppWidgetProviderInfo,
+            rows = rows,
+            columns = columns,
+            appWidgetProviderInfoOffset = dragIntOffset,
+            gridWidth = rootWidth,
+            gridHeight = rootHeight - dockHeight,
+        )
+
+        val intOffset = IntOffset(
+            x = dragIntOffset.x - gridItemLayoutInfo.width / 2,
+            y = dragIntOffset.y - gridItemLayoutInfo.height / 2,
+        )
+
+        val intSize = IntSize(
+            gridItemLayoutInfo.width,
+            gridItemLayoutInfo.height,
+        )
+
+        onDragStart(
+            intOffset,
+            intSize,
+            gridItemLayoutInfo,
+        )
     }
 }
 

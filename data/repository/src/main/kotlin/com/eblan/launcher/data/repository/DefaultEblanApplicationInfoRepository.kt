@@ -4,7 +4,9 @@ import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultEblanApplicationInfoRepository @Inject constructor(private val eblanApplicationInfoDao: EblanApplicationInfoDao) :
@@ -17,10 +19,11 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         }
 
     override suspend fun upsertEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
-        val entities = eblanApplicationInfos.map { eblanApplicationInfo ->
-            eblanApplicationInfo.toEblanApplicationInfoEntity()
+        val entities = withContext(Dispatchers.Default) {
+            eblanApplicationInfos.map { eblanApplicationInfo ->
+                eblanApplicationInfo.toEblanApplicationInfoEntity()
+            }
         }
-
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntities(entities = entities)
     }
 
@@ -33,8 +36,12 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
             ?.toEblanApplicationInfo()
     }
 
-    override suspend fun deleteEblanApplication(packageName: String) {
+    override suspend fun deleteEblanApplicationInfoByPackageName(packageName: String) {
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntity(packageName = packageName)
+    }
+
+    override suspend fun deleteEblanApplicationInfosNotInPackageNames(packageNames: List<String>) {
+        eblanApplicationInfoDao.deleteEblanApplicationInfoEntitiesNotInPackageNames(packageNames = packageNames)
     }
 
     private fun EblanApplicationInfoEntity.toEblanApplicationInfo(): EblanApplicationInfo {

@@ -4,6 +4,9 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateEblanApplicationInfosUseCase @Inject constructor(
@@ -12,7 +15,9 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
     private val fileManager: FileManager,
 ) {
     suspend operator fun invoke() {
-        val eblanApplicationInfos =
+        val oldEblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()
+
+        val newEblanApplicationInfos =
             packageManagerWrapper.queryIntentActivities().map { packageManagerApplicationInfo ->
                 val icon = fileManager.writeIconBytes(
                     iconsDirectory = fileManager.iconsDirectory,
@@ -27,6 +32,16 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                 )
             }
 
-        eblanApplicationInfoRepository.upsertEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfos)
+        val newEblanApplicationInfosByPackageName = withContext(Dispatchers.Default) {
+            newEblanApplicationInfos.map { eblanApplicationInfo ->
+                eblanApplicationInfo.packageName
+            }
+        }
+
+        if (oldEblanApplicationInfos != newEblanApplicationInfos) {
+            eblanApplicationInfoRepository.upsertEblanApplicationInfos(eblanApplicationInfos = newEblanApplicationInfos)
+
+            eblanApplicationInfoRepository.deleteEblanApplicationInfosNotInPackageNames(packageNames = newEblanApplicationInfosByPackageName)
+        }
     }
 }

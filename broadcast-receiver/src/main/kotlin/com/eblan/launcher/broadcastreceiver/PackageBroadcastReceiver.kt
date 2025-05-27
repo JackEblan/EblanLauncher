@@ -64,7 +64,7 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
                     val isReplacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
 
                     if (!isReplacing) {
-                        eblanApplicationInfoRepository.deleteEblanApplication(packageName = packageName)
+                        eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(packageName = packageName)
                     }
                 }
 

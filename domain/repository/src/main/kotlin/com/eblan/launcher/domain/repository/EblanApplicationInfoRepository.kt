@@ -12,5 +12,7 @@ interface EblanApplicationInfoRepository {
 
     suspend fun getEblanApplicationInfo(packageName: String): EblanApplicationInfo?
 
-    suspend fun deleteEblanApplication(packageName: String)
+    suspend fun deleteEblanApplicationInfoByPackageName(packageName: String)
+
+    suspend fun deleteEblanApplicationInfosNotInPackageNames(packageNames: List<String>)
 }

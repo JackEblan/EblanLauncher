@@ -38,13 +38,15 @@ class ApplicationInfoService : Service() {
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addAction(Intent.ACTION_PACKAGE_CHANGED)
             addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
         }
 
         registerReceiver(packageBroadcastReceiver, intentFilter)
 
-
-        serviceJob = appScope.launch {
-            updateEblanApplicationInfosUseCase()
+        appScope.launch {
+            serviceJob = launch {
+                updateEblanApplicationInfosUseCase()
+            }
         }
 
         return super.onStartCommand(intent, flags, startId)

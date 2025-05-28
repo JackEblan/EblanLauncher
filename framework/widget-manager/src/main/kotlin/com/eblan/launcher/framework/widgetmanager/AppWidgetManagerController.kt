@@ -4,13 +4,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.os.Bundle
 
-interface AppWidgetManagerWrapper {
-    fun getInstalledProviders(): List<AppWidgetProviderInfo>
-
-    suspend fun getInstalledProviderPackageNames(): List<String>
-
-    suspend fun getInstalledProviderByPackageName(packageName: String): List<AppWidgetProviderInfo>
-
+interface AppWidgetManagerController {
     fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo?
 
     fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean

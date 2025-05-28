@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4a9784e8bdcd9260ae56cc333f860d0a",
+    "identityHash": "9fdd848a555028fb6dd5cdf2f6625bc8",
     "entities": [
       {
         "tableName": "GridItemEntity",
@@ -97,12 +97,116 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "EblanAppWidgetProviderInfoEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, PRIMARY KEY(`className`))",
+        "fields": [
+          {
+            "fieldPath": "className",
+            "columnName": "className",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componentName",
+            "columnName": "componentName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetCellWidth",
+            "columnName": "targetCellWidth",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetCellHeight",
+            "columnName": "targetCellHeight",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minWidth",
+            "columnName": "minWidth",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minHeight",
+            "columnName": "minHeight",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resizeMode",
+            "columnName": "resizeMode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minResizeWidth",
+            "columnName": "minResizeWidth",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minResizeHeight",
+            "columnName": "minResizeHeight",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxResizeWidth",
+            "columnName": "maxResizeWidth",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxResizeHeight",
+            "columnName": "maxResizeHeight",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "preview",
+            "columnName": "preview",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eblanApplicationInfo.packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eblanApplicationInfo.icon",
+            "columnName": "icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eblanApplicationInfo.label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "className"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a9784e8bdcd9260ae56cc333f860d0a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9fdd848a555028fb6dd5cdf2f6625bc8')"
     ]
   }
 }

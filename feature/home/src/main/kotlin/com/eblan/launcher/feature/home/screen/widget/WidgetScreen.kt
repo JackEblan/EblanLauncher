@@ -1,6 +1,6 @@
 package com.eblan.launcher.feature.home.screen.widget
 
-import android.appwidget.AppWidgetProviderInfo
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -30,15 +30,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmapOrNull
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.feature.home.model.WidgetUiState
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -52,7 +55,7 @@ fun WidgetScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     dragIntOffset: IntOffset,
-    widgetUiState: WidgetUiState,
+    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
@@ -65,9 +68,11 @@ fun WidgetScreen(
         GridItemLayoutInfo,
     ) -> Unit,
 ) {
-    val context = LocalContext.current
-
-    var selectedAppWidgetProviderInfo by remember { mutableStateOf<AppWidgetProviderInfo?>(null) }
+    var selectedEblanAppWidgetProviderInfo by remember {
+        mutableStateOf<EblanAppWidgetProviderInfo?>(
+            null,
+        )
+    }
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -77,7 +82,7 @@ fun WidgetScreen(
     LaunchedEffect(key1 = drag) {
         handleDrag(
             drag = drag,
-            selectedAppWidgetProviderInfo = selectedAppWidgetProviderInfo,
+            selectedEblanAppWidgetProviderInfo = selectedEblanAppWidgetProviderInfo,
             currentPage = currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
@@ -92,16 +97,16 @@ fun WidgetScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        when (widgetUiState) {
-            WidgetUiState.Loading -> {
+        when {
+            eblanAppWidgetProviderInfosByGroup.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
-            is WidgetUiState.Success -> {
+            else -> {
                 LazyColumn(
                     modifier = modifier.fillMaxWidth(),
                 ) {
-                    items(widgetUiState.appWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
+                    items(eblanAppWidgetProviderInfosByGroup.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,17 +119,34 @@ fun WidgetScreen(
 
                             Text(
                                 text = eblanApplicationInfo.label,
+                                color = color,
                             )
 
-                            widgetUiState.appWidgetProviderInfos[eblanApplicationInfo]?.forEach { appWidgetProviderInfo ->
-                                val drawable = remember {
-                                    appWidgetProviderInfo.loadPreviewImage(
-                                        context,
-                                        0,
-                                    ) ?: appWidgetProviderInfo.loadIcon(
-                                        context,
-                                        0,
-                                    )
+                            eblanAppWidgetProviderInfosByGroup[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
+                                var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
+                                val context = LocalContext.current
+
+                                val preview = eblanAppWidgetProviderInfo.preview
+                                    ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
+
+                                LaunchedEffect(key1 = preview) {
+                                    val loader = ImageLoader(context)
+
+                                    val request = ImageRequest.Builder(context)
+                                        .data(preview)
+                                        .allowHardware(false)
+                                        .build()
+
+                                    val result = loader.execute(request)
+
+                                    if (result is SuccessResult) {
+                                        val drawable = result.drawable
+                                        val bitmap =
+                                            (drawable as BitmapDrawable).bitmap
+
+                                        imageBitmap = bitmap.asImageBitmap()
+                                    }
                                 }
 
                                 AsyncImage(
@@ -132,33 +154,31 @@ fun WidgetScreen(
                                         .pointerInput(Unit) {
                                             detectTapGestures(
                                                 onLongPress = {
-                                                    selectedAppWidgetProviderInfo =
-                                                        appWidgetProviderInfo
+                                                    selectedEblanAppWidgetProviderInfo =
+                                                        eblanAppWidgetProviderInfo
 
-                                                    onLongPressWidget(
-                                                        drawable?.toBitmapOrNull()?.asImageBitmap(),
-                                                    )
+                                                    onLongPressWidget(imageBitmap)
                                                 },
                                             )
                                         }
                                         .fillMaxWidth(fraction = 0.5f),
-                                    model = drawable,
+                                    model = preview,
                                     contentDescription = null,
                                 )
 
                                 val infoText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                     """
-    ${appWidgetProviderInfo.targetCellWidth}x${appWidgetProviderInfo.targetCellHeight}
-    MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}
-    ResizeMode = ${appWidgetProviderInfo.resizeMode}
-    MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}
-    MaxResizeWidth = ${appWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${appWidgetProviderInfo.maxResizeHeight}
+    ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}
+    MinWidth = ${eblanAppWidgetProviderInfo.minWidth} MinHeight = ${eblanAppWidgetProviderInfo.minHeight}
+    ResizeMode = ${eblanAppWidgetProviderInfo.resizeMode}
+    MinResizeWidth = ${eblanAppWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${eblanAppWidgetProviderInfo.minResizeHeight}
+    MaxResizeWidth = ${eblanAppWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${eblanAppWidgetProviderInfo.maxResizeHeight}
     """.trimIndent()
                                 } else {
                                     """
-    MinWidth = ${appWidgetProviderInfo.minWidth} MinHeight = ${appWidgetProviderInfo.minHeight}
-    ResizeMode = ${appWidgetProviderInfo.resizeMode}
-    MinResizeWidth = ${appWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${appWidgetProviderInfo.minResizeHeight}
+    MinWidth = ${eblanAppWidgetProviderInfo.minWidth} MinHeight = ${eblanAppWidgetProviderInfo.minHeight}
+    ResizeMode = ${eblanAppWidgetProviderInfo.resizeMode}
+    MinResizeWidth = ${eblanAppWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${eblanAppWidgetProviderInfo.minResizeHeight}
     """.trimIndent()
                                 }
 
@@ -179,7 +199,7 @@ fun WidgetScreen(
 
 private fun handleDrag(
     drag: Drag,
-    selectedAppWidgetProviderInfo: AppWidgetProviderInfo?,
+    selectedEblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo?,
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
@@ -191,7 +211,7 @@ private fun handleDrag(
     dockHeight: Int,
     onDragStart: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
 ) {
-    if (drag == Drag.Start && selectedAppWidgetProviderInfo != null) {
+    if (drag == Drag.Start && selectedEblanAppWidgetProviderInfo != null) {
         val page = calculatePage(
             index = currentPage,
             infiniteScroll = infiniteScroll,
@@ -200,7 +220,7 @@ private fun handleDrag(
 
         val gridItemLayoutInfo = getGridItemLayoutInfo(
             page = page,
-            appWidgetProviderInfo = selectedAppWidgetProviderInfo,
+            eblanAppWidgetProviderInfo = selectedEblanAppWidgetProviderInfo,
             rows = rows,
             columns = columns,
             appWidgetProviderInfoOffset = dragIntOffset,
@@ -228,7 +248,7 @@ private fun handleDrag(
 
 private fun getGridItemLayoutInfo(
     page: Int,
-    appWidgetProviderInfo: AppWidgetProviderInfo,
+    eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     rows: Int,
     columns: Int,
     appWidgetProviderInfoOffset: IntOffset,
@@ -238,38 +258,38 @@ private fun getGridItemLayoutInfo(
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getGridItemLayoutInfo(
             page = page,
-            componentName = appWidgetProviderInfo.provider.flattenToString(),
+            componentName = eblanAppWidgetProviderInfo.componentName,
             rows = rows,
             columns = columns,
             x = appWidgetProviderInfoOffset.x,
             y = appWidgetProviderInfoOffset.y,
-            rowSpan = appWidgetProviderInfo.targetCellHeight,
-            columnSpan = appWidgetProviderInfo.targetCellWidth,
-            minWidth = appWidgetProviderInfo.minWidth,
-            minHeight = appWidgetProviderInfo.minHeight,
-            resizeMode = appWidgetProviderInfo.resizeMode,
-            minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-            minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-            maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
-            maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+            rowSpan = eblanAppWidgetProviderInfo.targetCellHeight,
+            columnSpan = eblanAppWidgetProviderInfo.targetCellWidth,
+            minWidth = eblanAppWidgetProviderInfo.minWidth,
+            minHeight = eblanAppWidgetProviderInfo.minHeight,
+            resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+            minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+            minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+            maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+            maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
             gridWidth = gridWidth,
             gridHeight = gridHeight,
         )
     } else {
         getGridItemLayoutInfo(
             page = page,
-            componentName = appWidgetProviderInfo.provider.flattenToString(),
+            componentName = eblanAppWidgetProviderInfo.componentName,
             rows = rows,
             columns = columns,
             x = appWidgetProviderInfoOffset.x,
             y = appWidgetProviderInfoOffset.y,
             rowSpan = 0,
             columnSpan = 0,
-            minWidth = appWidgetProviderInfo.minWidth,
-            minHeight = appWidgetProviderInfo.minHeight,
-            resizeMode = appWidgetProviderInfo.resizeMode,
-            minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-            minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+            minWidth = eblanAppWidgetProviderInfo.minWidth,
+            minHeight = eblanAppWidgetProviderInfo.minHeight,
+            resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+            minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+            minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
             maxResizeWidth = 0,
             maxResizeHeight = 0,
             gridWidth = gridWidth,

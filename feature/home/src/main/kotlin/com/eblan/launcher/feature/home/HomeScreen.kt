@@ -45,15 +45,15 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.model.WidgetUiState
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -67,11 +67,11 @@ fun HomeRoute(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
-    val applicationUiState by viewModel.applicationUiState.collectAsStateWithLifecycle()
-
-    val widgetUiState by viewModel.widgetUiState.collectAsStateWithLifecycle()
-
     val screen by viewModel.screen.collectAsStateWithLifecycle()
+
+    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
+
+    val eblanAppWidgetProviderInfosByGroup by viewModel.eblanAppWidgetProviderInfosByGroup.collectAsStateWithLifecycle()
 
     val shiftedAlgorithm by viewModel.shiftedAlgorithm.collectAsStateWithLifecycle()
 
@@ -79,8 +79,8 @@ fun HomeRoute(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
-        applicationUiState = applicationUiState,
-        widgetUiState = widgetUiState,
+        eblanApplicationInfos = eblanApplicationInfos,
+        eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
         shiftedAlgorithm = shiftedAlgorithm,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -99,8 +99,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeUiState: HomeUiState,
-    applicationUiState: ApplicationUiState,
-    widgetUiState: WidgetUiState,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
         gridItem: GridItem,
@@ -141,8 +141,8 @@ fun HomeScreen(
                         screen = screen,
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
-                        applicationUiState = applicationUiState,
-                        widgetUiState = widgetUiState,
+                        eblanApplicationInfos = eblanApplicationInfos,
+                        eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
@@ -170,8 +170,8 @@ fun Success(
     screen: Screen,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
-    applicationUiState: ApplicationUiState,
-    widgetUiState: WidgetUiState,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     rootWidth: Int,
     rootHeight: Int,
     dockGridItems: List<GridItem>,
@@ -264,8 +264,8 @@ fun Success(
                     drag = drag,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
-                    applicationUiState = applicationUiState,
-                    widgetUiState = widgetUiState,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerColumns,

@@ -6,6 +6,6 @@ sealed interface HomeUiState {
     data object Loading : HomeUiState
 
     data class Success(
-        val gridItemsByPage: GridItemsByPage
+        val gridItemsByPage: GridItemsByPage,
     ) : HomeUiState
 }

@@ -19,25 +19,31 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
         }
     }
 
-    override suspend fun writeIconBytes(
-        iconsDirectory: File,
+    override val previewsDirectory: File by lazy {
+        File(context.filesDir, "previews").apply {
+            if (!exists()) mkdirs()
+        }
+    }
+
+    override suspend fun writeFileBytes(
+        directory: File,
         name: String,
-        icon: ByteArray?,
+        byteArray: ByteArray,
     ): String? {
         return withContext(Dispatchers.IO) {
-            val iconFile = File(iconsDirectory, name)
+            val file = File(directory, name)
 
-            val oldIcon = readIconBytes(iconFile = iconFile)
+            val oldFile = readFileBytes(file = file)
 
-            if (oldIcon.contentEquals(icon)) {
-                iconFile.absolutePath
+            if (oldFile.contentEquals(byteArray)) {
+                file.absolutePath
             } else {
                 try {
-                    FileOutputStream(iconFile).use { fos ->
-                        fos.write(icon)
+                    FileOutputStream(file).use { fos ->
+                        fos.write(byteArray)
                     }
 
-                    iconFile.absolutePath
+                    file.absolutePath
                 } catch (_: IOException) {
                     null
                 }
@@ -45,7 +51,7 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
         }
     }
 
-    override suspend fun deleteIcon(name: String) {
+    override suspend fun deleteFile(name: String) {
         withContext(Dispatchers.IO) {
             val iconFile = File(iconsDirectory, name)
 
@@ -59,10 +65,10 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
         }
     }
 
-    private fun readIconBytes(iconFile: File): ByteArray? {
-        return if (iconFile.exists()) {
+    private fun readFileBytes(file: File): ByteArray? {
+        return if (file.exists()) {
             try {
-                FileInputStream(iconFile).use { fis ->
+                FileInputStream(file).use { fis ->
                     fis.readBytes()
                 }
             } catch (_: IOException) {

@@ -43,11 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
-import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
@@ -65,7 +65,7 @@ fun ApplicationScreen(
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    applicationUiState: ApplicationUiState,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
@@ -125,18 +125,18 @@ fun ApplicationScreen(
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
-        when (applicationUiState) {
-            ApplicationUiState.Loading -> {
+        when {
+            eblanApplicationInfos.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
-            is ApplicationUiState.Success -> {
+            else -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(appDrawerColumns),
                     modifier = Modifier.fillMaxSize(),
                     state = gridState,
                 ) {
-                    items(applicationUiState.eblanApplicationInfos) { eblanApplicationInfo ->
+                    items(eblanApplicationInfos) { eblanApplicationInfo ->
                         val graphicsLayer = rememberGraphicsLayer()
 
                         var intSize by remember { mutableStateOf(IntSize.Zero) }

@@ -19,11 +19,13 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
         val newEblanApplicationInfos =
             packageManagerWrapper.queryIntentActivities().map { packageManagerApplicationInfo ->
-                val icon = fileManager.writeIconBytes(
-                    iconsDirectory = fileManager.iconsDirectory,
-                    name = packageManagerApplicationInfo.packageName,
-                    icon = packageManagerApplicationInfo.icon,
-                )
+                val icon = packageManagerApplicationInfo.icon?.let { currentIcon ->
+                    fileManager.writeFileBytes(
+                        directory = fileManager.iconsDirectory,
+                        name = packageManagerApplicationInfo.packageName,
+                        byteArray = currentIcon,
+                    )
+                }
 
                 EblanApplicationInfo(
                     packageName = packageManagerApplicationInfo.packageName,

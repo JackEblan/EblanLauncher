@@ -17,10 +17,12 @@
  */
 package com.eblan.launcher.data.repository.di
 
+import com.eblan.launcher.data.repository.DefaultEblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
 import com.eblan.launcher.data.repository.DefaultGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultGridRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
+import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -50,4 +52,9 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun gridCacheRepository(impl: DefaultGridCacheRepository): GridCacheRepository
+
+    @Binds
+    @Singleton
+    fun eblanAppWidgetProviderInfoRepository(impl: DefaultEblanAppWidgetProviderInfoRepository): EblanAppWidgetProviderInfoRepository
+
 }

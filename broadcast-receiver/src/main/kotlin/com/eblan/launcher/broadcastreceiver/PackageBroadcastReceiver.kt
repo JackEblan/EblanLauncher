@@ -39,11 +39,13 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
                     val iconByteArray =
                         packageManagerWrapper.getApplicationIcon(packageName = packageName)
 
-                    val icon = fileManager.writeIconBytes(
-                        iconsDirectory = fileManager.iconsDirectory,
-                        name = packageName,
-                        icon = iconByteArray,
-                    )
+                    val icon = iconByteArray?.let { currentIconByteArray ->
+                        fileManager.writeFileBytes(
+                            directory = fileManager.iconsDirectory,
+                            name = packageName,
+                            byteArray = currentIconByteArray,
+                        )
+                    }
 
                     val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
@@ -64,7 +66,9 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
                     val isReplacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
 
                     if (!isReplacing) {
-                        eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(packageName = packageName)
+                        eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
+                            packageName = packageName,
+                        )
                     }
                 }
 

@@ -5,11 +5,13 @@ import java.io.File
 interface FileManager {
     val iconsDirectory: File
 
-    suspend fun writeIconBytes(
-        iconsDirectory: File,
+    val previewsDirectory: File
+
+    suspend fun writeFileBytes(
+        directory: File,
         name: String,
-        icon: ByteArray?,
+        byteArray: ByteArray,
     ): String?
 
-    suspend fun deleteIcon(name: String)
+    suspend fun deleteFile(name: String)
 }

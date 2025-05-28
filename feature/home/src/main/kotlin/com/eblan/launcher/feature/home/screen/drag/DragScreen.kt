@@ -61,7 +61,7 @@ import com.eblan.launcher.feature.home.model.MoveGridItem
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerController
 import kotlinx.coroutines.delay
 
 @Composable
@@ -463,7 +463,7 @@ private fun handleDrag(
     onDragEnd: (Int) -> Unit,
     shiftedAlgorithm: Boolean?,
     appWidgetHost: AppWidgetHostWrapper,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetManager: AppWidgetManagerController,
     onUpdateWidgetGridItem: (id: String, data: GridItemData, appWidgetId: Int) -> Unit,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragCancel: () -> Unit,
@@ -542,7 +542,7 @@ private fun onDragEndGridItemDataWidget(
     shiftedAlgorithm: Boolean?,
     appWidgetHost: AppWidgetHostWrapper,
     data: GridItemData.Widget,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetManager: AppWidgetManagerController,
     onUpdateWidgetGridItem: (id: String, data: GridItemData, appWidgetId: Int) -> Unit,
     gridItemSource: GridItemSource,
     horizontalPagerState: PagerState,

@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.os.IBinder
 import com.eblan.launcher.broadcastreceiver.PackageBroadcastReceiver
 import com.eblan.launcher.domain.common.qualifier.ApplicationScope
+import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +18,9 @@ import javax.inject.Inject
 class ApplicationInfoService : Service() {
     @Inject
     lateinit var updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase
+
+    @Inject
+    lateinit var updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase
 
     @Inject
     @ApplicationScope
@@ -46,6 +50,8 @@ class ApplicationInfoService : Service() {
         appScope.launch {
             serviceJob = launch {
                 updateEblanApplicationInfosUseCase()
+
+                updateEblanAppWidgetProviderInfosUseCase()
             }
         }
 

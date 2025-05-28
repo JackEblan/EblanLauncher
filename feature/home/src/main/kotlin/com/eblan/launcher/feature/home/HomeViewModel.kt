@@ -5,17 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
-import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.model.WidgetUiState
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +32,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
+    eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
@@ -51,25 +49,23 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    val applicationUiState = eblanApplicationInfoRepository.eblanApplicationInfos.map(
-        ApplicationUiState::Success,
-    ).stateIn(
+    val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = ApplicationUiState.Loading,
+        initialValue = emptyList(),
     )
 
-    val widgetUiState =
-        eblanApplicationInfoRepository.eblanApplicationInfos.map { applicationInfos ->
-            applicationInfos.associateWith { eblanApplicationInfo ->
-                appWidgetManagerWrapper.getInstalledProviderByPackageName(
-                    packageName = eblanApplicationInfo.packageName,
-                )
-            }.filterValues { it.isNotEmpty() }
-        }.map(WidgetUiState::Success).flowOn(Dispatchers.Default).stateIn(
+    val eblanAppWidgetProviderInfosByGroup =
+        eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
+            eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.eblanApplicationInfo
+            }
+        }.flowOn(
+            Dispatchers.Default,
+        ).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = WidgetUiState.Loading,
+            initialValue = emptyMap(),
         )
 
     private var _screen = MutableStateFlow(Screen.Pager)

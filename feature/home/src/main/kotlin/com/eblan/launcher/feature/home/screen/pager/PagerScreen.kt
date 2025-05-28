@@ -41,16 +41,16 @@ import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuPositionProvider
-import com.eblan.launcher.feature.home.model.ApplicationUiState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.feature.home.model.WidgetUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -72,8 +72,8 @@ fun PagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    applicationUiState: ApplicationUiState,
-    widgetUiState: WidgetUiState,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     rootWidth: Int,
     rootHeight: Int,
     appDrawerColumns: Int,
@@ -170,7 +170,7 @@ fun PagerScreen(
                                 appDrawerColumns = appDrawerColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
-                                applicationUiState = applicationUiState,
+                                eblanApplicationInfos = eblanApplicationInfos,
                                 rootWidth = rootWidth,
                                 dockHeight = dockHeight,
                                 drag = drag,
@@ -190,7 +190,7 @@ fun PagerScreen(
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 dragIntOffset = dragIntOffset,
-                                widgetUiState = widgetUiState,
+                                eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
                                 rootWidth = rootWidth,
                                 rootHeight = rootHeight,
                                 dockHeight = dockHeight,

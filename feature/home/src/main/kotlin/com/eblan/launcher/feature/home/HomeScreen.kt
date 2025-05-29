@@ -216,7 +216,7 @@ fun Success(
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
-    var targetPage by remember { mutableIntStateOf(0) }
+    var currentPage by remember { mutableIntStateOf(0) }
 
     var addNewPage by remember { mutableStateOf(false) }
 
@@ -251,7 +251,7 @@ fun Success(
         when (screen) {
             Screen.Pager -> {
                 PagerScreen(
-                    targetPage = targetPage,
+                    targetPage = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -270,15 +270,15 @@ fun Success(
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerColumns,
                     dragIntOffset = dragIntOffset,
-                    onLongPressGrid = { currentPage ->
-                        targetPage = currentPage
+                    onLongPressGrid = { newCurrentPage ->
+                        currentPage = newCurrentPage
 
                         gridItemSource = null
 
                         showBottomSheet = true
                     },
-                    onLongPressedGridItem = { currentPage, newPage, imageBitmap, gridItemLayoutInfo ->
-                        targetPage = currentPage
+                    onLongPressedGridItem = { newCurrentPage, newPage, imageBitmap, gridItemLayoutInfo ->
+                        currentPage = newCurrentPage
 
                         addNewPage = newPage
 
@@ -298,8 +298,8 @@ fun Success(
                         )
                     },
                     onLaunchApplication = onLaunchApplication,
-                    onLongPressApplicationInfo = { currentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
-                        targetPage = currentPage
+                    onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
+                        currentPage = newCurrentPage
 
                         addNewPage = true
 
@@ -351,7 +351,7 @@ fun Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    targetPage = targetPage,
+                    currentPage = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -378,7 +378,7 @@ fun Success(
                         showOverlay = false
                     },
                     onDragEnd = { newTargetPage ->
-                        targetPage = newTargetPage
+                        currentPage = newTargetPage
 
                         addNewPage = false
 
@@ -390,7 +390,7 @@ fun Success(
 
                     },
                     onResize = { newTargetPage ->
-                        targetPage = newTargetPage
+                        currentPage = newTargetPage
 
                         showOverlay = false
 
@@ -401,7 +401,7 @@ fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    targetPage = targetPage,
+                    targetPage = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     dockRows = userData.dockRows,

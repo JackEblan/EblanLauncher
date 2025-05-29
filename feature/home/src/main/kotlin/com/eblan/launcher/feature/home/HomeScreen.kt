@@ -415,6 +415,10 @@ fun Success(
                     onResizeEnd = onResetGridCache,
                 )
             }
+
+            Screen.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
         }
 
         if (showOverlay) {

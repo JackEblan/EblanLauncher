@@ -145,14 +145,18 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache() {
         viewModelScope.launch {
-            updateGridItemsUseCase()
-
             _screen.update {
-                Screen.Pager
+                Screen.Loading
             }
+
+            updateGridItemsUseCase()
 
             _isCache.update {
                 false
+            }
+
+            _screen.update {
+                Screen.Pager
             }
         }
     }

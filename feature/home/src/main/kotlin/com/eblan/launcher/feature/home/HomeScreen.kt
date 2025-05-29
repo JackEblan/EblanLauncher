@@ -389,7 +389,9 @@ fun Success(
                     onEdit = {
 
                     },
-                    onResize = {
+                    onResize = { newTargetPage ->
+                        targetPage = newTargetPage
+
                         showOverlay = false
 
                         onShowGridCache(Screen.Resize)
@@ -399,11 +401,9 @@ fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    currentPage = targetPage,
+                    targetPage = targetPage,
                     rows = userData.rows,
                     columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
                     dockRows = userData.dockRows,
                     dockColumns = userData.dockColumns,
                     gridItems = gridItems,

@@ -6,5 +6,9 @@ import kotlinx.coroutines.flow.Flow
 interface EblanAppWidgetProviderInfoRepository {
     val eblanAppWidgetProviderInfos: Flow<List<EblanAppWidgetProviderInfo>>
 
-    suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>)
+    suspend fun upsertEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>)
+
+    suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo)
+
+    suspend fun deleteEblanAppWidgetProviderInfoByClassName(className: String)
 }

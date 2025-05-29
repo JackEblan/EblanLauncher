@@ -118,7 +118,7 @@ fun WidgetScreen(
                             )
 
                             Text(
-                                text = eblanApplicationInfo.label,
+                                text = eblanApplicationInfo.label.toString(),
                                 color = color,
                             )
 

@@ -18,14 +18,22 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             }
         }
 
-    override suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
+    override suspend fun upsertEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
         val entities = withContext(Dispatchers.Default) {
             eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
                 eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
             }
         }
 
-        eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntity(entities = entities)
+        eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntities(entities = entities)
+    }
+
+    override suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo) {
+        eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntity(entity = eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity())
+    }
+
+    override suspend fun deleteEblanAppWidgetProviderInfoByClassName(className: String) {
+        eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntityByClassName(className = className)
     }
 
     private fun EblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity(): EblanAppWidgetProviderInfoEntity {

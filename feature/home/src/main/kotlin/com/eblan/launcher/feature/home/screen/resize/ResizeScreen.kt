@@ -27,16 +27,13 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.feature.home.util.calculatePage
 
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
-    currentPage: Int,
+    targetPage: Int,
     rows: Int,
     columns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
     gridItems: Map<Int, List<GridItem>>,
@@ -51,12 +48,6 @@ fun ResizeScreen(
     ) -> Unit,
     onResizeEnd: () -> Unit,
 ) {
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     val density = LocalDensity.current
 
     val dockHeightDp = with(density) {
@@ -79,7 +70,7 @@ fun ResizeScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .weight(1f),
-            page = page,
+            page = targetPage,
             rows = rows,
             columns = columns,
             gridItemId = gridItemLayoutInfo?.gridItem?.id,
@@ -104,7 +95,7 @@ fun ResizeScreen(
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
-                                text = gridItemData.label,
+                                text = gridItemData.label.toString(),
                                 modifier = Modifier.weight(1f),
                                 color = color,
                                 textAlign = TextAlign.Center,
@@ -167,7 +158,7 @@ fun ResizeScreen(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
-                            text = gridItemData.label,
+                            text = gridItemData.label.toString(),
                             modifier = Modifier.weight(1f),
                             color = color,
                             textAlign = TextAlign.Center,

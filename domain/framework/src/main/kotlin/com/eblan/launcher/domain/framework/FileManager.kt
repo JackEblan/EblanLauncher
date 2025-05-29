@@ -13,5 +13,8 @@ interface FileManager {
         byteArray: ByteArray,
     ): String?
 
-    suspend fun deleteFile(name: String)
+    suspend fun deleteFile(
+        directory: File,
+        name: String,
+    )
 }

@@ -56,12 +56,23 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                         } else {
                             null
                         }
+                    }.onEach { eblanAppWidgetProviderInfo ->
+                        if (eblanAppWidgetProviderInfo.eblanApplicationInfo !in eblanApplicationInfos) {
+                            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
+                                eblanAppWidgetProviderInfo.eblanApplicationInfo.packageName,
+                            )
+
+                            fileManager.deleteFile(
+                                directory = fileManager.previewsDirectory,
+                                name = eblanAppWidgetProviderInfo.className,
+                            )
+                        }
                     }.sortedBy { eblanAppWidgetProviderInfo ->
                         eblanAppWidgetProviderInfo.eblanApplicationInfo.label
                     }
             }
 
-        eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfo(
+        eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         )
     }

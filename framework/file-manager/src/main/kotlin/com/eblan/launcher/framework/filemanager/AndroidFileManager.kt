@@ -51,13 +51,13 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
         }
     }
 
-    override suspend fun deleteFile(name: String) {
+    override suspend fun deleteFile(directory: File, name: String) {
         withContext(Dispatchers.IO) {
-            val iconFile = File(iconsDirectory, name)
+            val file = File(directory, name)
 
             try {
-                if (iconFile.exists()) {
-                    iconFile.delete()
+                if (file.exists()) {
+                    file.delete()
                 }
             } catch (e: IOException) {
                 e.printStackTrace()

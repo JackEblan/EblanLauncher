@@ -24,5 +24,5 @@ import androidx.room.PrimaryKey
 data class EblanApplicationInfoEntity(
     @PrimaryKey val packageName: String,
     val icon: String?,
-    val label: String,
+    val label: String?,
 )

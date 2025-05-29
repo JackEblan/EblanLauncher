@@ -452,7 +452,7 @@ private fun ApplicationInfoGridItem(
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = gridItemData.label,
+            text = gridItemData.label.toString(),
             modifier = Modifier.weight(1f),
             color = color,
             textAlign = TextAlign.Center,

@@ -215,7 +215,7 @@ fun ApplicationScreen(
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
-                                text = eblanApplicationInfo.label,
+                                text = eblanApplicationInfo.label.toString(),
                                 color = color,
                                 textAlign = TextAlign.Center,
                                 fontSize = TextUnit(

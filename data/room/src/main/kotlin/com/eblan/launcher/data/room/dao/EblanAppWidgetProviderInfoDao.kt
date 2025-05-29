@@ -13,5 +13,11 @@ interface EblanAppWidgetProviderInfoDao {
     fun getEblanAppWidgetProviderInfos(): Flow<List<EblanAppWidgetProviderInfoEntity>>
 
     @Upsert
-    suspend fun upsertEblanAppWidgetProviderInfoEntity(entities: List<EblanAppWidgetProviderInfoEntity>)
+    suspend fun upsertEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
+
+    @Upsert
+    suspend fun upsertEblanAppWidgetProviderInfoEntity(entity: EblanAppWidgetProviderInfoEntity)
+
+    @Query("DELETE FROM EblanAppWidgetProviderInfoEntity WHERE className = :className")
+    suspend fun deleteEblanAppWidgetProviderInfoEntityByClassName(className: String)
 }

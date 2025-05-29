@@ -20,5 +20,5 @@ package com.eblan.launcher.domain.model
 data class EblanApplicationInfo(
     val packageName: String,
     val icon: String?,
-    val label: String,
+    val label: String?,
 )

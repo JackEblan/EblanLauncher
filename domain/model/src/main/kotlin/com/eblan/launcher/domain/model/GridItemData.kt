@@ -8,7 +8,7 @@ sealed interface GridItemData {
     data class ApplicationInfo(
         val packageName: String,
         val icon: String?,
-        val label: String,
+        val label: String?,
     ) : GridItemData
 
     @Serializable

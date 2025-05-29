@@ -27,6 +27,7 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
             withContext(Dispatchers.Default) {
                 appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
                     val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         AppWidgetManagerAppWidgetProviderInfo(
                             className = appWidgetProviderInfo.provider.className,

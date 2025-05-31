@@ -42,7 +42,12 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
             eblanApplicationInfoRepository.deleteEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfosToDelete)
 
-            val dataIds = eblanApplicationInfosToDelete.map { eblanApplicationInfo ->
+            val dataIds = eblanApplicationInfosToDelete.onEach { eblanApplicationInfo ->
+                fileManager.deleteFile(
+                    directory = fileManager.iconsDirectory,
+                    name = eblanApplicationInfo.packageName,
+                )
+            }.map { eblanApplicationInfo ->
                 eblanApplicationInfo.packageName
             }
 

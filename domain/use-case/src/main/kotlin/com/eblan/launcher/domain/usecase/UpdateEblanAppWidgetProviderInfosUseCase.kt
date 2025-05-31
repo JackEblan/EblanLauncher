@@ -5,6 +5,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -15,65 +16,75 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
+    private val gridRepository: GridRepository,
 ) {
     suspend operator fun invoke() {
-        val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()
+        val oldEblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()
 
-        val eblanAppWidgetProviderInfos =
-            withContext(Dispatchers.Default) {
-                appWidgetManagerWrapper.getInstalledProviders()
-                    .mapNotNull { appWidgetManagerAppWidgetProviderInfo ->
-                        val eblanApplicationInfo =
-                            eblanApplicationInfos.find { eblanApplicationInfo ->
-                                eblanApplicationInfo.packageName == appWidgetManagerAppWidgetProviderInfo.packageName
+        val oldEblanAppWidgetProviderInfos =
+            eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+
+        val newEblanAppWidgetProviderInfos = withContext(Dispatchers.Default) {
+            appWidgetManagerWrapper.getInstalledProviders()
+                .mapNotNull { appWidgetManagerAppWidgetProviderInfo ->
+                    val eblanApplicationInfo =
+                        oldEblanApplicationInfos.find { eblanApplicationInfo ->
+                            eblanApplicationInfo.packageName == appWidgetManagerAppWidgetProviderInfo.packageName
+                        }
+
+                    if (eblanApplicationInfo != null) {
+                        val preview =
+                            appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
+                                fileManager.writeFileBytes(
+                                    directory = fileManager.previewsDirectory,
+                                    name = appWidgetManagerAppWidgetProviderInfo.className,
+                                    byteArray = currentPreview,
+                                )
                             }
 
-                        if (eblanApplicationInfo != null) {
-                            val preview =
-                                appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
-                                    fileManager.writeFileBytes(
-                                        directory = fileManager.previewsDirectory,
-                                        name = appWidgetManagerAppWidgetProviderInfo.className,
-                                        byteArray = currentPreview,
-                                    )
-                                }
-
-                            EblanAppWidgetProviderInfo(
-                                className = appWidgetManagerAppWidgetProviderInfo.className,
-                                componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
-                                targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
-                                targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                                minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
-                                minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
-                                resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
-                                minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
-                                minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
-                                maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
-                                maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                                preview = preview,
-                                eblanApplicationInfo = eblanApplicationInfo,
-                            )
-                        } else {
-                            null
-                        }
-                    }.onEach { eblanAppWidgetProviderInfo ->
-                        if (eblanAppWidgetProviderInfo.eblanApplicationInfo !in eblanApplicationInfos) {
-                            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
-                                eblanAppWidgetProviderInfo.eblanApplicationInfo.packageName,
-                            )
-
-                            fileManager.deleteFile(
-                                directory = fileManager.previewsDirectory,
-                                name = eblanAppWidgetProviderInfo.className,
-                            )
-                        }
-                    }.sortedBy { eblanAppWidgetProviderInfo ->
-                        eblanAppWidgetProviderInfo.eblanApplicationInfo.label
+                        EblanAppWidgetProviderInfo(
+                            className = appWidgetManagerAppWidgetProviderInfo.className,
+                            componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
+                            targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
+                            targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
+                            minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
+                            minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
+                            resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
+                            minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
+                            minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
+                            maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
+                            maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
+                            preview = preview,
+                            eblanApplicationInfo = eblanApplicationInfo,
+                        )
+                    } else {
+                        null
                     }
+                }
+        }
+
+        if (oldEblanAppWidgetProviderInfos != newEblanAppWidgetProviderInfos) {
+            val eblanAppWidgetProviderInfosToDelete =
+                oldEblanAppWidgetProviderInfos - newEblanAppWidgetProviderInfos.toSet()
+
+            eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
+                eblanAppWidgetProviderInfos = newEblanAppWidgetProviderInfos,
+            )
+
+            eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfos(
+                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
+            )
+
+            val dataIds = eblanAppWidgetProviderInfosToDelete.onEach { eblanAppWidgetProviderInfo ->
+                fileManager.deleteFile(
+                    directory = fileManager.previewsDirectory,
+                    name = eblanAppWidgetProviderInfo.className,
+                )
+            }.map { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.componentName
             }
 
-        eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
-            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-        )
+            gridRepository.deleteGridItemByDataIds(dataIds = dataIds)
+        }
     }
 }

@@ -11,4 +11,6 @@ interface EblanAppWidgetProviderInfoRepository {
     suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo)
 
     suspend fun deleteEblanAppWidgetProviderInfoByClassName(className: String)
+
+    suspend fun deleteEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>)
 }

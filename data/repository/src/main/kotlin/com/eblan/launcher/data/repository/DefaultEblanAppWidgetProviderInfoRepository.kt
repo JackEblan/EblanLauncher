@@ -36,6 +36,16 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntityByClassName(className = className)
     }
 
+    override suspend fun deleteEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
+        val entities = withContext(Dispatchers.Default) {
+            eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
+            }
+        }
+
+        eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntities(entities = entities)
+    }
+
     private fun EblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,

@@ -47,8 +47,6 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
             packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
                 .map { resolveInfo ->
                     resolveInfo.activityInfo.applicationInfo.toPackageManagerApplicationInfo()
-                }.sortedBy { applicationInfo ->
-                    applicationInfo.label
                 }
         }
     }
@@ -88,10 +86,8 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
         }
     }
 
-    private suspend fun ApplicationInfo.toPackageManagerApplicationInfo(): PackageManagerApplicationInfo {
-        val byteArray = withContext(Dispatchers.Default) {
-            loadIcon(packageManager).toByteArray()
-        }
+    private fun ApplicationInfo.toPackageManagerApplicationInfo(): PackageManagerApplicationInfo {
+        val byteArray = loadIcon(packageManager).toByteArray()
 
         return PackageManagerApplicationInfo(
             icon = byteArray,

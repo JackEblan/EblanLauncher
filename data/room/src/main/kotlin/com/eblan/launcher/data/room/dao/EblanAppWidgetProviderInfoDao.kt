@@ -1,6 +1,7 @@
 package com.eblan.launcher.data.room.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
@@ -20,4 +21,7 @@ interface EblanAppWidgetProviderInfoDao {
 
     @Query("DELETE FROM EblanAppWidgetProviderInfoEntity WHERE className = :className")
     suspend fun deleteEblanAppWidgetProviderInfoEntityByClassName(className: String)
+
+    @Delete
+    suspend fun deleteEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
 }

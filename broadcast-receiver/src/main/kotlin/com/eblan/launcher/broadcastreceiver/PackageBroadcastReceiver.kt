@@ -71,10 +71,20 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
                 packageName = packageName,
             )
 
+            fileManager.deleteFile(
+                directory = fileManager.iconsDirectory,
+                name = packageName,
+            )
+
             appWidgetManagerWrapper.getInstalledProviders()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.onEach { appWidgetManagerAppWidgetProviderInfo ->
+                    fileManager.deleteFile(
+                        directory = fileManager.previewsDirectory,
+                        name = appWidgetManagerAppWidgetProviderInfo.className,
+                    )
+
                     eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfoByClassName(
                         className = appWidgetManagerAppWidgetProviderInfo.className,
                     )

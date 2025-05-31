@@ -49,15 +49,22 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    val eblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList(),
-    )
+    val eblanApplicationInfos =
+        eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->
+            eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
+                eblanApplicationInfo.label
+            }
+        }.flowOn(Dispatchers.Default).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
 
     val eblanAppWidgetProviderInfosByGroup =
         eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
-            eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.eblanApplicationInfo.label
+            }.groupBy { eblanAppWidgetProviderInfo ->
                 eblanAppWidgetProviderInfo.eblanApplicationInfo
             }
         }.flowOn(

@@ -1,6 +1,7 @@
 package com.eblan.launcher.data.room.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
@@ -23,6 +24,6 @@ interface EblanApplicationInfoDao {
     @Query("DELETE FROM EblanApplicationInfoEntity WHERE packageName = :packageName")
     suspend fun deleteEblanApplicationInfoEntityByPackageName(packageName: String)
 
-    @Query("DELETE FROM EblanApplicationInfoEntity WHERE packageName NOT IN (:packageNames)")
-    suspend fun deleteEblanApplicationInfoEntitiesNotInPackageNames(packageNames: List<String>)
+    @Delete
+    suspend fun deleteEblanApplicationInfoEntities(entities: List<EblanApplicationInfoEntity>)
 }

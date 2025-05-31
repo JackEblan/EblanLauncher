@@ -24,6 +24,7 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
                 eblanApplicationInfo.toEblanApplicationInfoEntity()
             }
         }
+
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntities(entities = entities)
     }
 
@@ -40,8 +41,14 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntityByPackageName(packageName = packageName)
     }
 
-    override suspend fun deleteEblanApplicationInfosNotInPackageNames(packageNames: List<String>) {
-        eblanApplicationInfoDao.deleteEblanApplicationInfoEntitiesNotInPackageNames(packageNames = packageNames)
+    override suspend fun deleteEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
+        val entities = withContext(Dispatchers.Default) {
+            eblanApplicationInfos.map { eblanApplicationInfo ->
+                eblanApplicationInfo.toEblanApplicationInfoEntity()
+            }
+        }
+
+        eblanApplicationInfoDao.deleteEblanApplicationInfoEntities(entities = entities)
     }
 
     private fun EblanApplicationInfoEntity.toEblanApplicationInfo(): EblanApplicationInfo {

@@ -27,4 +27,7 @@ interface GridDao {
 
     @Delete
     suspend fun deleteGridItemEntity(entity: GridItemEntity)
+
+    @Query("DELETE FROM GridItemEntity WHERE dataId IN (:dataIds)")
+    suspend fun deleteGridItemEntitiesByDataIds(dataIds: List<String>)
 }

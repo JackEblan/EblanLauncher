@@ -160,12 +160,6 @@ fun ApplicationScreen(
 
                                         if (longPress != null) {
                                             scope.launch {
-                                                val data = GridItemData.ApplicationInfo(
-                                                    packageName = eblanApplicationInfo.packageName,
-                                                    icon = eblanApplicationInfo.icon,
-                                                    label = eblanApplicationInfo.label,
-                                                )
-
                                                 val gridItemLayoutInfo = getGridItemLayoutInfo(
                                                     page = horizontalPage,
                                                     rows = rows,
@@ -174,7 +168,9 @@ fun ApplicationScreen(
                                                     y = intOffset.y,
                                                     gridWidth = rootWidth,
                                                     gridHeight = rootHeight - dockHeight,
-                                                    data = data,
+                                                    packageName = eblanApplicationInfo.packageName,
+                                                    icon = eblanApplicationInfo.icon,
+                                                    label = eblanApplicationInfo.label,
                                                 )
 
                                                 selectedIntOffset = intOffset
@@ -257,7 +253,9 @@ private fun getGridItemLayoutInfo(
     y: Int,
     gridWidth: Int,
     gridHeight: Int,
-    data: GridItemData,
+    packageName: String,
+    icon: String?,
+    label: String?,
 ): GridItemLayoutInfo {
     val cellWidth = gridWidth / columns
 
@@ -267,6 +265,8 @@ private fun getGridItemLayoutInfo(
 
     val startRow = y / cellHeight
 
+    val data = GridItemData.ApplicationInfo(packageName = packageName, icon = icon, label = label)
+
     val gridItem = GridItem(
         id = Uuid.random().toHexString(),
         page = page,
@@ -274,6 +274,7 @@ private fun getGridItemLayoutInfo(
         startColumn = startColumn,
         rowSpan = 1,
         columnSpan = 1,
+        dataId = data.packageName,
         data = data,
         associate = Associate.Grid,
     )

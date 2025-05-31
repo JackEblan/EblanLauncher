@@ -40,6 +40,10 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
         gridDao.deleteGridItemEntity(entity = gridItem.toGridItemEntity())
     }
 
+    override suspend fun deleteGridItemByDataIds(dataIds: List<String>) {
+        gridDao.deleteGridItemEntitiesByDataIds(dataIds = dataIds)
+    }
+
     private fun GridItemEntity.toGridItem(): GridItem {
         return GridItem(
             id = id,
@@ -48,6 +52,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
             startColumn = startColumn,
             rowSpan = rowSpan,
             columnSpan = columnSpan,
+            dataId = dataId,
             data = data,
             associate = associate,
         )
@@ -61,6 +66,7 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
             startColumn = startColumn,
             rowSpan = rowSpan,
             columnSpan = columnSpan,
+            dataId = dataId,
             data = data,
             associate = associate,
         )

@@ -133,17 +133,14 @@ fun WidgetScreen(
                                 LaunchedEffect(key1 = preview) {
                                     val loader = ImageLoader(context)
 
-                                    val request = ImageRequest.Builder(context)
-                                        .data(preview)
-                                        .allowHardware(false)
-                                        .build()
+                                    val request = ImageRequest.Builder(context).data(preview)
+                                        .allowHardware(false).build()
 
                                     val result = loader.execute(request)
 
                                     if (result is SuccessResult) {
                                         val drawable = result.drawable
-                                        val bitmap =
-                                            (drawable as BitmapDrawable).bitmap
+                                        val bitmap = (drawable as BitmapDrawable).bitmap
 
                                         imageBitmap = bitmap.asImageBitmap()
                                     }
@@ -369,6 +366,7 @@ private fun getGridItemLayoutInfo(
         startColumn = startColumn,
         rowSpan = newRowSpan,
         columnSpan = newColumnSpan,
+        dataId = componentName,
         data = data,
         associate = Associate.Grid,
     )

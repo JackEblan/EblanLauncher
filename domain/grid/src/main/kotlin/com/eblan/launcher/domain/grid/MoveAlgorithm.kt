@@ -16,12 +16,10 @@ suspend fun resolveConflictsWhenMoving(
     gridHeight: Int,
 ): List<GridItem>? {
     val resolveDirection = gridItems.find { gridItem ->
-        coroutineContext.isActive &&
-                gridItem.id != movingGridItem.id &&
-                rectanglesOverlap(
-                    movingGridItem = movingGridItem,
-                    gridItem = gridItem,
-                )
+        gridItem.id != movingGridItem.id && rectanglesOverlap(
+            movingGridItem = movingGridItem,
+            gridItem = gridItem,
+        )
     }?.let { gridItem ->
         val cellWidth = gridWidth / columns
 
@@ -44,9 +42,7 @@ suspend fun resolveConflictsWhenMoving(
                 ResolveDirection.Start
             }
         }
-    } ?: ResolveDirection.Center
-
-    println("$resolveDirection")
+    }
 
     return if (resolveConflicts(
             gridItems = gridItems,
@@ -69,7 +65,7 @@ suspend fun resolveConflictsWhenMoving(
 private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     movingGridItem: GridItem,
-    resolveDirection: ResolveDirection,
+    resolveDirection: ResolveDirection?,
     x: Int,
     y: Int,
     rows: Int,
@@ -119,7 +115,7 @@ private suspend fun resolveConflicts(
 }
 
 fun moveGridItem(
-    resolveDirection: ResolveDirection,
+    resolveDirection: ResolveDirection?,
     movingGridItem: GridItem,
     conflictingGridItem: GridItem,
     rows: Int,
@@ -144,7 +140,7 @@ fun moveGridItem(
             )
         }
 
-        ResolveDirection.Center -> null
+        ResolveDirection.Center, null -> null
     }
 }
 

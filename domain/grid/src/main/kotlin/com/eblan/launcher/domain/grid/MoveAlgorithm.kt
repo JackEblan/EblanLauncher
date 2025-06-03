@@ -42,18 +42,14 @@ suspend fun resolveConflictsWhenMoving(
                 ResolveDirection.Start
             }
         }
-    }
+    } ?: ResolveDirection.Center
 
     return if (resolveConflicts(
             gridItems = gridItems,
             movingGridItem = movingGridItem,
             resolveDirection = resolveDirection,
-            x = x,
-            y = y,
             rows = rows,
             columns = columns,
-            gridWidth = gridWidth,
-            gridHeight = gridHeight,
         )
     ) {
         gridItems
@@ -64,14 +60,10 @@ suspend fun resolveConflictsWhenMoving(
 
 private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
+    resolveDirection: ResolveDirection,
     movingGridItem: GridItem,
-    resolveDirection: ResolveDirection?,
-    x: Int,
-    y: Int,
     rows: Int,
     columns: Int,
-    gridWidth: Int,
-    gridHeight: Int,
 ): Boolean {
     for (gridItem in gridItems) {
         if (!coroutineContext.isActive) return false
@@ -80,7 +72,7 @@ private suspend fun resolveConflicts(
         if (gridItem.id == movingGridItem.id) continue
 
         if (rectanglesOverlap(movingGridItem = movingGridItem, gridItem = gridItem)) {
-            val shiftedGridItem = moveGridItem(
+            val shiftedItem = moveGridItem(
                 resolveDirection = resolveDirection,
                 movingGridItem = movingGridItem,
                 conflictingGridItem = gridItem,
@@ -91,19 +83,15 @@ private suspend fun resolveConflicts(
             // Update the grid with the shifted item.
             val index = gridItems.indexOfFirst { it.id == gridItem.id }
 
-            gridItems[index] = shiftedGridItem
+            gridItems[index] = shiftedItem
 
             // Recursively resolve further conflicts from the shifted item.
             if (!resolveConflicts(
                     gridItems = gridItems,
-                    movingGridItem = movingGridItem,
                     resolveDirection = resolveDirection,
-                    x = x,
-                    y = y,
+                    movingGridItem = shiftedItem,
                     rows = rows,
                     columns = columns,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
                 )
             ) {
                 return false

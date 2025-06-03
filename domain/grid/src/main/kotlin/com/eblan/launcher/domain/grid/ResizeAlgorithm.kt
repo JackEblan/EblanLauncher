@@ -12,14 +12,14 @@ suspend fun resolveConflictsWhenResizing(
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
-    val gridItemShift = getGridItemShift(
+    val resolveDirection = getResolveDirection(
         oldGridItem = oldGridItem,
         resizingGridItem = resizingGridItem,
     )
 
     return if (resolveConflicts(
             gridItems = gridItems,
-            resolveDirection = gridItemShift,
+            resolveDirection = resolveDirection,
             resizingGridItem = resizingGridItem,
             rows = rows,
             columns = columns,
@@ -31,7 +31,7 @@ suspend fun resolveConflictsWhenResizing(
     }
 }
 
-private suspend fun resolveConflicts(
+ private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
     resizingGridItem: GridItem,
@@ -75,7 +75,7 @@ private suspend fun resolveConflicts(
     return true
 }
 
-private fun getGridItemShift(
+private fun getResolveDirection(
     oldGridItem: GridItem,
     resizingGridItem: GridItem,
 ): ResolveDirection {

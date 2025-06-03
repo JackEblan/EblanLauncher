@@ -50,6 +50,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemMenu
@@ -57,7 +58,6 @@ import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.MoveGridItem
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
@@ -88,9 +88,13 @@ fun DragScreen(
     shiftedAlgorithm: Boolean?,
     addNewPage: Boolean,
     onMoveGridItem: (
-        gridItem: GridItem,
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
         rows: Int,
         columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
     ) -> Unit,
     onUpdateWidgetGridItem: (
         id: String,
@@ -220,10 +224,22 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = moveGridItem) {
-        moveGridItem?.let { (gridItem, rows, columns) ->
+        moveGridItem?.let { (gridItemLayoutInfo, rows, columns) ->
             delay(500L)
 
-            onMoveGridItem(gridItem, rows, columns)
+            val gridX = dragIntOffset.x - horizontalPagerPaddingPx
+
+            val gridY = dragIntOffset.y - horizontalPagerPaddingPx
+
+            onMoveGridItem(
+                gridItemLayoutInfo,
+                gridX,
+                gridY,
+                rows,
+                columns,
+                rootWidth,
+                rootHeight,
+            )
         }
     }
 
@@ -264,7 +280,9 @@ fun DragScreen(
                                 when (val gridItemData = gridItem.data) {
                                     is GridItemData.ApplicationInfo -> {
                                         Column(
-                                            modifier = Modifier.fillMaxSize(),
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .border(width = 1.dp, color = Color.White),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
                                             AsyncImage(
@@ -337,7 +355,9 @@ fun DragScreen(
                     when (val gridItemData = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             Column(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .border(width = 1.dp, color = Color.White),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 AsyncImage(
@@ -693,6 +713,7 @@ private fun handleDragIntOffset(
                 startColumn = dragIntOffset.x / cellWidth,
                 associate = Associate.Dock,
             )
+
             onChangeMoveGridItem(
                 MoveGridItem(
                     gridItem = gridItem,

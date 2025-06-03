@@ -103,9 +103,13 @@ fun HomeScreen(
     eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
-        gridItem: GridItem,
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
         rows: Int,
         columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -177,9 +181,13 @@ fun Success(
     dockGridItems: List<GridItem>,
     shiftedAlgorithm: Boolean?,
     onMoveGridItem: (
-        gridItem: GridItem,
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
         rows: Int,
         columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,

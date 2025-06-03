@@ -10,7 +10,8 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
-import com.eblan.launcher.domain.usecase.ShiftAlgorithmUseCase
+import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
+import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -36,7 +37,8 @@ class HomeViewModel @Inject constructor(
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
-    private val shiftAlgorithmUseCase: ShiftAlgorithmUseCase,
+    private val moveGridItemUseCase: MoveGridItemUseCase,
+    private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
     private val _isCache = MutableStateFlow(false)
@@ -84,30 +86,38 @@ class HomeViewModel @Inject constructor(
     val shiftedAlgorithm = _shiftedAlgorithm.asStateFlow()
 
     fun moveGridItem(
-        gridItem: GridItem,
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
         rows: Int,
         columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
     ) {
         viewModelScope.launch {
             _shiftedAlgorithm.update {
-                shiftAlgorithmUseCase(
-                    movingGridItem = gridItem,
+                moveGridItemUseCase(
+                    movingGridItem = movingGridItem,
+                    x = x,
+                    y = y,
                     rows = rows,
                     columns = columns,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                 ) != null
             }
         }
     }
 
     fun resizeGridItem(
-        gridItem: GridItem,
+        resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
     ) {
         viewModelScope.launch {
             _shiftedAlgorithm.update {
-                shiftAlgorithmUseCase(
-                    movingGridItem = gridItem,
+                resizeGridItemUseCase(
+                    resizingGridItem = resizingGridItem,
                     rows = rows,
                     columns = columns,
                 ) != null

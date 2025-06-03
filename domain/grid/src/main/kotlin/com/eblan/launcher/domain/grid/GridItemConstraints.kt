@@ -26,11 +26,10 @@ fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boo
  * @return True if the rectangular regions defined by the items overlap.
  */
 fun rectanglesOverlap(movingGridItem: GridItem, gridItem: GridItem): Boolean {
-    if (movingGridItem.startRow + movingGridItem.rowSpan <= gridItem.startRow || gridItem.startRow + gridItem.rowSpan <= movingGridItem.startRow) {
-        return false
-    }
-    if (movingGridItem.startColumn + movingGridItem.columnSpan <= gridItem.startColumn || gridItem.startColumn + gridItem.columnSpan <= movingGridItem.startColumn) {
-        return false
-    }
-    return true
+    val noOverlap = movingGridItem.startRow + movingGridItem.rowSpan <= gridItem.startRow ||
+            gridItem.startRow + gridItem.rowSpan <= movingGridItem.startRow ||
+            movingGridItem.startColumn + movingGridItem.columnSpan <= gridItem.startColumn ||
+            gridItem.startColumn + gridItem.columnSpan <= movingGridItem.startColumn
+
+    return !noOverlap
 }

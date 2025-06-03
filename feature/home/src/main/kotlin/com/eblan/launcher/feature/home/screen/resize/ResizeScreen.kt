@@ -26,7 +26,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 
 @Composable
 fun ResizeScreen(

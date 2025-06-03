@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.grid.resolveConflictsWithShift
+import com.eblan.launcher.domain.grid.resolveConflictsWhenResizing
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -10,29 +10,29 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class ShiftAlgorithmUseCase @Inject constructor(
+class ResizeGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
-        movingGridItem: GridItem,
+        resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
     ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
             if (isGridItemSpanWithinBounds(
-                    gridItem = movingGridItem,
+                    gridItem = resizingGridItem,
                     rows = rows,
                     columns = columns,
                 )
             ) {
                 val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
-                    when (movingGridItem.associate) {
+                    when (resizingGridItem.associate) {
                         Associate.Grid -> {
                             isGridItemSpanWithinBounds(
                                 gridItem = gridItem,
                                 rows = rows,
                                 columns = columns,
-                            ) && gridItem.page == movingGridItem.page && gridItem.associate == Associate.Grid
+                            ) && gridItem.page == resizingGridItem.page && gridItem.associate == Associate.Grid
                         }
 
                         Associate.Dock -> {
@@ -45,17 +45,17 @@ class ShiftAlgorithmUseCase @Inject constructor(
                     }
                 }.toMutableList()
 
-                val index = gridItems.indexOfFirst { it.id == movingGridItem.id }
+                val index = gridItems.indexOfFirst { it.id == resizingGridItem.id }
 
-                if(index != -1) {
+                if (index != -1) {
                     val oldGridItem = gridItems[index]
 
-                    gridItems[index] = movingGridItem
+                    gridItems[index] = resizingGridItem
 
-                    val resolvedConflictsGridItems = resolveConflictsWithShift(
+                    val resolvedConflictsGridItems = resolveConflictsWhenResizing(
                         gridItems = gridItems,
                         oldGridItem = oldGridItem,
-                        movingGridItem = movingGridItem,
+                        resizingGridItem = resizingGridItem,
                         rows = rows,
                         columns = columns,
                     )
@@ -66,12 +66,12 @@ class ShiftAlgorithmUseCase @Inject constructor(
 
                     resolvedConflictsGridItems
                 } else {
-                    gridItems.add(movingGridItem)
+                    gridItems.add(resizingGridItem)
 
-                    val resolvedConflictsGridItems = resolveConflictsWithShift(
+                    val resolvedConflictsGridItems = resolveConflictsWhenResizing(
                         gridItems = gridItems,
-                        oldGridItem = movingGridItem,
-                        movingGridItem = movingGridItem,
+                        oldGridItem = resizingGridItem,
+                        resizingGridItem = resizingGridItem,
                         rows = rows,
                         columns = columns,
                     )

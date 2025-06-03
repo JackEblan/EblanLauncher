@@ -16,11 +16,9 @@ class MoveGridItemUseCase @Inject constructor(
     suspend operator fun invoke(
         movingGridItem: GridItem,
         x: Int,
-        y: Int,
         rows: Int,
         columns: Int,
         gridWidth: Int,
-        gridHeight: Int,
     ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
             if (isGridItemSpanWithinBounds(
@@ -58,11 +56,9 @@ class MoveGridItemUseCase @Inject constructor(
                         gridItems = gridItems,
                         movingGridItem = movingGridItem,
                         x = x,
-                        y = y,
                         rows = rows,
                         columns = columns,
                         gridWidth = gridWidth,
-                        gridHeight = gridHeight,
                     )
 
                     if (resolvedConflictsGridItems != null) {
@@ -77,11 +73,9 @@ class MoveGridItemUseCase @Inject constructor(
                         gridItems = gridItems,
                         movingGridItem = movingGridItem,
                         x = x,
-                        y = y,
                         rows = rows,
                         columns = columns,
                         gridWidth = gridWidth,
-                        gridHeight = gridHeight,
                     )
 
                     if (resolvedConflictsGridItems != null) {

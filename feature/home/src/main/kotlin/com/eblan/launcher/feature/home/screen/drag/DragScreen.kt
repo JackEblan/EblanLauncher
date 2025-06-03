@@ -90,11 +90,9 @@ fun DragScreen(
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
-        y: Int,
         rows: Int,
         columns: Int,
         gridWidth: Int,
-        gridHeight: Int,
     ) -> Unit,
     onUpdateWidgetGridItem: (
         id: String,
@@ -229,20 +227,14 @@ fun DragScreen(
 
             val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
 
-            val gridHeight = rootHeight - ((horizontalPagerPaddingPx * 2) + dockHeight)
-
             val gridX = dragIntOffset.x - horizontalPagerPaddingPx
-
-            val gridY = dragIntOffset.y - horizontalPagerPaddingPx
 
             onMoveGridItem(
                 gridItemLayoutInfo,
                 gridX,
-                gridY,
                 rows,
                 columns,
                 gridWidth,
-                gridHeight,
             )
         }
     }

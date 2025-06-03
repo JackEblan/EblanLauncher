@@ -9,11 +9,9 @@ suspend fun resolveConflictsWhenMoving(
     gridItems: MutableList<GridItem>,
     movingGridItem: GridItem,
     x: Int,
-    y: Int,
     rows: Int,
     columns: Int,
     gridWidth: Int,
-    gridHeight: Int,
 ): List<GridItem>? {
     val resolveDirection = gridItems.find { gridItem ->
         gridItem.id != movingGridItem.id && rectanglesOverlap(

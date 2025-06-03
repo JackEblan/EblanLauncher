@@ -105,11 +105,9 @@ fun HomeScreen(
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
-        y: Int,
         rows: Int,
         columns: Int,
         gridWidth: Int,
-        gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -183,11 +181,9 @@ fun Success(
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
-        y: Int,
         rows: Int,
         columns: Int,
         gridWidth: Int,
-        gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,

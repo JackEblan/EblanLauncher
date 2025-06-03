@@ -227,6 +227,10 @@ fun DragScreen(
         moveGridItem?.let { (gridItemLayoutInfo, rows, columns) ->
             delay(500L)
 
+            val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
+
+            val gridHeight = rootHeight - ((horizontalPagerPaddingPx * 2) + dockHeight)
+
             val gridX = dragIntOffset.x - horizontalPagerPaddingPx
 
             val gridY = dragIntOffset.y - horizontalPagerPaddingPx
@@ -237,8 +241,8 @@ fun DragScreen(
                 gridY,
                 rows,
                 columns,
-                rootWidth,
-                rootHeight,
+                gridWidth,
+                gridHeight,
             )
         }
     }
@@ -616,11 +620,9 @@ private fun onDragEndGridItemDataWidget(
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
 ) {
     if (shiftedAlgorithm != null && shiftedAlgorithm) {
-        val allocateAppWidgetId =
-            appWidgetHost.allocateAppWidgetId()
+        val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
 
-        val provider =
-            ComponentName.unflattenFromString(data.componentName)
+        val provider = ComponentName.unflattenFromString(data.componentName)
 
         if (appWidgetManager.bindAppWidgetIdIfAllowed(
                 appWidgetId = allocateAppWidgetId,
@@ -635,17 +637,16 @@ private fun onDragEndGridItemDataWidget(
 
             onDragEnd(targetPage)
         } else {
-            val intent =
-                Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                    putExtra(
-                        AppWidgetManager.EXTRA_APPWIDGET_ID,
-                        allocateAppWidgetId,
-                    )
-                    putExtra(
-                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
-                        provider,
-                    )
-                }
+            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    allocateAppWidgetId,
+                )
+                putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_PROVIDER,
+                    provider,
+                )
+            }
 
             appWidgetLauncher.launch(intent)
         }

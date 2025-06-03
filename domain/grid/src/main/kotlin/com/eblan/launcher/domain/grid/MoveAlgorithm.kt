@@ -7,47 +7,21 @@ import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflictsWhenMoving(
     gridItems: MutableList<GridItem>,
+    resolveDirection: ResolveDirection,
     movingGridItem: GridItem,
     x: Int,
     rows: Int,
     columns: Int,
     gridWidth: Int,
 ): List<GridItem>? {
-    val resolveDirection = gridItems.find { gridItem ->
-        gridItem.id != movingGridItem.id && rectanglesOverlap(
-            movingGridItem = movingGridItem,
-            gridItem = gridItem,
-        )
-    }?.let { gridItem ->
-        val cellWidth = gridWidth / columns
-
-        val gridItemX = gridItem.startColumn * cellWidth
-
-        val gridItemWidth = gridItem.columnSpan * cellWidth
-
-        val xInGridItem = x - gridItemX
-
-        when {
-            xInGridItem < gridItemWidth / 3 -> {
-                ResolveDirection.End
-            }
-
-            xInGridItem < 2 * gridItemWidth / 3 -> {
-                ResolveDirection.Center
-            }
-
-            else -> {
-                ResolveDirection.Start
-            }
-        }
-    } ?: ResolveDirection.Center
-
     return if (resolveConflicts(
             gridItems = gridItems,
-            movingGridItem = movingGridItem,
             resolveDirection = resolveDirection,
+            movingGridItem = movingGridItem,
+            x = x,
             rows = rows,
             columns = columns,
+            gridWidth = gridWidth,
         )
     ) {
         gridItems
@@ -60,8 +34,10 @@ private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
     movingGridItem: GridItem,
+    x: Int,
     rows: Int,
     columns: Int,
+    gridWidth: Int,
 ): Boolean {
     for (gridItem in gridItems) {
         if (!coroutineContext.isActive) return false
@@ -70,7 +46,7 @@ private suspend fun resolveConflicts(
         if (gridItem.id == movingGridItem.id) continue
 
         if (rectanglesOverlap(movingGridItem = movingGridItem, gridItem = gridItem)) {
-            val shiftedItem = moveGridItem(
+            val movedGridItem = moveGridItem(
                 resolveDirection = resolveDirection,
                 movingGridItem = movingGridItem,
                 conflictingGridItem = gridItem,
@@ -81,15 +57,17 @@ private suspend fun resolveConflicts(
             // Update the grid with the shifted item.
             val index = gridItems.indexOfFirst { it.id == gridItem.id }
 
-            gridItems[index] = shiftedItem
+            gridItems[index] = movedGridItem
 
             // Recursively resolve further conflicts from the shifted item.
             if (!resolveConflicts(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    movingGridItem = shiftedItem,
+                    movingGridItem = movedGridItem,
+                    x = x,
                     rows = rows,
                     columns = columns,
+                    gridWidth = gridWidth,
                 )
             ) {
                 return false
@@ -179,3 +157,4 @@ private fun moveGridItemToLeft(
 
     return conflictingGridItem.copy(startRow = newRow, startColumn = newColumn)
 }
+

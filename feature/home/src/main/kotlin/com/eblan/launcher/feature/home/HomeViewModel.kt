@@ -88,18 +88,22 @@ class HomeViewModel @Inject constructor(
     fun moveGridItem(
         movingGridItem: GridItem,
         x: Int,
+        y: Int,
         rows: Int,
         columns: Int,
         gridWidth: Int,
+        gridHeight: Int,
     ) {
         viewModelScope.launch {
             _shiftedAlgorithm.update {
                 moveGridItemUseCase(
                     movingGridItem = movingGridItem,
                     x = x,
+                    y = y,
                     rows = rows,
                     columns = columns,
                     gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                 ) != null
             }
         }

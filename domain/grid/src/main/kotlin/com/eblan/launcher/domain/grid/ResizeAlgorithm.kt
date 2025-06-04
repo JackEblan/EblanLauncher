@@ -7,16 +7,11 @@ import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflictsWhenResizing(
     gridItems: MutableList<GridItem>,
-    oldGridItem: GridItem,
+    resolveDirection: ResolveDirection,
     resizingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
-    val resolveDirection = getResolveDirection(
-        oldGridItem = oldGridItem,
-        resizingGridItem = resizingGridItem,
-    )
-
     return if (resolveConflicts(
             gridItems = gridItems,
             resolveDirection = resolveDirection,
@@ -31,7 +26,7 @@ suspend fun resolveConflictsWhenResizing(
     }
 }
 
- private suspend fun resolveConflicts(
+private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
     resizingGridItem: GridItem,
@@ -75,22 +70,3 @@ suspend fun resolveConflictsWhenResizing(
     return true
 }
 
-private fun getResolveDirection(
-    oldGridItem: GridItem,
-    resizingGridItem: GridItem,
-): ResolveDirection {
-    val oldCenterRow = oldGridItem.startRow + oldGridItem.rowSpan / 2.0
-    val oldCenterColumn = oldGridItem.startColumn + oldGridItem.columnSpan / 2.0
-
-    val newCenterRow = resizingGridItem.startRow + resizingGridItem.rowSpan / 2.0
-    val newCenterColumn = resizingGridItem.startColumn + resizingGridItem.columnSpan / 2.0
-
-    val rowDiff = newCenterRow - oldCenterRow
-    val columnDiff = newCenterColumn - oldCenterColumn
-
-    return when {
-        rowDiff < 0 || columnDiff < 0 -> ResolveDirection.Start
-        rowDiff > 0 || columnDiff > 0 -> ResolveDirection.End
-        else -> ResolveDirection.Center
-    }
-}

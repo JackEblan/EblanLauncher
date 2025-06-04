@@ -4,6 +4,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWhenResizing
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -18,73 +19,80 @@ class ResizeGridItemUseCase @Inject constructor(
         rows: Int,
         columns: Int,
     ): List<GridItem>? {
+        if (!isGridItemSpanWithinBounds(
+                gridItem = resizingGridItem,
+                rows = rows,
+                columns = columns,
+            )
+        ) {
+            return null
+        }
+
         return withContext(Dispatchers.Default) {
-            if (isGridItemSpanWithinBounds(
-                    gridItem = resizingGridItem,
-                    rows = rows,
-                    columns = columns,
-                )
-            ) {
-                val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
-                    when (resizingGridItem.associate) {
-                        Associate.Grid -> {
-                            isGridItemSpanWithinBounds(
-                                gridItem = gridItem,
-                                rows = rows,
-                                columns = columns,
-                            ) && gridItem.page == resizingGridItem.page && gridItem.associate == Associate.Grid
-                        }
-
-                        Associate.Dock -> {
-                            isGridItemSpanWithinBounds(
-                                gridItem = gridItem,
-                                rows = rows,
-                                columns = columns,
-                            ) && gridItem.associate == Associate.Dock
-                        }
-                    }
-                }.toMutableList()
-
-                val index = gridItems.indexOfFirst { it.id == resizingGridItem.id }
-
-                if (index != -1) {
-                    val oldGridItem = gridItems[index]
-
-                    gridItems[index] = resizingGridItem
-
-                    val resolvedConflictsGridItems = resolveConflictsWhenResizing(
-                        gridItems = gridItems,
-                        oldGridItem = oldGridItem,
-                        resizingGridItem = resizingGridItem,
-                        rows = rows,
-                        columns = columns,
-                    )
-
-                    if (resolvedConflictsGridItems != null) {
-                        gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+                when (resizingGridItem.associate) {
+                    Associate.Grid -> {
+                        isGridItemSpanWithinBounds(
+                            gridItem = gridItem,
+                            rows = rows,
+                            columns = columns,
+                        ) && gridItem.page == resizingGridItem.page && gridItem.associate == Associate.Grid
                     }
 
-                    resolvedConflictsGridItems
-                } else {
-                    gridItems.add(resizingGridItem)
-
-                    val resolvedConflictsGridItems = resolveConflictsWhenResizing(
-                        gridItems = gridItems,
-                        oldGridItem = resizingGridItem,
-                        resizingGridItem = resizingGridItem,
-                        rows = rows,
-                        columns = columns,
-                    )
-
-                    if (resolvedConflictsGridItems != null) {
-                        gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+                    Associate.Dock -> {
+                        isGridItemSpanWithinBounds(
+                            gridItem = gridItem,
+                            rows = rows,
+                            columns = columns,
+                        ) && gridItem.associate == Associate.Dock
                     }
-
-                    resolvedConflictsGridItems
                 }
-            } else {
-                null
+            }.toMutableList()
+
+            val index = gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
+
+            val oldGridItem = gridItems[index]
+
+            gridItems[index] = resizingGridItem
+
+            val resolveDirection = getResolveDirection(
+                oldGridItem = oldGridItem,
+                resizingGridItem = resizingGridItem,
+            )
+
+            val resolvedConflictsGridItems = resolveConflictsWhenResizing(
+                gridItems = gridItems,
+                resolveDirection = resolveDirection,
+                resizingGridItem = resizingGridItem,
+                rows = rows,
+                columns = columns,
+            )
+
+            if (resolvedConflictsGridItems != null) {
+                gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
             }
+
+            resolvedConflictsGridItems
+        }
+    }
+
+    private fun getResolveDirection(
+        oldGridItem: GridItem,
+        resizingGridItem: GridItem,
+    ): ResolveDirection {
+        val oldCenterRow = oldGridItem.startRow + oldGridItem.rowSpan / 2.0
+        val oldCenterColumn = oldGridItem.startColumn + oldGridItem.columnSpan / 2.0
+
+        val newCenterRow = resizingGridItem.startRow + resizingGridItem.rowSpan / 2.0
+        val newCenterColumn = resizingGridItem.startColumn + resizingGridItem.columnSpan / 2.0
+
+        val rowDiff = newCenterRow - oldCenterRow
+        val columnDiff = newCenterColumn - oldCenterColumn
+
+        return when {
+            rowDiff < 0 || columnDiff < 0 -> ResolveDirection.Start
+            rowDiff > 0 || columnDiff > 0 -> ResolveDirection.End
+            else -> ResolveDirection.Center
         }
     }
 }

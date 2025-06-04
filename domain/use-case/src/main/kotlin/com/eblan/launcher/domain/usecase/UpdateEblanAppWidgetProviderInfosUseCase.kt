@@ -75,16 +75,12 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
             )
 
-            val dataIds = eblanAppWidgetProviderInfosToDelete.onEach { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfosToDelete.onEach { eblanAppWidgetProviderInfo ->
                 fileManager.deleteFile(
                     directory = fileManager.previewsDirectory,
                     name = eblanAppWidgetProviderInfo.className,
                 )
-            }.map { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.componentName
             }
-
-            gridRepository.deleteGridItemByDataIds(dataIds = dataIds)
         }
     }
 }

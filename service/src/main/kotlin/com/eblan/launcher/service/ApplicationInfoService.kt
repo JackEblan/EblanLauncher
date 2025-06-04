@@ -52,11 +52,13 @@ class ApplicationInfoService : Service() {
     @ApplicationScope
     lateinit var appScope: CoroutineScope
 
-    private lateinit var serviceJob: Job
+    private lateinit var launcherAppsEventJob: Job
+
+    private lateinit var updateJob: Job
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appScope.launch {
-            serviceJob = launch {
+            launcherAppsEventJob = launch {
                 launcherAppsWrapper.launcherAppsEvent.collectLatest { launcherAppEvent ->
                     when (launcherAppEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
@@ -75,9 +77,11 @@ class ApplicationInfoService : Service() {
                 }
             }
 
-            updateEblanApplicationInfosUseCase()
+            updateJob = launch {
+                updateEblanApplicationInfosUseCase()
 
-            updateEblanAppWidgetProviderInfosUseCase()
+                updateEblanAppWidgetProviderInfosUseCase()
+            }
         }
 
 
@@ -91,14 +95,15 @@ class ApplicationInfoService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        serviceJob.cancel()
+        launcherAppsEventJob.cancel()
+
+        updateJob.cancel()
     }
 
     private suspend fun packageAdded(packageName: String) {
         val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
-        val iconByteArray =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
+        val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)
 
         val icon = iconByteArray?.let { currentIconByteArray ->
             fileManager.writeFileBytes(
@@ -134,18 +139,13 @@ class ApplicationInfoService : Service() {
                     directory = fileManager.previewsDirectory,
                     name = appWidgetManagerAppWidgetProviderInfo.className,
                 )
-
-                eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfoByClassName(
-                    className = appWidgetManagerAppWidgetProviderInfo.className,
-                )
             }
     }
 
     private suspend fun packageChanged(packageName: String) {
         val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
-        val iconByteArray =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
+        val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)
 
         val icon = iconByteArray?.let { currentIconByteArray ->
             fileManager.writeFileBytes(
@@ -182,20 +182,19 @@ class ApplicationInfoService : Service() {
             eblanApplicationInfo = eblanApplicationInfo,
         )
 
-        appWidgetManagerWrapper.getInstalledProviders()
+        val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-            }.onEach { appWidgetManagerAppWidgetProviderInfo ->
-                val preview =
-                    appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
-                        fileManager.writeFileBytes(
-                            directory = fileManager.previewsDirectory,
-                            name = appWidgetManagerAppWidgetProviderInfo.className,
-                            byteArray = currentPreview,
-                        )
-                    }
+            }.map { appWidgetManagerAppWidgetProviderInfo ->
+                val preview = appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
+                    fileManager.writeFileBytes(
+                        directory = fileManager.previewsDirectory,
+                        name = appWidgetManagerAppWidgetProviderInfo.className,
+                        byteArray = currentPreview,
+                    )
+                }
 
-                val eblanAppWidgetProviderInfo = EblanAppWidgetProviderInfo(
+                EblanAppWidgetProviderInfo(
                     className = appWidgetManagerAppWidgetProviderInfo.className,
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                     targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
@@ -210,10 +209,10 @@ class ApplicationInfoService : Service() {
                     preview = preview,
                     eblanApplicationInfo = eblanApplicationInfo,
                 )
-
-                eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfo(
-                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
-                )
             }
+
+        eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+        )
     }
 }

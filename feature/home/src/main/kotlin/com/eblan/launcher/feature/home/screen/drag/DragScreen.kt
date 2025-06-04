@@ -59,7 +59,6 @@ import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.MoveGridItem
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
@@ -126,8 +125,6 @@ fun DragScreen(
         TextColor.Black -> Color.Black
     }
 
-    var moveGridItem by remember { mutableStateOf<MoveGridItem?>(null) }
-
     val tempPageCount = if (addNewPage) pageCount + 1 else pageCount
 
     val horizontalPagerState = rememberPagerState(
@@ -190,9 +187,7 @@ fun DragScreen(
             onChangePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
-            onChangeMoveGridItem = { newMoveGridItem ->
-                moveGridItem = newMoveGridItem
-            },
+            onMoveGridItem = onMoveGridItem,
         )
     }
 
@@ -221,30 +216,6 @@ fun DragScreen(
                 showMenu = newShowMenu
             },
         )
-    }
-
-    LaunchedEffect(key1 = moveGridItem) {
-        moveGridItem?.let { (gridItemLayoutInfo, rows, columns) ->
-            delay(500L)
-
-            val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
-
-            val gridHeight = rootHeight - ((horizontalPagerPaddingPx * 2) + dockHeight)
-
-            val gridX = dragIntOffset.x - horizontalPagerPaddingPx
-
-            val gridY = dragIntOffset.y - horizontalPagerPaddingPx
-
-            onMoveGridItem(
-                gridItemLayoutInfo,
-                gridX,
-                gridY,
-                rows,
-                columns,
-                gridWidth,
-                gridHeight,
-            )
-        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -690,7 +661,15 @@ private fun handleDragIntOffset(
     columns: Int,
     rows: Int,
     onChangePageDirection: (PageDirection?) -> Unit,
-    onChangeMoveGridItem: (MoveGridItem) -> Unit,
+    onMoveGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        rows: Int,
+        columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
 ) {
     if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
         val isDraggingOnDock = dragIntOffset.y > rootHeight - dockHeight
@@ -715,12 +694,14 @@ private fun handleDragIntOffset(
                 associate = Associate.Dock,
             )
 
-            onChangeMoveGridItem(
-                MoveGridItem(
-                    gridItem = gridItem,
-                    rows = dockRows,
-                    columns = dockColumns,
-                ),
+            onMoveGridItem(
+                gridItem,
+                dragIntOffset.x,
+                dockY,
+                rows,
+                columns,
+                rootWidth,
+                dockHeight,
             )
         } else {
             onChangePageDirection(null)
@@ -748,12 +729,14 @@ private fun handleDragIntOffset(
                     associate = Associate.Grid,
                 )
 
-                onChangeMoveGridItem(
-                    MoveGridItem(
-                        gridItem = gridItem,
-                        rows = rows,
-                        columns = columns,
-                    ),
+                onMoveGridItem(
+                    gridItem,
+                    gridX,
+                    gridY,
+                    rows,
+                    columns,
+                    gridWidth,
+                    gridHeight,
                 )
             }
         }

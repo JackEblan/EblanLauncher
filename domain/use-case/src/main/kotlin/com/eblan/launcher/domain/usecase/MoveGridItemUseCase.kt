@@ -50,8 +50,8 @@ class MoveGridItemUseCase @Inject constructor(
                     }
                 }.toMutableList()
 
-                val gridItemByCoordinates = getGridItemByCoordinates(
-                    movingGridItem = movingGridItem,
+                val firstConflictingGridItem = getFirstConflictingGridItem(
+                    id = movingGridItem.id,
                     gridItems = gridItems,
                     rows = rows,
                     columns = columns,
@@ -66,9 +66,9 @@ class MoveGridItemUseCase @Inject constructor(
                 if (index != -1) {
                     gridItems[index] = movingGridItem
 
-                    if (gridItemByCoordinates != null) {
+                    if (firstConflictingGridItem != null) {
                         val resolveDirection = getResolveDirection(
-                            gridItem = gridItemByCoordinates,
+                            gridItem = firstConflictingGridItem,
                             x = x,
                             columns = columns,
                             gridWidth = gridWidth,
@@ -84,8 +84,6 @@ class MoveGridItemUseCase @Inject constructor(
                             gridWidth = gridWidth,
                         )
 
-                        println(resolvedConflictsGridItems)
-
                         if (resolvedConflictsGridItems != null) {
                             gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
                         }
@@ -99,9 +97,9 @@ class MoveGridItemUseCase @Inject constructor(
                 } else {
                     gridItems.add(movingGridItem)
 
-                    if (gridItemByCoordinates != null) {
+                    if (firstConflictingGridItem != null) {
                         val resolveDirection = getResolveDirection(
-                            gridItem = gridItemByCoordinates,
+                            gridItem = firstConflictingGridItem,
                             x = x,
                             columns = columns,
                             gridWidth = gridWidth,
@@ -134,8 +132,8 @@ class MoveGridItemUseCase @Inject constructor(
         }
     }
 
-    private fun getGridItemByCoordinates(
-        movingGridItem: GridItem,
+    private fun getFirstConflictingGridItem(
+        id: String,
         gridItems: List<GridItem>,
         rows: Int,
         columns: Int,
@@ -159,7 +157,7 @@ class MoveGridItemUseCase @Inject constructor(
             val columnInSpan =
                 startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
 
-            gridItem.page == movingGridItem.page && gridItem.id != movingGridItem.id && rowInSpan && columnInSpan
+            gridItem.id != id && rowInSpan && columnInSpan
         }
     }
 }

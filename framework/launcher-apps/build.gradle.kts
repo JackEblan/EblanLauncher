@@ -18,16 +18,16 @@
 
 plugins {
     alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
 }
 
 android {
-    namespace = "com.eblan.launcher.broadcastreceiver"
+    namespace = "com.eblan.launcher.framework.launcherapps"
 }
 
 dependencies {
+    implementation(projects.common)
     implementation(projects.domain.common)
     implementation(projects.domain.framework)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
 }

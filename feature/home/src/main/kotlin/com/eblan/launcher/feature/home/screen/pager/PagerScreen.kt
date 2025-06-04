@@ -1,5 +1,7 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.content.ComponentName
+import android.graphics.Rect
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -38,19 +40,21 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
+import androidx.core.app.ActivityOptionsCompat
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -85,7 +89,6 @@ fun PagerScreen(
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
-    onLaunchApplication: (String) -> Unit,
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -148,7 +151,6 @@ fun PagerScreen(
                     rootHeight = rootHeight,
                     onLongPressGrid = onLongPressGrid,
                     onLongPressedGridItem = onLongPressedGridItem,
-                    onLaunchApplication = onLaunchApplication,
                     onDragStart = onDragStart,
                     onWidgetActionDown = {
                         userScrollEnabled = false
@@ -231,12 +233,13 @@ private fun HorizontalPagerScreen(
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
-    onLaunchApplication: (String) -> Unit,
     onDragStart: () -> Unit,
     onWidgetActionDown: () -> Unit,
     onWidgetActionUp: () -> Unit,
 ) {
     val density = LocalDensity.current
+
+    val localLauncherApps = LocalLauncherApps.current
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
@@ -290,7 +293,16 @@ private fun HorizontalPagerScreen(
                                 textColor = textColor,
                                 gridItemData = data,
                                 onTap = {
-                                    onLaunchApplication(data.packageName)
+                                    val componentName =
+                                        data.componentName?.let(ComponentName::unflattenFromString)
+
+                                    val opts = ActivityOptionsCompat.makeBasic().toBundle()
+
+                                    localLauncherApps.startMainActivity(
+                                        component = componentName,
+                                        sourceBounds = Rect(x, y, x + width, y + height),
+                                        opts = opts,
+                                    )
                                 },
                                 onLongPress = { preview ->
                                     onLongPressedGridItem(
@@ -355,7 +367,16 @@ private fun HorizontalPagerScreen(
                         textColor = textColor,
                         gridItemData = data,
                         onTap = {
-                            onLaunchApplication(data.packageName)
+                            val componentName =
+                                data.componentName?.let(ComponentName::unflattenFromString)
+
+                            val opts = ActivityOptionsCompat.makeBasic().toBundle()
+
+                            localLauncherApps.startMainActivity(
+                                component = componentName,
+                                sourceBounds = Rect(x, y, x + width, y + height),
+                                opts = opts,
+                            )
                         },
                         onLongPress = { preview ->
                             onLongPressedGridItem(

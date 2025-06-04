@@ -17,15 +17,10 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.PackageManagerApplicationInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,31 +31,6 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
 ) : PackageManagerWrapper {
 
     private val packageManager = context.packageManager
-
-    override suspend fun queryIntentActivities(): List<PackageManagerApplicationInfo> {
-        val intent = Intent().apply {
-            action = Intent.ACTION_MAIN
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-
-        return withContext(Dispatchers.Default) {
-            packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
-                .map { resolveInfo ->
-                    resolveInfo.activityInfo.applicationInfo.toPackageManagerApplicationInfo()
-                }
-        }
-    }
-
-    override fun launchIntentForPackage(packageName: String) {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
-            flags = FLAG_ACTIVITY_NEW_TASK
-        }
-
-        try {
-            context.startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
-        }
-    }
 
     override suspend fun getApplicationIcon(packageName: String): ByteArray? {
         return withContext(Dispatchers.Default) {
@@ -86,13 +56,9 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
         }
     }
 
-    private fun ApplicationInfo.toPackageManagerApplicationInfo(): PackageManagerApplicationInfo {
-        val byteArray = loadIcon(packageManager).toByteArray()
+    override fun getComponentName(packageName: String): String? {
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
 
-        return PackageManagerApplicationInfo(
-            icon = byteArray,
-            packageName = packageName,
-            label = loadLabel(packageManager).toString(),
-        )
+        return launchIntent?.component?.flattenToString()
     }
 }

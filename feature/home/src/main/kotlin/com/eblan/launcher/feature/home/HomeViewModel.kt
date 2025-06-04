@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -38,7 +37,6 @@ class HomeViewModel @Inject constructor(
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
-    private val packageManagerWrapper: PackageManagerWrapper,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
@@ -164,10 +162,6 @@ class HomeViewModel @Inject constructor(
                 true
             }
         }
-    }
-
-    fun launchApplication(packageName: String) {
-        packageManagerWrapper.launchIntentForPackage(packageName = packageName)
     }
 
     fun resetGridCache() {

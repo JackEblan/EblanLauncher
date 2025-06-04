@@ -55,6 +55,7 @@ dependencies {
     implementation(projects.feature.settings.home)
     implementation(projects.feature.settings.settings)
     implementation(projects.framework.fileManager)
+    implementation(projects.framework.launcherApps)
     implementation(projects.framework.packageManager)
     implementation(projects.framework.widgetManager)
     implementation(projects.service)

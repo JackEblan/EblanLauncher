@@ -27,4 +27,6 @@ android {
 
 dependencies {
     api(projects.domain.model)
+
+    implementation(libs.kotlinx.coroutines.core)
 }

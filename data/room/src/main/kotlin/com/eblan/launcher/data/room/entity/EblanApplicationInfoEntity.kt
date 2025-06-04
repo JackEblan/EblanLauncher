@@ -23,6 +23,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class EblanApplicationInfoEntity(
     @PrimaryKey val packageName: String,
+    val componentName: String?,
     val icon: String?,
     val label: String?,
 )

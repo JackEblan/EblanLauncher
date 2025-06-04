@@ -22,20 +22,10 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
     @ApplicationScope
     lateinit var appScope: CoroutineScope
 
-    @Inject
-    lateinit var eblanApplicationInfoRepository: EblanApplicationInfoRepository
 
     @Inject
     lateinit var packageManagerWrapper: PackageManagerWrapper
 
-    @Inject
-    lateinit var fileManager: FileManager
-
-    @Inject
-    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
-
-    @Inject
-    lateinit var eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val packageName = intent?.data?.schemeSpecificPart ?: return
@@ -63,118 +53,5 @@ class PackageBroadcastReceiver : BroadcastReceiver() {
                 }
             }
         }
-    }
-
-    private suspend fun actionPackageRemoved(isReplacing: Boolean, packageName: String) {
-        if (!isReplacing) {
-            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
-                packageName = packageName,
-            )
-
-            fileManager.deleteFile(
-                directory = fileManager.iconsDirectory,
-                name = packageName,
-            )
-
-            appWidgetManagerWrapper.getInstalledProviders()
-                .filter { appWidgetManagerAppWidgetProviderInfo ->
-                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-                }.onEach { appWidgetManagerAppWidgetProviderInfo ->
-                    fileManager.deleteFile(
-                        directory = fileManager.previewsDirectory,
-                        name = appWidgetManagerAppWidgetProviderInfo.className,
-                    )
-
-                    eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfoByClassName(
-                        className = appWidgetManagerAppWidgetProviderInfo.className,
-                    )
-                }
-        }
-    }
-
-    private suspend fun actionPackageAdded(isReplacing: Boolean, packageName: String) {
-        val iconByteArray =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-
-        val icon = iconByteArray?.let { currentIconByteArray ->
-            fileManager.writeFileBytes(
-                directory = fileManager.iconsDirectory,
-                name = packageName,
-                byteArray = currentIconByteArray,
-            )
-        }
-
-        if (!isReplacing) {
-            val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
-            upsertEblanApplicationInfo(packageName = packageName, icon = icon, label = label)
-        }
-    }
-
-    private suspend fun actionPackageReplaced(packageName: String) {
-        val iconByteArray =
-            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-
-        val icon = iconByteArray?.let { currentIconByteArray ->
-            fileManager.writeFileBytes(
-                directory = fileManager.iconsDirectory,
-                name = packageName,
-                byteArray = currentIconByteArray,
-            )
-        }
-
-        val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
-        upsertEblanApplicationInfo(packageName = packageName, icon = icon, label = label)
-    }
-
-    private suspend fun upsertEblanApplicationInfo(
-        packageName: String,
-        icon: String?,
-        label: String?,
-    ) {
-        val eblanApplicationInfo = EblanApplicationInfo(
-            packageName = packageName,
-            icon = icon,
-            label = label,
-        )
-
-        eblanApplicationInfoRepository.upsertEblanApplicationInfo(
-            eblanApplicationInfo = eblanApplicationInfo,
-        )
-
-        appWidgetManagerWrapper.getInstalledProviders()
-            .filter { appWidgetManagerAppWidgetProviderInfo ->
-                appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-            }.onEach { appWidgetManagerAppWidgetProviderInfo ->
-                val preview =
-                    appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
-                        fileManager.writeFileBytes(
-                            directory = fileManager.previewsDirectory,
-                            name = appWidgetManagerAppWidgetProviderInfo.className,
-                            byteArray = currentPreview,
-                        )
-                    }
-
-                val eblanAppWidgetProviderInfo = EblanAppWidgetProviderInfo(
-                    className = appWidgetManagerAppWidgetProviderInfo.className,
-                    componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
-                    targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
-                    targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                    minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
-                    minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
-                    resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
-                    minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
-                    minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
-                    maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
-                    maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                    preview = preview,
-                    eblanApplicationInfo = eblanApplicationInfo,
-                )
-
-                eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfo(
-                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
-                )
-            }
     }
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "def1947d74a24e977a68b40a89ae51b4",
+    "identityHash": "35d9b691e5c453423ab3725686ab7f47",
     "entities": [
       {
         "tableName": "GridItemEntity",
@@ -74,13 +74,19 @@
       },
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `componentName` TEXT, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`))",
         "fields": [
           {
             "fieldPath": "packageName",
             "columnName": "packageName",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "componentName",
+            "columnName": "componentName",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "icon",
@@ -106,7 +112,7 @@
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`className`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`))",
         "fields": [
           {
             "fieldPath": "className",
@@ -181,20 +187,26 @@
             "notNull": false
           },
           {
+            "fieldPath": "eblanApplicationInfo.componentName",
+            "columnName": "applicationInfo_componentName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "eblanApplicationInfo.packageName",
-            "columnName": "packageName",
+            "columnName": "applicationInfo_packageName",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "eblanApplicationInfo.icon",
-            "columnName": "icon",
+            "columnName": "applicationInfo_icon",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "eblanApplicationInfo.label",
-            "columnName": "label",
+            "columnName": "applicationInfo_label",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -212,7 +224,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'def1947d74a24e977a68b40a89ae51b4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35d9b691e5c453423ab3725686ab7f47')"
     ]
   }
 }

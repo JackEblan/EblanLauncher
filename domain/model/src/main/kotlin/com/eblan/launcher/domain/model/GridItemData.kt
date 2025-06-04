@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 sealed interface GridItemData {
     @Serializable
     data class ApplicationInfo(
+        val componentName: String?,
         val packageName: String,
         val icon: String?,
         val label: String?,

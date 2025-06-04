@@ -19,5 +19,5 @@ data class EblanAppWidgetProviderInfoEntity(
     val maxResizeWidth: Int,
     val maxResizeHeight: Int,
     val preview: String?,
-    @Embedded val eblanApplicationInfo: EblanApplicationInfo,
+    @Embedded(prefix = "applicationInfo_") val eblanApplicationInfo: EblanApplicationInfo,
 )

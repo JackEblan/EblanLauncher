@@ -38,5 +38,6 @@ dependencies {
     api(libs.coil.kt.compose)
 
     implementation(projects.domain.model)
+    implementation(projects.framework.launcherApps)
     implementation(projects.framework.widgetManager)
 }

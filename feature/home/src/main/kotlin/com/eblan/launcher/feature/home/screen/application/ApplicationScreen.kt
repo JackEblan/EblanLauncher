@@ -46,10 +46,10 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
@@ -168,6 +168,7 @@ fun ApplicationScreen(
                                                     y = intOffset.y,
                                                     gridWidth = rootWidth,
                                                     gridHeight = rootHeight - dockHeight,
+                                                    componentName = eblanApplicationInfo.componentName,
                                                     packageName = eblanApplicationInfo.packageName,
                                                     icon = eblanApplicationInfo.icon,
                                                     label = eblanApplicationInfo.label,
@@ -253,6 +254,7 @@ private fun getGridItemLayoutInfo(
     y: Int,
     gridWidth: Int,
     gridHeight: Int,
+    componentName: String?,
     packageName: String,
     icon: String?,
     label: String?,
@@ -265,7 +267,12 @@ private fun getGridItemLayoutInfo(
 
     val startRow = y / cellHeight
 
-    val data = GridItemData.ApplicationInfo(packageName = packageName, icon = icon, label = label)
+    val data = GridItemData.ApplicationInfo(
+        componentName = componentName,
+        packageName = packageName,
+        icon = icon,
+        label = label,
+    )
 
     val gridItem = GridItem(
         id = Uuid.random().toHexString(),

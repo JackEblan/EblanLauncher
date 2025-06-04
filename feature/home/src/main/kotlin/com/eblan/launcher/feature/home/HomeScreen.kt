@@ -87,7 +87,6 @@ fun HomeRoute(
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
         onShowGridCache = viewModel::showGridCache,
-        onLaunchApplication = viewModel::launchApplication,
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
@@ -123,7 +122,6 @@ fun HomeScreen(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
-    onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -156,7 +154,6 @@ fun HomeScreen(
                         onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onDeleteGridItem = onDeleteGridItem,
                         onShowGridCache = onShowGridCache,
-                        onLaunchApplication = onLaunchApplication,
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
                         onSettings = onSettings,
@@ -201,7 +198,6 @@ fun Success(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
-    onLaunchApplication: (String) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -305,7 +301,6 @@ fun Success(
                             height = gridItemLayoutInfo.height,
                         )
                     },
-                    onLaunchApplication = onLaunchApplication,
                     onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 

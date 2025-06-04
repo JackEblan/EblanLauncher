@@ -54,6 +54,7 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
     private fun EblanApplicationInfoEntity.toEblanApplicationInfo(): EblanApplicationInfo {
         return EblanApplicationInfo(
             packageName = packageName,
+            componentName = componentName,
             icon = icon,
             label = label,
         )
@@ -62,6 +63,7 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
     private fun EblanApplicationInfo.toEblanApplicationInfoEntity(): EblanApplicationInfoEntity {
         return EblanApplicationInfoEntity(
             packageName = packageName,
+            componentName = componentName,
             icon = icon,
             label = label,
         )

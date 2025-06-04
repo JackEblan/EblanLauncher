@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class UpdateEblanApplicationInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val packageManagerWrapper: PackageManagerWrapper,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
     private val gridRepository: GridRepository,
 ) {
@@ -18,19 +18,20 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
         val oldEblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()
 
         val newEblanApplicationInfos =
-            packageManagerWrapper.queryIntentActivities().map { packageManagerApplicationInfo ->
-                val icon = packageManagerApplicationInfo.icon?.let { currentIcon ->
+            launcherAppsWrapper.getActivityList().map { eblanLauncherActivityInfo ->
+                val icon = eblanLauncherActivityInfo.icon?.let { currentIcon ->
                     fileManager.writeFileBytes(
                         directory = fileManager.iconsDirectory,
-                        name = packageManagerApplicationInfo.packageName,
+                        name = eblanLauncherActivityInfo.packageName,
                         byteArray = currentIcon,
                     )
                 }
 
                 EblanApplicationInfo(
-                    packageName = packageManagerApplicationInfo.packageName,
+                    componentName = eblanLauncherActivityInfo.componentName,
+                    packageName = eblanLauncherActivityInfo.packageName,
                     icon = icon,
-                    label = packageManagerApplicationInfo.label,
+                    label = eblanLauncherActivityInfo.label,
                 )
             }
 

@@ -15,11 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
 
-data class EblanApplicationInfo(
-    val componentName: String?,
-    val packageName: String,
-    val icon: String?,
-    val label: String?,
-)
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
+
+android {
+    namespace = "com.eblan.launcher.framework.launcherapps"
+}
+
+dependencies {
+    implementation(projects.common)
+    implementation(projects.domain.common)
+    implementation(projects.domain.framework)
+}

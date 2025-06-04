@@ -50,6 +50,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         return EblanAppWidgetProviderInfoEntity(
             className = className,
             componentName = componentName,
+            packageName = packageName,
             targetCellWidth = targetCellWidth,
             targetCellHeight = targetCellHeight,
             minWidth = minWidth,
@@ -69,6 +70,7 @@ fun EblanAppWidgetProviderInfoEntity.toEblanAppWidgetProviderInfo(): EblanAppWid
     return EblanAppWidgetProviderInfo(
         className = className,
         componentName = componentName,
+        packageName = packageName,
         targetCellWidth = targetCellWidth,
         targetCellHeight = targetCellHeight,
         minWidth = minWidth,

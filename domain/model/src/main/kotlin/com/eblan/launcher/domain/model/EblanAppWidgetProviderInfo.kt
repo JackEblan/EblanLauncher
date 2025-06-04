@@ -3,6 +3,7 @@ package com.eblan.launcher.domain.model
 data class EblanAppWidgetProviderInfo(
     val className: String,
     val componentName: String,
+    val packageName: String,
     val targetCellWidth: Int,
     val targetCellHeight: Int,
     val minWidth: Int,

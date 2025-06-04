@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9188c14014eddb0b40e87295ffb26643",
+    "identityHash": "855408377d48c8da8b71a8d7b51b2a5d",
     "entities": [
       {
         "tableName": "GridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `dataId` TEXT NOT NULL, `data` TEXT NOT NULL, `associate` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`dataId`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`dataId`) REFERENCES `EblanAppWidgetProviderInfoEntity`(`applicationInfo_packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `dataId` TEXT NOT NULL, `data` TEXT NOT NULL, `associate` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`dataId`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -69,7 +69,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_GridItemEntity_dataId",
+            "unique": false,
+            "columnNames": [
+              "dataId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_GridItemEntity_dataId` ON `${TABLE_NAME}` (`dataId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "EblanApplicationInfoEntity",
@@ -80,17 +90,6 @@
             ],
             "referencedColumns": [
               "packageName"
-            ]
-          },
-          {
-            "table": "EblanAppWidgetProviderInfoEntity",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "dataId"
-            ],
-            "referencedColumns": [
-              "applicationInfo_packageName"
             ]
           }
         ]
@@ -135,7 +134,7 @@
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`), FOREIGN KEY(`applicationInfo_packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "className",
@@ -146,6 +145,12 @@
           {
             "fieldPath": "componentName",
             "columnName": "componentName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -240,14 +245,24 @@
             "className"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_EblanAppWidgetProviderInfoEntity_packageName",
+            "unique": false,
+            "columnNames": [
+              "packageName"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_EblanAppWidgetProviderInfoEntity_packageName` ON `${TABLE_NAME}` (`packageName`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "EblanApplicationInfoEntity",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "applicationInfo_packageName"
+              "packageName"
             ],
             "referencedColumns": [
               "packageName"
@@ -259,7 +274,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9188c14014eddb0b40e87295ffb26643')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '855408377d48c8da8b71a8d7b51b2a5d')"
     ]
   }
 }

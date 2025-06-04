@@ -2,6 +2,7 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItemData
@@ -14,13 +15,8 @@ import com.eblan.launcher.domain.model.GridItemData
             childColumns = ["dataId"],
             onDelete = ForeignKey.CASCADE,
         ),
-        ForeignKey(
-            entity = EblanAppWidgetProviderInfoEntity::class,
-            parentColumns = ["applicationInfo_packageName"],
-            childColumns = ["dataId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
     ],
+    indices = [Index(value = ["dataId"])],
 )
 data class GridItemEntity(
     @PrimaryKey val id: String,

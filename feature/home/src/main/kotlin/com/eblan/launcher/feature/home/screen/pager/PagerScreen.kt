@@ -136,6 +136,7 @@ fun PagerScreen(
             0 -> {
                 HorizontalPagerScreen(
                     horizontalPagerState = gridHorizontalPagerState,
+                    verticalPagerState = verticalPagerState,
                     rows = rows,
                     columns = columns,
                     pageCount = pageCount,
@@ -174,10 +175,11 @@ fun PagerScreen(
                                 infiniteScroll = infiniteScroll,
                                 eblanApplicationInfos = eblanApplicationInfos,
                                 rootWidth = rootWidth,
+                                rootHeight = rootHeight,
                                 dockHeight = dockHeight,
                                 drag = drag,
                                 textColor = textColor,
-                                rootHeight = rootHeight,
+                                isScrollInProgress = verticalPagerState.isScrollInProgress,
                                 onLongPressApplicationInfo = onLongPressApplicationInfo,
                                 onDragging = onDraggingApplicationInfo,
                                 onDragEnd = onDragEndApplicationInfo,
@@ -213,6 +215,7 @@ fun PagerScreen(
 private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     horizontalPagerState: PagerState,
+    verticalPagerState: PagerState,
     rows: Int,
     columns: Int,
     pageCount: Int,
@@ -246,7 +249,10 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && gridItemLayoutInfo != null) {
+        if (!horizontalPagerState.isScrollInProgress &&
+            !verticalPagerState.isScrollInProgress &&
+            drag == Drag.Start && gridItemLayoutInfo != null
+        ) {
             onDragStart()
         }
     }

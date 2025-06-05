@@ -71,6 +71,7 @@ fun ApplicationScreen(
     dockHeight: Int,
     drag: Drag,
     textColor: TextColor,
+    isScrollInProgress: Boolean,
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -105,19 +106,21 @@ fun ApplicationScreen(
     )
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Start -> {
-                showMenu = true
-            }
+        if (!isScrollInProgress) {
+            when (drag) {
+                Drag.Start -> {
+                    showMenu = true
+                }
 
-            Drag.End, Drag.Cancel, Drag.None -> {
-                onDragEnd()
-            }
+                Drag.End, Drag.Cancel, Drag.None -> {
+                    onDragEnd()
+                }
 
-            Drag.Dragging -> {
-                showMenu = false
+                Drag.Dragging -> {
+                    showMenu = false
 
-                onDragging()
+                    onDragging()
+                }
             }
         }
     }

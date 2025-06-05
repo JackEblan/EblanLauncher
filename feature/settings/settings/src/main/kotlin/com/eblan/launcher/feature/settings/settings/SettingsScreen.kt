@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.settings.settings
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -101,7 +100,7 @@ fun Success(
                 .clickable(onClick = onHome),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Image(
+            Icon(
                 imageVector = EblanLauncherIcons.Home,
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),

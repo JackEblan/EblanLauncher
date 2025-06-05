@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.component
 
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -14,7 +13,7 @@ fun DragGridSubcomposeLayout(
     rows: Int,
     columns: Int,
     gridItems: Map<Int, List<GridItem>>,
-    gridItemContent: @Composable BoxScope.(GridItem) -> Unit,
+    gridItemContent: @Composable (GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns

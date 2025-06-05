@@ -10,6 +10,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -31,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -170,6 +175,8 @@ fun DragScreen(
         )
     }
 
+    var selectedGridItem by remember { mutableStateOf<GridItem?>(null) }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             targetPage = targetPage,
@@ -219,6 +226,20 @@ fun DragScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
+        GridItemOverlay(
+            isScrollInProgress = horizontalPagerState.isScrollInProgress,
+            selectedGridItem = selectedGridItem,
+            rootWidth = rootWidth,
+            horizontalPagerPaddingPx = horizontalPagerPaddingPx,
+            rootHeight = rootHeight,
+            dockHeight = dockHeight,
+            columns = columns,
+            rows = rows,
+            density = density,
+            dockColumns = dockColumns,
+            dockRows = dockRows,
+        )
+
         Column(modifier = Modifier.fillMaxSize()) {
             HorizontalPager(
                 state = horizontalPagerState,
@@ -245,13 +266,7 @@ fun DragScreen(
                         columns = columns,
                         gridItems = gridItems,
                         gridItemContent = { gridItem ->
-                            if (gridItemSource?.gridItemLayoutInfo?.gridItem?.id == gridItem.id) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .border(width = 1.dp, color = Color.White),
-                                )
-                            } else {
+                            if (gridItemSource?.gridItemLayoutInfo?.gridItem?.id != gridItem.id) {
                                 when (val gridItemData = gridItem.data) {
                                     is GridItemData.ApplicationInfo -> {
                                         Column(
@@ -306,6 +321,8 @@ fun DragScreen(
                                         }
                                     }
                                 }
+                            } else {
+                                selectedGridItem = gridItem
                             }
                         },
                     )
@@ -320,13 +337,7 @@ fun DragScreen(
                 columns = dockColumns,
                 dockGridItems = dockGridItems,
             ) { dockGridItem, _, _, _, _ ->
-                if (gridItemSource?.gridItemLayoutInfo?.gridItem?.id == dockGridItem.id) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .border(width = 1.dp, color = Color.White),
-                    )
-                } else {
+                if (gridItemSource?.gridItemLayoutInfo?.gridItem?.id != dockGridItem.id) {
                     when (val gridItemData = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             Column(
@@ -381,9 +392,12 @@ fun DragScreen(
                             }
                         }
                     }
+                } else {
+                    selectedGridItem = dockGridItem
                 }
             }
         }
+
         if (showMenu && gridItemSource?.gridItemLayoutInfo?.gridItem != null) {
             when (gridItemSource.gridItemLayoutInfo.gridItem.associate) {
                 Associate.Grid -> {
@@ -482,6 +496,82 @@ fun DragScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GridItemOverlay(
+    isScrollInProgress: Boolean,
+    selectedGridItem: GridItem?,
+    rootWidth: Int,
+    horizontalPagerPaddingPx: Int,
+    rootHeight: Int,
+    dockHeight: Int,
+    columns: Int,
+    rows: Int,
+    density: Density,
+    dockColumns: Int,
+    dockRows: Int,
+) {
+    if (selectedGridItem != null) {
+        var x by remember { mutableIntStateOf(0) }
+
+        var y by remember { mutableIntStateOf(0) }
+
+        var size by remember { mutableStateOf(DpSize.Zero) }
+
+        when (selectedGridItem.associate) {
+            Associate.Grid -> {
+                val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
+
+                val gridHeight = (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
+
+                val cellWidth = gridWidth / columns
+
+                val cellHeight = gridHeight / rows
+
+                x = (selectedGridItem.startColumn * cellWidth) + horizontalPagerPaddingPx
+
+                y = (selectedGridItem.startRow * cellHeight) + horizontalPagerPaddingPx
+
+                size = with(density) {
+                    DpSize(
+                        width = (selectedGridItem.columnSpan * cellWidth).toDp(),
+                        height = (selectedGridItem.rowSpan * cellHeight).toDp(),
+                    )
+                }
+            }
+
+            Associate.Dock -> {
+                val cellWidth = rootWidth / dockColumns
+
+                val cellHeight = dockHeight / dockRows
+
+                x = selectedGridItem.startColumn * cellWidth
+
+                y = (selectedGridItem.startRow * cellHeight) + (rootHeight - dockHeight)
+
+                size = with(density) {
+                    DpSize(
+                        width = (selectedGridItem.columnSpan * cellWidth).toDp(),
+                        height = (selectedGridItem.rowSpan * cellHeight).toDp(),
+                    )
+                }
+            }
+        }
+
+        val offset by animateIntOffsetAsState(targetValue = IntOffset(x = x, y = y))
+
+        if (!isScrollInProgress) {
+            Box(
+                modifier = Modifier
+                    .offset {
+                        offset
+                    }
+                    .size(size)
+                    .border(width = 1.dp, color = Color.White),
+            )
         }
     }
 }
@@ -708,7 +798,7 @@ private fun handleDragIntOffset(
 
             val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
 
-            val gridHeight = rootHeight - ((horizontalPagerPaddingPx * 2) + dockHeight)
+            val gridHeight = (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
 
             val gridX = dragIntOffset.x - horizontalPagerPaddingPx
 

@@ -52,26 +52,26 @@ class ApplicationInfoService : Service() {
     @ApplicationScope
     lateinit var appScope: CoroutineScope
 
-    private lateinit var launcherAppsEventJob: Job
+    private var launcherAppsEventJob: Job? = null
 
-    private lateinit var updateJob: Job
+    private var updateJob: Job? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appScope.launch {
             launcherAppsEventJob = launch {
-                launcherAppsWrapper.launcherAppsEvent.collectLatest { launcherAppEvent ->
-                    when (launcherAppEvent) {
+                launcherAppsWrapper.launcherAppsEvent.collectLatest { launcherAppsEvent ->
+                    when (launcherAppsEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
-                            packageAdded(packageName = launcherAppEvent.packageName)
+                            packageAdded(packageName = launcherAppsEvent.packageName)
                         }
 
                         is LauncherAppsEvent.PackageChanged -> {
-                            packageChanged(packageName = launcherAppEvent.packageName)
+                            packageChanged(packageName = launcherAppsEvent.packageName)
 
                         }
 
                         is LauncherAppsEvent.PackageRemoved -> {
-                            packageRemoved(packageName = launcherAppEvent.packageName)
+                            packageRemoved(packageName = launcherAppsEvent.packageName)
                         }
                     }
                 }
@@ -95,9 +95,9 @@ class ApplicationInfoService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        launcherAppsEventJob.cancel()
+        launcherAppsEventJob?.cancel()
 
-        updateJob.cancel()
+        updateJob?.cancel()
     }
 
     private suspend fun packageAdded(packageName: String) {

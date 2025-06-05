@@ -304,7 +304,7 @@ fun Success(
                     onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 
-                        addNewPage = true
+                        addNewPage = !gridItems[userData.pageCount - 1].isNullOrEmpty()
 
                         overlayImageBitmap = imageBitmap
 
@@ -343,7 +343,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        addNewPage = true
+                        addNewPage = !gridItems[userData.pageCount - 1].isNullOrEmpty()
 
                         showOverlay = true
 

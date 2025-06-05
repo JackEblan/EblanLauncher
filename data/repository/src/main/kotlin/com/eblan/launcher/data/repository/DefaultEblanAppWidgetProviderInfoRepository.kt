@@ -32,10 +32,6 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntity(entity = eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity())
     }
 
-    override suspend fun deleteEblanAppWidgetProviderInfoByClassName(className: String) {
-        eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntityByClassName(className = className)
-    }
-
     override suspend fun deleteEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
         val entities = withContext(Dispatchers.Default) {
             eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
@@ -64,23 +60,23 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             eblanApplicationInfo = eblanApplicationInfo,
         )
     }
-}
 
-fun EblanAppWidgetProviderInfoEntity.toEblanAppWidgetProviderInfo(): EblanAppWidgetProviderInfo {
-    return EblanAppWidgetProviderInfo(
-        className = className,
-        componentName = componentName,
-        packageName = packageName,
-        targetCellWidth = targetCellWidth,
-        targetCellHeight = targetCellHeight,
-        minWidth = minWidth,
-        minHeight = minHeight,
-        resizeMode = resizeMode,
-        minResizeWidth = minResizeWidth,
-        minResizeHeight = minResizeHeight,
-        maxResizeWidth = maxResizeWidth,
-        maxResizeHeight = maxResizeHeight,
-        preview = preview,
-        eblanApplicationInfo = eblanApplicationInfo,
-    )
+    private fun EblanAppWidgetProviderInfoEntity.toEblanAppWidgetProviderInfo(): EblanAppWidgetProviderInfo {
+        return EblanAppWidgetProviderInfo(
+            className = className,
+            componentName = componentName,
+            packageName = packageName,
+            targetCellWidth = targetCellWidth,
+            targetCellHeight = targetCellHeight,
+            minWidth = minWidth,
+            minHeight = minHeight,
+            resizeMode = resizeMode,
+            minResizeWidth = minResizeWidth,
+            minResizeHeight = minResizeHeight,
+            maxResizeWidth = maxResizeWidth,
+            maxResizeHeight = maxResizeHeight,
+            preview = preview,
+            eblanApplicationInfo = eblanApplicationInfo,
+        )
+    }
 }

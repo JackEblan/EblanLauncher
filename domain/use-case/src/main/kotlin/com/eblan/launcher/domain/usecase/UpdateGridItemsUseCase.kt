@@ -27,14 +27,14 @@ class UpdateGridItemsUseCase @Inject constructor(
             val lastPageIsNullOrEmpty =
                 gridCacheItemsByAssociateGrid.groupBy { gridItem -> gridItem.page }[pageCount - 1].isNullOrEmpty()
 
-            if (lastPageIsNullOrEmpty) {
+            if (lastPageIsNullOrEmpty && pageCount > 1) {
                 pageCount -= 1
 
                 userDataRepository.updatePageCount(pageCount)
             }
 
-            val hasNewPage =
-                gridCacheItemsByAssociateGrid.maxOf { gridItem -> gridItem.page } > pageCount - 1
+            val hasNewPage = gridCacheItemsByAssociateGrid.isNotEmpty() &&
+                    gridCacheItemsByAssociateGrid.maxOf { gridItem -> gridItem.page } > pageCount - 1
 
             if (hasNewPage) {
                 userDataRepository.updatePageCount(pageCount + 1)

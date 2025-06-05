@@ -5,7 +5,6 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.repository.GridRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -16,7 +15,6 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
-    private val gridRepository: GridRepository,
 ) {
     suspend operator fun invoke() {
         val oldEblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()

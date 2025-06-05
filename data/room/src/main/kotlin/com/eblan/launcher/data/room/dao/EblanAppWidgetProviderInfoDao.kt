@@ -19,9 +19,6 @@ interface EblanAppWidgetProviderInfoDao {
     @Upsert
     suspend fun upsertEblanAppWidgetProviderInfoEntity(entity: EblanAppWidgetProviderInfoEntity)
 
-    @Query("DELETE FROM EblanAppWidgetProviderInfoEntity WHERE className = :className")
-    suspend fun deleteEblanAppWidgetProviderInfoEntityByClassName(className: String)
-
     @Delete
     suspend fun deleteEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
 }

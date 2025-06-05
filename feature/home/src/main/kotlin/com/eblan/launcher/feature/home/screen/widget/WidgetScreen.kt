@@ -39,9 +39,9 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -256,6 +256,7 @@ private fun getGridItemLayoutInfo(
         getGridItemLayoutInfo(
             page = page,
             componentName = eblanAppWidgetProviderInfo.componentName,
+            packageName = eblanAppWidgetProviderInfo.packageName,
             rows = rows,
             columns = columns,
             x = appWidgetProviderInfoOffset.x,
@@ -276,6 +277,7 @@ private fun getGridItemLayoutInfo(
         getGridItemLayoutInfo(
             page = page,
             componentName = eblanAppWidgetProviderInfo.componentName,
+            packageName = eblanAppWidgetProviderInfo.packageName,
             rows = rows,
             columns = columns,
             x = appWidgetProviderInfoOffset.x,
@@ -299,6 +301,7 @@ private fun getGridItemLayoutInfo(
 private fun getGridItemLayoutInfo(
     page: Int,
     componentName: String,
+    packageName: String,
     rows: Int,
     columns: Int,
     x: Int,
@@ -366,7 +369,7 @@ private fun getGridItemLayoutInfo(
         startColumn = startColumn,
         rowSpan = newRowSpan,
         columnSpan = newColumnSpan,
-        dataId = componentName,
+        dataId = packageName,
         data = data,
         associate = Associate.Grid,
     )

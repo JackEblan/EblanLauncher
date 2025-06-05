@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
 
 @Composable
@@ -62,7 +60,7 @@ fun SettingsScreen(
                 navigationIcon = {
                     IconButton(onClick = onFinish) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = EblanLauncherIcons.ArrowBack,
                             contentDescription = null,
                         )
                     }
@@ -104,7 +102,7 @@ fun Success(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
-                imageVector = Icons.Default.Home,
+                imageVector = EblanLauncherIcons.Home,
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),
             )

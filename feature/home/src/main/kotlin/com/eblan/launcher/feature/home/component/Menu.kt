@@ -2,17 +2,13 @@ package com.eblan.launcher.feature.home.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 
 @Composable
 fun ApplicationInfoGridItemMenu(
@@ -30,14 +26,14 @@ fun ApplicationInfoGridItemMenu(
                 IconButton(
                     onClick = onEdit,
                 ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
                 }
 
                 if (showResize) {
                     IconButton(
                         onClick = onResize,
                     ) {
-                        Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                        Icon(imageVector = EblanLauncherIcons.Resize, contentDescription = null)
                     }
                 }
 
@@ -46,7 +42,7 @@ fun ApplicationInfoGridItemMenu(
 
                     },
                 ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
                 }
             }
         },
@@ -69,14 +65,14 @@ fun WidgetGridItemMenu(
                 IconButton(
                     onClick = onEdit,
                 ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
                 }
 
                 if (showResize) {
                     IconButton(
                         onClick = onResize,
                     ) {
-                        Icon(imageVector = Icons.Default.Android, contentDescription = null)
+                        Icon(imageVector = EblanLauncherIcons.Resize, contentDescription = null)
                     }
                 }
 
@@ -85,7 +81,7 @@ fun WidgetGridItemMenu(
 
                     },
                 ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
                 }
             }
         },
@@ -107,13 +103,13 @@ fun ApplicationInfoMenu(
                 IconButton(
                     onClick = onApplicationInfo,
                 ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
                 }
 
                 IconButton(
                     onClick = onWidgets,
                 ) {
-                    Icon(imageVector = Icons.Default.Widgets, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Widgets, contentDescription = null)
                 }
 
             }

@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 interface GridCacheRepository {
     val gridCacheItems: Flow<List<GridItem>>
 
+    val isCache: Flow<Boolean>
+
     suspend fun insertGridItems(gridItems: List<GridItem>)
 
     suspend fun updateGridItem(id: String, data: GridItemData)
@@ -16,4 +18,6 @@ interface GridCacheRepository {
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 
     suspend fun shiftPagesAfterDeletedPage(page: Int)
+
+    fun updateIsCache(isCache: Boolean)
 }

@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -41,11 +40,7 @@ class HomeViewModel @Inject constructor(
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
-    private val _isCache = MutableStateFlow(false)
-
-    val homeUiState = _isCache.flatMapLatest { isCache ->
-        groupGridItemsByPageUseCase(isCache = isCache)
-    }.map(HomeUiState::Success).stateIn(
+    val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,
@@ -158,9 +153,7 @@ class HomeViewModel @Inject constructor(
                 screen
             }
 
-            _isCache.update {
-                true
-            }
+            gridCacheRepository.updateIsCache(isCache = true)
         }
     }
 
@@ -172,9 +165,7 @@ class HomeViewModel @Inject constructor(
 
             updateGridItemsUseCase()
 
-            _isCache.update {
-                false
-            }
+            gridCacheRepository.updateIsCache(isCache = false)
 
             _screen.update {
                 Screen.Pager

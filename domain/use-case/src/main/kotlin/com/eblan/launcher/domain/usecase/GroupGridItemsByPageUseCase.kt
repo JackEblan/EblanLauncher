@@ -17,15 +17,20 @@ class GroupGridItemsByPageUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    operator fun invoke(isCache: Boolean): Flow<GridItemsByPage> {
-        val gridItemsFlow =
-            if (isCache) gridCacheRepository.gridCacheItems else gridRepository.gridItems
-
+    operator fun invoke(): Flow<GridItemsByPage> {
         return combine(
             userDataRepository.userData,
-            gridItemsFlow,
-        ) { userData, gridItems ->
-            val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
+            gridCacheRepository.isCache,
+            gridRepository.gridItems,
+            gridCacheRepository.gridCacheItems,
+        ) { userData, isCache, gridItems, gridCacheItems ->
+            val currentGridItems = if (isCache) {
+                gridCacheItems
+            } else {
+                gridItems
+            }
+
+            val gridItemsSpanWithinBounds = currentGridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.rows,
@@ -33,7 +38,7 @@ class GroupGridItemsByPageUseCase @Inject constructor(
                 ) && gridItem.associate == Associate.Grid
             }.groupBy { gridItem -> gridItem.page }
 
-            val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
+            val dockGridItemsWithinBounds = currentGridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.dockRows,

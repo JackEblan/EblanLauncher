@@ -4,29 +4,27 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepository {
-    private val _gridCacheItems = MutableSharedFlow<List<GridItem>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    private val _gridCacheItems = MutableStateFlow(emptyList<GridItem>())
 
-    override val gridCacheItems = _gridCacheItems.asSharedFlow()
+    override val gridCacheItems = _gridCacheItems.asStateFlow()
 
-    private val currentGridCacheItems
-        get() = _gridCacheItems.replayCache.firstOrNull() ?: emptyList()
+    private var _isCache = MutableStateFlow(false)
+
+    override val isCache = _isCache.asStateFlow()
 
     override suspend fun insertGridItems(gridItems: List<GridItem>) {
         _gridCacheItems.emit(gridItems)
     }
 
     override suspend fun updateGridItem(id: String, data: GridItemData) {
-        val updatedGridItems = currentGridCacheItems.toMutableList()
+        val updatedGridItems = _gridCacheItems.value.toMutableList()
 
         withContext(Dispatchers.Default) {
             val index = updatedGridItems.indexOfFirst { it.id == id }
@@ -40,7 +38,7 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
     }
 
     override suspend fun deleteGridItem(gridItem: GridItem) {
-        val updatedGridItems = currentGridCacheItems.toMutableList()
+        val updatedGridItems = _gridCacheItems.value.toMutableList()
 
         withContext(Dispatchers.Default) {
             val index = updatedGridItems.indexOfFirst { it.id == gridItem.id }
@@ -54,7 +52,7 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
     }
 
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
-        val updatedGridItems = currentGridCacheItems.toMutableList()
+        val updatedGridItems = _gridCacheItems.value.toMutableList()
 
         withContext(Dispatchers.Default) {
             gridItems.forEach { gridItem ->
@@ -76,7 +74,7 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
     override suspend fun shiftPagesAfterDeletedPage(page: Int) {
         withContext(Dispatchers.Default) {
             val shiftGridItemsPage =
-                currentGridCacheItems.map { gridItem ->
+                _gridCacheItems.value.map { gridItem ->
                     if (gridItem.page > page) {
                         gridItem.copy(page = gridItem.page - 1)
                     } else {
@@ -85,6 +83,12 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
                 }
 
             _gridCacheItems.emit(shiftGridItemsPage)
+        }
+    }
+
+    override fun updateIsCache(isCache: Boolean) {
+        _isCache.update {
+            isCache
         }
     }
 }

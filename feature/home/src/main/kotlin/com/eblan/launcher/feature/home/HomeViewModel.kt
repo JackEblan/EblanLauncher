@@ -95,7 +95,7 @@ class HomeViewModel @Inject constructor(
             moveGridItemJob?.cancel()
 
             moveGridItemJob = launch {
-                delay(500L)
+                delay(100L)
 
                 _shiftedAlgorithm.update {
                     moveGridItemUseCase(

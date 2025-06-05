@@ -788,8 +788,8 @@ private fun handleDragIntOffset(
                 gridItem,
                 dragIntOffset.x,
                 dockY,
-                rows,
-                columns,
+                dockRows,
+                dockColumns,
                 rootWidth,
                 dockHeight,
             )

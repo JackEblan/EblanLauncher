@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
@@ -18,19 +19,19 @@ class GroupGridItemsByPageUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
 ) {
     operator fun invoke(): Flow<GridItemsByPage> {
+        val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
+            if (isCache) {
+                gridCacheRepository.gridCacheItems
+            } else {
+                gridRepository.gridItems
+            }
+        }
+        
         return combine(
             userDataRepository.userData,
-            gridCacheRepository.isCache,
-            gridRepository.gridItems,
-            gridCacheRepository.gridCacheItems,
-        ) { userData, isCache, gridItems, gridCacheItems ->
-            val currentGridItems = if (isCache) {
-                gridCacheItems
-            } else {
-                gridItems
-            }
-
-            val gridItemsSpanWithinBounds = currentGridItems.filter { gridItem ->
+            gridItemsFlow,
+        ) { userData, gridItems ->
+            val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.rows,
@@ -38,7 +39,7 @@ class GroupGridItemsByPageUseCase @Inject constructor(
                 ) && gridItem.associate == Associate.Grid
             }.groupBy { gridItem -> gridItem.page }
 
-            val dockGridItemsWithinBounds = currentGridItems.filter { gridItem ->
+            val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.dockRows,

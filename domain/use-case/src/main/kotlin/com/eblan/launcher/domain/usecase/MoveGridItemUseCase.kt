@@ -40,7 +40,7 @@ class MoveGridItemUseCase @Inject constructor(
                             gridItem = gridItem,
                             rows = rows,
                             columns = columns,
-                        ) && gridItem.page == movingGridItem.page && gridItem.associate == Associate.Grid
+                        ) && gridItem.page == movingGridItem.page && gridItem.associate == movingGridItem.associate
                     }
 
                     Associate.Dock -> {
@@ -48,7 +48,7 @@ class MoveGridItemUseCase @Inject constructor(
                             gridItem = gridItem,
                             rows = rows,
                             columns = columns,
-                        ) && gridItem.associate == Associate.Dock
+                        ) && gridItem.associate == movingGridItem.associate
                     }
                 }
             }.toMutableList()
@@ -111,14 +111,14 @@ class MoveGridItemUseCase @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ): GridItem? {
-        val cellWidth = gridWidth / rows
+        val cellWidth = gridWidth / columns
 
-        val cellHeight = gridHeight / columns
+        val cellHeight = gridHeight / rows
 
         return gridItems.find { gridItem ->
-            val startRow = y / cellHeight
-
             val startColumn = x / cellWidth
+
+            val startRow = y / cellHeight
 
             val rowInSpan =
                 startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)

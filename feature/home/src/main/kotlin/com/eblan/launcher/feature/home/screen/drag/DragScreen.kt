@@ -103,7 +103,6 @@ fun DragScreen(
     onUpdateWidgetGridItem: (
         id: String,
         data: GridItemData,
-        appWidgetId: Int,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onDragCancel: () -> Unit,
@@ -170,7 +169,6 @@ fun DragScreen(
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             onUpdateWidgetGridItem = onUpdateWidgetGridItem,
             onDragEnd = onDragEnd,
-            appWidgetHost = appWidgetHost,
             onDeleteGridItem = onDeleteGridItem,
         )
     }
@@ -585,7 +583,7 @@ private fun handleDrag(
     shiftedAlgorithm: Boolean?,
     appWidgetHost: AppWidgetHostWrapper,
     appWidgetManager: AppWidgetManagerController,
-    onUpdateWidgetGridItem: (id: String, data: GridItemData, appWidgetId: Int) -> Unit,
+    onUpdateWidgetGridItem: (id: String, data: GridItemData) -> Unit,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragCancel: () -> Unit,
     onChangeShowMenu: (Boolean) -> Unit,
@@ -632,7 +630,7 @@ private fun handleOnDragEnd(
     appWidgetManager: AppWidgetManagerController,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragEnd: (Int) -> Unit,
-    onUpdateWidgetGridItem: (id: String, data: GridItemData, appWidgetId: Int) -> Unit,
+    onUpdateWidgetGridItem: (id: String, data: GridItemData) -> Unit,
 ) {
     if (showMenu) {
         return
@@ -648,7 +646,7 @@ private fun handleOnDragEnd(
                 is GridItemData.Widget -> {
                     onDragEndGridItemDataWidget(
                         targetPage = targetPage,
-                        gridItemLayoutInfo = gridItemSource.gridItemLayoutInfo,
+                        id = gridItemSource.gridItemLayoutInfo.gridItem.id,
                         shiftedAlgorithm = shiftedAlgorithm,
                         appWidgetHost = appWidgetHost,
                         appWidgetManager = appWidgetManager,
@@ -671,12 +669,12 @@ private fun handleOnDragEnd(
 
 private fun onDragEndGridItemDataWidget(
     targetPage: Int,
-    gridItemLayoutInfo: GridItemLayoutInfo,
+    id: String,
     shiftedAlgorithm: Boolean?,
     appWidgetHost: AppWidgetHostWrapper,
     appWidgetManager: AppWidgetManagerController,
     data: GridItemData.Widget,
-    onUpdateWidgetGridItem: (id: String, data: GridItemData, appWidgetId: Int) -> Unit,
+    onUpdateWidgetGridItem: (id: String, data: GridItemData) -> Unit,
     onDragEnd: (Int) -> Unit,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
 ) {
@@ -691,9 +689,8 @@ private fun onDragEndGridItemDataWidget(
             )
         ) {
             onUpdateWidgetGridItem(
-                gridItemLayoutInfo.gridItem.id,
-                gridItemLayoutInfo.gridItem.data,
-                allocateAppWidgetId,
+                id,
+                data.copy(appWidgetId = allocateAppWidgetId),
             )
 
             onDragEnd(targetPage)
@@ -836,31 +833,30 @@ private fun handleDragIntOffset(
 private fun handleResult(
     targetPage: Int,
     result: ActivityResult,
-    appWidgetHost: AppWidgetHostWrapper,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    onUpdateWidgetGridItem: (id: String, data: GridItemData, appWidgetId: Int) -> Unit,
+    onUpdateWidgetGridItem: (id: String, data: GridItemData) -> Unit,
     onDragEnd: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
-    val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+    when (val data = gridItemLayoutInfo?.gridItem?.data) {
+        is GridItemData.Widget -> {
+            val appWidgetId =
+                result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
 
-    if (result.resultCode == Activity.RESULT_OK) {
-        if (gridItemLayoutInfo != null && appWidgetId > 0) {
-            onUpdateWidgetGridItem(
-                gridItemLayoutInfo.gridItem.id,
-                gridItemLayoutInfo.gridItem.data,
-                appWidgetId,
-            )
+            if (result.resultCode == Activity.RESULT_OK) {
+                onUpdateWidgetGridItem(
+                    gridItemLayoutInfo.gridItem.id,
+                    data.copy(appWidgetId = appWidgetId),
+                )
 
-            onDragEnd(targetPage)
+                onDragEnd(targetPage)
+            } else {
+                onDeleteGridItem(gridItemLayoutInfo.gridItem)
+
+                onDragEnd(targetPage)
+            }
         }
-    } else {
-        appWidgetHost.deleteAppWidgetId(appWidgetId = appWidgetId)
 
-        if (gridItemLayoutInfo != null) {
-            onDeleteGridItem(gridItemLayoutInfo.gridItem)
-
-            onDragEnd(targetPage)
-        }
+        else -> Unit
     }
 }

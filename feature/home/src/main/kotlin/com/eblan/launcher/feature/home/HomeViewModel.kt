@@ -132,14 +132,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateWidgetGridItem(id: String, data: GridItemData, appWidgetId: Int) {
+    fun updateWidgetGridItem(id: String, data: GridItemData) {
         viewModelScope.launch {
-            if (data is GridItemData.Widget) {
-                gridCacheRepository.updateGridItem(
-                    id = id,
-                    data = data.copy(appWidgetId = appWidgetId),
-                )
-            }
+            gridCacheRepository.updateGridItem(
+                id = id,
+                data = data,
+            )
         }
     }
 

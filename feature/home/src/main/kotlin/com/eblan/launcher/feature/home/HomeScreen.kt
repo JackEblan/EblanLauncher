@@ -121,7 +121,6 @@ fun HomeScreen(
     onUpdateWidgetGridItem: (
         id: String,
         data: GridItemData,
-        appWidgetId: Int,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
@@ -199,7 +198,6 @@ fun Success(
     onUpdateWidgetGridItem: (
         id: String,
         data: GridItemData,
-        appWidgetId: Int,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,

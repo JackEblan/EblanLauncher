@@ -39,7 +39,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                 val isPageEmpty =
                     gridCacheItemsByAssociateGrid.none { gridItem -> gridItem.page == page }
 
-                if (isPageEmpty && pageCount > 0) {
+                if (isPageEmpty && pageCount > 1) {
                     targetPage -= 1
 
                     pageCount -= 1

@@ -225,7 +225,7 @@ fun DragScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         GridItemOverlay(
-            isScrollInProgress = horizontalPagerState.isScrollInProgress,
+            targetPage = targetPage,
             selectedGridItem = selectedGridItem,
             rootWidth = rootWidth,
             horizontalPagerPaddingPx = horizontalPagerPaddingPx,
@@ -500,7 +500,7 @@ fun DragScreen(
 
 @Composable
 private fun GridItemOverlay(
-    isScrollInProgress: Boolean,
+    targetPage: Int,
     selectedGridItem: GridItem?,
     rootWidth: Int,
     horizontalPagerPaddingPx: Int,
@@ -512,7 +512,7 @@ private fun GridItemOverlay(
     dockColumns: Int,
     dockRows: Int,
 ) {
-    if (selectedGridItem != null) {
+    if (selectedGridItem != null && targetPage == selectedGridItem.page) {
         var x by remember { mutableIntStateOf(0) }
 
         var y by remember { mutableIntStateOf(0) }
@@ -561,16 +561,14 @@ private fun GridItemOverlay(
 
         val offset by animateIntOffsetAsState(targetValue = IntOffset(x = x, y = y))
 
-        if (!isScrollInProgress) {
-            Box(
-                modifier = Modifier
-                    .offset {
-                        offset
-                    }
-                    .size(size)
-                    .border(width = 1.dp, color = Color.White),
-            )
-        }
+        Box(
+            modifier = Modifier
+                .offset {
+                    offset
+                }
+                .size(size)
+                .border(width = 1.dp, color = Color.White),
+        )
     }
 }
 

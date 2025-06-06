@@ -14,33 +14,55 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke() {
-        val gridCacheItems = gridCacheRepository.gridCacheItems.first()
-
-        var pageCount = userDataRepository.userData.first().pageCount
+    suspend operator fun invoke(currentPage: Int): Int {
+        var targetPage = currentPage
 
         withContext(Dispatchers.Default) {
+            val gridCacheItems = gridCacheRepository.gridCacheItems.first()
+
+            var pageCount = userDataRepository.userData.first().pageCount
+
             val gridCacheItemsByAssociateGrid = gridCacheItems.filter { gridItem ->
                 gridItem.associate == Associate.Grid
-            }
-
-            val lastPageIsNullOrEmpty =
-                gridCacheItemsByAssociateGrid.groupBy { gridItem -> gridItem.page }[pageCount - 1].isNullOrEmpty()
-
-            if (lastPageIsNullOrEmpty && pageCount > 1) {
-                pageCount -= 1
-
-                userDataRepository.updatePageCount(pageCount)
             }
 
             val hasNewPage = gridCacheItemsByAssociateGrid.isNotEmpty() &&
                     gridCacheItemsByAssociateGrid.maxOf { gridItem -> gridItem.page } > pageCount - 1
 
             if (hasNewPage) {
-                userDataRepository.updatePageCount(pageCount + 1)
+                pageCount += 1
+
+                userDataRepository.updatePageCount(pageCount)
             }
+
+            repeat(pageCount) { page ->
+                val isPageEmpty =
+                    gridCacheItemsByAssociateGrid.none { gridItem -> gridItem.page == page }
+
+                if (isPageEmpty && pageCount > 0) {
+                    targetPage -= 1
+
+                    pageCount -= 1
+
+                    userDataRepository.updatePageCount(pageCount)
+
+                    val shiftedGridItems = gridCacheItemsByAssociateGrid.map { gridItem ->
+                        if (gridItem.page > page) {
+                            gridItem.copy(page = gridItem.page - 1)
+                        } else {
+                            gridItem
+                        }
+                    }
+
+                    gridCacheRepository.upsertGridItems(gridItems = shiftedGridItems)
+                }
+            }
+
+            val newGridCacheItems = gridCacheRepository.gridCacheItems.first()
+
+            gridRepository.upsertGridItems(gridItems = newGridCacheItems)
         }
 
-        gridRepository.upsertGridItems(gridItems = gridCacheItems)
+        return targetPage
     }
 }

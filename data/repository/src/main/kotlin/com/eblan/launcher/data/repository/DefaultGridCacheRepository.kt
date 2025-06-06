@@ -71,21 +71,6 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
         }
     }
 
-    override suspend fun shiftPagesAfterDeletedPage(page: Int) {
-        withContext(Dispatchers.Default) {
-            val shiftGridItemsPage =
-                _gridCacheItems.value.map { gridItem ->
-                    if (gridItem.page > page) {
-                        gridItem.copy(page = gridItem.page - 1)
-                    } else {
-                        gridItem
-                    }
-                }
-
-            _gridCacheItems.emit(shiftGridItemsPage)
-        }
-    }
-
     override fun updateIsCache(isCache: Boolean) {
         _isCache.update {
             isCache

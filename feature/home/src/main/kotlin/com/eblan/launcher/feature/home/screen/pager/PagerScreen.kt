@@ -85,7 +85,6 @@ fun PagerScreen(
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
-        addNewPage: Boolean,
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
@@ -232,7 +231,6 @@ private fun HorizontalPagerScreen(
     rootHeight: Int,
     onLongPressedGridItem: (
         currentPage: Int,
-        addNewPage: Boolean,
         imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
@@ -313,7 +311,6 @@ private fun HorizontalPagerScreen(
                                 onLongPress = { preview ->
                                     onLongPressedGridItem(
                                         horizontalPage,
-                                        (gridItems[horizontalPage]?.size ?: 0) > 1,
                                         preview,
                                         GridItemLayoutInfo(
                                             gridItem = gridItem,
@@ -333,7 +330,6 @@ private fun HorizontalPagerScreen(
                                 onLongPress = { preview ->
                                     onLongPressedGridItem(
                                         horizontalPage,
-                                        (gridItems[horizontalPage]?.size ?: 0) > 1,
                                         preview,
                                         GridItemLayoutInfo(
                                             gridItem = gridItem,
@@ -387,7 +383,6 @@ private fun HorizontalPagerScreen(
                         onLongPress = { preview ->
                             onLongPressedGridItem(
                                 horizontalPage,
-                                !gridItems[horizontalPage].isNullOrEmpty(),
                                 preview,
                                 GridItemLayoutInfo(
                                     gridItem = dockGridItem,
@@ -407,7 +402,6 @@ private fun HorizontalPagerScreen(
                         onLongPress = { preview ->
                             onLongPressedGridItem(
                                 horizontalPage,
-                                !gridItems[horizontalPage].isNullOrEmpty(),
                                 preview,
                                 GridItemLayoutInfo(
                                     gridItem = dockGridItem,

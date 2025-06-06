@@ -80,6 +80,10 @@ class HomeViewModel @Inject constructor(
 
     val shiftedAlgorithm = _shiftedAlgorithm.asStateFlow()
 
+    private var _targetPage = MutableStateFlow(0)
+
+    val targetPage = _targetPage.asStateFlow()
+
     private var moveGridItemJob: Job? = null
 
     fun moveGridItem(
@@ -157,13 +161,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCache() {
+    fun resetGridCache(currentPage: Int) {
         viewModelScope.launch {
             _screen.update {
                 Screen.Loading
             }
 
-            updateGridItemsUseCase()
+            _targetPage.update {
+                updateGridItemsUseCase(currentPage = currentPage)
+            }
 
             gridCacheRepository.updateIsCache(isCache = false)
 

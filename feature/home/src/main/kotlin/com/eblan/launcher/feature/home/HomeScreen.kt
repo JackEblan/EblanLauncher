@@ -74,6 +74,8 @@ fun HomeRoute(
 
     val shiftedAlgorithm by viewModel.shiftedAlgorithm.collectAsStateWithLifecycle()
 
+    val targetPage by viewModel.targetPage.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -81,6 +83,7 @@ fun HomeRoute(
         eblanApplicationInfos = eblanApplicationInfos,
         eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
         shiftedAlgorithm = shiftedAlgorithm,
+        targetPage = targetPage,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
@@ -100,6 +103,7 @@ fun HomeScreen(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     shiftedAlgorithm: Boolean?,
+    targetPage: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -121,7 +125,7 @@ fun HomeScreen(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
-    onResetGridCache: () -> Unit,
+    onResetGridCache: (Int) -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
 ) {
@@ -148,6 +152,7 @@ fun HomeScreen(
                         rootHeight = constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         shiftedAlgorithm = shiftedAlgorithm,
+                        targetPage = targetPage,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onUpdateWidgetGridItem = onUpdateWidgetGridItem,
@@ -176,6 +181,7 @@ fun Success(
     rootHeight: Int,
     dockGridItems: List<GridItem>,
     shiftedAlgorithm: Boolean?,
+    targetPage: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -197,7 +203,7 @@ fun Success(
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
-    onResetGridCache: () -> Unit,
+    onResetGridCache: (Int) -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
 ) {
@@ -254,7 +260,7 @@ fun Success(
         when (screen) {
             Screen.Pager -> {
                 PagerScreen(
-                    targetPage = currentPage,
+                    targetPage = targetPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
@@ -280,10 +286,12 @@ fun Success(
 
                         showBottomSheet = true
                     },
-                    onLongPressedGridItem = { newCurrentPage, newPage, imageBitmap, gridItemLayoutInfo ->
+                    onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 
-                        addNewPage = newPage
+                        addNewPage =
+                            newCurrentPage != userData.pageCount - 1 || (gridItems[userData.pageCount - 1]?.size
+                                ?: 0) > 1
 
                         overlayImageBitmap = imageBitmap
 
@@ -303,7 +311,7 @@ fun Success(
                     onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 
-                        addNewPage = !gridItems[userData.pageCount - 1].isNullOrEmpty()
+                        addNewPage = (gridItems[userData.pageCount - 1]?.size ?: 0) > 1
 
                         overlayImageBitmap = imageBitmap
 
@@ -375,16 +383,14 @@ fun Success(
                     onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = {
-                        onResetGridCache()
+                        onResetGridCache(currentPage)
 
                         showOverlay = false
                     },
                     onDragEnd = { newTargetPage ->
-                        currentPage = newTargetPage
-
                         addNewPage = false
 
-                        onResetGridCache()
+                        onResetGridCache(newTargetPage)
 
                         showOverlay = false
                     },
@@ -403,7 +409,7 @@ fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    targetPage = currentPage,
+                    currentPage = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     dockRows = userData.dockRows,
@@ -414,7 +420,9 @@ fun Success(
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = onResetGridCache,
+                    onResizeEnd = {
+                        onResetGridCache(currentPage)
+                    },
                 )
             }
 

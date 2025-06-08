@@ -1,10 +1,12 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.grid.getGridItemWhenXConflicts
+import com.eblan.launcher.domain.grid.getResolveDirectionWhenXConflicts
+import com.eblan.launcher.domain.grid.getResolveDirectionWhenXNotConflicts
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -55,13 +57,19 @@ class MoveGridItemUseCase @Inject constructor(
 
             val index = gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 
+            val oldGridItem = if (index != -1) {
+                gridItems[index]
+            } else {
+                null
+            }
+
             if (index != -1) {
                 gridItems[index] = movingGridItem
             } else {
                 gridItems.add(movingGridItem)
             }
 
-            val firstConflictingGridItem = getFirstConflictingGridItem(
+            val gridItemWhenXConflicts = getGridItemWhenXConflicts(
                 id = movingGridItem.id,
                 gridItems = gridItems,
                 rows = rows,
@@ -72,9 +80,9 @@ class MoveGridItemUseCase @Inject constructor(
                 gridHeight = gridHeight,
             )
 
-            val resolvedConflictsGridItems = if (firstConflictingGridItem != null) {
-                val resolveDirection = getResolveDirection(
-                    gridItem = firstConflictingGridItem,
+            val resolvedConflictsGridItems = if (gridItemWhenXConflicts != null) {
+                val resolveDirection = getResolveDirectionWhenXConflicts(
+                    gridItem = gridItemWhenXConflicts,
                     x = x,
                     columns = columns,
                     gridWidth = gridWidth,
@@ -89,73 +97,30 @@ class MoveGridItemUseCase @Inject constructor(
                     columns = columns,
                     gridWidth = gridWidth,
                 )
+            } else if (oldGridItem != null) {
+                val resolveDirection = getResolveDirectionWhenXNotConflicts(
+                    oldGridItem = oldGridItem,
+                    newGridItem = movingGridItem,
+                )
+
+                resolveConflictsWhenMoving(
+                    gridItems = gridItems,
+                    resolveDirection = resolveDirection,
+                    movingGridItem = movingGridItem,
+                    x = x,
+                    rows = rows,
+                    columns = columns,
+                    gridWidth = gridWidth,
+                )
             } else {
-                gridItems
+                null
             }
 
             if (resolvedConflictsGridItems != null) {
-                gridCacheRepository.upsertGridItems(resolvedConflictsGridItems)
+                gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
             }
 
             resolvedConflictsGridItems
-        }
-    }
-
-    private fun getFirstConflictingGridItem(
-        id: String,
-        gridItems: List<GridItem>,
-        rows: Int,
-        columns: Int,
-        x: Int,
-        y: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-    ): GridItem? {
-        val cellWidth = gridWidth / columns
-
-        val cellHeight = gridHeight / rows
-
-        return gridItems.find { gridItem ->
-            val startColumn = x / cellWidth
-
-            val startRow = y / cellHeight
-
-            val rowInSpan =
-                startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
-
-            val columnInSpan =
-                startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
-
-            gridItem.id != id && rowInSpan && columnInSpan
-        }
-    }
-}
-
-private fun getResolveDirection(
-    gridItem: GridItem,
-    x: Int,
-    columns: Int,
-    gridWidth: Int,
-): ResolveDirection {
-    val cellWidth = gridWidth / columns
-
-    val gridItemX = gridItem.startColumn * cellWidth
-
-    val gridItemWidth = gridItem.columnSpan * cellWidth
-
-    val xInGridItem = x - gridItemX
-
-    return when {
-        xInGridItem < gridItemWidth / 3 -> {
-            ResolveDirection.End
-        }
-
-        xInGridItem < 2 * gridItemWidth / 3 -> {
-            ResolveDirection.Center
-        }
-
-        else -> {
-            ResolveDirection.Start
         }
     }
 }

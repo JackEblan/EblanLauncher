@@ -47,7 +47,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -86,7 +85,6 @@ fun HomeRoute(
         targetPage = targetPage,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
-        onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
         onShowGridCache = viewModel::showGridCache,
         onResetGridCache = viewModel::resetGridCache,
@@ -117,10 +115,6 @@ fun HomeScreen(
         gridItem: GridItem,
         rows: Int,
         columns: Int,
-    ) -> Unit,
-    onUpdateWidgetGridItem: (
-        id: String,
-        data: GridItemData,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
@@ -154,7 +148,6 @@ fun HomeScreen(
                         targetPage = targetPage,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
-                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                         onDeleteGridItem = onDeleteGridItem,
                         onShowGridCache = onShowGridCache,
                         onResetGridCache = onResetGridCache,
@@ -194,10 +187,6 @@ fun Success(
         gridItem: GridItem,
         rows: Int,
         columns: Int,
-    ) -> Unit,
-    onUpdateWidgetGridItem: (
-        id: String,
-        data: GridItemData,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
@@ -378,7 +367,6 @@ fun Success(
                     shiftedAlgorithm = shiftedAlgorithm,
                     addNewPage = addNewPage,
                     onMoveGridItem = onMoveGridItem,
-                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = {
                         onResetGridCache(currentPage)

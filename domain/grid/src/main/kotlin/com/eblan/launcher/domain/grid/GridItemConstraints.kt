@@ -1,30 +1,12 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.ResolveDirection
 
-/**
- * Validates that grid item span within the acceptable grid bounds.
- *
- * For each grid item, it checks that:
- * - The starting row and column are within bounds.
- * - The entire region (startRow + rowSpan, startColumn + colSpan) fits within the grid.
- *
- * @param gridItem to validate.
- * @param rows The total number of rows in the grid.
- * @param columns The total number of columns in the grid.
- * @return `true` if all grid items are within bounds; `false` if any item exceeds the grid limits.
- */
 fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boolean {
     return gridItem.startRow in 0 until rows && gridItem.startColumn in 0 until columns && gridItem.startRow + gridItem.rowSpan <= rows && gridItem.startColumn + gridItem.columnSpan <= columns
 }
 
-/**
- * Checks if two grid items overlap.
- *
- * @param movingGridItem The first grid item.
- * @param gridItem The second grid item.
- * @return True if the rectangular regions defined by the items overlap.
- */
 fun rectanglesOverlap(movingGridItem: GridItem, gridItem: GridItem): Boolean {
     val noOverlap = movingGridItem.startRow + movingGridItem.rowSpan <= gridItem.startRow ||
             gridItem.startRow + gridItem.rowSpan <= movingGridItem.startRow ||
@@ -32,4 +14,82 @@ fun rectanglesOverlap(movingGridItem: GridItem, gridItem: GridItem): Boolean {
             gridItem.startColumn + gridItem.columnSpan <= movingGridItem.startColumn
 
     return !noOverlap
+}
+
+fun getResolveDirectionWhenXConflicts(
+    gridItem: GridItem,
+    x: Int,
+    columns: Int,
+    gridWidth: Int,
+): ResolveDirection {
+    val cellWidth = gridWidth / columns
+
+    val gridItemX = gridItem.startColumn * cellWidth
+
+    val gridItemWidth = gridItem.columnSpan * cellWidth
+
+    val xInGridItem = x - gridItemX
+
+    return when {
+        xInGridItem < gridItemWidth / 3 -> {
+            ResolveDirection.End
+        }
+
+        xInGridItem < 2 * gridItemWidth / 3 -> {
+            ResolveDirection.Center
+        }
+
+        else -> {
+            ResolveDirection.Start
+        }
+    }
+}
+
+fun getResolveDirectionWhenXNotConflicts(
+    oldGridItem: GridItem,
+    newGridItem: GridItem,
+): ResolveDirection {
+    val oldCenterRow = oldGridItem.startRow + oldGridItem.rowSpan / 2.0
+    val oldCenterColumn = oldGridItem.startColumn + oldGridItem.columnSpan / 2.0
+
+    val newCenterRow = newGridItem.startRow + newGridItem.rowSpan / 2.0
+    val newCenterColumn = newGridItem.startColumn + newGridItem.columnSpan / 2.0
+
+    val rowDiff = newCenterRow - oldCenterRow
+    val columnDiff = newCenterColumn - oldCenterColumn
+
+    return when {
+        rowDiff < 0 || columnDiff < 0 -> ResolveDirection.Start
+        rowDiff > 0 || columnDiff > 0 -> ResolveDirection.End
+        else -> ResolveDirection.Center
+    }
+}
+
+fun getGridItemWhenXConflicts(
+    id: String,
+    gridItems: List<GridItem>,
+    rows: Int,
+    columns: Int,
+    x: Int,
+    y: Int,
+    gridWidth: Int,
+    gridHeight: Int,
+): GridItem? {
+    val cellWidth = gridWidth / columns
+
+    val cellHeight = gridHeight / rows
+
+    return gridItems.find { gridItem ->
+        val startColumn = x / cellWidth
+
+        val startRow = y / cellHeight
+
+        val rowInSpan =
+            startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
+
+        val columnInSpan =
+            startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
+
+        gridItem.id != id && rowInSpan && columnInSpan
+    }
 }

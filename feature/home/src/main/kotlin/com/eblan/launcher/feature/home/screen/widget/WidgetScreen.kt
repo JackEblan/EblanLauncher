@@ -34,6 +34,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -43,6 +44,7 @@ import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -79,8 +81,11 @@ fun WidgetScreen(
         TextColor.Black -> Color.Black
     }
 
+    val appWidgetHost = LocalAppWidgetHost.current
+
     LaunchedEffect(key1 = drag) {
         handleDrag(
+            appWidgetHost = appWidgetHost,
             drag = drag,
             selectedEblanAppWidgetProviderInfo = selectedEblanAppWidgetProviderInfo,
             currentPage = currentPage,
@@ -195,6 +200,7 @@ fun WidgetScreen(
 }
 
 private fun handleDrag(
+    appWidgetHost: AppWidgetHostWrapper,
     drag: Drag,
     selectedEblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo?,
     currentPage: Int,
@@ -209,6 +215,8 @@ private fun handleDrag(
     onDragStart: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
 ) {
     if (drag == Drag.Start && selectedEblanAppWidgetProviderInfo != null) {
+        val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
+
         val page = calculatePage(
             index = currentPage,
             infiniteScroll = infiniteScroll,
@@ -216,6 +224,7 @@ private fun handleDrag(
         )
 
         val gridItemLayoutInfo = getGridItemLayoutInfo(
+            allocateAppWidgetId = allocateAppWidgetId,
             page = page,
             eblanAppWidgetProviderInfo = selectedEblanAppWidgetProviderInfo,
             rows = rows,
@@ -244,6 +253,7 @@ private fun handleDrag(
 }
 
 private fun getGridItemLayoutInfo(
+    allocateAppWidgetId: Int,
     page: Int,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     rows: Int,
@@ -254,6 +264,7 @@ private fun getGridItemLayoutInfo(
 ): GridItemLayoutInfo {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getGridItemLayoutInfo(
+            allocateAppWidgetId = allocateAppWidgetId,
             page = page,
             componentName = eblanAppWidgetProviderInfo.componentName,
             packageName = eblanAppWidgetProviderInfo.packageName,
@@ -275,6 +286,7 @@ private fun getGridItemLayoutInfo(
         )
     } else {
         getGridItemLayoutInfo(
+            allocateAppWidgetId = allocateAppWidgetId,
             page = page,
             componentName = eblanAppWidgetProviderInfo.componentName,
             packageName = eblanAppWidgetProviderInfo.packageName,
@@ -299,6 +311,7 @@ private fun getGridItemLayoutInfo(
 
 @OptIn(ExperimentalUuidApi::class)
 private fun getGridItemLayoutInfo(
+    allocateAppWidgetId: Int,
     page: Int,
     componentName: String,
     packageName: String,
@@ -351,7 +364,7 @@ private fun getGridItemLayoutInfo(
     val startRow = y / cellHeight
 
     val data = GridItemData.Widget(
-        appWidgetId = -1,
+        appWidgetId = allocateAppWidgetId,
         componentName = componentName,
         width = newWidth,
         height = newHeight,

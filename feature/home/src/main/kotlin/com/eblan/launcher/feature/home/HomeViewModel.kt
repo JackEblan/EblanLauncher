@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -129,15 +128,6 @@ class HomeViewModel @Inject constructor(
                     columns = columns,
                 ) != null
             }
-        }
-    }
-
-    fun updateWidgetGridItem(id: String, data: GridItemData) {
-        viewModelScope.launch {
-            gridCacheRepository.updateGridItem(
-                id = id,
-                data = data,
-            )
         }
     }
 

@@ -1,10 +1,10 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.grid.getResolveDirectionWhenXNotConflicts
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWhenResizing
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -55,9 +55,9 @@ class ResizeGridItemUseCase @Inject constructor(
 
             gridItems[index] = resizingGridItem
 
-            val resolveDirection = getResolveDirection(
+            val resolveDirection = getResolveDirectionWhenXNotConflicts(
                 oldGridItem = oldGridItem,
-                resizingGridItem = resizingGridItem,
+                newGridItem = resizingGridItem,
             )
 
             val resolvedConflictsGridItems = resolveConflictsWhenResizing(
@@ -73,26 +73,6 @@ class ResizeGridItemUseCase @Inject constructor(
             }
 
             resolvedConflictsGridItems
-        }
-    }
-
-    private fun getResolveDirection(
-        oldGridItem: GridItem,
-        resizingGridItem: GridItem,
-    ): ResolveDirection {
-        val oldCenterRow = oldGridItem.startRow + oldGridItem.rowSpan / 2.0
-        val oldCenterColumn = oldGridItem.startColumn + oldGridItem.columnSpan / 2.0
-
-        val newCenterRow = resizingGridItem.startRow + resizingGridItem.rowSpan / 2.0
-        val newCenterColumn = resizingGridItem.startColumn + resizingGridItem.columnSpan / 2.0
-
-        val rowDiff = newCenterRow - oldCenterRow
-        val columnDiff = newCenterColumn - oldCenterColumn
-
-        return when {
-            rowDiff < 0 || columnDiff < 0 -> ResolveDirection.Start
-            rowDiff > 0 || columnDiff > 0 -> ResolveDirection.End
-            else -> ResolveDirection.Center
         }
     }
 }

@@ -113,7 +113,7 @@ class MoveGridItemUseCase @Inject constructor(
                     gridWidth = gridWidth,
                 )
             } else {
-                null
+                gridItems
             }
 
             if (resolvedConflictsGridItems != null) {

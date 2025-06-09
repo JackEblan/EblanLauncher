@@ -1,9 +1,10 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.getGridItemWhenXConflicts
-import com.eblan.launcher.domain.grid.getResolveDirectionWhenXConflicts
-import com.eblan.launcher.domain.grid.getResolveDirectionWhenXNotConflicts
+import com.eblan.launcher.domain.grid.getGridItemByCoordinates
+import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
+import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
+import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -57,19 +58,13 @@ class MoveGridItemUseCase @Inject constructor(
 
             val index = gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 
-            val oldGridItem = if (index != -1) {
-                gridItems[index]
-            } else {
-                null
-            }
-
             if (index != -1) {
                 gridItems[index] = movingGridItem
             } else {
                 gridItems.add(movingGridItem)
             }
 
-            val gridItemWhenXConflicts = getGridItemWhenXConflicts(
+            val gridItemByCoordinates = getGridItemByCoordinates(
                 id = movingGridItem.id,
                 gridItems = gridItems,
                 rows = rows,
@@ -80,9 +75,16 @@ class MoveGridItemUseCase @Inject constructor(
                 gridHeight = gridHeight,
             )
 
-            val resolvedConflictsGridItems = if (gridItemWhenXConflicts != null) {
-                val resolveDirection = getResolveDirectionWhenXConflicts(
-                    gridItem = gridItemWhenXConflicts,
+            val gridItemBySpan = gridItems.find { gridItem ->
+                gridItem.id != movingGridItem.id && rectanglesOverlap(
+                    movingGridItem = movingGridItem,
+                    gridItem = gridItem,
+                )
+            }
+
+            val resolvedConflictsGridItems = if (gridItemByCoordinates != null) {
+                val resolveDirection = getResolveDirectionByX(
+                    gridItem = gridItemByCoordinates,
                     x = x,
                     columns = columns,
                     gridWidth = gridWidth,
@@ -97,10 +99,10 @@ class MoveGridItemUseCase @Inject constructor(
                     columns = columns,
                     gridWidth = gridWidth,
                 )
-            } else if (oldGridItem != null) {
-                val resolveDirection = getResolveDirectionWhenXNotConflicts(
-                    oldGridItem = oldGridItem,
-                    newGridItem = movingGridItem,
+            } else if (gridItemBySpan != null) {
+                val resolveDirection = getResolveDirectionBySpan(
+                    movingGridItem = movingGridItem,
+                    conflictingGridItem = gridItemBySpan,
                 )
 
                 resolveConflictsWhenMoving(

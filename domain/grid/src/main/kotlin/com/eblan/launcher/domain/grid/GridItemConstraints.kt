@@ -16,7 +16,7 @@ fun rectanglesOverlap(movingGridItem: GridItem, gridItem: GridItem): Boolean {
     return !noOverlap
 }
 
-fun getResolveDirectionWhenXConflicts(
+fun getResolveDirectionByX(
     gridItem: GridItem,
     x: Int,
     columns: Int,
@@ -65,7 +65,7 @@ fun getResolveDirectionWhenXNotConflicts(
     }
 }
 
-fun getGridItemWhenXConflicts(
+fun getGridItemByCoordinates(
     id: String,
     gridItems: List<GridItem>,
     rows: Int,
@@ -91,5 +91,22 @@ fun getGridItemWhenXConflicts(
             startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
 
         gridItem.id != id && rowInSpan && columnInSpan
+    }
+}
+
+fun getResolveDirectionBySpan(movingGridItem: GridItem, conflictingGridItem: GridItem): ResolveDirection {
+    val movingLeft = movingGridItem.startColumn
+    val movingRight = movingGridItem.startColumn + movingGridItem.columnSpan
+
+    val fixedLeft = conflictingGridItem.startColumn
+    val fixedRight = conflictingGridItem.startColumn + conflictingGridItem.columnSpan
+
+    val touchesLeft = fixedLeft in (movingLeft + 1)..<movingRight
+    val touchesRight = fixedRight in (movingLeft + 1)..<movingRight
+
+    return when {
+        touchesLeft -> ResolveDirection.End
+        touchesRight -> ResolveDirection.Start
+        else -> ResolveDirection.Center
     }
 }

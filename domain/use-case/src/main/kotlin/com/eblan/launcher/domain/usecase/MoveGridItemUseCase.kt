@@ -77,8 +77,8 @@ class MoveGridItemUseCase @Inject constructor(
 
             val gridItemBySpan = gridItems.find { gridItem ->
                 gridItem.id != movingGridItem.id && rectanglesOverlap(
-                    movingGridItem = movingGridItem,
-                    gridItem = gridItem,
+                    moving = movingGridItem,
+                    other = gridItem,
                 )
             }
 

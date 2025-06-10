@@ -39,7 +39,7 @@ private suspend fun resolveConflicts(
         // Skip the moving grid item itself.
         if (gridItem.id == resizingGridItem.id) continue
 
-        if (rectanglesOverlap(movingGridItem = resizingGridItem, gridItem = gridItem)) {
+        if (rectanglesOverlap(moving = resizingGridItem, other = gridItem)) {
             val shiftedItem = moveGridItem(
                 resolveDirection = resolveDirection,
                 movingGridItem = resizingGridItem,

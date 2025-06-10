@@ -7,13 +7,18 @@ fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boo
     return gridItem.startRow in 0 until rows && gridItem.startColumn in 0 until columns && gridItem.startRow + gridItem.rowSpan <= rows && gridItem.startColumn + gridItem.columnSpan <= columns
 }
 
-fun rectanglesOverlap(movingGridItem: GridItem, gridItem: GridItem): Boolean {
-    val noOverlap = movingGridItem.startRow + movingGridItem.rowSpan <= gridItem.startRow ||
-            gridItem.startRow + gridItem.rowSpan <= movingGridItem.startRow ||
-            movingGridItem.startColumn + movingGridItem.columnSpan <= gridItem.startColumn ||
-            gridItem.startColumn + gridItem.columnSpan <= movingGridItem.startColumn
+fun rectanglesOverlap(moving: GridItem, other: GridItem): Boolean {
+    val movingTop = moving.startRow
+    val movingBottom = moving.startRow + moving.rowSpan
+    val movingLeft = moving.startColumn
+    val movingRight = moving.startColumn + moving.columnSpan
 
-    return !noOverlap
+    val otherTop = other.startRow
+    val otherBottom = other.startRow + other.rowSpan
+    val otherLeft = other.startColumn
+    val otherRight = other.startColumn + other.columnSpan
+
+    return movingRight > otherLeft && movingLeft < otherRight && movingBottom > otherTop && movingTop < otherBottom
 }
 
 fun getResolveDirectionByX(
@@ -45,7 +50,7 @@ fun getResolveDirectionByX(
     }
 }
 
-fun getResolveDirectionWhenXNotConflicts(
+fun getResolveDirectionByDiff(
     oldGridItem: GridItem,
     newGridItem: GridItem,
 ): ResolveDirection {
@@ -84,8 +89,7 @@ fun getGridItemByCoordinates(
 
         val startRow = y / cellHeight
 
-        val rowInSpan =
-            startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
+        val rowInSpan = startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
 
         val columnInSpan =
             startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
@@ -94,7 +98,10 @@ fun getGridItemByCoordinates(
     }
 }
 
-fun getResolveDirectionBySpan(movingGridItem: GridItem, conflictingGridItem: GridItem): ResolveDirection {
+fun getResolveDirectionBySpan(
+    movingGridItem: GridItem,
+    conflictingGridItem: GridItem,
+): ResolveDirection {
     val movingLeft = movingGridItem.startColumn
     val movingRight = movingGridItem.startColumn + movingGridItem.columnSpan
 

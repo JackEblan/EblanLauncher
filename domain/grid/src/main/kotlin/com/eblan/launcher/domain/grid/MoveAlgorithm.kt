@@ -8,14 +8,14 @@ import kotlin.coroutines.coroutineContext
 suspend fun resolveConflictsWhenMoving(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
-    movingGridItem: GridItem,
+    moving: GridItem,
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
     return if (resolveConflicts(
             gridItems = gridItems,
             resolveDirection = resolveDirection,
-            movingGridItem = movingGridItem,
+            moving = moving,
             rows = rows,
             columns = columns,
         )
@@ -29,19 +29,19 @@ suspend fun resolveConflictsWhenMoving(
 private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
-    movingGridItem: GridItem,
+    moving: GridItem,
     rows: Int,
     columns: Int,
 ): Boolean {
     for (gridItem in gridItems) {
-        if (gridItem.id != movingGridItem.id && rectanglesOverlap(
-                moving = movingGridItem,
+        if (gridItem.id != moving.id && rectanglesOverlap(
+                moving = moving,
                 other = gridItem,
             )
         ) {
             val movedGridItem = moveGridItem(
                 resolveDirection = resolveDirection,
-                moving = movingGridItem,
+                moving = moving,
                 conflicting = gridItem,
                 rows = rows,
                 columns = columns,
@@ -51,10 +51,10 @@ private suspend fun resolveConflicts(
 
             gridItems[index] = movedGridItem
 
-            if (!coroutineContext.isActive && !resolveConflicts(
+            if (coroutineContext.isActive && !resolveConflicts(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    movingGridItem = movedGridItem,
+                    moving = movedGridItem,
                     rows = rows,
                     columns = columns,
                 )

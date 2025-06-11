@@ -63,7 +63,7 @@ class ResizeGridItemUseCase @Inject constructor(
             val resolvedConflictsGridItems = resolveConflictsWhenMoving(
                 gridItems = gridItems,
                 resolveDirection = resolveDirection,
-                movingGridItem = resizingGridItem,
+                moving = resizingGridItem,
                 rows = rows,
                 columns = columns,
             )

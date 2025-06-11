@@ -93,7 +93,7 @@ class MoveGridItemUseCase @Inject constructor(
                 resolveConflictsWhenMoving(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    movingGridItem = movingGridItem,
+                    moving = movingGridItem,
                     rows = rows,
                     columns = columns,
                 )
@@ -106,7 +106,7 @@ class MoveGridItemUseCase @Inject constructor(
                 resolveConflictsWhenMoving(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    movingGridItem = movingGridItem,
+                    moving = movingGridItem,
                     rows = rows,
                     columns = columns,
                 )

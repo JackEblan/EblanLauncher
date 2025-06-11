@@ -1,9 +1,9 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.getGridItemByCoordinates
+import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.Associate
@@ -94,25 +94,21 @@ class MoveGridItemUseCase @Inject constructor(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     movingGridItem = movingGridItem,
-                    x = x,
                     rows = rows,
                     columns = columns,
-                    gridWidth = gridWidth,
                 )
             } else if (gridItemBySpan != null) {
                 val resolveDirection = getResolveDirectionBySpan(
-                    movingGridItem = movingGridItem,
-                    conflictingGridItem = gridItemBySpan,
+                    moving = movingGridItem,
+                    other = gridItemBySpan,
                 )
 
                 resolveConflictsWhenMoving(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     movingGridItem = movingGridItem,
-                    x = x,
                     rows = rows,
                     columns = columns,
-                    gridWidth = gridWidth,
                 )
             } else {
                 gridItems

@@ -2,7 +2,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.getResolveDirectionByDiff
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.grid.resolveConflictsWhenResizing
+import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -56,14 +56,14 @@ class ResizeGridItemUseCase @Inject constructor(
             gridItems[index] = resizingGridItem
 
             val resolveDirection = getResolveDirectionByDiff(
-                oldGridItem = oldGridItem,
-                newGridItem = resizingGridItem,
+                old = oldGridItem,
+                new = resizingGridItem,
             )
 
-            val resolvedConflictsGridItems = resolveConflictsWhenResizing(
+            val resolvedConflictsGridItems = resolveConflictsWhenMoving(
                 gridItems = gridItems,
                 resolveDirection = resolveDirection,
-                resizingGridItem = resizingGridItem,
+                movingGridItem = resizingGridItem,
                 rows = rows,
                 columns = columns,
             )

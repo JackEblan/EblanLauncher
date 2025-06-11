@@ -25,7 +25,7 @@ fun resizeGridItemWithPixels(
         gridCellHeight = cellHeight,
     )
 
-    return resizeGridItem(
+    return resizeGridItemByAnchor(
         gridItem = gridItem,
         newWidth = newWidth,
         newHeight = newHeight,
@@ -54,7 +54,7 @@ fun resizeWidgetGridItemWithPixels(
         gridCellHeight = cellHeight,
     )
 
-    return resizeGridItemWithSideAnchor(
+    return resizeGridItemBySideAnchor(
         gridItem = gridItem,
         newWidth = newWidth,
         newHeight = newHeight,
@@ -75,7 +75,7 @@ private fun pixelDimensionsToGridSpan(
     return spanWidth to spanHeight
 }
 
-private fun resizeGridItem(
+private fun resizeGridItemByAnchor(
     gridItem: GridItem,
     newWidth: Int,
     newHeight: Int,
@@ -118,7 +118,7 @@ private fun resizeGridItem(
     )
 }
 
-private fun resizeGridItemWithSideAnchor(
+private fun resizeGridItemBySideAnchor(
     gridItem: GridItem,
     newWidth: Int,
     newHeight: Int,

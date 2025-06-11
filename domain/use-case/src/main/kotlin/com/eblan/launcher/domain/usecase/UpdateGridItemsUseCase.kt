@@ -15,9 +15,9 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
 ) {
     suspend operator fun invoke(currentPage: Int): Int {
-        var targetPage = currentPage
+        return withContext(Dispatchers.Default) {
+            var targetPage = currentPage
 
-        withContext(Dispatchers.Default) {
             val gridCacheItems = gridCacheRepository.gridCacheItems.first()
 
             var pageCount = userDataRepository.userData.first().pageCount
@@ -61,8 +61,8 @@ class UpdateGridItemsUseCase @Inject constructor(
             val newGridCacheItems = gridCacheRepository.gridCacheItems.first()
 
             gridRepository.upsertGridItems(gridItems = newGridCacheItems)
-        }
 
-        return targetPage
+            targetPage
+        }
     }
 }

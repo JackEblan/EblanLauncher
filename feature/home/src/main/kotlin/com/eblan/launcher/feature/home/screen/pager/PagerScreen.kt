@@ -129,6 +129,7 @@ fun PagerScreen(
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
+        beyondViewportPageCount = 1,
         userScrollEnabled = userScrollEnabled,
     ) { verticalPage ->
         when (verticalPage) {
@@ -167,6 +168,7 @@ fun PagerScreen(
                         0 -> {
                             ApplicationScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
+                                settledPage = verticalPagerState.settledPage,
                                 rows = rows,
                                 columns = columns,
                                 appDrawerColumns = appDrawerColumns,
@@ -178,7 +180,6 @@ fun PagerScreen(
                                 dockHeight = dockHeight,
                                 drag = drag,
                                 textColor = textColor,
-                                isScrollInProgress = verticalPagerState.isScrollInProgress,
                                 onLongPressApplicationInfo = onLongPressApplicationInfo,
                                 onDragging = onDraggingApplicationInfo,
                                 onDragEnd = onDragEndApplicationInfo,
@@ -249,7 +250,9 @@ private fun HorizontalPagerScreen(
     LaunchedEffect(key1 = drag) {
         if (!horizontalPagerState.isScrollInProgress &&
             !verticalPagerState.isScrollInProgress &&
-            drag == Drag.Start && gridItemLayoutInfo != null
+            verticalPagerState.settledPage == 0 &&
+            drag == Drag.Start &&
+            gridItemLayoutInfo != null
         ) {
             onDragStart()
         }

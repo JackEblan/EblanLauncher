@@ -51,14 +51,14 @@ fun getResolveDirectionByX(
 }
 
 fun getResolveDirectionByDiff(
-    oldGridItem: GridItem,
-    newGridItem: GridItem,
+    old: GridItem,
+    new: GridItem,
 ): ResolveDirection {
-    val oldCenterRow = oldGridItem.startRow + oldGridItem.rowSpan / 2.0
-    val oldCenterColumn = oldGridItem.startColumn + oldGridItem.columnSpan / 2.0
+    val oldCenterRow = old.startRow + old.rowSpan / 2.0
+    val oldCenterColumn = old.startColumn + old.columnSpan / 2.0
 
-    val newCenterRow = newGridItem.startRow + newGridItem.rowSpan / 2.0
-    val newCenterColumn = newGridItem.startColumn + newGridItem.columnSpan / 2.0
+    val newCenterRow = new.startRow + new.rowSpan / 2.0
+    val newCenterColumn = new.startColumn + new.columnSpan / 2.0
 
     val rowDiff = newCenterRow - oldCenterRow
     val columnDiff = newCenterColumn - oldCenterColumn
@@ -99,17 +99,17 @@ fun getGridItemByCoordinates(
 }
 
 fun getResolveDirectionBySpan(
-    movingGridItem: GridItem,
-    conflictingGridItem: GridItem,
+    moving: GridItem,
+    other: GridItem,
 ): ResolveDirection {
-    val movingLeft = movingGridItem.startColumn
-    val movingRight = movingGridItem.startColumn + movingGridItem.columnSpan
+    val movingLeft = moving.startColumn
+    val movingRight = moving.startColumn + moving.columnSpan
 
-    val fixedLeft = conflictingGridItem.startColumn
-    val fixedRight = conflictingGridItem.startColumn + conflictingGridItem.columnSpan
+    val otherLeft = other.startColumn
+    val otherRight = other.startColumn + other.columnSpan
 
-    val touchesLeft = fixedLeft in (movingLeft + 1)..<movingRight
-    val touchesRight = fixedRight in (movingLeft + 1)..<movingRight
+    val touchesLeft = otherLeft in (movingLeft + 1)..<movingRight
+    val touchesRight = otherRight in (movingLeft + 1)..<movingRight
 
     return when {
         touchesLeft -> ResolveDirection.End

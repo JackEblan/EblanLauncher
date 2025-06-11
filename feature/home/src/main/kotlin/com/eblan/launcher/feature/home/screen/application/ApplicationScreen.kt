@@ -60,6 +60,7 @@ import kotlin.uuid.Uuid
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
+    settledPage: Int,
     rows: Int,
     columns: Int,
     appDrawerColumns: Int,
@@ -71,7 +72,6 @@ fun ApplicationScreen(
     dockHeight: Int,
     drag: Drag,
     textColor: TextColor,
-    isScrollInProgress: Boolean,
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -106,7 +106,7 @@ fun ApplicationScreen(
     )
 
     LaunchedEffect(key1 = drag) {
-        if (!isScrollInProgress) {
+        if (settledPage == 1) {
             when (drag) {
                 Drag.Start -> {
                     showMenu = true

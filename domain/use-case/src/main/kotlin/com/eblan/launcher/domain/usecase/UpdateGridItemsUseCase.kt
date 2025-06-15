@@ -18,7 +18,7 @@ class UpdateGridItemsUseCase @Inject constructor(
         return withContext(Dispatchers.Default) {
             var targetPage = currentPage
 
-            val gridCacheItems = gridCacheRepository.gridCacheItems.first()
+            val gridCacheItems = gridCacheRepository.gridCacheItems.first().toMutableList()
 
             var pageCount = userDataRepository.userData.first().pageCount
 
@@ -26,8 +26,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                 gridItem.associate == Associate.Grid
             }
 
-            val hasNewPage = gridCacheItemsByAssociateGrid.isNotEmpty() &&
-                    gridCacheItemsByAssociateGrid.maxOf { gridItem -> gridItem.page } > pageCount - 1
+            val hasNewPage =
+                gridCacheItemsByAssociateGrid.isNotEmpty() && gridCacheItemsByAssociateGrid.maxOf { gridItem -> gridItem.page } > pageCount - 1
 
             if (hasNewPage) {
                 pageCount += 1
@@ -46,21 +46,15 @@ class UpdateGridItemsUseCase @Inject constructor(
 
                     userDataRepository.updatePageCount(pageCount)
 
-                    val shiftedGridItems = gridCacheItemsByAssociateGrid.map { gridItem ->
+                    gridCacheItems.forEachIndexed { index, gridItem ->
                         if (gridItem.page > page) {
-                            gridItem.copy(page = gridItem.page - 1)
-                        } else {
-                            gridItem
+                            gridCacheItems[index] = gridItem.copy(page = gridItem.page - 1)
                         }
                     }
-
-                    gridCacheRepository.upsertGridItems(gridItems = shiftedGridItems)
                 }
             }
 
-            val newGridCacheItems = gridCacheRepository.gridCacheItems.first()
-
-            gridRepository.upsertGridItems(gridItems = newGridCacheItems)
+            gridRepository.upsertGridItems(gridItems = gridCacheItems)
 
             targetPage
         }

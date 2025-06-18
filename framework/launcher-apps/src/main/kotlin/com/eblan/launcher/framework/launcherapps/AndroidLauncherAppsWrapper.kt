@@ -31,8 +31,7 @@ class AndroidLauncherAppsWrapper @Inject constructor(
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
-    private val userHandle
-        get() = Process.myUserHandle()
+    private val userHandle = Process.myUserHandle()
 
     override val launcherAppsEvent: Flow<LauncherAppsEvent> = callbackFlow {
         val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps

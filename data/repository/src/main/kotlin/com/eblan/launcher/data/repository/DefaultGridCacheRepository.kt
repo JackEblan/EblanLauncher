@@ -19,40 +19,38 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
     override val isCache = _isCache.asStateFlow()
 
     override suspend fun insertGridItems(gridItems: List<GridItem>) {
-        _gridCacheItems.emit(gridItems)
+        _gridCacheItems.update {
+            gridItems
+        }
     }
 
     override suspend fun deleteGridItem(gridItem: GridItem) {
-        val updatedGridItems = _gridCacheItems.value.toMutableList()
-
         withContext(Dispatchers.Default) {
-            val index = updatedGridItems.indexOfFirst { it.id == gridItem.id }
-
-            if (index != -1) {
-                updatedGridItems.removeAt(index)
+            _gridCacheItems.update { currentGridCacheItems ->
+                currentGridCacheItems.toMutableList().apply {
+                    removeIf { it.id == gridItem.id }
+                }
             }
-
-            _gridCacheItems.emit(updatedGridItems)
         }
     }
 
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
-        val updatedGridItems = _gridCacheItems.value.toMutableList()
-
         withContext(Dispatchers.Default) {
-            gridItems.forEach { gridItem ->
-                val index = updatedGridItems.indexOfFirst { it.id == gridItem.id }
+            _gridCacheItems.update { currentGridCacheItems ->
+                currentGridCacheItems.toMutableList().apply {
+                    gridItems.forEach { gridItem ->
+                        val index = indexOfFirst { it.id == gridItem.id }
 
-                if (index != -1 && updatedGridItems[index] != gridItem) {
-                    updatedGridItems[index] = gridItem
-                }
-
-                if (index == -1) {
-                    updatedGridItems.add(gridItem)
+                        if (index != -1) {
+                            if (get(index) != gridItem) {
+                                set(index, gridItem)
+                            }
+                        } else {
+                            add(gridItem)
+                        }
+                    }
                 }
             }
-
-            _gridCacheItems.emit(updatedGridItems)
         }
     }
 

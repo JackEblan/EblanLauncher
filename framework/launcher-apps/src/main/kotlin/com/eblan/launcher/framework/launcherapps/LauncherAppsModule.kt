@@ -13,9 +13,5 @@ internal interface LauncherAppsModule {
 
     @Binds
     @Singleton
-    fun launcherAppsController(impl: AndroidLauncherAppsWrapper): LauncherAppsController
-
-    @Binds
-    @Singleton
     fun launcherAppsWrapper(impl: AndroidLauncherAppsWrapper): LauncherAppsWrapper
 }

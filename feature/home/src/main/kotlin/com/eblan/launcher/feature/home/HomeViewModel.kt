@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -38,6 +39,7 @@ class HomeViewModel @Inject constructor(
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -147,6 +149,10 @@ class HomeViewModel @Inject constructor(
 
             gridCacheRepository.updateIsCache(isCache = true)
         }
+    }
+
+    fun startMainActivity(componentName: String?) {
+        launcherAppsWrapper.startMainActivity(componentName = componentName)
     }
 
     fun resetGridCache(currentPage: Int) {

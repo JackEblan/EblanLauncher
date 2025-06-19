@@ -8,4 +8,6 @@ interface LauncherAppsWrapper {
     val launcherAppsEvent: Flow<LauncherAppsEvent>
 
     suspend fun getActivityList(): List<EblanLauncherActivityInfo>
+
+    fun startMainActivity(componentName: String?)
 }

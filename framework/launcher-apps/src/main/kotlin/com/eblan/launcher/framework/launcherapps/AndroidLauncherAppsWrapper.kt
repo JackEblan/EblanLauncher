@@ -23,19 +23,17 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class AndroidLauncherAppsWrapper @Inject constructor(
+internal class AndroidLauncherAppsWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
 ) :
-    LauncherAppsWrapper, LauncherAppsController {
+    LauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
     private val userHandle = Process.myUserHandle()
 
     override val launcherAppsEvent: Flow<LauncherAppsEvent> = callbackFlow {
-        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-
         val callback = object : LauncherApps.Callback() {
             override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
                 if (packageName != null) {
@@ -60,7 +58,7 @@ class AndroidLauncherAppsWrapper @Inject constructor(
                 user: UserHandle?,
                 replacing: Boolean,
             ) {
-                // TODO: Later?
+                // TODO: Show installed applications
             }
 
             override fun onPackagesUnavailable(
@@ -68,7 +66,7 @@ class AndroidLauncherAppsWrapper @Inject constructor(
                 user: UserHandle?,
                 replacing: Boolean,
             ) {
-                // TODO: Later?
+                // TODO: Hide installed applications
             }
         }
 
@@ -87,14 +85,12 @@ class AndroidLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override fun startMainActivity(
-        component: ComponentName?,
-        sourceBounds: Rect,
-        opts: Bundle?,
-    ) {
-        launcherApps.startMainActivity(
-            component, userHandle, sourceBounds, opts,
-        )
+    override fun startMainActivity(componentName: String?) {
+        if (componentName != null) {
+            launcherApps.startMainActivity(
+                ComponentName.unflattenFromString(componentName), userHandle, Rect(), Bundle.EMPTY,
+            )
+        }
     }
 
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): EblanLauncherActivityInfo {

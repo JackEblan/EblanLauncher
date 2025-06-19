@@ -90,6 +90,7 @@ fun HomeRoute(
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
+        onStartMainActivity = viewModel::startMainActivity,
     )
 }
 
@@ -121,6 +122,7 @@ fun HomeScreen(
     onResetGridCache: (Int) -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
+    onStartMainActivity: (String?) -> Unit,
 ) {
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         BoxWithConstraints(
@@ -141,8 +143,8 @@ fun HomeScreen(
                         userData = homeUiState.gridItemsByPage.userData,
                         eblanApplicationInfos = eblanApplicationInfos,
                         eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-                        rootWidth = constraints.maxWidth,
-                        rootHeight = constraints.maxHeight,
+                        rootWidth = this@BoxWithConstraints.constraints.maxWidth,
+                        rootHeight = this@BoxWithConstraints.constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         shiftedAlgorithm = shiftedAlgorithm,
                         targetPage = targetPage,
@@ -153,6 +155,7 @@ fun HomeScreen(
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
                         onSettings = onSettings,
+                        onStartMainActivity = onStartMainActivity,
                     )
                 }
             }
@@ -193,6 +196,7 @@ fun Success(
     onResetGridCache: (Int) -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
+    onStartMainActivity: (String?) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
 
@@ -343,6 +347,7 @@ fun Success(
 
                         onShowGridCache(Screen.Drag)
                     },
+                    onStartMainActivity = onStartMainActivity,
                 )
             }
 

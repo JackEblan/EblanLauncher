@@ -1,7 +1,5 @@
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.content.ComponentName
-import android.graphics.Rect
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -40,11 +38,9 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
-import androidx.core.app.ActivityOptionsCompat
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -99,7 +95,12 @@ fun PagerScreen(
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
     onLongPressWidget: (ImageBitmap?) -> Unit,
-    onDragStartWidget: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
+    onDragStartWidget: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+        gridItemLayoutInfo: GridItemLayoutInfo,
+    ) -> Unit,
+    onStartMainActivity: (String?) -> Unit,
 ) {
     val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
@@ -159,6 +160,7 @@ fun PagerScreen(
                     onWidgetActionUp = {
                         userScrollEnabled = true
                     },
+                    onStartMainActivity = onStartMainActivity,
                 )
             }
 
@@ -238,10 +240,9 @@ private fun HorizontalPagerScreen(
     onDragStart: () -> Unit,
     onWidgetActionDown: () -> Unit,
     onWidgetActionUp: () -> Unit,
+    onStartMainActivity: (String?) -> Unit,
 ) {
     val density = LocalDensity.current
-
-    val localLauncherApps = LocalLauncherApps.current
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
@@ -300,16 +301,7 @@ private fun HorizontalPagerScreen(
                                 textColor = textColor,
                                 gridItemData = data,
                                 onTap = {
-                                    val componentName =
-                                        data.componentName?.let(ComponentName::unflattenFromString)
-
-                                    val opts = ActivityOptionsCompat.makeBasic().toBundle()
-
-                                    localLauncherApps.startMainActivity(
-                                        component = componentName,
-                                        sourceBounds = Rect(x, y, x + width, y + height),
-                                        opts = opts,
-                                    )
+                                    onStartMainActivity(data.componentName)
                                 },
                                 onLongPress = { preview ->
                                     onLongPressedGridItem(
@@ -372,16 +364,7 @@ private fun HorizontalPagerScreen(
                         textColor = textColor,
                         gridItemData = data,
                         onTap = {
-                            val componentName =
-                                data.componentName?.let(ComponentName::unflattenFromString)
-
-                            val opts = ActivityOptionsCompat.makeBasic().toBundle()
-
-                            localLauncherApps.startMainActivity(
-                                component = componentName,
-                                sourceBounds = Rect(x, y, x + width, y + height),
-                                opts = opts,
-                            )
+                            onStartMainActivity(data.componentName)
                         },
                         onLongPress = { preview ->
                             onLongPressedGridItem(

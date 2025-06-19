@@ -143,11 +143,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
+            gridCacheRepository.updateIsCache(isCache = true)
+
             _screen.update {
                 screen
             }
-
-            gridCacheRepository.updateIsCache(isCache = true)
         }
     }
 

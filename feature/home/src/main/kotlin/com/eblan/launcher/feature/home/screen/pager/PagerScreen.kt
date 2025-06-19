@@ -13,6 +13,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -165,46 +166,46 @@ fun PagerScreen(
             }
 
             1 -> {
-                HorizontalPager(state = applicationHorizontalPagerState) { page ->
-                    when (page) {
-                        0 -> {
-                            ApplicationScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                settledPage = verticalPagerState.settledPage,
-                                rows = rows,
-                                columns = columns,
-                                appDrawerColumns = appDrawerColumns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanApplicationInfos = eblanApplicationInfos,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
-                                dockHeight = dockHeight,
-                                drag = drag,
-                                textColor = textColor,
-                                onLongPressApplicationInfo = onLongPressApplicationInfo,
-                                onDragging = onDraggingApplicationInfo,
-                                onDragEnd = onDragEndApplicationInfo,
-                            )
-                        }
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    HorizontalPager(state = applicationHorizontalPagerState) { page ->
+                        when (page) {
+                            0 -> {
+                                ApplicationScreen(
+                                    currentPage = gridHorizontalPagerState.currentPage,
+                                    settledPage = verticalPagerState.settledPage,
+                                    rows = rows,
+                                    columns = columns,
+                                    appDrawerColumns = appDrawerColumns,
+                                    pageCount = pageCount,
+                                    infiniteScroll = infiniteScroll,
+                                    eblanApplicationInfos = eblanApplicationInfos,
+                                    rootWidth = rootWidth,
+                                    rootHeight = rootHeight,
+                                    dockHeight = dockHeight,
+                                    drag = drag,
+                                    onLongPressApplicationInfo = onLongPressApplicationInfo,
+                                    onDragging = onDraggingApplicationInfo,
+                                    onDragEnd = onDragEndApplicationInfo,
+                                )
+                            }
 
-                        1 -> {
-                            WidgetScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                rows = rows,
-                                columns = columns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                dragIntOffset = dragIntOffset,
-                                eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
-                                dockHeight = dockHeight,
-                                drag = drag,
-                                textColor = textColor,
-                                onLongPressWidget = onLongPressWidget,
-                                onDragStart = onDragStartWidget,
-                            )
+                            1 -> {
+                                WidgetScreen(
+                                    currentPage = gridHorizontalPagerState.currentPage,
+                                    rows = rows,
+                                    columns = columns,
+                                    pageCount = pageCount,
+                                    infiniteScroll = infiniteScroll,
+                                    dragIntOffset = dragIntOffset,
+                                    eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
+                                    rootWidth = rootWidth,
+                                    rootHeight = rootHeight,
+                                    dockHeight = dockHeight,
+                                    drag = drag,
+                                    onLongPressWidget = onLongPressWidget,
+                                    onDragStart = onDragStartWidget,
+                                )
+                            }
                         }
                     }
                 }
@@ -249,12 +250,7 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (!horizontalPagerState.isScrollInProgress &&
-            !verticalPagerState.isScrollInProgress &&
-            verticalPagerState.settledPage == 0 &&
-            drag == Drag.Start &&
-            gridItemLayoutInfo != null
-        ) {
+        if (!horizontalPagerState.isScrollInProgress && !verticalPagerState.isScrollInProgress && verticalPagerState.settledPage == 0 && drag == Drag.Start && gridItemLayoutInfo != null) {
             onDragStart()
         }
     }

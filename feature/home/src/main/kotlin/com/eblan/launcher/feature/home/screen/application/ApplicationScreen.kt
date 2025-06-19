@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -47,7 +46,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
@@ -71,7 +69,6 @@ fun ApplicationScreen(
     rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
-    textColor: TextColor,
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -85,11 +82,6 @@ fun ApplicationScreen(
     val scope = rememberCoroutineScope()
 
     val gridState = rememberLazyGridState()
-
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
-    }
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -216,7 +208,6 @@ fun ApplicationScreen(
 
                             Text(
                                 text = eblanApplicationInfo.label.toString(),
-                                color = color,
                                 textAlign = TextAlign.Center,
                                 fontSize = TextUnit(
                                     value = 10f,

@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 internal class AndroidAppWidgetHostWrapper @Inject constructor(@ApplicationContext private val context: Context) :
     AppWidgetHostWrapper {
-    override val appWidgetHost = LauncherAppWidgetHost(context, 2814)
+    private val appWidgetHost = LauncherAppWidgetHost(context, 2814)
 
     override fun startListening() {
         appWidgetHost.startListening()

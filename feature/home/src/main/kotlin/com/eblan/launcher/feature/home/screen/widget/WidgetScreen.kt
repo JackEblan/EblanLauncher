@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -41,7 +40,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
@@ -62,7 +60,6 @@ fun WidgetScreen(
     rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
-    textColor: TextColor,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
         intOffset: IntOffset,
@@ -74,11 +71,6 @@ fun WidgetScreen(
         mutableStateOf<EblanAppWidgetProviderInfo?>(
             null,
         )
-    }
-
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
     }
 
     val appWidgetHost = LocalAppWidgetHost.current
@@ -124,7 +116,6 @@ fun WidgetScreen(
 
                             Text(
                                 text = eblanApplicationInfo.label.toString(),
-                                color = color,
                             )
 
                             eblanAppWidgetProviderInfosByGroup[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
@@ -186,7 +177,6 @@ fun WidgetScreen(
 
                                 Text(
                                     text = infoText,
-                                    color = color,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.bodySmall,
                                 )

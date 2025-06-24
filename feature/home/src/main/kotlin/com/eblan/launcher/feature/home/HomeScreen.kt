@@ -2,27 +2,16 @@ package com.eblan.launcher.feature.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,7 +32,6 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
@@ -53,6 +41,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
+import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 
@@ -161,7 +150,6 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
@@ -194,13 +182,9 @@ fun Success(
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
-
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
-
-    var showBottomSheet by remember { mutableStateOf(false) }
 
     var showOverlay by remember { mutableStateOf(false) }
 
@@ -271,7 +255,7 @@ fun Success(
 
                         gridItemSource = null
 
-                        showBottomSheet = true
+                        onShowGridCache(Screen.EditPage)
                     },
                     onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
@@ -416,6 +400,24 @@ fun Success(
             Screen.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
+
+            Screen.EditPage -> {
+                EditPageScreen(
+                    currentPage = currentPage,
+                    rows = userData.rows,
+                    columns = userData.columns,
+                    pageCount = userData.pageCount,
+                    infiniteScroll = userData.infiniteScroll,
+                    dockRows = userData.dockRows,
+                    dockColumns = userData.dockColumns,
+                    dragIntOffset = dragIntOffset,
+                    gridItems = gridItems,
+                    dockHeight = userData.dockHeight,
+                    dockGridItems = dockGridItems,
+                    textColor = userData.textColor,
+                    onSettings = onSettings,
+                )
+            }
         }
 
         if (showOverlay) {
@@ -423,16 +425,6 @@ fun Success(
                 preview = overlayImageBitmap,
                 overlayIntOffset = overlayIntOffset,
                 overlayIntSize = overlayIntSize,
-            )
-        }
-
-        if (showBottomSheet) {
-            HomeBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                onSettings = onSettings,
             )
         }
     }
@@ -469,37 +461,5 @@ private fun GridItemOverlay(
                 .fillMaxSize()
                 .border(width = 2.dp, color = Color.White),
         )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-private fun HomeBottomSheet(
-    modifier: Modifier = Modifier,
-    sheetState: SheetState,
-    onDismissRequest: () -> Unit,
-    onSettings: () -> Unit,
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        sheetState = sheetState,
-    ) {
-        FlowRow(modifier = Modifier.fillMaxWidth(), maxLines = 4) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        onSettings()
-
-                        onDismissRequest()
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(imageVector = EblanLauncherIcons.Settings, contentDescription = null)
-
-                Text(text = "Settings")
-            }
-        }
     }
 }

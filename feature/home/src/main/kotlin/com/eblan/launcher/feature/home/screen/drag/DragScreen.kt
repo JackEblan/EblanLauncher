@@ -263,8 +263,7 @@ fun DragScreen(
                                     is GridItemData.ApplicationInfo -> {
                                         Column(
                                             modifier = Modifier
-                                                .fillMaxSize()
-                                                .border(width = 1.dp, color = Color.White),
+                                                .fillMaxSize(),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
                                             AsyncImage(
@@ -334,8 +333,7 @@ fun DragScreen(
                         is GridItemData.ApplicationInfo -> {
                             Column(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .border(width = 1.dp, color = Color.White),
+                                    .fillMaxSize(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 AsyncImage(

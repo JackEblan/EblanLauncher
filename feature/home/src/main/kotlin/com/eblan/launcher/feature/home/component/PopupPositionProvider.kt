@@ -31,6 +31,29 @@ class MenuPositionProvider(
     }
 }
 
+class SettingsMenuPositionProvider(
+    private val x: Int,
+    private val y: Int,
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val (x, y) = calculateMenuCoordinates(
+            x = x,
+            y = y,
+            width = popupContentSize.width,
+            height = popupContentSize.height,
+            windowSize = windowSize,
+            popupContentSize = popupContentSize,
+        )
+
+        return IntOffset(x = x, y = y)
+    }
+}
+
 private fun calculateMenuCoordinates(
     x: Int,
     y: Int,

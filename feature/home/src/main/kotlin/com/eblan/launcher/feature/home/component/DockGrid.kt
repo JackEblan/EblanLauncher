@@ -13,7 +13,7 @@ fun DockGrid(
     columns: Int,
     dockGridItems: List<GridItem>,
     dockGridItemContent: @Composable (
-        GridItem,
+        gridItem: GridItem,
         x: Int,
         y: Int,
         width: Int,

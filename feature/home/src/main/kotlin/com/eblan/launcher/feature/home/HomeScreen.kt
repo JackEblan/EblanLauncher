@@ -125,7 +125,7 @@ fun HomeScreen(
     onStartMainActivity: (String?) -> Unit,
 ) {
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
-        BoxWithConstraints(
+        Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -143,8 +143,6 @@ fun HomeScreen(
                         userData = homeUiState.gridItemsByPage.userData,
                         eblanApplicationInfos = eblanApplicationInfos,
                         eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-                        rootWidth = this@BoxWithConstraints.constraints.maxWidth,
-                        rootHeight = this@BoxWithConstraints.constraints.maxHeight,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         shiftedAlgorithm = shiftedAlgorithm,
                         targetPage = targetPage,
@@ -172,8 +170,6 @@ fun Success(
     userData: UserData,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    rootWidth: Int,
-    rootHeight: Int,
     dockGridItems: List<GridItem>,
     shiftedAlgorithm: Boolean?,
     targetPage: Int,
@@ -220,7 +216,7 @@ fun Success(
 
     var addNewPage by remember { mutableStateOf(false) }
 
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
@@ -266,8 +262,8 @@ fun Success(
                     textColor = userData.textColor,
                     eblanApplicationInfos = eblanApplicationInfos,
                     eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    rootWidth = constraints.maxWidth,
+                    rootHeight = constraints.maxHeight,
                     appDrawerColumns = userData.appDrawerColumns,
                     dragIntOffset = dragIntOffset,
                     onLongPressGrid = { newCurrentPage ->
@@ -364,8 +360,8 @@ fun Success(
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    rootWidth = constraints.maxWidth,
+                    rootHeight = constraints.maxHeight,
                     dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,

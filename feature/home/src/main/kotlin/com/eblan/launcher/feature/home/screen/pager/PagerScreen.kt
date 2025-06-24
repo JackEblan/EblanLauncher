@@ -116,7 +116,9 @@ fun PagerScreen(
 
     val verticalPagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { 2 },
+        pageCount = {
+            2
+        },
     )
 
     val applicationHorizontalPagerState = rememberPagerState(
@@ -131,7 +133,6 @@ fun PagerScreen(
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
-        beyondViewportPageCount = 1,
         userScrollEnabled = userScrollEnabled,
     ) { verticalPage ->
         when (verticalPage) {
@@ -172,7 +173,6 @@ fun PagerScreen(
                             0 -> {
                                 ApplicationScreen(
                                     currentPage = gridHorizontalPagerState.currentPage,
-                                    settledPage = verticalPagerState.settledPage,
                                     rows = rows,
                                     columns = columns,
                                     appDrawerColumns = appDrawerColumns,
@@ -183,6 +183,7 @@ fun PagerScreen(
                                     rootHeight = rootHeight,
                                     dockHeight = dockHeight,
                                     drag = drag,
+                                    isScrollInProgress = verticalPagerState.isScrollInProgress,
                                     onLongPressApplicationInfo = onLongPressApplicationInfo,
                                     onDragging = onDraggingApplicationInfo,
                                     onDragEnd = onDragEndApplicationInfo,
@@ -250,7 +251,11 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (!horizontalPagerState.isScrollInProgress && !verticalPagerState.isScrollInProgress && verticalPagerState.settledPage == 0 && drag == Drag.Start && gridItemLayoutInfo != null) {
+        if (!horizontalPagerState.isScrollInProgress &&
+            !verticalPagerState.isScrollInProgress &&
+            drag == Drag.Start &&
+            gridItemLayoutInfo != null
+        ) {
             onDragStart()
         }
     }

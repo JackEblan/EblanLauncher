@@ -161,6 +161,12 @@ class HomeViewModel @Inject constructor(
         launcherAppsWrapper.startMainActivity(componentName = componentName)
     }
 
+    fun updateScreen(screen: Screen) {
+        _screen.update {
+            screen
+        }
+    }
+
     fun resetGridCache(currentPage: Int) {
         viewModelScope.launch {
             _screen.update {

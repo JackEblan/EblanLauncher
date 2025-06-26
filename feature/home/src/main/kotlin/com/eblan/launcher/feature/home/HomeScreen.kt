@@ -82,6 +82,7 @@ fun HomeRoute(
         onEdit = onEdit,
         onSettings = onSettings,
         onStartMainActivity = viewModel::startMainActivity,
+        onUpdateScreen = viewModel::updateScreen,
     )
 }
 
@@ -115,6 +116,7 @@ fun HomeScreen(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
 ) {
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         Box(
@@ -147,6 +149,7 @@ fun HomeScreen(
                         onEdit = onEdit,
                         onSettings = onSettings,
                         onStartMainActivity = onStartMainActivity,
+                        onUpdateScreen = onUpdateScreen,
                     )
                 }
             }
@@ -186,6 +189,7 @@ fun Success(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -411,19 +415,10 @@ fun Success(
 
             Screen.EditPage -> {
                 EditPageScreen(
-                    currentPage = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
-                    dragIntOffset = dragIntOffset,
                     gridItems = gridItems,
-                    dockHeight = userData.dockHeight,
-                    dockGridItems = dockGridItems,
-                    textColor = userData.textColor,
-                    onSettings = onSettings,
+                    onUpdateScreen = onUpdateScreen,
                 )
             }
         }
@@ -447,8 +442,14 @@ fun Success(
                 },
             ) {
                 SettingsMenu(
-                    onSettings = onSettings,
+                    onSettings = {
+                        showMenu = false
+
+                        onSettings()
+                    },
                     onEditPage = {
+                        showMenu = false
+
                         onShowGridCache(Screen.EditPage)
                     },
                 )

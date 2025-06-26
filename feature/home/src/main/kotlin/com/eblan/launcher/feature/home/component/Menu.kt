@@ -3,6 +3,9 @@ package com.eblan.launcher.feature.home.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -128,10 +131,10 @@ fun SettingsMenu(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
+        shape = RoundedCornerShape(10.dp),
         shadowElevation = 2.dp,
         content = {
-            Column {
+            Column(modifier = Modifier.padding(5.dp)) {
                 Row(modifier = Modifier.clickable(onClick = onSettings)) {
                     Icon(
                         imageVector = EblanLauncherIcons.Settings,
@@ -140,6 +143,8 @@ fun SettingsMenu(
 
                     Text(text = "Settings")
                 }
+
+                Spacer(modifier = Modifier.height(5.dp))
 
                 Row(modifier = Modifier.clickable(onClick = onEditPage)) {
                     Icon(

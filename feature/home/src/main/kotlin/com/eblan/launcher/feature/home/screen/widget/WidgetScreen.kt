@@ -136,6 +136,7 @@ fun WidgetScreen(
 
                                     if (result is SuccessResult) {
                                         val drawable = result.drawable
+
                                         val bitmap = (drawable as BitmapDrawable).bitmap
 
                                         imageBitmap = bitmap.asImageBitmap()

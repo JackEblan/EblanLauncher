@@ -4,7 +4,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.os.Bundle
 
-interface AppWidgetManagerController {
+interface AppWidgetManagerWrapper {
     fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo?
 
     fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean

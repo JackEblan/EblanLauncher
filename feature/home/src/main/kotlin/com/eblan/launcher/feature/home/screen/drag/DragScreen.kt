@@ -66,8 +66,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerController
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import kotlinx.coroutines.delay
 
 @Composable
@@ -100,6 +99,7 @@ fun DragScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
@@ -160,11 +160,11 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleResult(
-            appWidgetHost = appWidgetHost,
             targetPage = targetPage,
             result = result,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             onDragEnd = onDragEnd,
+            onDeleteAppWidgetId = onDeleteAppWidgetId,
             onDeleteGridItem = onDeleteGridItem,
         )
     }
@@ -571,7 +571,7 @@ private fun handleDrag(
     gridItemSource: GridItemSource?,
     onDragEnd: (Int) -> Unit,
     shiftedAlgorithm: Boolean?,
-    appWidgetManager: AppWidgetManagerController,
+    appWidgetManager: AppWidgetManagerWrapper,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragCancel: () -> Unit,
     onChangeShowMenu: (Boolean) -> Unit,
@@ -612,7 +612,7 @@ private fun handleOnDragEnd(
     gridItemSource: GridItemSource?,
     targetPage: Int,
     shiftedAlgorithm: Boolean?,
-    appWidgetManager: AppWidgetManagerController,
+    appWidgetManager: AppWidgetManagerWrapper,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragEnd: (Int) -> Unit,
 ) {
@@ -651,7 +651,7 @@ private fun handleOnDragEnd(
 private fun onDragEndGridItemDataWidget(
     targetPage: Int,
     shiftedAlgorithm: Boolean?,
-    appWidgetManager: AppWidgetManagerController,
+    appWidgetManager: AppWidgetManagerWrapper,
     data: GridItemData.Widget,
     onDragEnd: (Int) -> Unit,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
@@ -802,11 +802,11 @@ private fun handleDragIntOffset(
 }
 
 private fun handleResult(
-    appWidgetHost: AppWidgetHostWrapper,
     targetPage: Int,
     result: ActivityResult,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     onDragEnd: (Int) -> Unit,
+    onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
     when (gridItemLayoutInfo?.gridItem?.data) {
@@ -817,7 +817,7 @@ private fun handleResult(
             if (result.resultCode == Activity.RESULT_OK) {
                 onDragEnd(targetPage)
             } else {
-                appWidgetHost.deleteAppWidgetId(appWidgetId = appWidgetId)
+                onDeleteAppWidgetId(appWidgetId)
 
                 onDeleteGridItem(gridItemLayoutInfo.gridItem)
 

@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import com.eblan.launcher.common.util.toByteArray
-import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
+import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -16,8 +16,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
-    AppWidgetManagerWrapper,
-    AppWidgetManagerController {
+    AppWidgetManagerDomainWrapper, AppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
     private val packageManager = context.packageManager

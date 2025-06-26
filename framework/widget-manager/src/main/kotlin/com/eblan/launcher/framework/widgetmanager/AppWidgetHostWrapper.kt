@@ -16,7 +16,5 @@ interface AppWidgetHostWrapper {
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): AppWidgetHostView
 
-    fun deleteAppWidgetId(appWidgetId: Int)
-
     fun setOnTouchEventListener(onTouchEventListener: OnTouchEventListener)
 }

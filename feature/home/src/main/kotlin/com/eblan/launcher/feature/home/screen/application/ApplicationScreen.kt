@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -81,8 +80,6 @@ fun ApplicationScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    val gridState = rememberLazyGridState()
-
     var showMenu by remember { mutableStateOf(false) }
 
     var selectedIntSize by remember { mutableStateOf(IntSize.Zero) }
@@ -127,9 +124,8 @@ fun ApplicationScreen(
 
             else -> {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(appDrawerColumns),
+                    columns = GridCells.Fixed(count = appDrawerColumns),
                     modifier = Modifier.fillMaxSize(),
-                    state = gridState,
                 ) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
                         val graphicsLayer = rememberGraphicsLayer()

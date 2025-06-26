@@ -4,7 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import com.eblan.launcher.domain.common.qualifier.ApplicationScope
-import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
+import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
@@ -43,7 +43,7 @@ class ApplicationInfoService : Service() {
     lateinit var fileManager: FileManager
 
     @Inject
-    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
+    lateinit var appWidgetManagerDomainWrapper: AppWidgetManagerDomainWrapper
 
     @Inject
     lateinit var eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository
@@ -131,7 +131,7 @@ class ApplicationInfoService : Service() {
             name = packageName,
         )
 
-        appWidgetManagerWrapper.getInstalledProviders()
+        appWidgetManagerDomainWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.onEach { appWidgetManagerAppWidgetProviderInfo ->
@@ -182,7 +182,7 @@ class ApplicationInfoService : Service() {
             eblanApplicationInfo = eblanApplicationInfo,
         )
 
-        val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
+        val eblanAppWidgetProviderInfos = appWidgetManagerDomainWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->

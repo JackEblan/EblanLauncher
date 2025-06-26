@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.OpenInFull
+import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
 
@@ -17,4 +18,5 @@ object EblanLauncherIcons {
     val Home = Icons.Default.Home
     val Widgets = Icons.Default.Widgets
     val Settings = Icons.Default.Settings
+    val Pages = Icons.Default.Pages
 }

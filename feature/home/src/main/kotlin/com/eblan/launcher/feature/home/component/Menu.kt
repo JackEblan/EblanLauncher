@@ -124,6 +124,7 @@ fun ApplicationInfoMenu(
 fun SettingsMenu(
     modifier: Modifier = Modifier,
     onSettings: () -> Unit,
+    onEditPage: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -138,6 +139,15 @@ fun SettingsMenu(
                     )
 
                     Text(text = "Settings")
+                }
+
+                Row(modifier = Modifier.clickable(onClick = onEditPage)) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Pages,
+                        contentDescription = null,
+                    )
+
+                    Text(text = "Edit Pages")
                 }
             }
         },

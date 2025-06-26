@@ -70,8 +70,6 @@ fun EditPageScreen(
         dockHeight.toDp()
     }
 
-    var showMenu by remember { mutableStateOf(true) }
-
     val color = when (textColor) {
         TextColor.White -> Color.White
         TextColor.Black -> Color.Black
@@ -236,20 +234,6 @@ fun EditPageScreen(
                         )
                     }
                 }
-            }
-        }
-
-        if (showMenu) {
-            Popup(
-                popupPositionProvider = SettingsMenuPositionProvider(
-                    x = dragIntOffset.x,
-                    y = dragIntOffset.y,
-                ),
-                onDismissRequest = {
-                    showMenu = false
-                },
-            ) {
-                SettingsMenu(onSettings = onSettings)
             }
         }
     }

@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -40,6 +41,7 @@ class HomeViewModel @Inject constructor(
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -131,6 +133,10 @@ class HomeViewModel @Inject constructor(
                 ) != null
             }
         }
+    }
+
+    fun deleteAppWidgetId(appWidgetId: Int) {
+        appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
     }
 
     fun deleteGridItem(gridItem: GridItem) {

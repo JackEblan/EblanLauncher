@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,8 +26,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +35,8 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.feature.home.component.SettingsMenu
+import com.eblan.launcher.feature.home.component.SettingsMenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -74,6 +75,7 @@ fun HomeRoute(
         targetPage = targetPage,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
+        onDeleteAppWidgetId = viewModel::deleteAppWidgetId,
         onDeleteGridItem = viewModel::deleteGridItem,
         onShowGridCache = viewModel::showGridCache,
         onResetGridCache = viewModel::resetGridCache,
@@ -106,6 +108,7 @@ fun HomeScreen(
         rows: Int,
         columns: Int,
     ) -> Unit,
+    onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onResetGridCache: (Int) -> Unit,
@@ -137,6 +140,7 @@ fun HomeScreen(
                         targetPage = targetPage,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
+                        onDeleteAppWidgetId = onDeleteAppWidgetId,
                         onDeleteGridItem = onDeleteGridItem,
                         onShowGridCache = onShowGridCache,
                         onResetGridCache = onResetGridCache,
@@ -175,6 +179,7 @@ fun Success(
         rows: Int,
         columns: Int,
     ) -> Unit,
+    onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onResetGridCache: (Int) -> Unit,
@@ -199,6 +204,8 @@ fun Success(
     var currentPage by remember { mutableIntStateOf(0) }
 
     var addNewPage by remember { mutableStateOf(false) }
+
+    var showMenu by remember { mutableStateOf(false) }
 
     BoxWithConstraints(
         modifier = modifier
@@ -255,7 +262,7 @@ fun Success(
 
                         gridItemSource = null
 
-                        onShowGridCache(Screen.EditPage)
+                        showMenu = true
                     },
                     onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
@@ -352,6 +359,7 @@ fun Success(
                     shiftedAlgorithm = shiftedAlgorithm,
                     addNewPage = addNewPage,
                     onMoveGridItem = onMoveGridItem,
+                    onDeleteAppWidgetId = onDeleteAppWidgetId,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = {
                         onResetGridCache(currentPage)
@@ -427,6 +435,25 @@ fun Success(
                 overlayIntSize = overlayIntSize,
             )
         }
+
+        if (showMenu) {
+            Popup(
+                popupPositionProvider = SettingsMenuPositionProvider(
+                    x = dragIntOffset.x,
+                    y = dragIntOffset.y,
+                ),
+                onDismissRequest = {
+                    showMenu = false
+                },
+            ) {
+                SettingsMenu(
+                    onSettings = onSettings,
+                    onEditPage = {
+                        onShowGridCache(Screen.EditPage)
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -458,8 +485,7 @@ private fun GridItemOverlay(
                 }
                 .size(size)
                 .zIndex(1f)
-                .fillMaxSize()
-                .border(width = 2.dp, color = Color.White),
+                .fillMaxSize(),
         )
     }
 }

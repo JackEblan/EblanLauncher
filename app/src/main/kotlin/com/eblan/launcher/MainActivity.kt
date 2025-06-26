@@ -14,7 +14,7 @@ import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerController
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
     lateinit var appWidgetHostWrapper: AppWidgetHostWrapper
 
     @Inject
-    lateinit var appWidgetManagerController: AppWidgetManagerController
+    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(
                 LocalAppWidgetHost provides appWidgetHostWrapper,
-                LocalAppWidgetManager provides appWidgetManagerController,
+                LocalAppWidgetManager provides appWidgetManagerWrapper,
             ) {
                 val navController = rememberNavController()
 

@@ -143,7 +143,7 @@ fun GridItemResizeOverlay(
     }
 
     LaunchedEffect(key1 = width, key2 = height) {
-        delay(500)
+        delay(100)
 
         val allowedWidth = width.coerceAtLeast(cellWidth)
 
@@ -427,7 +427,7 @@ fun WidgetGridItemResizeOverlay(
     }
 
     LaunchedEffect(key1 = width, key2 = height) {
-        delay(500)
+        delay(100)
 
         val allowedWidth = if (width < data.minResizeWidth) {
             data.minResizeWidth

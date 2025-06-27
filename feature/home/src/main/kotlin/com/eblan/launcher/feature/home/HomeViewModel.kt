@@ -17,8 +17,6 @@ import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,8 +85,6 @@ class HomeViewModel @Inject constructor(
 
     val targetPage = _targetPage.asStateFlow()
 
-    private var moveGridItemJob: Job? = null
-
     fun moveGridItem(
         movingGridItem: GridItem,
         x: Int,
@@ -99,22 +95,16 @@ class HomeViewModel @Inject constructor(
         gridHeight: Int,
     ) {
         viewModelScope.launch {
-            moveGridItemJob?.cancel()
-
-            moveGridItemJob = launch {
-                delay(100L)
-
-                _shiftedAlgorithm.update {
-                    moveGridItemUseCase(
-                        movingGridItem = movingGridItem,
-                        x = x,
-                        y = y,
-                        rows = rows,
-                        columns = columns,
-                        gridWidth = gridWidth,
-                        gridHeight = gridHeight,
-                    ) != null
-                }
+            _shiftedAlgorithm.update {
+                moveGridItemUseCase(
+                    movingGridItem = movingGridItem,
+                    x = x,
+                    y = y,
+                    rows = rows,
+                    columns = columns,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                ) != null
             }
         }
     }

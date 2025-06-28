@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,14 +18,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -83,6 +85,7 @@ fun HomeRoute(
         onSettings = onSettings,
         onStartMainActivity = viewModel::startMainActivity,
         onUpdateScreen = viewModel::updateScreen,
+        onMovePage = viewModel::movePage,
     )
 }
 
@@ -117,6 +120,7 @@ fun HomeScreen(
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
+    onMovePage: (from: Int, to: Int) -> Unit,
 ) {
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         Box(
@@ -150,6 +154,7 @@ fun HomeScreen(
                         onSettings = onSettings,
                         onStartMainActivity = onStartMainActivity,
                         onUpdateScreen = onUpdateScreen,
+                        onMovePage = onMovePage,
                     )
                 }
             }
@@ -190,6 +195,7 @@ fun Success(
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
     onUpdateScreen: (Screen) -> Unit,
+    onMovePage: (from: Int, to: Int) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -417,8 +423,10 @@ fun Success(
                 EditPageScreen(
                     rows = userData.rows,
                     columns = userData.columns,
+                    pageCount = userData.pageCount,
                     gridItems = gridItems,
                     onUpdateScreen = onUpdateScreen,
+                    onMovePage = onMovePage,
                 )
             }
         }
@@ -426,7 +434,7 @@ fun Success(
         if (showOverlay) {
             GridItemOverlay(
                 preview = overlayImageBitmap,
-                overlayIntOffset = overlayIntOffset,
+                overlayIntOffset = overlayIntOffset.toOffset(),
                 overlayIntSize = overlayIntSize,
             )
         }
@@ -462,7 +470,7 @@ fun Success(
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     preview: ImageBitmap?,
-    overlayIntOffset: IntOffset,
+    overlayIntOffset: Offset,
     overlayIntSize: IntSize,
 ) {
     val density = LocalDensity.current
@@ -481,11 +489,12 @@ private fun GridItemOverlay(
             bitmap = preview,
             contentDescription = null,
             modifier = modifier
-                .offset {
-                    overlayIntOffset
-                }
                 .size(size)
                 .zIndex(1f)
+                .graphicsLayer {
+                    translationX = overlayIntOffset.x
+                    translationY = overlayIntOffset.y
+                }
                 .fillMaxSize(),
         )
     }

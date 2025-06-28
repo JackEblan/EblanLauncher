@@ -11,18 +11,17 @@ import com.eblan.launcher.domain.model.GridItemData
 @Composable
 fun ResizeGridSubcomposeLayout(
     modifier: Modifier = Modifier,
-    page: Int,
     rows: Int,
     columns: Int,
     gridItemId: String?,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItems: List<GridItem>?,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
         columns: Int,
     ) -> Unit,
     onResizeEnd: () -> Unit,
-    gridItemContent: @Composable BoxScope.(gridItem: GridItem) -> Unit,
+    gridItemContent: @Composable BoxScope.(GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
         val cellWidth = constraints.maxWidth / columns
@@ -30,7 +29,7 @@ fun ResizeGridSubcomposeLayout(
         val cellHeight = constraints.maxHeight / rows
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
-            gridItems[page]?.forEach { gridItem ->
+            gridItems?.forEach { gridItem ->
                 subcompose(gridItem.id) {
                     AnimatedGridItemContainer(
                         rowSpan = gridItem.rowSpan,
@@ -40,9 +39,7 @@ fun ResizeGridSubcomposeLayout(
                         cellWidth = cellWidth,
                         cellHeight = cellHeight,
                         content = {
-                            gridItemContent(
-                                gridItem,
-                            )
+                            gridItemContent(gridItem)
                         },
                     )
                 }.forEach { measurable ->

@@ -11,6 +11,7 @@ import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
+import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -40,6 +41,7 @@ class HomeViewModel @Inject constructor(
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
+    private val movePageUseCase: MovePageUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -154,6 +156,12 @@ class HomeViewModel @Inject constructor(
     fun updateScreen(screen: Screen) {
         _screen.update {
             screen
+        }
+    }
+
+    fun movePage(from: Int, to: Int) {
+        viewModelScope.launch {
+            movePageUseCase(from = from, to = to)
         }
     }
 

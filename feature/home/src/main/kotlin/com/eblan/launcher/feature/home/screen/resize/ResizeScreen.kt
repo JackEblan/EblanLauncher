@@ -9,15 +9,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -25,7 +28,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.DockGrid
+import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.ResizeGridSubcomposeLayout
 
 @Composable
@@ -58,6 +61,8 @@ fun ResizeScreen(
 
     val appWidgetHost = LocalAppWidgetHost.current
 
+    val context = LocalContext.current
+
     val color = when (textColor) {
         TextColor.White -> Color.White
         TextColor.Black -> Color.Black
@@ -70,11 +75,10 @@ fun ResizeScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .weight(1f),
-            page = currentPage,
             rows = rows,
             columns = columns,
             gridItemId = gridItemLayoutInfo?.gridItem?.id,
-            gridItems = gridItems,
+            gridItems = gridItems[currentPage],
             onResizeGridItem = onResizeGridItem,
             onResizeEnd = onResizeEnd,
             gridItemContent = { gridItem ->
@@ -112,20 +116,14 @@ fun ResizeScreen(
                             appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
                         if (appWidgetInfo != null) {
-                            AndroidView(
-                                factory = {
-                                    appWidgetHost.createView(
-                                        appWidgetId = gridItemData.appWidgetId,
-                                        appWidgetProviderInfo = appWidgetInfo,
-                                    ).apply {
-                                        layoutParams = FrameLayout.LayoutParams(
-                                            FrameLayout.LayoutParams.MATCH_PARENT,
-                                            FrameLayout.LayoutParams.MATCH_PARENT,
-                                        )
+                            val preview = remember {
+                                appWidgetInfo.loadPreviewImage(context, 0)
+                                    .toBitmapOrNull()
+                            }
 
-                                        setAppWidget(appWidgetId, appWidgetInfo)
-                                    }
-                                },
+                            AsyncImage(
+                                model = preview,
+                                contentDescription = null,
                             )
                         }
                     }
@@ -133,13 +131,13 @@ fun ResizeScreen(
             },
         )
 
-        DockGrid(
+        GridSubcomposeLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,
             columns = dockColumns,
-            dockGridItems = dockGridItems,
+            gridItems = dockGridItems,
         ) { dockGridItem, _, _, _, _ ->
             when (val gridItemData = dockGridItem.data) {
                 is GridItemData.ApplicationInfo -> {

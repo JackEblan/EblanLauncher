@@ -16,7 +16,7 @@ data class GridItemParentData(
     val y: Int,
 )
 
-fun Modifier.animatedGridItemPlacement(
+fun Modifier.gridItem(
     width: Int,
     height: Int,
     x: Int,
@@ -33,6 +33,36 @@ fun Modifier.animatedGridItemPlacement(
         }
     },
 )
+
+@Composable
+fun GridItemContainer(
+    modifier: Modifier = Modifier,
+    rowSpan: Int,
+    columnSpan: Int,
+    startRow: Int,
+    startColumn: Int,
+    cellWidth: Int,
+    cellHeight: Int,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val width = columnSpan * cellWidth
+
+    val height = rowSpan * cellHeight
+
+    val x = startColumn * cellWidth
+
+    val y = startRow * cellHeight
+
+    Box(
+        modifier = modifier.gridItem(
+            width = width,
+            height = height,
+            x = x,
+            y = y,
+        ),
+        content = content,
+    )
+}
 
 @Composable
 fun AnimatedGridItemContainer(
@@ -54,7 +84,7 @@ fun AnimatedGridItemContainer(
     val y by animateIntAsState(targetValue = startRow * cellHeight)
 
     Box(
-        modifier = modifier.animatedGridItemPlacement(
+        modifier = modifier.gridItem(
             width = width,
             height = height,
             x = x,

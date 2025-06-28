@@ -217,7 +217,7 @@ fun GridItemResizeOverlay(
 
     Box(
         modifier = modifier
-            .animatedGridItemPlacement(
+            .gridItem(
                 width = borderWidth,
                 height = borderHeight,
                 x = borderX,
@@ -513,7 +513,7 @@ fun WidgetGridItemResizeOverlay(
 
     Box(
         modifier = modifier
-            .animatedGridItemPlacement(
+            .gridItem(
                 width = borderWidth,
                 height = borderHeight,
                 x = borderX,

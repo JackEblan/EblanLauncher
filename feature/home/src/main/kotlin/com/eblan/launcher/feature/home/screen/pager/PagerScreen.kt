@@ -48,7 +48,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.DockGrid
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.MenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
@@ -291,10 +290,9 @@ private fun HorizontalPagerScreen(
 
             GridSubcomposeLayout(
                 modifier = Modifier.fillMaxSize(),
-                page = horizontalPage,
                 rows = rows,
                 columns = columns,
-                gridItems = gridItems,
+                gridItems = gridItems[horizontalPage],
                 gridItemContent = { gridItem, x, y, width, height ->
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
@@ -345,21 +343,21 @@ private fun HorizontalPagerScreen(
             )
         }
 
-        DockGrid(
+        GridSubcomposeLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,
             columns = dockColumns,
-            dockGridItems = dockGridItems,
-        ) { dockGridItem, x, y, width, height ->
+            gridItems = dockGridItems,
+        ) { gridItem, x, y, width, height ->
             val horizontalPage = calculatePage(
                 index = horizontalPagerState.currentPage,
                 infiniteScroll = infiniteScroll,
                 pageCount = pageCount,
             )
 
-            when (val data = dockGridItem.data) {
+            when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
                         textColor = textColor,
@@ -372,7 +370,7 @@ private fun HorizontalPagerScreen(
                                 horizontalPage,
                                 preview,
                                 GridItemLayoutInfo(
-                                    gridItem = dockGridItem,
+                                    gridItem = gridItem,
                                     width = width,
                                     height = height,
                                     x = x,
@@ -391,7 +389,7 @@ private fun HorizontalPagerScreen(
                                 horizontalPage,
                                 preview,
                                 GridItemLayoutInfo(
-                                    gridItem = dockGridItem,
+                                    gridItem = gridItem,
                                     width = width,
                                     height = height,
                                     x = x,

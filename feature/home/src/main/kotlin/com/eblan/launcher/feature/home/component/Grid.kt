@@ -9,10 +9,9 @@ import com.eblan.launcher.domain.model.GridItem
 @Composable
 fun GridSubcomposeLayout(
     modifier: Modifier = Modifier,
-    page: Int,
     rows: Int,
     columns: Int,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItems: List<GridItem>?,
     gridItemContent: @Composable (
         gridItem: GridItem,
         x: Int,
@@ -27,7 +26,7 @@ fun GridSubcomposeLayout(
         val cellHeight = constraints.maxHeight / rows
 
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
-            gridItems[page]?.forEach { gridItem ->
+            gridItems?.forEach { gridItem ->
                 subcompose(gridItem.id) {
                     gridItemContent(
                         gridItem,

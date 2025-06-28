@@ -9,18 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -60,8 +57,6 @@ fun ResizeScreen(
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
-
-    val context = LocalContext.current
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -116,14 +111,20 @@ fun ResizeScreen(
                             appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
                         if (appWidgetInfo != null) {
-                            val preview = remember {
-                                appWidgetInfo.loadPreviewImage(context, 0)
-                                    .toBitmapOrNull()
-                            }
+                            AndroidView(
+                                factory = {
+                                    appWidgetHost.createView(
+                                        appWidgetId = gridItemData.appWidgetId,
+                                        appWidgetProviderInfo = appWidgetInfo,
+                                    ).apply {
+                                        layoutParams = FrameLayout.LayoutParams(
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
+                                        )
 
-                            AsyncImage(
-                                model = preview,
-                                contentDescription = null,
+                                        setAppWidget(appWidgetId, appWidgetInfo)
+                                    }
+                                },
                             )
                         }
                     }

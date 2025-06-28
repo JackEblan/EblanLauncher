@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.widget
 
-import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmapOrNull
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -135,11 +135,9 @@ fun WidgetScreen(
                                     val result = loader.execute(request)
 
                                     if (result is SuccessResult) {
-                                        val drawable = result.drawable
 
-                                        val bitmap = (drawable as BitmapDrawable).bitmap
-
-                                        imageBitmap = bitmap.asImageBitmap()
+                                        imageBitmap =
+                                            result.drawable.toBitmapOrNull()?.asImageBitmap()
                                     }
                                 }
 
@@ -272,6 +270,7 @@ private fun getGridItemLayoutInfo(
             minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
             maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
             maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+            preview = eblanAppWidgetProviderInfo.preview,
             gridWidth = gridWidth,
             gridHeight = gridHeight,
         )
@@ -294,6 +293,7 @@ private fun getGridItemLayoutInfo(
             minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
             maxResizeWidth = 0,
             maxResizeHeight = 0,
+            preview = eblanAppWidgetProviderInfo.preview,
             gridWidth = gridWidth,
             gridHeight = gridHeight,
         )
@@ -319,6 +319,7 @@ private fun getGridItemLayoutInfo(
     minResizeHeight: Int,
     maxResizeWidth: Int,
     maxResizeHeight: Int,
+    preview: String?,
     gridWidth: Int,
     gridHeight: Int,
 ): GridItemLayoutInfo {
@@ -364,6 +365,7 @@ private fun getGridItemLayoutInfo(
         minResizeHeight = minResizeHeight,
         maxResizeWidth = maxResizeWidth,
         maxResizeHeight = maxResizeHeight,
+        preview = preview,
     )
 
     val gridItem = GridItem(

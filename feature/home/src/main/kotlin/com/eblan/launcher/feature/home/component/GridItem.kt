@@ -35,36 +35,6 @@ fun Modifier.gridItem(
 )
 
 @Composable
-fun GridItemContainer(
-    modifier: Modifier = Modifier,
-    rowSpan: Int,
-    columnSpan: Int,
-    startRow: Int,
-    startColumn: Int,
-    cellWidth: Int,
-    cellHeight: Int,
-    content: @Composable BoxScope.() -> Unit,
-) {
-    val width = columnSpan * cellWidth
-
-    val height = rowSpan * cellHeight
-
-    val x = startColumn * cellWidth
-
-    val y = startRow * cellHeight
-
-    Box(
-        modifier = modifier.gridItem(
-            width = width,
-            height = height,
-            x = x,
-            y = y,
-        ),
-        content = content,
-    )
-}
-
-@Composable
 fun AnimatedGridItemContainer(
     modifier: Modifier = Modifier,
     rowSpan: Int,

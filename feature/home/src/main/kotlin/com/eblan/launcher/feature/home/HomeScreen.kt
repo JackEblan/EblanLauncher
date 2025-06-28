@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -63,9 +62,11 @@ fun HomeRoute(
 
     val eblanAppWidgetProviderInfosByGroup by viewModel.eblanAppWidgetProviderInfosByGroup.collectAsStateWithLifecycle()
 
-    val shiftedAlgorithm by viewModel.shiftedAlgorithm.collectAsStateWithLifecycle()
+    val movedGridItems by viewModel.movedGridItems.collectAsStateWithLifecycle()
 
     val targetPage by viewModel.targetPage.collectAsStateWithLifecycle()
+
+    val movedPages by viewModel.movedPages.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
@@ -73,8 +74,9 @@ fun HomeRoute(
         homeUiState = homeUiState,
         eblanApplicationInfos = eblanApplicationInfos,
         eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-        shiftedAlgorithm = shiftedAlgorithm,
+        movedGridItems = movedGridItems,
         targetPage = targetPage,
+        movedPages = movedPages,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onDeleteAppWidgetId = viewModel::deleteAppWidgetId,
@@ -84,8 +86,9 @@ fun HomeRoute(
         onEdit = onEdit,
         onSettings = onSettings,
         onStartMainActivity = viewModel::startMainActivity,
-        onUpdateScreen = viewModel::updateScreen,
         onMovePage = viewModel::movePage,
+        onResetMovedPages = viewModel::resetMovedPages,
+        onCancelEditPage = viewModel::cancelEditPage,
     )
 }
 
@@ -96,8 +99,9 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    shiftedAlgorithm: Boolean?,
+    movedGridItems: Boolean?,
     targetPage: Int,
+    movedPages: Boolean,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -119,8 +123,9 @@ fun HomeScreen(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onUpdateScreen: (Screen) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
+    onResetMovedPages: () -> Unit,
+    onCancelEditPage: (Int) -> Unit,
 ) {
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         Box(
@@ -142,8 +147,9 @@ fun HomeScreen(
                         eblanApplicationInfos = eblanApplicationInfos,
                         eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
-                        shiftedAlgorithm = shiftedAlgorithm,
+                        movedGridItems = movedGridItems,
                         targetPage = targetPage,
+                        movedPages = movedPages,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onDeleteAppWidgetId = onDeleteAppWidgetId,
@@ -153,8 +159,9 @@ fun HomeScreen(
                         onEdit = onEdit,
                         onSettings = onSettings,
                         onStartMainActivity = onStartMainActivity,
-                        onUpdateScreen = onUpdateScreen,
                         onMovePage = onMovePage,
+                        onResetMovedPages = onResetMovedPages,
+                        onCancelEditPage = onCancelEditPage,
                     )
                 }
             }
@@ -171,8 +178,9 @@ fun Success(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     dockGridItems: List<GridItem>,
-    shiftedAlgorithm: Boolean?,
+    movedGridItems: Boolean?,
     targetPage: Int,
+    movedPages: Boolean,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -194,8 +202,9 @@ fun Success(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onUpdateScreen: (Screen) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
+    onResetMovedPages: () -> Unit,
+    onCancelEditPage: (Int) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -366,7 +375,7 @@ fun Success(
                     dockHeight = userData.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = userData.textColor,
-                    shiftedAlgorithm = shiftedAlgorithm,
+                    movedGridItems = movedGridItems,
                     addNewPage = addNewPage,
                     onMoveGridItem = onMoveGridItem,
                     onDeleteAppWidgetId = onDeleteAppWidgetId,
@@ -421,19 +430,41 @@ fun Success(
 
             Screen.EditPage -> {
                 EditPageScreen(
+                    currentPage = currentPage,
                     rows = userData.rows,
                     columns = userData.columns,
                     pageCount = userData.pageCount,
+                    textColor = userData.textColor,
                     gridItems = gridItems,
-                    onUpdateScreen = onUpdateScreen,
+                    dragIntOffset = dragIntOffset,
+                    drag = drag,
+                    rootWidth = constraints.maxWidth,
+                    rootHeight = constraints.maxHeight,
+                    dockHeight = userData.dockHeight,
+                    movedPages = movedPages,
+                    onSaveEditPage = onResetGridCache,
+                    onCancelEditPage = onCancelEditPage,
+                    onLongPress = { imageBitmap, intSize ->
+                        overlayImageBitmap = imageBitmap
+
+                        overlayIntSize = intSize
+
+                        showOverlay = true
+                    },
                     onMovePage = onMovePage,
+                    onDragEnd = {
+                        showOverlay = false
+
+                        overlayIntOffset = IntOffset.Zero
+                    },
+                    onResetMovedPages = onResetMovedPages,
                 )
             }
         }
 
         if (showOverlay) {
             GridItemOverlay(
-                preview = overlayImageBitmap,
+                overlayImageBitmap = overlayImageBitmap,
                 overlayIntOffset = overlayIntOffset.toOffset(),
                 overlayIntSize = overlayIntSize,
             )
@@ -469,7 +500,7 @@ fun Success(
 @Composable
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
-    preview: ImageBitmap?,
+    overlayImageBitmap: ImageBitmap?,
     overlayIntOffset: Offset,
     overlayIntSize: IntSize,
 ) {
@@ -484,18 +515,16 @@ private fun GridItemOverlay(
         }
     }
 
-    if (preview != null) {
+    if (overlayImageBitmap != null) {
         Image(
-            bitmap = preview,
+            bitmap = overlayImageBitmap,
             contentDescription = null,
             modifier = modifier
                 .size(size)
-                .zIndex(1f)
                 .graphicsLayer {
                     translationX = overlayIntOffset.x
                     translationY = overlayIntOffset.y
-                }
-                .fillMaxSize(),
+                },
         )
     }
 }

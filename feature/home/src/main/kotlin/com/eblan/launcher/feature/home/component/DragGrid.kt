@@ -12,9 +12,7 @@ fun DragGridSubcomposeLayout(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    selectedGridItem: GridItem?,
     gridItems: List<GridItem>?,
-    selectedGridItemContent: @Composable BoxScope.() -> Unit,
     gridItemContent: @Composable BoxScope.(GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
@@ -25,29 +23,17 @@ fun DragGridSubcomposeLayout(
         layout(width = constraints.maxWidth, height = constraints.maxHeight) {
             gridItems?.forEach { gridItem ->
                 subcompose(gridItem.id) {
-                    if (selectedGridItem?.id != gridItem.id) {
-                        AnimatedGridItemContainer(
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            cellWidth = cellWidth,
-                            cellHeight = cellHeight,
-                            content = {
-                                gridItemContent(gridItem)
-                            },
-                        )
-                    } else {
-                        GridItemContainer(
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            cellWidth = cellWidth,
-                            cellHeight = cellHeight,
-                            content = selectedGridItemContent,
-                        )
-                    }
+                    AnimatedGridItemContainer(
+                        rowSpan = gridItem.rowSpan,
+                        columnSpan = gridItem.columnSpan,
+                        startRow = gridItem.startRow,
+                        startColumn = gridItem.startColumn,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        content = {
+                            gridItemContent(gridItem)
+                        },
+                    )
                 }.forEach { measurable ->
                     val gridItemParentData = measurable.parentData as GridItemParentData
 

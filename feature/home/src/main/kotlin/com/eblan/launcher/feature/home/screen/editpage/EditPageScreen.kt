@@ -1,122 +1,316 @@
 package com.eblan.launcher.feature.home.screen.editpage
 
-import androidx.compose.foundation.BorderStroke
+import android.widget.FrameLayout
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmapOrNull
+import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.component.DraggableItem
+import com.eblan.launcher.domain.model.PageDirection
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.dragContainer
-import com.eblan.launcher.feature.home.component.rememberGridDragAndDropState
-import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditPageScreen(
     modifier: Modifier = Modifier,
+    currentPage: Int,
     rows: Int,
     columns: Int,
     pageCount: Int,
+    textColor: TextColor,
     gridItems: Map<Int, List<GridItem>>,
-    onUpdateScreen: (Screen) -> Unit,
+    dragIntOffset: IntOffset,
+    drag: Drag,
+    rootWidth: Int,
+    rootHeight: Int,
+    dockHeight: Int,
+    movedPages: Boolean,
+    onSaveEditPage: (Int) -> Unit,
+    onCancelEditPage: (Int) -> Unit,
+    onLongPress: (
+        imageBitmap: ImageBitmap,
+        intSize: IntSize,
+    ) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
+    onDragEnd: () -> Unit,
+    onResetMovedPages: () -> Unit,
 ) {
     val appWidgetManager = LocalAppWidgetManager.current
 
-    val context = LocalContext.current
+    val appWidgetHost = LocalAppWidgetHost.current
 
-    val gridState = rememberLazyGridState()
+    val density = LocalDensity.current
 
-    val dragDropState = rememberGridDragAndDropState(gridState = gridState, onMove = onMovePage)
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
+    val dockHeightDp = with(density) {
+        dockHeight.toDp()
+    }
+
+    val horizontalPagerState = rememberPagerState(
+        initialPage = currentPage,
+        pageCount = {
+            pageCount
+        },
+    )
+
+    val horizontalPagerPadding = 20.dp
+
+    val cardPadding = 5.dp
+
+    val horizontalPagerPaddingPx = with(density) {
+        (horizontalPagerPadding + cardPadding).roundToPx()
+    }
+
+    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var from by remember { mutableIntStateOf(-1) }
+
+    LaunchedEffect(key1 = dragIntOffset) {
+        handleDragIntOffset(
+            from = from,
+            to = horizontalPagerState.currentPage,
+            drag = drag,
+            dragIntOffset = dragIntOffset,
+            horizontalPagerPaddingPx = horizontalPagerPaddingPx,
+            rootWidth = rootWidth,
+            onChangePageDirection = { newPageDirection ->
+                pageDirection = newPageDirection
+            },
+            onMovePage = onMovePage,
+            onResetMovedPages = onResetMovedPages,
+        )
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            onDragEnd()
+        }
+    }
+
+    LaunchedEffect(key1 = pageDirection) {
+        handlePageDirection(
+            pageDirection = pageDirection,
+            horizontalPagerState = horizontalPagerState,
+        )
+    }
+
+    LaunchedEffect(key1 = movedPages) {
+        if (movedPages) {
+            from = horizontalPagerState.currentPage
+        }
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .dragContainer(dragDropState = dragDropState)
-                .weight(1f),
-            state = gridState,
-        ) {
-            items(count = pageCount, key = { index -> index }) { index ->
-                DraggableItem(dragDropState = dragDropState, index = index) { isDragging ->
-                    OutlinedCard(
-                        modifier = Modifier.padding(5.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.25f)),
-                        border = BorderStroke(width = 2.dp, color = Color.White),
-                    ) {
-                        GridSubcomposeLayout(
-                            modifier = Modifier.height(200.dp),
-                            rows = rows,
-                            columns = columns,
-                            gridItems = gridItems[index],
-                            gridItemContent = { gridItem, _, _, _, _ ->
-                                when (val gridItemData = gridItem.data) {
-                                    is GridItemData.ApplicationInfo -> {
-                                        AsyncImage(
-                                            model = gridItemData.icon,
-                                            contentDescription = null,
-                                            modifier = Modifier.padding(2.dp),
-                                        )
-                                    }
+        HorizontalPager(
+            state = horizontalPagerState,
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(all = horizontalPagerPadding),
+        ) { index ->
+            val graphicsLayer = rememberGraphicsLayer()
 
-                                    is GridItemData.Widget -> {
-                                        val appWidgetInfo =
-                                            appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+            val scope = rememberCoroutineScope()
 
-                                        if (appWidgetInfo != null) {
-                                            val preview = remember {
-                                                appWidgetInfo.loadPreviewImage(context, 0)
-                                                    .toBitmapOrNull()
-                                            }
+            GridSubcomposeLayout(
+                modifier = Modifier
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
 
-                                            AsyncImage(
-                                                model = preview,
-                                                contentDescription = null,
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-                        )
+                        drawLayer(graphicsLayer)
                     }
-                }
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown()
 
-            }
+                            val longPress =
+                                awaitLongPressOrCancellation(pointerId = down.id)
+
+                            if (longPress != null) {
+                                scope.launch {
+                                    val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
+
+                                    val gridHeight =
+                                        (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
+
+                                    from = index
+
+                                    onLongPress(
+                                        graphicsLayer.toImageBitmap(),
+                                        IntSize(width = gridWidth, height = gridHeight),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    .fillMaxSize()
+                    .padding(cardPadding)
+                    .border(width = 2.dp, color = Color.White, shape = RoundedCornerShape(2.dp))
+                    .background(color = Color.White.copy(alpha = 0.25f)),
+                rows = rows,
+                columns = columns,
+                gridItems = gridItems[index],
+                gridItemContent = { gridItem, _, _, _, _ ->
+                    when (val gridItemData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                AsyncImage(
+                                    model = gridItemData.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(40.dp, 40.dp)
+                                        .weight(1f),
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Text(
+                                    text = gridItemData.label.toString(),
+                                    modifier = Modifier.weight(1f),
+                                    color = color,
+                                    textAlign = TextAlign.Center,
+                                    fontSize = TextUnit(
+                                        value = 10f,
+                                        type = TextUnitType.Sp,
+                                    ),
+                                )
+                            }
+                        }
+
+                        is GridItemData.Widget -> {
+                            val appWidgetInfo =
+                                appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+                            if (appWidgetInfo != null) {
+                                AndroidView(
+                                    factory = {
+                                        appWidgetHost.createView(
+                                            appWidgetId = gridItemData.appWidgetId,
+                                            appWidgetProviderInfo = appWidgetInfo,
+                                        ).apply {
+                                            layoutParams = FrameLayout.LayoutParams(
+                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                            )
+
+                                            setAppWidget(appWidgetId, appWidgetInfo)
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                },
+            )
         }
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dockHeightDp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
             Button(
                 onClick = {
-                    onUpdateScreen(Screen.Pager)
+                    onCancelEditPage(horizontalPagerState.currentPage)
                 },
             ) {
                 Text(text = "Cancel")
             }
 
-            Button(onClick = {}) {
+            Button(
+                onClick = {
+                    onSaveEditPage(horizontalPagerState.currentPage)
+                },
+            ) {
                 Text(text = "Save")
             }
+        }
+    }
+}
+
+private suspend fun handleDragIntOffset(
+    from: Int,
+    to: Int,
+    drag: Drag,
+    dragIntOffset: IntOffset,
+    horizontalPagerPaddingPx: Int,
+    rootWidth: Int,
+    onChangePageDirection: (PageDirection?) -> Unit,
+    onMovePage: (from: Int, to: Int) -> Unit,
+    onResetMovedPages: () -> Unit,
+) {
+    if (drag == Drag.Dragging) {
+        if (dragIntOffset.x <= horizontalPagerPaddingPx) {
+            onChangePageDirection(PageDirection.Left)
+
+            onResetMovedPages()
+        } else if (dragIntOffset.x >= rootWidth - horizontalPagerPaddingPx) {
+            onChangePageDirection(PageDirection.Right)
+
+            onResetMovedPages()
+        } else {
+            onChangePageDirection(null)
+
+            delay(100L)
+
+            onMovePage(from, to)
         }
     }
 }

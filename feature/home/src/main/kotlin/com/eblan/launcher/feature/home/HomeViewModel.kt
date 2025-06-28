@@ -79,13 +79,17 @@ class HomeViewModel @Inject constructor(
 
     val screen = _screen.asStateFlow()
 
-    private var _shiftedAlgorithm = MutableStateFlow<Boolean?>(null)
+    private var _movedGridItems = MutableStateFlow<Boolean?>(null)
 
-    val shiftedAlgorithm = _shiftedAlgorithm.asStateFlow()
+    val movedGridItems = _movedGridItems.asStateFlow()
 
     private var _targetPage = MutableStateFlow(0)
 
     val targetPage = _targetPage.asStateFlow()
+
+    private var _movedPages = MutableStateFlow(false)
+
+    val movedPages = _movedPages.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -97,7 +101,7 @@ class HomeViewModel @Inject constructor(
         gridHeight: Int,
     ) {
         viewModelScope.launch {
-            _shiftedAlgorithm.update {
+            _movedGridItems.update {
                 moveGridItemUseCase(
                     movingGridItem = movingGridItem,
                     x = x,
@@ -117,7 +121,7 @@ class HomeViewModel @Inject constructor(
         columns: Int,
     ) {
         viewModelScope.launch {
-            _shiftedAlgorithm.update {
+            _movedGridItems.update {
                 resizeGridItemUseCase(
                     resizingGridItem = resizingGridItem,
                     rows = rows,
@@ -153,15 +157,23 @@ class HomeViewModel @Inject constructor(
         launcherAppsWrapper.startMainActivity(componentName = componentName)
     }
 
-    fun updateScreen(screen: Screen) {
+    fun cancelEditPage(targetPage: Int) {
+        _targetPage.update {
+            targetPage
+        }
+
         _screen.update {
-            screen
+            Screen.Pager
         }
     }
 
     fun movePage(from: Int, to: Int) {
         viewModelScope.launch {
             movePageUseCase(from = from, to = to)
+
+            _movedPages.update {
+                true
+            }
         }
     }
 
@@ -180,6 +192,12 @@ class HomeViewModel @Inject constructor(
             _screen.update {
                 Screen.Pager
             }
+        }
+    }
+
+    fun resetMovedPages() {
+        _movedPages.update {
+            false
         }
     }
 }

@@ -162,6 +162,8 @@ class HomeViewModel @Inject constructor(
             targetPage
         }
 
+        gridCacheRepository.updateIsCache(isCache = false)
+
         _screen.update {
             Screen.Pager
         }

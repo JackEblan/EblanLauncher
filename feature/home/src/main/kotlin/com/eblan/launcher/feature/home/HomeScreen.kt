@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,17 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -444,8 +443,10 @@ fun Success(
                     movedPages = movedPages,
                     onSaveEditPage = onResetGridCache,
                     onCancelEditPage = onCancelEditPage,
-                    onLongPress = { imageBitmap, intSize ->
+                    onLongPress = { imageBitmap, intOffset, intSize ->
                         overlayImageBitmap = imageBitmap
+
+                        overlayIntOffset = intOffset
 
                         overlayIntSize = intSize
 
@@ -465,7 +466,7 @@ fun Success(
         if (showOverlay) {
             GridItemOverlay(
                 overlayImageBitmap = overlayImageBitmap,
-                overlayIntOffset = overlayIntOffset.toOffset(),
+                overlayIntOffset = overlayIntOffset,
                 overlayIntSize = overlayIntSize,
             )
         }
@@ -501,18 +502,16 @@ fun Success(
 private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     overlayImageBitmap: ImageBitmap?,
-    overlayIntOffset: Offset,
+    overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
 ) {
     val density = LocalDensity.current
 
-    val size = remember {
-        with(density) {
-            DpSize(
-                width = overlayIntSize.width.toDp(),
-                height = overlayIntSize.height.toDp(),
-            )
-        }
+    val size = with(density) {
+        DpSize(
+            width = overlayIntSize.width.toDp(),
+            height = overlayIntSize.height.toDp(),
+        )
     }
 
     if (overlayImageBitmap != null) {
@@ -520,11 +519,11 @@ private fun GridItemOverlay(
             bitmap = overlayImageBitmap,
             contentDescription = null,
             modifier = modifier
+                .offset {
+                    overlayIntOffset
+                }
                 .size(size)
-                .graphicsLayer {
-                    translationX = overlayIntOffset.x
-                    translationY = overlayIntOffset.y
-                },
+                .alpha(0.5f),
         )
     }
 }

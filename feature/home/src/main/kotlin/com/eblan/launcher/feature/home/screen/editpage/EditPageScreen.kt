@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -45,16 +44,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.PageDirection
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -77,6 +74,7 @@ fun EditPageScreen(
     onCancelEditPage: (Int) -> Unit,
     onLongPress: (
         imageBitmap: ImageBitmap,
+        intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
@@ -107,13 +105,11 @@ fun EditPageScreen(
 
     val horizontalPagerPadding = 20.dp
 
-    val cardPadding = 5.dp
+    val gridPadding = 5.dp
 
     val horizontalPagerPaddingPx = with(density) {
-        (horizontalPagerPadding + cardPadding).roundToPx()
+        (horizontalPagerPadding + gridPadding).roundToPx()
     }
-
-    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var from by remember { mutableIntStateOf(-1) }
 
@@ -125,11 +121,8 @@ fun EditPageScreen(
             dragIntOffset = dragIntOffset,
             horizontalPagerPaddingPx = horizontalPagerPaddingPx,
             rootWidth = rootWidth,
-            onChangePageDirection = { newPageDirection ->
-                pageDirection = newPageDirection
-            },
             onMovePage = onMovePage,
-            onResetMovedPages = onResetMovedPages,
+            onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
         )
     }
 
@@ -139,16 +132,11 @@ fun EditPageScreen(
         }
     }
 
-    LaunchedEffect(key1 = pageDirection) {
-        handlePageDirection(
-            pageDirection = pageDirection,
-            horizontalPagerState = horizontalPagerState,
-        )
-    }
-
     LaunchedEffect(key1 = movedPages) {
         if (movedPages) {
             from = horizontalPagerState.currentPage
+
+            onResetMovedPages()
         }
     }
 
@@ -189,6 +177,10 @@ fun EditPageScreen(
 
                                     onLongPress(
                                         graphicsLayer.toImageBitmap(),
+                                        IntOffset(
+                                            x = horizontalPagerPaddingPx,
+                                            y = horizontalPagerPaddingPx,
+                                        ),
                                         IntSize(width = gridWidth, height = gridHeight),
                                     )
                                 }
@@ -196,8 +188,12 @@ fun EditPageScreen(
                         }
                     }
                     .fillMaxSize()
-                    .padding(cardPadding)
-                    .border(width = 2.dp, color = Color.White, shape = RoundedCornerShape(2.dp))
+                    .padding(gridPadding)
+                    .border(
+                        width = 2.dp,
+                        color = Color.White,
+                        shape = RoundedCornerShape(8.dp),
+                    )
                     .background(color = Color.White.copy(alpha = 0.25f)),
                 rows = rows,
                 columns = columns,
@@ -292,23 +288,24 @@ private suspend fun handleDragIntOffset(
     dragIntOffset: IntOffset,
     horizontalPagerPaddingPx: Int,
     rootWidth: Int,
-    onChangePageDirection: (PageDirection?) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
-    onResetMovedPages: () -> Unit,
+    onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
+    val scrollToPageDelay = 500L
+
+    val movePageDelay = 100L
+
     if (drag == Drag.Dragging) {
         if (dragIntOffset.x <= horizontalPagerPaddingPx) {
-            onChangePageDirection(PageDirection.Left)
+            delay(scrollToPageDelay)
 
-            onResetMovedPages()
+            onAnimateScrollToPage(to - 1)
         } else if (dragIntOffset.x >= rootWidth - horizontalPagerPaddingPx) {
-            onChangePageDirection(PageDirection.Right)
+            delay(scrollToPageDelay)
 
-            onResetMovedPages()
+            onAnimateScrollToPage(to + 1)
         } else {
-            onChangePageDirection(null)
-
-            delay(100L)
+            delay(movePageDelay)
 
             onMovePage(from, to)
         }

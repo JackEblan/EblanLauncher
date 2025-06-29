@@ -26,7 +26,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
@@ -62,8 +61,7 @@ fun WidgetScreen(
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
         intOffset: IntOffset,
-        intSize: IntSize,
-        GridItemLayoutInfo,
+        gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
 ) {
     var selectedEblanAppWidgetProviderInfo by remember {
@@ -198,7 +196,10 @@ private fun handleDrag(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
-    onDragStart: (intOffset: IntOffset, intSize: IntSize, GridItemLayoutInfo) -> Unit,
+    onDragStart: (
+        intOffset: IntOffset,
+        gridItemLayoutInfo: GridItemLayoutInfo,
+    ) -> Unit,
 ) {
     if (drag == Drag.Start && selectedEblanAppWidgetProviderInfo != null) {
         val allocateAppWidgetId = appWidgetHost.allocateAppWidgetId()
@@ -225,14 +226,8 @@ private fun handleDrag(
             y = dragIntOffset.y - gridItemLayoutInfo.height / 2,
         )
 
-        val intSize = IntSize(
-            gridItemLayoutInfo.width,
-            gridItemLayoutInfo.height,
-        )
-
         onDragStart(
             intOffset,
-            intSize,
             gridItemLayoutInfo,
         )
     }

@@ -40,7 +40,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -70,7 +69,6 @@ fun EditPageScreen(
     dragIntOffset: IntOffset,
     drag: Drag,
     rootWidth: Int,
-    rootHeight: Int,
     dockHeight: Int,
     movedPages: Boolean,
     onSaveEditPage: (Int) -> Unit,
@@ -78,7 +76,6 @@ fun EditPageScreen(
     onLongPress: (
         imageBitmap: ImageBitmap,
         intOffset: IntOffset,
-        intSize: IntSize,
     ) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
     onDragEnd: () -> Unit,
@@ -187,11 +184,6 @@ fun EditPageScreen(
 
                             if (longPress != null) {
                                 scope.launch {
-                                    val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
-
-                                    val gridHeight =
-                                        (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
-
                                     from = index
 
                                     onLongPress(
@@ -200,7 +192,6 @@ fun EditPageScreen(
                                             x = horizontalPagerPaddingPx,
                                             y = horizontalPagerPaddingPx,
                                         ),
-                                        IntSize(width = gridWidth, height = gridHeight),
                                     )
                                 }
                             }

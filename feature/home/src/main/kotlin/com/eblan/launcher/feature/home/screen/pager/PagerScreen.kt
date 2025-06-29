@@ -33,7 +33,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -97,7 +96,6 @@ fun PagerScreen(
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStartWidget: (
         intOffset: IntOffset,
-        intSize: IntSize,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onStartMainActivity: (String?) -> Unit,

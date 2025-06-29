@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -23,10 +22,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -127,7 +123,7 @@ fun HomeScreen(
     onCancelEditPage: (Int) -> Unit,
 ) {
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
-        Box(
+        BoxWithConstraints(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -149,6 +145,8 @@ fun HomeScreen(
                         movedGridItems = movedGridItems,
                         targetPage = targetPage,
                         movedPages = movedPages,
+                        rootWidth = constraints.maxWidth,
+                        rootHeight = constraints.maxHeight,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onDeleteAppWidgetId = onDeleteAppWidgetId,
@@ -180,6 +178,8 @@ fun Success(
     movedGridItems: Boolean?,
     targetPage: Int,
     movedPages: Boolean,
+    rootWidth: Int,
+    rootHeight: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -223,7 +223,7 @@ fun Success(
 
     var showMenu by remember { mutableStateOf(false) }
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
@@ -269,8 +269,8 @@ fun Success(
                     textColor = userData.homeSettings.textColor,
                     eblanApplicationInfos = eblanApplicationInfos,
                     eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-                    rootWidth = constraints.maxWidth,
-                    rootHeight = constraints.maxHeight,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     dragIntOffset = dragIntOffset,
@@ -326,7 +326,7 @@ fun Success(
                     onLongPressWidget = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
                     },
-                    onDragStartWidget = { intOffset, intSize, gridItemLayoutInfo ->
+                    onDragStartWidget = { intOffset, gridItemLayoutInfo ->
                         overlayIntOffset = intOffset
 
                         gridItemSource = GridItemSource(
@@ -357,8 +357,8 @@ fun Success(
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
-                    rootWidth = constraints.maxWidth,
-                    rootHeight = constraints.maxHeight,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = userData.homeSettings.textColor,
@@ -425,13 +425,12 @@ fun Success(
                     gridItems = gridItems,
                     dragIntOffset = dragIntOffset,
                     drag = drag,
-                    rootWidth = constraints.maxWidth,
-                    rootHeight = constraints.maxHeight,
+                    rootWidth = rootWidth,
                     dockHeight = userData.homeSettings.dockHeight,
                     movedPages = movedPages,
                     onSaveEditPage = onResetGridCache,
                     onCancelEditPage = onCancelEditPage,
-                    onLongPress = { imageBitmap, intOffset, intSize ->
+                    onLongPress = { imageBitmap, intOffset ->
                         overlayImageBitmap = imageBitmap
 
                         overlayIntOffset = intOffset
@@ -448,37 +447,37 @@ fun Success(
                 )
             }
         }
+    }
 
-        if (showOverlay) {
-            GridItemOverlay(
-                overlayImageBitmap = overlayImageBitmap,
-                overlayIntOffset = overlayIntOffset,
-            )
-        }
+    if (showOverlay) {
+        GridItemOverlay(
+            overlayImageBitmap = overlayImageBitmap,
+            overlayIntOffset = overlayIntOffset,
+        )
+    }
 
-        if (showMenu) {
-            Popup(
-                popupPositionProvider = SettingsMenuPositionProvider(
-                    x = dragIntOffset.x,
-                    y = dragIntOffset.y,
-                ),
-                onDismissRequest = {
+    if (showMenu) {
+        Popup(
+            popupPositionProvider = SettingsMenuPositionProvider(
+                x = dragIntOffset.x,
+                y = dragIntOffset.y,
+            ),
+            onDismissRequest = {
+                showMenu = false
+            },
+        ) {
+            SettingsMenu(
+                onSettings = {
                     showMenu = false
+
+                    onSettings()
                 },
-            ) {
-                SettingsMenu(
-                    onSettings = {
-                        showMenu = false
+                onEditPage = {
+                    showMenu = false
 
-                        onSettings()
-                    },
-                    onEditPage = {
-                        showMenu = false
-
-                        onShowGridCache(Screen.EditPage)
-                    },
-                )
-            }
+                    onShowGridCache(Screen.EditPage)
+                },
+            )
         }
     }
 }

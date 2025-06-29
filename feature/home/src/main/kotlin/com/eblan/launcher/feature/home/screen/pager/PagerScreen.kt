@@ -89,7 +89,6 @@ fun PagerScreen(
         currentPage: Int,
         imageBitmap: ImageBitmap,
         intOffset: IntOffset,
-        size: IntSize,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDragStart: () -> Unit,

@@ -211,8 +211,6 @@ fun Success(
 
     var showOverlay by remember { mutableStateOf(false) }
 
-    var overlayIntSize by remember { mutableStateOf(IntSize.Zero) }
-
     var drag by remember { mutableStateOf(Drag.None) }
 
     var overlayImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -297,13 +295,8 @@ fun Success(
 
                         overlayIntOffset =
                             IntOffset(x = gridItemLayoutInfo.x, y = gridItemLayoutInfo.y)
-
-                        overlayIntSize = IntSize(
-                            width = gridItemLayoutInfo.width,
-                            height = gridItemLayoutInfo.height,
-                        )
                     },
-                    onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
+                    onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 
                         addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
@@ -311,8 +304,6 @@ fun Success(
                         overlayImageBitmap = imageBitmap
 
                         overlayIntOffset = intOffset
-
-                        overlayIntSize = intSize
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
@@ -337,8 +328,6 @@ fun Success(
                     },
                     onDragStartWidget = { intOffset, intSize, gridItemLayoutInfo ->
                         overlayIntOffset = intOffset
-
-                        overlayIntSize = intSize
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
@@ -447,8 +436,6 @@ fun Success(
 
                         overlayIntOffset = intOffset
 
-                        overlayIntSize = intSize
-
                         showOverlay = true
                     },
                     onMovePage = onMovePage,
@@ -466,7 +453,6 @@ fun Success(
             GridItemOverlay(
                 overlayImageBitmap = overlayImageBitmap,
                 overlayIntOffset = overlayIntOffset,
-                overlayIntSize = overlayIntSize,
             )
         }
 
@@ -502,17 +488,7 @@ private fun GridItemOverlay(
     modifier: Modifier = Modifier,
     overlayImageBitmap: ImageBitmap?,
     overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
 ) {
-    val density = LocalDensity.current
-
-    val size = with(density) {
-        DpSize(
-            width = overlayIntSize.width.toDp(),
-            height = overlayIntSize.height.toDp(),
-        )
-    }
-
     if (overlayImageBitmap != null) {
         Image(
             bitmap = overlayImageBitmap,
@@ -521,7 +497,6 @@ private fun GridItemOverlay(
                 .offset {
                     overlayIntOffset
                 }
-                .size(size)
                 .alpha(0.5f),
         )
     }

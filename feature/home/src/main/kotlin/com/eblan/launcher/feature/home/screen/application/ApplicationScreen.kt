@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home.screen.application
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +29,10 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -72,7 +69,6 @@ fun ApplicationScreen(
         currentPage: Int,
         imageBitmap: ImageBitmap,
         intOffset: IntOffset,
-        intSize: IntSize,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDragging: () -> Unit,
@@ -81,8 +77,6 @@ fun ApplicationScreen(
     val scope = rememberCoroutineScope()
 
     var showMenu by remember { mutableStateOf(false) }
-
-    var selectedIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     var selectedIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -136,8 +130,6 @@ fun ApplicationScreen(
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
                         val graphicsLayer = rememberGraphicsLayer()
 
-                        var intSize by remember { mutableStateOf(IntSize.Zero) }
-
                         var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
                         Column(
@@ -173,29 +165,22 @@ fun ApplicationScreen(
 
                                                 selectedIntOffset = intOffset
 
-                                                selectedIntSize = intSize
-
                                                 selectedGridItemLayoutInfo = gridItemLayoutInfo
 
                                                 onLongPressApplicationInfo(
                                                     horizontalPage,
                                                     graphicsLayer.toImageBitmap(),
                                                     intOffset,
-                                                    intSize,
                                                     gridItemLayoutInfo,
                                                 )
                                             }
                                         }
                                     }
                                 }
-                                .onSizeChanged {
-                                    intSize = it
-                                }
                                 .onGloballyPositioned {
                                     intOffset = it.positionInParent().round()
                                 }
                                 .height(appDrawerRowsHeightDp),
-                            verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Spacer(modifier = Modifier.height(5.dp))
@@ -226,8 +211,8 @@ fun ApplicationScreen(
                     GridItemMenu(
                         x = selectedIntOffset.x,
                         y = selectedIntOffset.y,
-                        width = selectedIntSize.width,
-                        height = selectedIntSize.height,
+                        width = rootWidth / appDrawerColumns,
+                        height = appDrawerRowsHeight,
                         onDismissRequest = {
                             showMenu = false
                         },

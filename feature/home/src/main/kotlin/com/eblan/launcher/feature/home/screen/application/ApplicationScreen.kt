@@ -51,8 +51,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @Composable
 fun ApplicationScreen(
@@ -243,7 +241,6 @@ fun ApplicationScreen(
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
 private fun getGridItemLayoutInfo(
     page: Int,
     rows: Int,
@@ -273,7 +270,7 @@ private fun getGridItemLayoutInfo(
     )
 
     val gridItem = GridItem(
-        id = Uuid.random().toHexString(),
+        id = 0,
         page = page,
         startRow = startRow,
         startColumn = startColumn,

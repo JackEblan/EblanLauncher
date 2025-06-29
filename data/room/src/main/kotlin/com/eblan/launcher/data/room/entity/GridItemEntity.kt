@@ -19,7 +19,8 @@ import com.eblan.launcher.domain.model.GridItemData
     indices = [Index(value = ["dataId"])],
 )
 data class GridItemEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,

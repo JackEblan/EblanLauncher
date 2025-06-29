@@ -71,7 +71,7 @@ fun getResolveDirectionByDiff(
 }
 
 fun getGridItemByCoordinates(
-    id: String,
+    id: Int,
     gridItems: List<GridItem>,
     rows: Int,
     columns: Int,

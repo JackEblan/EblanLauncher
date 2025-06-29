@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.model
 
 data class GridItem(
-    val id: String,
+    val id: Int,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,

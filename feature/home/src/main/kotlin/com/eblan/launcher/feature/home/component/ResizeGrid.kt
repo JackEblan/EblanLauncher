@@ -13,7 +13,7 @@ fun ResizeGridSubcomposeLayout(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    gridItemId: String?,
+    gridItemId: Int?,
     gridItems: List<GridItem>?,
     onResizeGridItem: (
         gridItem: GridItem,

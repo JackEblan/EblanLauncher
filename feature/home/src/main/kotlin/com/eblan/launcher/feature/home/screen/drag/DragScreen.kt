@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.drag
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Intent
 import android.widget.FrameLayout
@@ -50,13 +49,10 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
-import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import kotlinx.coroutines.delay
@@ -95,8 +91,6 @@ fun DragScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
-    onEdit: () -> Unit,
-    onResize: (Int) -> Unit,
 ) {
     val appWidgetManager = LocalAppWidgetManager.current
 
@@ -109,8 +103,6 @@ fun DragScreen(
     }
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
-
-    var showMenu by remember { mutableStateOf(false) }
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -135,7 +127,7 @@ fun DragScreen(
     val gridPadding = 5.dp
 
     val horizontalPagerPaddingPx = with(density) {
-        (horizontalPagerPadding + gridPadding).roundToPx()
+        horizontalPagerPadding.roundToPx()
     }
 
     val targetPage by remember {
@@ -198,16 +190,12 @@ fun DragScreen(
         handleDrag(
             targetPage = targetPage,
             drag = drag,
-            showMenu = showMenu,
             gridItemSource = gridItemSource,
             onDragEnd = onDragEnd,
             movedGridItems = movedGridItems,
             appWidgetManager = appWidgetManager,
             appWidgetLauncher = appWidgetLauncher,
             onDragCancel = onDragCancel,
-            onChangeShowMenu = { newShowMenu ->
-                showMenu = newShowMenu
-            },
         )
     }
 
@@ -375,129 +363,22 @@ fun DragScreen(
                 },
             )
         }
-
-        if (showMenu && gridItemSource?.gridItemLayoutInfo?.gridItem != null) {
-            when (gridItemSource.gridItemLayoutInfo.gridItem.associate) {
-                Associate.Grid -> {
-                    GridItemMenu(
-                        x = dragIntOffset.x - gridItemSource.gridItemLayoutInfo.width / 2,
-                        y = dragIntOffset.y - gridItemSource.gridItemLayoutInfo.height / 2,
-                        width = gridItemSource.gridItemLayoutInfo.width,
-                        height = gridItemSource.gridItemLayoutInfo.height,
-                        onDismissRequest = onDragCancel,
-                        content = {
-                            when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
-                                is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoGridItemMenu(
-                                        showResize = gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid,
-                                        onEdit = onEdit,
-                                        onResize = {
-                                            val horizontalPage = calculatePage(
-                                                index = horizontalPagerState.currentPage,
-                                                infiniteScroll = infiniteScroll,
-                                                pageCount = tempPageCount,
-                                            )
-
-                                            onResize(horizontalPage)
-                                        },
-                                    )
-                                }
-
-                                is GridItemData.Widget -> {
-                                    val showResize =
-                                        gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
-                                    WidgetGridItemMenu(
-                                        showResize = showResize,
-                                        onEdit = onEdit,
-                                        onResize = {
-                                            val horizontalPage = calculatePage(
-                                                index = horizontalPagerState.currentPage,
-                                                infiniteScroll = infiniteScroll,
-                                                pageCount = tempPageCount,
-                                            )
-
-                                            onResize(horizontalPage)
-                                        },
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
-
-                Associate.Dock -> {
-                    GridItemMenu(
-                        x = gridItemSource.gridItemLayoutInfo.x,
-                        y = rootHeight - dockHeight,
-                        width = gridItemSource.gridItemLayoutInfo.width,
-                        height = gridItemSource.gridItemLayoutInfo.height,
-                        onDismissRequest = onDragCancel,
-                        content = {
-                            when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {
-                                is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoGridItemMenu(
-                                        showResize = gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid,
-                                        onEdit = onEdit,
-                                        onResize = {
-                                            val horizontalPage = calculatePage(
-                                                index = horizontalPagerState.currentPage,
-                                                infiniteScroll = infiniteScroll,
-                                                pageCount = tempPageCount,
-                                            )
-
-                                            onResize(horizontalPage)
-                                        },
-                                    )
-                                }
-
-                                is GridItemData.Widget -> {
-                                    val showResize =
-                                        gridItemSource.gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
-                                    WidgetGridItemMenu(
-                                        showResize = showResize,
-                                        onEdit = onEdit,
-                                        onResize = {
-                                            val horizontalPage = calculatePage(
-                                                index = horizontalPagerState.currentPage,
-                                                infiniteScroll = infiniteScroll,
-                                                pageCount = tempPageCount,
-                                            )
-
-                                            onResize(horizontalPage)
-                                        },
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
-            }
-        }
     }
 }
 
 private fun handleDrag(
     targetPage: Int,
     drag: Drag,
-    showMenu: Boolean,
     gridItemSource: GridItemSource?,
     onDragEnd: (Int) -> Unit,
     movedGridItems: Boolean?,
     appWidgetManager: AppWidgetManagerWrapper,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragCancel: () -> Unit,
-    onChangeShowMenu: (Boolean) -> Unit,
 ) {
     when (drag) {
-        Drag.Start -> {
-            onChangeShowMenu(true)
-        }
-
         Drag.End -> {
             handleOnDragEnd(
-                showMenu = showMenu,
                 gridItemSource = gridItemSource,
                 targetPage = targetPage,
                 movedGridItems = movedGridItems,
@@ -507,22 +388,15 @@ private fun handleDrag(
             )
         }
 
-        Drag.Dragging -> {
-            onChangeShowMenu(false)
-        }
-
         Drag.Cancel -> {
             onDragCancel()
         }
 
-        Drag.None -> {
-
-        }
+        Drag.Start, Drag.Dragging, Drag.None -> Unit
     }
 }
 
 private fun handleOnDragEnd(
-    showMenu: Boolean,
     gridItemSource: GridItemSource?,
     targetPage: Int,
     movedGridItems: Boolean?,
@@ -530,10 +404,6 @@ private fun handleOnDragEnd(
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragEnd: (Int) -> Unit,
 ) {
-    if (showMenu) {
-        return
-    }
-
     when (gridItemSource?.type) {
         GridItemSource.Type.New -> {
             when (val data = gridItemSource.gridItemLayoutInfo.gridItem.data) {

@@ -340,7 +340,7 @@ fun BoxScope.Success(
                         type = GridItemSource.Type.New,
                     )
                 },
-                onDragStart = {
+                onDraggingGridItem = {
                     onShowOverlay(true)
 
                     onShowGridCache(Screen.Drag)
@@ -356,7 +356,9 @@ fun BoxScope.Success(
                 onLongPressWidget = { imageBitmap ->
                     onUpdateOverlayImageBitmap(imageBitmap)
                 },
-                onDragStartWidget = { intOffset, gridItemLayoutInfo ->
+                onDragStartWidget = { newCurrentPage, intOffset, gridItemLayoutInfo ->
+                    currentPage = newCurrentPage
+
                     onUpdateOverlayIntOffset(intOffset)
 
                     gridItemSource = GridItemSource(
@@ -371,6 +373,19 @@ fun BoxScope.Success(
                     onShowGridCache(Screen.Drag)
                 },
                 onStartMainActivity = onStartMainActivity,
+                onEdit = {
+
+                },
+                onResize = { newTargetPage ->
+                    currentPage = newTargetPage
+
+                    onShowOverlay(false)
+
+                    onShowGridCache(Screen.Resize)
+                },
+                onResetGridItem = {
+                    gridItemSource = null
+                },
             )
         }
 
@@ -406,19 +421,11 @@ fun BoxScope.Success(
                 onDragEnd = { newTargetPage ->
                     addNewPage = false
 
+                    gridItemSource = null
+
                     onResetGridCache(newTargetPage)
 
                     onShowOverlay(false)
-                },
-                onEdit = {
-
-                },
-                onResize = { newTargetPage ->
-                    currentPage = newTargetPage
-
-                    onShowOverlay(false)
-
-                    onShowGridCache(Screen.Resize)
                 },
             )
         }
@@ -438,6 +445,8 @@ fun BoxScope.Success(
                 textColor = userData.homeSettings.textColor,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = {
+                    gridItemSource = null
+
                     onResetGridCache(currentPage)
                 },
             )

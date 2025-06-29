@@ -20,6 +20,7 @@ import android.appwidget.AppWidgetHostView;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.android.launcher3.CheckLongPressHelper;
 import com.android.launcher3.OnTouchEventListener;
@@ -41,7 +42,7 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements View
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         mLongPressHelper.onTouchEvent(ev);
 
-        onTouchEventListener.onTouchEvent(ev);
+        onTouchEventListener.onTouchEvent(ev, isAnyChildScrollable(this));
 
         return mLongPressHelper.hasPerformedLongPress();
     }
@@ -49,7 +50,7 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements View
     public boolean onTouchEvent(MotionEvent ev) {
         mLongPressHelper.onTouchEvent(ev);
 
-        onTouchEventListener.onTouchEvent(ev);
+        onTouchEventListener.onTouchEvent(ev, isAnyChildScrollable(this));
 
         // We want to keep receiving though events to be able to cancel long press on ACTION_UP
         return true;
@@ -69,5 +70,22 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements View
 
     public void setOnTouchEventListener(OnTouchEventListener onTouchEventListener) {
         this.onTouchEventListener = onTouchEventListener;
+    }
+
+    private boolean isAnyChildScrollable(View view) {
+        if (view.canScrollVertically(1) || view.canScrollVertically(-1)) {
+            return true;
+        }
+
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                if (isAnyChildScrollable(group.getChildAt(i))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

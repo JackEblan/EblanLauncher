@@ -60,6 +60,7 @@ fun WidgetScreen(
     drag: Drag,
     onLongPressWidget: (ImageBitmap?) -> Unit,
     onDragStart: (
+        currentPage: Int,
         intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
@@ -197,6 +198,7 @@ private fun handleDrag(
     rootHeight: Int,
     dockHeight: Int,
     onDragStart: (
+        currentPage: Int,
         intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
@@ -227,6 +229,7 @@ private fun handleDrag(
         )
 
         onDragStart(
+            page,
             intOffset,
             gridItemLayoutInfo,
         )

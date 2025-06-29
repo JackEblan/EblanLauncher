@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -108,7 +109,7 @@ fun EditPageScreen(
     val gridPadding = 5.dp
 
     val horizontalPagerPaddingPx = with(density) {
-        (horizontalPagerPadding + gridPadding).roundToPx()
+        horizontalPagerPadding.roundToPx()
     }
 
     var from by remember { mutableIntStateOf(-1) }
@@ -257,6 +258,9 @@ fun EditPageScreen(
 
                                             setAppWidget(appWidgetId, appWidgetInfo)
                                         }
+                                    },
+                                    modifier = Modifier.pointerInteropFilter {
+                                        true
                                     },
                                 )
                             }

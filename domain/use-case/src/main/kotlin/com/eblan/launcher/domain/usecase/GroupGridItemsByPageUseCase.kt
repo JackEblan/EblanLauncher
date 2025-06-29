@@ -34,16 +34,16 @@ class GroupGridItemsByPageUseCase @Inject constructor(
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = userData.rows,
-                    columns = userData.columns,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
                 ) && gridItem.associate == Associate.Grid
             }.groupBy { gridItem -> gridItem.page }
 
             val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = userData.dockRows,
-                    columns = userData.dockColumns,
+                    rows = userData.homeSettings.dockRows,
+                    columns = userData.homeSettings.dockColumns,
                 ) && gridItem.associate == Associate.Dock
             }
 

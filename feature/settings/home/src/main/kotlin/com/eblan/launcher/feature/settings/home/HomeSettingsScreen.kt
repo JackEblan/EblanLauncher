@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.feature.settings.home.dialog.DockHeightDialog
 import com.eblan.launcher.feature.settings.home.dialog.GridDialog
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
@@ -100,7 +100,7 @@ fun HomeSettingsScreen(
 
                 is HomeSettingsUiState.Success -> {
                     Success(
-                        userData = homeSettingsUiState.userData,
+                        homeSettings = homeSettingsUiState.userData.homeSettings,
                         onUpdateGrid = onUpdateGrid,
                         onUpdateInfiniteScroll = onUpdateInfiniteScroll,
                         onUpdateDockGrid = onUpdateDockGrid,
@@ -116,7 +116,7 @@ fun HomeSettingsScreen(
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
-    userData: UserData,
+    homeSettings: HomeSettings,
     onUpdateGrid: (
         rows: Int,
         columns: Int,
@@ -172,7 +172,7 @@ fun Success(
             }
 
             Switch(
-                checked = userData.infiniteScroll,
+                checked = homeSettings.infiniteScroll,
                 onCheckedChange = onUpdateInfiniteScroll,
             )
         }
@@ -212,8 +212,8 @@ fun Success(
 
     if (showGridDialog) {
         GridDialog(
-            rows = userData.rows,
-            columns = userData.columns,
+            rows = homeSettings.rows,
+            columns = homeSettings.columns,
             onDismissRequest = {
                 showGridDialog = false
             },
@@ -223,8 +223,8 @@ fun Success(
 
     if (showDockGridDialog) {
         GridDialog(
-            rows = userData.dockRows,
-            columns = userData.dockColumns,
+            rows = homeSettings.dockRows,
+            columns = homeSettings.dockColumns,
             onDismissRequest = {
                 showDockGridDialog = false
             },
@@ -234,7 +234,7 @@ fun Success(
 
     if (showDockHeightDialog) {
         DockHeightDialog(
-            dockHeight = userData.dockHeight,
+            dockHeight = homeSettings.dockHeight,
             onDismissRequest = {
                 showDockHeightDialog = false
             },

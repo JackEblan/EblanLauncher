@@ -257,23 +257,24 @@ fun Success(
             Screen.Pager -> {
                 PagerScreen(
                     targetPage = targetPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    pageCount = userData.homeSettings.pageCount,
+                    infiniteScroll = userData.homeSettings.infiniteScroll,
+                    dockRows = userData.homeSettings.dockRows,
+                    dockColumns = userData.homeSettings.dockColumns,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
                     gridItems = gridItems,
-                    dockHeight = userData.dockHeight,
+                    dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
-                    textColor = userData.textColor,
+                    textColor = userData.homeSettings.textColor,
                     eblanApplicationInfos = eblanApplicationInfos,
                     eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
                     rootWidth = constraints.maxWidth,
                     rootHeight = constraints.maxHeight,
-                    appDrawerColumns = userData.appDrawerColumns,
+                    appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
+                    appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     dragIntOffset = dragIntOffset,
                     onLongPressGrid = { newCurrentPage ->
                         currentPage = newCurrentPage
@@ -285,9 +286,7 @@ fun Success(
                     onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 
-                        addNewPage =
-                            newCurrentPage != userData.pageCount - 1 || (gridItems[userData.pageCount - 1]?.size
-                                ?: 0) > 1
+                        addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
 
                         overlayImageBitmap = imageBitmap
 
@@ -307,7 +306,7 @@ fun Success(
                     onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, intSize, gridItemLayoutInfo ->
                         currentPage = newCurrentPage
 
-                        addNewPage = (gridItems[userData.pageCount - 1]?.size ?: 0) > 1
+                        addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
 
                         overlayImageBitmap = imageBitmap
 
@@ -346,7 +345,7 @@ fun Success(
                             type = GridItemSource.Type.New,
                         )
 
-                        addNewPage = !gridItems[userData.pageCount - 1].isNullOrEmpty()
+                        addNewPage = !gridItems[userData.homeSettings.pageCount - 1].isNullOrEmpty()
 
                         showOverlay = true
 
@@ -359,21 +358,21 @@ fun Success(
             Screen.Drag -> {
                 DragScreen(
                     currentPage = currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    infiniteScroll = userData.infiniteScroll,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    pageCount = userData.homeSettings.pageCount,
+                    infiniteScroll = userData.homeSettings.infiniteScroll,
+                    dockRows = userData.homeSettings.dockRows,
+                    dockColumns = userData.homeSettings.dockColumns,
                     gridItems = gridItems,
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
                     rootWidth = constraints.maxWidth,
                     rootHeight = constraints.maxHeight,
-                    dockHeight = userData.dockHeight,
+                    dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
-                    textColor = userData.textColor,
+                    textColor = userData.homeSettings.textColor,
                     movedGridItems = movedGridItems,
                     addNewPage = addNewPage,
                     onMoveGridItem = onMoveGridItem,
@@ -407,15 +406,15 @@ fun Success(
             Screen.Resize -> {
                 ResizeScreen(
                     currentPage = currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    dockRows = userData.dockRows,
-                    dockColumns = userData.dockColumns,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    dockRows = userData.homeSettings.dockRows,
+                    dockColumns = userData.homeSettings.dockColumns,
                     gridItems = gridItems,
                     gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
-                    dockHeight = userData.dockHeight,
+                    dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
-                    textColor = userData.textColor,
+                    textColor = userData.homeSettings.textColor,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = {
                         onResetGridCache(currentPage)
@@ -430,16 +429,16 @@ fun Success(
             Screen.EditPage -> {
                 EditPageScreen(
                     currentPage = currentPage,
-                    rows = userData.rows,
-                    columns = userData.columns,
-                    pageCount = userData.pageCount,
-                    textColor = userData.textColor,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    pageCount = userData.homeSettings.pageCount,
+                    textColor = userData.homeSettings.textColor,
                     gridItems = gridItems,
                     dragIntOffset = dragIntOffset,
                     drag = drag,
                     rootWidth = constraints.maxWidth,
                     rootHeight = constraints.maxHeight,
-                    dockHeight = userData.dockHeight,
+                    dockHeight = userData.homeSettings.dockHeight,
                     movedPages = movedPages,
                     onSaveEditPage = onResetGridCache,
                     onCancelEditPage = onCancelEditPage,

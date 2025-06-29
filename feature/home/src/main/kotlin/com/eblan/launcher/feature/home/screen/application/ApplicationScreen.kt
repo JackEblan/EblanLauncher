@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -68,6 +69,7 @@ fun ApplicationScreen(
     dockHeight: Int,
     drag: Drag,
     isScrollInProgress: Boolean,
+    appDrawerRowsHeight: Int,
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -93,6 +95,12 @@ fun ApplicationScreen(
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
     )
+
+    val density = LocalDensity.current
+
+    val appDrawerRowsHeightDp = with(density) {
+        appDrawerRowsHeight.toDp()
+    }
 
     LaunchedEffect(key1 = drag) {
         if (!isScrollInProgress) {
@@ -188,7 +196,7 @@ fun ApplicationScreen(
                                 .onGloballyPositioned {
                                     intOffset = it.positionInParent().round()
                                 }
-                                .fillMaxSize(),
+                                .height(appDrawerRowsHeightDp),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {

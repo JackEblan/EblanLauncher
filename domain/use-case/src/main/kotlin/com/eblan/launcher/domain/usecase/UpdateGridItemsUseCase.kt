@@ -20,7 +20,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
             val gridCacheItems = gridCacheRepository.gridCacheItems.first().toMutableList()
 
-            var pageCount = userDataRepository.userData.first().pageCount
+            var pageCount = userDataRepository.userData.first().homeSettings.pageCount
 
             val gridCacheItemsByAssociateGrid = gridCacheItems.filter { gridItem ->
                 gridItem.associate == Associate.Grid

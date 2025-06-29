@@ -41,4 +41,6 @@ message UserPreferences {
   TextColor textColor = 8;
 
   int32 appDrawerColumns = 9;
+
+  int32 appDrawerRowsHeight = 10;
 }

@@ -40,6 +40,7 @@ class UserPreferencesSerializer @Inject constructor() : Serializer<UserPreferenc
         dockHeight = 300
         textColor = TextColor.White
         appDrawerColumns = 5
+        appDrawerRowsHeight = 500
     }.build()
 
     override suspend fun readFrom(input: InputStream): UserPreferences = try {

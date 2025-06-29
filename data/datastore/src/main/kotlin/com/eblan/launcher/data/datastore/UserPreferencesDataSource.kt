@@ -20,6 +20,8 @@ package com.eblan.launcher.data.datastore
 import androidx.datastore.core.DataStore
 import com.eblan.launcher.data.datastore.proto.UserPreferences
 import com.eblan.launcher.data.datastore.proto.copy
+import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
@@ -32,19 +34,24 @@ class UserPreferencesDataSource @Inject constructor(
 ) {
     val userData: Flow<UserData> = dataStore.data.map { userPreferences ->
         UserData(
-            rows = userPreferences.rows,
-            columns = userPreferences.columns,
-            pageCount = userPreferences.pageCount,
-            infiniteScroll = userPreferences.infiniteScroll,
-            dockRows = userPreferences.dockRows,
-            dockColumns = userPreferences.dockColumns,
-            dockHeight = userPreferences.dockHeight,
-            textColor = when (userPreferences.textColor) {
-                TextColorProto.White -> TextColor.White
-                TextColorProto.Black -> TextColor.Black
-                TextColorProto.UNRECOGNIZED, null -> TextColor.White
-            },
-            appDrawerColumns = userPreferences.appDrawerColumns,
+            homeSettings = HomeSettings(
+                rows = userPreferences.rows,
+                columns = userPreferences.columns,
+                pageCount = userPreferences.pageCount,
+                infiniteScroll = userPreferences.infiniteScroll,
+                dockRows = userPreferences.dockRows,
+                dockColumns = userPreferences.dockColumns,
+                dockHeight = userPreferences.dockHeight,
+                textColor = when (userPreferences.textColor) {
+                    TextColorProto.White -> TextColor.White
+                    TextColorProto.Black -> TextColor.Black
+                    TextColorProto.UNRECOGNIZED, null -> TextColor.White
+                },
+            ),
+            appDrawerSettings = AppDrawerSettings(
+                appDrawerColumns = userPreferences.appDrawerColumns,
+                appDrawerRowsHeight = userPreferences.appDrawerRowsHeight,
+            ),
         )
     }
 

@@ -77,6 +77,7 @@ fun PagerScreen(
     rootWidth: Int,
     rootHeight: Int,
     appDrawerColumns: Int,
+    appDrawerRowsHeight: Int,
     dragIntOffset: IntOffset,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
@@ -183,6 +184,7 @@ fun PagerScreen(
                                     dockHeight = dockHeight,
                                     drag = drag,
                                     isScrollInProgress = verticalPagerState.isScrollInProgress,
+                                    appDrawerRowsHeight = appDrawerRowsHeight,
                                     onLongPressApplicationInfo = onLongPressApplicationInfo,
                                     onDragging = onDraggingApplicationInfo,
                                     onDragEnd = onDragEndApplicationInfo,

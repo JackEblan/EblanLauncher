@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -52,6 +53,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.PageDirection
+import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -113,6 +116,8 @@ fun EditPageScreen(
 
     var from by remember { mutableIntStateOf(-1) }
 
+    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             from = from,
@@ -121,8 +126,22 @@ fun EditPageScreen(
             dragIntOffset = dragIntOffset,
             horizontalPagerPaddingPx = horizontalPagerPaddingPx,
             rootWidth = rootWidth,
+            onChangePageDirection = { newPageDirection ->
+                pageDirection = newPageDirection
+            },
             onMovePage = onMovePage,
-            onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+        )
+    }
+
+    LaunchedEffect(key1 = pageDirection) {
+        handlePageDirection(
+            currentPage = horizontalPagerState.currentPage,
+            pageDirection = pageDirection,
+            onAnimateScrollToPage = { page ->
+                horizontalPagerState.animateScrollToPage(page = page)
+
+                pageDirection = null
+            },
         )
     }
 
@@ -288,24 +307,24 @@ private suspend fun handleDragIntOffset(
     dragIntOffset: IntOffset,
     horizontalPagerPaddingPx: Int,
     rootWidth: Int,
+    onChangePageDirection: (PageDirection?) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
-    onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
-    val scrollToPageDelay = 500L
-
-    val movePageDelay = 100L
-
     if (drag == Drag.Dragging) {
+        val scrollToPageDelay = 500L
+
+        val moveGridItemDelay = 100L
+
         if (dragIntOffset.x <= horizontalPagerPaddingPx) {
             delay(scrollToPageDelay)
 
-            onAnimateScrollToPage(to - 1)
+            onChangePageDirection(PageDirection.Left)
         } else if (dragIntOffset.x >= rootWidth - horizontalPagerPaddingPx) {
             delay(scrollToPageDelay)
 
-            onAnimateScrollToPage(to + 1)
+            onChangePageDirection(PageDirection.Right)
         } else {
-            delay(movePageDelay)
+            delay(moveGridItemDelay)
 
             onMovePage(from, to)
         }

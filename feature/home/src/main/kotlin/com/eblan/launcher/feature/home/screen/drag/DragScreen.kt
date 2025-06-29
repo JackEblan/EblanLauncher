@@ -55,6 +55,7 @@ import com.eblan.launcher.feature.home.component.DragGridSubcomposeLayout
 import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.pager.GridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
@@ -106,6 +107,8 @@ fun DragScreen(
     val dockHeightDp = with(density) {
         dockHeight.toDp()
     }
+
+    var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -160,7 +163,6 @@ fun DragScreen(
 
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
-            currentPage = horizontalPagerState.currentPage,
             targetPage = targetPage,
             drag = drag,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
@@ -173,8 +175,22 @@ fun DragScreen(
             dockRows = dockRows,
             columns = columns,
             rows = rows,
+            onChangePageDirection = { newPageDirection ->
+                pageDirection = newPageDirection
+            },
             onMoveGridItem = onMoveGridItem,
-            onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+        )
+    }
+
+    LaunchedEffect(key1 = pageDirection) {
+        handlePageDirection(
+            currentPage = horizontalPagerState.currentPage,
+            pageDirection = pageDirection,
+            onAnimateScrollToPage = { page ->
+                horizontalPagerState.animateScrollToPage(page = page)
+
+                pageDirection = null
+            },
         )
     }
 
@@ -582,8 +598,26 @@ private fun onDragEndGridItemDataWidget(
     }
 }
 
-private suspend fun handleDragIntOffset(
+suspend fun handlePageDirection(
     currentPage: Int,
+    pageDirection: PageDirection?,
+    onAnimateScrollToPage: suspend (Int) -> Unit,
+) {
+
+    when (pageDirection) {
+        PageDirection.Left -> {
+            onAnimateScrollToPage(currentPage - 1)
+        }
+
+        PageDirection.Right -> {
+            onAnimateScrollToPage(currentPage + 1)
+        }
+
+        null -> Unit
+    }
+}
+
+private suspend fun handleDragIntOffset(
     targetPage: Int,
     drag: Drag,
     gridItemLayoutInfo: GridItemLayoutInfo?,
@@ -596,6 +630,7 @@ private suspend fun handleDragIntOffset(
     dockRows: Int,
     columns: Int,
     rows: Int,
+    onChangePageDirection: (PageDirection?) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -605,82 +640,81 @@ private suspend fun handleDragIntOffset(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
-    onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
-    val scrollToPageDelay = 500L
-
-    val moveGridItemDelay = 100L
-
     if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
         val isDraggingOnDock =
             dragIntOffset.y > (rootHeight - dockHeight) - horizontalPagerPaddingPx
 
+        val scrollToPageDelay = 500L
+
+        val moveGridItemDelay = 100L
+
         if (dragIntOffset.x <= horizontalPagerPaddingPx && !isDraggingOnDock) {
             delay(scrollToPageDelay)
 
-            onAnimateScrollToPage(currentPage - 1)
-
+            onChangePageDirection(PageDirection.Left)
         } else if (dragIntOffset.x >= rootWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
             delay(scrollToPageDelay)
 
-            onAnimateScrollToPage(currentPage + 1)
-
-        } else if (isDraggingOnDock) {
-            delay(moveGridItemDelay)
-
-            val cellWidth = rootWidth / dockColumns
-
-            val cellHeight = dockHeight / dockRows
-
-            val dockY = dragIntOffset.y - (rootHeight - dockHeight)
-
-            val gridItem = gridItemLayoutInfo.gridItem.copy(
-                page = targetPage,
-                startRow = dockY / cellHeight,
-                startColumn = dragIntOffset.x / cellWidth,
-                associate = Associate.Dock,
-            )
-
-            onMoveGridItem(
-                gridItem,
-                dragIntOffset.x,
-                dockY,
-                dockRows,
-                dockColumns,
-                rootWidth,
-                dockHeight,
-            )
+            onChangePageDirection(PageDirection.Right)
         } else {
-            delay(moveGridItemDelay)
+            if (isDraggingOnDock) {
+                delay(moveGridItemDelay)
 
-            val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
+                val cellWidth = rootWidth / dockColumns
 
-            val gridHeight = (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
+                val cellHeight = dockHeight / dockRows
 
-            val gridX = dragIntOffset.x - horizontalPagerPaddingPx
+                val dockY = dragIntOffset.y - (rootHeight - dockHeight)
 
-            val gridY = dragIntOffset.y - horizontalPagerPaddingPx
+                val gridItem = gridItemLayoutInfo.gridItem.copy(
+                    page = targetPage,
+                    startRow = dockY / cellHeight,
+                    startColumn = dragIntOffset.x / cellWidth,
+                    associate = Associate.Dock,
+                )
 
-            val cellWidth = gridWidth / columns
+                onMoveGridItem(
+                    gridItem,
+                    dragIntOffset.x,
+                    dockY,
+                    dockRows,
+                    dockColumns,
+                    rootWidth,
+                    dockHeight,
+                )
+            } else {
+                delay(moveGridItemDelay)
 
-            val cellHeight = gridHeight / rows
+                val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
 
-            val gridItem = gridItemLayoutInfo.gridItem.copy(
-                page = targetPage,
-                startRow = gridY / cellHeight,
-                startColumn = gridX / cellWidth,
-                associate = Associate.Grid,
-            )
+                val gridHeight = (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
 
-            onMoveGridItem(
-                gridItem,
-                gridX,
-                gridY,
-                rows,
-                columns,
-                gridWidth,
-                gridHeight,
-            )
+                val gridX = dragIntOffset.x - horizontalPagerPaddingPx
+
+                val gridY = dragIntOffset.y - horizontalPagerPaddingPx
+
+                val cellWidth = gridWidth / columns
+
+                val cellHeight = gridHeight / rows
+
+                val gridItem = gridItemLayoutInfo.gridItem.copy(
+                    page = targetPage,
+                    startRow = gridY / cellHeight,
+                    startColumn = gridX / cellWidth,
+                    associate = Associate.Grid,
+                )
+
+                onMoveGridItem(
+                    gridItem,
+                    gridX,
+                    gridY,
+                    rows,
+                    columns,
+                    gridWidth,
+                    gridHeight,
+                )
+            }
         }
     }
 }

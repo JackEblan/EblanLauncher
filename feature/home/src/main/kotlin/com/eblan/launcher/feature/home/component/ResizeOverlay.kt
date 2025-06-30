@@ -427,20 +427,20 @@ fun WidgetGridItemResizeOverlay(
     }
 
     LaunchedEffect(key1 = width, key2 = height) {
-        delay(100)
+        delay(100L)
 
-        val allowedWidth = if (width < data.minResizeWidth) {
+        val allowedWidth = if (data.minResizeWidth in 1..<width) {
             data.minResizeWidth
-        } else if (width < data.maxResizeWidth) {
-            minOf(data.maxResizeWidth, gridWidth)
+        } else if (data.maxResizeWidth in 1..<width) {
+            data.maxResizeWidth
         } else {
             width
         }
 
-        val allowedHeight = if (height < data.minResizeHeight) {
+        val allowedHeight = if (data.minResizeHeight in 1..<height) {
             data.minResizeHeight
-        } else if (height < data.maxResizeHeight) {
-            minOf(data.maxResizeHeight, gridHeight)
+        } else if (data.maxResizeHeight in 1..<height) {
+            data.maxResizeHeight
         } else {
             height
         }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5cf5c3f1a31fb5d23a23e9fb74bac176",
+    "identityHash": "56fce32d9fb4aae21baa1299edbb755b",
     "entities": [
       {
         "tableName": "GridItemEntity",
@@ -134,7 +134,7 @@
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "className",
@@ -147,6 +147,12 @@
             "columnName": "componentName",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "configure",
+            "columnName": "configure",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "packageName",
@@ -274,7 +280,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5cf5c3f1a31fb5d23a23e9fb74bac176')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '56fce32d9fb4aae21baa1299edbb755b')"
     ]
   }
 }

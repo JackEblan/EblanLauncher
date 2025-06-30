@@ -46,6 +46,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         return EblanAppWidgetProviderInfoEntity(
             className = className,
             componentName = componentName,
+            configure = configure,
             packageName = packageName,
             targetCellWidth = targetCellWidth,
             targetCellHeight = targetCellHeight,
@@ -65,6 +66,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         return EblanAppWidgetProviderInfo(
             className = className,
             componentName = componentName,
+            configure = configure,
             packageName = packageName,
             targetCellWidth = targetCellWidth,
             targetCellHeight = targetCellHeight,

@@ -43,6 +43,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                         EblanAppWidgetProviderInfo(
                             className = appWidgetManagerAppWidgetProviderInfo.className,
                             componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
+                            configure = appWidgetManagerAppWidgetProviderInfo.configure,
                             packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                             targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                             targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,

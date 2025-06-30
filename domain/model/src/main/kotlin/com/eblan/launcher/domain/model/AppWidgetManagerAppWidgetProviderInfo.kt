@@ -4,6 +4,7 @@ data class AppWidgetManagerAppWidgetProviderInfo(
     val className: String,
     val packageName: String,
     val componentName: String,
+    val configure: String?,
     val targetCellWidth: Int,
     val targetCellHeight: Int,
     val minWidth: Int,
@@ -21,9 +22,6 @@ data class AppWidgetManagerAppWidgetProviderInfo(
 
         other as AppWidgetManagerAppWidgetProviderInfo
 
-        if (className != other.className) return false
-        if (packageName != other.packageName) return false
-        if (componentName != other.componentName) return false
         if (targetCellWidth != other.targetCellWidth) return false
         if (targetCellHeight != other.targetCellHeight) return false
         if (minWidth != other.minWidth) return false
@@ -33,6 +31,10 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         if (minResizeHeight != other.minResizeHeight) return false
         if (maxResizeWidth != other.maxResizeWidth) return false
         if (maxResizeHeight != other.maxResizeHeight) return false
+        if (className != other.className) return false
+        if (packageName != other.packageName) return false
+        if (componentName != other.componentName) return false
+        if (configure != other.configure) return false
         if (preview != null) {
             if (other.preview == null) return false
             if (!preview.contentEquals(other.preview)) return false
@@ -42,10 +44,7 @@ data class AppWidgetManagerAppWidgetProviderInfo(
     }
 
     override fun hashCode(): Int {
-        var result = className.hashCode()
-        result = 31 * result + packageName.hashCode()
-        result = 31 * result + componentName.hashCode()
-        result = 31 * result + targetCellWidth
+        var result = targetCellWidth
         result = 31 * result + targetCellHeight
         result = 31 * result + minWidth
         result = 31 * result + minHeight
@@ -54,6 +53,10 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         result = 31 * result + minResizeHeight
         result = 31 * result + maxResizeWidth
         result = 31 * result + maxResizeHeight
+        result = 31 * result + className.hashCode()
+        result = 31 * result + packageName.hashCode()
+        result = 31 * result + componentName.hashCode()
+        result = 31 * result + configure.hashCode()
         result = 31 * result + (preview?.contentHashCode() ?: 0)
         return result
     }

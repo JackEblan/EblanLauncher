@@ -102,6 +102,8 @@ public class CheckLongPressHelper {
                 } else if (mPendingCheckForLongPress != null && isStylusButtonPressed(ev)) {
                     // Only trigger long press if it has not been cancelled before
                     triggerLongPress();
+                }else {
+                    cancelLongPress();
                 }
                 break;
         }

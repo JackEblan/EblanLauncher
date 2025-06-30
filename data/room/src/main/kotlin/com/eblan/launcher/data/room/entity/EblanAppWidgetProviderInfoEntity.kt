@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 data class EblanAppWidgetProviderInfoEntity(
     @PrimaryKey val className: String,
     val componentName: String,
+    val configure: String?,
     val packageName: String,
     val targetCellWidth: Int,
     val targetCellHeight: Int,

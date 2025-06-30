@@ -140,16 +140,30 @@ fun DragScreen(
         }
     }
 
-    val appWidgetLauncher = rememberLauncherForActivityResult(
+    val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        handleResult(
+        handleConfigureLauncherResult(
             targetPage = targetPage,
             result = result,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             onDragEnd = onDragEnd,
             onDeleteAppWidgetId = onDeleteAppWidgetId,
             onDeleteGridItem = onDeleteGridItem,
+        )
+    }
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        handleAppWidgetLauncherResult(
+            targetPage = targetPage,
+            result = result,
+            gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
+            onDragEnd = onDragEnd,
+            onDeleteAppWidgetId = onDeleteAppWidgetId,
+            onDeleteGridItem = onDeleteGridItem,
+            onConfigure = configureLauncher::launch,
         )
     }
 
@@ -589,7 +603,48 @@ private suspend fun handleDragIntOffset(
     }
 }
 
-private fun handleResult(
+private fun handleAppWidgetLauncherResult(
+    targetPage: Int,
+    result: ActivityResult,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
+    onDragEnd: (Int) -> Unit,
+    onDeleteAppWidgetId: (Int) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
+    onConfigure: (Intent) -> Unit,
+) {
+    when (val data = gridItemLayoutInfo?.gridItem?.data) {
+        is GridItemData.Widget -> {
+            val appWidgetId =
+                result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+
+            if (result.resultCode == Activity.RESULT_OK) {
+                val configureComponent = data.configure?.let(ComponentName::unflattenFromString)
+
+                if (configureComponent != null) {
+                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+
+                    intent.component = configureComponent
+
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+
+                    onConfigure(intent)
+                } else {
+                    onDragEnd(targetPage)
+                }
+            } else {
+                onDeleteAppWidgetId(appWidgetId)
+
+                onDeleteGridItem(gridItemLayoutInfo.gridItem)
+
+                onDragEnd(targetPage)
+            }
+        }
+
+        else -> Unit
+    }
+}
+
+private fun handleConfigureLauncherResult(
     targetPage: Int,
     result: ActivityResult,
     gridItemLayoutInfo: GridItemLayoutInfo?,

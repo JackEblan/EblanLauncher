@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -177,8 +177,8 @@ fun ApplicationScreen(
                                         }
                                     }
                                 }
-                                .onGloballyPositioned {
-                                    intOffset = it.positionInParent().round()
+                                .onGloballyPositioned { layoutCoordinates ->
+                                    intOffset = layoutCoordinates.positionInRoot().round()
                                 }
                                 .height(appDrawerRowsHeightDp),
                             horizontalAlignment = Alignment.CenterHorizontally,

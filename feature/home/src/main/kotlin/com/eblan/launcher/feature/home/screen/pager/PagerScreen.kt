@@ -85,7 +85,6 @@ fun PagerScreen(
     rootHeight: Int,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
-    dragIntOffset: IntOffset,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
@@ -101,12 +100,13 @@ fun PagerScreen(
     onDraggingGridItem: () -> Unit,
     onDraggingApplicationInfo: () -> Unit,
     onDragEndApplicationInfo: () -> Unit,
-    onLongPressWidget: (ImageBitmap?) -> Unit,
-    onDragStartWidget: (
+    onLongPressWidget: (
         currentPage: Int,
+        imageBitmap: ImageBitmap?,
         intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
+    onDragStartWidget: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
@@ -207,12 +207,12 @@ fun PagerScreen(
                                     columns = columns,
                                     pageCount = pageCount,
                                     infiniteScroll = infiniteScroll,
-                                    dragIntOffset = dragIntOffset,
                                     eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
                                     rootWidth = rootWidth,
                                     rootHeight = rootHeight,
                                     dockHeight = dockHeight,
                                     drag = drag,
+                                    gridItemLayoutInfo = gridItemLayoutInfo,
                                     onLongPressWidget = onLongPressWidget,
                                     onDragStart = onDragStartWidget,
                                 )
@@ -644,8 +644,8 @@ private fun WidgetGridItem(
                     appWidgetProviderInfo = appWidgetInfo,
                 ).apply {
                     layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        gridItemData.width,
+                        gridItemData.height,
                     )
 
                     setOnLongClickListener {

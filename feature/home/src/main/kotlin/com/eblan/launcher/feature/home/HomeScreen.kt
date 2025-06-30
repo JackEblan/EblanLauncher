@@ -298,7 +298,6 @@ fun BoxScope.Success(
                 rootHeight = rootHeight,
                 appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                 appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
-                dragIntOffset = dragIntOffset,
                 onLongPressGrid = { newCurrentPage ->
                     currentPage = newCurrentPage
 
@@ -353,10 +352,7 @@ fun BoxScope.Success(
                 onDragEndApplicationInfo = {
                     onShowOverlay(false)
                 },
-                onLongPressWidget = { imageBitmap ->
-                    onUpdateOverlayImageBitmap(imageBitmap)
-                },
-                onDragStartWidget = { newCurrentPage, intOffset, gridItemLayoutInfo ->
+                onLongPressWidget = { newCurrentPage, imageBitmap, intOffset, gridItemLayoutInfo ->
                     currentPage = newCurrentPage
 
                     onUpdateOverlayIntOffset(intOffset)
@@ -366,6 +362,9 @@ fun BoxScope.Success(
                         type = GridItemSource.Type.New,
                     )
 
+                    onUpdateOverlayImageBitmap(imageBitmap)
+                },
+                onDragStartWidget = {
                     addNewPage = !gridItems[userData.homeSettings.pageCount - 1].isNullOrEmpty()
 
                     onShowOverlay(true)

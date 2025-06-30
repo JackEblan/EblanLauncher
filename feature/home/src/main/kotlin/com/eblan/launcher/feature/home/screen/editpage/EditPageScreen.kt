@@ -252,8 +252,8 @@ fun EditPageScreen(
                                             appWidgetProviderInfo = appWidgetInfo,
                                         ).apply {
                                             layoutParams = FrameLayout.LayoutParams(
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                                gridItemData.width,
+                                                gridItemData.height,
                                             )
 
                                             setAppWidget(appWidgetId, appWidgetInfo)

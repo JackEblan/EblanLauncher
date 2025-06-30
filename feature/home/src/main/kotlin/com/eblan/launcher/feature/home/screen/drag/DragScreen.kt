@@ -4,6 +4,7 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -56,6 +58,7 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 @Composable
 fun DragScreen(
@@ -157,9 +160,11 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleAppWidgetLauncherResult(
+            density = density,
             targetPage = targetPage,
             result = result,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
+            appWidgetManager = appWidgetManager,
             onDragEnd = onDragEnd,
             onDeleteAppWidgetId = onDeleteAppWidgetId,
             onDeleteGridItem = onDeleteGridItem,
@@ -283,8 +288,8 @@ fun DragScreen(
                                                 appWidgetProviderInfo = appWidgetInfo,
                                             ).apply {
                                                 layoutParams = FrameLayout.LayoutParams(
-                                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                                    gridItemData.width,
+                                                    gridItemData.height,
                                                 )
 
                                                 setAlpha(alpha)
@@ -358,8 +363,8 @@ fun DragScreen(
                                             appWidgetProviderInfo = appWidgetInfo,
                                         ).apply {
                                             layoutParams = FrameLayout.LayoutParams(
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                                gridItemData.width,
+                                                gridItemData.height,
                                             )
 
                                             setAppWidget(appWidgetId, appWidgetInfo)
@@ -612,9 +617,11 @@ private suspend fun handleDragIntOffset(
 }
 
 private fun handleAppWidgetLauncherResult(
+    density: Density,
     targetPage: Int,
     result: ActivityResult,
     gridItemLayoutInfo: GridItemLayoutInfo?,
+    appWidgetManager: AppWidgetManagerWrapper,
     onDragEnd: (Int) -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
@@ -637,6 +644,23 @@ private fun handleAppWidgetLauncherResult(
 
                     onConfigure(intent)
                 } else {
+                    val width = with(density) {
+                        data.width.toDp().value.roundToInt()
+                    }
+
+                    val height = with(density) {
+                        data.height.toDp().value.roundToInt()
+                    }
+
+                    val options = Bundle().apply {
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, width)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, height)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, width)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, height)
+                    }
+
+                    appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
+
                     onDragEnd(targetPage)
                 }
             } else {

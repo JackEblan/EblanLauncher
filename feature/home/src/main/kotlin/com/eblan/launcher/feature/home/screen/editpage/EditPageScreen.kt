@@ -1,6 +1,12 @@
 package com.eblan.launcher.feature.home.screen.editpage
 
 import android.widget.FrameLayout
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -113,6 +119,8 @@ fun EditPageScreen(
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
+    var animatedContentPageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             from = from,
@@ -122,6 +130,8 @@ fun EditPageScreen(
             horizontalPagerPaddingPx = horizontalPagerPaddingPx,
             rootWidth = rootWidth,
             onChangePageDirection = { newPageDirection ->
+                animatedContentPageDirection = newPageDirection
+
                 pageDirection = newPageDirection
             },
             onMovePage = onMovePage,
@@ -160,107 +170,140 @@ fun EditPageScreen(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(all = horizontalPagerPadding),
         ) { index ->
-            val graphicsLayer = rememberGraphicsLayer()
-
-            GridSubcomposeLayout(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
+            AnimatedContent(
+                targetState = gridItems[index],
+                transitionSpec = {
+                    when (animatedContentPageDirection) {
+                        PageDirection.Left -> {
+                            (slideInHorizontally { width -> -width }).togetherWith(
+                                slideOutHorizontally { width -> width },
+                            )
                         }
 
-                        drawLayer(graphicsLayer)
-                    }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                pressGridItem(
-                                    longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis,
-                                    onDragging = {
-                                        from = index
-
-                                        onLongPress(
-                                            graphicsLayer.toImageBitmap(),
-                                            IntOffset(
-                                                x = horizontalPagerPaddingPx,
-                                                y = horizontalPagerPaddingPx,
-                                            ),
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                    }
-                    .fillMaxSize()
-                    .padding(gridPadding)
-                    .border(
-                        width = 2.dp,
-                        color = Color.White,
-                        shape = RoundedCornerShape(8.dp),
-                    )
-                    .background(color = Color.White.copy(alpha = 0.25f)),
-                rows = rows,
-                columns = columns,
-                gridItems = gridItems[index],
-                gridItemContent = { gridItem, _, _, _, _ ->
-                    when (val gridItemData = gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                AsyncImage(
-                                    model = gridItemData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp, 40.dp)
-                                        .weight(1f),
-                                )
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                Text(
-                                    text = gridItemData.label.toString(),
-                                    modifier = Modifier.weight(1f),
-                                    color = color,
-                                    textAlign = TextAlign.Center,
-                                    fontSize = TextUnit(
-                                        value = 10f,
-                                        type = TextUnitType.Sp,
-                                    ),
-                                )
-                            }
+                        PageDirection.Right -> {
+                            (slideInHorizontally { width -> width }).togetherWith(
+                                slideOutHorizontally { width -> -width },
+                            )
                         }
 
-                        is GridItemData.Widget -> {
-                            val appWidgetInfo =
-                                appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
-
-                            if (appWidgetInfo != null) {
-                                AndroidView(
-                                    factory = {
-                                        appWidgetHost.createView(
-                                            appWidgetId = gridItemData.appWidgetId,
-                                            appWidgetProviderInfo = appWidgetInfo,
-                                        ).apply {
-                                            layoutParams = FrameLayout.LayoutParams(
-                                                gridItemData.width,
-                                                gridItemData.height,
-                                            )
-
-                                            setAppWidget(appWidgetId, appWidgetInfo)
-                                        }
-                                    },
-                                    modifier = Modifier.pointerInteropFilter {
-                                        true
-                                    },
-                                )
-                            }
+                        null -> {
+                            fadeIn().togetherWith(fadeOut())
                         }
                     }
                 },
-            )
+            ) { targetGridItems ->
+
+                val graphicsLayer = rememberGraphicsLayer()
+
+                GridSubcomposeLayout(
+                    modifier = Modifier
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    pressGridItem(
+                                        longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis,
+                                        onDragging = {
+                                            animatedContentPageDirection =
+                                                if (index > horizontalPagerState.currentPage) {
+                                                    PageDirection.Left
+                                                } else if (index < horizontalPagerState.currentPage) {
+                                                    PageDirection.Right
+                                                } else {
+                                                    null
+                                                }
+
+                                            from = index
+
+                                            onLongPress(
+                                                graphicsLayer.toImageBitmap(),
+                                                IntOffset(
+                                                    x = horizontalPagerPaddingPx,
+                                                    y = horizontalPagerPaddingPx,
+                                                ),
+                                            )
+                                        },
+                                    )
+                                },
+                            )
+                        }
+                        .fillMaxSize()
+                        .padding(gridPadding)
+                        .border(
+                            width = 2.dp,
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                        .background(color = Color.White.copy(alpha = 0.25f)),
+                    rows = rows,
+                    columns = columns,
+                    gridItems = targetGridItems,
+                    gridItemContent = { gridItem, _, _, _, _ ->
+                        when (val gridItemData = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    AsyncImage(
+                                        model = gridItemData.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp, 40.dp)
+                                            .weight(1f),
+                                    )
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text(
+                                        text = gridItemData.label.toString(),
+                                        modifier = Modifier.weight(1f),
+                                        color = color,
+                                        textAlign = TextAlign.Center,
+                                        fontSize = TextUnit(
+                                            value = 10f,
+                                            type = TextUnitType.Sp,
+                                        ),
+                                    )
+                                }
+                            }
+
+                            is GridItemData.Widget -> {
+                                val appWidgetInfo =
+                                    appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+                                if (appWidgetInfo != null) {
+                                    AndroidView(
+                                        factory = {
+                                            appWidgetHost.createView(
+                                                appWidgetId = gridItemData.appWidgetId,
+                                                appWidgetProviderInfo = appWidgetInfo,
+                                            ).apply {
+                                                layoutParams = FrameLayout.LayoutParams(
+                                                    gridItemData.width,
+                                                    gridItemData.height,
+                                                )
+
+                                                setAppWidget(appWidgetId, appWidgetInfo)
+                                            }
+                                        },
+                                        modifier = Modifier.pointerInteropFilter {
+                                            true
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    },
+                )
+            }
         }
 
         Row(

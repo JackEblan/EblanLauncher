@@ -268,11 +268,17 @@ private fun HorizontalPagerScreen(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { offset ->
+                        val page = calculatePage(
+                            index = horizontalPagerState.currentPage,
+                            infiniteScroll = infiniteScroll,
+                            pageCount = pageCount,
+                        )
+
                         menuOffset = offset.round()
 
                         showPopupSettingsMenu = true
 
-                        onLongPressGrid(horizontalPagerState.currentPage)
+                        onLongPressGrid(page)
                     },
                 )
             }

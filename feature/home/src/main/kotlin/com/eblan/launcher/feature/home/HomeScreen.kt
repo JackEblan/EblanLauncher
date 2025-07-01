@@ -23,15 +23,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.home.component.SettingsMenu
-import com.eblan.launcher.feature.home.component.SettingsMenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -273,8 +270,6 @@ fun BoxScope.Success(
 
     var addNewPage by remember { mutableStateOf(false) }
 
-    var showMenu by remember { mutableStateOf(false) }
-
     when (screen) {
         Screen.Pager -> {
             PagerScreen(
@@ -302,8 +297,6 @@ fun BoxScope.Success(
                     currentPage = newCurrentPage
 
                     gridItemSource = null
-
-                    showMenu = true
                 },
                 onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo ->
                     currentPage = newCurrentPage
@@ -323,7 +316,6 @@ fun BoxScope.Success(
                     )
 
                     onUpdateOverlayImageBitmap(imageBitmap)
-
                 },
                 onLongPressApplicationInfo = { newCurrentPage, imageBitmap, intOffset, gridItemLayoutInfo ->
                     currentPage = newCurrentPage
@@ -382,9 +374,8 @@ fun BoxScope.Success(
 
                     onShowGridCache(Screen.Resize)
                 },
-                onResetGridItem = {
-                    gridItemSource = null
-                },
+                onSettings = onSettings,
+                onShowGridCache = onShowGridCache,
             )
         }
 
@@ -487,47 +478,5 @@ fun BoxScope.Success(
                 onResetMovedPages = onResetMovedPages,
             )
         }
-    }
-
-    if (showMenu) {
-        PopupSettingsMenu(
-            dragIntOffset = dragIntOffset,
-            onSettings = onSettings,
-            onShowGridCache = onShowGridCache,
-            onDismissRequest = {
-                showMenu = false
-            },
-        )
-    }
-}
-
-@Composable
-private fun PopupSettingsMenu(
-    modifier: Modifier = Modifier,
-    dragIntOffset: IntOffset,
-    onSettings: () -> Unit,
-    onShowGridCache: (Screen) -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    Popup(
-        popupPositionProvider = SettingsMenuPositionProvider(
-            x = dragIntOffset.x,
-            y = dragIntOffset.y,
-        ),
-        onDismissRequest = onDismissRequest,
-    ) {
-        SettingsMenu(
-            modifier = modifier,
-            onSettings = {
-                onDismissRequest()
-
-                onSettings()
-            },
-            onEditPage = {
-                onDismissRequest()
-
-                onShowGridCache(Screen.EditPage)
-            },
-        )
     }
 }

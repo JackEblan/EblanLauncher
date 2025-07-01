@@ -6,25 +6,25 @@ import kotlinx.coroutines.withTimeout
 
 suspend fun PressGestureScope.pressGridItem(
     longPressTimeoutMillis: Long,
-    onTap: () -> Unit,
-    onLongPress: suspend () -> Unit,
-    onDragging: () -> Unit,
+    onTap: (() -> Unit)? = null,
+    onLongPress: (suspend () -> Unit)? = null,
+    onDragging: (suspend () -> Unit)? = null,
 ) {
     try {
         withTimeout(longPressTimeoutMillis) {
             val released = tryAwaitRelease()
 
             if (released) {
-                onTap()
+                onTap?.invoke()
             }
         }
     } catch (e: TimeoutCancellationException) {
-        onLongPress()
+        onLongPress?.invoke()
 
         val released = tryAwaitRelease()
 
         if (!released) {
-            onDragging()
+            onDragging?.invoke()
         }
     }
 }

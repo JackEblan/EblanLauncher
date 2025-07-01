@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,11 +13,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,10 +40,9 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
-import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlinx.coroutines.launch
+import com.eblan.launcher.feature.home.util.pressGridItem
 
 @Composable
 fun ApplicationScreen(
@@ -62,8 +57,6 @@ fun ApplicationScreen(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
-    drag: Drag,
-    isScrollInProgress: Boolean,
     appDrawerRowsHeight: Int,
     onLongPressApplicationInfo: (
         currentPage: Int,
@@ -72,17 +65,14 @@ fun ApplicationScreen(
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDragEnd: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
     var showMenu by remember { mutableStateOf(false) }
 
     var selectedIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var selectedGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
 
-    val horizontalPage = calculatePage(
+    val page = calculatePage(
         index = currentPage,
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
@@ -94,26 +84,6 @@ fun ApplicationScreen(
         appDrawerRowsHeight.toDp()
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (!isScrollInProgress) {
-            when (drag) {
-                Drag.Start -> {
-                    showMenu = true
-                }
-
-                Drag.End, Drag.Cancel, Drag.None -> {
-                    onDragEnd()
-                }
-
-                Drag.Dragging -> {
-                    showMenu = false
-
-                    onDragging()
-                }
-            }
-        }
-    }
-
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -123,10 +93,7 @@ fun ApplicationScreen(
             }
 
             else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(count = appDrawerColumns),
-                    modifier = Modifier.fillMaxSize(),
-                ) {
+                LazyVerticalGrid(columns = GridCells.Fixed(count = appDrawerColumns)) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
                         val graphicsLayer = rememberGraphicsLayer()
 
@@ -141,41 +108,46 @@ fun ApplicationScreen(
                                     drawLayer(graphicsLayer)
                                 }
                                 .pointerInput(Unit) {
-                                    awaitEachGesture {
-                                        val down = awaitFirstDown()
+                                    detectTapGestures(
+                                        onPress = {
+                                            pressGridItem(
+                                                longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis,
+                                                onLongPress = {
+                                                    showMenu = true
 
-                                        val longPress =
-                                            awaitLongPressOrCancellation(pointerId = down.id)
+                                                    val gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                        page = page,
+                                                        rows = rows,
+                                                        columns = columns,
+                                                        x = intOffset.x,
+                                                        y = intOffset.y,
+                                                        gridWidth = rootWidth,
+                                                        gridHeight = rootHeight - dockHeight,
+                                                        componentName = eblanApplicationInfo.componentName,
+                                                        packageName = eblanApplicationInfo.packageName,
+                                                        icon = eblanApplicationInfo.icon,
+                                                        label = eblanApplicationInfo.label,
+                                                    )
 
-                                        if (longPress != null) {
-                                            scope.launch {
-                                                val gridItemLayoutInfo = getGridItemLayoutInfo(
-                                                    page = horizontalPage,
-                                                    rows = rows,
-                                                    columns = columns,
-                                                    x = intOffset.x,
-                                                    y = intOffset.y,
-                                                    gridWidth = rootWidth,
-                                                    gridHeight = rootHeight - dockHeight,
-                                                    componentName = eblanApplicationInfo.componentName,
-                                                    packageName = eblanApplicationInfo.packageName,
-                                                    icon = eblanApplicationInfo.icon,
-                                                    label = eblanApplicationInfo.label,
-                                                )
+                                                    selectedIntOffset = intOffset
 
-                                                selectedIntOffset = intOffset
+                                                    selectedGridItemLayoutInfo = gridItemLayoutInfo
 
-                                                selectedGridItemLayoutInfo = gridItemLayoutInfo
+                                                    onLongPressApplicationInfo(
+                                                        page,
+                                                        graphicsLayer.toImageBitmap(),
+                                                        intOffset,
+                                                        gridItemLayoutInfo,
+                                                    )
+                                                },
+                                                onDragging = {
+                                                    showMenu = false
 
-                                                onLongPressApplicationInfo(
-                                                    horizontalPage,
-                                                    graphicsLayer.toImageBitmap(),
-                                                    intOffset,
-                                                    gridItemLayoutInfo,
-                                                )
-                                            }
-                                        }
-                                    }
+                                                    onDragging()
+                                                },
+                                            )
+                                        },
+                                    )
                                 }
                                 .onGloballyPositioned { layoutCoordinates ->
                                     intOffset = layoutCoordinates.positionInRoot().round()

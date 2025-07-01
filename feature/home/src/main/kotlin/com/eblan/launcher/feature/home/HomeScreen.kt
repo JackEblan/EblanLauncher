@@ -341,9 +341,6 @@ fun BoxScope.Success(
 
                     onShowGridCache(Screen.Drag)
                 },
-                onDragEndApplicationInfo = {
-                    onShowOverlay(false)
-                },
                 onLongPressWidget = { newCurrentPage, imageBitmap, intOffset, gridItemLayoutInfo ->
                     currentPage = newCurrentPage
 

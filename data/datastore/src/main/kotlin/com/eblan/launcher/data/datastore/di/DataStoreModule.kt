@@ -25,7 +25,6 @@ import com.eblan.launcher.data.datastore.UserPreferencesSerializer
 import com.eblan.launcher.data.datastore.proto.UserPreferences
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers.IO
-import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,11 +43,10 @@ object DataStoreModule {
     internal fun providesUserPreferencesDataStore(
         @ApplicationContext context: Context,
         @Dispatcher(IO) ioDispatcher: CoroutineDispatcher,
-        @ApplicationScope scope: CoroutineScope,
         userPreferencesSerializer: UserPreferencesSerializer,
     ): DataStore<UserPreferences> = DataStoreFactory.create(
         serializer = userPreferencesSerializer,
-        scope = CoroutineScope(scope.coroutineContext + ioDispatcher),
+        scope = CoroutineScope(ioDispatcher),
     ) {
         context.dataStoreFile("user_preferences.pb")
     }

@@ -3,7 +3,6 @@ package com.eblan.launcher.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.eblan.launcher.domain.common.qualifier.ApplicationScope
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
@@ -15,7 +14,9 @@ import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanShortcutInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,17 +47,11 @@ class ApplicationInfoService : Service() {
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
 
-    @Inject
-    @ApplicationScope
-    lateinit var appScope: CoroutineScope
-
-    private var launcherAppsEventJob: Job? = null
-
-    private var updateJob: Job? = null
+    private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        appScope.launch {
-            launcherAppsEventJob = launch {
+        serviceScope.launch {
+            launch {
                 launcherAppsWrapper.launcherAppsEvent.collectLatest { launcherAppsEvent ->
                     when (launcherAppsEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
@@ -81,7 +76,7 @@ class ApplicationInfoService : Service() {
                 }
             }
 
-            updateJob = launch {
+            launch {
                 updateEblanApplicationInfosUseCase()
 
                 updateEblanAppWidgetProviderInfosUseCase()
@@ -101,8 +96,6 @@ class ApplicationInfoService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        launcherAppsEventJob?.cancel()
-
-        updateJob?.cancel()
+        serviceScope.cancel()
     }
 }

@@ -129,6 +129,7 @@ fun EditPageScreen(
             dragIntOffset = dragIntOffset,
             horizontalPagerPaddingPx = horizontalPagerPaddingPx,
             rootWidth = rootWidth,
+            isScrollInProgress = horizontalPagerState.isScrollInProgress,
             onChangePageDirection = { newPageDirection ->
                 animatedContentPageDirection = newPageDirection
 
@@ -338,10 +339,11 @@ private suspend fun handleDragIntOffset(
     dragIntOffset: IntOffset,
     horizontalPagerPaddingPx: Int,
     rootWidth: Int,
-    onChangePageDirection: (PageDirection?) -> Unit,
+    isScrollInProgress: Boolean,
+    onChangePageDirection: (PageDirection) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
 ) {
-    if (drag == Drag.Dragging) {
+    if (drag == Drag.Dragging && !isScrollInProgress) {
         val scrollToPageDelay = 500L
 
         val moveGridItemDelay = 100L

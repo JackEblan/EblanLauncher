@@ -180,6 +180,7 @@ fun DragScreen(
             dockRows = dockRows,
             columns = columns,
             rows = rows,
+            isScrollInProgress = horizontalPagerState.isScrollInProgress,
             onChangePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
@@ -518,7 +519,8 @@ private suspend fun handleDragIntOffset(
     dockRows: Int,
     columns: Int,
     rows: Int,
-    onChangePageDirection: (PageDirection?) -> Unit,
+    isScrollInProgress: Boolean,
+    onChangePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -529,7 +531,7 @@ private suspend fun handleDragIntOffset(
         gridHeight: Int,
     ) -> Unit,
 ) {
-    if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+    if (drag == Drag.Dragging && gridItemLayoutInfo != null && !isScrollInProgress) {
         val isDraggingOnDock =
             dragIntOffset.y > (rootHeight - dockHeight) - horizontalPagerPaddingPx
 

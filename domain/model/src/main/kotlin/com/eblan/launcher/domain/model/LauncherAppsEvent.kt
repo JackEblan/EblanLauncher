@@ -6,4 +6,9 @@ sealed interface LauncherAppsEvent {
     data class PackageRemoved(val packageName: String) : LauncherAppsEvent
 
     data class PackageChanged(val packageName: String) : LauncherAppsEvent
+
+    data class ShortcutsChanged(
+        val packageName: String,
+        val launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
+    ) : LauncherAppsEvent
 }

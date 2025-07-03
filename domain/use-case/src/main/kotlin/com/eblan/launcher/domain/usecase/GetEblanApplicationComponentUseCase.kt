@@ -5,8 +5,10 @@ import com.eblan.launcher.domain.model.EblanApplicationComponent
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetEblanApplicationComponentUseCase @Inject constructor(
@@ -45,6 +47,6 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 eblanShortcutInfos = eblanShortcutInfos,
                 pageCount = pageCount,
             )
-        }
+        }.flowOn(Dispatchers.Default)
     }
 }

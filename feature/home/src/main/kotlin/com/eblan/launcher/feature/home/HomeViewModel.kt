@@ -5,24 +5,22 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
+import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -32,8 +30,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
-    eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
@@ -42,6 +38,7 @@ class HomeViewModel @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
     private val movePageUseCase: MovePageUseCase,
+    getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -49,31 +46,13 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState.Loading,
     )
 
-    val eblanApplicationInfos =
-        eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->
-            eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
-                eblanApplicationInfo.label
-            }
-        }.flowOn(Dispatchers.Default).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
-        )
-
-    val eblanAppWidgetProviderInfosByGroup =
-        eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
-            eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.eblanApplicationInfo.label
-            }.groupBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.eblanApplicationInfo
-            }
-        }.flowOn(
-            Dispatchers.Default,
-        ).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyMap(),
-        )
+    val eblanApplicationComponentUiState =
+        getEblanApplicationComponentUseCase().map(EblanApplicationComponentUiState::Success)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = EblanApplicationComponentUiState.Loading,
+            )
 
     private var _screen = MutableStateFlow(Screen.Pager)
 

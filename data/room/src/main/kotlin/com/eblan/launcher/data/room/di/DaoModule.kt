@@ -20,6 +20,7 @@ package com.eblan.launcher.data.room.di
 import com.eblan.launcher.data.room.EblanDatabase
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
+import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
 import com.eblan.launcher.data.room.dao.GridDao
 import dagger.Module
 import dagger.Provides
@@ -44,4 +45,9 @@ internal object DaoModule {
     @Singleton
     fun eblanAppWidgetProviderInfoDao(eblanDatabase: EblanDatabase): EblanAppWidgetProviderInfoDao =
         eblanDatabase.eblanAppWidgetProviderInfoDao()
+
+    @Provides
+    @Singleton
+    fun eblanShortcutInfoDao(eblanDatabase: EblanDatabase): EblanShortcutInfoDao =
+        eblanDatabase.eblanShortcutInfoDao()
 }

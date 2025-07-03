@@ -23,13 +23,19 @@ import androidx.room.TypeConverters
 import com.eblan.launcher.data.room.converter.EblanTypeConverters
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
+import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
 import com.eblan.launcher.data.room.dao.GridDao
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
+import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
 import com.eblan.launcher.data.room.entity.GridItemEntity
 
 @Database(
-    entities = [GridItemEntity::class, EblanApplicationInfoEntity::class, EblanAppWidgetProviderInfoEntity::class],
+    entities = [
+        GridItemEntity::class, EblanApplicationInfoEntity::class,
+        EblanAppWidgetProviderInfoEntity::class,
+        EblanShortcutInfoEntity::class,
+    ],
     version = 1,
     exportSchema = true,
 )
@@ -40,6 +46,8 @@ internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun eblanApplicationInfoDao(): EblanApplicationInfoDao
 
     abstract fun eblanAppWidgetProviderInfoDao(): EblanAppWidgetProviderInfoDao
+
+    abstract fun eblanShortcutInfoDao(): EblanShortcutInfoDao
 
     companion object {
         const val DATABASE_NAME = "Eblan.db"

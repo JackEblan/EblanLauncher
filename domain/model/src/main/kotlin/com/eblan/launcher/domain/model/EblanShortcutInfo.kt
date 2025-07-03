@@ -5,4 +5,6 @@ data class EblanShortcutInfo(
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,
+    val eblanApplicationInfo: EblanApplicationInfo,
+    val icon: String?,
 )

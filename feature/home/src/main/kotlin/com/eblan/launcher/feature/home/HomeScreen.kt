@@ -25,11 +25,10 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -49,9 +48,7 @@ fun HomeRoute(
 
     val screen by viewModel.screen.collectAsStateWithLifecycle()
 
-    val eblanApplicationInfos by viewModel.eblanApplicationInfos.collectAsStateWithLifecycle()
-
-    val eblanAppWidgetProviderInfosByGroup by viewModel.eblanAppWidgetProviderInfosByGroup.collectAsStateWithLifecycle()
+    val eblanApplicationComponentUiState by viewModel.eblanApplicationComponentUiState.collectAsStateWithLifecycle()
 
     val movedGridItems by viewModel.movedGridItems.collectAsStateWithLifecycle()
 
@@ -63,8 +60,7 @@ fun HomeRoute(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
-        eblanApplicationInfos = eblanApplicationInfos,
-        eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
+        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItems = movedGridItems,
         targetPage = targetPage,
         movedPages = movedPages,
@@ -88,8 +84,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeUiState: HomeUiState,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItems: Boolean?,
     targetPage: Int,
     movedPages: Boolean,
@@ -182,8 +177,7 @@ fun HomeScreen(
                         screen = screen,
                         gridItems = homeUiState.gridItemsByPage.gridItems,
                         userData = homeUiState.gridItemsByPage.userData,
-                        eblanApplicationInfos = eblanApplicationInfos,
-                        eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
+                        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         movedGridItems = movedGridItems,
                         targetPage = targetPage,
@@ -226,8 +220,7 @@ fun BoxScope.Success(
     screen: Screen,
     gridItems: Map<Int, List<GridItem>>,
     userData: UserData,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     dockGridItems: List<GridItem>,
     movedGridItems: Boolean?,
     targetPage: Int,
@@ -287,8 +280,7 @@ fun BoxScope.Success(
                 drag = drag,
                 dockGridItems = dockGridItems,
                 textColor = userData.homeSettings.textColor,
-                eblanApplicationInfos = eblanApplicationInfos,
-                eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
+                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                 rootWidth = rootWidth,
                 rootHeight = rootHeight,
                 appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,

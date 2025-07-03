@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,8 +45,6 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
@@ -56,6 +56,7 @@ import com.eblan.launcher.feature.home.component.SettingsMenu
 import com.eblan.launcher.feature.home.component.SettingsMenuPositionProvider
 import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
@@ -64,7 +65,7 @@ import com.eblan.launcher.feature.home.util.pressGridItem
 import kotlinx.coroutines.launch
 
 @Composable
-fun PagerScreen(
+fun BoxScope.PagerScreen(
     modifier: Modifier = Modifier,
     targetPage: Int,
     rows: Int,
@@ -79,8 +80,7 @@ fun PagerScreen(
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     rootWidth: Int,
     rootHeight: Int,
     appDrawerColumns: Int,
@@ -130,13 +130,6 @@ fun PagerScreen(
         },
     )
 
-    val applicationHorizontalPagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = {
-            2
-        },
-    )
-
     var userScrollEnabled by remember { mutableStateOf(true) }
 
     VerticalPager(
@@ -175,43 +168,58 @@ fun PagerScreen(
             }
 
             1 -> {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    HorizontalPager(state = applicationHorizontalPagerState) { page ->
-                        when (page) {
-                            0 -> {
-                                ApplicationScreen(
-                                    currentPage = gridHorizontalPagerState.currentPage,
-                                    rows = rows,
-                                    columns = columns,
-                                    appDrawerColumns = appDrawerColumns,
-                                    pageCount = pageCount,
-                                    infiniteScroll = infiniteScroll,
-                                    eblanApplicationInfos = eblanApplicationInfos,
-                                    rootWidth = rootWidth,
-                                    rootHeight = rootHeight,
-                                    dockHeight = dockHeight,
-                                    appDrawerRowsHeight = appDrawerRowsHeight,
-                                    onLongPressApplicationInfo = onLongPressApplicationInfo,
-                                    onDragging = onDraggingApplicationInfo,
-                                )
-                            }
+                when (eblanApplicationComponentUiState) {
+                    EblanApplicationComponentUiState.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
 
-                            1 -> {
-                                WidgetScreen(
-                                    currentPage = gridHorizontalPagerState.currentPage,
-                                    rows = rows,
-                                    columns = columns,
-                                    pageCount = pageCount,
-                                    infiniteScroll = infiniteScroll,
-                                    eblanAppWidgetProviderInfosByGroup = eblanAppWidgetProviderInfosByGroup,
-                                    rootWidth = rootWidth,
-                                    rootHeight = rootHeight,
-                                    dockHeight = dockHeight,
-                                    drag = drag,
-                                    gridItemLayoutInfo = gridItemLayoutInfo,
-                                    onLongPressWidget = onLongPressWidget,
-                                    onDragStart = onDragStartWidget,
-                                )
+                    is EblanApplicationComponentUiState.Success -> {
+                        val applicationHorizontalPagerState = rememberPagerState(
+                            initialPage = 0,
+                            pageCount = {
+                                eblanApplicationComponentUiState.eblanApplicationComponent.pageCount
+                            },
+                        )
+
+                        Surface(modifier = Modifier.fillMaxSize()) {
+                            HorizontalPager(state = applicationHorizontalPagerState) { page ->
+                                when (page) {
+                                    0 -> {
+                                        ApplicationScreen(
+                                            currentPage = gridHorizontalPagerState.currentPage,
+                                            rows = rows,
+                                            columns = columns,
+                                            appDrawerColumns = appDrawerColumns,
+                                            pageCount = pageCount,
+                                            infiniteScroll = infiniteScroll,
+                                            eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
+                                            rootWidth = rootWidth,
+                                            rootHeight = rootHeight,
+                                            dockHeight = dockHeight,
+                                            appDrawerRowsHeight = appDrawerRowsHeight,
+                                            onLongPressApplicationInfo = onLongPressApplicationInfo,
+                                            onDragging = onDraggingApplicationInfo,
+                                        )
+                                    }
+
+                                    1 -> {
+                                        WidgetScreen(
+                                            currentPage = gridHorizontalPagerState.currentPage,
+                                            rows = rows,
+                                            columns = columns,
+                                            pageCount = pageCount,
+                                            infiniteScroll = infiniteScroll,
+                                            eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
+                                            rootWidth = rootWidth,
+                                            rootHeight = rootHeight,
+                                            dockHeight = dockHeight,
+                                            drag = drag,
+                                            gridItemLayoutInfo = gridItemLayoutInfo,
+                                            onLongPressWidget = onLongPressWidget,
+                                            onDragStart = onDragStartWidget,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

@@ -80,7 +80,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
                 )
 
-                eblanAppWidgetProviderInfosToDelete.onEach { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
                     fileManager.deleteFile(
                         directory = fileManager.previewsDirectory,
                         name = eblanAppWidgetProviderInfo.className,

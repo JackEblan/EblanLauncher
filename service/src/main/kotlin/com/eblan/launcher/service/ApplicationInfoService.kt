@@ -10,15 +10,20 @@ import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
+import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
+import com.eblan.launcher.domain.usecase.UpdateEblanShortcutInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +36,9 @@ class ApplicationInfoService : Service() {
     lateinit var updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase
 
     @Inject
+    lateinit var updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase
+
+    @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
 
     @Inject
@@ -38,6 +46,9 @@ class ApplicationInfoService : Service() {
 
     @Inject
     lateinit var eblanApplicationInfoRepository: EblanApplicationInfoRepository
+
+    @Inject
+    lateinit var eblanShortcutInfoRepository: EblanShortcutInfoRepository
 
     @Inject
     lateinit var fileManager: FileManager
@@ -67,11 +78,17 @@ class ApplicationInfoService : Service() {
 
                         is LauncherAppsEvent.PackageChanged -> {
                             packageChanged(packageName = launcherAppsEvent.packageName)
-
                         }
 
                         is LauncherAppsEvent.PackageRemoved -> {
                             packageRemoved(packageName = launcherAppsEvent.packageName)
+                        }
+
+                        is LauncherAppsEvent.ShortcutsChanged -> {
+                            upsertEblanShortcutInfos(
+                                packageName = launcherAppsEvent.packageName,
+                                launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
+                            )
                         }
                     }
                 }
@@ -81,6 +98,8 @@ class ApplicationInfoService : Service() {
                 updateEblanApplicationInfosUseCase()
 
                 updateEblanAppWidgetProviderInfosUseCase()
+
+                updateEblanShortcutInfosUseCase()
             }
         }
 
@@ -134,7 +153,7 @@ class ApplicationInfoService : Service() {
         appWidgetManagerDomainWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-            }.onEach { appWidgetManagerAppWidgetProviderInfo ->
+            }.forEach { appWidgetManagerAppWidgetProviderInfo ->
                 fileManager.deleteFile(
                     directory = fileManager.previewsDirectory,
                     name = appWidgetManagerAppWidgetProviderInfo.className,
@@ -216,5 +235,62 @@ class ApplicationInfoService : Service() {
         eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
         )
+    }
+
+    private suspend fun upsertEblanShortcutInfos(
+        packageName: String,
+        launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
+    ) {
+        val eblanApplicationInfos =
+            eblanApplicationInfoRepository.eblanApplicationInfos.first()
+
+        val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
+
+        val newEblanShortcutInfos =
+            launcherAppsShortcutInfos.mapNotNull { launcherAppsShortcutInfo ->
+                val eblanApplicationInfo =
+                    eblanApplicationInfos.find { eblanApplicationInfo ->
+                        eblanApplicationInfo.packageName == packageName
+                    }
+
+                if (eblanApplicationInfo != null) {
+                    val icon = fileManager.writeFileBytes(
+                        directory = fileManager.previewsDirectory,
+                        name = launcherAppsShortcutInfo.id,
+                        byteArray = launcherAppsShortcutInfo.icon,
+                    )
+
+                    EblanShortcutInfo(
+                        id = launcherAppsShortcutInfo.id,
+                        packageName = launcherAppsShortcutInfo.packageName,
+                        shortLabel = launcherAppsShortcutInfo.shortLabel,
+                        longLabel = launcherAppsShortcutInfo.longLabel,
+                        eblanApplicationInfo = eblanApplicationInfo,
+                        icon = icon,
+                    )
+                } else {
+                    null
+                }
+            }
+
+        if (oldEblanShortcutInfos != newEblanShortcutInfos) {
+            val eblanShortcutInfosToDelete =
+                oldEblanShortcutInfos - newEblanShortcutInfos.toSet()
+
+            eblanShortcutInfoRepository.upsertEblanShortcutInfos(
+                eblanShortcutInfos = newEblanShortcutInfos,
+            )
+
+            eblanShortcutInfoRepository.deleteEblanShortcutInfos(
+                eblanShortcutInfos = eblanShortcutInfosToDelete,
+            )
+
+            eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
+                fileManager.deleteFile(
+                    directory = fileManager.previewsDirectory,
+                    name = eblanShortcutInfo.id,
+                )
+            }
+        }
     }
 }

@@ -52,7 +52,7 @@ fun WidgetScreen(
     columns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    eblanAppWidgetProviderInfosByGroup: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
@@ -84,13 +84,13 @@ fun WidgetScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            eblanAppWidgetProviderInfosByGroup.isEmpty() -> {
+            eblanAppWidgetProviderInfos.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
             else -> {
                 LazyColumn {
-                    items(eblanAppWidgetProviderInfosByGroup.keys.toList()) { eblanApplicationInfo ->
+                    items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -105,7 +105,7 @@ fun WidgetScreen(
                                 text = eblanApplicationInfo.label.toString(),
                             )
 
-                            eblanAppWidgetProviderInfosByGroup[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
+                            eblanAppWidgetProviderInfos[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
                                 val graphicsLayer = rememberGraphicsLayer()
 
                                 val preview = eblanAppWidgetProviderInfo.preview

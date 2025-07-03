@@ -41,7 +41,7 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
             eblanApplicationInfoRepository.deleteEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfosToDelete)
 
-            eblanApplicationInfosToDelete.onEach { eblanApplicationInfo ->
+            eblanApplicationInfosToDelete.forEach { eblanApplicationInfo ->
                 fileManager.deleteFile(
                     directory = fileManager.iconsDirectory,
                     name = eblanApplicationInfo.packageName,

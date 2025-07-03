@@ -37,10 +37,24 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
     }
 
     private fun EblanShortcutInfo.toEblanShortcutInfoEntity(): EblanShortcutInfoEntity {
-        return EblanShortcutInfoEntity(id = id)
+        return EblanShortcutInfoEntity(
+            id = id,
+            packageName = packageName,
+            shortLabel = shortLabel,
+            longLabel = longLabel,
+            icon = icon,
+            eblanApplicationInfo = eblanApplicationInfo,
+        )
     }
 
     private fun EblanShortcutInfoEntity.toEblanShortcutInfo(): EblanShortcutInfo {
-        return EblanShortcutInfo(id = id)
+        return EblanShortcutInfo(
+            id = id,
+            packageName = packageName,
+            shortLabel = shortLabel,
+            longLabel = longLabel,
+            icon = icon,
+            eblanApplicationInfo = eblanApplicationInfo,
+        )
     }
 }

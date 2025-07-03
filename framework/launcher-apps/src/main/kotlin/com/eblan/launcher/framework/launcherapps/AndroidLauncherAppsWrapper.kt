@@ -22,9 +22,10 @@ import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -48,19 +49,19 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
         val callback = object : LauncherApps.Callback() {
             override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
                 if (packageName != null) {
-                    trySendBlocking(LauncherAppsEvent.PackageRemoved(packageName = packageName))
+                    trySend(LauncherAppsEvent.PackageRemoved(packageName = packageName))
                 }
             }
 
             override fun onPackageAdded(packageName: String?, user: UserHandle?) {
                 if (packageName != null) {
-                    trySendBlocking(LauncherAppsEvent.PackageAdded(packageName = packageName))
+                    trySend(LauncherAppsEvent.PackageAdded(packageName = packageName))
                 }
             }
 
             override fun onPackageChanged(packageName: String?, user: UserHandle?) {
                 if (packageName != null) {
-                    trySendBlocking(LauncherAppsEvent.PackageChanged(packageName = packageName))
+                    trySend(LauncherAppsEvent.PackageChanged(packageName = packageName))
                 }
             }
 
@@ -85,7 +86,20 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
                 shortcuts: MutableList<ShortcutInfo>,
                 user: UserHandle,
             ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    launch {
+                        val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
+                            shortcutInfo.toLauncherAppsShortcutInfo()
+                        }
 
+                        trySend(
+                            LauncherAppsEvent.ShortcutsChanged(
+                                packageName = packageName,
+                                launcherAppsShortcutInfos = launcherAppsShortcutInfo,
+                            ),
+                        )
+                    }
+                }
             }
         }
 
@@ -94,7 +108,7 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
         awaitClose {
             launcherApps.unregisterCallback(callback)
         }
-    }
+    }.flowOn(Dispatchers.Default)
 
     override suspend fun getActivityList(): List<EblanLauncherActivityInfo> {
         return withContext(Dispatchers.Default) {

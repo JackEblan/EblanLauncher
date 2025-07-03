@@ -2,11 +2,9 @@ package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepository {
@@ -18,36 +16,32 @@ internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepos
 
     override val isCache = _isCache.asStateFlow()
 
-    override suspend fun insertGridItems(gridItems: List<GridItem>) {
+    override fun insertGridItems(gridItems: List<GridItem>) {
         _gridCacheItems.update {
             gridItems
         }
     }
 
-    override suspend fun deleteGridItem(gridItem: GridItem) {
-        withContext(Dispatchers.Default) {
-            _gridCacheItems.update { currentGridCacheItems ->
-                currentGridCacheItems.toMutableList().apply {
-                    removeIf { it.id == gridItem.id }
-                }
+    override fun deleteGridItem(gridItem: GridItem) {
+        _gridCacheItems.update { currentGridCacheItems ->
+            currentGridCacheItems.toMutableList().apply {
+                removeIf { it.id == gridItem.id }
             }
         }
     }
 
-    override suspend fun upsertGridItems(gridItems: List<GridItem>) {
-        withContext(Dispatchers.Default) {
-            _gridCacheItems.update { currentGridCacheItems ->
-                currentGridCacheItems.toMutableList().apply {
-                    gridItems.forEach { gridItem ->
-                        val index = indexOfFirst { it.id == gridItem.id }
+    override fun upsertGridItems(gridItems: List<GridItem>) {
+        _gridCacheItems.update { currentGridCacheItems ->
+            currentGridCacheItems.toMutableList().apply {
+                gridItems.forEach { gridItem ->
+                    val index = indexOfFirst { it.id == gridItem.id }
 
-                        if (index != -1) {
-                            if (get(index) != gridItem) {
-                                set(index, gridItem)
-                            }
-                        } else {
-                            add(gridItem)
+                    if (index != -1) {
+                        if (get(index) != gridItem) {
+                            set(index, gridItem)
                         }
+                    } else {
+                        add(gridItem)
                     }
                 }
             }

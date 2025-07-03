@@ -21,51 +21,12 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
 
     private val packageManager = context.packageManager
 
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
-        return if (packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)) {
-            withContext(Dispatchers.Default) {
-                appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-                    val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
+    override val hasSystemFeatureAppWidgets =
+        packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        AppWidgetManagerAppWidgetProviderInfo(
-                            className = appWidgetProviderInfo.provider.className,
-                            packageName = appWidgetProviderInfo.provider.packageName,
-                            componentName = appWidgetProviderInfo.provider.flattenToString(),
-                            configure = appWidgetProviderInfo.configure?.flattenToString(),
-                            targetCellWidth = appWidgetProviderInfo.targetCellWidth,
-                            targetCellHeight = appWidgetProviderInfo.targetCellHeight,
-                            minWidth = appWidgetProviderInfo.minWidth,
-                            minHeight = appWidgetProviderInfo.minHeight,
-                            resizeMode = appWidgetProviderInfo.resizeMode,
-                            minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                            minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                            maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
-                            maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
-                            preview = preview,
-                        )
-                    } else {
-                        AppWidgetManagerAppWidgetProviderInfo(
-                            className = appWidgetProviderInfo.provider.className,
-                            packageName = appWidgetProviderInfo.provider.packageName,
-                            componentName = appWidgetProviderInfo.provider.flattenToString(),
-                            configure = appWidgetProviderInfo.configure?.flattenToString(),
-                            targetCellWidth = 0,
-                            targetCellHeight = 0,
-                            minWidth = appWidgetProviderInfo.minWidth,
-                            minHeight = appWidgetProviderInfo.minHeight,
-                            resizeMode = appWidgetProviderInfo.resizeMode,
-                            minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                            minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                            maxResizeWidth = 0,
-                            maxResizeHeight = 0,
-                            preview = preview,
-                        )
-                    }
-                }
-            }
-        } else {
-            emptyList()
+    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
+        return appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
         }
     }
 
@@ -79,5 +40,47 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
 
     override fun updateAppWidgetOptions(appWidgetId: Int, options: Bundle) {
         appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
+    }
+
+    private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
+        val preview = withContext(Dispatchers.Default) {
+            loadPreviewImage(context, 0)?.toByteArray()
+        }
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AppWidgetManagerAppWidgetProviderInfo(
+                className = provider.className,
+                packageName = provider.packageName,
+                componentName = provider.flattenToString(),
+                configure = configure?.flattenToString(),
+                targetCellWidth = targetCellWidth,
+                targetCellHeight = targetCellHeight,
+                minWidth = minWidth,
+                minHeight = minHeight,
+                resizeMode = resizeMode,
+                minResizeWidth = minResizeWidth,
+                minResizeHeight = minResizeHeight,
+                maxResizeWidth = maxResizeWidth,
+                maxResizeHeight = maxResizeHeight,
+                preview = preview,
+            )
+        } else {
+            AppWidgetManagerAppWidgetProviderInfo(
+                className = provider.className,
+                packageName = provider.packageName,
+                componentName = provider.flattenToString(),
+                configure = configure?.flattenToString(),
+                targetCellWidth = 0,
+                targetCellHeight = 0,
+                minWidth = minWidth,
+                minHeight = minHeight,
+                resizeMode = resizeMode,
+                minResizeWidth = minResizeWidth,
+                minResizeHeight = minResizeHeight,
+                maxResizeWidth = 0,
+                maxResizeHeight = 0,
+                preview = preview,
+            )
+        }
     }
 }

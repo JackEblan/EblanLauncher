@@ -4,25 +4,21 @@ import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private val eblanAppWidgetProviderInfoDao: EblanAppWidgetProviderInfoDao) :
     EblanAppWidgetProviderInfoRepository {
     override val eblanAppWidgetProviderInfos =
-        eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfos().map { entities ->
+        eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntities().map { entities ->
             entities.map { entity ->
                 entity.toEblanAppWidgetProviderInfo()
             }
         }
 
     override suspend fun upsertEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
-        val entities = withContext(Dispatchers.Default) {
-            eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
-            }
+        val entities = eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
         }
 
         eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntities(entities = entities)
@@ -33,10 +29,8 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
     }
 
     override suspend fun deleteEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
-        val entities = withContext(Dispatchers.Default) {
-            eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
-            }
+        val entities = eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
         }
 
         eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntities(entities = entities)

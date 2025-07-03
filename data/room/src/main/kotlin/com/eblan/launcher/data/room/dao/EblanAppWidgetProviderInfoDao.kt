@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface EblanAppWidgetProviderInfoDao {
 
     @Query("SELECT * FROM EblanAppWidgetProviderInfoEntity")
-    fun getEblanAppWidgetProviderInfos(): Flow<List<EblanAppWidgetProviderInfoEntity>>
+    fun getEblanAppWidgetProviderInfoEntities(): Flow<List<EblanAppWidgetProviderInfoEntity>>
 
     @Upsert
     suspend fun upsertEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)

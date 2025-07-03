@@ -8,11 +8,11 @@ interface GridCacheRepository {
 
     val isCache: Flow<Boolean>
 
-    suspend fun insertGridItems(gridItems: List<GridItem>)
+    fun insertGridItems(gridItems: List<GridItem>)
 
-    suspend fun deleteGridItem(gridItem: GridItem)
+    fun deleteGridItem(gridItem: GridItem)
 
-    suspend fun upsertGridItems(gridItems: List<GridItem>)
+    fun upsertGridItems(gridItems: List<GridItem>)
 
     fun updateIsCache(isCache: Boolean)
 }

@@ -59,6 +59,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.pressGridItem
@@ -218,6 +219,10 @@ fun BoxScope.PagerScreen(
                                             onLongPressWidget = onLongPressWidget,
                                             onDragStart = onDragStartWidget,
                                         )
+                                    }
+
+                                    2 -> {
+                                        ShortcutScreen(eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos)
                                     }
                                 }
                             }

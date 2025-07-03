@@ -35,6 +35,13 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                     eblanAppWidgetProviderInfo.eblanApplicationInfo
                 }
 
+            val groupedEblanShortcutInfos =
+                eblanShortcutInfos.sortedBy { eblanShortcutInfo ->
+                    eblanShortcutInfo.eblanApplicationInfo.label
+                }.groupBy { eblanShortcutInfo ->
+                    eblanShortcutInfo.eblanApplicationInfo
+                }
+
             val pageCount = if (launcherAppsWrapper.hasShortcutHostPermission) {
                 3
             } else {
@@ -44,7 +51,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
             EblanApplicationComponent(
                 eblanApplicationInfos = sortedEblanApplicationInfos,
                 eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
-                eblanShortcutInfos = eblanShortcutInfos,
+                eblanShortcutInfos = groupedEblanShortcutInfos,
                 pageCount = pageCount,
             )
         }.flowOn(Dispatchers.Default)

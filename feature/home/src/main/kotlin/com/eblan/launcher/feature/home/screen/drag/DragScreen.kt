@@ -33,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.drawable.toDrawable
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -97,6 +100,8 @@ fun DragScreen(
 
     val density = LocalDensity.current
 
+    val context = LocalContext.current
+
     val dockHeightDp = with(density) {
         dockHeight.toDp()
     }
@@ -137,6 +142,10 @@ fun DragScreen(
                 pageCount = tempPageCount,
             )
         }
+    }
+
+    val widgetPreviewFallback = remember {
+        gridItemSource?.imageBitmap?.asAndroidBitmap()?.toDrawable(context.resources)
     }
 
     val configureLauncher = rememberLauncherForActivityResult(
@@ -211,6 +220,7 @@ fun DragScreen(
             appWidgetLauncher = appWidgetLauncher,
             onDragCancel = onDragCancel,
             onDeleteAppWidgetId = onDeleteAppWidgetId,
+            onConfigure = configureLauncher::launch,
         )
     }
 
@@ -292,9 +302,16 @@ fun DragScreen(
                                         }
                                     },
                                 )
-                            } else {
+                            } else if (gridItemData.preview != null) {
                                 AsyncImage(
                                     model = gridItemData.preview,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                )
+                            } else {
+                                AsyncImage(
+                                    model = widgetPreviewFallback,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize(),
@@ -365,11 +382,19 @@ fun DragScreen(
                                     }
                                 },
                             )
-                        } else {
+                        } else if (gridItemData.preview != null) {
                             AsyncImage(
                                 model = gridItemData.preview,
                                 contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                            )
+                        } else {
+                            AsyncImage(
+                                model = widgetPreviewFallback,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxSize(),
                             )
                         }
                     }
@@ -389,6 +414,7 @@ private fun handleDrag(
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragCancel: () -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
+    onConfigure: (Intent) -> Unit,
 ) {
     when (drag) {
         Drag.End -> {
@@ -400,6 +426,7 @@ private fun handleDrag(
                 appWidgetLauncher = appWidgetLauncher,
                 onDragEnd = onDragEnd,
                 onDeleteAppWidgetId = onDeleteAppWidgetId,
+                onConfigure = onConfigure,
             )
         }
 
@@ -419,6 +446,7 @@ private fun handleOnDragEnd(
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDragEnd: (Int) -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
+    onConfigure: (Intent) -> Unit,
 ) {
     when (gridItemSource?.type) {
         GridItemSource.Type.New -> {
@@ -436,6 +464,7 @@ private fun handleOnDragEnd(
                         onDragEnd = onDragEnd,
                         appWidgetLauncher = appWidgetLauncher,
                         onDeleteAppWidgetId = onDeleteAppWidgetId,
+                        onConfigure = onConfigure,
                     )
                 }
             }
@@ -457,6 +486,7 @@ private fun onDragEndGridItemDataWidget(
     onDragEnd: (Int) -> Unit,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     onDeleteAppWidgetId: (Int) -> Unit,
+    onConfigure: (Intent) -> Unit,
 ) {
     if (movedGridItems == true) {
         val provider = ComponentName.unflattenFromString(data.componentName)
@@ -466,7 +496,13 @@ private fun onDragEndGridItemDataWidget(
                 provider = provider,
             )
         ) {
-            onDragEnd(targetPage)
+            configureComponent(
+                appWidgetId = data.appWidgetId,
+                data = data,
+                targetPage = targetPage,
+                onConfigure = onConfigure,
+                onDragEnd = onDragEnd,
+            )
         } else {
             val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                 putExtra(
@@ -624,19 +660,13 @@ private fun handleAppWidgetLauncherResult(
                 val appWidgetId =
                     result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
 
-                val configureComponent = data.configure?.let(ComponentName::unflattenFromString)
-
-                if (configureComponent != null) {
-                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-
-                    intent.component = configureComponent
-
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-
-                    onConfigure(intent)
-                } else {
-                    onDragEnd(targetPage)
-                }
+                configureComponent(
+                    appWidgetId = appWidgetId,
+                    data = data,
+                    targetPage = targetPage,
+                    onConfigure = onConfigure,
+                    onDragEnd = onDragEnd,
+                )
             } else {
                 onDeleteAppWidgetId(data.appWidgetId)
 
@@ -647,6 +677,28 @@ private fun handleAppWidgetLauncherResult(
         }
 
         else -> Unit
+    }
+}
+
+private fun configureComponent(
+    appWidgetId: Int,
+    data: GridItemData.Widget,
+    targetPage: Int,
+    onConfigure: (Intent) -> Unit,
+    onDragEnd: (Int) -> Unit,
+) {
+    val configureComponent = data.configure?.let(ComponentName::unflattenFromString)
+
+    if (configureComponent != null) {
+        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+
+        intent.component = configureComponent
+
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+
+        onConfigure(intent)
+    } else {
+        onDragEnd(targetPage)
     }
 }
 

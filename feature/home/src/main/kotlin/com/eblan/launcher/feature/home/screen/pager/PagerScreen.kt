@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -154,6 +155,7 @@ fun BoxScope.PagerScreen(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     rootHeight = rootHeight,
+                    drag = drag,
                     onLongPressGrid = onLongPressGrid,
                     onLongPressedGridItem = onLongPressedGridItem,
                     onDraggingGridItem = onDraggingGridItem,
@@ -251,6 +253,7 @@ private fun HorizontalPagerScreen(
     textColor: TextColor,
     onLongPressGrid: (Int) -> Unit,
     rootHeight: Int,
+    drag: Drag,
     onLongPressedGridItem: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -348,6 +351,7 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Widget -> {
                             WidgetGridItem(
+                                drag = drag,
                                 gridItemData = data,
                                 onLongPress = { preview ->
                                     showPopupGridItemMenu = true
@@ -364,12 +368,12 @@ private fun HorizontalPagerScreen(
                                         ),
                                     )
                                 },
-                                onEnableUserScroll = onEnableUserScroll,
                                 onDragging = {
                                     showPopupGridItemMenu = false
 
                                     onDraggingGridItem()
                                 },
+                                onEnableUserScroll = onEnableUserScroll,
                             )
                         }
                     }
@@ -424,6 +428,7 @@ private fun HorizontalPagerScreen(
 
                 is GridItemData.Widget -> {
                     WidgetGridItem(
+                        drag = drag,
                         gridItemData = data,
                         onLongPress = { preview ->
                             showPopupGridItemMenu = true
@@ -440,12 +445,12 @@ private fun HorizontalPagerScreen(
                                 ),
                             )
                         },
-                        onEnableUserScroll = onEnableUserScroll,
                         onDragging = {
                             showPopupGridItemMenu = false
 
                             onDraggingGridItem()
                         },
+                        onEnableUserScroll = onEnableUserScroll,
                     )
                 }
             }
@@ -636,10 +641,11 @@ private fun ApplicationInfoGridItem(
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
+    drag: Drag,
     gridItemData: GridItemData.Widget,
     onLongPress: (ImageBitmap) -> Unit,
-    onEnableUserScroll: (Boolean) -> Unit,
     onDragging: () -> Unit,
+    onEnableUserScroll: (Boolean) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -650,6 +656,16 @@ private fun WidgetGridItem(
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDragging()
+
+            isLongPressed = false
+        }
+    }
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -667,10 +683,6 @@ private fun WidgetGridItem(
                                 onEnableUserScroll(true)
                             }
                         }
-
-                        MotionEvent.ACTION_CANCEL -> {
-                            onDragging()
-                        }
                     }
                 }
 
@@ -685,6 +697,8 @@ private fun WidgetGridItem(
 
                     setOnLongClickListener {
                         scope.launch {
+                            isLongPressed = true
+
                             onLongPress(graphicsLayer.toImageBitmap())
                         }
 

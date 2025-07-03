@@ -298,6 +298,7 @@ fun BoxScope.Success(
                     gridItemSource = GridItemSource(
                         gridItemLayoutInfo = gridItemLayoutInfo,
                         type = GridItemSource.Type.Old,
+                        imageBitmap = imageBitmap,
                     )
 
                     onUpdateOverlayIntOffset(
@@ -321,6 +322,7 @@ fun BoxScope.Success(
                     gridItemSource = GridItemSource(
                         gridItemLayoutInfo = gridItemLayoutInfo,
                         type = GridItemSource.Type.New,
+                        imageBitmap = imageBitmap,
                     )
                 },
                 onDraggingGridItem = {
@@ -341,6 +343,7 @@ fun BoxScope.Success(
                     gridItemSource = GridItemSource(
                         gridItemLayoutInfo = gridItemLayoutInfo,
                         type = GridItemSource.Type.New,
+                        imageBitmap = imageBitmap,
                     )
 
                     onUpdateOverlayImageBitmap(imageBitmap)

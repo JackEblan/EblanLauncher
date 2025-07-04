@@ -117,16 +117,17 @@ fun EditPageScreen(
         horizontalPagerPadding.roundToPx()
     }
 
-    var from by remember { mutableIntStateOf(-1) }
-
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var animatedContentPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
+    var selectedIndex by remember { mutableIntStateOf(-1) }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
-            from = from,
-            to = horizontalPagerState.currentPage,
+            selectedIndex = selectedIndex,
+            currentPage = horizontalPagerState.currentPage,
+            movedCurrentPage = movedCurrentPage,
             drag = drag,
             dragIntOffset = dragIntOffset,
             horizontalPagerPaddingPx = horizontalPagerPaddingPx,
@@ -156,14 +157,6 @@ fun EditPageScreen(
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Cancel || drag == Drag.End) {
             onDragEnd()
-        }
-    }
-
-    LaunchedEffect(key1 = movedCurrentPage) {
-        if (movedCurrentPage != null) {
-            from = movedCurrentPage
-
-            onResetMovedPages()
         }
     }
 
@@ -227,6 +220,8 @@ fun EditPageScreen(
                                     pressGridItem(
                                         longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis,
                                         onDragging = {
+                                            selectedIndex = index
+
                                             animatedContentPageDirection =
                                                 if (index > horizontalPagerState.currentPage) {
                                                     PageDirection.Left
@@ -236,7 +231,7 @@ fun EditPageScreen(
                                                     null
                                                 }
 
-                                            from = index
+                                            onResetMovedPages()
 
                                             onLongPress(
                                                 graphicsLayer.toImageBitmap(),
@@ -349,8 +344,9 @@ fun EditPageScreen(
 }
 
 private suspend fun handleDragIntOffset(
-    from: Int,
-    to: Int,
+    selectedIndex: Int,
+    currentPage: Int,
+    movedCurrentPage: Int?,
     drag: Drag,
     dragIntOffset: IntOffset,
     horizontalPagerPaddingPx: Int,
@@ -372,10 +368,14 @@ private suspend fun handleDragIntOffset(
             delay(scrollToPageDelay)
 
             onChangePageDirection(PageDirection.Right)
+        } else if (movedCurrentPage != null) {
+            delay(moveGridItemDelay)
+
+            onMovePage(movedCurrentPage, currentPage)
         } else {
             delay(moveGridItemDelay)
 
-            onMovePage(from, to)
+            onMovePage(selectedIndex, currentPage)
         }
     }
 }

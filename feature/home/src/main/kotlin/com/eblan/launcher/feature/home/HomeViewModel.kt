@@ -66,9 +66,9 @@ class HomeViewModel @Inject constructor(
 
     val targetPage = _targetPage.asStateFlow()
 
-    private var _movedPages = MutableStateFlow(false)
+    private var _movedCurrentPage = MutableStateFlow<Int?>(null)
 
-    val movedPages = _movedPages.asStateFlow()
+    val movedCurrentPage = _movedCurrentPage.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -150,10 +150,8 @@ class HomeViewModel @Inject constructor(
 
     fun movePage(from: Int, to: Int) {
         viewModelScope.launch {
-            movePageUseCase(from = from, to = to)
-
-            _movedPages.update {
-                true
+            _movedCurrentPage.update {
+                movePageUseCase(from = from, to = to)
             }
         }
     }
@@ -176,9 +174,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetMovedPages() {
-        _movedPages.update {
-            false
+    fun resetMovedCurrentPage() {
+        _movedCurrentPage.update {
+            null
         }
     }
 }

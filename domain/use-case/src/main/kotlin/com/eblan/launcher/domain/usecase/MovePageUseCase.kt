@@ -10,8 +10,8 @@ import javax.inject.Inject
 class MovePageUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
-    suspend operator fun invoke(from: Int, to: Int) {
-        withContext(Dispatchers.Default) {
+    suspend operator fun invoke(from: Int, to: Int): Int {
+        return withContext(Dispatchers.Default) {
             val gridItems = gridCacheRepository.gridCacheItems.first()
                 .filter { it.associate == Associate.Grid }
 
@@ -32,6 +32,8 @@ class MovePageUseCase @Inject constructor(
             }
 
             gridCacheRepository.upsertGridItems(gridItems = movePageMovingGridItems + movePageOtherGridItems)
+
+            to
         }
     }
 }

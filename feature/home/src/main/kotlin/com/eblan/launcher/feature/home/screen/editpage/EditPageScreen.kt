@@ -2,9 +2,11 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import android.widget.FrameLayout
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
@@ -74,7 +76,7 @@ fun EditPageScreen(
     drag: Drag,
     rootWidth: Int,
     dockHeight: Int,
-    movedPages: Boolean,
+    movedCurrentPage: Int?,
     onSaveEditPage: (Int) -> Unit,
     onCancelEditPage: (Int) -> Unit,
     onLongPress: (
@@ -157,9 +159,9 @@ fun EditPageScreen(
         }
     }
 
-    LaunchedEffect(key1 = movedPages) {
-        if (movedPages) {
-            from = horizontalPagerState.currentPage
+    LaunchedEffect(key1 = movedCurrentPage) {
+        if (movedCurrentPage != null) {
+            from = movedCurrentPage
 
             onResetMovedPages()
         }
@@ -176,21 +178,35 @@ fun EditPageScreen(
                 transitionSpec = {
                     when (animatedContentPageDirection) {
                         PageDirection.Left -> {
-                            (slideInHorizontally { width -> -width }).togetherWith(
-                                slideOutHorizontally { width -> width },
-                            )
+                            fadeIn(
+                                animationSpec = keyframes {
+                                    0f at 0
+                                    0f at 250
+                                    1f at 500
+                                    durationMillis = 500
+                                },
+                            ) togetherWith
+                                    slideOutHorizontally(animationSpec = tween(durationMillis = 500)) { width -> width }
                         }
 
                         PageDirection.Right -> {
-                            (slideInHorizontally { width -> width }).togetherWith(
-                                slideOutHorizontally { width -> -width },
-                            )
+                            fadeIn(
+                                animationSpec = keyframes {
+                                    0f at 0
+                                    0f at 250
+                                    1f at 500
+                                    durationMillis = 500
+                                },
+                            ) togetherWith
+                                    slideOutHorizontally(animationSpec = tween(durationMillis = 500)) { width -> -width }
                         }
 
                         null -> {
-                            fadeIn().togetherWith(fadeOut())
+                            fadeIn() togetherWith fadeOut()
                         }
-                    }
+                    }.using(
+                        SizeTransform(clip = false),
+                    )
                 },
             ) { targetGridItems ->
 

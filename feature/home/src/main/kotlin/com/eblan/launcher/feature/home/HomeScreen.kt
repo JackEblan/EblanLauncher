@@ -54,7 +54,7 @@ fun HomeRoute(
 
     val targetPage by viewModel.targetPage.collectAsStateWithLifecycle()
 
-    val movedPages by viewModel.movedPages.collectAsStateWithLifecycle()
+    val movedCurrentPage by viewModel.movedCurrentPage.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
@@ -63,7 +63,7 @@ fun HomeRoute(
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItems = movedGridItems,
         targetPage = targetPage,
-        movedPages = movedPages,
+        movedCurrentPage = movedCurrentPage,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onDeleteAppWidgetId = viewModel::deleteAppWidgetId,
@@ -74,7 +74,7 @@ fun HomeRoute(
         onSettings = onSettings,
         onStartMainActivity = viewModel::startMainActivity,
         onMovePage = viewModel::movePage,
-        onResetMovedPages = viewModel::resetMovedPages,
+        onResetMovedPages = viewModel::resetMovedCurrentPage,
         onCancelEditPage = viewModel::cancelEditPage,
     )
 }
@@ -87,7 +87,7 @@ fun HomeScreen(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItems: Boolean?,
     targetPage: Int,
-    movedPages: Boolean,
+    movedCurrentPage: Int?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -181,7 +181,7 @@ fun HomeScreen(
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
                         movedGridItems = movedGridItems,
                         targetPage = targetPage,
-                        movedPages = movedPages,
+                        movedCurrentPage = movedCurrentPage,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
                         dragIntOffset = dragIntOffset,
@@ -224,7 +224,7 @@ fun BoxScope.Success(
     dockGridItems: List<GridItem>,
     movedGridItems: Boolean?,
     targetPage: Int,
-    movedPages: Boolean,
+    movedCurrentPage: Int?,
     rootWidth: Int,
     rootHeight: Int,
     dragIntOffset: IntOffset,
@@ -451,7 +451,7 @@ fun BoxScope.Success(
                 drag = drag,
                 rootWidth = rootWidth,
                 dockHeight = userData.homeSettings.dockHeight,
-                movedPages = movedPages,
+                movedCurrentPage = movedCurrentPage,
                 onSaveEditPage = onResetGridCache,
                 onCancelEditPage = onCancelEditPage,
                 onLongPress = { imageBitmap, intOffset ->

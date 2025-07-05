@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
-import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -34,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -66,6 +66,7 @@ import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.widgetmanager.clearPressed
 import kotlinx.coroutines.launch
 
 @Composable
@@ -90,7 +91,7 @@ fun BoxScope.PagerScreen(
     rootHeight: Int,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
-    onLongPressGrid: (Int) -> Unit,
+    onResetGridItemSource: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
@@ -136,12 +137,9 @@ fun BoxScope.PagerScreen(
         },
     )
 
-    var userScrollEnabled by remember { mutableStateOf(true) }
-
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
-        userScrollEnabled = userScrollEnabled,
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
@@ -162,12 +160,9 @@ fun BoxScope.PagerScreen(
                     drag = drag,
                     dragIntOffset = dragIntOffset,
                     verticalPagerIsScrollInProgress = verticalPagerState.isScrollInProgress,
-                    onLongPressGrid = onLongPressGrid,
+                    onResetGridItemSource = onResetGridItemSource,
                     onLongPressedGridItem = onLongPressedGridItem,
                     onDraggingGridItem = onDraggingGridItem,
-                    onEnableUserScroll = { newUserScrollEnabled ->
-                        userScrollEnabled = newUserScrollEnabled
-                    },
                     onStartMainActivity = onStartMainActivity,
                     onEdit = onEdit,
                     onResize = onResize,
@@ -260,7 +255,7 @@ private fun HorizontalPagerScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    onLongPressGrid: (Int) -> Unit,
+    onResetGridItemSource: (Int) -> Unit,
     rootHeight: Int,
     drag: Drag,
     dragIntOffset: IntOffset,
@@ -271,7 +266,6 @@ private fun HorizontalPagerScreen(
         gridItemLayoutInfo: GridItemLayoutInfo,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onEnableUserScroll: (Boolean) -> Unit,
     onStartMainActivity: (String?) -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
@@ -292,17 +286,7 @@ private fun HorizontalPagerScreen(
         if (!horizontalPagerState.isScrollInProgress && !verticalPagerIsScrollInProgress) {
             when (drag) {
                 Drag.Start -> {
-                    if (gridItemLayoutInfo != null) {
-                        showPopupGridItemMenu = true
-                    } else {
-                        onLongPressGrid(
-                            calculatePage(
-                                index = horizontalPagerState.currentPage,
-                                infiniteScroll = infiniteScroll,
-                                pageCount = pageCount,
-                            ),
-                        )
-
+                    if (gridItemLayoutInfo == null) {
                         showPopupSettingsMenu = true
                     }
                 }
@@ -320,7 +304,31 @@ private fun HorizontalPagerScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+
+                    event.changes.fastForEach { change ->
+                        if (change.pressed) {
+                            val longPress = awaitLongPressOrCancellation(change.id)
+
+                            if (longPress != null) {
+                                onResetGridItemSource(
+                                    calculatePage(
+                                        index = horizontalPagerState.currentPage,
+                                        infiniteScroll = infiniteScroll,
+                                        pageCount = pageCount,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            .fillMaxSize(),
+    ) {
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier
@@ -384,12 +392,6 @@ private fun HorizontalPagerScreen(
                                         ),
                                     )
                                 },
-                                onDragging = {
-                                    showPopupGridItemMenu = false
-
-                                    onDraggingGridItem()
-                                },
-                                onEnableUserScroll = onEnableUserScroll,
                             )
                         }
                     }
@@ -454,10 +456,6 @@ private fun HorizontalPagerScreen(
                                 ),
                             )
                         },
-                        onDragging = {
-                            onDraggingGridItem()
-                        },
-                        onEnableUserScroll = onEnableUserScroll,
                     )
                 }
             }
@@ -657,8 +655,6 @@ private fun WidgetGridItem(
     drag: Drag,
     gridItemData: GridItemData.Widget,
     onLongPress: (ImageBitmap) -> Unit,
-    onDragging: () -> Unit,
-    onEnableUserScroll: (Boolean) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -670,35 +666,9 @@ private fun WidgetGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var isLongPressed by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDragging()
-
-            isLongPressed = false
-        }
-    }
-
     if (appWidgetInfo != null) {
         AndroidView(
             factory = {
-                appWidgetHost.setOnTouchEventListener { event, canScrollVertically ->
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            if (canScrollVertically) {
-                                onEnableUserScroll(false)
-                            }
-                        }
-
-                        MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {
-                            if (canScrollVertically) {
-                                onEnableUserScroll(true)
-                            }
-                        }
-                    }
-                }
-
                 appWidgetHost.createView(
                     appWidgetId = gridItemData.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
@@ -708,25 +678,38 @@ private fun WidgetGridItem(
                         gridItemData.height,
                     )
 
-                    setOnLongClickListener {
-                        scope.launch {
-                            isLongPressed = true
-
-                            onLongPress(graphicsLayer.toImageBitmap())
-                        }
-
-                        true
-                    }
-
                     setAppWidget(appWidgetId, appWidgetInfo)
                 }
             },
-            modifier = modifier.drawWithContent {
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
-                }
+            modifier = modifier
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
 
-                drawLayer(graphicsLayer)
+                    drawLayer(graphicsLayer)
+                }
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val event = awaitPointerEvent()
+
+                        event.changes.fastForEach { change ->
+                            if (change.pressed) {
+                                val longPress = awaitLongPressOrCancellation(change.id)
+
+                                if (longPress != null) {
+                                    scope.launch {
+                                        onLongPress(graphicsLayer.toImageBitmap())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+            update = { appWidgetHostView ->
+                if (drag == Drag.Start) {
+                    appWidgetHostView.clearPressed(view = appWidgetHostView)
+                }
             },
         )
     }

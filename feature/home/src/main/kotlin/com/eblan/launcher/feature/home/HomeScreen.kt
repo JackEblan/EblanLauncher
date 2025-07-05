@@ -286,7 +286,7 @@ fun BoxScope.Success(
                 rootHeight = rootHeight,
                 appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                 appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
-                onLongPressGrid = { newCurrentPage ->
+                onResetGridItemSource = { newCurrentPage ->
                     currentPage = newCurrentPage
 
                     gridItemSource = null
@@ -406,8 +406,6 @@ fun BoxScope.Success(
                 },
                 onDragEnd = { newTargetPage ->
                     addNewPage = false
-
-                    gridItemSource = null
 
                     onResetGridCache(newTargetPage)
 

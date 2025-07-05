@@ -278,6 +278,7 @@ fun BoxScope.Success(
                 gridItems = gridItems,
                 dockHeight = userData.homeSettings.dockHeight,
                 drag = drag,
+                dragIntOffset = dragIntOffset,
                 dockGridItems = dockGridItems,
                 textColor = userData.homeSettings.textColor,
                 eblanApplicationComponentUiState = eblanApplicationComponentUiState,
@@ -334,6 +335,9 @@ fun BoxScope.Success(
                     onShowOverlay(true)
 
                     onShowGridCache(Screen.Drag)
+                },
+                onDragEndApplicationInfo = {
+                    onShowOverlay(false)
                 },
                 onLongPressWidget = { newCurrentPage, imageBitmap, intOffset, gridItemLayoutInfo ->
                     currentPage = newCurrentPage

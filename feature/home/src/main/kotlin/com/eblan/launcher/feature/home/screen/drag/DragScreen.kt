@@ -230,12 +230,6 @@ fun DragScreen(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(all = horizontalPagerPadding),
         ) { index ->
-            val horizontalPage = calculatePage(
-                index = index,
-                infiniteScroll = infiniteScroll,
-                pageCount = tempPageCount,
-            )
-
             DragGridSubcomposeLayout(
                 modifier = Modifier
                     .fillMaxSize()
@@ -248,7 +242,13 @@ fun DragScreen(
                     .background(color = Color.White.copy(alpha = 0.25f)),
                 rows = rows,
                 columns = columns,
-                gridItems = gridItems[horizontalPage],
+                gridItems = gridItems[
+                    calculatePage(
+                        index = index,
+                        infiniteScroll = infiniteScroll,
+                        pageCount = tempPageCount,
+                    ),
+                ],
                 gridItemContent = { gridItem ->
                     when (val gridItemData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
@@ -295,8 +295,6 @@ fun DragScreen(
                                                 gridItemData.width,
                                                 gridItemData.height,
                                             )
-
-                                            setAlpha(alpha)
 
                                             setAppWidget(appWidgetId, appWidgetInfo)
                                         }

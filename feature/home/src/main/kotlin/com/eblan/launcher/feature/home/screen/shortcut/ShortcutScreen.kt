@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.shortcut
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntOffset
@@ -29,7 +27,6 @@ import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
-import com.eblan.launcher.feature.home.util.pressGridItem
 
 @Composable
 fun ShortcutScreen(
@@ -75,16 +72,6 @@ fun ShortcutScreen(
                                             }
 
                                             drawLayer(graphicsLayer)
-                                        }
-                                        .pointerInput(Unit) {
-                                            detectTapGestures(
-                                                onPress = {
-                                                    pressGridItem(
-                                                        longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis,
-                                                        onLongPress = {},
-                                                    )
-                                                },
-                                            )
                                         }
                                         .onGloballyPositioned { layoutCoordinates ->
                                             intOffset = layoutCoordinates.positionInRoot().round()

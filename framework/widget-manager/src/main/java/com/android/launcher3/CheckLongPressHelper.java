@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 
 import com.android.launcher3.util.TouchUtil;
 
@@ -102,7 +103,7 @@ public class CheckLongPressHelper {
                 } else if (mPendingCheckForLongPress != null && isStylusButtonPressed(ev)) {
                     // Only trigger long press if it has not been cancelled before
                     triggerLongPress();
-                }else {
+                } else {
                     cancelLongPress();
                 }
                 break;
@@ -156,7 +157,7 @@ public class CheckLongPressHelper {
             if (handled) {
                 // Cancel any default long-press action on the view
                 mView.cancelLongPress();
-                mView.setPressed(false);
+                setPressed(mView, false);
                 mHasPerformedLongPress = true;
             }
             clearCallbacks();
@@ -181,5 +182,16 @@ public class CheckLongPressHelper {
     private static boolean isStylusButtonPressed(MotionEvent event) {
         return event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS
                 && event.isButtonPressed(MotionEvent.BUTTON_SECONDARY);
+    }
+
+    private void setPressed(View view, boolean pressed) {
+        view.setPressed(pressed);
+
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                setPressed(group.getChildAt(i), pressed);
+            }
+        }
     }
 }

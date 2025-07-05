@@ -11,7 +11,9 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,8 +63,8 @@ import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
-import com.eblan.launcher.feature.home.util.pressGridItem
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditPageScreen(
@@ -122,6 +125,8 @@ fun EditPageScreen(
     var animatedContentPageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var selectedIndex by remember { mutableIntStateOf(-1) }
+
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
@@ -215,35 +220,37 @@ fun EditPageScreen(
                             drawLayer(graphicsLayer)
                         }
                         .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    pressGridItem(
-                                        longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis,
-                                        onDragging = {
-                                            selectedIndex = index
+                            awaitEachGesture {
+                                val down = awaitFirstDown()
 
-                                            animatedContentPageDirection =
-                                                if (index > horizontalPagerState.currentPage) {
-                                                    PageDirection.Left
-                                                } else if (index < horizontalPagerState.currentPage) {
-                                                    PageDirection.Right
-                                                } else {
-                                                    null
-                                                }
+                                val longPress =
+                                    awaitLongPressOrCancellation(pointerId = down.id)
 
-                                            onResetMovedPages()
+                                if (longPress != null) {
+                                    scope.launch {
+                                        selectedIndex = index
 
-                                            onLongPress(
-                                                graphicsLayer.toImageBitmap(),
-                                                IntOffset(
-                                                    x = horizontalPagerPaddingPx,
-                                                    y = horizontalPagerPaddingPx,
-                                                ),
-                                            )
-                                        },
-                                    )
-                                },
-                            )
+                                        animatedContentPageDirection =
+                                            if (index > horizontalPagerState.currentPage) {
+                                                PageDirection.Left
+                                            } else if (index < horizontalPagerState.currentPage) {
+                                                PageDirection.Right
+                                            } else {
+                                                null
+                                            }
+
+                                        onResetMovedPages()
+
+                                        onLongPress(
+                                            graphicsLayer.toImageBitmap(),
+                                            IntOffset(
+                                                x = horizontalPagerPaddingPx,
+                                                y = horizontalPagerPaddingPx,
+                                            ),
+                                        )
+                                    }
+                                }
+                            }
                         }
                         .fillMaxSize()
                         .padding(gridPadding)

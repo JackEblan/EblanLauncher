@@ -2,9 +2,6 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,8 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -42,7 +37,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
@@ -66,6 +60,7 @@ import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.detectTapGesturesUnConsume
 import com.eblan.launcher.framework.widgetmanager.clearPressed
 import kotlinx.coroutines.launch
 
@@ -283,49 +278,29 @@ private fun HorizontalPagerScreen(
     var showPopupSettingsMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (!horizontalPagerState.isScrollInProgress && !verticalPagerIsScrollInProgress) {
-            when (drag) {
-                Drag.Start -> {
-                    if (gridItemLayoutInfo == null) {
-                        showPopupSettingsMenu = true
-                    }
-                }
+        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+            showPopupGridItemMenu = false
 
-                Drag.Dragging -> {
-                    if (gridItemLayoutInfo != null) {
-                        showPopupGridItemMenu = false
-
-                        onDraggingGridItem()
-                    }
-                }
-
-                Drag.End, Drag.Cancel, Drag.None -> Unit
-            }
+            onDraggingGridItem()
         }
     }
 
     Column(
         modifier = modifier
             .pointerInput(Unit) {
-                awaitEachGesture {
-                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                detectTapGesturesUnConsume(
+                    onLongPress = {
+                        showPopupSettingsMenu = true
 
-                    event.changes.fastForEach { change ->
-                        if (change.pressed) {
-                            val longPress = awaitLongPressOrCancellation(change.id)
-
-                            if (longPress != null) {
-                                onResetGridItemSource(
-                                    calculatePage(
-                                        index = horizontalPagerState.currentPage,
-                                        infiniteScroll = infiniteScroll,
-                                        pageCount = pageCount,
-                                    ),
-                                )
-                            }
-                        }
-                    }
-                }
+                        onResetGridItemSource(
+                            calculatePage(
+                                index = horizontalPagerState.currentPage,
+                                infiniteScroll = infiniteScroll,
+                                pageCount = pageCount,
+                            ),
+                        )
+                    },
+                )
             }
             .fillMaxSize(),
     ) {
@@ -605,23 +580,16 @@ private fun ApplicationInfoGridItem(
                 drawLayer(graphicsLayer)
             }
             .pointerInput(Unit) {
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-
-                    val longPress = awaitLongPressOrCancellation(pointerId = down.id)
-
-                    if (longPress != null) {
+                detectTapGesturesUnConsume(
+                    onTap = {
+                        onTap()
+                    },
+                    onLongPress = {
                         scope.launch {
                             onLongPress(graphicsLayer.toImageBitmap())
                         }
-                    } else {
-                        currentEvent.changes.fastForEach { change ->
-                            if (change.changedToUp()) {
-                                onTap()
-                            }
-                        }
-                    }
-                }
+                    },
+                )
             }
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -690,21 +658,14 @@ private fun WidgetGridItem(
                     drawLayer(graphicsLayer)
                 }
                 .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val event = awaitPointerEvent()
-
-                        event.changes.fastForEach { change ->
-                            if (change.pressed) {
-                                val longPress = awaitLongPressOrCancellation(change.id)
-
-                                if (longPress != null) {
-                                    scope.launch {
-                                        onLongPress(graphicsLayer.toImageBitmap())
-                                    }
-                                }
+                    detectTapGesturesUnConsume(
+                        requireUnconsumed = false,
+                        onLongPress = {
+                            scope.launch {
+                                onLongPress(graphicsLayer.toImageBitmap())
                             }
-                        }
-                    }
+                        },
+                    )
                 },
             update = { appWidgetHostView ->
                 if (drag == Drag.Start) {

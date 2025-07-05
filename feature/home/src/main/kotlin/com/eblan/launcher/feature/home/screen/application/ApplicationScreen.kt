@@ -1,8 +1,5 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -47,6 +44,7 @@ import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.detectTapGesturesUnConsume
 import kotlinx.coroutines.launch
 
 @Composable
@@ -138,13 +136,8 @@ fun ApplicationScreen(
                                     drawLayer(graphicsLayer)
                                 }
                                 .pointerInput(Unit) {
-                                    awaitEachGesture {
-                                        val down = awaitFirstDown()
-
-                                        val longPress =
-                                            awaitLongPressOrCancellation(pointerId = down.id)
-
-                                        if (longPress != null) {
+                                    detectTapGesturesUnConsume(
+                                        onLongPress = {
                                             scope.launch {
                                                 val gridItemLayoutInfo = getGridItemLayoutInfo(
                                                     page = page,
@@ -171,8 +164,8 @@ fun ApplicationScreen(
                                                     gridItemLayoutInfo,
                                                 )
                                             }
-                                        }
-                                    }
+                                        },
+                                    )
                                 }
                                 .onGloballyPositioned { layoutCoordinates ->
                                     intOffset = layoutCoordinates.positionInRoot().round()

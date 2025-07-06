@@ -23,13 +23,10 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.data.repository"
+    namespace = "com.eblan.launcher.data.cache"
 }
 
 dependencies {
-    implementation(projects.data.cache)
-    implementation(projects.data.datastore)
-    implementation(projects.data.room)
     implementation(projects.domain.common)
-    implementation(projects.domain.repository)
+    implementation(projects.domain.model)
 }

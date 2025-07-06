@@ -25,6 +25,7 @@ rootProject.name = "EblanLauncher"
 include(":app")
 include(":common")
 include(":design-system")
+include(":data:cache")
 include(":data:datastore")
 include(":data:repository")
 include(":data:room")

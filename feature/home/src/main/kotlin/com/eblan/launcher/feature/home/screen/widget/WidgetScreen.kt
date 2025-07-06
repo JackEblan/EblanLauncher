@@ -62,8 +62,9 @@ fun WidgetScreen(
     onLongPressWidget: (
         currentPage: Int,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragStart: () -> Unit,
 ) {
@@ -142,12 +143,15 @@ fun WidgetScreen(
                                         }
                                         .pointerInput(Unit) {
                                             detectTapGestures(
-                                                onLongPress = {
+                                                onLongPress = { offset ->
                                                     scope.launch {
+                                                        val dragX = intOffset.x + offset.round().x
+
+                                                        val dragY = intOffset.y + offset.round().y
+
                                                         onLongPressWidget(
                                                             page,
                                                             graphicsLayer.toImageBitmap(),
-                                                            intOffset,
                                                             getGridItemLayoutInfo(
                                                                 allocateAppWidgetId = appWidgetHost.allocateAppWidgetId(),
                                                                 page = page,
@@ -169,6 +173,8 @@ fun WidgetScreen(
                                                                 gridWidth = rootWidth,
                                                                 gridHeight = rootHeight - dockHeight,
                                                             ),
+                                                            IntOffset(x = dragX, y = dragY),
+                                                            intOffset,
                                                         )
                                                     }
                                                 },

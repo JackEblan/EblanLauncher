@@ -27,6 +27,7 @@
             <option value="$PROJECT_DIR$/build-logic/convention" />
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/data" />
+            <option value="$PROJECT_DIR$/data/cache" />
             <option value="$PROJECT_DIR$/data/datastore" />
             <option value="$PROJECT_DIR$/data/repository" />
             <option value="$PROJECT_DIR$/data/room" />
@@ -52,7 +53,6 @@
             <option value="$PROJECT_DIR$/service" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

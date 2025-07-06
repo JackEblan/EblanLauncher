@@ -347,22 +347,25 @@ fun BoxScope.Success(
 
                     onShowGridCache(Screen.Drag)
                 },
-                onLongPressWidget = { newCurrentPage, imageBitmap, intOffset, gridItemLayoutInfo ->
+                onLongPressWidget = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
                     currentPage = newCurrentPage
 
-                    onUpdateIntOffset(intOffset, intOffset)
+                    addNewPage = !gridItems[userData.homeSettings.pageCount - 1].isNullOrEmpty()
+
+                    onUpdateIntOffset(
+                        newDragIntOffset,
+                        newOverlayIntOffset,
+                    )
+
+                    onUpdateOverlayImageBitmap(imageBitmap)
 
                     gridItemSource = GridItemSource(
                         gridItemLayoutInfo = gridItemLayoutInfo,
                         type = GridItemSource.Type.New,
                         imageBitmap = imageBitmap,
                     )
-
-                    onUpdateOverlayImageBitmap(imageBitmap)
                 },
                 onDragStartWidget = {
-                    addNewPage = !gridItems[userData.homeSettings.pageCount - 1].isNullOrEmpty()
-
                     onShowOverlay(true)
 
                     onShowGridCache(Screen.Drag)

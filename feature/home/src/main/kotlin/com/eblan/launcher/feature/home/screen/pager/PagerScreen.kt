@@ -112,8 +112,9 @@ fun BoxScope.PagerScreen(
     onLongPressWidget: (
         currentPage: Int,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragStartWidget: () -> Unit,
     onStartMainActivity: (String?) -> Unit,

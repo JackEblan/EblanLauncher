@@ -1,56 +1,29 @@
 package com.eblan.launcher.data.repository
 
+import com.eblan.launcher.data.cache.GridCacheDataSource
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-internal class DefaultGridCacheRepository @Inject constructor() : GridCacheRepository {
-    private val _gridCacheItems = MutableStateFlow(emptyList<GridItem>())
+internal class DefaultGridCacheRepository @Inject constructor(private val gridCacheDataSource: GridCacheDataSource) :
+    GridCacheRepository {
+    override val gridCacheItems = gridCacheDataSource.gridCacheItems
 
-    override val gridCacheItems = _gridCacheItems.asStateFlow()
-
-    private var _isCache = MutableStateFlow(false)
-
-    override val isCache = _isCache.asStateFlow()
+    override val isCache = gridCacheDataSource.isCache
 
     override fun insertGridItems(gridItems: List<GridItem>) {
-        _gridCacheItems.update {
-            gridItems
-        }
+        gridCacheDataSource.insertGridItems(gridItems = gridItems)
     }
 
     override fun deleteGridItem(gridItem: GridItem) {
-        _gridCacheItems.update { currentGridCacheItems ->
-            currentGridCacheItems.toMutableList().apply {
-                removeIf { it.id == gridItem.id }
-            }
-        }
+        gridCacheDataSource.deleteGridItem(gridItem = gridItem)
     }
 
     override fun upsertGridItems(gridItems: List<GridItem>) {
-        _gridCacheItems.update { currentGridCacheItems ->
-            currentGridCacheItems.toMutableList().apply {
-                gridItems.forEach { gridItem ->
-                    val index = indexOfFirst { it.id == gridItem.id }
-
-                    if (index != -1) {
-                        if (get(index) != gridItem) {
-                            set(index, gridItem)
-                        }
-                    } else {
-                        add(gridItem)
-                    }
-                }
-            }
-        }
+        gridCacheDataSource.upsertGridItems(gridItems = gridItems)
     }
 
     override fun updateIsCache(isCache: Boolean) {
-        _isCache.update {
-            isCache
-        }
+        gridCacheDataSource.updateIsCache(isCache = isCache)
     }
 }

@@ -141,9 +141,7 @@ fun HomeScreen(
                 }
                 .pointerInput(Unit) {
                     detectDragGesturesAfterLongPress(
-                        onDragStart = { offset ->
-                            dragIntOffset = offset.round()
-
+                        onDragStart = {
                             drag = Drag.Start
                         },
                         onDragEnd = {
@@ -198,8 +196,11 @@ fun HomeScreen(
                         onMovePage = onMovePage,
                         onResetMovedPages = onResetMovedPages,
                         onCancelEditPage = onCancelEditPage,
-                        onUpdateOverlayIntOffset = { intOffset ->
-                            overlayIntOffset = intOffset
+                        onUpdateDragIntOffset = { newDragIntOffset ->
+                            dragIntOffset = newDragIntOffset
+                        },
+                        onUpdateOverlayIntOffset = { newOverlayIntOffset ->
+                            overlayIntOffset = newOverlayIntOffset
                         },
                         onUpdateOverlayImageBitmap = { imageBitmap ->
                             overlayImageBitmap = imageBitmap
@@ -253,6 +254,7 @@ fun BoxScope.Success(
     onMovePage: (from: Int, to: Int) -> Unit,
     onResetMovedPages: () -> Unit,
     onCancelEditPage: (Int) -> Unit,
+    onUpdateDragIntOffset: (IntOffset) -> Unit,
     onUpdateOverlayIntOffset: (IntOffset) -> Unit,
     onUpdateOverlayImageBitmap: (ImageBitmap?) -> Unit,
     onShowOverlay: (Boolean) -> Unit,
@@ -286,12 +288,14 @@ fun BoxScope.Success(
                 rootHeight = rootHeight,
                 appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                 appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
-                onResetGridItemSource = { newCurrentPage ->
+                onLongPressGrid = { newCurrentPage, intOffset ->
                     currentPage = newCurrentPage
+
+                    onUpdateDragIntOffset(intOffset)
 
                     gridItemSource = null
                 },
-                onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo ->
+                onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo, intOffset ->
                     currentPage = newCurrentPage
 
                     addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
@@ -301,6 +305,8 @@ fun BoxScope.Success(
                         type = GridItemSource.Type.Old,
                         imageBitmap = imageBitmap,
                     )
+
+                    onUpdateDragIntOffset(intOffset)
 
                     onUpdateOverlayIntOffset(
                         IntOffset(

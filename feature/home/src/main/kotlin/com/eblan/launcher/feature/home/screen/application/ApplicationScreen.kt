@@ -41,10 +41,10 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
+import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,24 +61,21 @@ fun ApplicationScreen(
     rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
-    isScrollInProgress: Boolean,
     appDrawerRowsHeight: Int,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
+    overlayIntOffset: IntOffset,
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDragEnd: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
-    var showMenu by remember { mutableStateOf(false) }
-
-    var selectedIntOffset by remember { mutableStateOf(IntOffset.Zero) }
-
-    var selectedGridItemLayoutInfo by remember { mutableStateOf<GridItemLayoutInfo?>(null) }
+    var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
     val page = calculatePage(
         index = currentPage,
@@ -93,22 +90,10 @@ fun ApplicationScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (!isScrollInProgress) {
-            when (drag) {
-                Drag.Start -> {
-                    showMenu = true
-                }
+        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+            showPopupApplicationMenu = false
 
-                Drag.End, Drag.Cancel, Drag.None -> {
-
-                }
-
-                Drag.Dragging -> {
-                    showMenu = false
-
-                    onDragging()
-                }
-            }
+            onDragging()
         }
     }
 
@@ -137,31 +122,32 @@ fun ApplicationScreen(
                                 }
                                 .pointerInput(Unit) {
                                     detectTapGesturesUnConsume(
-                                        onLongPress = {
+                                        onLongPress = { offset ->
                                             scope.launch {
-                                                val gridItemLayoutInfo = getGridItemLayoutInfo(
-                                                    page = page,
-                                                    rows = rows,
-                                                    columns = columns,
-                                                    x = intOffset.x,
-                                                    y = intOffset.y,
-                                                    gridWidth = rootWidth,
-                                                    gridHeight = rootHeight - dockHeight,
-                                                    componentName = eblanApplicationInfo.componentName,
-                                                    packageName = eblanApplicationInfo.packageName,
-                                                    icon = eblanApplicationInfo.icon,
-                                                    label = eblanApplicationInfo.label,
-                                                )
+                                                showPopupApplicationMenu = true
 
-                                                selectedIntOffset = intOffset
+                                                val dragX = intOffset.x + offset.round().x
 
-                                                selectedGridItemLayoutInfo = gridItemLayoutInfo
+                                                val dragY = intOffset.y + offset.round().y
 
                                                 onLongPressApplicationInfo(
                                                     page,
                                                     graphicsLayer.toImageBitmap(),
+                                                    getGridItemLayoutInfo(
+                                                        page = page,
+                                                        rows = rows,
+                                                        columns = columns,
+                                                        x = intOffset.x,
+                                                        y = intOffset.y,
+                                                        gridWidth = rootWidth,
+                                                        gridHeight = rootHeight - dockHeight,
+                                                        componentName = eblanApplicationInfo.componentName,
+                                                        packageName = eblanApplicationInfo.packageName,
+                                                        icon = eblanApplicationInfo.icon,
+                                                        label = eblanApplicationInfo.label,
+                                                    ),
+                                                    IntOffset(x = dragX, y = dragY),
                                                     intOffset,
-                                                    gridItemLayoutInfo,
                                                 )
                                             }
                                         },
@@ -197,14 +183,14 @@ fun ApplicationScreen(
                     }
                 }
 
-                if (showMenu) {
+                if (showPopupApplicationMenu && gridItemLayoutInfo?.gridItem != null) {
                     PopupGridItemMenu(
-                        x = selectedIntOffset.x,
-                        y = selectedIntOffset.y,
+                        x = overlayIntOffset.x,
+                        y = overlayIntOffset.y,
                         width = rootWidth / appDrawerColumns,
                         height = appDrawerRowsHeight,
                         onDismissRequest = {
-                            showMenu = false
+                            showPopupApplicationMenu = false
                         },
                         content = {
                             ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})

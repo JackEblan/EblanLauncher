@@ -89,6 +89,7 @@ fun BoxScope.PagerScreen(
     rootHeight: Int,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
+    overlayIntOffset: IntOffset,
     onLongPressGrid: (
         currentPage: Int,
         intOffset: IntOffset,
@@ -102,12 +103,12 @@ fun BoxScope.PagerScreen(
     onLongPressApplicationInfo: (
         currentPage: Int,
         imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
         gridItemLayoutInfo: GridItemLayoutInfo,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onDraggingApplicationInfo: () -> Unit,
-    onDragEndApplicationInfo: () -> Unit,
     onLongPressWidget: (
         currentPage: Int,
         imageBitmap: ImageBitmap?,
@@ -208,11 +209,11 @@ fun BoxScope.PagerScreen(
                                             rootHeight = rootHeight,
                                             dockHeight = dockHeight,
                                             drag = drag,
-                                            isScrollInProgress = verticalPagerState.isScrollInProgress,
                                             appDrawerRowsHeight = appDrawerRowsHeight,
+                                            gridItemLayoutInfo = gridItemLayoutInfo,
+                                            overlayIntOffset = overlayIntOffset,
                                             onLongPressApplicationInfo = onLongPressApplicationInfo,
                                             onDragging = onDraggingApplicationInfo,
-                                            onDragEnd = onDragEndApplicationInfo,
                                         )
                                     }
 

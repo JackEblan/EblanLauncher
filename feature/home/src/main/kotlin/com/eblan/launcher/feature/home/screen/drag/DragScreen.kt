@@ -292,8 +292,8 @@ fun DragScreen(
                                             appWidgetProviderInfo = appWidgetInfo,
                                         ).apply {
                                             layoutParams = FrameLayout.LayoutParams(
-                                                gridItemData.width,
-                                                gridItemData.height,
+                                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                                FrameLayout.LayoutParams.MATCH_PARENT,
                                             )
 
                                             setAppWidget(appWidgetId, appWidgetInfo)
@@ -372,8 +372,8 @@ fun DragScreen(
                                         appWidgetProviderInfo = appWidgetInfo,
                                     ).apply {
                                         layoutParams = FrameLayout.LayoutParams(
-                                            gridItemData.width,
-                                            gridItemData.height,
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
                                         )
 
                                         setAppWidget(appWidgetId, appWidgetInfo)

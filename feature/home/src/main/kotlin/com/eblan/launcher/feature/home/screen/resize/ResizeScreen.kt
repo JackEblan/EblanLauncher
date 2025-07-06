@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -119,15 +118,12 @@ fun ResizeScreen(
                                         appWidgetProviderInfo = appWidgetInfo,
                                     ).apply {
                                         layoutParams = FrameLayout.LayoutParams(
-                                            gridItemData.width,
-                                            gridItemData.height,
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
                                         )
 
                                         setAppWidget(appWidgetId, appWidgetInfo)
                                     }
-                                },
-                                modifier = Modifier.pointerInteropFilter {
-                                    true
                                 },
                             )
                         }

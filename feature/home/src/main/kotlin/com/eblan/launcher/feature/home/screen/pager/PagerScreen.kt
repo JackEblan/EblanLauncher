@@ -697,8 +697,8 @@ private fun WidgetGridItem(
                     appWidgetProviderInfo = appWidgetInfo,
                 ).apply {
                     layoutParams = FrameLayout.LayoutParams(
-                        gridItemData.width,
-                        gridItemData.height,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
                     )
 
                     canScroll = canScroll(this)

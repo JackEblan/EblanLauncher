@@ -460,8 +460,10 @@ fun BoxScope.Success(
                 movedCurrentPage = movedCurrentPage,
                 onSaveEditPage = onResetGridCache,
                 onCancelEditPage = onCancelEditPage,
-                onLongPress = { imageBitmap, intOffset ->
-                    onUpdateOverlayIntOffset(intOffset)
+                onLongPress = { imageBitmap, newDragIntOffset, newOverlayIntOffset ->
+                    onUpdateDragIntOffset(newDragIntOffset)
+
+                    onUpdateOverlayIntOffset(newOverlayIntOffset)
 
                     onUpdateOverlayImageBitmap(imageBitmap)
 

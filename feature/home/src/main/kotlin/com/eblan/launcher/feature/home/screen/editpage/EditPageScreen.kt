@@ -11,9 +11,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,13 +42,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
@@ -60,6 +57,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
@@ -84,7 +82,8 @@ fun EditPageScreen(
     onCancelEditPage: (Int) -> Unit,
     onLongPress: (
         imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
     ) -> Unit,
     onMovePage: (from: Int, to: Int) -> Unit,
     onDragEnd: () -> Unit,
@@ -220,13 +219,8 @@ fun EditPageScreen(
                             drawLayer(graphicsLayer)
                         }
                         .pointerInput(Unit) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown()
-
-                                val longPress =
-                                    awaitLongPressOrCancellation(pointerId = down.id)
-
-                                if (longPress != null) {
+                            detectTapGesturesUnConsume(
+                                onLongPress = { offset ->
                                     scope.launch {
                                         selectedIndex = index
 
@@ -241,16 +235,21 @@ fun EditPageScreen(
 
                                         onResetMovedPages()
 
+                                        val dragX = horizontalPagerPaddingPx + offset.round().x
+
+                                        val dragY = horizontalPagerPaddingPx + offset.round().y
+
                                         onLongPress(
                                             graphicsLayer.toImageBitmap(),
+                                            IntOffset(x = dragX, y = dragY),
                                             IntOffset(
                                                 x = horizontalPagerPaddingPx,
                                                 y = horizontalPagerPaddingPx,
                                             ),
                                         )
                                     }
-                                }
-                            }
+                                },
+                            )
                         }
                         .fillMaxSize()
                         .padding(gridPadding)
@@ -306,15 +305,12 @@ fun EditPageScreen(
                                                 appWidgetProviderInfo = appWidgetInfo,
                                             ).apply {
                                                 layoutParams = FrameLayout.LayoutParams(
-                                                    gridItemData.width,
-                                                    gridItemData.height,
+                                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                                    FrameLayout.LayoutParams.MATCH_PARENT,
                                                 )
 
                                                 setAppWidget(appWidgetId, appWidgetInfo)
                                             }
-                                        },
-                                        modifier = Modifier.pointerInteropFilter {
-                                            true
                                         },
                                     )
                                 }

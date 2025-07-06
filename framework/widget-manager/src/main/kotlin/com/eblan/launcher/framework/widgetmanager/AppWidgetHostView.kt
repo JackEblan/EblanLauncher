@@ -20,3 +20,19 @@ fun AppWidgetHostView.clearPressed(view: View): Boolean {
 
     return false
 }
+
+fun AppWidgetHostView.canScroll(view: View): Boolean {
+    if (view.canScrollVertically(1) || view.canScrollVertically(-1)) {
+        return true
+    }
+
+    if (view is ViewGroup) {
+        for (i in 0..<view.childCount) {
+            if (canScroll(view.getChildAt(i))) {
+                return true
+            }
+        }
+    }
+
+    return false
+}

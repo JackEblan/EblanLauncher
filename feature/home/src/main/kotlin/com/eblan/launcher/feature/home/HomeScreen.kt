@@ -150,9 +150,7 @@ fun HomeScreen(
                         onDragCancel = {
                             drag = Drag.Cancel
                         },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-
+                        onDrag = { _, dragAmount ->
                             drag = Drag.Dragging
 
                             dragIntOffset += dragAmount.round()

@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,12 +50,13 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.ApplicationInfoGridItemMenu
-import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
-import com.eblan.launcher.feature.home.component.MenuPositionProvider
-import com.eblan.launcher.feature.home.component.SettingsMenu
-import com.eblan.launcher.feature.home.component.SettingsMenuPositionProvider
-import com.eblan.launcher.feature.home.component.WidgetGridItemMenu
+import com.eblan.launcher.feature.home.component.grid.Grid
+import com.eblan.launcher.feature.home.component.grid.gridItem
+import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
+import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
+import com.eblan.launcher.feature.home.component.menu.SettingsMenu
+import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvider
+import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -163,6 +165,7 @@ fun BoxScope.PagerScreen(
                     dockHeight = dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
+                    rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     drag = drag,
                     dragIntOffset = dragIntOffset,
@@ -268,6 +271,7 @@ private fun HorizontalPagerScreen(
         currentPage: Int,
         intOffset: IntOffset,
     ) -> Unit,
+    rootWidth: Int,
     rootHeight: Int,
     drag: Drag,
     dragIntOffset: IntOffset,
@@ -335,15 +339,125 @@ private fun HorizontalPagerScreen(
                 pageCount = pageCount,
             )
 
-            GridSubcomposeLayout(
-                modifier = Modifier.fillMaxSize(),
-                rows = rows,
-                columns = columns,
-                gridItems = gridItems[page],
-                gridItemContent = { gridItem, x, y, width, height ->
-                    when (val data = gridItem.data) {
+            Grid(modifier = Modifier.fillMaxSize()) {
+                gridItems[page]?.forEach { gridItem ->
+                    key(gridItem.id) {
+                        val cellWidth = rootWidth / columns
+
+                        val cellHeight = (rootHeight - dockHeight) / rows
+
+                        val x = gridItem.startColumn * cellWidth
+
+                        val y = gridItem.startRow * cellHeight
+
+                        val width = gridItem.columnSpan * cellWidth
+
+                        val height = gridItem.rowSpan * cellHeight
+
+                        when (val data = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                ApplicationInfoGridItem(
+                                    modifier = Modifier.gridItem(
+                                        width = width,
+                                        height = height,
+                                        x = x,
+                                        y = y,
+                                    ),
+                                    textColor = textColor,
+                                    gridItemData = data,
+                                    onTap = {
+                                        onStartMainActivity(data.componentName)
+                                    },
+                                    onLongPress = { preview, intOffset ->
+                                        showPopupGridItemMenu = true
+
+                                        val dragX = x + intOffset.x
+
+                                        val dragY = y + intOffset.y
+
+                                        onLongPressedGridItem(
+                                            page,
+                                            preview,
+                                            GridItemLayoutInfo(
+                                                gridItem = gridItem,
+                                                width = width,
+                                                height = height,
+                                                x = x,
+                                                y = y,
+                                            ),
+                                            IntOffset(x = dragX, y = dragY),
+                                        )
+                                    },
+                                )
+                            }
+
+                            is GridItemData.Widget -> {
+                                WidgetGridItem(
+                                    modifier = Modifier.gridItem(
+                                        width = width,
+                                        height = height,
+                                        x = x,
+                                        y = y,
+                                    ),
+                                    drag = drag,
+                                    gridItemData = data,
+                                    onLongPress = { preview, intOffset ->
+                                        showPopupGridItemMenu = true
+
+                                        val dragX = x + intOffset.x
+
+                                        val dragY = y + intOffset.y
+
+                                        onLongPressedGridItem(
+                                            page,
+                                            preview,
+                                            GridItemLayoutInfo(
+                                                gridItem = gridItem,
+                                                width = width,
+                                                height = height,
+                                                x = x,
+                                                y = y,
+                                            ),
+                                            IntOffset(x = dragX, y = dragY),
+                                        )
+                                    },
+                                    onUserScrollEnabled = onUserScrollEnabled,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Grid(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dockHeightDp),
+        ) {
+            dockGridItems.forEach { dockGridItem ->
+                key(dockGridItem.id) {
+                    val cellWidth = rootWidth / dockColumns
+
+                    val cellHeight = dockHeight / dockRows
+
+                    val x = dockGridItem.startColumn * cellWidth
+
+                    val y = dockGridItem.startRow * cellHeight
+
+                    val width = dockGridItem.columnSpan * cellWidth
+
+                    val height = dockGridItem.rowSpan * cellHeight
+
+                    when (val data = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
+                                modifier = Modifier.gridItem(
+                                    width = width,
+                                    height = height,
+                                    x = x,
+                                    y = y,
+                                ),
                                 textColor = textColor,
                                 gridItemData = data,
                                 onTap = {
@@ -354,17 +468,21 @@ private fun HorizontalPagerScreen(
 
                                     val dragX = x + intOffset.x
 
-                                    val dragY = y + intOffset.y
+                                    val dragY = (rootHeight - dockHeight) + (y + intOffset.y)
 
                                     onLongPressedGridItem(
-                                        page,
+                                        calculatePage(
+                                            index = horizontalPagerState.currentPage,
+                                            infiniteScroll = infiniteScroll,
+                                            pageCount = pageCount,
+                                        ),
                                         preview,
                                         GridItemLayoutInfo(
-                                            gridItem = gridItem,
+                                            gridItem = dockGridItem,
                                             width = width,
                                             height = height,
                                             x = x,
-                                            y = y,
+                                            y = y + (rootHeight - dockHeight),
                                         ),
                                         IntOffset(x = dragX, y = dragY),
                                     )
@@ -374,6 +492,12 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Widget -> {
                             WidgetGridItem(
+                                modifier = Modifier.gridItem(
+                                    width = width,
+                                    height = height,
+                                    x = x,
+                                    y = y,
+                                ),
                                 drag = drag,
                                 gridItemData = data,
                                 onLongPress = { preview, intOffset ->
@@ -381,17 +505,21 @@ private fun HorizontalPagerScreen(
 
                                     val dragX = x + intOffset.x
 
-                                    val dragY = y + intOffset.y
+                                    val dragY = (rootHeight - dockHeight) + (y + intOffset.y)
 
                                     onLongPressedGridItem(
-                                        page,
+                                        calculatePage(
+                                            index = horizontalPagerState.currentPage,
+                                            infiniteScroll = infiniteScroll,
+                                            pageCount = pageCount,
+                                        ),
                                         preview,
                                         GridItemLayoutInfo(
-                                            gridItem = gridItem,
+                                            gridItem = dockGridItem,
                                             width = width,
                                             height = height,
                                             x = x,
-                                            y = y,
+                                            y = y + (rootHeight - dockHeight),
                                         ),
                                         IntOffset(x = dragX, y = dragY),
                                     )
@@ -400,83 +528,6 @@ private fun HorizontalPagerScreen(
                             )
                         }
                     }
-                },
-            )
-        }
-
-        GridSubcomposeLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dockHeightDp),
-            rows = dockRows,
-            columns = dockColumns,
-            gridItems = dockGridItems,
-        ) { gridItem, x, y, width, height ->
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        textColor = textColor,
-                        gridItemData = data,
-                        onTap = {
-                            onStartMainActivity(data.componentName)
-                        },
-                        onLongPress = { preview, intOffset ->
-                            showPopupGridItemMenu = true
-
-                            val dragX = x + intOffset.x
-
-                            val dragY = (rootHeight - dockHeight) + (y + intOffset.y)
-
-                            onLongPressedGridItem(
-                                calculatePage(
-                                    index = horizontalPagerState.currentPage,
-                                    infiniteScroll = infiniteScroll,
-                                    pageCount = pageCount,
-                                ),
-                                preview,
-                                GridItemLayoutInfo(
-                                    gridItem = gridItem,
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y + (rootHeight - dockHeight),
-                                ),
-                                IntOffset(x = dragX, y = dragY),
-                            )
-                        },
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    WidgetGridItem(
-                        drag = drag,
-                        gridItemData = data,
-                        onLongPress = { preview, intOffset ->
-                            showPopupGridItemMenu = true
-
-                            val dragX = x + intOffset.x
-
-                            val dragY = (rootHeight - dockHeight) + (y + intOffset.y)
-
-                            onLongPressedGridItem(
-                                calculatePage(
-                                    index = horizontalPagerState.currentPage,
-                                    infiniteScroll = infiniteScroll,
-                                    pageCount = pageCount,
-                                ),
-                                preview,
-                                GridItemLayoutInfo(
-                                    gridItem = gridItem,
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y + (rootHeight - dockHeight),
-                                ),
-                                IntOffset(x = dragX, y = dragY),
-                            )
-                        },
-                        onUserScrollEnabled = onUserScrollEnabled,
-                    )
                 }
             }
         }

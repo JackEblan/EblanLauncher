@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +57,8 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.grid.Grid
+import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.PageDirection
@@ -76,6 +78,7 @@ fun EditPageScreen(
     dragIntOffset: IntOffset,
     drag: Drag,
     rootWidth: Int,
+    rootHeight: Int,
     dockHeight: Int,
     movedCurrentPage: Int?,
     onSaveEditPage: (Int) -> Unit,
@@ -209,7 +212,7 @@ fun EditPageScreen(
 
                 val graphicsLayer = rememberGraphicsLayer()
 
-                GridSubcomposeLayout(
+                Grid(
                     modifier = Modifier
                         .drawWithContent {
                             graphicsLayer.record {
@@ -259,65 +262,96 @@ fun EditPageScreen(
                             shape = RoundedCornerShape(8.dp),
                         )
                         .background(color = Color.White.copy(alpha = 0.25f)),
-                    rows = rows,
-                    columns = columns,
-                    gridItems = targetGridItems,
-                    gridItemContent = { gridItem, _, _, _, _ ->
-                        when (val gridItemData = gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    AsyncImage(
-                                        model = gridItemData.icon,
-                                        contentDescription = null,
+                ) {
+                    targetGridItems?.forEach { gridItem ->
+                        key(gridItem.id) {
+                            val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
+
+                            val gridHeight =
+                                (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
+
+                            val cellWidth = gridWidth / columns
+
+                            val cellHeight = gridHeight / rows
+
+                            val x = gridItem.startColumn * cellWidth
+
+                            val y = gridItem.startRow * cellHeight
+
+                            val width = gridItem.columnSpan * cellWidth
+
+                            val height = gridItem.rowSpan * cellHeight
+
+                            when (val gridItemData = gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    Column(
                                         modifier = Modifier
-                                            .size(40.dp, 40.dp)
-                                            .weight(1f),
-                                    )
+                                            .gridItem(
+                                                width = width,
+                                                height = height,
+                                                x = x,
+                                                y = y,
+                                            )
+                                            .fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        AsyncImage(
+                                            model = gridItemData.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(40.dp, 40.dp)
+                                                .weight(1f),
+                                        )
 
-                                    Spacer(modifier = Modifier.height(10.dp))
+                                        Spacer(modifier = Modifier.height(10.dp))
 
-                                    Text(
-                                        text = gridItemData.label.toString(),
-                                        modifier = Modifier.weight(1f),
-                                        color = color,
-                                        textAlign = TextAlign.Center,
-                                        fontSize = TextUnit(
-                                            value = 10f,
-                                            type = TextUnitType.Sp,
-                                        ),
-                                    )
+                                        Text(
+                                            text = gridItemData.label.toString(),
+                                            modifier = Modifier.weight(1f),
+                                            color = color,
+                                            textAlign = TextAlign.Center,
+                                            fontSize = TextUnit(
+                                                value = 10f,
+                                                type = TextUnitType.Sp,
+                                            ),
+                                        )
+                                    }
                                 }
-                            }
 
-                            is GridItemData.Widget -> {
-                                val appWidgetInfo =
-                                    appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+                                is GridItemData.Widget -> {
+                                    val appWidgetInfo =
+                                        appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
-                                if (appWidgetInfo != null) {
-                                    AndroidView(
-                                        factory = {
-                                            appWidgetHost.createView(
-                                                appWidgetId = gridItemData.appWidgetId,
-                                                appWidgetProviderInfo = appWidgetInfo,
-                                            ).apply {
-                                                layoutParams = FrameLayout.LayoutParams(
-                                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                    if (appWidgetInfo != null) {
+                                        AndroidView(
+                                            factory = {
+                                                appWidgetHost.createView(
+                                                    appWidgetId = gridItemData.appWidgetId,
+                                                    appWidgetProviderInfo = appWidgetInfo,
+                                                ).apply {
+                                                    layoutParams = FrameLayout.LayoutParams(
+                                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                                    )
+
+                                                    setAppWidget(appWidgetId, appWidgetInfo)
+                                                }
+                                            },
+                                            modifier = Modifier
+                                                .gridItem(
+                                                    width = width,
+                                                    height = height,
+                                                    x = x,
+                                                    y = y,
                                                 )
-
-                                                setAppWidget(appWidgetId, appWidgetInfo)
-                                            }
-                                        },
-                                    )
+                                                .fillMaxSize(),
+                                        )
+                                    }
                                 }
                             }
                         }
-                    },
-                )
+                    }
+                }
             }
         }
 

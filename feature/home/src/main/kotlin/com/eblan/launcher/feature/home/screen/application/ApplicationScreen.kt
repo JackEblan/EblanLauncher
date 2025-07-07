@@ -40,7 +40,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
-import com.eblan.launcher.feature.home.component.ApplicationInfoMenu
+import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu

@@ -30,7 +30,7 @@ import kotlinx.coroutines.sync.Mutex
 
 private val NoPressGesture: suspend PressGestureScope.(Offset) -> Unit = {}
 
-@OptIn(ExperimentalFoundationApi::class)
+@ExperimentalFoundationApi
 private val coroutineStartForCurrentDispatchBehavior
     get() =
         if (isDetectTapGesturesImmediateCoroutineDispatchEnabled) {
@@ -42,6 +42,7 @@ private val coroutineStartForCurrentDispatchBehavior
 /**
  * We don't consume the long press so touch events propagate to the parent
  */
+@OptIn(ExperimentalFoundationApi::class)
 suspend fun PointerInputScope.detectTapGesturesUnConsume(
     requireUnconsumed: Boolean = true,
     onDoubleTap: ((Offset) -> Unit)? = null,

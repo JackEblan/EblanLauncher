@@ -10,9 +10,9 @@ import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
-import com.eblan.launcher.domain.usecase.MovePageUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -37,8 +37,8 @@ class HomeViewModel @Inject constructor(
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
-    private val movePageUseCase: MovePageUseCase,
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
+    private val updatePageItemsUseCase: UpdatePageItemsUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -65,10 +65,6 @@ class HomeViewModel @Inject constructor(
     private var _targetPage = MutableStateFlow(0)
 
     val targetPage = _targetPage.asStateFlow()
-
-    private var _movedCurrentPage = MutableStateFlow<Int?>(null)
-
-    val movedCurrentPage = _movedCurrentPage.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -136,23 +132,27 @@ class HomeViewModel @Inject constructor(
         launcherAppsWrapper.startMainActivity(componentName = componentName)
     }
 
-    fun cancelEditPage(targetPage: Int) {
-        _targetPage.update {
-            targetPage
-        }
+    fun showPageCache() {
+        viewModelScope.launch {
+            _screen.update {
+                Screen.Loading
+            }
 
-        gridCacheRepository.updateIsCache(isCache = false)
+            updatePageItemsUseCase()
 
-        _screen.update {
-            Screen.Pager
+            _screen.update {
+                Screen.EditPage
+            }
         }
     }
 
-    fun movePage(from: Int, to: Int) {
-        viewModelScope.launch {
-            _movedCurrentPage.update {
-                movePageUseCase(from = from, to = to)
-            }
+    fun saveEditPage() {
+
+    }
+
+    fun cancelEditPage() {
+        _screen.update {
+            Screen.Pager
         }
     }
 
@@ -171,12 +171,6 @@ class HomeViewModel @Inject constructor(
             _screen.update {
                 Screen.Pager
             }
-        }
-    }
-
-    fun resetMovedCurrentPage() {
-        _movedCurrentPage.update {
-            null
         }
     }
 }

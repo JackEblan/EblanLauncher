@@ -50,7 +50,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.Grid
+import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
@@ -60,7 +60,6 @@ import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
@@ -123,7 +122,7 @@ fun BoxScope.PagerScreen(
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
-    onShowGridCache: (Screen) -> Unit,
+    onEditPage: () -> Unit,
 ) {
     val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
@@ -176,7 +175,7 @@ fun BoxScope.PagerScreen(
                     onEdit = onEdit,
                     onResize = onResize,
                     onSettings = onSettings,
-                    onShowGridCache = onShowGridCache,
+                    onEditPage = onEditPage,
                     onUserScrollEnabled = { newUserScrollEnabled ->
                         userScrollEnabled = newUserScrollEnabled
                     },
@@ -286,7 +285,7 @@ private fun HorizontalPagerScreen(
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
-    onShowGridCache: (Screen) -> Unit,
+    onEditPage: () -> Unit,
     onUserScrollEnabled: (Boolean) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -339,7 +338,7 @@ private fun HorizontalPagerScreen(
                 pageCount = pageCount,
             )
 
-            Grid(modifier = Modifier.fillMaxSize()) {
+            GridLayout(modifier = Modifier.fillMaxSize()) {
                 gridItems[page]?.forEach { gridItem ->
                     key(gridItem.id) {
                         val cellWidth = rootWidth / columns
@@ -430,7 +429,7 @@ private fun HorizontalPagerScreen(
             }
         }
 
-        Grid(
+        GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
@@ -641,7 +640,7 @@ private fun HorizontalPagerScreen(
         PopupSettingsMenu(
             dragIntOffset = dragIntOffset,
             onSettings = onSettings,
-            onShowGridCache = onShowGridCache,
+            onEditPage = onEditPage,
             onDismissRequest = {
                 showPopupSettingsMenu = false
             },
@@ -844,7 +843,7 @@ private fun PopupSettingsMenu(
     modifier: Modifier = Modifier,
     dragIntOffset: IntOffset,
     onSettings: () -> Unit,
-    onShowGridCache: (Screen) -> Unit,
+    onEditPage: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     Popup(
@@ -864,7 +863,7 @@ private fun PopupSettingsMenu(
             onEditPage = {
                 onDismissRequest()
 
-                onShowGridCache(Screen.EditPage)
+                onEditPage()
             },
         )
     }

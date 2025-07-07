@@ -5,6 +5,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItemsByPage
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ class GroupGridItemsByPageUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
+    private val pageCacheRepository: PageCacheRepository,
 ) {
     operator fun invoke(): Flow<GridItemsByPage> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
@@ -26,11 +28,12 @@ class GroupGridItemsByPageUseCase @Inject constructor(
                 gridRepository.gridItems
             }
         }
-        
+
         return combine(
             userDataRepository.userData,
             gridItemsFlow,
-        ) { userData, gridItems ->
+            pageCacheRepository.pageItems,
+        ) { userData, gridItems, pageItems ->
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
@@ -51,6 +54,7 @@ class GroupGridItemsByPageUseCase @Inject constructor(
                 userData = userData,
                 gridItems = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,
+                pageItems = pageItems,
             )
         }.flowOn(Dispatchers.Default)
     }

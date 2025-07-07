@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -54,8 +55,6 @@ fun HomeRoute(
 
     val targetPage by viewModel.targetPage.collectAsStateWithLifecycle()
 
-    val movedCurrentPage by viewModel.movedCurrentPage.collectAsStateWithLifecycle()
-
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -63,7 +62,6 @@ fun HomeRoute(
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItems = movedGridItems,
         targetPage = targetPage,
-        movedCurrentPage = movedCurrentPage,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onDeleteAppWidgetId = viewModel::deleteAppWidgetId,
@@ -72,9 +70,9 @@ fun HomeRoute(
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
+        onEditPage = viewModel::showPageCache,
         onStartMainActivity = viewModel::startMainActivity,
-        onMovePage = viewModel::movePage,
-        onResetMovedPages = viewModel::resetMovedCurrentPage,
+        onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
     )
 }
@@ -87,7 +85,6 @@ fun HomeScreen(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItems: Boolean?,
     targetPage: Int,
-    movedCurrentPage: Int?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -108,10 +105,10 @@ fun HomeScreen(
     onResetGridCache: (Int) -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
+    onEditPage: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onMovePage: (from: Int, to: Int) -> Unit,
-    onResetMovedPages: () -> Unit,
-    onCancelEditPage: (Int) -> Unit,
+    onSaveEditPage: () -> Unit,
+    onCancelEditPage: () -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -175,9 +172,9 @@ fun HomeScreen(
                         userData = homeUiState.gridItemsByPage.userData,
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
+                        pageItems = homeUiState.gridItemsByPage.pageItems,
                         movedGridItems = movedGridItems,
                         targetPage = targetPage,
-                        movedCurrentPage = movedCurrentPage,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
                         dragIntOffset = dragIntOffset,
@@ -191,9 +188,9 @@ fun HomeScreen(
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
                         onSettings = onSettings,
+                        onEditPage = onEditPage,
                         onStartMainActivity = onStartMainActivity,
-                        onMovePage = onMovePage,
-                        onResetMovedPages = onResetMovedPages,
+                        onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
                         onUpdateIntOffset = { newDragIntOffset, newOverlayIntOffset ->
                             dragIntOffset = newDragIntOffset
@@ -222,9 +219,9 @@ fun BoxScope.Success(
     userData: UserData,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     dockGridItems: List<GridItem>,
+    pageItems: List<PageItem>,
     movedGridItems: Boolean?,
     targetPage: Int,
-    movedCurrentPage: Int?,
     rootWidth: Int,
     rootHeight: Int,
     dragIntOffset: IntOffset,
@@ -250,10 +247,10 @@ fun BoxScope.Success(
     onResetGridCache: (Int) -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
+    onEditPage: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onMovePage: (from: Int, to: Int) -> Unit,
-    onResetMovedPages: () -> Unit,
-    onCancelEditPage: (Int) -> Unit,
+    onSaveEditPage: () -> Unit,
+    onCancelEditPage: () -> Unit,
     onUpdateIntOffset: (
         dragIntOffset: IntOffset,
         overlayIntOffset: IntOffset,
@@ -382,7 +379,7 @@ fun BoxScope.Success(
                     onShowGridCache(Screen.Resize)
                 },
                 onSettings = onSettings,
-                onShowGridCache = onShowGridCache,
+                onEditPage = onEditPage,
             )
         }
 
@@ -455,34 +452,12 @@ fun BoxScope.Success(
         Screen.EditPage -> {
             EditPageScreen(
                 modifier = modifier,
-                currentPage = currentPage,
                 rows = userData.homeSettings.rows,
                 columns = userData.homeSettings.columns,
-                pageCount = userData.homeSettings.pageCount,
-                textColor = userData.homeSettings.textColor,
-                gridItems = gridItems,
-                dragIntOffset = dragIntOffset,
-                drag = drag,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
+                pageItems = pageItems,
                 dockHeight = userData.homeSettings.dockHeight,
-                movedCurrentPage = movedCurrentPage,
-                onSaveEditPage = onResetGridCache,
+                onSaveEditPage = onSaveEditPage,
                 onCancelEditPage = onCancelEditPage,
-                onLongPress = { imageBitmap, newDragIntOffset, newOverlayIntOffset ->
-                    onUpdateIntOffset(newDragIntOffset, newOverlayIntOffset)
-
-                    onUpdateOverlayImageBitmap(imageBitmap)
-
-                    onShowOverlay(true)
-                },
-                onMovePage = onMovePage,
-                onDragEnd = {
-                    onShowOverlay(false)
-
-                    onUpdateIntOffset(IntOffset.Zero, IntOffset.Zero)
-                },
-                onResetMovedPages = onResetMovedPages,
             )
         }
     }

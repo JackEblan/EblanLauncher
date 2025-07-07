@@ -4,4 +4,5 @@ data class GridItemsByPage(
     val userData: UserData,
     val gridItems: Map<Int, List<GridItem>>,
     val dockGridItems: List<GridItem>,
+    val pageItems: List<PageItem>,
 )

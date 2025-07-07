@@ -4,11 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import com.eblan.launcher.domain.model.GridItem
 
 @Composable
-fun Grid(
+fun GridLayout(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -28,6 +30,42 @@ fun Grid(
                 ).placeRelative(
                     x = gridItemParentData.x, y = gridItemParentData.y,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun GridSubcomposeLayout(
+    modifier: Modifier = Modifier,
+    rows: Int,
+    columns: Int,
+    gridItems: List<GridItem>,
+    content: @Composable (GridItem) -> Unit,
+) {
+    SubcomposeLayout(modifier = modifier) { constraints ->
+        val cellWidth = constraints.maxWidth / columns
+
+        val cellHeight = constraints.maxHeight / rows
+
+        layout(width = constraints.maxWidth, height = constraints.maxHeight) {
+            gridItems.forEach { gridItem ->
+                subcompose(
+                    slotId = gridItem.id,
+                    content = {
+                        content(gridItem)
+                    },
+                ).forEach { measurable ->
+                    measurable.measure(
+                        Constraints(
+                            maxWidth = gridItem.columnSpan * cellWidth,
+                            maxHeight = gridItem.rowSpan * cellHeight,
+                        ),
+                    ).placeRelative(
+                        x = gridItem.startColumn * cellWidth,
+                        y = gridItem.startRow * cellHeight,
+                    )
+                }
             }
         }
     }

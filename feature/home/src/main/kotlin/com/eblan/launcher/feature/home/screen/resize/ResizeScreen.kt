@@ -29,7 +29,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.Grid
+import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.grid.gridItem
@@ -74,7 +74,7 @@ fun ResizeScreen(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        Grid(
+        GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
@@ -160,12 +160,11 @@ fun ResizeScreen(
                             }
                         }
                     }
-
                 }
             }
         }
 
-        Grid(
+        GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),

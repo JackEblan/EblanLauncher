@@ -55,7 +55,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.Grid
+import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -242,7 +242,7 @@ fun DragScreen(
                 pageCount = tempPageCount,
             )
 
-            Grid(
+            GridLayout(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(gridPadding)
@@ -354,7 +354,7 @@ fun DragScreen(
             }
         }
 
-        Grid(
+        GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),

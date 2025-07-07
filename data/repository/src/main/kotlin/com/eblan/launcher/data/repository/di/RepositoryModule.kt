@@ -22,12 +22,14 @@ import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
 import com.eblan.launcher.data.repository.DefaultGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultGridRepository
+import com.eblan.launcher.data.repository.DefaultPageCacheRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import dagger.Binds
 import dagger.Module
@@ -62,5 +64,9 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun eblanShortcutInfoRepository(impl: DefaultEblanShortcutInfoRepository): EblanShortcutInfoRepository
+
+    @Binds
+    @Singleton
+    fun pageCacheRepository(impl: DefaultPageCacheRepository): PageCacheRepository
 
 }

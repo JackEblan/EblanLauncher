@@ -19,7 +19,7 @@ internal class DefaultGridCacheRepository @Inject constructor(private val gridCa
         gridCacheDataSource.deleteGridItem(gridItem = gridItem)
     }
 
-    override fun upsertGridItems(gridItems: List<GridItem>) {
+    override suspend fun upsertGridItems(gridItems: List<GridItem>) {
         gridCacheDataSource.upsertGridItems(gridItems = gridItems)
     }
 

@@ -86,6 +86,7 @@ fun HomeScreen(
     movedGridItems: Boolean?,
     targetPage: Int,
     onMoveGridItem: (
+        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -95,6 +96,7 @@ fun HomeScreen(
         gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
+        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -228,6 +230,7 @@ fun BoxScope.Success(
     overlayIntOffset: IntOffset,
     drag: Drag,
     onMoveGridItem: (
+        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -237,6 +240,7 @@ fun BoxScope.Success(
         gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
+        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,

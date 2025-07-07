@@ -1,9 +1,11 @@
 package com.eblan.launcher.data.cache
 
 import com.eblan.launcher.domain.model.GridItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataSource {
@@ -29,18 +31,20 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
         }
     }
 
-    override fun upsertGridItems(gridItems: List<GridItem>) {
-        _gridCacheItems.update { currentGridCacheItems ->
-            currentGridCacheItems.toMutableList().apply {
-                gridItems.forEach { gridItem ->
-                    val index = indexOfFirst { it.id == gridItem.id }
+    override suspend fun upsertGridItems(gridItems: List<GridItem>) {
+        withContext(Dispatchers.Default) {
+            _gridCacheItems.update { currentGridCacheItems ->
+                currentGridCacheItems.toMutableList().apply {
+                    gridItems.forEach { gridItem ->
+                        val index = indexOfFirst { it.id == gridItem.id }
 
-                    if (index != -1) {
-                        if (get(index) != gridItem) {
-                            set(index, gridItem)
+                        if (index != -1) {
+                            if (get(index) != gridItem) {
+                                set(index, gridItem)
+                            }
+                        } else {
+                            add(gridItem)
                         }
-                    } else {
-                        add(gridItem)
                     }
                 }
             }

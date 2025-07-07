@@ -87,6 +87,7 @@ fun DragScreen(
     movedGridItems: Boolean?,
     addNewPage: Boolean,
     onMoveGridItem: (
+        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -184,6 +185,8 @@ fun DragScreen(
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             targetPage = targetPage,
+            gridItems = gridItems[targetPage].orEmpty(),
+            dockGridItems =dockGridItems,
             drag = drag,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             dragIntOffset = dragIntOffset,
@@ -596,6 +599,8 @@ suspend fun handlePageDirection(
 
 private suspend fun handleDragIntOffset(
     targetPage: Int,
+    gridItems: List<GridItem>,
+    dockGridItems: List<GridItem>,
     drag: Drag,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     dragIntOffset: IntOffset,
@@ -610,6 +615,7 @@ private suspend fun handleDragIntOffset(
     isScrollInProgress: Boolean,
     onChangePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
+        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -653,6 +659,7 @@ private suspend fun handleDragIntOffset(
                 )
 
                 onMoveGridItem(
+                    gridItems + dockGridItems,
                     gridItem,
                     dragIntOffset.x,
                     dockY,
@@ -684,6 +691,7 @@ private suspend fun handleDragIntOffset(
                 )
 
                 onMoveGridItem(
+                    gridItems + dockGridItems,
                     gridItem,
                     gridX,
                     gridY,

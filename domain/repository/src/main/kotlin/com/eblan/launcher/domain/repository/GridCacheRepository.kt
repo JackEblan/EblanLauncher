@@ -12,7 +12,7 @@ interface GridCacheRepository {
 
     fun deleteGridItem(gridItem: GridItem)
 
-    fun upsertGridItems(gridItems: List<GridItem>)
+    suspend fun upsertGridItems(gridItems: List<GridItem>)
 
     fun updateIsCache(isCache: Boolean)
 }

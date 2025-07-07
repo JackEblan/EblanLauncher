@@ -67,6 +67,7 @@ class HomeViewModel @Inject constructor(
     val targetPage = _targetPage.asStateFlow()
 
     fun moveGridItem(
+        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -78,6 +79,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _movedGridItems.update {
                 moveGridItemUseCase(
+                    gridItems = gridItems.toMutableList(),
                     movingGridItem = movingGridItem,
                     x = x,
                     y = y,
@@ -91,6 +93,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resizeGridItem(
+        gridItems: List<GridItem>,
         resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -98,6 +101,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _movedGridItems.update {
                 resizeGridItemUseCase(
+                    gridItems = gridItems.toMutableList(),
                     resizingGridItem = resizingGridItem,
                     rows = rows,
                     columns = columns,

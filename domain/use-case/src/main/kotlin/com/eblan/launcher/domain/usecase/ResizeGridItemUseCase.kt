@@ -15,52 +15,46 @@ class ResizeGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
+        gridItems: MutableList<GridItem>,
         resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
     ): List<GridItem>? {
-        if (!isGridItemSpanWithinBounds(
+        return if (isGridItemSpanWithinBounds(
                 gridItem = resizingGridItem,
                 rows = rows,
                 columns = columns,
             )
         ) {
-            return null
-        }
+            withContext(Dispatchers.Default) {
+                val index =
+                    gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
 
-        return withContext(Dispatchers.Default) {
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
+                val oldGridItem = gridItems[index]
+
+                gridItems[index] = resizingGridItem
+
+                val resolveDirection = getResolveDirectionByDiff(
+                    old = oldGridItem,
+                    new = resizingGridItem,
+                )
+
+                val resolvedConflictsGridItems = resolveConflictsWhenMoving(
+                    gridItems = gridItems,
+                    resolveDirection = resolveDirection,
+                    moving = resizingGridItem,
                     rows = rows,
                     columns = columns,
-                ) && gridItem.page == resizingGridItem.page && gridItem.associate == Associate.Grid
-            }.toMutableList()
+                )
 
-            val index = gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
+                if (resolvedConflictsGridItems != null) {
+                    gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+                }
 
-            val oldGridItem = gridItems[index]
-
-            gridItems[index] = resizingGridItem
-
-            val resolveDirection = getResolveDirectionByDiff(
-                old = oldGridItem,
-                new = resizingGridItem,
-            )
-
-            val resolvedConflictsGridItems = resolveConflictsWhenMoving(
-                gridItems = gridItems,
-                resolveDirection = resolveDirection,
-                moving = resizingGridItem,
-                rows = rows,
-                columns = columns,
-            )
-
-            if (resolvedConflictsGridItems != null) {
-                gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+                resolvedConflictsGridItems
             }
-
-            resolvedConflictsGridItems
+        } else {
+            null
         }
     }
 }

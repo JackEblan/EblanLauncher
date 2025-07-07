@@ -33,6 +33,7 @@ import kotlin.math.roundToInt
 @Composable
 fun WidgetGridItemResizeOverlay(
     modifier: Modifier = Modifier,
+    gridItems: List<GridItem>?,
     gridItem: GridItem,
     gridWidth: Int,
     gridHeight: Int,
@@ -46,6 +47,7 @@ fun WidgetGridItemResizeOverlay(
     rowSpan: Int,
     columnSpan: Int,
     onResizeWidgetGridItem: (
+        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -191,7 +193,12 @@ fun WidgetGridItemResizeOverlay(
         }
 
         if (resizingGridItem != null) {
-            onResizeWidgetGridItem(resizingGridItem, rows, columns)
+            onResizeWidgetGridItem(
+                gridItems.orEmpty(),
+                resizingGridItem,
+                rows,
+                columns,
+            )
         }
     }
 

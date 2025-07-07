@@ -30,9 +30,9 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
-import com.eblan.launcher.feature.home.component.grid.gridItem
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -50,6 +50,7 @@ fun ResizeScreen(
     dockGridItems: List<GridItem>,
     textColor: TextColor,
     onResizeGridItem: (
+        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -265,6 +266,7 @@ fun ResizeScreen(
         when (val data = gridItemLayoutInfo.gridItem.data) {
             is GridItemData.ApplicationInfo -> {
                 GridItemResizeOverlay(
+                    gridItems = gridItems,
                     gridItem = gridItemLayoutInfo.gridItem,
                     gridWidth = rootWidth,
                     gridHeight = gridHeight,
@@ -283,6 +285,7 @@ fun ResizeScreen(
 
             is GridItemData.Widget -> {
                 WidgetGridItemResizeOverlay(
+                    gridItems = gridItems,
                     gridItem = gridItemLayoutInfo.gridItem,
                     gridWidth = rootWidth,
                     gridHeight = gridHeight,

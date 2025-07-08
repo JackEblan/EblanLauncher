@@ -40,15 +40,29 @@ fun GridSubcomposeLayout(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
+    rootWidth: Int,
+    rootHeight: Int,
     gridItems: List<GridItem>,
     content: @Composable (GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->
-        val cellWidth = constraints.maxWidth / columns
+        val width = if (constraints.hasBoundedWidth) {
+            constraints.maxWidth
+        } else {
+            rootWidth / 2
+        }
 
-        val cellHeight = constraints.maxHeight / rows
+        val height = if (constraints.hasBoundedHeight) {
+            constraints.maxHeight
+        } else {
+            rootHeight / 2
+        }
 
-        layout(width = constraints.maxWidth, height = constraints.maxHeight) {
+        val cellWidth = width / columns
+
+        val cellHeight = height / rows
+
+        layout(width = width, height = height) {
             gridItems.forEach { gridItem ->
                 subcompose(
                     slotId = gridItem.id,

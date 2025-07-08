@@ -36,6 +36,8 @@ fun EditPageScreen(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
+    rootWidth: Int,
+    rootHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
     onSaveEditPage: () -> Unit,
@@ -78,9 +80,10 @@ fun EditPageScreen(
                         border = BorderStroke(width = 2.dp, color = Color.White),
                     ) {
                         GridSubcomposeLayout(
-                            modifier = Modifier.height(300.dp),
                             rows = rows,
                             columns = columns,
+                            rootWidth = rootWidth,
+                            rootHeight = rootHeight - dockHeight,
                             gridItems = pageItem.gridItems,
                             content = { gridItem ->
                                 when (val data = gridItem.data) {

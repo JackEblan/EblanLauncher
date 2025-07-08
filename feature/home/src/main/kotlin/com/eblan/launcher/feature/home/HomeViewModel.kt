@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
@@ -38,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
+    private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
@@ -138,11 +141,7 @@ class HomeViewModel @Inject constructor(
 
     fun showPageCache() {
         viewModelScope.launch {
-            _screen.update {
-                Screen.Loading
-            }
-
-            updatePageItemsUseCase()
+            cachePageItemsUseCase()
 
             _screen.update {
                 Screen.EditPage
@@ -150,8 +149,21 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun saveEditPage() {
+    fun saveEditPage(
+        targetPage: Int,
+        pageItems: List<PageItem>,
+    ) {
+        viewModelScope.launch {
+            _targetPage.update {
+                targetPage
+            }
 
+            updatePageItemsUseCase(pageItems = pageItems)
+
+            _screen.update {
+                Screen.Pager
+            }
+        }
     }
 
     fun cancelEditPage() {
@@ -162,10 +174,6 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache(currentPage: Int) {
         viewModelScope.launch {
-            _screen.update {
-                Screen.Loading
-            }
-
             _targetPage.update {
                 updateGridItemsUseCase(currentPage = currentPage)
             }

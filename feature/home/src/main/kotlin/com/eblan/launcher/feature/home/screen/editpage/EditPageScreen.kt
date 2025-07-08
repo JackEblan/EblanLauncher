@@ -40,7 +40,10 @@ fun EditPageScreen(
     rootHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
-    onSaveEditPage: () -> Unit,
+    onSaveEditPage: (
+        targetPage: Int,
+        pageItems: List<PageItem>,
+    ) -> Unit,
     onCancelEditPage: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -125,7 +128,12 @@ fun EditPageScreen(
 
             Button(
                 onClick = {
-                    onSaveEditPage()
+                    gridDragAndDropState.lastDraggingItemIndex?.let { draggingItemIndex ->
+                        onSaveEditPage(
+                            draggingItemIndex,
+                            currentPageItems,
+                        )
+                    }
                 },
             ) {
                 Text(text = "Save")

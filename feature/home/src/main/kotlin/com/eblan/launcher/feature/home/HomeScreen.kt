@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -109,7 +110,10 @@ fun HomeScreen(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onSaveEditPage: () -> Unit,
+    onSaveEditPage: (
+        targetPage: Int,
+        pageItems: List<PageItem>,
+    ) -> Unit,
     onCancelEditPage: () -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -253,7 +257,10 @@ fun BoxScope.Success(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onSaveEditPage: () -> Unit,
+    onSaveEditPage: (
+        targetPage: Int,
+        pageItems: List<PageItem>,
+    ) -> Unit,
     onCancelEditPage: () -> Unit,
     onUpdateIntOffset: (
         dragIntOffset: IntOffset,
@@ -268,203 +275,205 @@ fun BoxScope.Success(
 
     var addNewPage by remember { mutableStateOf(false) }
 
-    when (screen) {
-        Screen.Pager -> {
-            PagerScreen(
-                modifier = modifier,
-                targetPage = targetPage,
-                rows = userData.homeSettings.rows,
-                columns = userData.homeSettings.columns,
-                pageCount = userData.homeSettings.pageCount,
-                infiniteScroll = userData.homeSettings.infiniteScroll,
-                dockRows = userData.homeSettings.dockRows,
-                dockColumns = userData.homeSettings.dockColumns,
-                gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
-                gridItems = gridItems,
-                dockHeight = userData.homeSettings.dockHeight,
-                drag = drag,
-                dragIntOffset = dragIntOffset,
-                dockGridItems = dockGridItems,
-                textColor = userData.homeSettings.textColor,
-                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
-                appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
-                appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
-                overlayIntOffset = overlayIntOffset,
-                onLongPressGrid = { newCurrentPage, intOffset ->
-                    currentPage = newCurrentPage
+    AnimatedContent(targetState = screen) { targetState ->
+        when (targetState) {
+            Screen.Pager -> {
+                PagerScreen(
+                    modifier = modifier,
+                    targetPage = targetPage,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    pageCount = userData.homeSettings.pageCount,
+                    infiniteScroll = userData.homeSettings.infiniteScroll,
+                    dockRows = userData.homeSettings.dockRows,
+                    dockColumns = userData.homeSettings.dockColumns,
+                    gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
+                    gridItems = gridItems,
+                    dockHeight = userData.homeSettings.dockHeight,
+                    drag = drag,
+                    dragIntOffset = dragIntOffset,
+                    dockGridItems = dockGridItems,
+                    textColor = userData.homeSettings.textColor,
+                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
+                    appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
+                    appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
+                    overlayIntOffset = overlayIntOffset,
+                    onLongPressGrid = { newCurrentPage, intOffset ->
+                        currentPage = newCurrentPage
 
-                    onUpdateIntOffset(intOffset, IntOffset.Zero)
+                        onUpdateIntOffset(intOffset, IntOffset.Zero)
 
-                    gridItemSource = null
-                },
-                onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo, intOffset ->
-                    currentPage = newCurrentPage
+                        gridItemSource = null
+                    },
+                    onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo, intOffset ->
+                        currentPage = newCurrentPage
 
-                    addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
+                        addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
 
-                    gridItemSource = GridItemSource(
-                        gridItemLayoutInfo = gridItemLayoutInfo,
-                        type = GridItemSource.Type.Old,
-                        imageBitmap = imageBitmap,
-                    )
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.Old,
+                            imageBitmap = imageBitmap,
+                        )
 
-                    onUpdateIntOffset(
-                        intOffset,
-                        IntOffset(
-                            x = gridItemLayoutInfo.x,
-                            y = gridItemLayoutInfo.y,
-                        ),
-                    )
+                        onUpdateIntOffset(
+                            intOffset,
+                            IntOffset(
+                                x = gridItemLayoutInfo.x,
+                                y = gridItemLayoutInfo.y,
+                            ),
+                        )
 
-                    onUpdateOverlayImageBitmap(imageBitmap)
-                },
-                onLongPressApplicationInfo = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
-                    currentPage = newCurrentPage
+                        onUpdateOverlayImageBitmap(imageBitmap)
+                    },
+                    onLongPressApplicationInfo = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
+                        currentPage = newCurrentPage
 
-                    addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
+                        addNewPage = (gridItems[userData.homeSettings.pageCount - 1]?.size ?: 0) > 1
 
-                    onUpdateIntOffset(
-                        newDragIntOffset,
-                        newOverlayIntOffset,
-                    )
+                        onUpdateIntOffset(
+                            newDragIntOffset,
+                            newOverlayIntOffset,
+                        )
 
-                    onUpdateOverlayImageBitmap(imageBitmap)
+                        onUpdateOverlayImageBitmap(imageBitmap)
 
-                    gridItemSource = GridItemSource(
-                        gridItemLayoutInfo = gridItemLayoutInfo,
-                        type = GridItemSource.Type.New,
-                        imageBitmap = imageBitmap,
-                    )
-                },
-                onDraggingGridItem = {
-                    onShowOverlay(true)
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.New,
+                            imageBitmap = imageBitmap,
+                        )
+                    },
+                    onDraggingGridItem = {
+                        onShowOverlay(true)
 
-                    onShowGridCache(Screen.Drag)
-                },
-                onDraggingApplicationInfo = {
-                    onShowOverlay(true)
+                        onShowGridCache(Screen.Drag)
+                    },
+                    onDraggingApplicationInfo = {
+                        onShowOverlay(true)
 
-                    onShowGridCache(Screen.Drag)
-                },
-                onLongPressWidget = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
-                    currentPage = newCurrentPage
+                        onShowGridCache(Screen.Drag)
+                    },
+                    onLongPressWidget = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
+                        currentPage = newCurrentPage
 
-                    addNewPage = !gridItems[userData.homeSettings.pageCount - 1].isNullOrEmpty()
+                        addNewPage = !gridItems[userData.homeSettings.pageCount - 1].isNullOrEmpty()
 
-                    onUpdateIntOffset(
-                        newDragIntOffset,
-                        newOverlayIntOffset,
-                    )
+                        onUpdateIntOffset(
+                            newDragIntOffset,
+                            newOverlayIntOffset,
+                        )
 
-                    onUpdateOverlayImageBitmap(imageBitmap)
+                        onUpdateOverlayImageBitmap(imageBitmap)
 
-                    gridItemSource = GridItemSource(
-                        gridItemLayoutInfo = gridItemLayoutInfo,
-                        type = GridItemSource.Type.New,
-                        imageBitmap = imageBitmap,
-                    )
-                },
-                onDragStartWidget = {
-                    onShowOverlay(true)
+                        gridItemSource = GridItemSource(
+                            gridItemLayoutInfo = gridItemLayoutInfo,
+                            type = GridItemSource.Type.New,
+                            imageBitmap = imageBitmap,
+                        )
+                    },
+                    onDragStartWidget = {
+                        onShowOverlay(true)
 
-                    onShowGridCache(Screen.Drag)
-                },
-                onStartMainActivity = onStartMainActivity,
-                onEdit = {
+                        onShowGridCache(Screen.Drag)
+                    },
+                    onStartMainActivity = onStartMainActivity,
+                    onEdit = {
 
-                },
-                onResize = { newTargetPage ->
-                    currentPage = newTargetPage
+                    },
+                    onResize = { newTargetPage ->
+                        currentPage = newTargetPage
 
-                    onShowOverlay(false)
+                        onShowOverlay(false)
 
-                    onShowGridCache(Screen.Resize)
-                },
-                onSettings = onSettings,
-                onEditPage = onEditPage,
-            )
-        }
+                        onShowGridCache(Screen.Resize)
+                    },
+                    onSettings = onSettings,
+                    onEditPage = onEditPage,
+                )
+            }
 
-        Screen.Drag -> {
-            DragScreen(
-                modifier = modifier,
-                currentPage = currentPage,
-                rows = userData.homeSettings.rows,
-                columns = userData.homeSettings.columns,
-                pageCount = userData.homeSettings.pageCount,
-                infiniteScroll = userData.homeSettings.infiniteScroll,
-                dockRows = userData.homeSettings.dockRows,
-                dockColumns = userData.homeSettings.dockColumns,
-                gridItems = gridItems,
-                dragIntOffset = dragIntOffset,
-                gridItemSource = gridItemSource,
-                drag = drag,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
-                dockHeight = userData.homeSettings.dockHeight,
-                dockGridItems = dockGridItems,
-                textColor = userData.homeSettings.textColor,
-                movedGridItems = movedGridItems,
-                addNewPage = addNewPage,
-                onMoveGridItem = onMoveGridItem,
-                onDeleteAppWidgetId = onDeleteAppWidgetId,
-                onDeleteGridItem = onDeleteGridItem,
-                onDragCancel = {
-                    onResetGridCache(currentPage)
+            Screen.Drag -> {
+                DragScreen(
+                    modifier = modifier,
+                    currentPage = currentPage,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    pageCount = userData.homeSettings.pageCount,
+                    infiniteScroll = userData.homeSettings.infiniteScroll,
+                    dockRows = userData.homeSettings.dockRows,
+                    dockColumns = userData.homeSettings.dockColumns,
+                    gridItems = gridItems,
+                    dragIntOffset = dragIntOffset,
+                    gridItemSource = gridItemSource,
+                    drag = drag,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
+                    dockHeight = userData.homeSettings.dockHeight,
+                    dockGridItems = dockGridItems,
+                    textColor = userData.homeSettings.textColor,
+                    movedGridItems = movedGridItems,
+                    addNewPage = addNewPage,
+                    onMoveGridItem = onMoveGridItem,
+                    onDeleteAppWidgetId = onDeleteAppWidgetId,
+                    onDeleteGridItem = onDeleteGridItem,
+                    onDragCancel = {
+                        onResetGridCache(currentPage)
 
-                    onShowOverlay(false)
-                },
-                onDragEnd = { newTargetPage ->
-                    addNewPage = false
+                        onShowOverlay(false)
+                    },
+                    onDragEnd = { newTargetPage ->
+                        addNewPage = false
 
-                    onResetGridCache(newTargetPage)
+                        onResetGridCache(newTargetPage)
 
-                    onShowOverlay(false)
-                },
-            )
-        }
+                        onShowOverlay(false)
+                    },
+                )
+            }
 
-        Screen.Resize -> {
-            ResizeScreen(
-                modifier = modifier,
-                rows = userData.homeSettings.rows,
-                columns = userData.homeSettings.columns,
-                dockRows = userData.homeSettings.dockRows,
-                dockColumns = userData.homeSettings.dockColumns,
-                gridItems = gridItems[currentPage],
-                gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
-                dockHeight = userData.homeSettings.dockHeight,
-                dockGridItems = dockGridItems,
-                textColor = userData.homeSettings.textColor,
-                onResizeGridItem = onResizeGridItem,
-                onResizeEnd = {
-                    gridItemSource = null
+            Screen.Resize -> {
+                ResizeScreen(
+                    modifier = modifier,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    dockRows = userData.homeSettings.dockRows,
+                    dockColumns = userData.homeSettings.dockColumns,
+                    gridItems = gridItems[currentPage],
+                    gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
+                    dockHeight = userData.homeSettings.dockHeight,
+                    dockGridItems = dockGridItems,
+                    textColor = userData.homeSettings.textColor,
+                    onResizeGridItem = onResizeGridItem,
+                    onResizeEnd = {
+                        gridItemSource = null
 
-                    onResetGridCache(currentPage)
-                },
-            )
-        }
+                        onResetGridCache(currentPage)
+                    },
+                )
+            }
 
-        Screen.Loading -> {
-            CircularProgressIndicator(modifier = modifier.align(Alignment.Center))
-        }
+            Screen.Loading -> {
+                CircularProgressIndicator(modifier = modifier.align(Alignment.Center))
+            }
 
-        Screen.EditPage -> {
-            EditPageScreen(
-                modifier = modifier,
-                rows = userData.homeSettings.rows,
-                columns = userData.homeSettings.columns,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
-                pageItems = pageItems,
-                dockHeight = userData.homeSettings.dockHeight,
-                onSaveEditPage = onSaveEditPage,
-                onCancelEditPage = onCancelEditPage,
-            )
+            Screen.EditPage -> {
+                EditPageScreen(
+                    modifier = modifier,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
+                    pageItems = pageItems,
+                    dockHeight = userData.homeSettings.dockHeight,
+                    onSaveEditPage = onSaveEditPage,
+                    onCancelEditPage = onCancelEditPage,
+                )
+            }
         }
     }
 }

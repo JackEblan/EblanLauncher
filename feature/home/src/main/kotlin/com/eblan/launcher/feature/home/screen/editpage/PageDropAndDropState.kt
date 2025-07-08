@@ -67,10 +67,15 @@ class GridDragAndDropState internal constructor(
     var draggingItemIndex by mutableStateOf<Int?>(null)
         private set
 
+    var lastDraggingItemIndex by mutableStateOf<Int?>(null)
+        private set
+
     internal val scrollChannel = Channel<Float>()
 
     private var draggingItemDraggedDelta by mutableStateOf(Offset.Zero)
+
     private var draggingItemInitialOffset by mutableStateOf(Offset.Zero)
+
     internal val draggingItemOffset: Offset
         get() =
             draggingItemLayoutInfo?.let { item ->
@@ -94,6 +99,7 @@ class GridDragAndDropState internal constructor(
             }
             ?.also {
                 draggingItemIndex = it.index
+                lastDraggingItemIndex = it.index
                 draggingItemInitialOffset = it.offset.toOffset()
             }
     }
@@ -145,6 +151,7 @@ class GridDragAndDropState internal constructor(
             }
             onMove.invoke(draggingItem.index, targetItem.index)
             draggingItemIndex = targetItem.index
+            lastDraggingItemIndex = targetItem.index
         } else {
             val overscroll =
                 when {

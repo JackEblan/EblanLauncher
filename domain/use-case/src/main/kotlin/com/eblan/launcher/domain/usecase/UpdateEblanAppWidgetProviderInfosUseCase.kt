@@ -40,7 +40,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                             val preview =
                                 appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
                                     fileManager.writeFileBytes(
-                                        directory = fileManager.previewsDirectory,
+                                        directory = fileManager.widgetsDirectory,
                                         name = appWidgetManagerAppWidgetProviderInfo.className,
                                         byteArray = currentPreview,
                                     )
@@ -82,7 +82,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
 
                 eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
                     fileManager.deleteFile(
-                        directory = fileManager.previewsDirectory,
+                        directory = fileManager.widgetsDirectory,
                         name = eblanAppWidgetProviderInfo.className,
                     )
                 }

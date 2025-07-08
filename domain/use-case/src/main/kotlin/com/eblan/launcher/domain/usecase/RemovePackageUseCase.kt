@@ -25,7 +25,7 @@ class RemovePackageUseCase @Inject constructor(
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.forEach { appWidgetManagerAppWidgetProviderInfo ->
                 fileManager.deleteFile(
-                    directory = fileManager.previewsDirectory,
+                    directory = fileManager.widgetsDirectory,
                     name = appWidgetManagerAppWidgetProviderInfo.className,
                 )
             }

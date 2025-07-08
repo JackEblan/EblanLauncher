@@ -5,7 +5,9 @@ import java.io.File
 interface FileManager {
     val iconsDirectory: File
 
-    val previewsDirectory: File
+    val widgetsDirectory: File
+
+    val shortcutsDirectory: File
 
     suspend fun writeFileBytes(
         directory: File,

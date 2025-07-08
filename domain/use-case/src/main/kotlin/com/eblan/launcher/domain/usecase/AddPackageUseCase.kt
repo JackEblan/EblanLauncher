@@ -48,7 +48,7 @@ class AddPackageUseCase @Inject constructor(
             }.map { appWidgetManagerAppWidgetProviderInfo ->
                 val preview = appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
                     fileManager.writeFileBytes(
-                        directory = fileManager.previewsDirectory,
+                        directory = fileManager.widgetsDirectory,
                         name = appWidgetManagerAppWidgetProviderInfo.className,
                         byteArray = currentPreview,
                     )

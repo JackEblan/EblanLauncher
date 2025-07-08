@@ -19,8 +19,14 @@ internal class AndroidFileManager @Inject constructor(@ApplicationContext privat
         }
     }
 
-    override val previewsDirectory: File by lazy {
-        File(context.filesDir, "previews").apply {
+    override val widgetsDirectory: File by lazy {
+        File(context.filesDir, "widgets").apply {
+            if (!exists()) mkdirs()
+        }
+    }
+
+    override val shortcutsDirectory: File by lazy {
+        File(context.filesDir, "shortcuts").apply {
             if (!exists()) mkdirs()
         }
     }

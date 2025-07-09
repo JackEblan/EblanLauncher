@@ -47,6 +47,7 @@ class UserPreferencesDataSource @Inject constructor(
                     TextColorProto.Black -> TextColor.Black
                     TextColorProto.UNRECOGNIZED, null -> TextColor.White
                 },
+                initialPage = userPreferences.initialPage,
             ),
             appDrawerSettings = AppDrawerSettings(
                 appDrawerColumns = userPreferences.appDrawerColumns,
@@ -107,6 +108,14 @@ class UserPreferencesDataSource @Inject constructor(
         dataStore.updateData { userPreferences ->
             userPreferences.copy {
                 this.dockHeight = dockHeight
+            }
+        }
+    }
+
+    suspend fun updateInitialPage(initialPage: Int) {
+        dataStore.updateData { userPreferences ->
+            userPreferences.copy {
+                this.initialPage = initialPage
             }
         }
     }

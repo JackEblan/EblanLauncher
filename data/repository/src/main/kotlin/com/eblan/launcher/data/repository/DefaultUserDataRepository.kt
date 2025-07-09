@@ -35,4 +35,8 @@ internal class DefaultUserDataRepository @Inject constructor(private val userPre
     override suspend fun updateDockHeight(dockHeight: Int) {
         userPreferencesDataSource.updateDockHeight(dockHeight = dockHeight)
     }
+
+    override suspend fun updateInitialPage(initialPage: Int) {
+        userPreferencesDataSource.updateInitialPage(initialPage = initialPage)
+    }
 }

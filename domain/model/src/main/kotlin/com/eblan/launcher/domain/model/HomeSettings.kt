@@ -9,4 +9,5 @@ data class HomeSettings(
     val dockColumns: Int,
     val dockHeight: Int,
     val textColor: TextColor,
+    val initialPage: Int,
 )

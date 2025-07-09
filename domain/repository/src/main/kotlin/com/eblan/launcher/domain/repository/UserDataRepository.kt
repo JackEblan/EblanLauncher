@@ -19,4 +19,6 @@ interface UserDataRepository {
     suspend fun updateDockColumns(dockColumns: Int)
 
     suspend fun updateDockHeight(dockHeight: Int)
+
+    suspend fun updateInitialPage(initialPage: Int)
 }

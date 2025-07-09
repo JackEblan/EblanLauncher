@@ -20,17 +20,24 @@ class CachePageItemsUseCase @Inject constructor(
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val pageItems = gridRepository.gridItems.first().filter { gridItem ->
+            val gridItems = gridRepository.gridItems.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
                 ) && gridItem.associate == Associate.Grid
-            }.groupBy { gridItem -> gridItem.page }.map { (page, gridItems) ->
-                PageItem(id = page, gridItems = gridItems)
-            }.sortedBy { pageItem -> pageItem.id }
+            }
 
-            pageCacheRepository.insertPageItems(pageItems = pageItems)
+            val gridItemsByPage = gridItems.groupBy { gridItem -> gridItem.page }
+
+            val pageItems = (0 until userData.homeSettings.pageCount).map { page ->
+                PageItem(
+                    id = page,
+                    gridItems = gridItemsByPage[page] ?: emptyList(),
+                )
+            }
+
+            pageCacheRepository.insertPageItems(pageItems)
         }
     }
 }

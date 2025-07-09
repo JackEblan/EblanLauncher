@@ -85,7 +85,6 @@ fun DragScreen(
     dockGridItems: List<GridItem>,
     textColor: TextColor,
     movedGridItems: Boolean?,
-    addNewPage: Boolean,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -120,15 +119,13 @@ fun DragScreen(
         TextColor.Black -> Color.Black
     }
 
-    val tempPageCount = if (addNewPage) pageCount + 1 else pageCount
-
     val horizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + currentPage else currentPage,
         pageCount = {
             if (infiniteScroll) {
                 Int.MAX_VALUE
             } else {
-                tempPageCount
+                pageCount
             }
         },
     )
@@ -146,7 +143,7 @@ fun DragScreen(
             calculatePage(
                 index = horizontalPagerState.currentPage,
                 infiniteScroll = infiniteScroll,
-                pageCount = tempPageCount,
+                pageCount = pageCount,
             )
         }
     }
@@ -242,7 +239,7 @@ fun DragScreen(
             val page = calculatePage(
                 index = index,
                 infiniteScroll = infiniteScroll,
-                pageCount = tempPageCount,
+                pageCount = pageCount,
             )
 
             GridLayout(

@@ -8,12 +8,12 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -37,12 +37,12 @@ class HomeViewModel @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
+    private val pageCacheRepository: PageCacheRepository,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -65,10 +65,6 @@ class HomeViewModel @Inject constructor(
     private var _movedGridItems = MutableStateFlow<Boolean?>(null)
 
     val movedGridItems = _movedGridItems.asStateFlow()
-
-    private var _targetPage = MutableStateFlow(0)
-
-    val targetPage = _targetPage.asStateFlow()
 
     private val screenDelay = 100L
 
@@ -160,13 +156,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun saveEditPage(pageItems: List<PageItem>) {
+    fun saveEditPage(
+        initialPage: Int,
+        pageItems: List<PageItem>,
+    ) {
         viewModelScope.launch {
             _screen.update {
                 Screen.Loading
             }
 
-            updatePageItemsUseCase(pageItems = pageItems)
+            updatePageItemsUseCase(
+                initialPage = initialPage,
+                pageItems = pageItems,
+            )
 
             delay(screenDelay)
 
@@ -182,11 +184,20 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCache(currentPage: Int) {
+    fun addEmptyPageItem() {
+        pageCacheRepository.addEmptyPageItem()
+    }
+
+    fun deletePageItems(id: Int) {
         viewModelScope.launch {
-            _targetPage.update {
-                updateGridItemsUseCase(currentPage = currentPage)
-            }
+            pageCacheRepository.deletePageItems(id = id)
+        }
+    }
+
+
+    fun resetGridCache() {
+        viewModelScope.launch {
+            gridRepository.upsertGridItems(gridCacheRepository.gridCacheItems.first())
 
             gridCacheRepository.updateIsCache(isCache = false)
 

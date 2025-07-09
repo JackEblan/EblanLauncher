@@ -90,6 +90,7 @@ fun PagerScreen(
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     overlayIntOffset: IntOffset,
+    initialPage: Int,
     onLongPressGrid: (
         currentPage: Int,
         intOffset: IntOffset,

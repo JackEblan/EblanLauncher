@@ -13,12 +13,21 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,8 +49,14 @@ fun EditPageScreen(
     rootHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
-    onSaveEditPage: (pageItems: List<PageItem>) -> Unit,
+    initialPage: Int,
+    onSaveEditPage: (
+        initialPage: Int,
+        pageItems: List<PageItem>,
+    ) -> Unit,
     onCancelEditPage: () -> Unit,
+    onDeletePageItems: (Int) -> Unit,
+    onAddEmptyPageItem: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -50,6 +65,8 @@ fun EditPageScreen(
     }
 
     var currentPageItems by remember { mutableStateOf(pageItems) }
+
+    var currentInitialPage by remember { mutableIntStateOf(initialPage) }
 
     val gridState = rememberLazyGridState()
 
@@ -60,6 +77,12 @@ fun EditPageScreen(
 
     val gridHeight = with(density) {
         ((rootHeight - dockHeight) / 2).toDp()
+    }
+
+    LaunchedEffect(key1 = pageItems) {
+        if (pageItems != currentPageItems) {
+            currentPageItems = pageItems
+        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -108,7 +131,46 @@ fun EditPageScreen(
                                         )
                                     }
                                 }
+                            }
+                        }
 
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            shape = RoundedCornerShape(30.dp),
+                            tonalElevation = 10.dp,
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        if (pageItem.id != initialPage) {
+                                            onDeletePageItems(pageItem.id)
+                                        }
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null,
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        currentInitialPage = pageItem.id
+                                    },
+                                    enabled = pageItem.id != currentInitialPage,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = null,
+                                    )
+                                }
                             }
                         }
                     }
@@ -123,6 +185,12 @@ fun EditPageScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(
+                onClick = onAddEmptyPageItem,
+            ) {
+                Text(text = "Add")
+            }
+
+            Button(
                 onClick = {
                     onCancelEditPage()
                 },
@@ -132,7 +200,7 @@ fun EditPageScreen(
 
             Button(
                 onClick = {
-                    onSaveEditPage(currentPageItems)
+                    onSaveEditPage(currentInitialPage, currentPageItems)
                 },
             ) {
                 Text(text = "Save")

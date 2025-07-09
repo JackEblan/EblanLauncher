@@ -17,11 +17,11 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
     }
 
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
-        val gridItemEntities = gridItems.map { gridItem ->
+        val entities = gridItems.map { gridItem ->
             gridItem.toGridItemEntity()
         }
 
-        gridDao.upsertGridItemEntities(entities = gridItemEntities)
+        gridDao.upsertGridItemEntities(entities = entities)
     }
 
     override suspend fun upsertGridItem(gridItem: GridItem): Long {
@@ -34,6 +34,14 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
 
     override suspend fun getGridItem(id: Int): GridItem? {
         return gridDao.getGridItemEntity(id = id)?.toGridItem()
+    }
+
+    override suspend fun deleteGridItemEntities(gridItems: List<GridItem>) {
+        val entities = gridItems.map { gridItem ->
+            gridItem.toGridItemEntity()
+        }
+
+        gridDao.deleteGridItemEntities(entities = entities)
     }
 
     private fun GridItemEntity.toGridItem(): GridItem {

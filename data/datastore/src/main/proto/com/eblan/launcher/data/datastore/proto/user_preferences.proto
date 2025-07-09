@@ -43,4 +43,6 @@ message UserPreferences {
   int32 appDrawerColumns = 9;
 
   int32 appDrawerRowsHeight = 10;
+
+  int32 initialPage = 11;
 }

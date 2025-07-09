@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +35,7 @@ import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
+import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 
@@ -110,10 +110,7 @@ fun HomeScreen(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onSaveEditPage: (
-        targetPage: Int,
-        pageItems: List<PageItem>,
-    ) -> Unit,
+    onSaveEditPage: (pageItems: List<PageItem>) -> Unit,
     onCancelEditPage: () -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -218,7 +215,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun BoxScope.Success(
+private fun Success(
     modifier: Modifier = Modifier,
     screen: Screen,
     gridItems: Map<Int, List<GridItem>>,
@@ -257,10 +254,7 @@ fun BoxScope.Success(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
-    onSaveEditPage: (
-        targetPage: Int,
-        pageItems: List<PageItem>,
-    ) -> Unit,
+    onSaveEditPage: (pageItems: List<PageItem>) -> Unit,
     onCancelEditPage: () -> Unit,
     onUpdateIntOffset: (
         dragIntOffset: IntOffset,
@@ -275,11 +269,13 @@ fun BoxScope.Success(
 
     var addNewPage by remember { mutableStateOf(false) }
 
-    AnimatedContent(targetState = screen) { targetState ->
+    AnimatedContent(
+        modifier = modifier,
+        targetState = screen,
+    ) { targetState ->
         when (targetState) {
             Screen.Pager -> {
                 PagerScreen(
-                    modifier = modifier,
                     targetPage = targetPage,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
@@ -397,7 +393,6 @@ fun BoxScope.Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    modifier = modifier,
                     currentPage = currentPage,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
@@ -436,7 +431,6 @@ fun BoxScope.Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    modifier = modifier,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
                     dockRows = userData.homeSettings.dockRows,
@@ -458,12 +452,11 @@ fun BoxScope.Success(
             }
 
             Screen.Loading -> {
-                CircularProgressIndicator(modifier = modifier.align(Alignment.Center))
+                LoadingScreen()
             }
 
             Screen.EditPage -> {
                 EditPageScreen(
-                    modifier = modifier,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
                     rootWidth = rootWidth,

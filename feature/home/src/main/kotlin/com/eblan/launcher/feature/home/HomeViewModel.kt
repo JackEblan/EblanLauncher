@@ -19,6 +19,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,6 +69,8 @@ class HomeViewModel @Inject constructor(
     private var _targetPage = MutableStateFlow(0)
 
     val targetPage = _targetPage.asStateFlow()
+
+    private val screenDelay = 500L
 
     fun moveGridItem(
         gridItems: List<GridItem>,
@@ -125,9 +128,15 @@ class HomeViewModel @Inject constructor(
 
     fun showGridCache(screen: Screen) {
         viewModelScope.launch {
+            _screen.update {
+                Screen.Loading
+            }
+
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
             gridCacheRepository.updateIsCache(isCache = true)
+
+            delay(screenDelay)
 
             _screen.update {
                 screen
@@ -141,7 +150,13 @@ class HomeViewModel @Inject constructor(
 
     fun showPageCache() {
         viewModelScope.launch {
+            _screen.update {
+                Screen.Loading
+            }
+
             cachePageItemsUseCase()
+
+            delay(screenDelay)
 
             _screen.update {
                 Screen.EditPage
@@ -149,16 +164,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun saveEditPage(
-        targetPage: Int,
-        pageItems: List<PageItem>,
-    ) {
+    fun saveEditPage(pageItems: List<PageItem>) {
         viewModelScope.launch {
-            _targetPage.update {
-                targetPage
+            _screen.update {
+                Screen.Loading
             }
 
             updatePageItemsUseCase(pageItems = pageItems)
+
+            delay(screenDelay)
 
             _screen.update {
                 Screen.Pager
@@ -174,11 +188,17 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache(currentPage: Int) {
         viewModelScope.launch {
+            _screen.update {
+                Screen.Loading
+            }
+
             _targetPage.update {
                 updateGridItemsUseCase(currentPage = currentPage)
             }
 
             gridCacheRepository.updateIsCache(isCache = false)
+
+            delay(screenDelay)
 
             _screen.update {
                 Screen.Pager

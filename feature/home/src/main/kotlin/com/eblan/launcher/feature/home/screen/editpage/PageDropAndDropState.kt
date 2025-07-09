@@ -27,9 +27,13 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -42,32 +46,29 @@ fun rememberGridDragAndDropState(
 ): GridDragAndDropState {
     val scope = rememberCoroutineScope()
 
-    val state =
-        remember(key1 = gridState) {
-            GridDragAndDropState(
-                state = gridState,
-                onMove = onMove,
-                scope = scope,
-            )
-        }
-    LaunchedEffect(state) {
-        while (true) {
-            val diff = state.scrollChannel.receive()
-            gridState.scrollBy(diff)
-        }
+    val state = remember(key1 = gridState) {
+        GridDragAndDropState(
+            state = gridState,
+            onMove = onMove,
+            scope = scope,
+        )
     }
+
+    LaunchedEffect(key1 = state) {
+        state.scrollChannel.receiveAsFlow().onEach { diff ->
+            gridState.scrollBy(diff)
+        }.collect()
+    }
+
     return state
 }
 
-class GridDragAndDropState internal constructor(
+class GridDragAndDropState(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
     private val onMove: (Int, Int) -> Unit,
 ) {
     var draggingItemIndex by mutableStateOf<Int?>(null)
-        private set
-
-    var lastDraggingItemIndex by mutableStateOf<Int?>(null)
         private set
 
     internal val scrollChannel = Channel<Float>()
@@ -76,35 +77,34 @@ class GridDragAndDropState internal constructor(
 
     private var draggingItemInitialOffset by mutableStateOf(Offset.Zero)
 
-    internal val draggingItemOffset: Offset
+    val draggingItemOffset: Offset
         get() =
             draggingItemLayoutInfo?.let { item ->
                 draggingItemInitialOffset + draggingItemDraggedDelta - item.offset.toOffset()
             } ?: Offset.Zero
 
     private val draggingItemLayoutInfo: LazyGridItemInfo?
-        get() = state.layoutInfo.visibleItemsInfo.firstOrNull { it.index == draggingItemIndex }
+        get() = state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == draggingItemIndex }
 
-    internal var previousIndexOfDraggedItem by mutableStateOf<Int?>(null)
+    var previousIndexOfDraggedItem by mutableStateOf<Int?>(null)
         private set
 
-    internal var previousItemOffset = Animatable(Offset.Zero, Offset.VectorConverter)
+    var previousItemOffset = Animatable(Offset.Zero, Offset.VectorConverter)
         private set
 
-    internal fun onDragStart(offset: Offset) {
+    fun onDragStart(offset: Offset) {
         state.layoutInfo.visibleItemsInfo
-            .firstOrNull { item ->
+            .fastFirstOrNull { item ->
                 offset.x.toInt() in item.offset.x..item.offsetEnd.x &&
                         offset.y.toInt() in item.offset.y..item.offsetEnd.y
             }
             ?.also {
                 draggingItemIndex = it.index
-                lastDraggingItemIndex = it.index
                 draggingItemInitialOffset = it.offset.toOffset()
             }
     }
 
-    internal fun onDragInterrupted() {
+    fun onDragInterrupted() {
         if (draggingItemIndex != null) {
             previousIndexOfDraggedItem = draggingItemIndex
             val startOffset = draggingItemOffset
@@ -125,7 +125,7 @@ class GridDragAndDropState internal constructor(
         draggingItemInitialOffset = Offset.Zero
     }
 
-    internal fun onDrag(offset: Offset) {
+    fun onDrag(offset: Offset) {
         draggingItemDraggedDelta += offset
 
         val draggingItem = draggingItemLayoutInfo ?: return
@@ -134,11 +134,12 @@ class GridDragAndDropState internal constructor(
         val middleOffset = startOffset + (endOffset - startOffset) / 2f
 
         val targetItem =
-            state.layoutInfo.visibleItemsInfo.find { item ->
+            state.layoutInfo.visibleItemsInfo.fastFirstOrNull { item ->
                 middleOffset.x.toInt() in item.offset.x..item.offsetEnd.x &&
                         middleOffset.y.toInt() in item.offset.y..item.offsetEnd.y &&
                         draggingItem.index != item.index
             }
+
         if (targetItem != null) {
             if (
                 draggingItem.index == state.firstVisibleItemIndex ||
@@ -151,7 +152,6 @@ class GridDragAndDropState internal constructor(
             }
             onMove.invoke(draggingItem.index, targetItem.index)
             draggingItemIndex = targetItem.index
-            lastDraggingItemIndex = targetItem.index
         } else {
             val overscroll =
                 when {
@@ -222,7 +222,11 @@ fun LazyGridItemScope.DraggableItem(
         } else {
             Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
         }
-    Box(modifier = modifier.then(draggingModifier), propagateMinConstraints = true) {
+
+    Box(
+        modifier = modifier.then(draggingModifier),
+        propagateMinConstraints = true,
+    ) {
         content(dragging)
     }
 }

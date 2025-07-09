@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
 import androidx.compose.foundation.gestures.GestureCancellationException
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +13,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,6 +59,7 @@ import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -69,7 +68,7 @@ import com.eblan.launcher.framework.widgetmanager.clearPressed
 import kotlinx.coroutines.launch
 
 @Composable
-fun BoxScope.PagerScreen(
+fun PagerScreen(
     modifier: Modifier = Modifier,
     targetPage: Int,
     rows: Int,
@@ -185,7 +184,7 @@ fun BoxScope.PagerScreen(
             1 -> {
                 when (eblanApplicationComponentUiState) {
                     EblanApplicationComponentUiState.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        LoadingScreen()
                     }
 
                     is EblanApplicationComponentUiState.Success -> {

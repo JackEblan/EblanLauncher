@@ -337,7 +337,11 @@ private fun HorizontalPagerScreen(
                 pageCount = pageCount,
             )
 
-            GridLayout(modifier = Modifier.fillMaxSize()) {
+            GridLayout(
+                modifier = Modifier.fillMaxSize(),
+                rows = rows,
+                columns = columns,
+            ) {
                 gridItems[page]?.forEach { gridItem ->
                     key(gridItem.id) {
                         val cellWidth = rootWidth / columns
@@ -355,12 +359,7 @@ private fun HorizontalPagerScreen(
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 ApplicationInfoGridItem(
-                                    modifier = Modifier.gridItem(
-                                        width = width,
-                                        height = height,
-                                        x = x,
-                                        y = y,
-                                    ),
+                                    modifier = Modifier.gridItem(gridItem),
                                     textColor = textColor,
                                     gridItemData = data,
                                     onTap = {
@@ -391,12 +390,7 @@ private fun HorizontalPagerScreen(
 
                             is GridItemData.Widget -> {
                                 WidgetGridItem(
-                                    modifier = Modifier.gridItem(
-                                        width = width,
-                                        height = height,
-                                        x = x,
-                                        y = y,
-                                    ),
+                                    modifier = Modifier.gridItem(gridItem),
                                     drag = drag,
                                     gridItemData = data,
                                     onLongPress = { preview, intOffset ->
@@ -432,6 +426,8 @@ private fun HorizontalPagerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
+            rows = dockRows,
+            columns = dockColumns,
         ) {
             dockGridItems.forEach { dockGridItem ->
                 key(dockGridItem.id) {
@@ -450,12 +446,7 @@ private fun HorizontalPagerScreen(
                     when (val data = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
-                                modifier = Modifier.gridItem(
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y,
-                                ),
+                                modifier = Modifier.gridItem(dockGridItem),
                                 textColor = textColor,
                                 gridItemData = data,
                                 onTap = {
@@ -490,12 +481,7 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Widget -> {
                             WidgetGridItem(
-                                modifier = Modifier.gridItem(
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y,
-                                ),
+                                modifier = Modifier.gridItem(dockGridItem),
                                 drag = drag,
                                 gridItemData = data,
                                 onLongPress = { preview, intOffset ->

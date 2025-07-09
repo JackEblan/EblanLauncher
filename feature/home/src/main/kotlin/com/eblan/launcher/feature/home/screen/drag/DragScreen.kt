@@ -186,7 +186,7 @@ fun DragScreen(
         handleDragIntOffset(
             targetPage = targetPage,
             gridItems = gridItems[targetPage].orEmpty(),
-            dockGridItems =dockGridItems,
+            dockGridItems = dockGridItems,
             drag = drag,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             dragIntOffset = dragIntOffset,
@@ -255,34 +255,15 @@ fun DragScreen(
                         shape = RoundedCornerShape(8.dp),
                     )
                     .background(color = Color.White.copy(alpha = 0.25f)),
+                rows = rows,
+                columns = columns,
             ) {
                 gridItems[page]?.forEach { gridItem ->
                     key(gridItem.id) {
-                        val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
-
-                        val gridHeight = (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
-
-                        val cellWidth = gridWidth / columns
-
-                        val cellHeight = gridHeight / rows
-
-                        val x = gridItem.startColumn * cellWidth
-
-                        val y = gridItem.startRow * cellHeight
-
-                        val width = gridItem.columnSpan * cellWidth
-
-                        val height = gridItem.rowSpan * cellHeight
-
                         LookaheadScope {
                             val gridItemModifier = Modifier
                                 .animateBounds(this)
-                                .gridItem(
-                                    width = width,
-                                    height = height,
-                                    x = x,
-                                    y = y,
-                                )
+                                .gridItem(gridItem)
                                 .fillMaxSize()
 
                             when (val data = gridItem.data) {
@@ -361,30 +342,15 @@ fun DragScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
+            rows = dockRows,
+            columns = dockColumns,
         ) {
             dockGridItems.forEach { dockGridItem ->
                 key(dockGridItem.id) {
-                    val cellWidth = rootWidth / dockColumns
-
-                    val cellHeight = dockHeight / dockRows
-
-                    val x = dockGridItem.startColumn * cellWidth
-
-                    val y = dockGridItem.startRow * cellHeight
-
-                    val width = dockGridItem.columnSpan * cellWidth
-
-                    val height = dockGridItem.rowSpan * cellHeight
-
                     LookaheadScope {
                         val gridItemModifier = Modifier
                             .animateBounds(this)
-                            .gridItem(
-                                width = width,
-                                height = height,
-                                x = x,
-                                y = y,
-                            )
+                            .gridItem(dockGridItem)
                             .fillMaxSize()
 
                         when (val gridItemData = dockGridItem.data) {

@@ -29,14 +29,14 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.feature.home.component.grid.GridSubcomposeLayout
+import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.gridItem
 
 @Composable
 fun EditPageScreen(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    rootWidth: Int,
     rootHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
@@ -57,6 +57,10 @@ fun EditPageScreen(
         rememberGridDragAndDropState(gridState = gridState) { from, to ->
             currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
         }
+
+    val gridHeight = with(density) {
+        ((rootHeight - dockHeight) / 2).toDp()
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -79,19 +83,20 @@ fun EditPageScreen(
                         colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.25f)),
                         border = BorderStroke(width = 2.dp, color = Color.White),
                     ) {
-                        GridSubcomposeLayout(
+                        GridLayout(
+                            modifier = Modifier.height(gridHeight),
                             rows = rows,
                             columns = columns,
-                            rootWidth = rootWidth,
-                            rootHeight = rootHeight - dockHeight,
-                            gridItems = pageItem.gridItems,
-                            content = { gridItem ->
+                        ) {
+                            pageItem.gridItems.forEach { gridItem ->
                                 when (val data = gridItem.data) {
                                     is GridItemData.ApplicationInfo -> {
                                         AsyncImage(
                                             model = data.icon,
                                             contentDescription = null,
-                                            modifier = Modifier.padding(2.dp),
+                                            modifier = Modifier
+                                                .gridItem(gridItem)
+                                                .padding(2.dp),
                                         )
                                     }
 
@@ -99,11 +104,13 @@ fun EditPageScreen(
                                         AsyncImage(
                                             model = data.preview,
                                             contentDescription = null,
+                                            modifier = Modifier.gridItem(gridItem),
                                         )
                                     }
                                 }
-                            },
-                        )
+
+                            }
+                        }
                     }
                 }
             }

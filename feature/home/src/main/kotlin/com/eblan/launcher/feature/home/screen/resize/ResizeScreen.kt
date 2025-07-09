@@ -79,32 +79,15 @@ fun ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
+            rows = rows,
+            columns = columns,
         ) {
             gridItems?.forEach { gridItem ->
                 key(gridItem.id) {
-                    val gridHeight = rootHeight - dockHeight
-
-                    val cellWidth = rootWidth / columns
-
-                    val cellHeight = gridHeight / rows
-
-                    val x = gridItem.startColumn * cellWidth
-
-                    val y = gridItem.startRow * cellHeight
-
-                    val width = gridItem.columnSpan * cellWidth
-
-                    val height = gridItem.rowSpan * cellHeight
-
                     LookaheadScope {
                         val gridItemModifier = Modifier
                             .animateBounds(this)
-                            .gridItem(
-                                width = width,
-                                height = height,
-                                x = x,
-                                y = y,
-                            )
+                            .gridItem(gridItem)
                             .fillMaxSize()
 
                         when (val data = gridItem.data) {
@@ -169,31 +152,16 @@ fun ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
+            rows = dockRows,
+            columns = dockColumns,
         ) {
             dockGridItems.forEach { dockGridItem ->
                 key(dockGridItem.id) {
-                    val cellWidth = rootWidth / dockColumns
-
-                    val cellHeight = dockHeight / dockRows
-
-                    val x = dockGridItem.startColumn * cellWidth
-
-                    val y = dockGridItem.startRow * cellHeight
-
-                    val width = dockGridItem.columnSpan * cellWidth
-
-                    val height = dockGridItem.rowSpan * cellHeight
-
                     when (val gridItemData = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             Column(
                                 modifier = Modifier
-                                    .gridItem(
-                                        width = width,
-                                        height = height,
-                                        x = x,
-                                        y = y,
-                                    )
+                                    .gridItem(dockGridItem)
                                     .fillMaxSize(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
@@ -240,12 +208,7 @@ fun ResizeScreen(
                                         }
                                     },
                                     modifier = Modifier
-                                        .gridItem(
-                                            width = width,
-                                            height = height,
-                                            x = x,
-                                            y = y,
-                                        )
+                                        .gridItem(dockGridItem)
                                         .fillMaxSize(),
                                 )
                             }

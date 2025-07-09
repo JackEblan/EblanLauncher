@@ -459,7 +459,6 @@ private fun Success(
                 EditPageScreen(
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
-                    rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     pageItems = pageItems,
                     dockHeight = userData.homeSettings.dockHeight,

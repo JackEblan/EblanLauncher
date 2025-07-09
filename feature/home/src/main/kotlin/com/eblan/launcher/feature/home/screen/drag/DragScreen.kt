@@ -133,12 +133,12 @@ fun DragScreen(
         },
     )
 
-    val horizontalPagerPadding = 20.dp
+    val horizontalPagerPaddingDp = 20.dp
 
-    val gridPadding = 5.dp
+    val gridPaddingDp = 5.dp
 
-    val horizontalPagerPaddingPx = with(density) {
-        horizontalPagerPadding.roundToPx()
+    val gridPaddingPx = with(density) {
+        (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
     val targetPage by remember {
@@ -192,7 +192,7 @@ fun DragScreen(
             dragIntOffset = dragIntOffset,
             rootHeight = rootHeight,
             dockHeight = dockHeight,
-            horizontalPagerPaddingPx = horizontalPagerPaddingPx,
+            gridPadding = gridPaddingPx,
             rootWidth = rootWidth,
             dockColumns = dockColumns,
             dockRows = dockRows,
@@ -237,7 +237,7 @@ fun DragScreen(
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(all = horizontalPagerPadding),
+            contentPadding = PaddingValues(all = horizontalPagerPaddingDp),
         ) { index ->
             val page = calculatePage(
                 index = index,
@@ -248,7 +248,7 @@ fun DragScreen(
             GridLayout(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(gridPadding)
+                    .padding(gridPaddingDp)
                     .border(
                         width = 2.dp,
                         color = Color.White,
@@ -572,7 +572,7 @@ private suspend fun handleDragIntOffset(
     dragIntOffset: IntOffset,
     rootHeight: Int,
     dockHeight: Int,
-    horizontalPagerPaddingPx: Int,
+    gridPadding: Int,
     rootWidth: Int,
     dockColumns: Int,
     dockRows: Int,
@@ -593,17 +593,17 @@ private suspend fun handleDragIntOffset(
 ) {
     if (drag == Drag.Dragging && gridItemLayoutInfo != null && !isScrollInProgress) {
         val isDraggingOnDock =
-            dragIntOffset.y > (rootHeight - dockHeight) - horizontalPagerPaddingPx
+            dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 
         val scrollToPageDelay = 500L
 
         val moveGridItemDelay = 100L
 
-        if (dragIntOffset.x <= horizontalPagerPaddingPx && !isDraggingOnDock) {
+        if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
             delay(scrollToPageDelay)
 
             onChangePageDirection(PageDirection.Left)
-        } else if (dragIntOffset.x >= rootWidth - horizontalPagerPaddingPx && !isDraggingOnDock) {
+        } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
             delay(scrollToPageDelay)
 
             onChangePageDirection(PageDirection.Right)
@@ -637,13 +637,13 @@ private suspend fun handleDragIntOffset(
             } else {
                 delay(moveGridItemDelay)
 
-                val gridWidth = rootWidth - (horizontalPagerPaddingPx * 2)
+                val gridWidth = rootWidth - (gridPadding * 2)
 
-                val gridHeight = (rootHeight - dockHeight) - (horizontalPagerPaddingPx * 2)
+                val gridHeight = (rootHeight - dockHeight) - (gridPadding * 2)
 
-                val gridX = dragIntOffset.x - horizontalPagerPaddingPx
+                val gridX = dragIntOffset.x - gridPadding
 
-                val gridY = dragIntOffset.y - horizontalPagerPaddingPx
+                val gridY = dragIntOffset.y - gridPadding
 
                 val cellWidth = gridWidth / columns
 

@@ -70,7 +70,7 @@ class HomeViewModel @Inject constructor(
 
     val targetPage = _targetPage.asStateFlow()
 
-    private val screenDelay = 500L
+    private val screenDelay = 100L
 
     fun moveGridItem(
         gridItems: List<GridItem>,
@@ -128,10 +128,6 @@ class HomeViewModel @Inject constructor(
 
     fun showGridCache(screen: Screen) {
         viewModelScope.launch {
-            _screen.update {
-                Screen.Loading
-            }
-
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
             gridCacheRepository.updateIsCache(isCache = true)
@@ -188,10 +184,6 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache(currentPage: Int) {
         viewModelScope.launch {
-            _screen.update {
-                Screen.Loading
-            }
-
             _targetPage.update {
                 updateGridItemsUseCase(currentPage = currentPage)
             }

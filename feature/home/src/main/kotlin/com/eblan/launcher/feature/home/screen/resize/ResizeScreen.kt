@@ -3,12 +3,17 @@ package com.eblan.launcher.feature.home.screen.resize
 import android.widget.FrameLayout
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -72,32 +77,118 @@ fun ResizeScreen(
         TextColor.Black -> Color.Black
     }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        GridLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            rows = rows,
-            columns = columns,
-        ) {
-            gridItems?.forEach { gridItem ->
-                key(gridItem.id) {
-                    LookaheadScope {
-                        val gridItemModifier = Modifier
-                            .animateBounds(this)
-                            .gridItem(gridItem)
-                            .fillMaxSize()
+    val gridPaddingDp = 20.dp
 
-                        when (val data = gridItem.data) {
+    val gridPaddingPx = with(density) {
+        gridPaddingDp.roundToPx()
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize(),
+    ) {
+        Column(
+            modifier = Modifier.matchParentSize(),
+        ) {
+            GridLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(gridPaddingDp)
+                    .weight(1f)
+                    .border(
+                        width = 2.dp,
+                        color = Color.White,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    .background(color = Color.White.copy(alpha = 0.25f)),
+                rows = rows,
+                columns = columns,
+            ) {
+                gridItems?.forEach { gridItem ->
+                    key(gridItem.id) {
+                        LookaheadScope {
+                            val gridItemModifier = Modifier
+                                .animateBounds(this)
+                                .gridItem(gridItem)
+                                .fillMaxSize()
+
+                            when (val data = gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    Column(
+                                        modifier = gridItemModifier,
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        AsyncImage(
+                                            model = data.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(40.dp, 40.dp)
+                                                .weight(1f),
+                                        )
+
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text(
+                                            text = data.label.toString(),
+                                            modifier = Modifier.weight(1f),
+                                            color = color,
+                                            textAlign = TextAlign.Center,
+                                            fontSize = TextUnit(
+                                                value = 10f,
+                                                type = TextUnitType.Sp,
+                                            ),
+                                        )
+                                    }
+                                }
+
+                                is GridItemData.Widget -> {
+                                    val appWidgetInfo =
+                                        appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+
+                                    if (appWidgetInfo != null) {
+                                        AndroidView(
+                                            factory = {
+                                                appWidgetHost.createView(
+                                                    appWidgetId = data.appWidgetId,
+                                                    appWidgetProviderInfo = appWidgetInfo,
+                                                ).apply {
+                                                    layoutParams = FrameLayout.LayoutParams(
+                                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                                    )
+
+                                                    setAppWidget(appWidgetId, appWidgetInfo)
+                                                }
+                                            },
+                                            modifier = gridItemModifier,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            GridLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dockHeightDp),
+                rows = dockRows,
+                columns = dockColumns,
+            ) {
+                dockGridItems.forEach { dockGridItem ->
+                    key(dockGridItem.id) {
+                        when (val gridItemData = dockGridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 Column(
-                                    modifier = gridItemModifier,
+                                    modifier = Modifier
+                                        .gridItem(dockGridItem)
+                                        .fillMaxSize(),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
                                     AsyncImage(
-                                        model = data.icon,
+                                        model = gridItemData.icon,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(40.dp, 40.dp)
@@ -107,7 +198,7 @@ fun ResizeScreen(
                                     Spacer(modifier = Modifier.height(10.dp))
 
                                     Text(
-                                        text = data.label.toString(),
+                                        text = gridItemData.label.toString(),
                                         modifier = Modifier.weight(1f),
                                         color = color,
                                         textAlign = TextAlign.Center,
@@ -121,13 +212,13 @@ fun ResizeScreen(
 
                             is GridItemData.Widget -> {
                                 val appWidgetInfo =
-                                    appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+                                    appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
                                 if (appWidgetInfo != null) {
                                     AndroidView(
                                         factory = {
                                             appWidgetHost.createView(
-                                                appWidgetId = data.appWidgetId,
+                                                appWidgetId = gridItemData.appWidgetId,
                                                 appWidgetProviderInfo = appWidgetInfo,
                                             ).apply {
                                                 layoutParams = FrameLayout.LayoutParams(
@@ -138,7 +229,9 @@ fun ResizeScreen(
                                                 setAppWidget(appWidgetId, appWidgetInfo)
                                             }
                                         },
-                                        modifier = gridItemModifier,
+                                        modifier = Modifier
+                                            .gridItem(dockGridItem)
+                                            .fillMaxSize(),
                                     )
                                 }
                             }
@@ -148,122 +241,56 @@ fun ResizeScreen(
             }
         }
 
-        GridLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dockHeightDp),
-            rows = dockRows,
-            columns = dockColumns,
-        ) {
-            dockGridItems.forEach { dockGridItem ->
-                key(dockGridItem.id) {
-                    when (val gridItemData = dockGridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            Column(
-                                modifier = Modifier
-                                    .gridItem(dockGridItem)
-                                    .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                AsyncImage(
-                                    model = gridItemData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp, 40.dp)
-                                        .weight(1f),
-                                )
+        if (gridItemLayoutInfo != null) {
+            val gridWidth = rootWidth - (gridPaddingPx * 2)
 
-                                Spacer(modifier = Modifier.height(10.dp))
+            val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
 
-                                Text(
-                                    text = gridItemData.label.toString(),
-                                    modifier = Modifier.weight(1f),
-                                    color = color,
-                                    textAlign = TextAlign.Center,
-                                    fontSize = TextUnit(
-                                        value = 10f,
-                                        type = TextUnitType.Sp,
-                                    ),
-                                )
-                            }
-                        }
+            val cellWidth = gridWidth / columns
 
-                        is GridItemData.Widget -> {
-                            val appWidgetInfo =
-                                appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+            val cellHeight = gridHeight / rows
 
-                            if (appWidgetInfo != null) {
-                                AndroidView(
-                                    factory = {
-                                        appWidgetHost.createView(
-                                            appWidgetId = gridItemData.appWidgetId,
-                                            appWidgetProviderInfo = appWidgetInfo,
-                                        ).apply {
-                                            layoutParams = FrameLayout.LayoutParams(
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
-                                            )
-
-                                            setAppWidget(appWidgetId, appWidgetInfo)
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .gridItem(dockGridItem)
-                                        .fillMaxSize(),
-                                )
-                            }
-                        }
-                    }
+            when (val data = gridItemLayoutInfo.gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    GridItemResizeOverlay(
+                        gridPadding = gridPaddingPx,
+                        gridItems = gridItems,
+                        gridItem = gridItemLayoutInfo.gridItem,
+                        gridWidth = gridWidth,
+                        gridHeight = gridHeight,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        rows = rows,
+                        columns = columns,
+                        startRow = gridItemLayoutInfo.gridItem.startRow,
+                        startColumn = gridItemLayoutInfo.gridItem.startColumn,
+                        rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
+                        columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
+                        onResizeGridItem = onResizeGridItem,
+                        onResizeEnd = onResizeEnd,
+                    )
                 }
-            }
-        }
-    }
 
-    if (gridItemLayoutInfo != null) {
-        val gridHeight = rootHeight - dockHeight
-
-        val cellWidth = rootWidth / columns
-
-        val cellHeight = gridHeight / rows
-
-        when (val data = gridItemLayoutInfo.gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                GridItemResizeOverlay(
-                    gridItems = gridItems,
-                    gridItem = gridItemLayoutInfo.gridItem,
-                    gridWidth = rootWidth,
-                    gridHeight = gridHeight,
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
-                    rows = rows,
-                    columns = columns,
-                    startRow = gridItemLayoutInfo.gridItem.startRow,
-                    startColumn = gridItemLayoutInfo.gridItem.startColumn,
-                    rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
-                    columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
-                    onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = onResizeEnd,
-                )
-            }
-
-            is GridItemData.Widget -> {
-                WidgetGridItemResizeOverlay(
-                    gridItems = gridItems,
-                    gridItem = gridItemLayoutInfo.gridItem,
-                    gridWidth = rootWidth,
-                    gridHeight = gridHeight,
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
-                    rows = rows,
-                    columns = columns,
-                    data = data,
-                    startRow = gridItemLayoutInfo.gridItem.startRow,
-                    startColumn = gridItemLayoutInfo.gridItem.startColumn,
-                    rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
-                    columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
-                    onResizeWidgetGridItem = onResizeGridItem,
-                    onResizeEnd = onResizeEnd,
-                )
+                is GridItemData.Widget -> {
+                    WidgetGridItemResizeOverlay(
+                        gridPadding = gridPaddingPx,
+                        gridItems = gridItems,
+                        gridItem = gridItemLayoutInfo.gridItem,
+                        gridWidth = gridWidth,
+                        gridHeight = gridHeight,
+                        cellWidth = cellWidth,
+                        cellHeight = cellHeight,
+                        rows = rows,
+                        columns = columns,
+                        data = data,
+                        startRow = gridItemLayoutInfo.gridItem.startRow,
+                        startColumn = gridItemLayoutInfo.gridItem.startColumn,
+                        rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
+                        columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
+                        onResizeWidgetGridItem = onResizeGridItem,
+                        onResizeEnd = onResizeEnd,
+                    )
+                }
             }
         }
     }

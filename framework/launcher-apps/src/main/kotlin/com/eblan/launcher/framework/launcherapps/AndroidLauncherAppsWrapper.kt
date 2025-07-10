@@ -2,6 +2,7 @@ package com.eblan.launcher.framework.launcherapps
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
@@ -14,7 +15,7 @@ import android.os.Process
 import android.os.UserHandle
 import androidx.annotation.RequiresApi
 import com.eblan.launcher.common.util.toByteArray
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanLauncherActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
@@ -32,7 +33,7 @@ import javax.inject.Inject
 internal class AndroidLauncherAppsWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
-) : LauncherAppsWrapper {
+) : LauncherAppsDomainWrapper, LauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
@@ -138,6 +139,11 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
         } else {
             null
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest {
+        return launcherApps.getPinItemRequest(intent)
     }
 
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): EblanLauncherActivityInfo {

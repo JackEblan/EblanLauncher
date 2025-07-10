@@ -3,7 +3,7 @@ package com.eblan.launcher.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
@@ -45,14 +45,14 @@ class ApplicationInfoService : Service() {
     lateinit var changeShortcutsUseCase: ChangeShortcutsUseCase
 
     @Inject
-    lateinit var launcherAppsWrapper: LauncherAppsWrapper
+    lateinit var launcherAppsDomainWrapper: LauncherAppsDomainWrapper
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         serviceScope.launch {
             launch {
-                launcherAppsWrapper.launcherAppsEvent.collectLatest { launcherAppsEvent ->
+                launcherAppsDomainWrapper.launcherAppsEvent.collectLatest { launcherAppsEvent ->
                     when (launcherAppsEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
                             addPackageUseCase(packageName = launcherAppsEvent.packageName)

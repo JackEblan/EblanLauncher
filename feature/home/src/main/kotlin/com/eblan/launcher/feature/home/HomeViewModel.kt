@@ -3,7 +3,7 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -36,7 +36,7 @@ class HomeViewModel @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
-    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
     private val cachePageItemsUseCase: CachePageItemsUseCase,
@@ -135,7 +135,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startMainActivity(componentName: String?) {
-        launcherAppsWrapper.startMainActivity(componentName = componentName)
+        launcherAppsDomainWrapper.startMainActivity(componentName = componentName)
     }
 
     fun showPageCache() {

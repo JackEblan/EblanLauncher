@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.flow.first
@@ -9,14 +9,14 @@ import javax.inject.Inject
 
 class UpdateEblanApplicationInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
     private val fileManager: FileManager,
 ) {
     suspend operator fun invoke() {
         val oldEblanApplicationInfos = eblanApplicationInfoRepository.eblanApplicationInfos.first()
 
         val newEblanApplicationInfos =
-            launcherAppsWrapper.getActivityList().map { eblanLauncherActivityInfo ->
+            launcherAppsDomainWrapper.getActivityList().map { eblanLauncherActivityInfo ->
                 val icon = eblanLauncherActivityInfo.icon?.let { currentIcon ->
                     fileManager.writeFileBytes(
                         directory = fileManager.iconsDirectory,

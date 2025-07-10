@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
@@ -13,11 +13,11 @@ import javax.inject.Inject
 class UpdateEblanShortcutInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
-    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
     private val fileManager: FileManager,
 ) {
     suspend operator fun invoke() {
-        if (!launcherAppsWrapper.hasShortcutHostPermission) {
+        if (!launcherAppsDomainWrapper.hasShortcutHostPermission) {
             return
         }
 
@@ -28,7 +28,7 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
             val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
 
             val newEblanShortcutInfos =
-                launcherAppsWrapper.getShortcuts()?.mapNotNull { launcherAppsShortcutInfo ->
+                launcherAppsDomainWrapper.getShortcuts()?.mapNotNull { launcherAppsShortcutInfo ->
                     val eblanApplicationInfo =
                         oldEblanApplicationInfos.find { eblanApplicationInfo ->
                             eblanApplicationInfo.packageName == launcherAppsShortcutInfo.packageName

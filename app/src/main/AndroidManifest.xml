@@ -29,6 +29,16 @@
         </activity>
 
         <activity android:name=".SettingsActivity" />
+
+        <activity
+            android:name=".feature.pinnedwidget.ConfirmPinAppWidgetActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.pm.action.CONFIRM_PIN_APPWIDGET" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

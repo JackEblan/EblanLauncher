@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.model.EblanApplicationComponent
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -15,7 +15,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
-    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
 ) {
     operator fun invoke(): Flow<EblanApplicationComponent> {
         return combine(
@@ -42,7 +42,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                     eblanShortcutInfo.eblanApplicationInfo
                 }
 
-            val pageCount = if (launcherAppsWrapper.hasShortcutHostPermission) {
+            val pageCount = if (launcherAppsDomainWrapper.hasShortcutHostPermission) {
                 3
             } else {
                 2

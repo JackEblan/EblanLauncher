@@ -8,7 +8,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
@@ -42,7 +41,6 @@ class HomeViewModel @Inject constructor(
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
-    private val pageCacheRepository: PageCacheRepository,
 ) : ViewModel() {
     val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -159,6 +157,7 @@ class HomeViewModel @Inject constructor(
     fun saveEditPage(
         initialPage: Int,
         pageItems: List<PageItem>,
+        pageItemsToDelete: List<PageItem>,
     ) {
         viewModelScope.launch {
             _screen.update {
@@ -168,6 +167,7 @@ class HomeViewModel @Inject constructor(
             updatePageItemsUseCase(
                 initialPage = initialPage,
                 pageItems = pageItems,
+                pageItemsToDelete = pageItemsToDelete,
             )
 
             delay(screenDelay)
@@ -183,17 +183,6 @@ class HomeViewModel @Inject constructor(
             Screen.Pager
         }
     }
-
-    fun addEmptyPageItem() {
-        pageCacheRepository.addEmptyPageItem()
-    }
-
-    fun deletePageItems(id: Int) {
-        viewModelScope.launch {
-            pageCacheRepository.deletePageItems(id = id)
-        }
-    }
-
 
     fun resetGridCache() {
         viewModelScope.launch {

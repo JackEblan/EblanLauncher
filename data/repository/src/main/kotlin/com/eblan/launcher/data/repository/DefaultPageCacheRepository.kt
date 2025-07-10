@@ -9,17 +9,7 @@ internal class DefaultPageCacheRepository @Inject constructor(private val pageCa
     PageCacheRepository {
     override val pageItems = pageCacheDataSource.pageItems
 
-    override val pageItemsToDelete = pageCacheDataSource.pageItemsToDelete
-
     override fun insertPageItems(pageItems: List<PageItem>) {
         pageCacheDataSource.insertPageItems(pageItems = pageItems)
-    }
-
-    override fun addEmptyPageItem() {
-        pageCacheDataSource.addEmptyPageItem()
-    }
-
-    override suspend fun deletePageItems(id: Int) {
-        pageCacheDataSource.deletePageItems(id = id)
     }
 }

@@ -4,10 +4,8 @@ import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -15,14 +13,14 @@ class UpdatePageItemsUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
-    private val pageCacheRepository: PageCacheRepository,
 ) {
     suspend operator fun invoke(
         initialPage: Int,
         pageItems: List<PageItem>,
+        pageItemsToDelete: List<PageItem>,
     ) {
         withContext(Dispatchers.Default) {
-            pageCacheRepository.pageItemsToDelete.first().forEach { pageItem ->
+            pageItemsToDelete.forEach { pageItem ->
                 gridRepository.deleteGridItemEntities(gridItems = pageItem.gridItems)
 
                 pageItem.gridItems.forEach { gridItem ->
@@ -40,9 +38,13 @@ class UpdatePageItemsUseCase @Inject constructor(
                 }
             }.flatten()
 
-            gridRepository.upsertGridItems(gridItems = gridItems)
+            val newInitialPage = pageItems.indexOfFirst { pageItem -> pageItem.id == initialPage }
 
-            userDataRepository.updateInitialPage(initialPage = initialPage)
+            if (initialPage != -1) {
+                userDataRepository.updateInitialPage(initialPage = newInitialPage)
+            }
+
+            gridRepository.upsertGridItems(gridItems = gridItems)
 
             userDataRepository.updatePageCount(pageCount = pageItems.size)
         }

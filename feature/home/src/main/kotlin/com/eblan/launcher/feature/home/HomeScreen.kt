@@ -72,8 +72,6 @@ fun HomeRoute(
         onStartMainActivity = viewModel::startMainActivity,
         onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
-        onDeletePageItems = viewModel::deletePageItems,
-        onAddEmptyPageItem = viewModel::addEmptyPageItem,
     )
 }
 
@@ -111,10 +109,9 @@ fun HomeScreen(
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
+        pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onDeletePageItems: (Int) -> Unit,
-    onAddEmptyPageItem: () -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -209,8 +206,6 @@ fun HomeScreen(
                         onShowOverlay = { newShowOverlay ->
                             showOverlay = newShowOverlay
                         },
-                        onDeletePageItems = onDeletePageItems,
-                        onAddEmptyPageItem = onAddEmptyPageItem,
                     )
                 }
             }
@@ -260,6 +255,7 @@ private fun Success(
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
+        pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
     onUpdateIntOffset: (
@@ -268,8 +264,6 @@ private fun Success(
     ) -> Unit,
     onUpdateOverlayImageBitmap: (ImageBitmap?) -> Unit,
     onShowOverlay: (Boolean) -> Unit,
-    onDeletePageItems: (Int) -> Unit,
-    onAddEmptyPageItem: () -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -469,8 +463,6 @@ private fun Success(
                     initialPage = userData.homeSettings.initialPage,
                     onSaveEditPage = onSaveEditPage,
                     onCancelEditPage = onCancelEditPage,
-                    onDeletePageItems = onDeletePageItems,
-                    onAddEmptyPageItem = onAddEmptyPageItem,
                 )
             }
         }

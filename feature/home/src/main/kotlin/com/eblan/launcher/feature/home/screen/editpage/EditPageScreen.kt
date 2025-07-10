@@ -25,9 +25,9 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,10 +53,9 @@ fun EditPageScreen(
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
+        pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onDeletePageItems: (Int) -> Unit,
-    onAddEmptyPageItem: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -65,6 +64,8 @@ fun EditPageScreen(
     }
 
     var currentPageItems by remember { mutableStateOf(pageItems) }
+
+    val pageItemsToDelete = remember { mutableStateListOf<PageItem>() }
 
     var currentInitialPage by remember { mutableIntStateOf(initialPage) }
 
@@ -77,12 +78,6 @@ fun EditPageScreen(
 
     val gridHeight = with(density) {
         ((rootHeight - dockHeight) / 2).toDp()
-    }
-
-    LaunchedEffect(key1 = pageItems) {
-        if (pageItems != currentPageItems) {
-            currentPageItems = pageItems
-        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -149,10 +144,16 @@ fun EditPageScreen(
                             ) {
                                 IconButton(
                                     onClick = {
-                                        if (pageItem.id != initialPage) {
-                                            onDeletePageItems(pageItem.id)
-                                        }
+                                        currentPageItems = currentPageItems.toMutableList()
+                                            .apply {
+                                                removeIf { currentPageItem ->
+                                                    currentPageItem.id == pageItem.id
+                                                }
+                                            }
+
+                                        pageItemsToDelete.add(pageItem)
                                     },
+                                    enabled = pageItem.id != currentInitialPage,
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
@@ -185,7 +186,10 @@ fun EditPageScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(
-                onClick = onAddEmptyPageItem,
+                onClick = {
+                    currentPageItems = currentPageItems.toMutableList()
+                        .apply { add(PageItem(id = size, gridItems = emptyList())) }
+                },
             ) {
                 Text(text = "Add")
             }
@@ -200,7 +204,11 @@ fun EditPageScreen(
 
             Button(
                 onClick = {
-                    onSaveEditPage(currentInitialPage, currentPageItems)
+                    onSaveEditPage(
+                        currentInitialPage,
+                        currentPageItems,
+                        pageItemsToDelete,
+                    )
                 },
             ) {
                 Text(text = "Save")

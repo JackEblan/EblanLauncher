@@ -1,6 +1,8 @@
 package com.eblan.launcher.feature.home
 
+import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -16,6 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -123,6 +128,15 @@ fun HomeScreen(
 
     var showOverlay by remember { mutableStateOf(false) }
 
+    val callback = remember {
+        object : DragAndDropTarget {
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                println("Am I good?????")
+                return true
+            }
+        }
+    }
+
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         BoxWithConstraints(
             modifier = modifier
@@ -159,6 +173,12 @@ fun HomeScreen(
                         },
                     )
                 }
+                .dragAndDropTarget(
+                    shouldStartDragAndDrop = { event ->
+                        event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
+                    },
+                    target = callback,
+                )
                 .fillMaxSize()
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues),

@@ -1,19 +1,23 @@
-package com.eblan.launcher.feature.pinnedwidget
+package com.eblan.launcher
 
-import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
+import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
+import com.eblan.launcher.feature.pin.widget.PinWidgetScreen
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class ConfirmPinAppWidgetActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class PinActivity : ComponentActivity() {
 
     @Inject
     lateinit var appWidgetHostWrapper: AppWidgetHostWrapper
@@ -27,29 +31,44 @@ class ConfirmPinAppWidgetActivity : AppCompatActivity() {
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
 
+    private var mFinishOnPause = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val pinItemRequest = launcherAppsWrapper.getPinItemRequest(intent = intent)
 
-            if (pinItemRequest.requestType == LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET) {
-                showConfirmationDialog(pinItemRequest = pinItemRequest)
-            } else {
-                finish()
+            setContent {
+                when (pinItemRequest.requestType) {
+                    LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                        PinWidgetScreen(
+                            onHome = {
+                                val intent = Intent(Intent.ACTION_MAIN)
+                                    .addCategory(Intent.CATEGORY_HOME)
+                                    .setPackage(packageName)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+                                startActivity(intent)
+
+                                mFinishOnPause = true
+                            },
+                        )
+                    }
+
+                    LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+
+                    }
+                }
             }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun showConfirmationDialog(pinItemRequest: LauncherApps.PinItemRequest) {
-        AlertDialog.Builder(this)
-            .setTitle("Add Widget")
-            .setMessage("Allow this widget to be added to your home screen?")
-            .setPositiveButton("Add") { _, _ -> acceptWidgetPin(pinItemRequest = pinItemRequest) }
-            .setNegativeButton("Cancel") { _, _ -> finish() }
-            .setOnCancelListener { finish() }
-            .show()
+    override fun onPause() {
+        super.onPause()
+        if (mFinishOnPause) {
+            finish()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -20,20 +20,16 @@ plugins {
     alias(libs.plugins.com.eblan.launcher.feature)
     alias(libs.plugins.com.eblan.launcher.libraryCompose)
     alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-    alias(libs.plugins.roborazzi)
 }
 
 android {
-    namespace = "com.eblan.launcher.feature.pinnedwidget"
+    namespace = "com.eblan.launcher.feature.pin"
 }
 
 dependencies {
-    implementation(libs.androidx.appcompat.appcompat)
-    implementation(libs.androidx.activity.ktx)
     implementation(projects.domain.framework)
     implementation(projects.domain.grid)
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)
-    implementation(projects.framework.launcherApps)
     implementation(projects.framework.widgetManager)
 }

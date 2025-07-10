@@ -18,4 +18,8 @@
         <item name="postSplashScreenTheme">@style/Theme.EblanLauncher.Wallpaper</item>
     </style>
 
+    <style name="PinActivityTheme" parent="@android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
 </resources>

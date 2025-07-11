@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
-import androidx.compose.foundation.gestures.GestureCancellationException
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,7 +62,6 @@ import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.widgetmanager.canScroll
 import com.eblan.launcher.framework.widgetmanager.clearPressed
 import kotlinx.coroutines.launch
 
@@ -90,7 +88,6 @@ fun PagerScreen(
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     overlayIntOffset: IntOffset,
-    initialPage: Int,
     onLongPressGrid: (
         currentPage: Int,
         intOffset: IntOffset,
@@ -142,12 +139,9 @@ fun PagerScreen(
         },
     )
 
-    var userScrollEnabled by remember { mutableStateOf(true) }
-
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
-        userScrollEnabled = userScrollEnabled,
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
@@ -176,9 +170,6 @@ fun PagerScreen(
                     onResize = onResize,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
-                    onUserScrollEnabled = { newUserScrollEnabled ->
-                        userScrollEnabled = newUserScrollEnabled
-                    },
                 )
             }
 
@@ -286,7 +277,6 @@ private fun HorizontalPagerScreen(
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
-    onUserScrollEnabled: (Boolean) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -414,7 +404,6 @@ private fun HorizontalPagerScreen(
                                             IntOffset(x = dragX, y = dragY),
                                         )
                                     },
-                                    onUserScrollEnabled = onUserScrollEnabled,
                                 )
                             }
                         }
@@ -509,7 +498,6 @@ private fun HorizontalPagerScreen(
                                         IntOffset(x = dragX, y = dragY),
                                     )
                                 },
-                                onUserScrollEnabled = onUserScrollEnabled,
                             )
                         }
                     }
@@ -713,7 +701,6 @@ private fun WidgetGridItem(
         imageBitmap: ImageBitmap,
         intOffset: IntOffset,
     ) -> Unit,
-    onUserScrollEnabled: (Boolean) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -724,8 +711,6 @@ private fun WidgetGridItem(
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
-
-    var canScroll by remember { mutableStateOf(false) }
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -739,8 +724,6 @@ private fun WidgetGridItem(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                     )
 
-                    canScroll = canScroll(this)
-
                     setAppWidget(appWidgetId, appWidgetInfo)
                 }
             },
@@ -752,47 +735,18 @@ private fun WidgetGridItem(
 
                     drawLayer(graphicsLayer)
                 }
-                .run {
-                    if (canScroll) {
-                        pointerInput(Unit) {
-                            detectTapGesturesUnConsume(
-                                requireUnconsumed = false,
-                                onLongPress = { offset ->
-                                    scope.launch {
-                                        onLongPress(
-                                            graphicsLayer.toImageBitmap(),
-                                            offset.round(),
-                                        )
-                                    }
-                                },
-                                onPress = {
-                                    onUserScrollEnabled(false)
-
-                                    try {
-                                        awaitRelease()
-
-                                        onUserScrollEnabled(true)
-                                    } catch (e: GestureCancellationException) {
-                                        onUserScrollEnabled(true)
-                                    }
-                                },
-                            )
-                        }
-                    } else {
-                        pointerInput(Unit) {
-                            detectTapGesturesUnConsume(
-                                requireUnconsumed = false,
-                                onLongPress = { offset ->
-                                    scope.launch {
-                                        onLongPress(
-                                            graphicsLayer.toImageBitmap(),
-                                            offset.round(),
-                                        )
-                                    }
-                                },
-                            )
-                        }
-                    }
+                .pointerInput(Unit) {
+                    detectTapGesturesUnConsume(
+                        requireUnconsumed = false,
+                        onLongPress = { offset ->
+                            scope.launch {
+                                onLongPress(
+                                    graphicsLayer.toImageBitmap(),
+                                    offset.round(),
+                                )
+                            }
+                        },
+                    )
                 },
             update = { appWidgetHostView ->
                 if (drag == Drag.Start) {

@@ -320,7 +320,6 @@ private fun Success(
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     overlayIntOffset = overlayIntOffset,
-                    initialPage = userData.homeSettings.initialPage,
                     onLongPressGrid = { newCurrentPage, intOffset ->
                         targetPage = newCurrentPage
 

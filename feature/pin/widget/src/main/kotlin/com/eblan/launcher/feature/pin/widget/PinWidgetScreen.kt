@@ -34,14 +34,14 @@ fun PinWidgetScreen(
                 contentDescription = null,
                 modifier = Modifier
                     .dragAndDropSource { _ ->
+                        onHome()
+
                         DragAndDropTransferData(
                             clipData = ClipData.newPlainText(
                                 "Message", "Hello",
                             ),
                             flags = View.DRAG_FLAG_GLOBAL,
-                        ).also {
-                            onHome()
-                        }
+                        )
                     }
                     .size(100.dp),
             )

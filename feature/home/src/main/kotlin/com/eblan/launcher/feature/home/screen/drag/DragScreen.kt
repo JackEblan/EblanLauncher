@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -138,16 +137,6 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
-    val targetPage by remember {
-        derivedStateOf {
-            calculatePage(
-                index = horizontalPagerState.currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-            )
-        }
-    }
-
     val widgetPreviewFallback = remember {
         gridItemSource?.imageBitmap?.asAndroidBitmap()?.toDrawable(context.resources)
     }
@@ -156,7 +145,9 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleConfigureLauncherResult(
-            targetPage = targetPage,
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
             result = result,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             onDragEnd = onDragEnd,
@@ -169,7 +160,9 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleAppWidgetLauncherResult(
-            targetPage = targetPage,
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
             result = result,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
             onDragEnd = onDragEnd,
@@ -181,8 +174,10 @@ fun DragScreen(
 
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
-            targetPage = targetPage,
-            gridItems = gridItems[targetPage].orEmpty(),
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+            gridItems = gridItems,
             dockGridItems = dockGridItems,
             drag = drag,
             gridItemLayoutInfo = gridItemSource?.gridItemLayoutInfo,
@@ -217,7 +212,9 @@ fun DragScreen(
 
     LaunchedEffect(key1 = drag) {
         handleDrag(
-            targetPage = targetPage,
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
             drag = drag,
             gridItemSource = gridItemSource,
             onDragEnd = onDragEnd,
@@ -313,15 +310,11 @@ fun DragScreen(
                                             },
                                             modifier = gridItemModifier,
                                         )
-                                    } else if (data.preview != null) {
-                                        AsyncImage(
-                                            model = data.preview,
-                                            contentDescription = null,
-                                            modifier = gridItemModifier,
-                                        )
                                     } else {
+                                        val preview = data.preview ?: widgetPreviewFallback
+
                                         AsyncImage(
-                                            model = widgetPreviewFallback,
+                                            model = preview,
                                             contentDescription = null,
                                             modifier = gridItemModifier,
                                         )
@@ -350,14 +343,14 @@ fun DragScreen(
                             .gridItem(dockGridItem)
                             .fillMaxSize()
 
-                        when (val gridItemData = dockGridItem.data) {
+                        when (val data = dockGridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 Column(
                                     modifier = gridItemModifier,
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
                                     AsyncImage(
-                                        model = gridItemData.icon,
+                                        model = data.icon,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(40.dp, 40.dp)
@@ -367,7 +360,7 @@ fun DragScreen(
                                     Spacer(modifier = Modifier.height(10.dp))
 
                                     Text(
-                                        text = gridItemData.label.toString(),
+                                        text = data.label.toString(),
                                         modifier = Modifier.weight(1f),
                                         color = color,
                                         textAlign = TextAlign.Center,
@@ -381,13 +374,13 @@ fun DragScreen(
 
                             is GridItemData.Widget -> {
                                 val appWidgetInfo =
-                                    appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+                                    appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
 
                                 if (appWidgetInfo != null) {
                                     AndroidView(
                                         factory = {
                                             appWidgetHost.createView(
-                                                appWidgetId = gridItemData.appWidgetId,
+                                                appWidgetId = data.appWidgetId,
                                                 appWidgetProviderInfo = appWidgetInfo,
                                             ).apply {
                                                 layoutParams = FrameLayout.LayoutParams(
@@ -400,15 +393,11 @@ fun DragScreen(
                                         },
                                         modifier = gridItemModifier,
                                     )
-                                } else if (gridItemData.preview != null) {
-                                    AsyncImage(
-                                        model = gridItemData.preview,
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
-                                    )
                                 } else {
+                                    val preview = data.preview ?: widgetPreviewFallback
+
                                     AsyncImage(
-                                        model = widgetPreviewFallback,
+                                        model = preview,
                                         contentDescription = null,
                                         modifier = gridItemModifier,
                                     )
@@ -423,7 +412,9 @@ fun DragScreen(
 }
 
 private fun handleDrag(
-    targetPage: Int,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
     drag: Drag,
     gridItemSource: GridItemSource?,
     onDragEnd: (Int) -> Unit,
@@ -434,6 +425,12 @@ private fun handleDrag(
     onDeleteAppWidgetId: (Int) -> Unit,
     onConfigure: (Intent) -> Unit,
 ) {
+    val targetPage = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
     when (drag) {
         Drag.End -> {
             handleOnDragEnd(
@@ -561,8 +558,10 @@ suspend fun handlePageDirection(
 }
 
 private suspend fun handleDragIntOffset(
-    targetPage: Int,
-    gridItems: List<GridItem>,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+    gridItems: Map<Int, List<GridItem>>,
     dockGridItems: List<GridItem>,
     drag: Drag,
     gridItemLayoutInfo: GridItemLayoutInfo?,
@@ -588,6 +587,14 @@ private suspend fun handleDragIntOffset(
         gridHeight: Int,
     ) -> Unit,
 ) {
+    val targetPage = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
+    val gridItemsByPage = gridItems[targetPage].orEmpty()
+
     if (drag == Drag.Dragging && gridItemLayoutInfo != null && !isScrollInProgress) {
         val isDraggingOnDock =
             dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
@@ -622,7 +629,7 @@ private suspend fun handleDragIntOffset(
                 )
 
                 onMoveGridItem(
-                    gridItems + dockGridItems,
+                    gridItemsByPage + dockGridItems,
                     gridItem,
                     dragIntOffset.x,
                     dockY,
@@ -654,7 +661,7 @@ private suspend fun handleDragIntOffset(
                 )
 
                 onMoveGridItem(
-                    gridItems + dockGridItems,
+                    gridItemsByPage + dockGridItems,
                     gridItem,
                     gridX,
                     gridY,
@@ -669,7 +676,9 @@ private suspend fun handleDragIntOffset(
 }
 
 private fun handleAppWidgetLauncherResult(
-    targetPage: Int,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
     result: ActivityResult,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     onDragEnd: (Int) -> Unit,
@@ -677,6 +686,12 @@ private fun handleAppWidgetLauncherResult(
     onDeleteGridItem: (GridItem) -> Unit,
     onConfigure: (Intent) -> Unit,
 ) {
+    val targetPage = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
     when (val data = gridItemLayoutInfo?.gridItem?.data) {
         is GridItemData.Widget -> {
             if (result.resultCode == Activity.RESULT_OK) {
@@ -726,13 +741,21 @@ private fun configureComponent(
 }
 
 private fun handleConfigureLauncherResult(
-    targetPage: Int,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
     result: ActivityResult,
     gridItemLayoutInfo: GridItemLayoutInfo?,
     onDragEnd: (Int) -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
+    val targetPage = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
     when (gridItemLayoutInfo?.gridItem?.data) {
         is GridItemData.Widget -> {
             val appWidgetId =

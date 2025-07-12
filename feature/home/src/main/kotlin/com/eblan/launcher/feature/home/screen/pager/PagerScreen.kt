@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.widget.FrameLayout
+import androidx.compose.foundation.gestures.GestureCancellationException
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -139,9 +140,12 @@ fun PagerScreen(
         },
     )
 
+    var userScrollEnabled by remember { mutableStateOf(true) }
+
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
+        userScrollEnabled = userScrollEnabled,
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
@@ -170,6 +174,9 @@ fun PagerScreen(
                     onResize = onResize,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
+                    onUserScrollEnabled = { newUserScrollEnabled ->
+                        userScrollEnabled = newUserScrollEnabled
+                    },
                 )
             }
 
@@ -277,6 +284,7 @@ private fun HorizontalPagerScreen(
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
+    onUserScrollEnabled: (Boolean) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -382,6 +390,7 @@ private fun HorizontalPagerScreen(
                             is GridItemData.Widget -> {
                                 WidgetGridItem(
                                     modifier = Modifier.gridItem(gridItem),
+                                    isSelected = gridItemLayoutInfo?.gridItem?.id == gridItem.id,
                                     drag = drag,
                                     gridItemData = data,
                                     onLongPress = { preview, intOffset ->
@@ -404,6 +413,7 @@ private fun HorizontalPagerScreen(
                                             IntOffset(x = dragX, y = dragY),
                                         )
                                     },
+                                    onUserScrollEnabled = onUserScrollEnabled,
                                 )
                             }
                         }
@@ -472,6 +482,7 @@ private fun HorizontalPagerScreen(
                         is GridItemData.Widget -> {
                             WidgetGridItem(
                                 modifier = Modifier.gridItem(dockGridItem),
+                                isSelected = gridItemLayoutInfo?.gridItem?.id == dockGridItem.id,
                                 drag = drag,
                                 gridItemData = data,
                                 onLongPress = { preview, intOffset ->
@@ -498,6 +509,7 @@ private fun HorizontalPagerScreen(
                                         IntOffset(x = dragX, y = dragY),
                                     )
                                 },
+                                onUserScrollEnabled = onUserScrollEnabled,
                             )
                         }
                     }
@@ -695,12 +707,14 @@ private fun ApplicationInfoGridItem(
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
+    isSelected: Boolean,
     drag: Drag,
     gridItemData: GridItemData.Widget,
     onLongPress: (
         imageBitmap: ImageBitmap,
         intOffset: IntOffset,
     ) -> Unit,
+    onUserScrollEnabled: (Boolean) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -746,10 +760,21 @@ private fun WidgetGridItem(
                                 )
                             }
                         },
+                        onPress = {
+                            onUserScrollEnabled(false)
+
+                            try {
+                                awaitRelease()
+
+                                onUserScrollEnabled(true)
+                            } catch (e: GestureCancellationException) {
+                                onUserScrollEnabled(true)
+                            }
+                        },
                     )
                 },
             update = { appWidgetHostView ->
-                if (drag == Drag.Start) {
+                if (drag == Drag.Start && isSelected) {
                     appWidgetHostView.clearPressed(view = appWidgetHostView)
                 }
             },

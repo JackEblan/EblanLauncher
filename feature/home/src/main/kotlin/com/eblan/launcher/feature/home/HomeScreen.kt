@@ -148,7 +148,6 @@ fun HomeScreen(
                             drawImage(
                                 image = image,
                                 topLeft = overlayIntOffset.toOffset(),
-                                alpha = 0.5f,
                             )
                         }
                     }
@@ -363,13 +362,9 @@ private fun Success(
                         )
                     },
                     onDraggingGridItem = {
-                        onShowOverlay(true)
-
                         onShowGridCache(Screen.Drag)
                     },
                     onDraggingApplicationInfo = {
-                        onShowOverlay(true)
-
                         onShowGridCache(Screen.Drag)
                     },
                     onLongPressWidget = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
@@ -431,17 +426,12 @@ private fun Success(
                     onMoveGridItem = onMoveGridItem,
                     onDeleteAppWidgetId = onDeleteAppWidgetId,
                     onDeleteGridItem = onDeleteGridItem,
-                    onDragCancel = {
-                        onResetGridCache()
-
-                        onShowOverlay(false)
-                    },
+                    onShowOverlay = onShowOverlay,
+                    onDragCancel = onResetGridCache,
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage
 
                         onResetGridCache()
-
-                        onShowOverlay(false)
                     },
                 )
             }

@@ -96,6 +96,7 @@ fun DragScreen(
     ) -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onShowOverlay: (Boolean) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
@@ -129,9 +130,9 @@ fun DragScreen(
         },
     )
 
-    val horizontalPagerPaddingDp = 20.dp
+    val horizontalPagerPaddingDp = 50.dp
 
-    val gridPaddingDp = 5.dp
+    val gridPaddingDp = 8.dp
 
     val gridPaddingPx = with(density) {
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
@@ -221,6 +222,7 @@ fun DragScreen(
             movedGridItems = movedGridItems,
             appWidgetManager = appWidgetManager,
             appWidgetLauncher = appWidgetLauncher,
+            onShowOverlay = onShowOverlay,
             onDragCancel = onDragCancel,
             onDeleteAppWidgetId = onDeleteAppWidgetId,
             onConfigure = configureLauncher::launch,
@@ -421,6 +423,7 @@ private fun handleDrag(
     movedGridItems: Boolean?,
     appWidgetManager: AppWidgetManagerWrapper,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    onShowOverlay: (Boolean) -> Unit,
     onDragCancel: () -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
     onConfigure: (Intent) -> Unit,
@@ -443,13 +446,21 @@ private fun handleDrag(
                 onDeleteAppWidgetId = onDeleteAppWidgetId,
                 onConfigure = onConfigure,
             )
+
+            onShowOverlay(false)
         }
 
         Drag.Cancel -> {
             onDragCancel()
+
+            onShowOverlay(false)
         }
 
-        Drag.Start, Drag.Dragging, Drag.None -> Unit
+        Drag.Dragging -> {
+            onShowOverlay(true)
+        }
+
+        Drag.Start, Drag.None -> Unit
     }
 }
 

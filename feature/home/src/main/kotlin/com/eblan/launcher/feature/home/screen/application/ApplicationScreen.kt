@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -41,7 +41,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
-import com.eblan.launcher.feature.home.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -66,9 +65,7 @@ fun ApplicationScreen(
     overlayIntOffset: IntOffset,
     onLongPressApplicationInfo: (
         currentPage: Int,
-        imageBitmap: ImageBitmap,
         gridItemLayoutInfo: GridItemLayoutInfo,
-        dragIntOffset: IntOffset,
         overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragging: () -> Unit,
@@ -121,18 +118,13 @@ fun ApplicationScreen(
                                     drawLayer(graphicsLayer)
                                 }
                                 .pointerInput(Unit) {
-                                    detectTapGesturesUnConsume(
-                                        onLongPress = { offset ->
+                                    detectTapGestures(
+                                        onLongPress = {
                                             scope.launch {
                                                 showPopupApplicationMenu = true
 
-                                                val dragX = intOffset.x + offset.round().x
-
-                                                val dragY = intOffset.y + offset.round().y
-
                                                 onLongPressApplicationInfo(
                                                     page,
-                                                    graphicsLayer.toImageBitmap(),
                                                     getGridItemLayoutInfo(
                                                         page = page,
                                                         rows = rows,
@@ -146,7 +138,6 @@ fun ApplicationScreen(
                                                         icon = eblanApplicationInfo.icon,
                                                         label = eblanApplicationInfo.label,
                                                     ),
-                                                    IntOffset(x = dragX, y = dragY),
                                                     intOffset,
                                                 )
                                             }

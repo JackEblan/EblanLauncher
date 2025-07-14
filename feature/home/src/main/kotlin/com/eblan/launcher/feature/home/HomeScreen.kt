@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home
 import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,13 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.GridItem
@@ -43,6 +40,8 @@ import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeRoute(
@@ -128,10 +127,41 @@ fun HomeScreen(
 
     var showOverlay by remember { mutableStateOf(false) }
 
-    val callback = remember {
+    var dragStartOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    val target = remember {
         object : DragAndDropTarget {
+            override fun onStarted(event: DragAndDropEvent) {
+                drag = Drag.Start
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                drag = Drag.End
+
+                dragStartOffset = IntOffset.Zero
+            }
+
+            override fun onMoved(event: DragAndDropEvent) {
+                val offset = with(event.toAndroidDragEvent()) {
+                    IntOffset(x = x.roundToInt(), y = y.roundToInt())
+                }
+
+                if (dragStartOffset == IntOffset.Zero) {
+                    dragStartOffset = offset
+                    return
+                }
+
+                val dx = (offset.x - dragStartOffset.x).absoluteValue
+                val dy = (offset.y - dragStartOffset.y).absoluteValue
+
+                if (dx > 100f || dy > 100f) {
+                    drag = Drag.Dragging
+                }
+
+                dragIntOffset = offset
+            }
+
             override fun onDrop(event: DragAndDropEvent): Boolean {
-                println("Am I good?????")
                 return true
             }
         }
@@ -140,43 +170,11 @@ fun HomeScreen(
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         BoxWithConstraints(
             modifier = modifier
-                .drawWithContent {
-                    drawContent()
-
-                    if (showOverlay) {
-                        overlayImageBitmap?.let { image ->
-                            drawImage(
-                                image = image,
-                                topLeft = overlayIntOffset.toOffset(),
-                            )
-                        }
-                    }
-                }
-                .pointerInput(Unit) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
-                            drag = Drag.Start
-                        },
-                        onDragEnd = {
-                            drag = Drag.End
-                        },
-                        onDragCancel = {
-                            drag = Drag.Cancel
-                        },
-                        onDrag = { _, dragAmount ->
-                            drag = Drag.Dragging
-
-                            dragIntOffset += dragAmount.round()
-
-                            overlayIntOffset += dragAmount.round()
-                        },
-                    )
-                }
                 .dragAndDropTarget(
                     shouldStartDragAndDrop = { event ->
                         event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
                     },
-                    target = callback,
+                    target = target,
                 )
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -213,11 +211,8 @@ fun HomeScreen(
                         onStartMainActivity = onStartMainActivity,
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
-                        onUpdateIntOffset = { newDragIntOffset, newOverlayIntOffset ->
-                            dragIntOffset = newDragIntOffset
-
-                            overlayIntOffset = newOverlayIntOffset
-
+                        onUpdateIntOffset = { intOffset ->
+                            dragIntOffset = intOffset
                         },
                         onUpdateOverlayImageBitmap = { imageBitmap ->
                             overlayImageBitmap = imageBitmap
@@ -277,10 +272,7 @@ private fun Success(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdateIntOffset: (
-        dragIntOffset: IntOffset,
-        overlayIntOffset: IntOffset,
-    ) -> Unit,
+    onUpdateIntOffset: (IntOffset) -> Unit,
     onUpdateOverlayImageBitmap: (ImageBitmap?) -> Unit,
     onShowOverlay: (Boolean) -> Unit,
 ) {
@@ -322,43 +314,26 @@ private fun Success(
                     onLongPressGrid = { newCurrentPage, intOffset ->
                         targetPage = newCurrentPage
 
-                        onUpdateIntOffset(intOffset, IntOffset.Zero)
-
-                        gridItemSource = null
+                        onUpdateIntOffset(intOffset)
                     },
-                    onLongPressedGridItem = { newCurrentPage, imageBitmap, gridItemLayoutInfo, intOffset ->
+                    onLongPressedGridItem = { newCurrentPage, gridItemLayoutInfo ->
                         targetPage = newCurrentPage
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.Old,
-                            imageBitmap = imageBitmap,
                         )
-
-                        onUpdateIntOffset(
-                            intOffset,
-                            IntOffset(
-                                x = gridItemLayoutInfo.x,
-                                y = gridItemLayoutInfo.y,
-                            ),
-                        )
-
-                        onUpdateOverlayImageBitmap(imageBitmap)
                     },
-                    onLongPressApplicationInfo = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
+                    onLongPressApplicationInfo = { newCurrentPage, gridItemLayoutInfo, newOverlayIntOffset ->
                         targetPage = newCurrentPage
 
                         onUpdateIntOffset(
-                            newDragIntOffset,
                             newOverlayIntOffset,
                         )
-
-                        onUpdateOverlayImageBitmap(imageBitmap)
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.New,
-                            imageBitmap = imageBitmap,
                         )
                     },
                     onDraggingGridItem = {
@@ -371,7 +346,6 @@ private fun Success(
                         targetPage = newCurrentPage
 
                         onUpdateIntOffset(
-                            newDragIntOffset,
                             newOverlayIntOffset,
                         )
 
@@ -380,7 +354,6 @@ private fun Success(
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
                             type = GridItemSource.Type.New,
-                            imageBitmap = imageBitmap,
                         )
                     },
                     onDragStartWidget = {

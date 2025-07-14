@@ -35,9 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -45,7 +43,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.graphics.drawable.toDrawable
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -106,8 +103,6 @@ fun DragScreen(
 
     val density = LocalDensity.current
 
-    val context = LocalContext.current
-
     val dockHeightDp = with(density) {
         dockHeight.toDp()
     }
@@ -136,10 +131,6 @@ fun DragScreen(
 
     val gridPaddingPx = with(density) {
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
-    }
-
-    val widgetPreviewFallback = remember {
-        gridItemSource?.imageBitmap?.asAndroidBitmap()?.toDrawable(context.resources)
     }
 
     val configureLauncher = rememberLauncherForActivityResult(
@@ -313,7 +304,7 @@ fun DragScreen(
                                             modifier = gridItemModifier,
                                         )
                                     } else {
-                                        val preview = data.preview ?: widgetPreviewFallback
+                                        val preview = data.preview
 
                                         AsyncImage(
                                             model = preview,
@@ -396,7 +387,7 @@ fun DragScreen(
                                         modifier = gridItemModifier,
                                     )
                                 } else {
-                                    val preview = data.preview ?: widgetPreviewFallback
+                                    val preview = data.preview
 
                                     AsyncImage(
                                         model = preview,
@@ -610,21 +601,19 @@ private suspend fun handleDragIntOffset(
         val isDraggingOnDock =
             dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 
-        val scrollToPageDelay = 500L
-
-        val moveGridItemDelay = 100L
+        val delay = 500L
 
         if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
-            delay(scrollToPageDelay)
+            delay(delay)
 
             onChangePageDirection(PageDirection.Left)
         } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
-            delay(scrollToPageDelay)
+            delay(delay)
 
             onChangePageDirection(PageDirection.Right)
         } else {
             if (isDraggingOnDock) {
-                delay(moveGridItemDelay)
+                delay(delay)
 
                 val cellWidth = rootWidth / dockColumns
 
@@ -650,7 +639,7 @@ private suspend fun handleDragIntOffset(
                     dockHeight,
                 )
             } else {
-                delay(moveGridItemDelay)
+                delay(delay)
 
                 val gridWidth = rootWidth - (gridPadding * 2)
 

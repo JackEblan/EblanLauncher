@@ -1,5 +1,9 @@
 package com.eblan.launcher.feature.home.screen.application
 
+import android.content.ClipData
+import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,14 +21,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -42,10 +42,11 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
@@ -62,16 +63,12 @@ fun ApplicationScreen(
     drag: Drag,
     appDrawerRowsHeight: Int,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    overlayIntOffset: IntOffset,
     onLongPressApplicationInfo: (
         currentPage: Int,
         gridItemLayoutInfo: GridItemLayoutInfo,
-        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragging: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
     val page = calculatePage(
@@ -85,6 +82,8 @@ fun ApplicationScreen(
     val appDrawerRowsHeightDp = with(density) {
         appDrawerRowsHeight.toDp()
     }
+
+    var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
@@ -105,23 +104,17 @@ fun ApplicationScreen(
             else -> {
                 LazyVerticalGrid(columns = GridCells.Fixed(count = appDrawerColumns)) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
-                        val graphicsLayer = rememberGraphicsLayer()
-
                         var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
                         Column(
                             modifier = Modifier
-                                .drawWithContent {
-                                    graphicsLayer.record {
-                                        this@drawWithContent.drawContent()
-                                    }
-                                    drawLayer(graphicsLayer)
-                                }
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            scope.launch {
+                                .dragAndDropSource(
+                                    block = {
+                                        detectTapGestures(
+                                            onLongPress = {
                                                 showPopupApplicationMenu = true
+
+                                                overlayIntOffset = intOffset
 
                                                 onLongPressApplicationInfo(
                                                     page,
@@ -138,12 +131,21 @@ fun ApplicationScreen(
                                                         icon = eblanApplicationInfo.icon,
                                                         label = eblanApplicationInfo.label,
                                                     ),
-                                                    intOffset,
                                                 )
-                                            }
-                                        },
-                                    )
-                                }
+
+                                                startTransfer(
+                                                    DragAndDropTransferData(
+                                                        clipData = ClipData.newPlainText(
+                                                            "Screen",
+                                                            Screen.Drag.name,
+                                                        ),
+                                                        flags = View.DRAG_FLAG_GLOBAL,
+                                                    ),
+                                                )
+                                            },
+                                        )
+                                    },
+                                )
                                 .onGloballyPositioned { layoutCoordinates ->
                                     intOffset = layoutCoordinates.positionInRoot().round()
                                 }

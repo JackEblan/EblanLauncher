@@ -1,5 +1,9 @@
 package com.eblan.launcher.feature.home.screen.widget
 
+import android.content.ClipData
+import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,26 +17,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.domain.model.Associate
@@ -42,9 +33,10 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
@@ -61,10 +53,7 @@ fun WidgetScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     onLongPressWidget: (
         currentPage: Int,
-        imageBitmap: ImageBitmap?,
         gridItemLayoutInfo: GridItemLayoutInfo,
-        dragIntOffset: IntOffset,
-        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragStart: () -> Unit,
 ) {
@@ -77,8 +66,6 @@ fun WidgetScreen(
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
     )
-
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Start && gridItemLayoutInfo != null) {
@@ -110,8 +97,6 @@ fun WidgetScreen(
                             )
 
                             eblanAppWidgetProviderInfos[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
-                                val graphicsLayer = rememberGraphicsLayer()
-
                                 val preview = eblanAppWidgetProviderInfo.preview
                                     ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
 
@@ -130,28 +115,14 @@ fun WidgetScreen(
                                     DpSize(width = width.toDp(), height = height.toDp())
                                 }
 
-                                var intOffset by remember { mutableStateOf(IntOffset.Zero) }
-
                                 AsyncImage(
                                     modifier = Modifier
-                                        .drawWithContent {
-                                            graphicsLayer.record {
-                                                this@drawWithContent.drawContent()
-                                            }
-
-                                            drawLayer(graphicsLayer)
-                                        }
-                                        .pointerInput(Unit) {
-                                            detectTapGestures(
-                                                onLongPress = { offset ->
-                                                    scope.launch {
-                                                        val dragX = intOffset.x + offset.round().x
-
-                                                        val dragY = intOffset.y + offset.round().y
-
+                                        .dragAndDropSource(
+                                            block = {
+                                                detectTapGestures(
+                                                    onLongPress = {
                                                         onLongPressWidget(
                                                             page,
-                                                            graphicsLayer.toImageBitmap(),
                                                             getGridItemLayoutInfo(
                                                                 allocateAppWidgetId = appWidgetHost.allocateAppWidgetId(),
                                                                 page = page,
@@ -173,16 +144,21 @@ fun WidgetScreen(
                                                                 gridWidth = rootWidth,
                                                                 gridHeight = rootHeight - dockHeight,
                                                             ),
-                                                            IntOffset(x = dragX, y = dragY),
-                                                            intOffset,
                                                         )
-                                                    }
-                                                },
-                                            )
-                                        }
-                                        .onGloballyPositioned { layoutCoordinates ->
-                                            intOffset = layoutCoordinates.positionInRoot().round()
-                                        }
+
+                                                        startTransfer(
+                                                            DragAndDropTransferData(
+                                                                clipData = ClipData.newPlainText(
+                                                                    "Screen",
+                                                                    Screen.Drag.name,
+                                                                ),
+                                                                flags = View.DRAG_FLAG_GLOBAL,
+                                                            ),
+                                                        )
+                                                    },
+                                                )
+                                            },
+                                        )
                                         .size(size),
                                     model = preview,
                                     contentDescription = null,

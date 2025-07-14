@@ -22,8 +22,6 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -119,20 +117,20 @@ fun HomeScreen(
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
-
-    var overlayImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-
     var drag by remember { mutableStateOf(Drag.None) }
-
-    var showOverlay by remember { mutableStateOf(false) }
 
     var dragStartOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
+                val offset = with(event.toAndroidDragEvent()) {
+                    IntOffset(x = x.roundToInt(), y = y.roundToInt())
+                }
+
                 drag = Drag.Start
+
+                dragIntOffset = offset
             }
 
             override fun onEnded(event: DragAndDropEvent) {
@@ -197,7 +195,6 @@ fun HomeScreen(
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
                         dragIntOffset = dragIntOffset,
-                        overlayIntOffset = overlayIntOffset,
                         drag = drag,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
@@ -211,15 +208,6 @@ fun HomeScreen(
                         onStartMainActivity = onStartMainActivity,
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
-                        onUpdateIntOffset = { intOffset ->
-                            dragIntOffset = intOffset
-                        },
-                        onUpdateOverlayImageBitmap = { imageBitmap ->
-                            overlayImageBitmap = imageBitmap
-                        },
-                        onShowOverlay = { newShowOverlay ->
-                            showOverlay = newShowOverlay
-                        },
                     )
                 }
             }
@@ -240,7 +228,6 @@ private fun Success(
     rootWidth: Int,
     rootHeight: Int,
     dragIntOffset: IntOffset,
-    overlayIntOffset: IntOffset,
     drag: Drag,
     onMoveGridItem: (
         gridItems: List<GridItem>,
@@ -272,9 +259,6 @@ private fun Success(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdateIntOffset: (IntOffset) -> Unit,
-    onUpdateOverlayImageBitmap: (ImageBitmap?) -> Unit,
-    onShowOverlay: (Boolean) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -302,7 +286,6 @@ private fun Success(
                     gridItems = gridItems,
                     dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,
-                    dragIntOffset = dragIntOffset,
                     dockGridItems = dockGridItems,
                     textColor = userData.homeSettings.textColor,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
@@ -310,11 +293,8 @@ private fun Success(
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
-                    overlayIntOffset = overlayIntOffset,
-                    onLongPressGrid = { newCurrentPage, intOffset ->
+                    onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
-
-                        onUpdateIntOffset(intOffset)
                     },
                     onLongPressedGridItem = { newCurrentPage, gridItemLayoutInfo ->
                         targetPage = newCurrentPage
@@ -324,12 +304,8 @@ private fun Success(
                             type = GridItemSource.Type.Old,
                         )
                     },
-                    onLongPressApplicationInfo = { newCurrentPage, gridItemLayoutInfo, newOverlayIntOffset ->
+                    onLongPressApplicationInfo = { newCurrentPage, gridItemLayoutInfo ->
                         targetPage = newCurrentPage
-
-                        onUpdateIntOffset(
-                            newOverlayIntOffset,
-                        )
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
@@ -342,14 +318,8 @@ private fun Success(
                     onDraggingApplicationInfo = {
                         onShowGridCache(Screen.Drag)
                     },
-                    onLongPressWidget = { newCurrentPage, imageBitmap, gridItemLayoutInfo, newDragIntOffset, newOverlayIntOffset ->
+                    onLongPressWidget = { newCurrentPage, gridItemLayoutInfo ->
                         targetPage = newCurrentPage
-
-                        onUpdateIntOffset(
-                            newOverlayIntOffset,
-                        )
-
-                        onUpdateOverlayImageBitmap(imageBitmap)
 
                         gridItemSource = GridItemSource(
                             gridItemLayoutInfo = gridItemLayoutInfo,
@@ -357,8 +327,6 @@ private fun Success(
                         )
                     },
                     onDragStartWidget = {
-                        onShowOverlay(true)
-
                         onShowGridCache(Screen.Drag)
                     },
                     onStartMainActivity = onStartMainActivity,
@@ -367,8 +335,6 @@ private fun Success(
                     },
                     onResize = { newTargetPage ->
                         targetPage = newTargetPage
-
-                        onShowOverlay(false)
 
                         onShowGridCache(Screen.Resize)
                     },
@@ -399,7 +365,6 @@ private fun Success(
                     onMoveGridItem = onMoveGridItem,
                     onDeleteAppWidgetId = onDeleteAppWidgetId,
                     onDeleteGridItem = onDeleteGridItem,
-                    onShowOverlay = onShowOverlay,
                     onDragCancel = onResetGridCache,
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage

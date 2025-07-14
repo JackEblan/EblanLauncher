@@ -26,16 +26,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -71,7 +66,6 @@ import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.clearPressed
-import kotlinx.coroutines.launch
 
 @Composable
 fun PagerScreen(
@@ -87,7 +81,6 @@ fun PagerScreen(
     gridItemLayoutInfo: GridItemLayoutInfo?,
     dockHeight: Int,
     drag: Drag,
-    dragIntOffset: IntOffset,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
@@ -95,11 +88,7 @@ fun PagerScreen(
     rootHeight: Int,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
-    overlayIntOffset: IntOffset,
-    onLongPressGrid: (
-        currentPage: Int,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
         gridItemLayoutInfo: GridItemLayoutInfo,
@@ -107,16 +96,12 @@ fun PagerScreen(
     onLongPressApplicationInfo: (
         currentPage: Int,
         gridItemLayoutInfo: GridItemLayoutInfo,
-        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onDraggingApplicationInfo: () -> Unit,
     onLongPressWidget: (
         currentPage: Int,
-        imageBitmap: ImageBitmap?,
         gridItemLayoutInfo: GridItemLayoutInfo,
-        dragIntOffset: IntOffset,
-        overlayIntOffset: IntOffset,
     ) -> Unit,
     onDragStartWidget: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
@@ -168,7 +153,6 @@ fun PagerScreen(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     drag = drag,
-                    dragIntOffset = dragIntOffset,
                     onLongPressGrid = onLongPressGrid,
                     onLongPressedGridItem = onLongPressedGridItem,
                     onDraggingGridItem = onDraggingGridItem,
@@ -215,7 +199,6 @@ fun PagerScreen(
                                             drag = drag,
                                             appDrawerRowsHeight = appDrawerRowsHeight,
                                             gridItemLayoutInfo = gridItemLayoutInfo,
-                                            overlayIntOffset = overlayIntOffset,
                                             onLongPressApplicationInfo = onLongPressApplicationInfo,
                                             onDragging = onDraggingApplicationInfo,
                                         )
@@ -267,14 +250,10 @@ private fun HorizontalPagerScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
-    onLongPressGrid: (
-        currentPage: Int,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPressGrid: (Int) -> Unit,
     rootWidth: Int,
     rootHeight: Int,
     drag: Drag,
-    dragIntOffset: IntOffset,
     onLongPressedGridItem: (
         currentPage: Int,
         gridItemLayoutInfo: GridItemLayoutInfo,
@@ -297,6 +276,8 @@ private fun HorizontalPagerScreen(
 
     var showPopupSettingsMenu by remember { mutableStateOf(false) }
 
+    var popupSettingsMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
             showPopupGridItemMenu = false
@@ -310,6 +291,8 @@ private fun HorizontalPagerScreen(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { offset ->
+                        popupSettingsMenuIntOffset = offset.round()
+
                         showPopupSettingsMenu = true
 
                         onLongPressGrid(
@@ -318,7 +301,6 @@ private fun HorizontalPagerScreen(
                                 infiniteScroll = infiniteScroll,
                                 pageCount = pageCount,
                             ),
-                            offset.round(),
                         )
                     },
                 )
@@ -359,8 +341,8 @@ private fun HorizontalPagerScreen(
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 ApplicationInfoGridItem(
-                                    modifier = Modifier.gridItem(gridItem),
                                     textColor = textColor,
+                                    gridItem = gridItem,
                                     gridItemData = data,
                                     onTap = {
                                         onStartMainActivity(data.componentName)
@@ -384,11 +366,11 @@ private fun HorizontalPagerScreen(
 
                             is GridItemData.Widget -> {
                                 WidgetGridItem(
-                                    modifier = Modifier.gridItem(gridItem),
                                     isSelected = gridItemLayoutInfo?.gridItem?.id == gridItem.id,
                                     drag = drag,
+                                    gridItem = gridItem,
                                     gridItemData = data,
-                                    onLongPress = { preview, intOffset ->
+                                    onLongPress = {
                                         showPopupGridItemMenu = true
 
                                         onLongPressedGridItem(
@@ -435,8 +417,8 @@ private fun HorizontalPagerScreen(
                     when (val data = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
-                                modifier = Modifier.gridItem(dockGridItem),
                                 textColor = textColor,
+                                gridItem = dockGridItem,
                                 gridItemData = data,
                                 onTap = {
                                     onStartMainActivity(data.componentName)
@@ -464,11 +446,11 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Widget -> {
                             WidgetGridItem(
-                                modifier = Modifier.gridItem(dockGridItem),
                                 isSelected = gridItemLayoutInfo?.gridItem?.id == dockGridItem.id,
                                 drag = drag,
+                                gridItem = dockGridItem,
                                 gridItemData = data,
-                                onLongPress = { preview, intOffset ->
+                                onLongPress = {
                                     showPopupGridItemMenu = true
 
                                     onLongPressedGridItem(
@@ -601,7 +583,7 @@ private fun HorizontalPagerScreen(
 
     if (showPopupSettingsMenu) {
         PopupSettingsMenu(
-            dragIntOffset = dragIntOffset,
+            dragIntOffset = popupSettingsMenuIntOffset,
             onSettings = onSettings,
             onEditPage = onEditPage,
             onDismissRequest = {
@@ -616,6 +598,7 @@ private fun HorizontalPagerScreen(
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: TextColor,
+    gridItem: GridItem,
     gridItemData: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
@@ -627,6 +610,7 @@ private fun ApplicationInfoGridItem(
 
     Column(
         modifier = modifier
+            .gridItem(gridItem)
             .dragAndDropSource(
                 block = {
                     detectTapGestures(
@@ -677,11 +661,9 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     isSelected: Boolean,
     drag: Drag,
+    gridItem: GridItem,
     gridItemData: GridItemData.Widget,
-    onLongPress: (
-        imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPress: () -> Unit,
     onUserScrollEnabled: (Boolean) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
@@ -689,10 +671,6 @@ private fun WidgetGridItem(
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
-
-    val graphicsLayer = rememberGraphicsLayer()
-
-    val scope = rememberCoroutineScope()
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -710,23 +688,12 @@ private fun WidgetGridItem(
                 }
             },
             modifier = modifier
-                .drawWithContent {
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
-                    }
-
-                    drawLayer(graphicsLayer)
-                }
+                .gridItem(gridItem)
                 .pointerInput(Unit) {
                     detectTapGesturesUnConsume(
                         requireUnconsumed = false,
-                        onLongPress = { offset ->
-                            scope.launch {
-                                onLongPress(
-                                    graphicsLayer.toImageBitmap(),
-                                    offset.round(),
-                                )
-                            }
+                        onLongPress = {
+                            onLongPress()
                         },
                         onPress = {
                             onUserScrollEnabled(false)

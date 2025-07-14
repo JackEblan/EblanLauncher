@@ -93,7 +93,6 @@ fun DragScreen(
     ) -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onShowOverlay: (Boolean) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
@@ -213,7 +212,6 @@ fun DragScreen(
             movedGridItems = movedGridItems,
             appWidgetManager = appWidgetManager,
             appWidgetLauncher = appWidgetLauncher,
-            onShowOverlay = onShowOverlay,
             onDragCancel = onDragCancel,
             onDeleteAppWidgetId = onDeleteAppWidgetId,
             onConfigure = configureLauncher::launch,
@@ -414,7 +412,6 @@ private fun handleDrag(
     movedGridItems: Boolean?,
     appWidgetManager: AppWidgetManagerWrapper,
     appWidgetLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    onShowOverlay: (Boolean) -> Unit,
     onDragCancel: () -> Unit,
     onDeleteAppWidgetId: (Int) -> Unit,
     onConfigure: (Intent) -> Unit,
@@ -437,21 +434,13 @@ private fun handleDrag(
                 onDeleteAppWidgetId = onDeleteAppWidgetId,
                 onConfigure = onConfigure,
             )
-
-            onShowOverlay(false)
         }
 
         Drag.Cancel -> {
             onDragCancel()
-
-            onShowOverlay(false)
         }
 
-        Drag.Dragging -> {
-            onShowOverlay(true)
-        }
-
-        Drag.Start, Drag.None -> Unit
+        Drag.Start, Drag.Dragging, Drag.None -> Unit
     }
 }
 

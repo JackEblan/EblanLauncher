@@ -2,7 +2,9 @@ package com.eblan.launcher.feature.pin.widget
 
 import android.content.ClipData
 import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PinWidgetScreen(
     modifier: Modifier = Modifier,
@@ -33,16 +36,24 @@ fun PinWidgetScreen(
                 imageVector = Icons.Default.Android,
                 contentDescription = null,
                 modifier = Modifier
-                    .dragAndDropSource { _ ->
-                        onHome()
+                    .dragAndDropSource(
+                        block = {
+                            detectTapGestures(
+                                onLongPress = {
+                                    startTransfer(
+                                        DragAndDropTransferData(
+                                            clipData = ClipData.newPlainText(
+                                                "Message", "Hello",
+                                            ),
+                                            flags = View.DRAG_FLAG_GLOBAL,
+                                        ),
+                                    )
 
-                        DragAndDropTransferData(
-                            clipData = ClipData.newPlainText(
-                                "Message", "Hello",
-                            ),
-                            flags = View.DRAG_FLAG_GLOBAL,
-                        )
-                    }
+                                    onHome()
+                                },
+                            )
+                        },
+                    )
                     .size(100.dp),
             )
         }

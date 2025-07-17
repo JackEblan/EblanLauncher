@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
 import android.content.ClipData
-import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -139,7 +138,6 @@ fun ApplicationScreen(
                                                             "Screen",
                                                             Screen.Drag.name,
                                                         ),
-                                                        flags = View.DRAG_FLAG_GLOBAL,
                                                     ),
                                                 )
                                             },

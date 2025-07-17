@@ -2,10 +2,12 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipData
-import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -607,7 +609,6 @@ private fun ApplicationInfoGridItem(
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
-                                    flags = View.DRAG_FLAG_GLOBAL,
                                 ),
                             )
                         },
@@ -668,7 +669,21 @@ private fun WidgetGridItem(
                     setAppWidget(appWidgetId, appWidgetInfo)
                 }
             },
-            modifier = modifier.gridItem(gridItem),
+            modifier = modifier
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+
+                        down.consume()
+
+                        val longPress = awaitLongPressOrCancellation(pointerId = down.id)
+
+                        if (longPress != null) {
+                            onLongPress()
+                        }
+                    }
+                }
+                .gridItem(gridItem),
         )
     }
 }

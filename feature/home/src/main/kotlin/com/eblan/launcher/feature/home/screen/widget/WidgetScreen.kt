@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import android.content.ClipData
-import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -152,7 +151,6 @@ fun WidgetScreen(
                                                                     "Screen",
                                                                     Screen.Drag.name,
                                                                 ),
-                                                                flags = View.DRAG_FLAG_GLOBAL,
                                                             ),
                                                         )
                                                     },

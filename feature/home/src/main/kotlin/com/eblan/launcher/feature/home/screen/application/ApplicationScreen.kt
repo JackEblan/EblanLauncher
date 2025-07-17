@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -40,9 +41,9 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
+import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.screen.pager.PopupGridItemMenu
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -175,17 +176,19 @@ fun ApplicationScreen(
                 }
 
                 if (showPopupApplicationMenu && gridItemLayoutInfo?.gridItem != null) {
-                    PopupGridItemMenu(
-                        x = overlayIntOffset.x,
-                        y = overlayIntOffset.y,
-                        width = rootWidth / appDrawerColumns,
-                        height = appDrawerRowsHeight,
+                    Popup(
+                        popupPositionProvider = MenuPositionProvider(
+                            x = overlayIntOffset.x,
+                            y = overlayIntOffset.y,
+                            width = rootWidth / appDrawerColumns,
+                            height = appDrawerRowsHeight,
+                        ),
                         onDismissRequest = {
-                            showPopupApplicationMenu = false
-                        },
+                                            showPopupApplicationMenu = false
+                                        },
                         content = {
-                            ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
-                        },
+                                            ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
+                                        },
                     )
                 }
             }

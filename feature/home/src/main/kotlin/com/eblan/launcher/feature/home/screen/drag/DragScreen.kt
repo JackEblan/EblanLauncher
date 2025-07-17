@@ -249,7 +249,6 @@ fun DragScreen(
                             val gridItemModifier = Modifier
                                 .animateBounds(this)
                                 .gridItem(gridItem)
-                                .fillMaxSize()
 
                             when (val data = gridItem.data) {
                                 is GridItemData.ApplicationInfo -> {
@@ -313,7 +312,6 @@ fun DragScreen(
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -332,7 +330,6 @@ fun DragScreen(
                         val gridItemModifier = Modifier
                             .animateBounds(this)
                             .gridItem(dockGridItem)
-                            .fillMaxSize()
 
                         when (val data = dockGridItem.data) {
                             is GridItemData.ApplicationInfo -> {

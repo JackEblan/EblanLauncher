@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -466,11 +468,13 @@ private fun HorizontalPagerScreen(
     if (showPopupGridItemMenu && gridItemLayoutInfo?.gridItem != null) {
         when (gridItemLayoutInfo.gridItem.associate) {
             Associate.Grid -> {
-                PopupGridItemMenu(
-                    x = gridItemLayoutInfo.x,
-                    y = gridItemLayoutInfo.y,
-                    width = gridItemLayoutInfo.width,
-                    height = gridItemLayoutInfo.height,
+                Popup(
+                    popupPositionProvider = MenuPositionProvider(
+                        x = gridItemLayoutInfo.x,
+                        y = gridItemLayoutInfo.y,
+                        width = gridItemLayoutInfo.width,
+                        height = gridItemLayoutInfo.height,
+                    ),
                     onDismissRequest = {
                         showPopupGridItemMenu = false
                     },
@@ -516,11 +520,13 @@ private fun HorizontalPagerScreen(
             }
 
             Associate.Dock -> {
-                PopupGridItemMenu(
-                    x = gridItemLayoutInfo.x,
-                    y = rootHeight - dockHeight,
-                    width = gridItemLayoutInfo.width,
-                    height = gridItemLayoutInfo.height,
+                Popup(
+                    popupPositionProvider = MenuPositionProvider(
+                        x = gridItemLayoutInfo.x,
+                        y = rootHeight - dockHeight,
+                        width = gridItemLayoutInfo.width,
+                        height = gridItemLayoutInfo.height,
+                    ),
                     onDismissRequest = {
                         showPopupGridItemMenu = false
                     },
@@ -568,14 +574,29 @@ private fun HorizontalPagerScreen(
     }
 
     if (showPopupSettingsMenu) {
-        PopupSettingsMenu(
-            dragIntOffset = popupSettingsMenuIntOffset,
-            onSettings = onSettings,
-            onEditPage = onEditPage,
-            onDismissRequest = {
-                showPopupSettingsMenu = false
-            },
-        )
+        val onDismissRequest1 = {
+            showPopupSettingsMenu = false
+        }
+        Popup(
+            popupPositionProvider = SettingsMenuPositionProvider(
+                x = popupSettingsMenuIntOffset.x,
+                y = popupSettingsMenuIntOffset.y,
+            ),
+            onDismissRequest = onDismissRequest1,
+        ) {
+            SettingsMenu(
+                onSettings = {
+                    onDismissRequest1()
+
+                    onSettings()
+                },
+                onEditPage = {
+                    onDismissRequest1()
+
+                    onEditPage()
+                },
+            )
+        }
     }
 }
 
@@ -614,8 +635,7 @@ private fun ApplicationInfoGridItem(
                         },
                     )
                 },
-            )
-            .fillMaxSize(),
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -641,6 +661,7 @@ private fun ApplicationInfoGridItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
@@ -654,88 +675,63 @@ private fun WidgetGridItem(
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
 
-    if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = gridItemData.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
+    Box(modifier = modifier.gridItem(gridItem)) {
+        if (appWidgetInfo != null) {
+            Box(
+                modifier = modifier
+                    .dragAndDropSource(
+                        drawDragDecoration = {
+                            drawRoundRect(
+                                color = Color.White,
+                                alpha = 0.2f,
+                                cornerRadius = CornerRadius(
+                                    x = 25f,
+                                    y = 25f,
+                                ),
+                            )
+                        },
+                        block = {
+                            awaitEachGesture {
+                                val down = awaitFirstDown(requireUnconsumed = false)
+
+                                down.consume()
+
+                                val longPress = awaitLongPressOrCancellation(pointerId = down.id)
+
+                                if (longPress != null) {
+                                    onLongPress()
+
+                                    startTransfer(
+                                        DragAndDropTransferData(
+                                            clipData = ClipData.newPlainText(
+                                                "Screen",
+                                                Screen.Drag.name,
+                                            ),
+                                        ),
+                                    )
+                                }
+                            }
+                        },
                     )
+                    .matchParentSize(),
+            )
 
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
-            },
-            modifier = modifier
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
+            AndroidView(
+                factory = {
+                    appWidgetHost.createView(
+                        appWidgetId = gridItemData.appWidgetId,
+                        appWidgetProviderInfo = appWidgetInfo,
+                    ).apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                        )
 
-                        down.consume()
-
-                        val longPress = awaitLongPressOrCancellation(pointerId = down.id)
-
-                        if (longPress != null) {
-                            onLongPress()
-                        }
+                        setAppWidget(appWidgetId, appWidgetInfo)
                     }
-                }
-                .gridItem(gridItem),
-        )
+                },
+            )
+        }
     }
 }
 
-@Composable
-fun PopupGridItemMenu(
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    Popup(
-        popupPositionProvider = MenuPositionProvider(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-        ),
-        onDismissRequest = onDismissRequest,
-        content = content,
-    )
-}
-
-@Composable
-private fun PopupSettingsMenu(
-    modifier: Modifier = Modifier,
-    dragIntOffset: IntOffset,
-    onSettings: () -> Unit,
-    onEditPage: () -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    Popup(
-        popupPositionProvider = SettingsMenuPositionProvider(
-            x = dragIntOffset.x,
-            y = dragIntOffset.y,
-        ),
-        onDismissRequest = onDismissRequest,
-    ) {
-        SettingsMenu(
-            modifier = modifier,
-            onSettings = {
-                onDismissRequest()
-
-                onSettings()
-            },
-            onEditPage = {
-                onDismissRequest()
-
-                onEditPage()
-            },
-        )
-    }
-}

@@ -36,9 +36,9 @@ fun GridLayout(
                 val height = gridItem.rowSpan * cellHeight
 
                 measurable.measure(
-                    Constraints(
-                        maxWidth = width,
-                        maxHeight = height,
+                    Constraints.fixed(
+                        width = width,
+                        height = height,
                     ),
                 ).placeRelative(x = x, y = y)
             }

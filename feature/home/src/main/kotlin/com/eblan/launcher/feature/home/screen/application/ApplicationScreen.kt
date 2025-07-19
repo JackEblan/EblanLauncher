@@ -117,8 +117,6 @@ fun ApplicationScreen(
 
                                                 overlayIntOffset = intOffset
 
-
-
                                                 onLongPress(
                                                     page,
                                                     GridItemSource(
@@ -126,8 +124,6 @@ fun ApplicationScreen(
                                                             page = page,
                                                             rows = rows,
                                                             columns = columns,
-                                                            x = intOffset.x,
-                                                            y = intOffset.y,
                                                             gridWidth = rootWidth,
                                                             gridHeight = rootHeight - dockHeight,
                                                             componentName = eblanApplicationInfo.componentName,
@@ -206,8 +202,6 @@ private fun getGridItemLayoutInfo(
     page: Int,
     rows: Int,
     columns: Int,
-    x: Int,
-    y: Int,
     gridWidth: Int,
     gridHeight: Int,
     componentName: String?,
@@ -219,10 +213,6 @@ private fun getGridItemLayoutInfo(
 
     val cellHeight = gridHeight / rows
 
-    val startColumn = x / cellWidth
-
-    val startRow = y / cellHeight
-
     val data = GridItemData.ApplicationInfo(
         componentName = componentName,
         packageName = packageName,
@@ -233,8 +223,8 @@ private fun getGridItemLayoutInfo(
     val gridItem = GridItem(
         id = 0,
         page = page,
-        startRow = startRow,
-        startColumn = startColumn,
+        startRow = 0,
+        startColumn = 0,
         rowSpan = 1,
         columnSpan = 1,
         dataId = data.packageName,

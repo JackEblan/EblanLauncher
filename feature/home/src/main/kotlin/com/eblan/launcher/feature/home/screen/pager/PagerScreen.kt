@@ -48,6 +48,7 @@ import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -97,7 +98,6 @@ fun PagerScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onStartMainActivity: (String?) -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
@@ -150,7 +150,6 @@ fun PagerScreen(
                     onLongPressGrid = onLongPressGrid,
                     onLongPressedGridItem = onLongPressedGridItem,
                     onDraggingGridItem = onDraggingGridItem,
-                    onStartMainActivity = onStartMainActivity,
                     onEdit = onEdit,
                     onResize = onResize,
                     onSettings = onSettings,
@@ -258,7 +257,21 @@ private fun ApplicationComponentScreen(
                         }
 
                         2 -> {
-                            ShortcutScreen(eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos)
+                            ShortcutScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
+                                rows = rows,
+                                columns = columns,
+                                rootWidth = rootWidth,
+                                rootHeight = rootHeight,
+                                dockHeight = dockHeight,
+                                drag = drag,
+                                gridItemLayoutInfo = gridItemLayoutInfo,
+                                onLongPress = onLongPress,
+                                onDragging = onDragging,
+                            )
                         }
                     }
                 }
@@ -291,7 +304,6 @@ private fun HorizontalPagerScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onStartMainActivity: (String?) -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
@@ -308,6 +320,8 @@ private fun HorizontalPagerScreen(
     var showPopupSettingsMenu by remember { mutableStateOf(false) }
 
     var popupSettingsMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    val launcherApps = LocalLauncherApps.current
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
@@ -376,7 +390,7 @@ private fun HorizontalPagerScreen(
                                     gridItem = gridItem,
                                     gridItemData = data,
                                     onTap = {
-                                        onStartMainActivity(data.componentName)
+                                        launcherApps.startMainActivity(data.componentName)
                                     },
                                     onLongPress = {
                                         showPopupGridItemMenu = true
@@ -402,6 +416,37 @@ private fun HorizontalPagerScreen(
                                 WidgetGridItem(
                                     gridItem = gridItem,
                                     gridItemData = data,
+                                    onLongPress = {
+                                        showPopupGridItemMenu = true
+
+                                        onLongPressedGridItem(
+                                            page,
+                                            GridItemSource(
+                                                gridItemLayoutInfo = GridItemLayoutInfo(
+                                                    gridItem = gridItem,
+                                                    width = width,
+                                                    height = height,
+                                                    x = x,
+                                                    y = y,
+                                                ),
+                                                type = GridItemSource.Type.Old,
+                                            ),
+                                        )
+                                    },
+                                )
+                            }
+
+                            is GridItemData.ShortcutInfo -> {
+                                ShortcutInfoGridItem(
+                                    textColor = textColor,
+                                    gridItem = gridItem,
+                                    gridItemData = data,
+                                    onTap = {
+                                        launcherApps.startShortcut(
+                                            packageName = data.packageName,
+                                            id = data.id,
+                                        )
+                                    },
                                     onLongPress = {
                                         showPopupGridItemMenu = true
 
@@ -455,7 +500,7 @@ private fun HorizontalPagerScreen(
                                 gridItem = dockGridItem,
                                 gridItemData = data,
                                 onTap = {
-                                    onStartMainActivity(data.componentName)
+                                    launcherApps.startMainActivity(data.componentName)
                                 },
                                 onLongPress = {
                                     showPopupGridItemMenu = true
@@ -508,6 +553,41 @@ private fun HorizontalPagerScreen(
                                 },
                             )
                         }
+
+                        is GridItemData.ShortcutInfo -> {
+                            ShortcutInfoGridItem(
+                                textColor = textColor,
+                                gridItem = dockGridItem,
+                                gridItemData = data,
+                                onTap = {
+                                    launcherApps.startShortcut(
+                                        packageName = data.packageName,
+                                        id = data.id,
+                                    )
+                                },
+                                onLongPress = {
+                                    showPopupGridItemMenu = true
+
+                                    onLongPressedGridItem(
+                                        calculatePage(
+                                            index = horizontalPagerState.currentPage,
+                                            infiniteScroll = infiniteScroll,
+                                            pageCount = pageCount,
+                                        ),
+                                        GridItemSource(
+                                            gridItemLayoutInfo = GridItemLayoutInfo(
+                                                gridItem = dockGridItem,
+                                                width = width,
+                                                height = height,
+                                                x = x,
+                                                y = y,
+                                            ),
+                                            type = GridItemSource.Type.Old,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -529,7 +609,7 @@ private fun HorizontalPagerScreen(
                     },
                     content = {
                         when (val data = gridItemLayoutInfo.gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
+                            is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
                                 ApplicationInfoGridItemMenu(
                                     showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
                                     onEdit = onEdit,
@@ -581,7 +661,7 @@ private fun HorizontalPagerScreen(
                     },
                     content = {
                         when (val data = gridItemLayoutInfo.gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
+                            is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
                                 ApplicationInfoGridItemMenu(
                                     showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
                                     onEdit = onEdit,
@@ -699,6 +779,67 @@ private fun ApplicationInfoGridItem(
 
         Text(
             text = gridItemData.label.toString(),
+            modifier = Modifier.weight(1f),
+            color = color,
+            textAlign = TextAlign.Center,
+            fontSize = TextUnit(
+                value = 10f,
+                type = TextUnitType.Sp,
+            ),
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ShortcutInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: TextColor,
+    gridItem: GridItem,
+    gridItemData: GridItemData.ShortcutInfo,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
+    Column(
+        modifier = modifier
+            .gridItem(gridItem)
+            .dragAndDropSource(
+                block = {
+                    detectTapGestures(
+                        onTap = {
+                            onTap()
+                        },
+                        onLongPress = {
+                            onLongPress()
+
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
+                                ),
+                            )
+                        },
+                    )
+                },
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        AsyncImage(
+            model = gridItemData.icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp, 40.dp)
+                .weight(1f),
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = gridItemData.shortLabel,
             modifier = Modifier.weight(1f),
             color = color,
             textAlign = TextAlign.Center,

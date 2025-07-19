@@ -86,7 +86,7 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                     launch {
                         val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
-                            shortcutInfo.toLauncherAppsShortcutInfo()
+                            toLauncherAppsShortcutInfo(shortcutInfo = shortcutInfo)
                         }
 
                         trySend(
@@ -134,7 +134,7 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
             }
 
             launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
-                shortcutInfo.toLauncherAppsShortcutInfo()
+                toLauncherAppsShortcutInfo(shortcutInfo = shortcutInfo)
             }
         } else {
             null
@@ -144,6 +144,11 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest {
         return launcherApps.getPinItemRequest(intent)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    override fun startShortcut(packageName: String, id: String) {
+        launcherApps.startShortcut(packageName, id, null, null, userHandle)
     }
 
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): EblanLauncherActivityInfo {
@@ -159,16 +164,16 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
-    private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {
+    private suspend fun toLauncherAppsShortcutInfo(shortcutInfo: ShortcutInfo): LauncherAppsShortcutInfo {
         val icon = withContext(Dispatchers.Default) {
-            launcherApps.getShortcutIconDrawable(this@toLauncherAppsShortcutInfo, 0).toByteArray()
+            launcherApps.getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
         }
 
         return LauncherAppsShortcutInfo(
-            id = id,
-            packageName = `package`,
-            shortLabel = shortLabel.toString(),
-            longLabel = longLabel.toString(),
+            id = shortcutInfo.id,
+            packageName = shortcutInfo.`package`,
+            shortLabel = shortcutInfo.shortLabel.toString(),
+            longLabel = shortcutInfo.longLabel.toString(),
             icon = icon,
         )
     }

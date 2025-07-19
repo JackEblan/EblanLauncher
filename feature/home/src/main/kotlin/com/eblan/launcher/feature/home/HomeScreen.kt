@@ -71,7 +71,6 @@ fun HomeRoute(
         onEdit = onEdit,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
-        onStartMainActivity = viewModel::startMainActivity,
         onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
     )
@@ -107,7 +106,6 @@ fun HomeScreen(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
-    onStartMainActivity: (String?) -> Unit,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -205,7 +203,6 @@ fun HomeScreen(
                         onEdit = onEdit,
                         onSettings = onSettings,
                         onEditPage = onEditPage,
-                        onStartMainActivity = onStartMainActivity,
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
                     )
@@ -252,7 +249,6 @@ private fun Success(
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
-    onStartMainActivity: (String?) -> Unit,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -304,7 +300,6 @@ private fun Success(
                     onDraggingGridItem = {
                         onShowGridCache(Screen.Drag)
                     },
-                    onStartMainActivity = onStartMainActivity,
                     onEdit = {
 
                     },

@@ -10,9 +10,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import com.eblan.launcher.navigation.MainNavHost
@@ -30,6 +32,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
 
+    @Inject
+    lateinit var launcherAppsWrapper: LauncherAppsWrapper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
@@ -39,6 +44,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalAppWidgetHost provides appWidgetHostWrapper,
                 LocalAppWidgetManager provides appWidgetManagerWrapper,
+                LocalLauncherApps provides launcherAppsWrapper,
             ) {
                 val navController = rememberNavController()
 

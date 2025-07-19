@@ -12,7 +12,5 @@ interface LauncherAppsDomainWrapper {
 
     suspend fun getActivityList(): List<EblanLauncherActivityInfo>
 
-    fun startMainActivity(componentName: String?)
-
     suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>?
 }

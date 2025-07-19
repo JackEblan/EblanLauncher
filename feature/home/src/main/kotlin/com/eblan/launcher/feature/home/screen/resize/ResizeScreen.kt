@@ -1,42 +1,33 @@
 package com.eblan.launcher.feature.home.screen.resize
 
-import android.widget.FrameLayout
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import coil3.compose.AsyncImage
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -66,10 +57,6 @@ fun ResizeScreen(
     val dockHeightDp = with(density) {
         dockHeight.toDp()
     }
-
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -106,55 +93,26 @@ fun ResizeScreen(
 
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
-                                Column(
+                                ApplicationInfoGridItem(
                                     modifier = gridItemModifier,
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    AsyncImage(
-                                        model = data.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(40.dp, 40.dp)
-                                            .weight(1f),
-                                    )
-
-                                    Spacer(modifier = Modifier.height(10.dp))
-
-                                    Text(
-                                        text = data.label.toString(),
-                                        modifier = Modifier.weight(1f),
-                                        color = color,
-                                        textAlign = TextAlign.Center,
-                                        fontSize = TextUnit(
-                                            value = 10f,
-                                            type = TextUnitType.Sp,
-                                        ),
-                                    )
-                                }
+                                    data = data,
+                                    color = color,
+                                )
                             }
 
                             is GridItemData.Widget -> {
-                                val appWidgetInfo =
-                                    appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+                                WidgetGridItem(
+                                    modifier = gridItemModifier,
+                                    data = data,
+                                )
+                            }
 
-                                if (appWidgetInfo != null) {
-                                    AndroidView(
-                                        factory = {
-                                            appWidgetHost.createView(
-                                                appWidgetId = data.appWidgetId,
-                                                appWidgetProviderInfo = appWidgetInfo,
-                                            ).apply {
-                                                layoutParams = FrameLayout.LayoutParams(
-                                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                                )
-
-                                                setAppWidget(appWidgetId, appWidgetInfo)
-                                            }
-                                        },
-                                        modifier = gridItemModifier,
-                                    )
-                                }
+                            is GridItemData.ShortcutInfo -> {
+                                ShortcutInfoGridItem(
+                                    modifier = gridItemModifier,
+                                    data = data,
+                                    color = color,
+                                )
                             }
                         }
                     }
@@ -171,61 +129,34 @@ fun ResizeScreen(
         ) {
             dockGridItems.forEach { dockGridItem ->
                 key(dockGridItem.id) {
-                    when (val gridItemData = dockGridItem.data) {
+                    when (val data = dockGridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            Column(
+                            ApplicationInfoGridItem(
                                 modifier = Modifier
                                     .gridItem(dockGridItem)
                                     .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                AsyncImage(
-                                    model = gridItemData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp, 40.dp)
-                                        .weight(1f),
-                                )
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                Text(
-                                    text = gridItemData.label.toString(),
-                                    modifier = Modifier.weight(1f),
-                                    color = color,
-                                    textAlign = TextAlign.Center,
-                                    fontSize = TextUnit(
-                                        value = 10f,
-                                        type = TextUnitType.Sp,
-                                    ),
-                                )
-                            }
+                                data = data,
+                                color = color,
+                            )
                         }
 
                         is GridItemData.Widget -> {
-                            val appWidgetInfo =
-                                appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+                            WidgetGridItem(
+                                modifier = Modifier
+                                    .gridItem(dockGridItem)
+                                    .fillMaxSize(),
+                                data = data,
+                            )
+                        }
 
-                            if (appWidgetInfo != null) {
-                                AndroidView(
-                                    factory = {
-                                        appWidgetHost.createView(
-                                            appWidgetId = gridItemData.appWidgetId,
-                                            appWidgetProviderInfo = appWidgetInfo,
-                                        ).apply {
-                                            layoutParams = FrameLayout.LayoutParams(
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
-                                                FrameLayout.LayoutParams.MATCH_PARENT,
-                                            )
-
-                                            setAppWidget(appWidgetId, appWidgetInfo)
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .gridItem(dockGridItem)
-                                        .fillMaxSize(),
-                                )
-                            }
+                        is GridItemData.ShortcutInfo -> {
+                            ShortcutInfoGridItem(
+                                modifier = Modifier
+                                    .gridItem(dockGridItem)
+                                    .fillMaxSize(),
+                                data = data,
+                                color = color,
+                            )
                         }
                     }
                 }
@@ -243,7 +174,7 @@ fun ResizeScreen(
         val cellHeight = gridHeight / rows
 
         when (val data = gridItemLayoutInfo.gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
+            is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
                 GridItemResizeOverlay(
                     gridPadding = gridPaddingPx,
                     gridItems = gridItems,

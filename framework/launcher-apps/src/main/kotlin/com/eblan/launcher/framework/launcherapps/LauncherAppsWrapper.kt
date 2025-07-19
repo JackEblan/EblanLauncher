@@ -9,4 +9,8 @@ interface LauncherAppsWrapper {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest
+
+    fun startMainActivity(componentName: String?)
+
+    fun startShortcut(packageName: String, id: String)
 }

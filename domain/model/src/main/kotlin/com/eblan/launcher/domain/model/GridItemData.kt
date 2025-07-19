@@ -26,4 +26,13 @@ sealed interface GridItemData {
         val maxResizeHeight: Int,
         val preview: String?,
     ) : GridItemData
+
+    @Serializable
+    data class ShortcutInfo(
+        val id: String,
+        val packageName: String,
+        val shortLabel: String,
+        val longLabel: String,
+        val icon: String?,
+    ): GridItemData
 }

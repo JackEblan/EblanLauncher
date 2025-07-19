@@ -39,6 +39,6 @@ dependencies {
     api(libs.coil.compose)
 
     implementation(projects.domain.model)
-    implementation(projects.framework.launcherApps)
-    implementation(projects.framework.widgetManager)
+    api(projects.framework.launcherApps)
+    api(projects.framework.widgetManager)
 }

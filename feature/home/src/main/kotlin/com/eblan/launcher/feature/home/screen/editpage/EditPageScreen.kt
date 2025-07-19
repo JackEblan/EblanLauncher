@@ -125,6 +125,16 @@ fun EditPageScreen(
                                             modifier = Modifier.gridItem(gridItem),
                                         )
                                     }
+
+                                    is GridItemData.ShortcutInfo -> {
+                                        AsyncImage(
+                                            model = data.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .gridItem(gridItem)
+                                                .padding(2.dp),
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -15,5 +15,5 @@ interface GridRepository {
 
     suspend fun getGridItem(id: Int): GridItem?
 
-    suspend fun deleteGridItemEntities(gridItems: List<GridItem>)
+    suspend fun deleteGridItems(gridItems: List<GridItem>)
 }

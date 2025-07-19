@@ -39,10 +39,11 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.calculatePage
 
@@ -63,9 +64,9 @@ fun ApplicationScreen(
     drag: Drag,
     appDrawerRowsHeight: Int,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    onLongPressApplicationInfo: (
+    onLongPress: (
         currentPage: Int,
-        gridItemLayoutInfo: GridItemLayoutInfo,
+        gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
 ) {
@@ -116,20 +117,25 @@ fun ApplicationScreen(
 
                                                 overlayIntOffset = intOffset
 
-                                                onLongPressApplicationInfo(
+
+
+                                                onLongPress(
                                                     page,
-                                                    getGridItemLayoutInfo(
-                                                        page = page,
-                                                        rows = rows,
-                                                        columns = columns,
-                                                        x = intOffset.x,
-                                                        y = intOffset.y,
-                                                        gridWidth = rootWidth,
-                                                        gridHeight = rootHeight - dockHeight,
-                                                        componentName = eblanApplicationInfo.componentName,
-                                                        packageName = eblanApplicationInfo.packageName,
-                                                        icon = eblanApplicationInfo.icon,
-                                                        label = eblanApplicationInfo.label,
+                                                    GridItemSource(
+                                                        gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                            page = page,
+                                                            rows = rows,
+                                                            columns = columns,
+                                                            x = intOffset.x,
+                                                            y = intOffset.y,
+                                                            gridWidth = rootWidth,
+                                                            gridHeight = rootHeight - dockHeight,
+                                                            componentName = eblanApplicationInfo.componentName,
+                                                            packageName = eblanApplicationInfo.packageName,
+                                                            icon = eblanApplicationInfo.icon,
+                                                            label = eblanApplicationInfo.label,
+                                                        ),
+                                                        type = GridItemSource.Type.New,
                                                     ),
                                                 )
 
@@ -184,11 +190,11 @@ fun ApplicationScreen(
                             height = appDrawerRowsHeight,
                         ),
                         onDismissRequest = {
-                                            showPopupApplicationMenu = false
-                                        },
+                            showPopupApplicationMenu = false
+                        },
                         content = {
-                                            ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
-                                        },
+                            ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
+                        },
                     )
                 }
             }

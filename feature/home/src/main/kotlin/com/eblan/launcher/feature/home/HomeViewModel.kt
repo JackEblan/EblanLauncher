@@ -10,7 +10,7 @@ import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
-import com.eblan.launcher.domain.usecase.GroupGridItemsByPageUseCase
+import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    groupGridItemsByPageUseCase: GroupGridItemsByPageUseCase,
+    getHomeDataUseCase: GetHomeDataUseCase,
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
 ) : ViewModel() {
-    val homeUiState = groupGridItemsByPageUseCase().map(HomeUiState::Success).stateIn(
+    val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState.Loading,

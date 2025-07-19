@@ -186,11 +186,11 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     Success(
                         screen = screen,
-                        gridItems = homeUiState.gridItemsByPage.gridItems,
-                        userData = homeUiState.gridItemsByPage.userData,
+                        gridItems = homeUiState.homeData.gridItems,
+                        userData = homeUiState.homeData.userData,
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                        dockGridItems = homeUiState.gridItemsByPage.dockGridItems,
-                        pageItems = homeUiState.gridItemsByPage.pageItems,
+                        dockGridItems = homeUiState.homeData.dockGridItems,
+                        pageItems = homeUiState.homeData.pageItems,
                         movedGridItems = movedGridItems,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
@@ -296,37 +296,12 @@ private fun Success(
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
-                    onLongPressedGridItem = { newCurrentPage, gridItemLayoutInfo ->
+                    onLongPressedGridItem = { newCurrentPage, newGridItemSource ->
                         targetPage = newCurrentPage
 
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.Old,
-                        )
-                    },
-                    onLongPressApplicationInfo = { newCurrentPage, gridItemLayoutInfo ->
-                        targetPage = newCurrentPage
-
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
-                        )
+                        gridItemSource = newGridItemSource
                     },
                     onDraggingGridItem = {
-                        onShowGridCache(Screen.Drag)
-                    },
-                    onDraggingApplicationInfo = {
-                        onShowGridCache(Screen.Drag)
-                    },
-                    onLongPressWidget = { newCurrentPage, gridItemLayoutInfo ->
-                        targetPage = newCurrentPage
-
-                        gridItemSource = GridItemSource(
-                            gridItemLayoutInfo = gridItemLayoutInfo,
-                            type = GridItemSource.Type.New,
-                        )
-                    },
-                    onDragStartWidget = {
                         onShowGridCache(Screen.Drag)
                     },
                     onStartMainActivity = onStartMainActivity,

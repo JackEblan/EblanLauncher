@@ -30,8 +30,9 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.calculatePage
 
@@ -50,11 +51,11 @@ fun WidgetScreen(
     dockHeight: Int,
     drag: Drag,
     gridItemLayoutInfo: GridItemLayoutInfo?,
-    onLongPressWidget: (
+    onLongPress: (
         currentPage: Int,
-        gridItemLayoutInfo: GridItemLayoutInfo,
+        gridItemSource: GridItemSource,
     ) -> Unit,
-    onDragStart: () -> Unit,
+    onDragging: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -67,8 +68,8 @@ fun WidgetScreen(
     )
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Start && gridItemLayoutInfo != null) {
-            onDragStart()
+        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+            onDragging()
         }
     }
 
@@ -120,28 +121,31 @@ fun WidgetScreen(
                                             block = {
                                                 detectTapGestures(
                                                     onLongPress = {
-                                                        onLongPressWidget(
+                                                        onLongPress(
                                                             page,
-                                                            getGridItemLayoutInfo(
-                                                                allocateAppWidgetId = appWidgetHost.allocateAppWidgetId(),
-                                                                page = page,
-                                                                componentName = eblanAppWidgetProviderInfo.componentName,
-                                                                configure = eblanAppWidgetProviderInfo.configure,
-                                                                packageName = eblanAppWidgetProviderInfo.packageName,
-                                                                rows = rows,
-                                                                columns = columns,
-                                                                targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                                                targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                                                                minWidth = eblanAppWidgetProviderInfo.minWidth,
-                                                                minHeight = eblanAppWidgetProviderInfo.minHeight,
-                                                                resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                                                                minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                                                                minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                                                                maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                                                                maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                                                preview = eblanAppWidgetProviderInfo.preview,
-                                                                gridWidth = rootWidth,
-                                                                gridHeight = rootHeight - dockHeight,
+                                                            GridItemSource(
+                                                                gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                                    allocateAppWidgetId = appWidgetHost.allocateAppWidgetId(),
+                                                                    page = page,
+                                                                    componentName = eblanAppWidgetProviderInfo.componentName,
+                                                                    configure = eblanAppWidgetProviderInfo.configure,
+                                                                    packageName = eblanAppWidgetProviderInfo.packageName,
+                                                                    rows = rows,
+                                                                    columns = columns,
+                                                                    targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                                                                    targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
+                                                                    minWidth = eblanAppWidgetProviderInfo.minWidth,
+                                                                    minHeight = eblanAppWidgetProviderInfo.minHeight,
+                                                                    resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                                                                    minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                                                                    minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                                                                    maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                                                                    maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                                                                    preview = eblanAppWidgetProviderInfo.preview,
+                                                                    gridWidth = rootWidth,
+                                                                    gridHeight = rootHeight - dockHeight,
+                                                                ),
+                                                                type = GridItemSource.Type.New,
                                                             ),
                                                         )
 

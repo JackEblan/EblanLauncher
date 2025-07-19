@@ -50,7 +50,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
@@ -61,6 +60,8 @@ import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvid
 import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
@@ -92,19 +93,9 @@ fun PagerScreen(
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
-        gridItemLayoutInfo: GridItemLayoutInfo,
-    ) -> Unit,
-    onLongPressApplicationInfo: (
-        currentPage: Int,
-        gridItemLayoutInfo: GridItemLayoutInfo,
+        gridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onDraggingApplicationInfo: () -> Unit,
-    onLongPressWidget: (
-        currentPage: Int,
-        gridItemLayoutInfo: GridItemLayoutInfo,
-    ) -> Unit,
-    onDragStartWidget: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
@@ -163,65 +154,106 @@ fun PagerScreen(
             }
 
             1 -> {
-                when (eblanApplicationComponentUiState) {
-                    EblanApplicationComponentUiState.Loading -> {
-                        LoadingScreen()
-                    }
+                ApplicationComponentScreen(
+                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                    gridHorizontalPagerState = gridHorizontalPagerState,
+                    rows = rows,
+                    columns = columns,
+                    appDrawerColumns = appDrawerColumns,
+                    pageCount = pageCount,
+                    infiniteScroll = infiniteScroll,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
+                    dockHeight = dockHeight,
+                    drag = drag,
+                    appDrawerRowsHeight = appDrawerRowsHeight,
+                    gridItemLayoutInfo = gridItemLayoutInfo,
+                    onLongPress = onLongPressedGridItem,
+                    onDragging = onDraggingGridItem,
+                )
+            }
+        }
+    }
+}
 
-                    is EblanApplicationComponentUiState.Success -> {
-                        val applicationHorizontalPagerState = rememberPagerState(
-                            initialPage = 0,
-                            pageCount = {
-                                eblanApplicationComponentUiState.eblanApplicationComponent.pageCount
-                            },
-                        )
+@Composable
+private fun ApplicationComponentScreen(
+    modifier: Modifier = Modifier,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    gridHorizontalPagerState: PagerState,
+    rows: Int,
+    columns: Int,
+    appDrawerColumns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
+    rootWidth: Int,
+    rootHeight: Int,
+    dockHeight: Int,
+    drag: Drag,
+    appDrawerRowsHeight: Int,
+    gridItemLayoutInfo: GridItemLayoutInfo?,
+    onLongPress: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+    ) -> Unit,
+    onDragging: () -> Unit,
+) {
+    when (eblanApplicationComponentUiState) {
+        EblanApplicationComponentUiState.Loading -> {
+            LoadingScreen()
+        }
 
-                        Surface(modifier = Modifier.fillMaxSize()) {
-                            HorizontalPager(state = applicationHorizontalPagerState) { page ->
-                                when (page) {
-                                    0 -> {
-                                        ApplicationScreen(
-                                            currentPage = gridHorizontalPagerState.currentPage,
-                                            rows = rows,
-                                            columns = columns,
-                                            appDrawerColumns = appDrawerColumns,
-                                            pageCount = pageCount,
-                                            infiniteScroll = infiniteScroll,
-                                            eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                                            rootWidth = rootWidth,
-                                            rootHeight = rootHeight,
-                                            dockHeight = dockHeight,
-                                            drag = drag,
-                                            appDrawerRowsHeight = appDrawerRowsHeight,
-                                            gridItemLayoutInfo = gridItemLayoutInfo,
-                                            onLongPressApplicationInfo = onLongPressApplicationInfo,
-                                            onDragging = onDraggingApplicationInfo,
-                                        )
-                                    }
+        is EblanApplicationComponentUiState.Success -> {
+            val applicationHorizontalPagerState = rememberPagerState(
+                initialPage = 0,
+                pageCount = {
+                    eblanApplicationComponentUiState.eblanApplicationComponent.pageCount
+                },
+            )
 
-                                    1 -> {
-                                        WidgetScreen(
-                                            currentPage = gridHorizontalPagerState.currentPage,
-                                            rows = rows,
-                                            columns = columns,
-                                            pageCount = pageCount,
-                                            infiniteScroll = infiniteScroll,
-                                            eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                                            rootWidth = rootWidth,
-                                            rootHeight = rootHeight,
-                                            dockHeight = dockHeight,
-                                            drag = drag,
-                                            gridItemLayoutInfo = gridItemLayoutInfo,
-                                            onLongPressWidget = onLongPressWidget,
-                                            onDragStart = onDragStartWidget,
-                                        )
-                                    }
+            Surface(modifier = modifier.fillMaxSize()) {
+                HorizontalPager(state = applicationHorizontalPagerState) { page ->
+                    when (page) {
+                        0 -> {
+                            ApplicationScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                rows = rows,
+                                columns = columns,
+                                appDrawerColumns = appDrawerColumns,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
+                                rootWidth = rootWidth,
+                                rootHeight = rootHeight,
+                                dockHeight = dockHeight,
+                                drag = drag,
+                                appDrawerRowsHeight = appDrawerRowsHeight,
+                                gridItemLayoutInfo = gridItemLayoutInfo,
+                                onLongPress = onLongPress,
+                                onDragging = onDragging,
+                            )
+                        }
 
-                                    2 -> {
-                                        ShortcutScreen(eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos)
-                                    }
-                                }
-                            }
+                        1 -> {
+                            WidgetScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                rows = rows,
+                                columns = columns,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
+                                rootWidth = rootWidth,
+                                rootHeight = rootHeight,
+                                dockHeight = dockHeight,
+                                drag = drag,
+                                gridItemLayoutInfo = gridItemLayoutInfo,
+                                onLongPress = onLongPress,
+                                onDragging = onDragging,
+                            )
+                        }
+
+                        2 -> {
+                            ShortcutScreen(eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos)
                         }
                     }
                 }
@@ -251,7 +283,7 @@ private fun HorizontalPagerScreen(
     drag: Drag,
     onLongPressedGridItem: (
         currentPage: Int,
-        gridItemLayoutInfo: GridItemLayoutInfo,
+        gridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onStartMainActivity: (String?) -> Unit,
@@ -346,12 +378,15 @@ private fun HorizontalPagerScreen(
 
                                         onLongPressedGridItem(
                                             page,
-                                            GridItemLayoutInfo(
-                                                gridItem = gridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
+                                            GridItemSource(
+                                                gridItemLayoutInfo = GridItemLayoutInfo(
+                                                    gridItem = gridItem,
+                                                    width = width,
+                                                    height = height,
+                                                    x = x,
+                                                    y = y,
+                                                ),
+                                                type = GridItemSource.Type.Old,
                                             ),
                                         )
                                     },
@@ -367,12 +402,15 @@ private fun HorizontalPagerScreen(
 
                                         onLongPressedGridItem(
                                             page,
-                                            GridItemLayoutInfo(
-                                                gridItem = gridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
+                                            GridItemSource(
+                                                gridItemLayoutInfo = GridItemLayoutInfo(
+                                                    gridItem = gridItem,
+                                                    width = width,
+                                                    height = height,
+                                                    x = x,
+                                                    y = y,
+                                                ),
+                                                type = GridItemSource.Type.Old,
                                             ),
                                         )
                                     },
@@ -423,12 +461,15 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemLayoutInfo(
-                                            gridItem = dockGridItem,
-                                            width = width,
-                                            height = height,
-                                            x = x,
-                                            y = y + (rootHeight - dockHeight),
+                                        GridItemSource(
+                                            gridItemLayoutInfo = GridItemLayoutInfo(
+                                                gridItem = dockGridItem,
+                                                width = width,
+                                                height = height,
+                                                x = x,
+                                                y = y,
+                                            ),
+                                            type = GridItemSource.Type.Old,
                                         ),
                                     )
                                 },
@@ -448,12 +489,15 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemLayoutInfo(
-                                            gridItem = dockGridItem,
-                                            width = width,
-                                            height = height,
-                                            x = x,
-                                            y = y + (rootHeight - dockHeight),
+                                        GridItemSource(
+                                            gridItemLayoutInfo = GridItemLayoutInfo(
+                                                gridItem = dockGridItem,
+                                                width = width,
+                                                height = height,
+                                                x = x,
+                                                y = y,
+                                            ),
+                                            type = GridItemSource.Type.Old,
                                         ),
                                     )
                                 },

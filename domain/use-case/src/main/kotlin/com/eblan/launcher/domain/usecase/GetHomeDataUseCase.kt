@@ -2,7 +2,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.GridItemsByPage
+import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
@@ -14,13 +14,13 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class GroupGridItemsByPageUseCase @Inject constructor(
+class GetHomeDataUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val pageCacheRepository: PageCacheRepository,
 ) {
-    operator fun invoke(): Flow<GridItemsByPage> {
+    operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
             if (isCache) {
                 gridCacheRepository.gridCacheItems
@@ -50,7 +50,7 @@ class GroupGridItemsByPageUseCase @Inject constructor(
                 ) && gridItem.associate == Associate.Dock
             }
 
-            GridItemsByPage(
+            HomeData(
                 userData = userData,
                 gridItems = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,

@@ -21,7 +21,7 @@ class UpdatePageItemsUseCase @Inject constructor(
     ) {
         withContext(Dispatchers.Default) {
             pageItemsToDelete.forEach { pageItem ->
-                gridRepository.deleteGridItemEntities(gridItems = pageItem.gridItems)
+                gridRepository.deleteGridItems(gridItems = pageItem.gridItems)
 
                 pageItem.gridItems.forEach { gridItem ->
                     val data = gridItem.data

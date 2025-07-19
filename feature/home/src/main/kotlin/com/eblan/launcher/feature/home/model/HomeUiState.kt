@@ -1,11 +1,11 @@
 package com.eblan.launcher.feature.home.model
 
-import com.eblan.launcher.domain.model.GridItemsByPage
+import com.eblan.launcher.domain.model.HomeData
 
 sealed interface HomeUiState {
     data object Loading : HomeUiState
 
     data class Success(
-        val gridItemsByPage: GridItemsByPage,
+        val homeData: HomeData,
     ) : HomeUiState
 }

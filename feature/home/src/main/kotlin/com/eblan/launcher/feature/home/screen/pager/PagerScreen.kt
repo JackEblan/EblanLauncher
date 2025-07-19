@@ -92,6 +92,7 @@ fun PagerScreen(
     rootHeight: Int,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
+    hasShortcutHostPermission: Boolean,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
@@ -147,6 +148,7 @@ fun PagerScreen(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     drag = drag,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                     onLongPressGrid = onLongPressGrid,
                     onLongPressedGridItem = onLongPressedGridItem,
                     onDraggingGridItem = onDraggingGridItem,
@@ -172,6 +174,7 @@ fun PagerScreen(
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     gridItemLayoutInfo = gridItemLayoutInfo,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                     onLongPress = onLongPressedGridItem,
                     onDragging = onDraggingGridItem,
                 )
@@ -196,6 +199,7 @@ private fun ApplicationComponentScreen(
     drag: Drag,
     appDrawerRowsHeight: Int,
     gridItemLayoutInfo: GridItemLayoutInfo?,
+    hasShortcutHostPermission: Boolean,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -212,7 +216,11 @@ private fun ApplicationComponentScreen(
                 val applicationHorizontalPagerState = rememberPagerState(
                     initialPage = 0,
                     pageCount = {
-                        eblanApplicationComponentUiState.eblanApplicationComponent.pageCount
+                        if (hasShortcutHostPermission) {
+                            3
+                        } else {
+                            2
+                        }
                     },
                 )
 
@@ -299,6 +307,7 @@ private fun HorizontalPagerScreen(
     rootWidth: Int,
     rootHeight: Int,
     drag: Drag,
+    hasShortcutHostPermission: Boolean,
     onLongPressedGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -442,10 +451,12 @@ private fun HorizontalPagerScreen(
                                     gridItem = gridItem,
                                     gridItemData = data,
                                     onTap = {
-                                        launcherApps.startShortcut(
-                                            packageName = data.packageName,
-                                            id = data.id,
-                                        )
+                                        if (hasShortcutHostPermission) {
+                                            launcherApps.startShortcut(
+                                                packageName = data.packageName,
+                                                id = data.id,
+                                            )
+                                        }
                                     },
                                     onLongPress = {
                                         showPopupGridItemMenu = true

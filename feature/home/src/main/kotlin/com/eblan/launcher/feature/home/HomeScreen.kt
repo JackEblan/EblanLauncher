@@ -194,6 +194,7 @@ fun HomeScreen(
                         rootHeight = constraints.maxHeight,
                         dragIntOffset = dragIntOffset,
                         drag = drag,
+                        hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onDeleteAppWidgetId = onDeleteAppWidgetId,
@@ -226,6 +227,7 @@ private fun Success(
     rootHeight: Int,
     dragIntOffset: IntOffset,
     drag: Drag,
+    hasShortcutHostPermission: Boolean,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -289,6 +291,7 @@ private fun Success(
                     rootHeight = rootHeight,
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },

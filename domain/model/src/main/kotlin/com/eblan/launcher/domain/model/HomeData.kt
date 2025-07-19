@@ -5,4 +5,5 @@ data class HomeData(
     val gridItems: Map<Int, List<GridItem>>,
     val dockGridItems: List<GridItem>,
     val pageItems: List<PageItem>,
+    val hasShortcutHostPermission: Boolean,
 )

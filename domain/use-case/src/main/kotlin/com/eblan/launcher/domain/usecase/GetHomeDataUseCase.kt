@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeData
@@ -19,6 +20,7 @@ class GetHomeDataUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val pageCacheRepository: PageCacheRepository,
+    private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
 ) {
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
@@ -55,6 +57,7 @@ class GetHomeDataUseCase @Inject constructor(
                 gridItems = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,
                 pageItems = pageItems,
+                hasShortcutHostPermission = launcherAppsDomainWrapper.hasShortcutHostPermission,
             )
         }.flowOn(Dispatchers.Default)
     }

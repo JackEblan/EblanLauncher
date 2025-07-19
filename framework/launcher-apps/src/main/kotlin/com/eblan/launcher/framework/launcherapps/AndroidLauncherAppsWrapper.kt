@@ -39,8 +39,8 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
 
     private val userHandle = Process.myUserHandle()
 
-    override val hasShortcutHostPermission =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && launcherApps.hasShortcutHostPermission()
+    override val hasShortcutHostPermission
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && launcherApps.hasShortcutHostPermission()
 
     override val launcherAppsEvent: Flow<LauncherAppsEvent> = callbackFlow {
         val callback = object : LauncherApps.Callback() {

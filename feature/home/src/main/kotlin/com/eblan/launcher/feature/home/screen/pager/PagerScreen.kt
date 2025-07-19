@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -123,6 +124,10 @@ fun PagerScreen(
     VerticalPager(
         state = verticalPagerState,
         modifier = modifier,
+        flingBehavior = PagerDefaults.flingBehavior(
+            state = verticalPagerState,
+            snapPositionalThreshold = 0.2f,
+        ),
     ) { verticalPage ->
         when (verticalPage) {
             0 -> {
@@ -198,20 +203,20 @@ private fun ApplicationComponentScreen(
     ) -> Unit,
     onDragging: () -> Unit,
 ) {
-    when (eblanApplicationComponentUiState) {
-        EblanApplicationComponentUiState.Loading -> {
-            LoadingScreen()
-        }
+    Surface(modifier = modifier.fillMaxSize()) {
+        when (eblanApplicationComponentUiState) {
+            EblanApplicationComponentUiState.Loading -> {
+                LoadingScreen()
+            }
 
-        is EblanApplicationComponentUiState.Success -> {
-            val applicationHorizontalPagerState = rememberPagerState(
-                initialPage = 0,
-                pageCount = {
-                    eblanApplicationComponentUiState.eblanApplicationComponent.pageCount
-                },
-            )
+            is EblanApplicationComponentUiState.Success -> {
+                val applicationHorizontalPagerState = rememberPagerState(
+                    initialPage = 0,
+                    pageCount = {
+                        eblanApplicationComponentUiState.eblanApplicationComponent.pageCount
+                    },
+                )
 
-            Surface(modifier = modifier.fillMaxSize()) {
                 HorizontalPager(state = applicationHorizontalPagerState) { page ->
                     when (page) {
                         0 -> {

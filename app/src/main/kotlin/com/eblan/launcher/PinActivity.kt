@@ -28,8 +28,6 @@ class PinActivity : ComponentActivity() {
     @Inject
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
-    private var mFinishOnPause = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,14 +44,12 @@ class PinActivity : ComponentActivity() {
                             PinWidgetScreen(
                                 pinItemRequest = pinItemRequest,
                                 onHome = {
-                                    val intent = Intent(Intent.ACTION_MAIN)
+                                    val homeIntent = Intent(Intent.ACTION_MAIN)
                                         .addCategory(Intent.CATEGORY_HOME)
                                         .setPackage(packageName)
                                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                                    startActivity(intent)
-
-                                    mFinishOnPause = true
+                                    startActivity(homeIntent)
                                 },
                             )
                         }
@@ -64,13 +60,6 @@ class PinActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (mFinishOnPause) {
-            finish()
         }
     }
 }

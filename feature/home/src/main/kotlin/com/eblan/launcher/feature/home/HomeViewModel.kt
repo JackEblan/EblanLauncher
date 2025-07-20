@@ -58,7 +58,7 @@ class HomeViewModel @Inject constructor(
 
     val screen = _screen.asStateFlow()
 
-    private var _movedGridItems = MutableStateFlow<Boolean?>(null)
+    private var _movedGridItems = MutableStateFlow(false)
 
     val movedGridItems = _movedGridItems.asStateFlow()
 

@@ -1,12 +1,10 @@
 package com.eblan.launcher.feature.home
 
-import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipDescription
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.os.Build
-import android.os.Bundle
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -95,7 +93,7 @@ fun HomeScreen(
     screen: Screen,
     homeUiState: HomeUiState,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    movedGridItems: Boolean?,
+    movedGridItems: Boolean,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -235,7 +233,7 @@ private fun Success(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     dockGridItems: List<GridItem>,
     pageItems: List<PageItem>,
-    movedGridItems: Boolean?,
+    movedGridItems: Boolean,
     rootWidth: Int,
     rootHeight: Int,
     dragIntOffset: IntOffset,
@@ -291,9 +289,12 @@ private fun Success(
             appWidgetHostWrapper = appWidgetHostWrapper,
             pinItemRequestWrapper = pinItemRequestWrapper,
             context = context,
-            userData = userData,
+            initialPage = userData.homeSettings.initialPage,
+            rows = userData.homeSettings.rows,
+            columns = userData.homeSettings.columns,
             rootWidth = rootWidth,
             rootHeight = rootHeight,
+            dockHeight = userData.homeSettings.dockHeight,
             onDragStart = { newGridItemSource ->
                 gridItemSource = newGridItemSource
 
@@ -371,34 +372,13 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = userData.homeSettings.textColor,
                     movedGridItems = movedGridItems,
+                    pinItemRequest = pinItemRequestWrapper.getPinItemRequest(),
                     onMoveGridItem = onMoveGridItem,
                     onDeleteAppWidgetId = onDeleteAppWidgetId,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = onResetGridCache,
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage
-
-                        onResetGridCache()
-                    },
-                    onDragEndPin = { newTargetPage, appWidgetId ->
-                        targetPage = newTargetPage
-
-                        val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                            pinItemRequest != null &&
-                            pinItemRequest.isValid
-                        ) {
-                            val extras = Bundle().apply {
-                                putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                            }
-
-                            if (pinItemRequest.accept(extras)) {
-                                pinItemRequestWrapper.updatePinItemRequest(null)
-
-                                gridItemSource = null
-                            }
-                        }
 
                         onResetGridCache()
                     },
@@ -452,22 +432,27 @@ private fun handlePinItemRequest(
     appWidgetHostWrapper: AppWidgetHostWrapper,
     pinItemRequestWrapper: PinItemRequestWrapper,
     context: Context,
-    userData: UserData,
+    initialPage: Int,
+    rows: Int,
+    columns: Int,
     rootWidth: Int,
     rootHeight: Int,
+    dockHeight: Int,
     onDragStart: (GridItemSource) -> Unit,
 ) {
     fun getWidgetGridItemSource(appWidgetProviderInfo: AppWidgetProviderInfo): GridItemSource {
+        val allocateAppWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             GridItemSource(
                 gridItemLayoutInfo = getGridItemLayoutInfo(
-                    allocateAppWidgetId = appWidgetHostWrapper.allocateAppWidgetId(),
-                    page = userData.homeSettings.initialPage,
+                    allocateAppWidgetId = allocateAppWidgetId,
+                    page = initialPage,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
                     configure = appWidgetProviderInfo.configure.flattenToString(),
                     packageName = appWidgetProviderInfo.provider.packageName,
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
+                    rows = rows,
+                    columns = columns,
                     targetCellHeight = appWidgetProviderInfo.targetCellHeight,
                     targetCellWidth = appWidgetProviderInfo.targetCellWidth,
                     minWidth = appWidgetProviderInfo.minWidth,
@@ -478,20 +463,20 @@ private fun handlePinItemRequest(
                     maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
                     gridWidth = rootWidth,
-                    gridHeight = rootHeight - userData.homeSettings.dockHeight,
+                    gridHeight = rootHeight - dockHeight,
                 ),
                 type = GridItemSource.Type.Pin,
             )
         } else {
             GridItemSource(
                 gridItemLayoutInfo = getGridItemLayoutInfo(
-                    allocateAppWidgetId = -1,
-                    page = userData.homeSettings.initialPage,
+                    allocateAppWidgetId = allocateAppWidgetId,
+                    page = initialPage,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
                     configure = appWidgetProviderInfo.configure.flattenToString(),
                     packageName = appWidgetProviderInfo.provider.packageName,
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
+                    rows = rows,
+                    columns = columns,
                     targetCellHeight = 0,
                     targetCellWidth = 0,
                     minWidth = appWidgetProviderInfo.minWidth,
@@ -502,30 +487,38 @@ private fun handlePinItemRequest(
                     maxResizeWidth = 0,
                     maxResizeHeight = 0,
                     gridWidth = rootWidth,
-                    gridHeight = rootHeight - userData.homeSettings.dockHeight,
+                    gridHeight = rootHeight - dockHeight,
                 ),
                 type = GridItemSource.Type.Pin,
             )
         }
     }
 
-    if (drag == Drag.Start) {
-        val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+    val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            when (pinItemRequest?.requestType) {
-                LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                    val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
+    when (drag) {
+        Drag.Start -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                when (pinItemRequest?.requestType) {
+                    LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                        val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
 
-                    if (appWidgetProviderInfo != null) {
-                        onDragStart(getWidgetGridItemSource(appWidgetProviderInfo = appWidgetProviderInfo))
+                        if (appWidgetProviderInfo != null) {
+                            onDragStart(getWidgetGridItemSource(appWidgetProviderInfo = appWidgetProviderInfo))
+                        }
                     }
-                }
 
-                LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                    LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
 
+                    }
                 }
             }
         }
+
+        Drag.End -> {
+            pinItemRequestWrapper.updatePinItemRequest(null)
+        }
+
+        else -> Unit
     }
 }

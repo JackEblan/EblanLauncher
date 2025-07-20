@@ -24,7 +24,6 @@ sealed interface GridItemData {
         val minResizeHeight: Int,
         val maxResizeWidth: Int,
         val maxResizeHeight: Int,
-        val preview: String?,
     ) : GridItemData
 
     @Serializable

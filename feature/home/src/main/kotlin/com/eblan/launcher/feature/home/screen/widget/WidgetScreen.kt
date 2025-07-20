@@ -33,7 +33,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -141,7 +140,6 @@ fun WidgetScreen(
                                                                     minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
                                                                     maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                                                     maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                                                    preview = eblanAppWidgetProviderInfo.preview,
                                                                     gridWidth = rootWidth,
                                                                     gridHeight = rootHeight - dockHeight,
                                                                 ),
@@ -152,8 +150,8 @@ fun WidgetScreen(
                                                         startTransfer(
                                                             DragAndDropTransferData(
                                                                 clipData = ClipData.newPlainText(
-                                                                    "Screen",
-                                                                    Screen.Drag.name,
+                                                                    "Drag",
+                                                                    "Drag",
                                                                 ),
                                                             ),
                                                         )
@@ -188,7 +186,7 @@ fun WidgetScreen(
     }
 }
 
-private fun getGridItemLayoutInfo(
+fun getGridItemLayoutInfo(
     allocateAppWidgetId: Int,
     page: Int,
     componentName: String,
@@ -205,7 +203,6 @@ private fun getGridItemLayoutInfo(
     minResizeHeight: Int,
     maxResizeWidth: Int,
     maxResizeHeight: Int,
-    preview: String?,
     gridWidth: Int,
     gridHeight: Int,
 ): GridItemLayoutInfo {
@@ -244,7 +241,6 @@ private fun getGridItemLayoutInfo(
         minResizeHeight = minResizeHeight,
         maxResizeWidth = maxResizeWidth,
         maxResizeHeight = maxResizeHeight,
-        preview = preview,
     )
 
     val gridItem = GridItem(

@@ -1,18 +1,18 @@
 package com.eblan.launcher
 
-import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
-import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
+import androidx.compose.runtime.CompositionLocalProvider
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.feature.pin.widget.PinWidgetScreen
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
+import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -23,13 +23,10 @@ class PinActivity : ComponentActivity() {
     lateinit var appWidgetHostWrapper: AppWidgetHostWrapper
 
     @Inject
-    lateinit var appWidgetHosDomainWrapper: AppWidgetHostDomainWrapper
-
-    @Inject
-    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
-
-    @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
+
+    @Inject
+    lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
     private var mFinishOnPause = false
 
@@ -40,24 +37,30 @@ class PinActivity : ComponentActivity() {
             val pinItemRequest = launcherAppsWrapper.getPinItemRequest(intent = intent)
 
             setContent {
-                when (pinItemRequest.requestType) {
-                    LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                        PinWidgetScreen(
-                            onHome = {
-                                val intent = Intent(Intent.ACTION_MAIN)
-                                    .addCategory(Intent.CATEGORY_HOME)
-                                    .setPackage(packageName)
-                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                CompositionLocalProvider(
+                    LocalAppWidgetHost provides appWidgetHostWrapper,
+                    LocalPinItemRequest provides pinItemRequestWrapper,
+                ) {
+                    when (pinItemRequest.requestType) {
+                        LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                            PinWidgetScreen(
+                                pinItemRequest = pinItemRequest,
+                                onHome = {
+                                    val intent = Intent(Intent.ACTION_MAIN)
+                                        .addCategory(Intent.CATEGORY_HOME)
+                                        .setPackage(packageName)
+                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                                startActivity(intent)
+                                    startActivity(intent)
 
-                                mFinishOnPause = true
-                            },
-                        )
-                    }
+                                    mFinishOnPause = true
+                                },
+                            )
+                        }
 
-                    LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                        LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
 
+                        }
                     }
                 }
             }
@@ -69,30 +72,5 @@ class PinActivity : ComponentActivity() {
         if (mFinishOnPause) {
             finish()
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun acceptWidgetPin(pinItemRequest: LauncherApps.PinItemRequest) {
-        val appWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
-
-        val extras = Bundle().apply {
-            putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        }
-
-        if (pinItemRequest.accept(extras)) {
-            val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(this)
-
-            if (appWidgetProviderInfo != null && appWidgetManagerWrapper.bindAppWidgetIdIfAllowed(
-                    appWidgetId = appWidgetId,
-                    provider = appWidgetProviderInfo.provider,
-                )
-            ) {
-                println("Did it work?")
-            }
-        } else {
-            appWidgetHosDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
-        }
-
-        finish()
     }
 }

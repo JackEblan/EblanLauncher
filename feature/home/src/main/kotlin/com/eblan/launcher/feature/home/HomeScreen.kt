@@ -1,6 +1,12 @@
 package com.eblan.launcher.feature.home
 
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipDescription
+import android.content.Context
+import android.content.pm.LauncherApps
+import android.os.Build
+import android.os.Bundle
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -10,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,9 +29,12 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.UserData
@@ -38,6 +48,9 @@ import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import com.eblan.launcher.feature.home.screen.widget.getGridItemLayoutInfo
+import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -266,6 +279,29 @@ private fun Success(
         )
     }
 
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
+    val appWidgetHostWrapper = LocalAppWidgetHost.current
+
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = drag) {
+        handlePinItemRequest(
+            drag = drag,
+            appWidgetHostWrapper = appWidgetHostWrapper,
+            pinItemRequestWrapper = pinItemRequestWrapper,
+            context = context,
+            userData = userData,
+            rootWidth = rootWidth,
+            rootHeight = rootHeight,
+            onDragStart = { newGridItemSource ->
+                gridItemSource = newGridItemSource
+
+                onShowGridCache(Screen.Drag)
+            },
+        )
+    }
+
     AnimatedContent(
         modifier = modifier,
         targetState = screen,
@@ -344,6 +380,28 @@ private fun Success(
 
                         onResetGridCache()
                     },
+                    onDragEndPin = { newTargetPage, appWidgetId ->
+                        targetPage = newTargetPage
+
+                        val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                            pinItemRequest != null &&
+                            pinItemRequest.isValid
+                        ) {
+                            val extras = Bundle().apply {
+                                putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                            }
+
+                            if (pinItemRequest.accept(extras)) {
+                                pinItemRequestWrapper.updatePinItemRequest(null)
+
+                                gridItemSource = null
+                            }
+                        }
+
+                        onResetGridCache()
+                    },
                 )
             }
 
@@ -384,6 +442,89 @@ private fun Success(
                     onSaveEditPage = onSaveEditPage,
                     onCancelEditPage = onCancelEditPage,
                 )
+            }
+        }
+    }
+}
+
+private fun handlePinItemRequest(
+    drag: Drag,
+    appWidgetHostWrapper: AppWidgetHostWrapper,
+    pinItemRequestWrapper: PinItemRequestWrapper,
+    context: Context,
+    userData: UserData,
+    rootWidth: Int,
+    rootHeight: Int,
+    onDragStart: (GridItemSource) -> Unit,
+) {
+    fun getWidgetGridItemSource(appWidgetProviderInfo: AppWidgetProviderInfo): GridItemSource {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            GridItemSource(
+                gridItemLayoutInfo = getGridItemLayoutInfo(
+                    allocateAppWidgetId = appWidgetHostWrapper.allocateAppWidgetId(),
+                    page = userData.homeSettings.initialPage,
+                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                    packageName = appWidgetProviderInfo.provider.packageName,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    targetCellHeight = appWidgetProviderInfo.targetCellHeight,
+                    targetCellWidth = appWidgetProviderInfo.targetCellWidth,
+                    minWidth = appWidgetProviderInfo.minWidth,
+                    minHeight = appWidgetProviderInfo.minHeight,
+                    resizeMode = appWidgetProviderInfo.resizeMode,
+                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                    maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                    gridWidth = rootWidth,
+                    gridHeight = rootHeight - userData.homeSettings.dockHeight,
+                ),
+                type = GridItemSource.Type.Pin,
+            )
+        } else {
+            GridItemSource(
+                gridItemLayoutInfo = getGridItemLayoutInfo(
+                    allocateAppWidgetId = -1,
+                    page = userData.homeSettings.initialPage,
+                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                    packageName = appWidgetProviderInfo.provider.packageName,
+                    rows = userData.homeSettings.rows,
+                    columns = userData.homeSettings.columns,
+                    targetCellHeight = 0,
+                    targetCellWidth = 0,
+                    minWidth = appWidgetProviderInfo.minWidth,
+                    minHeight = appWidgetProviderInfo.minHeight,
+                    resizeMode = appWidgetProviderInfo.resizeMode,
+                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = 0,
+                    maxResizeHeight = 0,
+                    gridWidth = rootWidth,
+                    gridHeight = rootHeight - userData.homeSettings.dockHeight,
+                ),
+                type = GridItemSource.Type.Pin,
+            )
+        }
+    }
+
+    if (drag == Drag.Start) {
+        val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            when (pinItemRequest?.requestType) {
+                LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                    val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
+
+                    if (appWidgetProviderInfo != null) {
+                        onDragStart(getWidgetGridItemSource(appWidgetProviderInfo = appWidgetProviderInfo))
+                    }
+                }
+
+                LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+
+                }
             }
         }
     }

@@ -30,7 +30,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -120,8 +119,8 @@ fun ShortcutScreen(
                                                     startTransfer(
                                                         DragAndDropTransferData(
                                                             clipData = ClipData.newPlainText(
-                                                                "Screen",
-                                                                Screen.Drag.name,
+                                                                "Drag",
+                                                                "Drag",
                                                             ),
                                                         ),
                                                     )

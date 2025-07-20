@@ -18,4 +18,8 @@ internal interface LauncherAppsModule {
     @Binds
     @Singleton
     fun launcherAppsWrapper(impl: AndroidLauncherAppsWrapper): LauncherAppsWrapper
+
+    @Binds
+    @Singleton
+    fun pinItemRequestWrapper(impl: AndroidPinItemRequestWrapper): PinItemRequestWrapper
 }

@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -119,11 +120,7 @@ fun EditPageScreen(
                                     }
 
                                     is GridItemData.Widget -> {
-                                        AsyncImage(
-                                            model = data.preview,
-                                            contentDescription = null,
-                                            modifier = Modifier.gridItem(gridItem),
-                                        )
+                                        Box(modifier = Modifier.gridItem(gridItem))
                                     }
 
                                     is GridItemData.ShortcutInfo -> {

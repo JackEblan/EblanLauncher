@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
@@ -209,7 +210,12 @@ fun GridItemResizeOverlay(
             else -> null
         }
 
-        if (resizingGridItem != null) {
+        if (resizingGridItem != null && isGridItemSpanWithinBounds(
+                gridItem = resizingGridItem,
+                rows = rows,
+                columns = columns,
+            )
+        ) {
             onResizeGridItem(gridItems.orEmpty(), resizingGridItem, rows, columns)
         }
     }

@@ -23,6 +23,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resizeWidgetGridItemWithPixels
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -193,7 +194,12 @@ fun WidgetGridItemResizeOverlay(
             else -> null
         }
 
-        if (resizingGridItem != null) {
+        if (resizingGridItem != null && isGridItemSpanWithinBounds(
+                gridItem = resizingGridItem,
+                rows = rows,
+                columns = columns,
+            )
+        ) {
             onResizeWidgetGridItem(
                 gridItems.orEmpty(),
                 resizingGridItem,

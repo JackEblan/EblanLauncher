@@ -111,6 +111,7 @@ fun PagerScreen(
         newGridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onDraggingNewGridItem: () -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
@@ -180,6 +181,8 @@ fun PagerScreen(
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     rows = rows,
                     columns = columns,
+                    dockRows = dockRows,
+                    dockColumns = dockColumns,
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
@@ -190,7 +193,7 @@ fun PagerScreen(
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     onLongPress = onLongPressNewGridItem,
-                    onDragging = onDraggingGridItem,
+                    onDragging = onDraggingNewGridItem,
                 )
             }
         }
@@ -204,6 +207,8 @@ private fun ApplicationComponentScreen(
     gridHorizontalPagerState: PagerState,
     rows: Int,
     columns: Int,
+    dockRows: Int,
+    dockColumns: Int,
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
@@ -258,6 +263,8 @@ private fun ApplicationComponentScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
                                 rows = rows,
                                 columns = columns,
+                                dockRows = dockRows,
+                                dockColumns = dockColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
@@ -350,6 +357,10 @@ private fun HorizontalPagerScreen(
         }
 
         handlePinItemRequest(
+            rows = rows,
+            columns = columns,
+            gridWidth = rootWidth,
+            gridHeight = rootHeight - dockHeight,
             drag = drag,
             pinItemRequestWrapper = pinItemRequestWrapper,
             context = context,
@@ -924,6 +935,10 @@ private fun WidgetGridItem(
 }
 
 private fun handlePinItemRequest(
+    rows: Int,
+    columns: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     drag: Drag,
     pinItemRequestWrapper: PinItemRequestWrapper,
     context: Context,
@@ -935,6 +950,8 @@ private fun handlePinItemRequest(
             GridItemSource(
                 gridItem = getWidgetGridItem(
                     page = initialPage,
+                    rows = rows,
+                    columns = columns,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
                     configure = appWidgetProviderInfo.configure.flattenToString(),
                     packageName = appWidgetProviderInfo.provider.packageName,
@@ -947,6 +964,8 @@ private fun handlePinItemRequest(
                     minResizeHeight = appWidgetProviderInfo.minResizeHeight,
                     maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                 ),
                 type = GridItemSource.Type.Pin,
             )
@@ -954,6 +973,8 @@ private fun handlePinItemRequest(
             GridItemSource(
                 gridItem = getWidgetGridItem(
                     page = initialPage,
+                    rows = rows,
+                    columns = columns,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
                     configure = appWidgetProviderInfo.configure.flattenToString(),
                     packageName = appWidgetProviderInfo.provider.packageName,
@@ -966,6 +987,8 @@ private fun handlePinItemRequest(
                     minResizeHeight = appWidgetProviderInfo.minResizeHeight,
                     maxResizeWidth = 0,
                     maxResizeHeight = 0,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                 ),
                 type = GridItemSource.Type.Pin,
             )

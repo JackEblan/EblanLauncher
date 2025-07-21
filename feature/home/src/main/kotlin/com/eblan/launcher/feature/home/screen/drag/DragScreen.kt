@@ -38,8 +38,6 @@ import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.PageDirection
-import com.eblan.launcher.feature.home.screen.widget.getSize
-import com.eblan.launcher.feature.home.screen.widget.getSpan
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.delay
 
@@ -358,68 +356,17 @@ suspend fun handleDragIntOffset(
 
         val dockY = dragIntOffset.y - (rootHeight - dockHeight)
 
-        val newGridItem = gridItem.let { newGridItem ->
-            val data = newGridItem.data
-
-            if (data is GridItemData.Widget) {
-                val (rowSpan, columnSpan) = getSpan(
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
-                    minHeight = data.minHeight,
-                    minWidth = data.minWidth,
-                    targetCellHeight = data.targetCellHeight,
-                    targetCellWidth = data.targetCellWidth,
-                )
-
-                val (minWidth, minHeight) = getSize(
-                    columns = dockColumns,
-                    gridWidth = rootWidth,
-                    gridHeight = dockHeight,
-                    minHeight = data.minHeight,
-                    minWidth = data.minWidth,
-                    rows = dockRows,
-                    targetCellHeight = data.targetCellHeight,
-                    targetCellWidth = data.targetCellWidth,
-                )
-
-                val newData = GridItemData.Widget(
-                    appWidgetId = -1,
-                    componentName = data.componentName,
-                    configure = data.configure,
-                    minWidth = minWidth,
-                    minHeight = minHeight,
-                    resizeMode = data.resizeMode,
-                    minResizeWidth = data.minResizeWidth,
-                    minResizeHeight = data.minResizeHeight,
-                    maxResizeWidth = data.maxResizeWidth,
-                    maxResizeHeight = data.maxResizeHeight,
-                    targetCellWidth = data.targetCellWidth,
-                    targetCellHeight = data.targetCellHeight,
-                )
-
-                newGridItem.copy(
-                    page = targetPage,
-                    startRow = dockY / cellHeight,
-                    startColumn = dragIntOffset.x / cellWidth,
-                    rowSpan = rowSpan,
-                    columnSpan = columnSpan,
-                    data = newData,
-                    associate = Associate.Dock,
-                )
-            } else {
-                newGridItem.copy(
-                    page = targetPage,
-                    startRow = dockY / cellHeight,
-                    startColumn = dragIntOffset.x / cellWidth,
-                    associate = Associate.Dock,
-                )
-            }
-        }
+        val newGridItem = gridItem.copy(
+            page = targetPage,
+            startRow = dockY / cellHeight,
+            startColumn = dragIntOffset.x / cellWidth,
+            associate = Associate.Dock,
+        )
 
         if (isGridItemSpanWithinBounds(
                 gridItem = newGridItem,
-                rows = rows,
-                columns = columns,
+                rows = dockRows,
+                columns = dockColumns,
             )
         ) {
             onMoveGridItem(
@@ -433,7 +380,6 @@ suspend fun handleDragIntOffset(
                 dockHeight,
             )
         }
-
     } else {
         delay(delay)
 
@@ -449,63 +395,12 @@ suspend fun handleDragIntOffset(
 
         val cellHeight = gridHeight / rows
 
-        val newGridItem = gridItem.let { newGridItem ->
-            val data = newGridItem.data
-
-            if (data is GridItemData.Widget) {
-                val (rowSpan, columnSpan) = getSpan(
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
-                    minHeight = data.minHeight,
-                    minWidth = data.minWidth,
-                    targetCellHeight = data.targetCellHeight,
-                    targetCellWidth = data.targetCellWidth,
-                )
-
-                val (minWidth, minHeight) = getSize(
-                    columns = columns,
-                    gridWidth = rootWidth,
-                    gridHeight = dockHeight,
-                    minHeight = data.minHeight,
-                    minWidth = data.minWidth,
-                    rows = rows,
-                    targetCellHeight = data.targetCellHeight,
-                    targetCellWidth = data.targetCellWidth,
-                )
-
-                val newData = GridItemData.Widget(
-                    appWidgetId = -1,
-                    componentName = data.componentName,
-                    configure = data.configure,
-                    minWidth = minWidth,
-                    minHeight = minHeight,
-                    resizeMode = data.resizeMode,
-                    minResizeWidth = data.minResizeWidth,
-                    minResizeHeight = data.minResizeHeight,
-                    maxResizeWidth = data.maxResizeWidth,
-                    maxResizeHeight = data.maxResizeHeight,
-                    targetCellWidth = data.targetCellWidth,
-                    targetCellHeight = data.targetCellHeight,
-                )
-
-                newGridItem.copy(
-                    page = targetPage,
-                    startRow = gridY / cellHeight,
-                    startColumn = dragIntOffset.x / cellWidth,
-                    rowSpan = rowSpan,
-                    columnSpan = columnSpan,
-                    data = newData,
-                    associate = Associate.Grid,
-                )
-            } else {
-                newGridItem.copy(
-                    page = targetPage,
-                    startRow = gridY / cellHeight,
-                    startColumn = gridX / cellWidth,
-                    associate = Associate.Grid,
-                )
-            }
-        }
+        val newGridItem = gridItem.copy(
+            page = targetPage,
+            startRow = gridY / cellHeight,
+            startColumn = gridX / cellWidth,
+            associate = Associate.Grid,
+        )
 
         if (isGridItemSpanWithinBounds(
                 gridItem = newGridItem,

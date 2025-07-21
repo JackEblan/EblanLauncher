@@ -26,4 +26,8 @@ internal class DefaultGridCacheRepository @Inject constructor(private val gridCa
     override fun updateIsCache(isCache: Boolean) {
         gridCacheDataSource.updateIsCache(isCache = isCache)
     }
+
+    override suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int) {
+        gridCacheDataSource.updateWidgetGridItemData(id = id, appWidgetId = appWidgetId)
+    }
 }

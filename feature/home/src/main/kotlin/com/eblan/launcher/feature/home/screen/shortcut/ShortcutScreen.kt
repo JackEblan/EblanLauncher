@@ -32,6 +32,7 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -45,7 +46,7 @@ fun ShortcutScreen(
     drag: Drag,
     onLongPress: (
         currentPage: Int,
-        newGridItemSource: NewGridItemSource,
+        gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
 ) {
@@ -98,7 +99,7 @@ fun ShortcutScreen(
                                                     isLongPress = true
                                                     onLongPress(
                                                         page,
-                                                        NewGridItemSource(
+                                                        GridItemSource(
                                                             gridItem = getGridItem(
                                                                 page = page,
                                                                 id = eblanShortcutInfo.id,
@@ -107,7 +108,7 @@ fun ShortcutScreen(
                                                                 longLabel = eblanShortcutInfo.longLabel,
                                                                 icon = eblanShortcutInfo.icon,
                                                             ),
-                                                            type = NewGridItemSource.Type.New,
+                                                            type = GridItemSource.Type.New,
                                                         ),
                                                     )
 

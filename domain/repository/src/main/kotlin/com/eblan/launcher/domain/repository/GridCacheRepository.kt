@@ -15,4 +15,6 @@ interface GridCacheRepository {
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 
     fun updateIsCache(isCache: Boolean)
+
+    suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int)
 }

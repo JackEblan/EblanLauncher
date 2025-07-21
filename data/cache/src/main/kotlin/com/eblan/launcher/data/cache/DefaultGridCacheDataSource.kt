@@ -1,6 +1,7 @@
 package com.eblan.launcher.data.cache
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +46,24 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
                         } else {
                             add(gridItem)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int) {
+        withContext(Dispatchers.Default) {
+            _gridCacheItems.update { currentGridCacheItems ->
+                currentGridCacheItems.toMutableList().apply {
+                    val gridItem = find { it.id == id }
+
+                    val data = gridItem?.data
+
+                    if (data is GridItemData.Widget) {
+                        val index = indexOfFirst { it.id == gridItem.id }
+
+                        set(index, gridItem.copy(data = data.copy(appWidgetId = appWidgetId)))
                     }
                 }
             }

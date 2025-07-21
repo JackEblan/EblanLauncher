@@ -37,10 +37,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SettingsActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:autoRemoveFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".PinActivity"
+            android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@style/PinActivityTheme">
             <intent-filter>

@@ -17,13 +17,15 @@ sealed interface GridItemData {
         val appWidgetId: Int,
         val componentName: String,
         val configure: String?,
-        val width: Int,
-        val height: Int,
+        val minWidth: Int,
+        val minHeight: Int,
         val resizeMode: Int,
         val minResizeWidth: Int,
         val minResizeHeight: Int,
         val maxResizeWidth: Int,
         val maxResizeHeight: Int,
+        val targetCellHeight: Int,
+        val targetCellWidth: Int
     ) : GridItemData
 
     @Serializable

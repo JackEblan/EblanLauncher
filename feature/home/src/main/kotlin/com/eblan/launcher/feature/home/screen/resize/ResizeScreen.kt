@@ -27,7 +27,6 @@ import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -38,7 +37,7 @@ fun ResizeScreen(
     dockRows: Int,
     dockColumns: Int,
     gridItems: List<GridItem>?,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItem: GridItem?,
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
@@ -164,7 +163,7 @@ fun ResizeScreen(
         }
     }
 
-    if (gridItemLayoutInfo != null) {
+    if (gridItem != null) {
         val gridWidth = rootWidth - (gridPaddingPx * 2)
 
         val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
@@ -173,22 +172,22 @@ fun ResizeScreen(
 
         val cellHeight = gridHeight / rows
 
-        when (val data = gridItemLayoutInfo.gridItem.data) {
+        when (val data = gridItem.data) {
             is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
                 GridItemResizeOverlay(
                     gridPadding = gridPaddingPx,
                     gridItems = gridItems,
-                    gridItem = gridItemLayoutInfo.gridItem,
+                    gridItem = gridItem,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
                     cellWidth = cellWidth,
                     cellHeight = cellHeight,
                     rows = rows,
                     columns = columns,
-                    startRow = gridItemLayoutInfo.gridItem.startRow,
-                    startColumn = gridItemLayoutInfo.gridItem.startColumn,
-                    rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
-                    columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
+                    startRow = gridItem.startRow,
+                    startColumn = gridItem.startColumn,
+                    rowSpan = gridItem.rowSpan,
+                    columnSpan = gridItem.columnSpan,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResizeEnd,
                 )
@@ -198,7 +197,7 @@ fun ResizeScreen(
                 WidgetGridItemResizeOverlay(
                     gridPadding = gridPaddingPx,
                     gridItems = gridItems,
-                    gridItem = gridItemLayoutInfo.gridItem,
+                    gridItem = gridItem,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
                     cellWidth = cellWidth,
@@ -206,10 +205,10 @@ fun ResizeScreen(
                     rows = rows,
                     columns = columns,
                     data = data,
-                    startRow = gridItemLayoutInfo.gridItem.startRow,
-                    startColumn = gridItemLayoutInfo.gridItem.startColumn,
-                    rowSpan = gridItemLayoutInfo.gridItem.rowSpan,
-                    columnSpan = gridItemLayoutInfo.gridItem.columnSpan,
+                    startRow = gridItem.startRow,
+                    startColumn = gridItem.startColumn,
+                    rowSpan = gridItem.rowSpan,
+                    columnSpan = gridItem.columnSpan,
                     onResizeWidgetGridItem = onResizeGridItem,
                     onResizeEnd = onResizeEnd,
                 )

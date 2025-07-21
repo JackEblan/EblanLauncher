@@ -2,6 +2,9 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipData
+import android.content.Context
+import android.content.pm.LauncherApps
+import android.os.Build
 import android.widget.FrameLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
@@ -36,9 +39,11 @@ import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -49,6 +54,7 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
+import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -62,14 +68,15 @@ import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvid
 import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
+import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 
 @Composable
 fun PagerScreen(
@@ -82,7 +89,7 @@ fun PagerScreen(
     dockRows: Int,
     dockColumns: Int,
     gridItems: Map<Int, List<GridItem>>,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItem: GridItem?,
     dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
@@ -93,16 +100,22 @@ fun PagerScreen(
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
+    initialPage: Int,
     onLongPressGrid: (Int) -> Unit,
     onLongPressedGridItem: (
         currentPage: Int,
-        gridItemSource: GridItemSource,
+        gridItem: GridItem,
+    ) -> Unit,
+    onLongPressNewGridItem: (
+        currentPage: Int,
+        newGridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
+    onDragStartPinItemRequest: (GridItemSource) -> Unit,
 ) {
     val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
@@ -141,7 +154,7 @@ fun PagerScreen(
                     dockRows = dockRows,
                     dockColumns = dockColumns,
                     gridItems = gridItems,
-                    gridItemLayoutInfo = gridItemLayoutInfo,
+                    gridItem = gridItem,
                     dockHeight = dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
@@ -149,6 +162,7 @@ fun PagerScreen(
                     rootHeight = rootHeight,
                     drag = drag,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    initialPage = initialPage,
                     onLongPressGrid = onLongPressGrid,
                     onLongPressedGridItem = onLongPressedGridItem,
                     onDraggingGridItem = onDraggingGridItem,
@@ -156,6 +170,7 @@ fun PagerScreen(
                     onResize = onResize,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
+                    onDragStartPinItemRequest = onDragStartPinItemRequest,
                 )
             }
 
@@ -173,9 +188,8 @@ fun PagerScreen(
                     dockHeight = dockHeight,
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
-                    gridItemLayoutInfo = gridItemLayoutInfo,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    onLongPress = onLongPressedGridItem,
+                    onLongPress = onLongPressNewGridItem,
                     onDragging = onDraggingGridItem,
                 )
             }
@@ -198,11 +212,10 @@ private fun ApplicationComponentScreen(
     dockHeight: Int,
     drag: Drag,
     appDrawerRowsHeight: Int,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
     hasShortcutHostPermission: Boolean,
     onLongPress: (
         currentPage: Int,
-        gridItemSource: GridItemSource,
+        newGridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
 ) {
@@ -229,18 +242,12 @@ private fun ApplicationComponentScreen(
                         0 -> {
                             ApplicationScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
-                                rows = rows,
-                                columns = columns,
                                 appDrawerColumns = appDrawerColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
-                                dockHeight = dockHeight,
                                 drag = drag,
                                 appDrawerRowsHeight = appDrawerRowsHeight,
-                                gridItemLayoutInfo = gridItemLayoutInfo,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                             )
@@ -258,7 +265,6 @@ private fun ApplicationComponentScreen(
                                 rootHeight = rootHeight,
                                 dockHeight = dockHeight,
                                 drag = drag,
-                                gridItemLayoutInfo = gridItemLayoutInfo,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                             )
@@ -270,13 +276,7 @@ private fun ApplicationComponentScreen(
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
-                                rows = rows,
-                                columns = columns,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
-                                dockHeight = dockHeight,
                                 drag = drag,
-                                gridItemLayoutInfo = gridItemLayoutInfo,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                             )
@@ -299,7 +299,7 @@ private fun HorizontalPagerScreen(
     dockRows: Int,
     dockColumns: Int,
     gridItems: Map<Int, List<GridItem>>,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
+    gridItem: GridItem?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
@@ -308,15 +308,17 @@ private fun HorizontalPagerScreen(
     rootHeight: Int,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
+    initialPage: Int,
     onLongPressedGridItem: (
         currentPage: Int,
-        gridItemSource: GridItemSource,
+        gridItem: GridItem,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
+    onDragStartPinItemRequest: (GridItemSource) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -332,12 +334,28 @@ private fun HorizontalPagerScreen(
 
     val launcherApps = LocalLauncherApps.current
 
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
+    val context = LocalContext.current
+
+    var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+        if (drag == Drag.Dragging && showPopupGridItemMenu) {
             showPopupGridItemMenu = false
 
             onDraggingGridItem()
         }
+
+        handlePinItemRequest(
+            drag = drag,
+            pinItemRequestWrapper = pinItemRequestWrapper,
+            context = context,
+            initialPage = initialPage,
+            onDragStart = onDragStartPinItemRequest,
+        )
     }
 
     Column(
@@ -402,20 +420,15 @@ private fun HorizontalPagerScreen(
                                         launcherApps.startMainActivity(data.componentName)
                                     },
                                     onLongPress = {
+                                        popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                        popupMenuIntSize = IntSize(width = width, height = height)
+
                                         showPopupGridItemMenu = true
 
                                         onLongPressedGridItem(
                                             page,
-                                            GridItemSource(
-                                                gridItemLayoutInfo = GridItemLayoutInfo(
-                                                    gridItem = gridItem,
-                                                    width = width,
-                                                    height = height,
-                                                    x = x,
-                                                    y = y,
-                                                ),
-                                                type = GridItemSource.Type.Old,
-                                            ),
+                                            gridItem,
                                         )
                                     },
                                 )
@@ -426,20 +439,15 @@ private fun HorizontalPagerScreen(
                                     gridItem = gridItem,
                                     gridItemData = data,
                                     onLongPress = {
+                                        popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                        popupMenuIntSize = IntSize(width = width, height = height)
+
                                         showPopupGridItemMenu = true
 
                                         onLongPressedGridItem(
                                             page,
-                                            GridItemSource(
-                                                gridItemLayoutInfo = GridItemLayoutInfo(
-                                                    gridItem = gridItem,
-                                                    width = width,
-                                                    height = height,
-                                                    x = x,
-                                                    y = y,
-                                                ),
-                                                type = GridItemSource.Type.Old,
-                                            ),
+                                            gridItem,
                                         )
                                     },
                                 )
@@ -459,20 +467,15 @@ private fun HorizontalPagerScreen(
                                         }
                                     },
                                     onLongPress = {
+                                        popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                        popupMenuIntSize = IntSize(width = width, height = height)
+
                                         showPopupGridItemMenu = true
 
                                         onLongPressedGridItem(
                                             page,
-                                            GridItemSource(
-                                                gridItemLayoutInfo = GridItemLayoutInfo(
-                                                    gridItem = gridItem,
-                                                    width = width,
-                                                    height = height,
-                                                    x = x,
-                                                    y = y,
-                                                ),
-                                                type = GridItemSource.Type.Old,
-                                            ),
+                                            gridItem,
                                         )
                                     },
                                 )
@@ -514,6 +517,10 @@ private fun HorizontalPagerScreen(
                                     launcherApps.startMainActivity(data.componentName)
                                 },
                                 onLongPress = {
+                                    popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                    popupMenuIntSize = IntSize(width = width, height = height)
+
                                     showPopupGridItemMenu = true
 
                                     onLongPressedGridItem(
@@ -522,16 +529,7 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemSource(
-                                            gridItemLayoutInfo = GridItemLayoutInfo(
-                                                gridItem = dockGridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
-                                            ),
-                                            type = GridItemSource.Type.Old,
-                                        ),
+                                        dockGridItem,
                                     )
                                 },
                             )
@@ -542,6 +540,10 @@ private fun HorizontalPagerScreen(
                                 gridItem = dockGridItem,
                                 gridItemData = data,
                                 onLongPress = {
+                                    popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                    popupMenuIntSize = IntSize(width = width, height = height)
+
                                     showPopupGridItemMenu = true
 
                                     onLongPressedGridItem(
@@ -550,16 +552,7 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemSource(
-                                            gridItemLayoutInfo = GridItemLayoutInfo(
-                                                gridItem = dockGridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
-                                            ),
-                                            type = GridItemSource.Type.Old,
-                                        ),
+                                        dockGridItem,
                                     )
                                 },
                             )
@@ -577,6 +570,10 @@ private fun HorizontalPagerScreen(
                                     )
                                 },
                                 onLongPress = {
+                                    popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                    popupMenuIntSize = IntSize(width = width, height = height)
+
                                     showPopupGridItemMenu = true
 
                                     onLongPressedGridItem(
@@ -585,16 +582,7 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemSource(
-                                            gridItemLayoutInfo = GridItemLayoutInfo(
-                                                gridItem = dockGridItem,
-                                                width = width,
-                                                height = height,
-                                                x = x,
-                                                y = y,
-                                            ),
-                                            type = GridItemSource.Type.Old,
-                                        ),
+                                        dockGridItem,
                                     )
                                 },
                             )
@@ -605,24 +593,24 @@ private fun HorizontalPagerScreen(
         }
     }
 
-    if (showPopupGridItemMenu && gridItemLayoutInfo?.gridItem != null) {
-        when (gridItemLayoutInfo.gridItem.associate) {
+    if (showPopupGridItemMenu) {
+        when (gridItem?.associate) {
             Associate.Grid -> {
                 Popup(
                     popupPositionProvider = MenuPositionProvider(
-                        x = gridItemLayoutInfo.x,
-                        y = gridItemLayoutInfo.y,
-                        width = gridItemLayoutInfo.width,
-                        height = gridItemLayoutInfo.height,
+                        x = popupMenuIntOffset.x,
+                        y = popupMenuIntOffset.y,
+                        width = popupMenuIntSize.width,
+                        height = popupMenuIntSize.height,
                     ),
                     onDismissRequest = {
                         showPopupGridItemMenu = false
                     },
                     content = {
-                        when (val data = gridItemLayoutInfo.gridItem.data) {
+                        when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
                                 ApplicationInfoGridItemMenu(
-                                    showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
+                                    showResize = true,
                                     onEdit = onEdit,
                                     onResize = {
                                         onResize(
@@ -638,7 +626,7 @@ private fun HorizontalPagerScreen(
 
                             is GridItemData.Widget -> {
                                 val showResize =
-                                    gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+                                    data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
                                 WidgetGridItemMenu(
                                     showResize = showResize,
@@ -662,19 +650,19 @@ private fun HorizontalPagerScreen(
             Associate.Dock -> {
                 Popup(
                     popupPositionProvider = MenuPositionProvider(
-                        x = gridItemLayoutInfo.x,
+                        x = popupMenuIntOffset.x,
                         y = rootHeight - dockHeight,
-                        width = gridItemLayoutInfo.width,
-                        height = gridItemLayoutInfo.height,
+                        width = popupMenuIntSize.width,
+                        height = popupMenuIntSize.height,
                     ),
                     onDismissRequest = {
                         showPopupGridItemMenu = false
                     },
                     content = {
-                        when (val data = gridItemLayoutInfo.gridItem.data) {
+                        when (gridItem.data) {
                             is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
                                 ApplicationInfoGridItemMenu(
-                                    showResize = gridItemLayoutInfo.gridItem.associate == Associate.Grid,
+                                    showResize = false,
                                     onEdit = onEdit,
                                     onResize = {
                                         onResize(
@@ -689,11 +677,8 @@ private fun HorizontalPagerScreen(
                             }
 
                             is GridItemData.Widget -> {
-                                val showResize =
-                                    gridItemLayoutInfo.gridItem.associate == Associate.Grid && data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
                                 WidgetGridItemMenu(
-                                    showResize = showResize,
+                                    showResize = false,
                                     onEdit = onEdit,
                                     onResize = {
                                         onResize(
@@ -710,6 +695,8 @@ private fun HorizontalPagerScreen(
                     },
                 )
             }
+
+            null -> Unit
         }
     }
 
@@ -932,6 +919,84 @@ private fun WidgetGridItem(
                     }
                 },
             )
+        }
+    }
+}
+
+private fun handlePinItemRequest(
+    drag: Drag,
+    pinItemRequestWrapper: PinItemRequestWrapper,
+    context: Context,
+    initialPage: Int,
+    onDragStart: (GridItemSource) -> Unit,
+) {
+    fun getWidgetGridItemSource(appWidgetProviderInfo: AppWidgetProviderInfo): GridItemSource {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            GridItemSource(
+                gridItem = getWidgetGridItem(
+                    page = initialPage,
+                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                    packageName = appWidgetProviderInfo.provider.packageName,
+                    targetCellHeight = appWidgetProviderInfo.targetCellHeight,
+                    targetCellWidth = appWidgetProviderInfo.targetCellWidth,
+                    minWidth = appWidgetProviderInfo.minWidth,
+                    minHeight = appWidgetProviderInfo.minHeight,
+                    resizeMode = appWidgetProviderInfo.resizeMode,
+                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                    maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                ),
+                type = GridItemSource.Type.Pin,
+            )
+        } else {
+            GridItemSource(
+                gridItem = getWidgetGridItem(
+                    page = initialPage,
+                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                    packageName = appWidgetProviderInfo.provider.packageName,
+                    targetCellHeight = 0,
+                    targetCellWidth = 0,
+                    minWidth = appWidgetProviderInfo.minWidth,
+                    minHeight = appWidgetProviderInfo.minHeight,
+                    resizeMode = appWidgetProviderInfo.resizeMode,
+                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = 0,
+                    maxResizeHeight = 0,
+                ),
+                type = GridItemSource.Type.Pin,
+            )
+        }
+    }
+
+    val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
+        when (drag) {
+            Drag.Start -> {
+                when (pinItemRequest.requestType) {
+                    LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                        val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
+
+                        if (appWidgetProviderInfo != null) {
+                            onDragStart(getWidgetGridItemSource(appWidgetProviderInfo = appWidgetProviderInfo))
+                        }
+                    }
+
+                    LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+
+                    }
+                }
+            }
+
+            Drag.End -> {
+                pinItemRequestWrapper.updatePinItemRequest(null)
+            }
+
+            else -> Unit
         }
     }
 }

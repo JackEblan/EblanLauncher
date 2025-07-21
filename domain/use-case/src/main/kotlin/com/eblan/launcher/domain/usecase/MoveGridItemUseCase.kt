@@ -3,7 +3,6 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.getGridItemByCoordinates
 import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
-import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
@@ -25,84 +24,75 @@ class MoveGridItemUseCase @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ): List<GridItem>? {
-        return if (isGridItemSpanWithinBounds(
-                gridItem = movingGridItem,
+        return withContext(Dispatchers.Default) {
+            val gridItemsByAssociate = gridItems.filter { gridItem ->
+                gridItem.associate == movingGridItem.associate
+            }.toMutableList()
+
+            val index =
+                gridItemsByAssociate.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+
+            if (index != -1) {
+                gridItemsByAssociate[index] = movingGridItem
+            } else {
+                gridItemsByAssociate.add(movingGridItem)
+            }
+
+            val gridItemByCoordinates = getGridItemByCoordinates(
+                id = movingGridItem.id,
+                gridItems = gridItemsByAssociate,
                 rows = rows,
                 columns = columns,
+                x = x,
+                y = y,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
             )
-        ) {
-            withContext(Dispatchers.Default) {
-                val gridItemsByAssociate = gridItems.filter { gridItem ->
-                    gridItem.associate == movingGridItem.associate
-                }.toMutableList()
 
-                val index =
-                    gridItemsByAssociate.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+            val gridItemBySpan = gridItemsByAssociate.find { gridItem ->
+                gridItem.id != movingGridItem.id && rectanglesOverlap(
+                    moving = movingGridItem,
+                    other = gridItem,
+                )
+            }
 
-                if (index != -1) {
-                    gridItemsByAssociate[index] = movingGridItem
-                } else {
-                    gridItemsByAssociate.add(movingGridItem)
-                }
-
-                val gridItemByCoordinates = getGridItemByCoordinates(
-                    id = movingGridItem.id,
-                    gridItems = gridItemsByAssociate,
-                    rows = rows,
-                    columns = columns,
+            val resolvedConflictsGridItems = if (gridItemByCoordinates != null) {
+                val resolveDirection = getResolveDirectionByX(
+                    gridItem = gridItemByCoordinates,
                     x = x,
-                    y = y,
+                    columns = columns,
                     gridWidth = gridWidth,
-                    gridHeight = gridHeight,
                 )
 
-                val gridItemBySpan = gridItemsByAssociate.find { gridItem ->
-                    gridItem.id != movingGridItem.id && rectanglesOverlap(
-                        moving = movingGridItem,
-                        other = gridItem,
-                    )
-                }
+                resolveConflictsWhenMoving(
+                    gridItems = gridItemsByAssociate,
+                    resolveDirection = resolveDirection,
+                    moving = movingGridItem,
+                    rows = rows,
+                    columns = columns,
+                )
+            } else if (gridItemBySpan != null) {
+                val resolveDirection = getResolveDirectionBySpan(
+                    moving = movingGridItem,
+                    other = gridItemBySpan,
+                )
 
-                val resolvedConflictsGridItems = if (gridItemByCoordinates != null) {
-                    val resolveDirection = getResolveDirectionByX(
-                        gridItem = gridItemByCoordinates,
-                        x = x,
-                        columns = columns,
-                        gridWidth = gridWidth,
-                    )
-
-                    resolveConflictsWhenMoving(
-                        gridItems = gridItemsByAssociate,
-                        resolveDirection = resolveDirection,
-                        moving = movingGridItem,
-                        rows = rows,
-                        columns = columns,
-                    )
-                } else if (gridItemBySpan != null) {
-                    val resolveDirection = getResolveDirectionBySpan(
-                        moving = movingGridItem,
-                        other = gridItemBySpan,
-                    )
-
-                    resolveConflictsWhenMoving(
-                        gridItems = gridItemsByAssociate,
-                        resolveDirection = resolveDirection,
-                        moving = movingGridItem,
-                        rows = rows,
-                        columns = columns,
-                    )
-                } else {
-                    gridItemsByAssociate
-                }
-
-                if (resolvedConflictsGridItems != null) {
-                    gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
-                }
-
-                resolvedConflictsGridItems
+                resolveConflictsWhenMoving(
+                    gridItems = gridItemsByAssociate,
+                    resolveDirection = resolveDirection,
+                    moving = movingGridItem,
+                    rows = rows,
+                    columns = columns,
+                )
+            } else {
+                gridItemsByAssociate
             }
-        } else {
-            null
+
+            if (resolvedConflictsGridItems != null) {
+                gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
+            }
+
+            resolvedConflictsGridItems
         }
     }
 }

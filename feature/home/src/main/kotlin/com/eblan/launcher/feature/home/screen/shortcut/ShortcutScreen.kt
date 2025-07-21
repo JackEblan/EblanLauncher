@@ -16,6 +16,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -28,8 +32,6 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
-import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -40,16 +42,10 @@ fun ShortcutScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanShortcutInfos: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
-    rows: Int,
-    columns: Int,
-    rootWidth: Int,
-    rootHeight: Int,
-    dockHeight: Int,
     drag: Drag,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
     onLongPress: (
         currentPage: Int,
-        gridItemSource: GridItemSource,
+        newGridItemSource: NewGridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
 ) {
@@ -59,8 +55,10 @@ fun ShortcutScreen(
         pageCount = pageCount,
     )
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+        if (drag == Drag.Dragging && isLongPress) {
             onDragging()
         }
     }
@@ -97,22 +95,19 @@ fun ShortcutScreen(
                                         block = {
                                             detectTapGestures(
                                                 onLongPress = {
+                                                    isLongPress = true
                                                     onLongPress(
                                                         page,
-                                                        GridItemSource(
-                                                            gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                        NewGridItemSource(
+                                                            gridItem = getGridItem(
                                                                 page = page,
-                                                                rows = rows,
-                                                                columns = columns,
-                                                                gridWidth = rootWidth,
-                                                                gridHeight = rootHeight - dockHeight,
                                                                 id = eblanShortcutInfo.id,
                                                                 packageName = eblanShortcutInfo.packageName,
                                                                 shortLabel = eblanShortcutInfo.shortLabel,
                                                                 longLabel = eblanShortcutInfo.longLabel,
                                                                 icon = eblanShortcutInfo.icon,
                                                             ),
-                                                            type = GridItemSource.Type.New,
+                                                            type = NewGridItemSource.Type.New,
                                                         ),
                                                     )
 
@@ -152,22 +147,14 @@ fun ShortcutScreen(
     }
 }
 
-private fun getGridItemLayoutInfo(
+private fun getGridItem(
     page: Int,
-    rows: Int,
-    columns: Int,
-    gridWidth: Int,
-    gridHeight: Int,
     id: String,
     packageName: String,
     shortLabel: String,
     longLabel: String,
     icon: String?,
-): GridItemLayoutInfo {
-    val cellWidth = gridWidth / columns
-
-    val cellHeight = gridHeight / rows
-
+): GridItem {
     val data = GridItemData.ShortcutInfo(
         id = id,
         packageName = packageName,
@@ -176,7 +163,7 @@ private fun getGridItemLayoutInfo(
         icon = icon,
     )
 
-    val gridItem = GridItem(
+    return GridItem(
         id = 0,
         page = page,
         startRow = 0,
@@ -186,13 +173,5 @@ private fun getGridItemLayoutInfo(
         dataId = data.packageName,
         data = data,
         associate = Associate.Grid,
-    )
-
-    return GridItemLayoutInfo(
-        gridItem = gridItem,
-        width = gridItem.columnSpan * cellWidth,
-        height = gridItem.rowSpan * cellHeight,
-        x = gridItem.startColumn * cellWidth,
-        y = gridItem.startRow * cellHeight,
     )
 }

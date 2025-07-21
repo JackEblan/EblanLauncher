@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -42,7 +43,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 
@@ -51,18 +51,12 @@ import com.eblan.launcher.feature.home.util.calculatePage
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    rows: Int,
-    columns: Int,
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    rootWidth: Int,
-    rootHeight: Int,
-    dockHeight: Int,
     drag: Drag,
     appDrawerRowsHeight: Int,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -83,10 +77,12 @@ fun ApplicationScreen(
         appDrawerRowsHeight.toDp()
     }
 
-    var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+    var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+        if (drag == Drag.Dragging && showPopupApplicationMenu) {
             showPopupApplicationMenu = false
 
             onDragging()
@@ -106,6 +102,8 @@ fun ApplicationScreen(
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
                         var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
+                        var intSize by remember { mutableStateOf(IntSize.Zero) }
+
                         Column(
                             modifier = Modifier
                                 .dragAndDropSource(
@@ -114,17 +112,15 @@ fun ApplicationScreen(
                                             onLongPress = {
                                                 showPopupApplicationMenu = true
 
-                                                overlayIntOffset = intOffset
+                                                popupMenuIntOffset = intOffset
+
+                                                popupMenuIntSize = intSize
 
                                                 onLongPress(
                                                     page,
                                                     GridItemSource(
-                                                        gridItemLayoutInfo = getGridItemLayoutInfo(
+                                                        gridItem = getGridItem(
                                                             page = page,
-                                                            rows = rows,
-                                                            columns = columns,
-                                                            gridWidth = rootWidth,
-                                                            gridHeight = rootHeight - dockHeight,
                                                             componentName = eblanApplicationInfo.componentName,
                                                             packageName = eblanApplicationInfo.packageName,
                                                             icon = eblanApplicationInfo.icon,
@@ -148,6 +144,8 @@ fun ApplicationScreen(
                                 )
                                 .onGloballyPositioned { layoutCoordinates ->
                                     intOffset = layoutCoordinates.positionInRoot().round()
+
+                                    intSize = layoutCoordinates.size
                                 }
                                 .height(appDrawerRowsHeightDp),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -176,13 +174,13 @@ fun ApplicationScreen(
                     }
                 }
 
-                if (showPopupApplicationMenu && gridItemLayoutInfo?.gridItem != null) {
+                if (showPopupApplicationMenu) {
                     Popup(
                         popupPositionProvider = MenuPositionProvider(
-                            x = overlayIntOffset.x,
-                            y = overlayIntOffset.y,
-                            width = rootWidth / appDrawerColumns,
-                            height = appDrawerRowsHeight,
+                            x = popupMenuIntOffset.x,
+                            y = popupMenuIntOffset.y,
+                            width = popupMenuIntSize.width,
+                            height = popupMenuIntSize.height,
                         ),
                         onDismissRequest = {
                             showPopupApplicationMenu = false
@@ -197,21 +195,13 @@ fun ApplicationScreen(
     }
 }
 
-private fun getGridItemLayoutInfo(
+private fun getGridItem(
     page: Int,
-    rows: Int,
-    columns: Int,
-    gridWidth: Int,
-    gridHeight: Int,
     componentName: String?,
     packageName: String,
     icon: String?,
     label: String?,
-): GridItemLayoutInfo {
-    val cellWidth = gridWidth / columns
-
-    val cellHeight = gridHeight / rows
-
+): GridItem {
     val data = GridItemData.ApplicationInfo(
         componentName = componentName,
         packageName = packageName,
@@ -219,23 +209,15 @@ private fun getGridItemLayoutInfo(
         label = label,
     )
 
-    val gridItem = GridItem(
+    return GridItem(
         id = 0,
         page = page,
         startRow = 0,
         startColumn = 0,
-        rowSpan = 1,
-        columnSpan = 1,
+        rowSpan = 0,
+        columnSpan = 0,
         dataId = data.packageName,
         data = data,
         associate = Associate.Grid,
-    )
-
-    return GridItemLayoutInfo(
-        gridItem = gridItem,
-        width = gridItem.columnSpan * cellWidth,
-        height = gridItem.rowSpan * cellHeight,
-        x = gridItem.startColumn * cellWidth,
-        y = gridItem.startRow * cellHeight,
     )
 }

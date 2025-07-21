@@ -16,6 +16,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -24,14 +28,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.GridItemLayoutInfo
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 
@@ -49,7 +51,6 @@ fun WidgetScreen(
     rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
-    gridItemLayoutInfo: GridItemLayoutInfo?,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -58,16 +59,16 @@ fun WidgetScreen(
 ) {
     val density = LocalDensity.current
 
-    val appWidgetHost = LocalAppWidgetHost.current
-
     val page = calculatePage(
         index = currentPage,
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
     )
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemLayoutInfo != null) {
+        if (drag == Drag.Dragging && isLongPress) {
             onDragging()
         }
     }
@@ -120,17 +121,16 @@ fun WidgetScreen(
                                             block = {
                                                 detectTapGestures(
                                                     onLongPress = {
+                                                        isLongPress = true
+
                                                         onLongPress(
                                                             page,
                                                             GridItemSource(
-                                                                gridItemLayoutInfo = getGridItemLayoutInfo(
-                                                                    allocateAppWidgetId = appWidgetHost.allocateAppWidgetId(),
+                                                                gridItem = getWidgetGridItem(
                                                                     page = page,
                                                                     componentName = eblanAppWidgetProviderInfo.componentName,
                                                                     configure = eblanAppWidgetProviderInfo.configure,
                                                                     packageName = eblanAppWidgetProviderInfo.packageName,
-                                                                    rows = rows,
-                                                                    columns = columns,
                                                                     targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
                                                                     targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                                                                     minWidth = eblanAppWidgetProviderInfo.minWidth,
@@ -140,8 +140,6 @@ fun WidgetScreen(
                                                                     minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
                                                                     maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                                                     maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                                                    gridWidth = rootWidth,
-                                                                    gridHeight = rootHeight - dockHeight,
                                                                 ),
                                                                 type = GridItemSource.Type.New,
                                                             ),
@@ -186,14 +184,11 @@ fun WidgetScreen(
     }
 }
 
-fun getGridItemLayoutInfo(
-    allocateAppWidgetId: Int,
+fun getWidgetGridItem(
     page: Int,
     componentName: String,
     configure: String?,
     packageName: String,
-    rows: Int,
-    columns: Int,
     targetCellHeight: Int,
     targetCellWidth: Int,
     minWidth: Int,
@@ -203,70 +198,38 @@ fun getGridItemLayoutInfo(
     minResizeHeight: Int,
     maxResizeWidth: Int,
     maxResizeHeight: Int,
-    gridWidth: Int,
-    gridHeight: Int,
-): GridItemLayoutInfo {
-    val cellWidth = gridWidth / columns
-
-    val cellHeight = gridHeight / rows
-
-    val (rowSpan, columnSpan) = getSpan(
-        cellHeight = cellHeight,
-        cellWidth = cellWidth,
-        minHeight = minHeight,
-        minWidth = minWidth,
-        targetCellHeight = targetCellHeight,
-        targetCellWidth = targetCellWidth,
-    )
-
-    val (width, height) = getSize(
-        columns = columns,
-        gridHeight = gridHeight,
-        gridWidth = gridWidth,
-        minHeight = minHeight,
-        minWidth = minWidth,
-        rows = rows,
-        targetCellHeight = targetCellHeight,
-        targetCellWidth = targetCellWidth,
-    )
-
+): GridItem {
     val data = GridItemData.Widget(
-        appWidgetId = allocateAppWidgetId,
+        appWidgetId = -1,
         componentName = componentName,
         configure = configure,
-        width = width,
-        height = height,
+        minWidth = minWidth,
+        minHeight = minHeight,
         resizeMode = resizeMode,
         minResizeWidth = minResizeWidth,
         minResizeHeight = minResizeHeight,
         maxResizeWidth = maxResizeWidth,
         maxResizeHeight = maxResizeHeight,
+        targetCellHeight = targetCellHeight,
+        targetCellWidth = targetCellWidth,
     )
 
-    val gridItem = GridItem(
+    return GridItem(
         id = 0,
         page = page,
         startRow = 0,
         startColumn = 0,
-        rowSpan = rowSpan,
-        columnSpan = columnSpan,
+        rowSpan = 0,
+        columnSpan = 0,
         dataId = packageName,
         data = data,
         associate = Associate.Grid,
     )
-
-    return GridItemLayoutInfo(
-        gridItem = gridItem,
-        width = gridItem.columnSpan * cellWidth,
-        height = gridItem.rowSpan * cellHeight,
-        x = gridItem.startColumn * cellWidth,
-        y = gridItem.startRow * cellHeight,
-    )
 }
 
-private fun getSpan(
-    cellHeight: Int,
+fun getSpan(
     cellWidth: Int,
+    cellHeight: Int,
     minHeight: Int,
     minWidth: Int,
     targetCellHeight: Int,
@@ -287,7 +250,7 @@ private fun getSpan(
     return rowSpan to columnSpan
 }
 
-private fun getSize(
+fun getSize(
     columns: Int,
     rows: Int,
     gridWidth: Int,

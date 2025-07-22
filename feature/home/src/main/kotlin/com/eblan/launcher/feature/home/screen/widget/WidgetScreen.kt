@@ -151,7 +151,7 @@ fun WidgetScreen(
 
                                                         onLongPress(
                                                             page,
-                                                            GridItemSource(
+                                                            GridItemSource.New(
                                                                 gridItem = getWidgetGridItem(
                                                                     page = page,
                                                                     rows = checkedRows,
@@ -168,10 +168,10 @@ fun WidgetScreen(
                                                                     minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
                                                                     maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                                                     maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                                                                    preview = eblanAppWidgetProviderInfo.preview,
                                                                     gridWidth = rootWidth,
                                                                     gridHeight = rootHeight - dockHeight,
                                                                 ),
-                                                                type = GridItemSource.Type.New,
                                                             ),
                                                         )
 
@@ -233,6 +233,7 @@ fun getWidgetGridItem(
     minResizeHeight: Int,
     maxResizeWidth: Int,
     maxResizeHeight: Int,
+    preview: String?,
     gridWidth: Int,
     gridHeight: Int,
 ): GridItem {
@@ -273,6 +274,7 @@ fun getWidgetGridItem(
         maxResizeHeight = maxResizeHeight,
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
+        preview = preview,
     )
 
     return GridItem(

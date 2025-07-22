@@ -53,6 +53,7 @@ dependencies {
     implementation(projects.domain.framework)
     implementation(projects.domain.model)
     implementation(projects.feature.home)
+    implementation(projects.feature.pin.shortcut)
     implementation(projects.feature.pin.widget)
     implementation(projects.feature.settings.home)
     implementation(projects.feature.settings.settings)

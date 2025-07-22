@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipData
 import android.content.Context
 import android.content.pm.LauncherApps
+import android.content.pm.ShortcutInfo
 import android.os.Build
 import android.widget.FrameLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
+import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
@@ -73,9 +75,11 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
+import com.eblan.launcher.feature.home.screen.shortcut.getShortcutGridItem
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 
 @Composable
@@ -343,6 +347,8 @@ private fun HorizontalPagerScreen(
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
+    val launcherAppsWrapper = LocalLauncherApps.current
+
     val context = LocalContext.current
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -363,6 +369,7 @@ private fun HorizontalPagerScreen(
             gridHeight = rootHeight - dockHeight,
             drag = drag,
             pinItemRequestWrapper = pinItemRequestWrapper,
+            launcherAppsWrapper = launcherAppsWrapper,
             context = context,
             initialPage = initialPage,
             onDragStart = onDragStartPinItemRequest,
@@ -934,20 +941,23 @@ private fun WidgetGridItem(
     }
 }
 
-private fun handlePinItemRequest(
+private suspend fun handlePinItemRequest(
     rows: Int,
     columns: Int,
     gridWidth: Int,
     gridHeight: Int,
     drag: Drag,
     pinItemRequestWrapper: PinItemRequestWrapper,
+    launcherAppsWrapper: LauncherAppsWrapper,
     context: Context,
     initialPage: Int,
     onDragStart: (GridItemSource) -> Unit,
 ) {
-    fun getWidgetGridItemSource(appWidgetProviderInfo: AppWidgetProviderInfo): GridItemSource {
+    suspend fun getWidgetGridItemSource(appWidgetProviderInfo: AppWidgetProviderInfo): GridItemSource {
+        val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            GridItemSource(
+            GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
                     page = initialPage,
                     rows = rows,
@@ -966,11 +976,12 @@ private fun handlePinItemRequest(
                     maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
+                    preview = null,
                 ),
-                type = GridItemSource.Type.Pin,
+                byteArray = byteArray,
             )
         } else {
-            GridItemSource(
+            GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
                     page = initialPage,
                     rows = rows,
@@ -989,13 +1000,37 @@ private fun handlePinItemRequest(
                     maxResizeHeight = 0,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
+                    preview = null,
                 ),
-                type = GridItemSource.Type.Pin,
+                byteArray = byteArray,
             )
         }
     }
 
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+    suspend fun getShortcutGridItemSource(shortcutInfo: ShortcutInfo): GridItemSource? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            val byteArray = launcherAppsWrapper.getShortcutIconDrawable(
+                shortcutInfo = shortcutInfo,
+                density = 0,
+            ).toByteArray()
+
+            GridItemSource.Pin(
+                gridItem = getShortcutGridItem(
+                    page = initialPage,
+                    id = shortcutInfo.id,
+                    packageName = shortcutInfo.`package`,
+                    shortLabel = shortcutInfo.shortLabel.toString(),
+                    longLabel = shortcutInfo.longLabel.toString(),
+                    icon = null,
+                ),
+                byteArray = byteArray,
+            )
+        } else {
+            null
+        }
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
         when (drag) {
@@ -1010,7 +1045,13 @@ private fun handlePinItemRequest(
                     }
 
                     LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                        val shortcutInfo = pinItemRequest.shortcutInfo
 
+                        if (shortcutInfo != null) {
+                            getShortcutGridItemSource(shortcutInfo = shortcutInfo)?.let { gridItemSource ->
+                                onDragStart(gridItemSource)
+                            }
+                        }
                     }
                 }
             }

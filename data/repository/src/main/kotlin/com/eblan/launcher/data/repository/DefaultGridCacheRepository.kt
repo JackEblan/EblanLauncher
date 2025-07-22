@@ -30,4 +30,8 @@ internal class DefaultGridCacheRepository @Inject constructor(private val gridCa
     override suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int) {
         gridCacheDataSource.updateWidgetGridItemData(id = id, appWidgetId = appWidgetId)
     }
+
+    override suspend fun updateShortcutGridItemData(id: Int, icon: String?) {
+        gridCacheDataSource.updateShortcutGridItemData(id = id, icon = icon)
+    }
 }

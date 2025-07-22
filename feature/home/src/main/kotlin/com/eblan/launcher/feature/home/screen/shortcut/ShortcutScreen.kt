@@ -99,8 +99,8 @@ fun ShortcutScreen(
                                                     isLongPress = true
                                                     onLongPress(
                                                         page,
-                                                        GridItemSource(
-                                                            gridItem = getGridItem(
+                                                        GridItemSource.New(
+                                                            gridItem = getShortcutGridItem(
                                                                 page = page,
                                                                 id = eblanShortcutInfo.id,
                                                                 packageName = eblanShortcutInfo.packageName,
@@ -108,7 +108,6 @@ fun ShortcutScreen(
                                                                 longLabel = eblanShortcutInfo.longLabel,
                                                                 icon = eblanShortcutInfo.icon,
                                                             ),
-                                                            type = GridItemSource.Type.New,
                                                         ),
                                                     )
 
@@ -148,7 +147,7 @@ fun ShortcutScreen(
     }
 }
 
-private fun getGridItem(
+fun getShortcutGridItem(
     page: Int,
     id: String,
     packageName: String,

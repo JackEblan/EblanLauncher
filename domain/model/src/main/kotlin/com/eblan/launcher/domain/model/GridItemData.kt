@@ -25,7 +25,8 @@ sealed interface GridItemData {
         val maxResizeWidth: Int,
         val maxResizeHeight: Int,
         val targetCellHeight: Int,
-        val targetCellWidth: Int
+        val targetCellWidth: Int,
+        val preview: String?,
     ) : GridItemData
 
     @Serializable

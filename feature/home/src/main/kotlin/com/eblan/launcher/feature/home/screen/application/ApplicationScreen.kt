@@ -118,7 +118,7 @@ fun ApplicationScreen(
 
                                                 onLongPress(
                                                     page,
-                                                    GridItemSource(
+                                                    GridItemSource.New(
                                                         gridItem = getGridItem(
                                                             page = page,
                                                             componentName = eblanApplicationInfo.componentName,
@@ -126,7 +126,6 @@ fun ApplicationScreen(
                                                             icon = eblanApplicationInfo.icon,
                                                             label = eblanApplicationInfo.label,
                                                         ),
-                                                        type = GridItemSource.Type.New,
                                                     ),
                                                 )
 

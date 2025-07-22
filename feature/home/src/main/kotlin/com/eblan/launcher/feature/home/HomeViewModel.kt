@@ -13,6 +13,7 @@ import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdateShortcutGridItemDataUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
@@ -39,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val deleteWidgetGridItemUseCase: DeleteWidgetGridItemUseCase,
+    private val updateShortcutGridItemDataUseCase: UpdateShortcutGridItemDataUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -176,27 +178,54 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache() {
         viewModelScope.launch {
-            gridRepository.upsertGridItems(gridCacheRepository.gridCacheItems.first())
-
-            gridCacheRepository.updateIsCache(isCache = false)
-
-            delay(screenDelay)
-
-            _screen.update {
-                Screen.Pager
-            }
+            showPager()
         }
     }
 
-    fun updateWidgetGridItemData(id: Int, appWidgetId: Int) {
+    fun updatePinWidget(
+        id: Int,
+        appWidgetId: Int,
+    ) {
         viewModelScope.launch {
-            gridCacheRepository.updateWidgetGridItemData(id = id, appWidgetId = appWidgetId)
+            gridCacheRepository.updateWidgetGridItemData(
+                id = id,
+                appWidgetId = appWidgetId,
+            )
+        }
+    }
+
+    fun dragEndPinShortcut(
+        id: Int,
+        shortcutId: String,
+        byteArray: ByteArray?,
+    ) {
+        viewModelScope.launch {
+            updateShortcutGridItemDataUseCase(
+                id = id,
+                shortcutId = shortcutId,
+                byteArray = byteArray,
+            )
+
+            showPager()
         }
     }
 
     fun deleteWidgetGridItem(id: Int) {
         viewModelScope.launch {
             deleteWidgetGridItemUseCase(id = id)
+        }
+    }
+
+
+    private suspend fun showPager() {
+        gridRepository.upsertGridItems(gridCacheRepository.gridCacheItems.first())
+
+        gridCacheRepository.updateIsCache(isCache = false)
+
+        delay(screenDelay)
+
+        _screen.update {
+            Screen.Pager
         }
     }
 }

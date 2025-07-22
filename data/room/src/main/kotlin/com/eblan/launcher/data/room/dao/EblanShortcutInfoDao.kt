@@ -21,4 +21,7 @@ interface EblanShortcutInfoDao {
 
     @Delete
     suspend fun deleteEblanShortcutInfoEntities(entities: List<EblanShortcutInfoEntity>)
+
+    @Query("SELECT * FROM EblanShortcutInfoEntity WHERE id = :id")
+    suspend fun getEblanShortcutInfoEntity(id: String): EblanShortcutInfoEntity?
 }

@@ -36,6 +36,10 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         eblanShortcutInfoDao.deleteEblanShortcutInfoEntities(entities = entities)
     }
 
+    override suspend fun getEblanShortcutInfo(id: String): EblanShortcutInfo? {
+        return eblanShortcutInfoDao.getEblanShortcutInfoEntity(id = id)?.toEblanShortcutInfo()
+    }
+
     private fun EblanShortcutInfo.toEblanShortcutInfoEntity(): EblanShortcutInfoEntity {
         return EblanShortcutInfoEntity(
             id = id,

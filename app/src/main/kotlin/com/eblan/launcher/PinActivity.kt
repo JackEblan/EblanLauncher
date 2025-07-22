@@ -8,7 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
+import com.eblan.launcher.feature.pin.shortcut.PinShortcutScreen
 import com.eblan.launcher.feature.pin.widget.PinWidgetScreen
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
@@ -38,6 +40,7 @@ class PinActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalAppWidgetHost provides appWidgetHostWrapper,
                     LocalPinItemRequest provides pinItemRequestWrapper,
+                    LocalLauncherApps provides launcherAppsWrapper,
                 ) {
                     when (pinItemRequest.requestType) {
                         LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
@@ -50,12 +53,26 @@ class PinActivity : ComponentActivity() {
                                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
                                     startActivity(homeIntent)
+
+                                    finish()
                                 },
                             )
                         }
 
                         LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                            PinShortcutScreen(
+                                pinItemRequest = pinItemRequest,
+                                onHome = {
+                                    val homeIntent = Intent(Intent.ACTION_MAIN)
+                                        .addCategory(Intent.CATEGORY_HOME)
+                                        .setPackage(packageName)
+                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+                                    startActivity(homeIntent)
+
+                                    finish()
+                                },
+                            )
                         }
                     }
                 }

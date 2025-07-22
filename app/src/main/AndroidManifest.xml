@@ -55,6 +55,7 @@
             android:theme="@style/PinActivityTheme">
             <intent-filter>
                 <action android:name="android.content.pm.action.CONFIRM_PIN_APPWIDGET" />
+                <action android:name="android.content.pm.action.CONFIRM_PIN_SHORTCUT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

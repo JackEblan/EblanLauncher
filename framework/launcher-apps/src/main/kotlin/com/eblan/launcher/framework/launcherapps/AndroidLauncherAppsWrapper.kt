@@ -7,6 +7,7 @@ import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -83,7 +84,7 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
                 shortcuts: MutableList<ShortcutInfo>,
                 user: UserHandle,
             ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                if (hasShortcutHostPermission) {
                     launch {
                         val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
                             toLauncherAppsShortcutInfo(shortcutInfo = shortcutInfo)
@@ -124,7 +125,7 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
     }
 
     override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+        return if (hasShortcutHostPermission) {
             val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                 setQueryFlags(
                     LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
@@ -151,6 +152,11 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
         launcherApps.startShortcut(packageName, id, null, null, userHandle)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    override fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo, density: Int): Drawable {
+        return launcherApps.getShortcutIconDrawable(shortcutInfo, density)
+    }
+
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): EblanLauncherActivityInfo {
         val icon = packageManagerWrapper.getApplicationIcon(applicationInfo.packageName)
 
@@ -165,9 +171,7 @@ internal class AndroidLauncherAppsWrapper @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun toLauncherAppsShortcutInfo(shortcutInfo: ShortcutInfo): LauncherAppsShortcutInfo {
-        val icon = withContext(Dispatchers.Default) {
-            launcherApps.getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
-        }
+        val icon = getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
 
         return LauncherAppsShortcutInfo(
             id = shortcutInfo.id,

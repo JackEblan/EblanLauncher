@@ -63,7 +63,29 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
                     if (data is GridItemData.Widget) {
                         val index = indexOfFirst { it.id == gridItem.id }
 
-                        set(index, gridItem.copy(data = data.copy(appWidgetId = appWidgetId)))
+                        val newData = data.copy(appWidgetId = appWidgetId)
+
+                        set(index, gridItem.copy(data = newData))
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun updateShortcutGridItemData(id: Int, icon: String?) {
+        withContext(Dispatchers.Default) {
+            _gridCacheItems.update { currentGridCacheItems ->
+                currentGridCacheItems.toMutableList().apply {
+                    val gridItem = find { it.id == id }
+
+                    val data = gridItem?.data
+
+                    if (data is GridItemData.ShortcutInfo) {
+                        val index = indexOfFirst { it.id == gridItem.id }
+
+                        val newData = data.copy(icon = icon)
+
+                        set(index, gridItem.copy(data = newData))
                     }
                 }
             }

@@ -42,6 +42,7 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/home" />
             <option value="$PROJECT_DIR$/feature/pin" />
+            <option value="$PROJECT_DIR$/feature/pin/shortcut" />
             <option value="$PROJECT_DIR$/feature/pin/widget" />
             <option value="$PROJECT_DIR$/feature/settings" />
             <option value="$PROJECT_DIR$/feature/settings/home" />

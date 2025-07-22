@@ -33,12 +33,10 @@ internal class AndroidPackageManagerWrapper @Inject constructor(
     private val packageManager = context.packageManager
 
     override suspend fun getApplicationIcon(packageName: String): ByteArray? {
-        return withContext(Dispatchers.Default) {
-            try {
-                packageManager.getApplicationIcon(packageName).toByteArray()
-            } catch (e: PackageManager.NameNotFoundException) {
-                null
-            }
+        return try {
+            packageManager.getApplicationIcon(packageName).toByteArray()
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
         }
     }
 

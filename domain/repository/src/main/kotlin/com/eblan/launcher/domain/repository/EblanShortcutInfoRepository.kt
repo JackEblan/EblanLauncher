@@ -11,4 +11,6 @@ interface EblanShortcutInfoRepository {
     suspend fun upsertEblanShortcutInfo(eblanShortcutInfo: EblanShortcutInfo)
 
     suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
+
+    suspend fun getEblanShortcutInfo(id: String): EblanShortcutInfo?
 }

@@ -23,13 +23,14 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.feature.home"
+    namespace = "com.eblan.launcher.feature.pin.shortcut"
 }
 
 dependencies {
-    implementation(projects.common)
     implementation(projects.domain.framework)
     implementation(projects.domain.grid)
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)
+    implementation(projects.framework.launcherApps)
+    implementation(projects.framework.widgetManager)
 }

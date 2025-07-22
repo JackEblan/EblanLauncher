@@ -11,8 +11,6 @@ import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
@@ -43,9 +41,7 @@ internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
     }
 
     private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
-        val preview = withContext(Dispatchers.Default) {
-            loadPreviewImage(context, 0)?.toByteArray()
-        }
+        val preview = loadPreviewImage(context, 0)?.toByteArray()
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AppWidgetManagerAppWidgetProviderInfo(

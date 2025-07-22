@@ -73,7 +73,8 @@ fun HomeRoute(
         onEditPage = viewModel::showPageCache,
         onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
-        onUpdateWidgetGridItem = viewModel::updateWidgetGridItemData,
+        onUpdatePinWidget = viewModel::updatePinWidget,
+        onDragEndPinShortcut = viewModel::dragEndPinShortcut,
         onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
     )
 }
@@ -113,9 +114,14 @@ fun HomeScreen(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdateWidgetGridItem: (
+    onUpdatePinWidget: (
         id: Int,
         appWidgetId: Int,
+    ) -> Unit,
+    onDragEndPinShortcut: (
+        id: Int,
+        shortcutId: String,
+        byteArray: ByteArray?,
     ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
@@ -211,7 +217,8 @@ fun HomeScreen(
                         onEditPage = onEditPage,
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
-                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                        onUpdatePinWidget = onUpdatePinWidget,
+                        onDragEndPinShortcut = onDragEndPinShortcut,
                         onDeleteWidgetGridItem = onDeleteWidgetGridItem,
                     )
                 }
@@ -263,9 +270,14 @@ private fun Success(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdateWidgetGridItem: (
+    onUpdatePinWidget: (
         id: Int,
         appWidgetId: Int,
+    ) -> Unit,
+    onDragEndPinShortcut: (
+        id: Int,
+        shortcutId: String,
+        byteArray: ByteArray?,
     ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
@@ -402,8 +414,15 @@ private fun Success(
 
                         onResetGridCache()
                     },
-                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                    onUpdatePinWidget = onUpdatePinWidget,
                     onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                    onDragEndPinShortcut = { newTargetPage, id, shortcutId, byteArray ->
+                        targetPage = newTargetPage
+
+                        gridItemSource = null
+
+                        onDragEndPinShortcut(id, shortcutId, byteArray)
+                    },
                 )
             }
 

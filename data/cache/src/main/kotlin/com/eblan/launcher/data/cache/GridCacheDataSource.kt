@@ -17,4 +17,6 @@ interface GridCacheDataSource {
     fun updateIsCache(isCache: Boolean)
 
     suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int)
+
+    suspend fun updateShortcutGridItemData(id: Int, icon: String?)
 }

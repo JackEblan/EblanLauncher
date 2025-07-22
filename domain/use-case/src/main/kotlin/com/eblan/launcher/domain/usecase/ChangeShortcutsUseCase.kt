@@ -20,7 +20,10 @@ class ChangeShortcutsUseCase @Inject constructor(
         val eblanApplicationInfos =
             eblanApplicationInfoRepository.eblanApplicationInfos.first()
 
-        val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
+        val oldEblanShortcutInfos =
+            eblanShortcutInfoRepository.eblanShortcutInfos.first().filter { eblanShortcutInfo ->
+                eblanShortcutInfo.packageName == packageName
+            }
 
         val newEblanShortcutInfos =
             launcherAppsShortcutInfos.mapNotNull { launcherAppsShortcutInfo ->
@@ -31,7 +34,7 @@ class ChangeShortcutsUseCase @Inject constructor(
 
                 if (eblanApplicationInfo != null) {
                     val icon = fileManager.writeFileBytes(
-                        directory = fileManager.widgetsDirectory,
+                        directory = fileManager.shortcutsDirectory,
                         name = launcherAppsShortcutInfo.id,
                         byteArray = launcherAppsShortcutInfo.icon,
                     )

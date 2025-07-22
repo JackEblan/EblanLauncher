@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,10 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 
 @Composable
@@ -51,6 +53,7 @@ fun EditPageScreen(
     pageItems: List<PageItem>,
     dockHeight: Int,
     initialPage: Int,
+    textColor: TextColor,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -81,6 +84,11 @@ fun EditPageScreen(
         ((rootHeight - dockHeight) / 2).toDp()
     }
 
+    val color = when (textColor) {
+        TextColor.White -> Color.White
+        TextColor.Black -> Color.Black
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -108,28 +116,29 @@ fun EditPageScreen(
                             columns = columns,
                         ) {
                             pageItem.gridItems.forEach { gridItem ->
+                                val gridItemModifier = Modifier.gridItem(gridItem)
+
                                 when (val data = gridItem.data) {
                                     is GridItemData.ApplicationInfo -> {
-                                        AsyncImage(
-                                            model = data.icon,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .gridItem(gridItem)
-                                                .padding(2.dp),
+                                        ApplicationInfoGridItem(
+                                            modifier = gridItemModifier,
+                                            data = data,
+                                            color = color,
                                         )
                                     }
 
                                     is GridItemData.Widget -> {
-                                        Box(modifier = Modifier.gridItem(gridItem))
+                                        WidgetGridItem(
+                                            modifier = gridItemModifier,
+                                            data = data,
+                                        )
                                     }
 
                                     is GridItemData.ShortcutInfo -> {
-                                        AsyncImage(
-                                            model = data.icon,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .gridItem(gridItem)
-                                                .padding(2.dp),
+                                        ShortcutInfoGridItem(
+                                            modifier = gridItemModifier,
+                                            data = data,
+                                            color = color,
                                         )
                                     }
                                 }

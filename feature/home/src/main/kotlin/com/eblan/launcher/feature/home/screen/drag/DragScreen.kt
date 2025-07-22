@@ -148,7 +148,7 @@ fun DragScreen(
         when (drag) {
             Drag.End -> {
                 val targetPage = calculatePage(
-                    index = currentPage,
+                    index = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
                     pageCount = pageCount,
                 )

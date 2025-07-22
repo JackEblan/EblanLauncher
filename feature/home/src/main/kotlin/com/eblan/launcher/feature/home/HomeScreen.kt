@@ -441,6 +441,7 @@ private fun Success(
                     pageItems = pageItems,
                     dockHeight = userData.homeSettings.dockHeight,
                     initialPage = userData.homeSettings.initialPage,
+                    textColor = userData.homeSettings.textColor,
                     onSaveEditPage = onSaveEditPage,
                     onCancelEditPage = onCancelEditPage,
                 )

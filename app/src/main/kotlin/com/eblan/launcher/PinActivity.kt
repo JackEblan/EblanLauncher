@@ -10,6 +10,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
+import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
+import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.feature.pin.shortcut.PinShortcutScreen
 import com.eblan.launcher.feature.pin.widget.PinWidgetScreen
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
@@ -47,27 +50,33 @@ class PinActivity : ComponentActivity() {
                     LocalPinItemRequest provides pinItemRequestWrapper,
                     LocalLauncherApps provides launcherAppsWrapper,
                 ) {
-                    when (pinItemRequest.requestType) {
-                        LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                            PinWidgetScreen(
-                                pinItemRequest = pinItemRequest,
-                                onHome = {
-                                    startActivity(homeIntent)
+                    EblanLauncherTheme(
+                        themeBrand = ThemeBrand.GREEN,
+                        darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
+                        dynamicTheme = false,
+                    ) {
+                        when (pinItemRequest.requestType) {
+                            LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                                PinWidgetScreen(
+                                    pinItemRequest = pinItemRequest,
+                                    onHome = {
+                                        startActivity(homeIntent)
 
-                                    finish()
-                                },
-                            )
-                        }
+                                        finish()
+                                    },
+                                )
+                            }
 
-                        LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
-                            PinShortcutScreen(
-                                pinItemRequest = pinItemRequest,
-                                onHome = {
-                                    startActivity(homeIntent)
+                            LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                                PinShortcutScreen(
+                                    pinItemRequest = pinItemRequest,
+                                    onHome = {
+                                        startActivity(homeIntent)
 
-                                    finish()
-                                },
-                            )
+                                        finish()
+                                    },
+                                )
+                            }
                         }
                     }
                 }

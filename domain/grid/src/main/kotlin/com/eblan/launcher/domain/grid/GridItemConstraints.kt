@@ -117,3 +117,36 @@ fun getResolveDirectionBySpan(
         else -> ResolveDirection.Center
     }
 }
+
+fun findAvailableRegion(
+    gridItems: List<GridItem>,
+    pageCount: Int,
+    rows: Int,
+    columns: Int,
+    gridItem: GridItem,
+): GridItem? {
+    for (page in 0..pageCount) {
+        for (row in 0..(rows - gridItem.rowSpan)) {
+            for (col in 0..(columns - gridItem.columnSpan)) {
+                val candidateGridItem = gridItem.copy(
+                    page = page,
+                    startRow = row,
+                    startColumn = col,
+                )
+
+                val overlaps = gridItems.any { otherGridItem ->
+                    otherGridItem.page == page && rectanglesOverlap(
+                        moving = candidateGridItem,
+                        other = otherGridItem,
+                    )
+                }
+
+                if (!overlaps) {
+                    return candidateGridItem
+                }
+            }
+        }
+    }
+
+    return null
+}

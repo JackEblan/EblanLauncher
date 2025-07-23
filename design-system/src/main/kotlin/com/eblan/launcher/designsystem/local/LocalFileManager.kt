@@ -2,7 +2,6 @@ package com.eblan.launcher.designsystem.local
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 
 val LocalFileManager = staticCompositionLocalOf<FileManager> {
     error("No FileManager provided")

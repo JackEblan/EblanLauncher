@@ -357,8 +357,6 @@ private fun Success(
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        gridItemSource = null
-
                         onResetGridCache()
                     },
                     onUpdatePinWidget = onUpdatePinWidget,
@@ -380,11 +378,7 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = userData.homeSettings.textColor,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = {
-                        gridItemSource = null
-
-                        onResetGridCache()
-                    },
+                    onResizeEnd = onResetGridCache,
                 )
             }
 

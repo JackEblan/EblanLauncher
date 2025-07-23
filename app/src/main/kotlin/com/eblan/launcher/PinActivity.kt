@@ -34,6 +34,11 @@ class PinActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val homeIntent = Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_HOME)
+                .setPackage(packageName)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
             val pinItemRequest = launcherAppsWrapper.getPinItemRequest(intent = intent)
 
             setContent {
@@ -47,11 +52,6 @@ class PinActivity : ComponentActivity() {
                             PinWidgetScreen(
                                 pinItemRequest = pinItemRequest,
                                 onHome = {
-                                    val homeIntent = Intent(Intent.ACTION_MAIN)
-                                        .addCategory(Intent.CATEGORY_HOME)
-                                        .setPackage(packageName)
-                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
                                     startActivity(homeIntent)
 
                                     finish()
@@ -63,11 +63,6 @@ class PinActivity : ComponentActivity() {
                             PinShortcutScreen(
                                 pinItemRequest = pinItemRequest,
                                 onHome = {
-                                    val homeIntent = Intent(Intent.ACTION_MAIN)
-                                        .addCategory(Intent.CATEGORY_HOME)
-                                        .setPackage(packageName)
-                                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
                                     startActivity(homeIntent)
 
                                     finish()

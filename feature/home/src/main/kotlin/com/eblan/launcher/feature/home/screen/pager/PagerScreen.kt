@@ -15,18 +15,15 @@ import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +31,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
@@ -42,26 +38,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
-import coil3.compose.AsyncImage
 import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
@@ -81,6 +76,7 @@ import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import java.io.File
 
 @Composable
 fun PagerScreen(
@@ -344,6 +340,8 @@ private fun HorizontalPagerScreen(
 
     val launcherAppsWrapper = LocalLauncherApps.current
 
+    val fileManager = LocalFileManager.current
+
     val context = LocalContext.current
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -367,6 +365,7 @@ private fun HorizontalPagerScreen(
             launcherAppsWrapper = launcherAppsWrapper,
             context = context,
             initialPage = initialPage,
+            fileManager = fileManager,
             onDragStart = onDragStartPinItemRequest,
         )
     }
@@ -428,7 +427,7 @@ private fun HorizontalPagerScreen(
                                 ApplicationInfoGridItem(
                                     textColor = textColor,
                                     gridItem = gridItem,
-                                    gridItemData = data,
+                                    data = data,
                                     onTap = {
                                         launcherApps.startMainActivity(data.componentName)
                                     },
@@ -470,7 +469,7 @@ private fun HorizontalPagerScreen(
                                 ShortcutInfoGridItem(
                                     textColor = textColor,
                                     gridItem = gridItem,
-                                    gridItemData = data,
+                                    data = data,
                                     onTap = {
                                         if (hasShortcutHostPermission) {
                                             launcherApps.startShortcut(
@@ -506,26 +505,26 @@ private fun HorizontalPagerScreen(
             rows = dockRows,
             columns = dockColumns,
         ) {
-            dockGridItems.forEach { dockGridItem ->
-                key(dockGridItem.id) {
+            dockGridItems.forEach { gridItem ->
+                key(gridItem.id) {
                     val cellWidth = rootWidth / dockColumns
 
                     val cellHeight = dockHeight / dockRows
 
-                    val x = dockGridItem.startColumn * cellWidth
+                    val x = gridItem.startColumn * cellWidth
 
-                    val y = dockGridItem.startRow * cellHeight
+                    val y = gridItem.startRow * cellHeight
 
-                    val width = dockGridItem.columnSpan * cellWidth
+                    val width = gridItem.columnSpan * cellWidth
 
-                    val height = dockGridItem.rowSpan * cellHeight
+                    val height = gridItem.rowSpan * cellHeight
 
-                    when (val data = dockGridItem.data) {
+                    when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             ApplicationInfoGridItem(
                                 textColor = textColor,
-                                gridItem = dockGridItem,
-                                gridItemData = data,
+                                gridItem = gridItem,
+                                data = data,
                                 onTap = {
                                     launcherApps.startMainActivity(data.componentName)
                                 },
@@ -542,7 +541,7 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemSource.Existing(gridItem = dockGridItem),
+                                        GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
                             )
@@ -550,7 +549,7 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Widget -> {
                             WidgetGridItem(
-                                gridItem = dockGridItem,
+                                gridItem = gridItem,
                                 gridItemData = data,
                                 onLongPress = {
                                     popupMenuIntOffset = IntOffset(x = x, y = y)
@@ -565,7 +564,7 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemSource.Existing(gridItem = dockGridItem),
+                                        GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
                             )
@@ -574,8 +573,8 @@ private fun HorizontalPagerScreen(
                         is GridItemData.ShortcutInfo -> {
                             ShortcutInfoGridItem(
                                 textColor = textColor,
-                                gridItem = dockGridItem,
-                                gridItemData = data,
+                                gridItem = gridItem,
+                                data = data,
                                 onTap = {
                                     launcherApps.startShortcut(
                                         packageName = data.packageName,
@@ -595,7 +594,7 @@ private fun HorizontalPagerScreen(
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        GridItemSource.Existing(gridItem = dockGridItem),
+                                        GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
                             )
@@ -746,7 +745,7 @@ private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: TextColor,
     gridItem: GridItem,
-    gridItemData: GridItemData.ApplicationInfo,
+    data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
@@ -755,7 +754,7 @@ private fun ApplicationInfoGridItem(
         TextColor.Black -> Color.Black
     }
 
-    Column(
+    ApplicationInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
             .dragAndDropSource(
@@ -776,29 +775,9 @@ private fun ApplicationInfoGridItem(
                     )
                 },
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        AsyncImage(
-            model = gridItemData.icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp, 40.dp)
-                .weight(1f),
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = gridItemData.label.toString(),
-            modifier = Modifier.weight(1f),
-            color = color,
-            textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
-        )
-    }
+        data = data,
+        color = color,
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -807,7 +786,7 @@ private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: TextColor,
     gridItem: GridItem,
-    gridItemData: GridItemData.ShortcutInfo,
+    data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
@@ -816,7 +795,7 @@ private fun ShortcutInfoGridItem(
         TextColor.Black -> Color.Black
     }
 
-    Column(
+    ShortcutInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
             .dragAndDropSource(
@@ -837,29 +816,9 @@ private fun ShortcutInfoGridItem(
                     )
                 },
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        AsyncImage(
-            model = gridItemData.icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp, 40.dp)
-                .weight(1f),
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = gridItemData.shortLabel,
-            modifier = Modifier.weight(1f),
-            color = color,
-            textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
-        )
-    }
+        data = data,
+        color = color,
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -946,13 +905,22 @@ private suspend fun handlePinItemRequest(
     launcherAppsWrapper: LauncherAppsWrapper,
     context: Context,
     initialPage: Int,
+    fileManager: FileManager,
     onDragStart: (GridItemSource) -> Unit,
 ) {
+    val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
     suspend fun getWidgetGridItemSource(
         pinItemRequest: PinItemRequest,
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): GridItemSource {
         val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
+
+        val previewInferred =
+            File(
+                fileManager.widgetsDirectory,
+                appWidgetProviderInfo.provider.className,
+            ).absolutePath
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             GridItemSource.Pin(
@@ -974,7 +942,7 @@ private suspend fun handlePinItemRequest(
                     maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    preview = null,
+                    preview = previewInferred,
                 ),
                 pinItemRequest = pinItemRequest,
                 byteArray = byteArray,
@@ -999,15 +967,13 @@ private suspend fun handlePinItemRequest(
                     maxResizeHeight = 0,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    preview = null,
+                    preview = previewInferred,
                 ),
                 pinItemRequest = pinItemRequest,
                 byteArray = byteArray,
             )
         }
     }
-
-    val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
     suspend fun getShortcutGridItemSource(
         pinItemRequest: PinItemRequest,
@@ -1019,6 +985,9 @@ private suspend fun handlePinItemRequest(
                 density = 0,
             ).toByteArray()
 
+            val iconInferred =
+                File(fileManager.shortcutsDirectory, shortcutInfo.id).absolutePath
+
             GridItemSource.Pin(
                 gridItem = getShortcutGridItem(
                     page = initialPage,
@@ -1026,7 +995,7 @@ private suspend fun handlePinItemRequest(
                     packageName = shortcutInfo.`package`,
                     shortLabel = shortcutInfo.shortLabel.toString(),
                     longLabel = shortcutInfo.longLabel.toString(),
-                    icon = null,
+                    icon = iconInferred,
                 ),
                 pinItemRequest = pinItemRequest,
                 byteArray = byteArray,

@@ -63,12 +63,6 @@ fun handleDragNew(
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDragEndPinShortcut: (
-        targetPage: Int,
-        id: Int,
-        shortcutId: String,
-        byteArray: ByteArray?,
-    ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
     onLaunch: (Intent) -> Unit,
 ) {
@@ -88,7 +82,6 @@ fun handleDragNew(
             onConfigure = onConfigure,
             onDeleteGridItem = onDeleteGridItem,
             onUpdatePinWidget = onUpdatePinWidget,
-            onDragEndPinShortcut = onDragEndPinShortcut,
             onDeleteWidgetGridItem = onDeleteWidgetGridItem,
             onLaunch = onLaunch,
             onDragEnd = onDragEnd,
@@ -365,12 +358,6 @@ private fun handleOnDragEnd(
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDragEndPinShortcut: (
-        targetPage: Int,
-        id: Int,
-        shortcutId: String,
-        byteArray: ByteArray?,
-    ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
@@ -421,13 +408,9 @@ private fun handleOnDragEnd(
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.ShortcutInfo -> {
                     onDragEndPinShortcut(
-                        targetPage = targetPage,
                         pinItemRequest = gridItemSource.pinItemRequest,
                         id = gridItemSource.gridItem.id,
-                        shortcutId = data.id,
-                        byteArray = gridItemSource.byteArray,
                         onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-                        onDragEndPinShortcut = onDragEndPinShortcut,
                     )
 
                     onDragEnd(targetPage)
@@ -464,33 +447,19 @@ private fun handleOnDragEnd(
 }
 
 private fun onDragEndPinShortcut(
-    targetPage: Int,
     pinItemRequest: PinItemRequest?,
     id: Int,
-    shortcutId: String,
-    byteArray: ByteArray?,
     onDeleteWidgetGridItem: (Int) -> Unit,
-    onDragEndPinShortcut: (
-        targetPage: Int,
-        id: Int,
-        shortcutId: String,
-        byteArray: ByteArray?,
-    ) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
         pinItemRequest != null &&
         pinItemRequest.isValid &&
         pinItemRequest.accept()
     ) {
-        onDragEndPinShortcut(
-            targetPage,
-            id,
-            shortcutId,
-            byteArray,
-        )
-    } else {
-        onDeleteWidgetGridItem(id)
+        return
     }
+
+    onDeleteWidgetGridItem(id)
 }
 
 private fun onDragEndGridItemWidget(

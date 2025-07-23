@@ -43,7 +43,6 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun DragScreen(
     modifier: Modifier = Modifier,
@@ -80,12 +79,6 @@ fun DragScreen(
     onUpdatePinWidget: (
         id: Int,
         appWidgetId: Int,
-    ) -> Unit,
-    onDragEndPinShortcut: (
-        targetPage: Int,
-        id: Int,
-        shortcutId: String,
-        byteArray: ByteArray?,
     ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
@@ -211,7 +204,6 @@ fun DragScreen(
                     onDragEnd = onDragEnd,
                     onDeleteGridItem = onDeleteGridItem,
                     onUpdatePinWidget = onUpdatePinWidget,
-                    onDragEndPinShortcut = onDragEndPinShortcut,
                     onDeleteWidgetGridItem = onDeleteWidgetGridItem,
                     onLaunch = appWidgetLauncher::launch,
                 )
@@ -259,40 +251,11 @@ fun DragScreen(
                 columns = columns,
             ) {
                 gridItems[page]?.forEach { gridItem ->
-                    key(gridItem.id) {
-                        LookaheadScope {
-                            val gridItemModifier = Modifier
-                                .animateBounds(this)
-                                .gridItem(gridItem)
-
-                            when (val data = gridItem.data) {
-                                is GridItemData.ApplicationInfo -> {
-                                    ApplicationInfoGridItem(
-                                        modifier = gridItemModifier,
-                                        data = data,
-                                        color = color,
-                                    )
-                                }
-
-                                is GridItemData.Widget -> {
-                                    DragWidgetGridItem(
-                                        modifier = gridItemModifier,
-                                        gridItemSource = gridItemSource,
-                                        data = data,
-                                    )
-                                }
-
-                                is GridItemData.ShortcutInfo -> {
-                                    DragShortcutInfoGridItem(
-                                        modifier = gridItemModifier,
-                                        gridItemSource = gridItemSource,
-                                        data = data,
-                                        color = color,
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    GridItemContent(
+                        gridItem = gridItem,
+                        color = color,
+                        gridItemSource = gridItemSource,
+                    )
                 }
             }
         }
@@ -304,40 +267,55 @@ fun DragScreen(
             rows = dockRows,
             columns = dockColumns,
         ) {
-            dockGridItems.forEach { dockGridItem ->
-                key(dockGridItem.id) {
-                    LookaheadScope {
-                        val gridItemModifier = Modifier
-                            .animateBounds(this)
-                            .gridItem(dockGridItem)
+            dockGridItems.forEach { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    color = color,
+                    gridItemSource = gridItemSource,
+                )
+            }
+        }
+    }
+}
 
-                        when (val data = dockGridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                ApplicationInfoGridItem(
-                                    modifier = gridItemModifier,
-                                    data = data,
-                                    color = color,
-                                )
-                            }
+@Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
+private fun GridItemContent(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    color: Color,
+    gridItemSource: GridItemSource?,
+) {
+    key(gridItem.id) {
+        LookaheadScope {
+            val gridItemModifier = modifier
+                .animateBounds(this)
+                .gridItem(gridItem)
 
-                            is GridItemData.Widget -> {
-                                DragWidgetGridItem(
-                                    modifier = gridItemModifier,
-                                    gridItemSource = gridItemSource,
-                                    data = data,
-                                )
-                            }
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = color,
+                    )
+                }
 
-                            is GridItemData.ShortcutInfo -> {
-                                DragShortcutInfoGridItem(
-                                    modifier = gridItemModifier,
-                                    gridItemSource = gridItemSource,
-                                    data = data,
-                                    color = color,
-                                )
-                            }
-                        }
-                    }
+                is GridItemData.Widget -> {
+                    DragWidgetGridItem(
+                        modifier = gridItemModifier,
+                        gridItemSource = gridItemSource,
+                        data = data,
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    DragShortcutInfoGridItem(
+                        modifier = gridItemModifier,
+                        gridItemSource = gridItemSource,
+                        data = data,
+                        color = color,
+                    )
                 }
             }
         }

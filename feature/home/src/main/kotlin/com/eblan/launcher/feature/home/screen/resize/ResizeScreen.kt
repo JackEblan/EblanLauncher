@@ -28,7 +28,6 @@ import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
@@ -84,38 +83,10 @@ fun ResizeScreen(
             columns = columns,
         ) {
             gridItems?.forEach { gridItem ->
-                key(gridItem.id) {
-                    LookaheadScope {
-                        val gridItemModifier = Modifier
-                            .animateBounds(this)
-                            .gridItem(gridItem)
-
-                        when (val data = gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                ApplicationInfoGridItem(
-                                    modifier = gridItemModifier,
-                                    data = data,
-                                    color = color,
-                                )
-                            }
-
-                            is GridItemData.Widget -> {
-                                WidgetGridItem(
-                                    modifier = gridItemModifier,
-                                    data = data,
-                                )
-                            }
-
-                            is GridItemData.ShortcutInfo -> {
-                                ShortcutInfoGridItem(
-                                    modifier = gridItemModifier,
-                                    data = data,
-                                    color = color,
-                                )
-                            }
-                        }
-                    }
-                }
+                GridItemContent(
+                    gridItem = gridItem,
+                    color = color,
+                )
             }
         }
 
@@ -126,39 +97,11 @@ fun ResizeScreen(
             rows = dockRows,
             columns = dockColumns,
         ) {
-            dockGridItems.forEach { dockGridItem ->
-                key(dockGridItem.id) {
-                    when (val data = dockGridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(
-                                modifier = Modifier
-                                    .gridItem(dockGridItem)
-                                    .fillMaxSize(),
-                                data = data,
-                                color = color,
-                            )
-                        }
-
-                        is GridItemData.Widget -> {
-                            WidgetGridItem(
-                                modifier = Modifier
-                                    .gridItem(dockGridItem)
-                                    .fillMaxSize(),
-                                data = data,
-                            )
-                        }
-
-                        is GridItemData.ShortcutInfo -> {
-                            ShortcutInfoGridItem(
-                                modifier = Modifier
-                                    .gridItem(dockGridItem)
-                                    .fillMaxSize(),
-                                data = data,
-                                color = color,
-                            )
-                        }
-                    }
-                }
+            dockGridItems.forEach { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    color = color,
+                )
             }
         }
     }
@@ -212,6 +155,47 @@ fun ResizeScreen(
                     onResizeWidgetGridItem = onResizeGridItem,
                     onResizeEnd = onResizeEnd,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
+private fun GridItemContent(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    color: Color,
+) {
+    key(gridItem.id) {
+        LookaheadScope {
+            val gridItemModifier = modifier
+                .animateBounds(this)
+                .gridItem(gridItem)
+
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = color,
+                    )
+                }
+
+                is GridItemData.Widget -> {
+                    WidgetGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    ShortcutInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = color,
+                    )
+                }
             }
         }
     }

@@ -73,7 +73,6 @@ fun HomeRoute(
         onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
         onUpdatePinWidget = viewModel::updatePinWidget,
-        onDragEndPinShortcut = viewModel::dragEndPinShortcut,
         onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
     )
 }
@@ -116,11 +115,6 @@ fun HomeScreen(
     onUpdatePinWidget: (
         id: Int,
         appWidgetId: Int,
-    ) -> Unit,
-    onDragEndPinShortcut: (
-        id: Int,
-        shortcutId: String,
-        byteArray: ByteArray?,
     ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
@@ -217,7 +211,6 @@ fun HomeScreen(
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
                         onUpdatePinWidget = onUpdatePinWidget,
-                        onDragEndPinShortcut = onDragEndPinShortcut,
                         onDeleteWidgetGridItem = onDeleteWidgetGridItem,
                     )
                 }
@@ -272,11 +265,6 @@ private fun Success(
     onUpdatePinWidget: (
         id: Int,
         appWidgetId: Int,
-    ) -> Unit,
-    onDragEndPinShortcut: (
-        id: Int,
-        shortcutId: String,
-        byteArray: ByteArray?,
     ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
@@ -375,13 +363,6 @@ private fun Success(
                     },
                     onUpdatePinWidget = onUpdatePinWidget,
                     onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-                    onDragEndPinShortcut = { newTargetPage, id, shortcutId, byteArray ->
-                        targetPage = newTargetPage
-
-                        gridItemSource = null
-
-                        onDragEndPinShortcut(id, shortcutId, byteArray)
-                    },
                 )
             }
 

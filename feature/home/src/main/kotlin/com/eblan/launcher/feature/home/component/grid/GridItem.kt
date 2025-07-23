@@ -185,32 +185,12 @@ fun DragShortcutInfoGridItem(
     color: Color,
 ) {
     when (gridItemSource) {
-        is GridItemSource.New -> {
-            Column(
+        is GridItemSource.New, is GridItemSource.Existing -> {
+            ShortcutInfoGridItem(
                 modifier = modifier,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                AsyncImage(
-                    model = data.icon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp, 40.dp)
-                        .weight(1f),
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = data.shortLabel,
-                    modifier = Modifier.weight(1f),
-                    color = color,
-                    textAlign = TextAlign.Center,
-                    fontSize = TextUnit(
-                        value = 10f,
-                        type = TextUnitType.Sp,
-                    ),
-                )
-            }
+                data = data,
+                color = color,
+            )
         }
 
         is GridItemSource.Pin -> {
@@ -218,14 +198,6 @@ fun DragShortcutInfoGridItem(
                 model = gridItemSource.byteArray,
                 contentDescription = null,
                 modifier = modifier,
-            )
-        }
-
-        is GridItemSource.Existing -> {
-            ShortcutInfoGridItem(
-                modifier = modifier,
-                data = data,
-                color = color,
             )
         }
 

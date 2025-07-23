@@ -15,7 +15,7 @@ class MoveGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
-        gridItems: List<GridItem>,
+        gridItems: MutableList<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -25,22 +25,19 @@ class MoveGridItemUseCase @Inject constructor(
         gridHeight: Int,
     ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
-            val gridItemsByAssociate = gridItems.filter { gridItem ->
-                gridItem.associate == movingGridItem.associate
-            }.toMutableList()
 
             val index =
-                gridItemsByAssociate.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+                gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 
             if (index != -1) {
-                gridItemsByAssociate[index] = movingGridItem
+                gridItems[index] = movingGridItem
             } else {
-                gridItemsByAssociate.add(movingGridItem)
+                gridItems.add(movingGridItem)
             }
 
             val gridItemByCoordinates = getGridItemByCoordinates(
                 id = movingGridItem.id,
-                gridItems = gridItemsByAssociate,
+                gridItems = gridItems,
                 rows = rows,
                 columns = columns,
                 x = x,
@@ -49,7 +46,7 @@ class MoveGridItemUseCase @Inject constructor(
                 gridHeight = gridHeight,
             )
 
-            val gridItemBySpan = gridItemsByAssociate.find { gridItem ->
+            val gridItemBySpan = gridItems.find { gridItem ->
                 gridItem.id != movingGridItem.id && rectanglesOverlap(
                     moving = movingGridItem,
                     other = gridItem,
@@ -65,7 +62,7 @@ class MoveGridItemUseCase @Inject constructor(
                 )
 
                 resolveConflictsWhenMoving(
-                    gridItems = gridItemsByAssociate,
+                    gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     moving = movingGridItem,
                     rows = rows,
@@ -78,14 +75,14 @@ class MoveGridItemUseCase @Inject constructor(
                 )
 
                 resolveConflictsWhenMoving(
-                    gridItems = gridItemsByAssociate,
+                    gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     moving = movingGridItem,
                     rows = rows,
                     columns = columns,
                 )
             } else {
-                gridItemsByAssociate
+                gridItems
             }
 
             if (resolvedConflictsGridItems != null) {

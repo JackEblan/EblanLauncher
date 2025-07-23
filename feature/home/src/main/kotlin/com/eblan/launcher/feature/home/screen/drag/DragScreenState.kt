@@ -138,7 +138,7 @@ suspend fun handleDragIntOffset(
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
-    onChangePageDirection: (PageDirection) -> Unit,
+    onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -173,11 +173,11 @@ suspend fun handleDragIntOffset(
     if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
         delay(delay)
 
-        onChangePageDirection(PageDirection.Left)
+        onUpdatePageDirection(PageDirection.Left)
     } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
         delay(delay)
 
-        onChangePageDirection(PageDirection.Right)
+        onUpdatePageDirection(PageDirection.Right)
     } else if (isDraggingOnDock) {
         delay(delay)
 
@@ -201,7 +201,7 @@ suspend fun handleDragIntOffset(
             )
         ) {
             onMoveGridItem(
-                gridItemsByPage + dockGridItems,
+                dockGridItems,
                 newGridItem,
                 dragIntOffset.x,
                 dockY,
@@ -240,7 +240,7 @@ suspend fun handleDragIntOffset(
             )
         ) {
             onMoveGridItem(
-                gridItemsByPage + dockGridItems,
+                gridItemsByPage,
                 newGridItem,
                 gridX,
                 gridY,

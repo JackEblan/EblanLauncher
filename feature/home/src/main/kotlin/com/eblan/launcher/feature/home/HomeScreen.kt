@@ -34,7 +34,6 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
-import com.eblan.launcher.feature.home.screen.drag.NewDragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
@@ -281,8 +280,6 @@ private fun Success(
     ) -> Unit,
     onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
-    var gridItem by remember { mutableStateOf<GridItem?>(null) }
-
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var targetPage by remember(key1 = userData.homeSettings.initialPage) {
@@ -305,7 +302,7 @@ private fun Success(
                     infiniteScroll = userData.homeSettings.infiniteScroll,
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
-                    gridItem = gridItem,
+                    gridItem = gridItemSource?.gridItem,
                     gridItems = gridItems,
                     dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,
@@ -321,21 +318,13 @@ private fun Success(
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
-                    onLongPressedGridItem = { newCurrentPage, newGridItem ->
-                        targetPage = newCurrentPage
-
-                        gridItem = newGridItem
-                    },
-                    onLongPressNewGridItem = { newCurrentPage, newGridItemSource ->
+                    onLongPressGridItem = { newCurrentPage, newGridItemSource ->
                         targetPage = newCurrentPage
 
                         gridItemSource = newGridItemSource
                     },
                     onDraggingGridItem = {
                         onShowGridCache(Screen.Drag)
-                    },
-                    onDraggingNewGridItem = {
-                        onShowGridCache(Screen.NewDrag)
                     },
                     onEdit = {
 
@@ -350,43 +339,13 @@ private fun Success(
                     onDragStartPinItemRequest = { newGridItemSource ->
                         gridItemSource = newGridItemSource
 
-                        onShowGridCache(Screen.NewDrag)
+                        onShowGridCache(Screen.Drag)
                     },
                 )
             }
 
             Screen.Drag -> {
                 DragScreen(
-                    currentPage = targetPage,
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
-                    pageCount = userData.homeSettings.pageCount,
-                    infiniteScroll = userData.homeSettings.infiniteScroll,
-                    dockRows = userData.homeSettings.dockRows,
-                    dockColumns = userData.homeSettings.dockColumns,
-                    gridItems = gridItems,
-                    gridItem = gridItem,
-                    dragIntOffset = dragIntOffset,
-                    drag = drag,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
-                    dockHeight = userData.homeSettings.dockHeight,
-                    dockGridItems = dockGridItems,
-                    textColor = userData.homeSettings.textColor,
-                    onMoveGridItem = onMoveGridItem,
-                    onDragCancel = onResetGridCache,
-                    onDragEnd = { newTargetPage ->
-                        targetPage = newTargetPage
-
-                        gridItem = null
-
-                        onResetGridCache()
-                    },
-                )
-            }
-
-            Screen.NewDrag -> {
-                NewDragScreen(
                     currentPage = targetPage,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
@@ -433,7 +392,7 @@ private fun Success(
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
                     gridItems = gridItems[targetPage],
-                    gridItem = gridItem,
+                    gridItem = gridItemSource?.gridItem,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     dockHeight = userData.homeSettings.dockHeight,

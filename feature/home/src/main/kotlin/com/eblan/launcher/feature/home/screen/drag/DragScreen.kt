@@ -1,5 +1,7 @@
 package com.eblan.launcher.feature.home.screen.drag
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
@@ -26,20 +28,20 @@ import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.DragShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.DragWidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -53,7 +55,7 @@ fun DragScreen(
     dockRows: Int,
     dockColumns: Int,
     dragIntOffset: IntOffset,
-    gridItem: GridItem?,
+    gridItemSource: GridItemSource?,
     gridItems: Map<Int, List<GridItem>>,
     drag: Drag,
     rootWidth: Int,
@@ -61,6 +63,7 @@ fun DragScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: TextColor,
+    movedGridItems: Boolean,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -73,7 +76,23 @@ fun DragScreen(
     ) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
+    onUpdatePinWidget: (
+        id: Int,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDragEndPinShortcut: (
+        targetPage: Int,
+        id: Int,
+        shortcutId: String,
+        byteArray: ByteArray?,
+    ) -> Unit,
+    onDeleteWidgetGridItem: (Int) -> Unit,
 ) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
     val density = LocalDensity.current
 
     val dockHeightDp = with(density) {
@@ -106,6 +125,37 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
+    val configureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        handleConfigureLauncherResult(
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+            result = result,
+            gridItemSource = gridItemSource,
+            onUpdatePinWidget = onUpdatePinWidget,
+            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            onDragEnd = onDragEnd,
+        )
+    }
+
+    val appWidgetLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        handleAppWidgetLauncherResult(
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+            result = result,
+            gridItemSource = gridItemSource,
+            onDragEnd = onDragEnd,
+            onConfigure = configureLauncher::launch,
+            onUpdatePinWidget = onUpdatePinWidget,
+            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+        )
+    }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             currentPage = horizontalPagerState.currentPage,
@@ -114,7 +164,7 @@ fun DragScreen(
             gridItems = gridItems,
             dockGridItems = dockGridItems,
             drag = drag,
-            gridItem = gridItem,
+            gridItem = gridItemSource?.gridItem,
             dragIntOffset = dragIntOffset,
             rootHeight = rootHeight,
             dockHeight = dockHeight,
@@ -145,22 +195,41 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.End -> {
-                val targetPage = calculatePage(
-                    index = horizontalPagerState.currentPage,
+        when (gridItemSource) {
+            is GridItemSource.New, is GridItemSource.Pin -> {
+                handleDragNew(
+                    currentPage = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
                     pageCount = pageCount,
+                    drag = drag,
+                    gridItemSource = gridItemSource,
+                    movedGridItems = movedGridItems,
+                    appWidgetHostWrapper = appWidgetHost,
+                    appWidgetManager = appWidgetManager,
+                    onDragCancel = onDragCancel,
+                    onConfigure = configureLauncher::launch,
+                    onDragEnd = onDragEnd,
+                    onDeleteGridItem = onDeleteGridItem,
+                    onUpdatePinWidget = onUpdatePinWidget,
+                    onDragEndPinShortcut = onDragEndPinShortcut,
+                    onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                    onLaunch = appWidgetLauncher::launch,
                 )
 
-                onDragEnd(targetPage)
             }
 
-            Drag.Cancel -> {
-                onDragCancel()
+            is GridItemSource.Existing -> {
+                handleDragExisting(
+                    drag,
+                    horizontalPagerState.currentPage,
+                    infiniteScroll,
+                    pageCount,
+                    onDragEnd,
+                    onDragCancel,
+                )
             }
 
-            else -> Unit
+            null -> Unit
         }
     }
 
@@ -206,15 +275,17 @@ fun DragScreen(
                                 }
 
                                 is GridItemData.Widget -> {
-                                    WidgetGridItem(
+                                    DragWidgetGridItem(
                                         modifier = gridItemModifier,
+                                        gridItemSource = gridItemSource,
                                         data = data,
                                     )
                                 }
 
                                 is GridItemData.ShortcutInfo -> {
-                                    ShortcutInfoGridItem(
+                                    DragShortcutInfoGridItem(
                                         modifier = gridItemModifier,
+                                        gridItemSource = gridItemSource,
                                         data = data,
                                         color = color,
                                     )
@@ -250,15 +321,17 @@ fun DragScreen(
                             }
 
                             is GridItemData.Widget -> {
-                                WidgetGridItem(
+                                DragWidgetGridItem(
                                     modifier = gridItemModifier,
+                                    gridItemSource = gridItemSource,
                                     data = data,
                                 )
                             }
 
                             is GridItemData.ShortcutInfo -> {
-                                ShortcutInfoGridItem(
+                                DragShortcutInfoGridItem(
                                     modifier = gridItemModifier,
+                                    gridItemSource = gridItemSource,
                                     data = data,
                                     color = color,
                                 )
@@ -267,157 +340,6 @@ fun DragScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-suspend fun handlePageDirection(
-    currentPage: Int,
-    pageDirection: PageDirection?,
-    onAnimateScrollToPage: suspend (Int) -> Unit,
-) {
-    when (pageDirection) {
-        PageDirection.Left -> {
-            onAnimateScrollToPage(currentPage - 1)
-        }
-
-        PageDirection.Right -> {
-            onAnimateScrollToPage(currentPage + 1)
-        }
-
-        null -> Unit
-    }
-}
-
-suspend fun handleDragIntOffset(
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
-    gridItems: Map<Int, List<GridItem>>,
-    dockGridItems: List<GridItem>,
-    drag: Drag,
-    gridItem: GridItem?,
-    dragIntOffset: IntOffset,
-    rootHeight: Int,
-    dockHeight: Int,
-    gridPadding: Int,
-    rootWidth: Int,
-    dockColumns: Int,
-    dockRows: Int,
-    columns: Int,
-    rows: Int,
-    isScrollInProgress: Boolean,
-    onChangePageDirection: (PageDirection) -> Unit,
-    onMoveGridItem: (
-        gridItems: List<GridItem>,
-        movingGridItem: GridItem,
-        x: Int,
-        y: Int,
-        rows: Int,
-        columns: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-    ) -> Unit,
-) {
-    if (drag != Drag.Dragging ||
-        gridItem == null ||
-        isScrollInProgress
-    ) {
-        return
-    }
-
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
-    val gridItemsByPage = gridItems[targetPage].orEmpty()
-
-    val isDraggingOnDock =
-        dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
-
-    val delay = 500L
-
-    if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
-        delay(delay)
-
-        onChangePageDirection(PageDirection.Left)
-    } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
-        delay(delay)
-
-        onChangePageDirection(PageDirection.Right)
-    } else if (isDraggingOnDock) {
-        delay(delay)
-
-        val cellWidth = rootWidth / dockColumns
-
-        val cellHeight = dockHeight / dockRows
-
-        val dockY = dragIntOffset.y - (rootHeight - dockHeight)
-
-        val newGridItem = gridItem.copy(
-            page = targetPage,
-            startRow = dockY / cellHeight,
-            startColumn = dragIntOffset.x / cellWidth,
-            associate = Associate.Dock,
-        )
-
-        if (isGridItemSpanWithinBounds(
-                gridItem = newGridItem,
-                rows = dockRows,
-                columns = dockColumns,
-            )
-        ) {
-            onMoveGridItem(
-                gridItemsByPage + dockGridItems,
-                newGridItem,
-                dragIntOffset.x,
-                dockY,
-                dockRows,
-                dockColumns,
-                rootWidth,
-                dockHeight,
-            )
-        }
-    } else {
-        delay(delay)
-
-        val gridWidth = rootWidth - (gridPadding * 2)
-
-        val gridHeight = (rootHeight - dockHeight) - (gridPadding * 2)
-
-        val gridX = dragIntOffset.x - gridPadding
-
-        val gridY = dragIntOffset.y - gridPadding
-
-        val cellWidth = gridWidth / columns
-
-        val cellHeight = gridHeight / rows
-
-        val newGridItem = gridItem.copy(
-            page = targetPage,
-            startRow = gridY / cellHeight,
-            startColumn = gridX / cellWidth,
-            associate = Associate.Grid,
-        )
-
-        if (isGridItemSpanWithinBounds(
-                gridItem = newGridItem,
-                rows = rows,
-                columns = columns,
-            )
-        ) {
-            onMoveGridItem(
-                gridItemsByPage + dockGridItems,
-                newGridItem,
-                gridX,
-                gridY,
-                rows,
-                columns,
-                gridWidth,
-                gridHeight,
-            )
         }
     }
 }

@@ -120,7 +120,7 @@ fun ShortcutInfoGridItem(
 }
 
 @Composable
-fun NewWidgetGridItem(
+fun DragWidgetGridItem(
     modifier: Modifier = Modifier,
     gridItemSource: GridItemSource?,
     data: GridItemData.Widget,
@@ -167,6 +167,10 @@ fun NewWidgetGridItem(
                 )
             }
 
+            is GridItemSource.Existing -> {
+                WidgetGridItem(modifier = modifier, data = data)
+            }
+
             null -> Unit
         }
     }
@@ -174,7 +178,7 @@ fun NewWidgetGridItem(
 
 
 @Composable
-fun NewShortcutInfoGridItem(
+fun DragShortcutInfoGridItem(
     modifier: Modifier,
     gridItemSource: GridItemSource?,
     data: GridItemData.ShortcutInfo,
@@ -214,6 +218,14 @@ fun NewShortcutInfoGridItem(
                 model = gridItemSource.byteArray,
                 contentDescription = null,
                 modifier = modifier,
+            )
+        }
+
+        is GridItemSource.Existing -> {
+            ShortcutInfoGridItem(
+                modifier = modifier,
+                data = data,
+                color = color,
             )
         }
 

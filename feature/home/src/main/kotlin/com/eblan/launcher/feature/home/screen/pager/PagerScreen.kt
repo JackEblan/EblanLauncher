@@ -3,7 +3,7 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipData
 import android.content.Context
-import android.content.pm.LauncherApps
+import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
 import android.os.Build
 import android.widget.FrameLayout
@@ -106,16 +106,11 @@ fun PagerScreen(
     hasShortcutHostPermission: Boolean,
     initialPage: Int,
     onLongPressGrid: (Int) -> Unit,
-    onLongPressedGridItem: (
+    onLongPressGridItem: (
         currentPage: Int,
-        gridItem: GridItem,
-    ) -> Unit,
-    onLongPressNewGridItem: (
-        currentPage: Int,
-        newGridItemSource: GridItemSource,
+        gridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onDraggingNewGridItem: () -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
@@ -169,7 +164,7 @@ fun PagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     initialPage = initialPage,
                     onLongPressGrid = onLongPressGrid,
-                    onLongPressedGridItem = onLongPressedGridItem,
+                    onLongPressGridItem = onLongPressGridItem,
                     onDraggingGridItem = onDraggingGridItem,
                     onEdit = onEdit,
                     onResize = onResize,
@@ -196,8 +191,8 @@ fun PagerScreen(
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    onLongPress = onLongPressNewGridItem,
-                    onDragging = onDraggingNewGridItem,
+                    onLongPress = onLongPressGridItem,
+                    onDragging = onDraggingGridItem,
                 )
             }
         }
@@ -320,9 +315,9 @@ private fun HorizontalPagerScreen(
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     initialPage: Int,
-    onLongPressedGridItem: (
+    onLongPressGridItem: (
         currentPage: Int,
-        gridItem: GridItem,
+        gridItemSource: GridItemSource,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
@@ -444,9 +439,9 @@ private fun HorizontalPagerScreen(
 
                                         showPopupGridItemMenu = true
 
-                                        onLongPressedGridItem(
+                                        onLongPressGridItem(
                                             page,
-                                            gridItem,
+                                            GridItemSource.Existing(gridItem = gridItem),
                                         )
                                     },
                                 )
@@ -463,9 +458,9 @@ private fun HorizontalPagerScreen(
 
                                         showPopupGridItemMenu = true
 
-                                        onLongPressedGridItem(
+                                        onLongPressGridItem(
                                             page,
-                                            gridItem,
+                                            GridItemSource.Existing(gridItem = gridItem),
                                         )
                                     },
                                 )
@@ -491,9 +486,9 @@ private fun HorizontalPagerScreen(
 
                                         showPopupGridItemMenu = true
 
-                                        onLongPressedGridItem(
+                                        onLongPressGridItem(
                                             page,
-                                            gridItem,
+                                            GridItemSource.Existing(gridItem = gridItem),
                                         )
                                     },
                                 )
@@ -541,13 +536,13 @@ private fun HorizontalPagerScreen(
 
                                     showPopupGridItemMenu = true
 
-                                    onLongPressedGridItem(
+                                    onLongPressGridItem(
                                         calculatePage(
                                             index = horizontalPagerState.currentPage,
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        dockGridItem,
+                                        GridItemSource.Existing(gridItem = dockGridItem),
                                     )
                                 },
                             )
@@ -564,13 +559,13 @@ private fun HorizontalPagerScreen(
 
                                     showPopupGridItemMenu = true
 
-                                    onLongPressedGridItem(
+                                    onLongPressGridItem(
                                         calculatePage(
                                             index = horizontalPagerState.currentPage,
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        dockGridItem,
+                                        GridItemSource.Existing(gridItem = dockGridItem),
                                     )
                                 },
                             )
@@ -594,13 +589,13 @@ private fun HorizontalPagerScreen(
 
                                     showPopupGridItemMenu = true
 
-                                    onLongPressedGridItem(
+                                    onLongPressGridItem(
                                         calculatePage(
                                             index = horizontalPagerState.currentPage,
                                             infiniteScroll = infiniteScroll,
                                             pageCount = pageCount,
                                         ),
-                                        dockGridItem,
+                                        GridItemSource.Existing(gridItem = dockGridItem),
                                     )
                                 },
                             )
@@ -953,7 +948,10 @@ private suspend fun handlePinItemRequest(
     initialPage: Int,
     onDragStart: (GridItemSource) -> Unit,
 ) {
-    suspend fun getWidgetGridItemSource(appWidgetProviderInfo: AppWidgetProviderInfo): GridItemSource {
+    suspend fun getWidgetGridItemSource(
+        pinItemRequest: PinItemRequest,
+        appWidgetProviderInfo: AppWidgetProviderInfo,
+    ): GridItemSource {
         val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -978,6 +976,7 @@ private suspend fun handlePinItemRequest(
                     gridHeight = gridHeight,
                     preview = null,
                 ),
+                pinItemRequest = pinItemRequest,
                 byteArray = byteArray,
             )
         } else {
@@ -1002,6 +1001,7 @@ private suspend fun handlePinItemRequest(
                     gridHeight = gridHeight,
                     preview = null,
                 ),
+                pinItemRequest = pinItemRequest,
                 byteArray = byteArray,
             )
         }
@@ -1009,7 +1009,10 @@ private suspend fun handlePinItemRequest(
 
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-    suspend fun getShortcutGridItemSource(shortcutInfo: ShortcutInfo): GridItemSource? {
+    suspend fun getShortcutGridItemSource(
+        pinItemRequest: PinItemRequest,
+        shortcutInfo: ShortcutInfo,
+    ): GridItemSource? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             val byteArray = launcherAppsWrapper.getShortcutIconDrawable(
                 shortcutInfo = shortcutInfo,
@@ -1025,6 +1028,7 @@ private suspend fun handlePinItemRequest(
                     longLabel = shortcutInfo.longLabel.toString(),
                     icon = null,
                 ),
+                pinItemRequest = pinItemRequest,
                 byteArray = byteArray,
             )
         } else {
@@ -1036,19 +1040,27 @@ private suspend fun handlePinItemRequest(
         when (drag) {
             Drag.Start -> {
                 when (pinItemRequest.requestType) {
-                    LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                    PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
                         val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
 
                         if (appWidgetProviderInfo != null) {
-                            onDragStart(getWidgetGridItemSource(appWidgetProviderInfo = appWidgetProviderInfo))
+                            onDragStart(
+                                getWidgetGridItemSource(
+                                    pinItemRequest = pinItemRequest,
+                                    appWidgetProviderInfo = appWidgetProviderInfo,
+                                ),
+                            )
                         }
                     }
 
-                    LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                    PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
                         val shortcutInfo = pinItemRequest.shortcutInfo
 
                         if (shortcutInfo != null) {
-                            getShortcutGridItemSource(shortcutInfo = shortcutInfo)?.let { gridItemSource ->
+                            getShortcutGridItemSource(
+                                pinItemRequest = pinItemRequest,
+                                shortcutInfo = shortcutInfo,
+                            )?.let { gridItemSource ->
                                 onDragStart(gridItemSource)
                             }
                         }

@@ -86,16 +86,16 @@ class PinViewModel @Inject constructor(
         }
     }
 
-    fun deleteWidgetGridItem(gridItem: GridItem, appWidgetId: Int) {
+    fun deleteGridItem(gridItem: GridItem) {
         viewModelScope.launch {
-            appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
-
             gridRepository.deleteGridItem(gridItem = gridItem)
         }
     }
 
-    fun deleteShortcutGridItem(gridItem: GridItem) {
+    fun deleteWidgetGridItem(gridItem: GridItem, appWidgetId: Int) {
         viewModelScope.launch {
+            appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
+
             gridRepository.deleteGridItem(gridItem = gridItem)
         }
     }

@@ -21,7 +21,7 @@ import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import kotlinx.coroutines.delay
 
-fun handleDragExisting(
+fun handleDragEndExisting(
     drag: Drag,
     currentPage: Int,
     infiniteScroll: Boolean,
@@ -46,7 +46,7 @@ fun handleDragExisting(
     }
 }
 
-fun handleDragNew(
+fun handleDragEndNew(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
@@ -59,16 +59,12 @@ fun handleDragNew(
     onConfigure: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onUpdatePinWidget: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
+    onUpdateAppWidgetId: (Int) -> Unit,
     onLaunch: (Intent) -> Unit,
+    onUpdateWidgetGridItem: (
+        id: Int,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     if (drag == Drag.End) {
         val targetPage = calculatePage(
@@ -77,19 +73,18 @@ fun handleDragNew(
             pageCount = pageCount,
         )
 
-        handleOnDragEnd(
+        onDragEndNew(
             targetPage = targetPage,
             movedGridItems = movedGridItems,
             appWidgetHostWrapper = appWidgetHostWrapper,
             appWidgetManager = appWidgetManager,
             gridItemSource = gridItemSource,
             onConfigure = onConfigure,
-            onDeleteGridItem = onDeleteGridItem,
-            onUpdatePinWidget = onUpdatePinWidget,
-            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-            onDeleteShortcutGridItem = onDeleteShortcutGridItem,
             onLaunch = onLaunch,
             onDragEnd = onDragEnd,
+            onDeleteGridItem = onDeleteGridItem,
+            onUpdateAppWidgetId = onUpdateAppWidgetId,
+            onUpdateWidgetGridItem = onUpdateWidgetGridItem,
         )
 
         return
@@ -257,19 +252,10 @@ fun handleConfigureLauncherResult(
     pageCount: Int,
     result: ActivityResult,
     gridItemSource: GridItemSource?,
-    onUpdatePinWidget: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
     if (gridItemSource !is GridItemSource.New) return
-
-    val data = (gridItemSource.gridItem.data as? GridItemData.Widget) ?: return
 
     val targetPage = calculatePage(
         index = currentPage,
@@ -277,13 +263,8 @@ fun handleConfigureLauncherResult(
         pageCount = pageCount,
     )
 
-    if (result.resultCode == Activity.RESULT_OK) {
-        val appWidgetId =
-            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-
-        onUpdatePinWidget(gridItemSource.gridItem.id, appWidgetId)
-    } else {
-        onDeleteWidgetGridItem(gridItemSource.gridItem.id, data.appWidgetId)
+    if (result.resultCode == Activity.RESULT_CANCELED) {
+        onDeleteGridItem(gridItemSource.gridItem)
     }
 
     onDragEnd(targetPage)
@@ -297,14 +278,11 @@ fun handleAppWidgetLauncherResult(
     gridItemSource: GridItemSource?,
     onDragEnd: (Int) -> Unit,
     onConfigure: (Intent) -> Unit,
-    onUpdatePinWidget: (
+    onUpdateWidgetGridItem: (
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteWidgetGridItem: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val data = (gridItemSource?.gridItem?.data as? GridItemData.Widget) ?: return
 
@@ -320,22 +298,17 @@ fun handleAppWidgetLauncherResult(
                 val appWidgetId =
                     result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
 
+                onUpdateWidgetGridItem(gridItemSource.gridItem.id, appWidgetId)
+
                 configureComponent(
                     targetPage = targetPage,
-                    id = gridItemSource.gridItem.id,
                     appWidgetId = appWidgetId,
                     configure = data.configure,
                     onConfigure = onConfigure,
-                    onUpdatePinWidget = onUpdatePinWidget,
                     onDragEnd = onDragEnd,
                 )
             } else {
-                onDeleteWidgetGridItem(
-                    gridItemSource.gridItem.id,
-                    data.appWidgetId,
-                )
-
-                onDragEnd(targetPage)
+                onDeleteGridItem(gridItemSource.gridItem)
             }
         }
 
@@ -344,28 +317,76 @@ fun handleAppWidgetLauncherResult(
                 val appWidgetId =
                     result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
 
-                bindPinWidget(
-                    id = gridItemSource.gridItem.id,
-                    pinItemRequest = gridItemSource.pinItemRequest,
+                onUpdateWidgetGridItem(gridItemSource.gridItem.id, appWidgetId)
+
+                bindWidget(
                     appWidgetId = appWidgetId,
-                    onUpdatePinWidget = onUpdatePinWidget,
-                    onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                    gridItem = gridItemSource.gridItem,
+                    pinItemRequest = gridItemSource.pinItemRequest,
+                    onDragEnd = onDragEnd,
+                    targetPage = targetPage,
+                    onDeleteGridItem = onDeleteGridItem,
                 )
             } else {
-                onDeleteWidgetGridItem(
-                    gridItemSource.gridItem.id,
-                    data.appWidgetId,
-                )
+                onDeleteGridItem(gridItemSource.gridItem)
             }
-
-            onDragEnd(targetPage)
         }
 
         else -> Unit
     }
 }
 
-private fun handleOnDragEnd(
+fun handleDeleteAppWidgetId(
+    gridItem: GridItem?,
+    appWidgetId: Int,
+    deleteAppWidgetId: Boolean,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+    onDeleteWidgetGridItem: (gridItem: GridItem, appWidgetId: Int) -> Unit,
+    onDragEnd: (Int) -> Unit,
+) {
+    if (gridItem == null) return
+
+    if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID &&
+        deleteAppWidgetId
+    ) {
+        val targetPage = calculatePage(
+            index = currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+        )
+
+        onDeleteWidgetGridItem(gridItem, appWidgetId)
+
+        onDragEnd(targetPage)
+    }
+}
+
+private fun bindWidget(
+    appWidgetId: Int,
+    gridItem: GridItem,
+    pinItemRequest: PinItemRequest,
+    onDragEnd: (Int) -> Unit,
+    targetPage: Int,
+    onDeleteGridItem: (GridItem) -> Unit,
+) {
+    val extras = Bundle().apply {
+        putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+    }
+
+    val bindPinWidget = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            pinItemRequest.isValid &&
+            pinItemRequest.accept(extras)
+
+    if (bindPinWidget) {
+        onDragEnd(targetPage)
+    } else {
+        onDeleteGridItem(gridItem)
+    }
+}
+
+private fun onDragEndNew(
     targetPage: Int,
     movedGridItems: Boolean,
     appWidgetHostWrapper: AppWidgetHostWrapper,
@@ -373,17 +394,13 @@ private fun handleOnDragEnd(
     gridItemSource: GridItemSource?,
     onConfigure: (Intent) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onUpdatePinWidget: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
+    onUpdateAppWidgetId: (Int) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
+    onUpdateWidgetGridItem: (
+        id: Int,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     when (gridItemSource) {
         is GridItemSource.New -> {
@@ -400,21 +417,19 @@ private fun handleOnDragEnd(
             if (data is GridItemData.Widget) {
                 val appWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
 
-                // When AppWidgetLauncher result is cancelled, we cannot get its appWidgetId,
-                // so we save it ahead then delete it if it's cancelled
-                onUpdatePinWidget(gridItemSource.gridItem.id, appWidgetId)
+                onUpdateAppWidgetId(appWidgetId)
 
                 onDragEndGridItemWidget(
+                    id = gridItemSource.gridItem.id,
                     targetPage = targetPage,
-                    gridItem = gridItemSource.gridItem,
                     appWidgetId = appWidgetId,
                     appWidgetManager = appWidgetManager,
                     componentName = data.componentName,
                     configure = data.configure,
                     onConfigure = onConfigure,
                     onLaunch = onLaunch,
-                    onUpdatePinWidget = onUpdatePinWidget,
                     onDragEnd = onDragEnd,
+                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                 )
             } else {
                 onDragEnd(targetPage)
@@ -435,7 +450,7 @@ private fun handleOnDragEnd(
                     onDragEndPinShortcut(
                         pinItemRequest = gridItemSource.pinItemRequest,
                         gridItem = gridItemSource.gridItem,
-                        onDeleteShortcutGridItem = onDeleteShortcutGridItem,
+                        onDeleteGridItem = onDeleteGridItem,
                     )
 
                     onDragEnd(targetPage)
@@ -444,17 +459,18 @@ private fun handleOnDragEnd(
                 is GridItemData.Widget -> {
                     val appWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
 
+                    onUpdateAppWidgetId(appWidgetId)
+
                     onDragEndPinWidget(
                         targetPage = targetPage,
-                        gridItem = gridItemSource.gridItem,
                         appWidgetId = appWidgetId,
                         appWidgetManager = appWidgetManager,
+                        gridItem = gridItemSource.gridItem,
                         componentName = data.componentName,
                         pinItemRequest = gridItemSource.pinItemRequest,
-                        onUpdatePinWidget = onUpdatePinWidget,
-                        onDeleteWidgetGridItem = onDeleteWidgetGridItem,
                         onLaunch = onLaunch,
                         onDragEnd = onDragEnd,
+                        onDeleteGridItem = onDeleteGridItem,
                     )
                 }
 
@@ -472,7 +488,7 @@ private fun handleOnDragEnd(
 private fun onDragEndPinShortcut(
     pinItemRequest: PinItemRequest?,
     gridItem: GridItem,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
         pinItemRequest != null &&
@@ -482,23 +498,23 @@ private fun onDragEndPinShortcut(
         return
     }
 
-    onDeleteShortcutGridItem(gridItem)
+    onDeleteGridItem(gridItem)
 }
 
 private fun onDragEndGridItemWidget(
+    id: Int,
     targetPage: Int,
-    gridItem: GridItem,
     appWidgetId: Int,
     appWidgetManager: AppWidgetManagerWrapper,
     componentName: String,
     configure: String?,
     onConfigure: (Intent) -> Unit,
     onLaunch: (Intent) -> Unit,
-    onUpdatePinWidget: (
+    onDragEnd: (Int) -> Unit,
+    onUpdateWidgetGridItem: (
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDragEnd: (Int) -> Unit,
 ) {
     val provider = ComponentName.unflattenFromString(componentName)
 
@@ -508,13 +524,13 @@ private fun onDragEndGridItemWidget(
     )
 
     if (bindAppWidgetIdIfAllowed) {
+        onUpdateWidgetGridItem(id, appWidgetId)
+
         configureComponent(
             targetPage = targetPage,
-            id = gridItem.id,
             appWidgetId = appWidgetId,
             configure = configure,
             onConfigure = onConfigure,
-            onUpdatePinWidget = onUpdatePinWidget,
             onDragEnd = onDragEnd,
         )
 
@@ -532,21 +548,14 @@ private fun onDragEndGridItemWidget(
 
 private fun onDragEndPinWidget(
     targetPage: Int,
-    gridItem: GridItem,
     appWidgetId: Int,
     appWidgetManager: AppWidgetManagerWrapper,
+    gridItem: GridItem,
     componentName: String,
-    pinItemRequest: PinItemRequest?,
-    onUpdatePinWidget: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
+    pinItemRequest: PinItemRequest,
     onLaunch: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val provider = ComponentName.unflattenFromString(componentName)
 
@@ -556,15 +565,14 @@ private fun onDragEndPinWidget(
     )
 
     if (bindAppWidgetIdIfAllowed) {
-        bindPinWidget(
-            id = gridItem.id,
-            pinItemRequest = pinItemRequest,
+        bindWidget(
             appWidgetId = appWidgetId,
-            onUpdatePinWidget = onUpdatePinWidget,
-            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            gridItem = gridItem,
+            pinItemRequest = pinItemRequest,
+            onDragEnd = onDragEnd,
+            targetPage = targetPage,
+            onDeleteGridItem = onDeleteGridItem,
         )
-
-        onDragEnd(targetPage)
     } else {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -576,44 +584,11 @@ private fun onDragEndPinWidget(
     }
 }
 
-private fun bindPinWidget(
-    id: Int,
-    pinItemRequest: PinItemRequest?,
-    appWidgetId: Int,
-    onUpdatePinWidget: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
-) {
-    val extras = Bundle().apply {
-        putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-        pinItemRequest != null &&
-        pinItemRequest.isValid &&
-        pinItemRequest.accept(extras)
-    ) {
-        onUpdatePinWidget(id, appWidgetId)
-    } else {
-        onDeleteWidgetGridItem(id, appWidgetId)
-    }
-}
-
 private fun configureComponent(
     targetPage: Int,
-    id: Int,
     appWidgetId: Int,
     configure: String?,
     onConfigure: (Intent) -> Unit,
-    onUpdatePinWidget: (
-        id: Int,
-        appWidgetId: Int,
-    ) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
@@ -627,8 +602,6 @@ private fun configureComponent(
 
         onConfigure(intent)
     } else {
-        onUpdatePinWidget(id, appWidgetId)
-
         onDragEnd(targetPage)
     }
 }

@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.drag
 
+import android.appwidget.AppWidgetManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -84,15 +86,14 @@ fun DragScreen(
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onUpdatePinWidget: (
+    onUpdateWidgetGridItem: (
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
     onDeleteWidgetGridItem: (
-        id: Int,
+        gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -105,6 +106,10 @@ fun DragScreen(
     }
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
+
+    var appWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
+
+    var deleteAppWidgetId by remember { mutableStateOf(false) }
 
     val color = when (textColor) {
         TextColor.White -> Color.White
@@ -134,13 +139,16 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleConfigureLauncherResult(
-            currentPage = horizontalPagerState.currentPage,
+            currentPage = currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
             result = result,
             gridItemSource = gridItemSource,
-            onUpdatePinWidget = onUpdatePinWidget,
-            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            onDeleteGridItem = { newGridItem ->
+                deleteAppWidgetId = true
+
+                onDeleteGridItem(newGridItem)
+            },
             onDragEnd = onDragEnd,
         )
     }
@@ -156,8 +164,12 @@ fun DragScreen(
             gridItemSource = gridItemSource,
             onDragEnd = onDragEnd,
             onConfigure = configureLauncher::launch,
-            onUpdatePinWidget = onUpdatePinWidget,
-            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            onDeleteGridItem = { newGridItem ->
+                deleteAppWidgetId = true
+
+                onDeleteGridItem(newGridItem)
+            },
+            onUpdateWidgetGridItem = onUpdateWidgetGridItem,
         )
     }
 
@@ -202,7 +214,7 @@ fun DragScreen(
     LaunchedEffect(key1 = drag) {
         when (gridItemSource) {
             is GridItemSource.New, is GridItemSource.Pin -> {
-                handleDragNew(
+                handleDragEndNew(
                     currentPage = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
                     pageCount = pageCount,
@@ -215,27 +227,40 @@ fun DragScreen(
                     onConfigure = configureLauncher::launch,
                     onDragEnd = onDragEnd,
                     onDeleteGridItem = onDeleteGridItem,
-                    onUpdatePinWidget = onUpdatePinWidget,
-                    onDeleteWidgetGridItem = onDeleteWidgetGridItem,
                     onLaunch = appWidgetLauncher::launch,
-                    onDeleteShortcutGridItem = onDeleteShortcutGridItem,
+                    onUpdateAppWidgetId = { newAppWidgetId ->
+                        appWidgetId = newAppWidgetId
+                    },
+                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                 )
-
             }
 
             is GridItemSource.Existing -> {
-                handleDragExisting(
-                    drag,
-                    horizontalPagerState.currentPage,
-                    infiniteScroll,
-                    pageCount,
-                    onDragEnd,
-                    onDragCancel,
+                handleDragEndExisting(
+                    drag = drag,
+                    currentPage = horizontalPagerState.currentPage,
+                    infiniteScroll = infiniteScroll,
+                    pageCount = pageCount,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragCancel,
                 )
             }
 
             null -> Unit
         }
+    }
+
+    LaunchedEffect(key1 = deleteAppWidgetId) {
+        handleDeleteAppWidgetId(
+            gridItem = gridItemSource?.gridItem,
+            appWidgetId = appWidgetId,
+            deleteAppWidgetId = deleteAppWidgetId,
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            onDragEnd = onDragEnd,
+        )
     }
 
     Column(modifier = modifier.fillMaxSize()) {

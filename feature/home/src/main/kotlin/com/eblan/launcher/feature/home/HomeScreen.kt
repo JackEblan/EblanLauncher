@@ -72,9 +72,8 @@ fun HomeRoute(
         onEditPage = viewModel::showPageCache,
         onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
-        onUpdatePinWidget = viewModel::updatePinWidget,
+        onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
         onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
-        onDeleteShortcutGridItem = viewModel::deleteShortcutGridItem,
     )
 }
 
@@ -113,15 +112,14 @@ fun HomeScreen(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdatePinWidget: (
+    onUpdateWidgetGridItem: (
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
     onDeleteWidgetGridItem: (
-        id: Int,
+        gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -215,9 +213,8 @@ fun HomeScreen(
                         onEditPage = onEditPage,
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
-                        onUpdatePinWidget = onUpdatePinWidget,
                         onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-                        onDeleteShortcutGridItem = onDeleteShortcutGridItem,
+                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                     )
                 }
             }
@@ -268,15 +265,14 @@ private fun Success(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdatePinWidget: (
+    onUpdateWidgetGridItem: (
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
     onDeleteWidgetGridItem: (
-        id: Int,
+        gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -312,7 +308,6 @@ private fun Success(
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    initialPage = userData.homeSettings.initialPage,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -369,9 +364,8 @@ private fun Success(
 
                         onResetGridCache()
                     },
-                    onUpdatePinWidget = onUpdatePinWidget,
                     onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-                    onDeleteShortcutGridItem = onDeleteShortcutGridItem,
+                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
                 )
             }
 

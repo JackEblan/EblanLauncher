@@ -100,7 +100,6 @@ fun PagerScreen(
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
-    initialPage: Int,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -158,7 +157,6 @@ fun PagerScreen(
                     rootHeight = rootHeight,
                     drag = drag,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    initialPage = initialPage,
                     onLongPressGrid = onLongPressGrid,
                     onLongPressGridItem = onLongPressGridItem,
                     onDraggingGridItem = onDraggingGridItem,
@@ -310,7 +308,6 @@ private fun HorizontalPagerScreen(
     rootHeight: Int,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
-    initialPage: Int,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -356,6 +353,7 @@ private fun HorizontalPagerScreen(
         }
 
         handlePinItemRequest(
+            currentPage = horizontalPagerState.currentPage,
             rows = rows,
             columns = columns,
             gridWidth = rootWidth,
@@ -364,7 +362,6 @@ private fun HorizontalPagerScreen(
             pinItemRequestWrapper = pinItemRequestWrapper,
             launcherAppsWrapper = launcherAppsWrapper,
             context = context,
-            initialPage = initialPage,
             fileManager = fileManager,
             onDragStart = onDragStartPinItemRequest,
         )
@@ -896,6 +893,7 @@ private fun WidgetGridItem(
 }
 
 private suspend fun handlePinItemRequest(
+    currentPage: Int,
     rows: Int,
     columns: Int,
     gridWidth: Int,
@@ -904,7 +902,6 @@ private suspend fun handlePinItemRequest(
     pinItemRequestWrapper: PinItemRequestWrapper,
     launcherAppsWrapper: LauncherAppsWrapper,
     context: Context,
-    initialPage: Int,
     fileManager: FileManager,
     onDragStart: (GridItemSource) -> Unit,
 ) {
@@ -925,7 +922,7 @@ private suspend fun handlePinItemRequest(
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
-                    page = initialPage,
+                    page = currentPage,
                     rows = rows,
                     columns = columns,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
@@ -950,7 +947,7 @@ private suspend fun handlePinItemRequest(
         } else {
             GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
-                    page = initialPage,
+                    page = currentPage,
                     rows = rows,
                     columns = columns,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
@@ -990,7 +987,7 @@ private suspend fun handlePinItemRequest(
 
             GridItemSource.Pin(
                 gridItem = getShortcutGridItem(
-                    page = initialPage,
+                    page = currentPage,
                     id = shortcutInfo.id,
                     packageName = shortcutInfo.`package`,
                     shortLabel = shortcutInfo.shortLabel.toString(),

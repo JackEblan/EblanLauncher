@@ -8,7 +8,6 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
-import com.eblan.launcher.domain.usecase.DeleteWidgetGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
@@ -39,7 +38,6 @@ class HomeViewModel @Inject constructor(
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
-    private val deleteWidgetGridItemUseCase: DeleteWidgetGridItemUseCase,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -190,7 +188,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updatePinWidget(
+    fun updateWidgetGridItem(
         id: Int,
         appWidgetId: Int,
     ) {
@@ -202,20 +200,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deleteShortcutGridItem(gridItem: GridItem) {
-        viewModelScope.launch {
-            gridCacheRepository.deleteGridItem(gridItem = gridItem)
-        }
-    }
-
     fun deleteWidgetGridItem(
-        id: Int,
+        gridItem: GridItem,
         appWidgetId: Int,
     ) {
         viewModelScope.launch {
             appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
 
-            deleteWidgetGridItemUseCase(id = id)
+            gridCacheRepository.deleteGridItem(gridItem = gridItem)
         }
     }
 }

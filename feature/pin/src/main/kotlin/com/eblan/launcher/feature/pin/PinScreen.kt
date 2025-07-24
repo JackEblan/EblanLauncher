@@ -35,6 +35,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,9 +80,10 @@ fun PinScreen(
                 onDragStart = onDragStart,
                 onFinish = onFinish,
                 onAddWidgetToHomeScreen = viewModel::addPinWidgetToHomeScreen,
-                onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
+                onDeleteGridItem = viewModel::deleteGridItem,
                 onAddedToHomeScreenToast = onAddedToHomeScreenToast,
-                onUpdateGridItemData = viewModel::updateGridItemData,
+                onUpdateWidgetGridItem = viewModel::updateGridItemData,
+                onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
             )
         }
 
@@ -93,7 +95,7 @@ fun PinScreen(
                 onDragStart = onDragStart,
                 onFinish = onFinish,
                 onAddPinShortcutToHomeScreen = viewModel::addPinShortcutToHomeScreen,
-                onDeleteShortcutGridItem = viewModel::deleteShortcutGridItem,
+                onDeleteShortcutGridItem = viewModel::deleteGridItem,
                 onAddedToHomeScreenToast = onAddedToHomeScreenToast,
             )
         }
@@ -206,14 +208,15 @@ fun PinWidgetScreen(
         rootWidth: Int,
         rootHeight: Int,
     ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
+    onAddedToHomeScreenToast: (String) -> Unit,
+    onUpdateWidgetGridItem: (
+        id: Int,
+        data: GridItemData.Widget,
+    ) -> Unit,
     onDeleteWidgetGridItem: (
         gridItem: GridItem,
         appWidgetId: Int,
-    ) -> Unit,
-    onAddedToHomeScreenToast: (String) -> Unit,
-    onUpdateGridItemData: (
-        id: Int,
-        data: GridItemData.Widget,
     ) -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
@@ -225,6 +228,10 @@ fun PinWidgetScreen(
     val context = LocalContext.current
 
     val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
+
+    var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
+
+    var deleteAppWidgetId by remember { mutableStateOf(false) }
 
     if (appWidgetProviderInfo != null) {
         val icon = remember {
@@ -239,8 +246,12 @@ fun PinWidgetScreen(
                 pinItemRequest = pinItemRequest,
                 result = result,
                 onFinish = onFinish,
-                onUpdateGridItemData = onUpdateGridItemData,
-                onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                onDeleteGridItem = { newGridItem ->
+                    deleteAppWidgetId = true
+
+                    onDeleteGridItem(newGridItem)
+                },
             )
         }
 
@@ -251,11 +262,7 @@ fun PinWidgetScreen(
                 if (data is GridItemData.Widget) {
                     val appWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
 
-                    val newData = data.copy(appWidgetId = appWidgetId)
-
-                    // When AppWidgetLauncher result is cancelled, we cannot get its appWidgetId,
-                    // so we save it ahead then delete it if it's cancelled
-                    onUpdateGridItemData(gridItem.id, newData)
+                    lastAppWidgetId = appWidgetId
 
                     onAddPinWidget(
                         gridItem = gridItem,
@@ -263,8 +270,8 @@ fun PinWidgetScreen(
                         appWidgetManager = appWidgetManager,
                         data = data,
                         pinItemRequest = pinItemRequest,
-                        onUpdateGridItemData = onUpdateGridItemData,
-                        onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                        onDeleteGridItem = onDeleteGridItem,
                         onLaunch = appWidgetLauncher::launch,
                         onFinish = onFinish,
                     )
@@ -277,6 +284,15 @@ fun PinWidgetScreen(
             """.trimIndent(),
                     )
                 }
+            }
+        }
+
+        LaunchedEffect(key1 = deleteAppWidgetId) {
+            if (addedGridItem != null &&
+                lastAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID &&
+                deleteAppWidgetId
+            ) {
+                onDeleteWidgetGridItem(addedGridItem, lastAppWidgetId)
             }
         }
 
@@ -433,14 +449,11 @@ private fun onAddPinWidget(
     appWidgetManager: AppWidgetManagerWrapper,
     data: GridItemData.Widget,
     pinItemRequest: PinItemRequest?,
-    onUpdateGridItemData: (
+    onUpdateWidgetGridItem: (
         id: Int,
         data: GridItemData.Widget,
     ) -> Unit,
-    onDeleteWidgetGridItem: (
-        gridItem: GridItem,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
     onFinish: () -> Unit,
 ) {
@@ -452,13 +465,15 @@ private fun onAddPinWidget(
     )
 
     if (bindAppWidgetIdIfAllowed) {
+        val newData = data.copy(appWidgetId = appWidgetId)
+
+        onUpdateWidgetGridItem(gridItem.id, newData)
+
         bindPinWidget(
             gridItem = gridItem,
-            data = data,
             pinItemRequest = pinItemRequest,
             appWidgetId = appWidgetId,
-            onUpdateGridItemData = onUpdateGridItemData,
-            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            onDeleteGridItem = onDeleteGridItem,
         )
 
         onFinish()
@@ -475,17 +490,9 @@ private fun onAddPinWidget(
 
 private fun bindPinWidget(
     gridItem: GridItem,
-    data: GridItemData.Widget,
     pinItemRequest: PinItemRequest?,
     appWidgetId: Int,
-    onUpdateGridItemData: (
-        id: Int,
-        data: GridItemData.Widget,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        gridItem: GridItem,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val extras = Bundle().apply {
         putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -496,12 +503,10 @@ private fun bindPinWidget(
         pinItemRequest.isValid &&
         pinItemRequest.accept(extras)
     ) {
-        val newData = data.copy(appWidgetId = appWidgetId)
-
-        onUpdateGridItemData(gridItem.id, newData)
-    } else {
-        onDeleteWidgetGridItem(gridItem, data.appWidgetId)
+        return
     }
+
+    onDeleteGridItem(gridItem)
 }
 
 fun handleAppWidgetLauncherResult(
@@ -509,14 +514,11 @@ fun handleAppWidgetLauncherResult(
     pinItemRequest: PinItemRequest?,
     result: ActivityResult,
     onFinish: () -> Unit,
-    onUpdateGridItemData: (
+    onUpdateWidgetGridItem: (
         id: Int,
         data: GridItemData.Widget,
     ) -> Unit,
-    onDeleteWidgetGridItem: (
-        gridItem: GridItem,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     if (gridItem == null) return
 
@@ -526,16 +528,18 @@ fun handleAppWidgetLauncherResult(
         val appWidgetId =
             result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
 
+        val newData = data.copy(appWidgetId = appWidgetId)
+
+        onUpdateWidgetGridItem(gridItem.id, newData)
+
         bindPinWidget(
             gridItem = gridItem,
-            data = data,
             pinItemRequest = pinItemRequest,
             appWidgetId = appWidgetId,
-            onUpdateGridItemData = onUpdateGridItemData,
-            onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+            onDeleteGridItem = onDeleteGridItem,
         )
     } else {
-        onDeleteWidgetGridItem(gridItem, data.appWidgetId)
+        onDeleteGridItem(gridItem)
     }
 
     onFinish()

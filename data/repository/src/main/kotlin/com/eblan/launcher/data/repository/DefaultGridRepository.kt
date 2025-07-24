@@ -44,6 +44,10 @@ internal class DefaultGridRepository @Inject constructor(private val gridDao: Gr
         gridDao.deleteGridItemEntities(entities = entities)
     }
 
+    override suspend fun deleteGridItem(gridItem: GridItem) {
+        gridDao.deleteGridItemEntity(entity = gridItem.toGridItemEntity())
+    }
+
     private fun GridItemEntity.toGridItem(): GridItem {
         return GridItem(
             id = id,

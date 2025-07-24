@@ -27,4 +27,7 @@ interface GridDao {
 
     @Delete
     suspend fun deleteGridItemEntities(entities: List<GridItemEntity>)
+
+    @Delete
+    suspend fun deleteGridItemEntity(entity: GridItemEntity)
 }

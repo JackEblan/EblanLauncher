@@ -19,7 +19,6 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.model.GridItemSource
 
 @Composable
 fun WidgetGridItem(
@@ -116,91 +115,5 @@ fun ShortcutInfoGridItem(
                 type = TextUnitType.Sp,
             ),
         )
-    }
-}
-
-@Composable
-fun DragWidgetGridItem(
-    modifier: Modifier = Modifier,
-    gridItemSource: GridItemSource?,
-    data: GridItemData.Widget,
-) {
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
-    val appWidgetInfo =
-        appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
-
-    if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = data.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
-            },
-            modifier = modifier,
-        )
-    } else {
-        when (gridItemSource) {
-            is GridItemSource.New -> {
-                AsyncImage(
-                    model = data.preview,
-                    contentDescription = null,
-                    modifier = modifier,
-                )
-            }
-
-            is GridItemSource.Pin -> {
-                AsyncImage(
-                    model = gridItemSource.byteArray,
-                    contentDescription = null,
-                    modifier = modifier,
-                )
-            }
-
-            is GridItemSource.Existing -> {
-                WidgetGridItem(modifier = modifier, data = data)
-            }
-
-            null -> Unit
-        }
-    }
-}
-
-
-@Composable
-fun DragShortcutInfoGridItem(
-    modifier: Modifier,
-    gridItemSource: GridItemSource?,
-    data: GridItemData.ShortcutInfo,
-    color: Color,
-) {
-    when (gridItemSource) {
-        is GridItemSource.New, is GridItemSource.Existing -> {
-            ShortcutInfoGridItem(
-                modifier = modifier,
-                data = data,
-                color = color,
-            )
-        }
-
-        is GridItemSource.Pin -> {
-            AsyncImage(
-                model = gridItemSource.byteArray,
-                contentDescription = null,
-                modifier = modifier,
-            )
-        }
-
-        null -> Unit
     }
 }

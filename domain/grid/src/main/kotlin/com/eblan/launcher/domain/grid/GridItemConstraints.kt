@@ -2,6 +2,8 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
+import kotlinx.coroutines.isActive
+import kotlin.coroutines.coroutineContext
 
 fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boolean {
     return gridItem.startRow in 0 until rows && gridItem.startColumn in 0 until columns && gridItem.startRow + gridItem.rowSpan <= rows && gridItem.startColumn + gridItem.columnSpan <= columns
@@ -118,7 +120,7 @@ fun getResolveDirectionBySpan(
     }
 }
 
-fun findAvailableRegion(
+suspend fun findAvailableRegion(
     gridItems: List<GridItem>,
     pageCount: Int,
     rows: Int,
@@ -127,11 +129,13 @@ fun findAvailableRegion(
 ): GridItem? {
     for (page in 0..pageCount) {
         for (row in 0..(rows - gridItem.rowSpan)) {
-            for (col in 0..(columns - gridItem.columnSpan)) {
+            for (column in 0..(columns - gridItem.columnSpan)) {
+                if (!coroutineContext.isActive) return null
+
                 val candidateGridItem = gridItem.copy(
                     page = page,
                     startRow = row,
-                    startColumn = col,
+                    startColumn = column,
                 )
 
                 val overlaps = gridItems.any { otherGridItem ->

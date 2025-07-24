@@ -1,9 +1,10 @@
 package com.eblan.launcher
 
 import android.content.Intent
-import android.content.pm.LauncherApps
+import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,7 +57,7 @@ class PinActivity : ComponentActivity() {
                         dynamicTheme = false,
                     ) {
                         when (pinItemRequest.requestType) {
-                            LauncherApps.PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                            PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
                                 PinWidgetScreen(
                                     pinItemRequest = pinItemRequest,
                                     onHome = {
@@ -67,13 +68,21 @@ class PinActivity : ComponentActivity() {
                                 )
                             }
 
-                            LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                            PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
                                 PinShortcutScreen(
                                     pinItemRequest = pinItemRequest,
-                                    onHome = {
+                                    onDragStart = {
                                         startActivity(homeIntent)
 
                                         finish()
+                                    },
+                                    onFinish = ::finish,
+                                    onAddedToHomeScreen = { message ->
+                                        Toast.makeText(
+                                            applicationContext,
+                                            message,
+                                            Toast.LENGTH_LONG,
+                                        ).show()
                                     },
                                 )
                             }

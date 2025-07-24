@@ -22,9 +22,9 @@ class PinViewModel @Inject constructor(
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
 ) : ViewModel() {
-    private val _addedToHomeScreen = MutableStateFlow<GridItem?>(null)
+    private val _gridItem = MutableStateFlow<GridItem?>(null)
 
-    val addedGridItem = _addedToHomeScreen.asStateFlow()
+    val gridItem = _gridItem.asStateFlow()
 
     fun addPinShortcutToHomeScreen(
         id: String,
@@ -34,7 +34,7 @@ class PinViewModel @Inject constructor(
         byteArray: ByteArray,
     ) {
         viewModelScope.launch {
-            _addedToHomeScreen.update {
+            _gridItem.update {
                 addPinShortcutToHomeScreenUseCase(
                     id = id,
                     packageName = packageName,
@@ -64,7 +64,7 @@ class PinViewModel @Inject constructor(
         rootHeight: Int,
     ) {
         viewModelScope.launch {
-            _addedToHomeScreen.update {
+            _gridItem.update {
                 addPinWidgetToHomeScreenUseCase(
                     className = className,
                     componentName = componentName,

@@ -55,6 +55,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                     className,
                 ).absolutePath
 
+            var id = 0L
+
             val gridItem = getWidgetGridItem(
                 page = initialPage,
                 rows = rows,
@@ -85,10 +87,10 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             )
 
             if (newGridItem != null) {
-                gridRepository.upsertGridItem(gridItem = newGridItem)
+                id = gridRepository.upsertGridItem(gridItem = newGridItem)
             }
 
-            newGridItem
+            newGridItem?.copy(id = id.toInt())
         }
     }
 }

@@ -88,7 +88,11 @@ fun DragScreen(
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteWidgetGridItem: (Int) -> Unit,
+    onDeleteWidgetGridItem: (
+        id: Int,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDeleteShortcutGridItem: (GridItem) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -214,6 +218,7 @@ fun DragScreen(
                     onUpdatePinWidget = onUpdatePinWidget,
                     onDeleteWidgetGridItem = onDeleteWidgetGridItem,
                     onLaunch = appWidgetLauncher::launch,
+                    onDeleteShortcutGridItem = onDeleteShortcutGridItem,
                 )
 
             }

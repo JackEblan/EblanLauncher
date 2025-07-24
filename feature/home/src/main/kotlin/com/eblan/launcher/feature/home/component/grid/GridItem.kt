@@ -49,6 +49,12 @@ fun WidgetGridItem(
             },
             modifier = modifier,
         )
+    } else {
+        AsyncImage(
+            model = data.preview,
+            contentDescription = null,
+            modifier = modifier,
+        )
     }
 }
 

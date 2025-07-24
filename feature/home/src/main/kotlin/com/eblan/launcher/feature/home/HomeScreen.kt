@@ -74,6 +74,7 @@ fun HomeRoute(
         onCancelEditPage = viewModel::cancelEditPage,
         onUpdatePinWidget = viewModel::updatePinWidget,
         onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
+        onDeleteShortcutGridItem = viewModel::deleteShortcutGridItem,
     )
 }
 
@@ -116,7 +117,11 @@ fun HomeScreen(
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteWidgetGridItem: (Int) -> Unit,
+    onDeleteWidgetGridItem: (
+        id: Int,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDeleteShortcutGridItem: (GridItem) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -212,6 +217,7 @@ fun HomeScreen(
                         onCancelEditPage = onCancelEditPage,
                         onUpdatePinWidget = onUpdatePinWidget,
                         onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                        onDeleteShortcutGridItem = onDeleteShortcutGridItem,
                     )
                 }
             }
@@ -266,7 +272,11 @@ private fun Success(
         id: Int,
         appWidgetId: Int,
     ) -> Unit,
-    onDeleteWidgetGridItem: (Int) -> Unit,
+    onDeleteWidgetGridItem: (
+        id: Int,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDeleteShortcutGridItem: (GridItem) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -361,6 +371,7 @@ private fun Success(
                     },
                     onUpdatePinWidget = onUpdatePinWidget,
                     onDeleteWidgetGridItem = onDeleteWidgetGridItem,
+                    onDeleteShortcutGridItem = onDeleteShortcutGridItem,
                 )
             }
 

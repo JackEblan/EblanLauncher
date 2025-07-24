@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
@@ -18,6 +19,7 @@ import com.eblan.launcher.feature.pin.PinScreen
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
+import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -26,6 +28,9 @@ class PinActivity : ComponentActivity() {
 
     @Inject
     lateinit var appWidgetHostWrapper: AppWidgetHostWrapper
+
+    @Inject
+    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
 
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
@@ -49,6 +54,7 @@ class PinActivity : ComponentActivity() {
             setContent {
                 CompositionLocalProvider(
                     LocalAppWidgetHost provides appWidgetHostWrapper,
+                    LocalAppWidgetManager provides appWidgetManagerWrapper,
                     LocalPinItemRequest provides pinItemRequestWrapper,
                     LocalLauncherApps provides launcherAppsWrapper,
                 ) {
@@ -65,7 +71,7 @@ class PinActivity : ComponentActivity() {
                                 finish()
                             },
                             onFinish = ::finish,
-                            onAddedToHomeScreen = { message ->
+                            onAddedToHomeScreenToast = { message ->
                                 Toast.makeText(
                                     applicationContext,
                                     message,

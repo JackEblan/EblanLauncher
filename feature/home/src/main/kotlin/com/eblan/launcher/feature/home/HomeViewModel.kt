@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -39,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val deleteWidgetGridItemUseCase: DeleteWidgetGridItemUseCase,
+    private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -200,8 +202,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deleteWidgetGridItem(id: Int) {
+    fun deleteShortcutGridItem(gridItem: GridItem) {
         viewModelScope.launch {
+            gridCacheRepository.deleteGridItem(gridItem = gridItem)
+        }
+    }
+
+    fun deleteWidgetGridItem(
+        id: Int,
+        appWidgetId: Int,
+    ) {
+        viewModelScope.launch {
+            appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
+
             deleteWidgetGridItemUseCase(id = id)
         }
     }

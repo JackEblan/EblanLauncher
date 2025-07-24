@@ -308,6 +308,7 @@ private fun Success(
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    dragIntOffset = dragIntOffset,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },

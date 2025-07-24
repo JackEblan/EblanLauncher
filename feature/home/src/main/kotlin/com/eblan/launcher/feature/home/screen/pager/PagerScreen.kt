@@ -100,6 +100,7 @@ fun PagerScreen(
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
+    dragIntOffset: IntOffset,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -174,8 +175,6 @@ fun PagerScreen(
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     rows = rows,
                     columns = columns,
-                    dockRows = dockRows,
-                    dockColumns = dockColumns,
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
@@ -185,6 +184,7 @@ fun PagerScreen(
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    dragIntOffset = dragIntOffset,
                     onLongPress = onLongPressGridItem,
                     onDragging = onDraggingGridItem,
                 )
@@ -200,8 +200,6 @@ private fun ApplicationComponentScreen(
     gridHorizontalPagerState: PagerState,
     rows: Int,
     columns: Int,
-    dockRows: Int,
-    dockColumns: Int,
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
@@ -211,6 +209,7 @@ private fun ApplicationComponentScreen(
     drag: Drag,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
+    dragIntOffset: IntOffset,
     onLongPress: (
         currentPage: Int,
         newGridItemSource: GridItemSource,
@@ -256,8 +255,6 @@ private fun ApplicationComponentScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
                                 rows = rows,
                                 columns = columns,
-                                dockRows = dockRows,
-                                dockColumns = dockColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
@@ -265,6 +262,7 @@ private fun ApplicationComponentScreen(
                                 rootHeight = rootHeight,
                                 dockHeight = dockHeight,
                                 drag = drag,
+                                dragIntOffset = dragIntOffset,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                             )

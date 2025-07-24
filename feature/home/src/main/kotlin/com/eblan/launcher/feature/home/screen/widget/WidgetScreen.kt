@@ -47,8 +47,6 @@ fun WidgetScreen(
     currentPage: Int,
     rows: Int,
     columns: Int,
-    dockRows: Int,
-    dockColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
@@ -56,6 +54,7 @@ fun WidgetScreen(
     rootHeight: Int,
     dockHeight: Int,
     drag: Drag,
+    dragIntOffset: IntOffset,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -72,8 +71,13 @@ fun WidgetScreen(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPress) {
+    LaunchedEffect(key1 = dragIntOffset) {
+        val isDraggingOnGrid = dragIntOffset.y < (rootHeight - dockHeight)
+
+        if (drag == Drag.Dragging &&
+            isLongPress &&
+            isDraggingOnGrid
+        ) {
             onDragging()
         }
     }
@@ -127,33 +131,16 @@ fun WidgetScreen(
                                         .dragAndDropSource(
                                             block = {
                                                 detectTapGestures(
-                                                    onLongPress = { offset ->
-                                                        val gridIntOffset =
-                                                            intOffset + offset.round()
-
+                                                    onLongPress = {
                                                         isLongPress = true
-
-                                                        val checkedRows =
-                                                            if (gridIntOffset.y > rootHeight - dockHeight) {
-                                                                dockRows
-                                                            } else {
-                                                                rows
-                                                            }
-
-                                                        val checkedColumns =
-                                                            if (gridIntOffset.y > rootHeight - dockHeight) {
-                                                                dockColumns
-                                                            } else {
-                                                                columns
-                                                            }
 
                                                         onLongPress(
                                                             page,
                                                             GridItemSource.New(
                                                                 gridItem = getWidgetGridItem(
                                                                     page = page,
-                                                                    rows = checkedRows,
-                                                                    columns = checkedColumns,
+                                                                    rows = rows,
+                                                                    columns = columns,
                                                                     componentName = eblanAppWidgetProviderInfo.componentName,
                                                                     configure = eblanAppWidgetProviderInfo.configure,
                                                                     packageName = eblanAppWidgetProviderInfo.packageName,

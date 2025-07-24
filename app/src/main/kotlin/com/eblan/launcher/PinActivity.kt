@@ -1,12 +1,12 @@
 package com.eblan.launcher
 
 import android.content.Intent
-import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
@@ -14,8 +14,7 @@ import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
-import com.eblan.launcher.feature.pin.shortcut.PinShortcutScreen
-import com.eblan.launcher.feature.pin.widget.PinWidgetScreen
+import com.eblan.launcher.feature.pin.PinScreen
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
@@ -35,6 +34,8 @@ class PinActivity : ComponentActivity() {
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -56,37 +57,22 @@ class PinActivity : ComponentActivity() {
                         darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
                         dynamicTheme = false,
                     ) {
-                        when (pinItemRequest.requestType) {
-                            PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                                PinWidgetScreen(
-                                    pinItemRequest = pinItemRequest,
-                                    onHome = {
-                                        startActivity(homeIntent)
+                        PinScreen(
+                            pinItemRequest = pinItemRequest,
+                            onDragStart = {
+                                startActivity(homeIntent)
 
-                                        finish()
-                                    },
-                                )
-                            }
-
-                            PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
-                                PinShortcutScreen(
-                                    pinItemRequest = pinItemRequest,
-                                    onDragStart = {
-                                        startActivity(homeIntent)
-
-                                        finish()
-                                    },
-                                    onFinish = ::finish,
-                                    onAddedToHomeScreen = { message ->
-                                        Toast.makeText(
-                                            applicationContext,
-                                            message,
-                                            Toast.LENGTH_LONG,
-                                        ).show()
-                                    },
-                                )
-                            }
-                        }
+                                finish()
+                            },
+                            onFinish = ::finish,
+                            onAddedToHomeScreen = { message ->
+                                Toast.makeText(
+                                    applicationContext,
+                                    message,
+                                    Toast.LENGTH_LONG,
+                                ).show()
+                            },
+                        )
                     }
                 }
             }

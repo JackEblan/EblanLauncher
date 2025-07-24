@@ -23,10 +23,11 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.feature.pin.widget"
+    namespace = "com.eblan.launcher.feature.pin"
 }
 
 dependencies {
+    implementation(projects.common)
     implementation(projects.domain.framework)
     implementation(projects.domain.grid)
     implementation(projects.domain.repository)

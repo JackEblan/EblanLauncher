@@ -50,6 +50,8 @@ import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.grid.getShortcutGridItem
+import com.eblan.launcher.domain.grid.getWidgetGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -70,9 +72,7 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
-import com.eblan.launcher.feature.home.screen.shortcut.getShortcutGridItem
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
-import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper

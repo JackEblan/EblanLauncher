@@ -56,12 +56,15 @@ fun HomeRoute(
 
     val movedGridItems by viewModel.movedGridItems.collectAsStateWithLifecycle()
 
+    val boundWidgetSource by viewModel.boundWidgetSource.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
         homeUiState = homeUiState,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItems = movedGridItems,
+        boundWidgetSource = boundWidgetSource,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
@@ -84,6 +87,7 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItems: Boolean,
+    boundWidgetSource: GridItemSource?,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -113,7 +117,7 @@ fun HomeScreen(
     ) -> Unit,
     onCancelEditPage: () -> Unit,
     onUpdateWidgetGridItem: (
-        id: Int,
+        gridItemSource: GridItemSource,
         appWidgetId: Int,
     ) -> Unit,
     onDeleteWidgetGridItem: (
@@ -203,6 +207,7 @@ fun HomeScreen(
                         dragIntOffset = dragIntOffset,
                         drag = drag,
                         hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
+                        boundWidgetSource = boundWidgetSource,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onDeleteGridItem = onDeleteGridItem,
@@ -237,6 +242,7 @@ private fun Success(
     dragIntOffset: IntOffset,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
+    boundWidgetSource: GridItemSource?,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -266,7 +272,7 @@ private fun Success(
     ) -> Unit,
     onCancelEditPage: () -> Unit,
     onUpdateWidgetGridItem: (
-        id: Int,
+        gridItemSource: GridItemSource,
         appWidgetId: Int,
     ) -> Unit,
     onDeleteWidgetGridItem: (
@@ -357,6 +363,7 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = userData.homeSettings.textColor,
                     movedGridItems = movedGridItems,
+                    boundWidgetSource = boundWidgetSource,
                     onMoveGridItem = onMoveGridItem,
                     onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = onResetGridCache,

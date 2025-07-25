@@ -73,6 +73,7 @@ fun DragScreen(
     dockGridItems: List<GridItem>,
     textColor: TextColor,
     movedGridItems: Boolean,
+    boundWidgetSource: GridItemSource?,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -87,7 +88,7 @@ fun DragScreen(
     onDragEnd: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onUpdateWidgetGridItem: (
-        id: Int,
+        gridItemSource: GridItemSource,
         appWidgetId: Int,
     ) -> Unit,
     onDeleteWidgetGridItem: (
@@ -157,13 +158,8 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleAppWidgetLauncherResult(
-            currentPage = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
             result = result,
             gridItemSource = gridItemSource,
-            onDragEnd = onDragEnd,
-            onConfigure = configureLauncher::launch,
             onDeleteGridItem = { newGridItem ->
                 deleteAppWidgetId = true
 
@@ -214,7 +210,7 @@ fun DragScreen(
     LaunchedEffect(key1 = drag) {
         when (gridItemSource) {
             is GridItemSource.New, is GridItemSource.Pin -> {
-                handleDragEndNew(
+                onDroppedNew(
                     currentPage = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
                     pageCount = pageCount,
@@ -224,7 +220,6 @@ fun DragScreen(
                     appWidgetHostWrapper = appWidgetHost,
                     appWidgetManager = appWidgetManager,
                     onDragCancel = onDragCancel,
-                    onConfigure = configureLauncher::launch,
                     onDragEnd = onDragEnd,
                     onDeleteGridItem = onDeleteGridItem,
                     onLaunch = appWidgetLauncher::launch,
@@ -236,7 +231,7 @@ fun DragScreen(
             }
 
             is GridItemSource.Existing -> {
-                handleDragEndExisting(
+                onDroppedExisting(
                     drag = drag,
                     currentPage = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
@@ -260,6 +255,19 @@ fun DragScreen(
             pageCount = pageCount,
             onDeleteWidgetGridItem = onDeleteWidgetGridItem,
             onDragEnd = onDragEnd,
+        )
+    }
+
+    LaunchedEffect(key1 = boundWidgetSource) {
+        handleBoundWidgetSource(
+            boundWidgetSource = boundWidgetSource,
+            currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+            appWidgetId = appWidgetId,
+            onConfigure = configureLauncher::launch,
+            onDragEnd = onDragEnd,
+            onDeleteGridItem = onDeleteGridItem,
         )
     }
 

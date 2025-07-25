@@ -14,6 +14,7 @@ import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,6 +64,10 @@ class HomeViewModel @Inject constructor(
     val movedGridItems = _movedGridItems.asStateFlow()
 
     private val screenDelay = 100L
+
+    private var _boundWidgetSource = MutableStateFlow<GridItemSource?>(null)
+
+    val boundWidgetSource = _boundWidgetSource.asStateFlow()
 
     fun moveGridItem(
         gridItems: List<GridItem>,
@@ -189,14 +194,18 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateWidgetGridItem(
-        id: Int,
+        gridItemSource: GridItemSource,
         appWidgetId: Int,
     ) {
         viewModelScope.launch {
             gridCacheRepository.updateWidgetGridItemData(
-                id = id,
+                id = gridItemSource.gridItem.id,
                 appWidgetId = appWidgetId,
             )
+
+            _boundWidgetSource.update {
+                gridItemSource
+            }
         }
     }
 

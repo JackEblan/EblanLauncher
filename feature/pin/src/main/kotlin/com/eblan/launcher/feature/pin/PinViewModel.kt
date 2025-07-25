@@ -26,6 +26,10 @@ class PinViewModel @Inject constructor(
 
     val gridItem = _gridItem.asStateFlow()
 
+    private val _isBoundWidget = MutableStateFlow(false)
+
+    val isBoundWidget = _isBoundWidget.asStateFlow()
+
     fun addPinShortcutToHomeScreen(
         id: String,
         packageName: String,
@@ -103,6 +107,10 @@ class PinViewModel @Inject constructor(
     fun updateGridItemData(id: Int, data: GridItemData) {
         viewModelScope.launch {
             gridRepository.updateGridItemData(id = id, data = data)
+
+            _isBoundWidget.update {
+                true
+            }
         }
     }
 }

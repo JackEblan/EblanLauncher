@@ -352,6 +352,8 @@ private fun HorizontalPagerScreen(
 
         handlePinItemRequest(
             currentPage = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
             rows = rows,
             columns = columns,
             gridWidth = rootWidth,
@@ -892,6 +894,8 @@ private fun WidgetGridItem(
 
 private suspend fun handlePinItemRequest(
     currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
     rows: Int,
     columns: Int,
     gridWidth: Int,
@@ -903,6 +907,12 @@ private suspend fun handlePinItemRequest(
     fileManager: FileManager,
     onDragStart: (GridItemSource) -> Unit,
 ) {
+    val targetPage = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
     suspend fun getWidgetGridItemSource(
@@ -920,7 +930,7 @@ private suspend fun handlePinItemRequest(
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
-                    page = currentPage,
+                    page = targetPage,
                     rows = rows,
                     columns = columns,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
@@ -945,7 +955,7 @@ private suspend fun handlePinItemRequest(
         } else {
             GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
-                    page = currentPage,
+                    page = targetPage,
                     rows = rows,
                     columns = columns,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
@@ -985,7 +995,7 @@ private suspend fun handlePinItemRequest(
 
             GridItemSource.Pin(
                 gridItem = getShortcutGridItem(
-                    page = currentPage,
+                    page = targetPage,
                     id = shortcutInfo.id,
                     packageName = shortcutInfo.`package`,
                     shortLabel = shortcutInfo.shortLabel.toString(),

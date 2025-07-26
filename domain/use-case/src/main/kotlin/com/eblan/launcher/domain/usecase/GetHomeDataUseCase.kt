@@ -4,6 +4,7 @@ import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
@@ -52,12 +53,27 @@ class GetHomeDataUseCase @Inject constructor(
                 ) && gridItem.associate == Associate.Dock
             }
 
+            val textColor = when (userData.homeSettings.textColor) {
+                TextColor.System -> {
+                    0xFFFFFFFF
+                }
+
+                TextColor.Light -> {
+                    0xFFFFFFFF
+                }
+
+                TextColor.Dark -> {
+                    0xFF000000
+                }
+            }
+
             HomeData(
                 userData = userData,
                 gridItems = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,
                 pageItems = pageItems,
                 hasShortcutHostPermission = launcherAppsDomainWrapper.hasShortcutHostPermission,
+                textColor = textColor,
             )
         }.flowOn(Dispatchers.Default)
     }

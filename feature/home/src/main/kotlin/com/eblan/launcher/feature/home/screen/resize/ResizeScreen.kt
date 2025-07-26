@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
@@ -41,7 +40,7 @@ fun ResizeScreen(
     rootHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
-    textColor: TextColor,
+    textColor: Long,
     onResizeGridItem: (
         gridItems: List<GridItem>,
         gridItem: GridItem,
@@ -54,11 +53,6 @@ fun ResizeScreen(
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
-    }
-
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
     }
 
     val gridPaddingDp = 20.dp
@@ -85,7 +79,7 @@ fun ResizeScreen(
             gridItems?.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = color,
+                    color = Color(textColor),
                 )
             }
         }
@@ -100,7 +94,7 @@ fun ResizeScreen(
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = color,
+                    color = Color(textColor),
                 )
             }
         }

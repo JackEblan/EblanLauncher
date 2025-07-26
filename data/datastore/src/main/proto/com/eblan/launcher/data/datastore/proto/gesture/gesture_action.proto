@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "com.eblan.launcher.data.datastore.proto.gesture";
+option java_multiple_files = true;
+
+message GestureActionProto {
+  oneof type {
+    NoneProto noneProto = 1;
+
+    OpenAppDrawerProto openAppDrawerProto = 2;
+
+    OpenNotificationPanelProto openNotificationPanelProto = 3;
+
+    OpenAppProto openAppProto = 4;
+  }
+}
+
+message NoneProto {}
+
+message OpenAppDrawerProto {}
+
+message OpenNotificationPanelProto {}
+
+message OpenAppProto {
+  string packageName = 1;
+}

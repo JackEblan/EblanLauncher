@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "com/eblan/launcher/data/datastore/proto/gesture/gesture_action.proto";
+
+option java_package = "com.eblan.launcher.data.datastore.proto.gesture";
+option java_multiple_files = true;
+
+message GestureSettingsProto {
+  GestureActionProto swipeUpProto = 1;
+
+  GestureActionProto swipeDownProto = 2;
+}

@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
@@ -53,7 +52,7 @@ fun EditPageScreen(
     pageItems: List<PageItem>,
     dockHeight: Int,
     initialPage: Int,
-    textColor: TextColor,
+    textColor: Long,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -82,11 +81,6 @@ fun EditPageScreen(
 
     val gridHeight = with(density) {
         ((rootHeight - dockHeight) / 2).toDp()
-    }
-
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -123,7 +117,7 @@ fun EditPageScreen(
                                         ApplicationInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = color,
+                                            color = Color(textColor),
                                         )
                                     }
 
@@ -138,7 +132,7 @@ fun EditPageScreen(
                                         ShortcutInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = color,
+                                            color = Color(textColor),
                                         )
                                     }
                                 }

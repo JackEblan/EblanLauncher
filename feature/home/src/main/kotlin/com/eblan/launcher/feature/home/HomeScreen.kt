@@ -208,6 +208,7 @@ fun HomeScreen(
                         drag = drag,
                         hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
                         boundWidgetSource = boundWidgetSource,
+                        textColor = homeUiState.homeData.textColor,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onDeleteGridItem = onDeleteGridItem,
@@ -243,6 +244,7 @@ private fun Success(
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     boundWidgetSource: GridItemSource?,
+    textColor: Long,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -307,7 +309,7 @@ private fun Success(
                     dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
-                    textColor = userData.homeSettings.textColor,
+                    textColor = textColor,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
@@ -315,6 +317,7 @@ private fun Success(
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     dragIntOffset = dragIntOffset,
+                    gestureSettings = userData.gestureSettings,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -361,7 +364,7 @@ private fun Success(
                     rootHeight = rootHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
-                    textColor = userData.homeSettings.textColor,
+                    textColor = textColor,
                     movedGridItems = movedGridItems,
                     boundWidgetSource = boundWidgetSource,
                     onMoveGridItem = onMoveGridItem,
@@ -389,7 +392,7 @@ private fun Success(
                     rootHeight = rootHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
-                    textColor = userData.homeSettings.textColor,
+                    textColor = textColor,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCache,
                 )
@@ -407,7 +410,7 @@ private fun Success(
                     pageItems = pageItems,
                     dockHeight = userData.homeSettings.dockHeight,
                     initialPage = userData.homeSettings.initialPage,
-                    textColor = userData.homeSettings.textColor,
+                    textColor = textColor,
                     onSaveEditPage = onSaveEditPage,
                     onCancelEditPage = onCancelEditPage,
                 )

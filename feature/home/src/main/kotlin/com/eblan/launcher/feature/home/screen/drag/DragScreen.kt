@@ -42,7 +42,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
@@ -71,7 +70,7 @@ fun DragScreen(
     rootHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
-    textColor: TextColor,
+    textColor: Long,
     movedGridItems: Boolean,
     boundWidgetSource: GridItemSource?,
     onMoveGridItem: (
@@ -111,11 +110,6 @@ fun DragScreen(
     var appWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
 
     var deleteAppWidgetId by remember { mutableStateOf(false) }
-
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
-    }
 
     val horizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + currentPage else currentPage,
@@ -299,7 +293,7 @@ fun DragScreen(
                 gridItems[page]?.forEach { gridItem ->
                     GridItemContent(
                         gridItem = gridItem,
-                        color = color,
+                        color = Color(textColor),
                         gridItemSource = gridItemSource,
                     )
                 }
@@ -316,7 +310,7 @@ fun DragScreen(
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = color,
+                    color = Color(textColor),
                     gridItemSource = gridItemSource,
                 )
             }

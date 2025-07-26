@@ -1,42 +1,42 @@
 package com.eblan.launcher.data.repository
 
-import com.eblan.launcher.data.datastore.UserPreferencesDataSource
+import com.eblan.launcher.data.datastore.UserDataStore
 import com.eblan.launcher.domain.repository.UserDataRepository
 import javax.inject.Inject
 
-internal class DefaultUserDataRepository @Inject constructor(private val userPreferencesDataSource: UserPreferencesDataSource) :
+internal class DefaultUserDataRepository @Inject constructor(private val userDataStore: UserDataStore) :
     UserDataRepository {
-    override val userData = userPreferencesDataSource.userData
+    override val userData = userDataStore.userData
 
     override suspend fun updateRows(rows: Int) {
-        userPreferencesDataSource.updateRows(rows = rows)
+        userDataStore.updateRows(rows = rows)
     }
 
     override suspend fun updateColumns(columns: Int) {
-        userPreferencesDataSource.updateColumns(columns = columns)
+        userDataStore.updateColumns(columns = columns)
     }
 
     override suspend fun updatePageCount(pageCount: Int) {
-        userPreferencesDataSource.updatePageCount(pageCount = pageCount)
+        userDataStore.updatePageCount(pageCount = pageCount)
     }
 
     override suspend fun updateInfiniteScroll(infiniteScroll: Boolean) {
-        userPreferencesDataSource.updateInfiniteScroll(infiniteScroll = infiniteScroll)
+        userDataStore.updateInfiniteScroll(infiniteScroll = infiniteScroll)
     }
 
     override suspend fun updateDockRows(dockRows: Int) {
-        userPreferencesDataSource.updateDockRows(dockRows = dockRows)
+        userDataStore.updateDockRows(dockRows = dockRows)
     }
 
     override suspend fun updateDockColumns(dockColumns: Int) {
-        userPreferencesDataSource.updateDockColumns(dockColumns = dockColumns)
+        userDataStore.updateDockColumns(dockColumns = dockColumns)
     }
 
     override suspend fun updateDockHeight(dockHeight: Int) {
-        userPreferencesDataSource.updateDockHeight(dockHeight = dockHeight)
+        userDataStore.updateDockHeight(dockHeight = dockHeight)
     }
 
     override suspend fun updateInitialPage(initialPage: Int) {
-        userPreferencesDataSource.updateInitialPage(initialPage = initialPage)
+        userDataStore.updateInitialPage(initialPage = initialPage)
     }
 }

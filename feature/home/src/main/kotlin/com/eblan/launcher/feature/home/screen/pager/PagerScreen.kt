@@ -62,7 +62,6 @@ import com.eblan.launcher.domain.grid.getWidgetGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
@@ -101,7 +100,7 @@ fun PagerScreen(
     dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
-    textColor: TextColor,
+    textColor: Long,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     rootWidth: Int,
     rootHeight: Int,
@@ -337,7 +336,7 @@ private fun HorizontalPagerScreen(
     gridItem: GridItem?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
-    textColor: TextColor,
+    textColor: Long,
     onLongPressGrid: (Int) -> Unit,
     rootWidth: Int,
     rootHeight: Int,
@@ -783,17 +782,12 @@ private fun HorizontalPagerScreen(
 @Composable
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
-    textColor: TextColor,
+    textColor: Long,
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
-    }
-
     ApplicationInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
@@ -816,7 +810,7 @@ private fun ApplicationInfoGridItem(
                 },
             ),
         data = data,
-        color = color,
+        color = Color(textColor),
     )
 }
 
@@ -824,17 +818,12 @@ private fun ApplicationInfoGridItem(
 @Composable
 private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
-    textColor: TextColor,
+    textColor: Long,
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
-    val color = when (textColor) {
-        TextColor.White -> Color.White
-        TextColor.Black -> Color.Black
-    }
-
     ShortcutInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
@@ -857,7 +846,7 @@ private fun ShortcutInfoGridItem(
                 },
             ),
         data = data,
-        color = color,
+        color = Color(textColor),
     )
 }
 

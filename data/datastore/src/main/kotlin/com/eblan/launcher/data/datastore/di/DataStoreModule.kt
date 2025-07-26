@@ -21,8 +21,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
-import com.eblan.launcher.data.datastore.UserPreferencesSerializer
-import com.eblan.launcher.data.datastore.proto.UserPreferences
+import com.eblan.launcher.data.datastore.UserDataSerializer
+import com.eblan.launcher.data.datastore.proto.UserData.UserDataProto
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers.IO
 import dagger.Module
@@ -40,14 +40,14 @@ object DataStoreModule {
 
     @Provides
     @Singleton
-    internal fun providesUserPreferencesDataStore(
+    internal fun userDataStore(
         @ApplicationContext context: Context,
         @Dispatcher(IO) ioDispatcher: CoroutineDispatcher,
-        userPreferencesSerializer: UserPreferencesSerializer,
-    ): DataStore<UserPreferences> = DataStoreFactory.create(
-        serializer = userPreferencesSerializer,
+        userDataSerializer: UserDataSerializer,
+    ): DataStore<UserDataProto> = DataStoreFactory.create(
+        serializer = userDataSerializer,
         scope = CoroutineScope(ioDispatcher),
     ) {
-        context.dataStoreFile("user_preferences.pb")
+        context.dataStoreFile("user_data.pb")
     }
 }

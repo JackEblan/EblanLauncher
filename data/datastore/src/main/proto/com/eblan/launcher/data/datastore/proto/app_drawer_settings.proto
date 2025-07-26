@@ -3,8 +3,7 @@ syntax = "proto3";
 option java_package = "com.eblan.launcher.data.datastore.proto";
 option java_multiple_files = true;
 
-enum TextColorProto {
-  System = 0;
-  Light = 1;
-  Dark = 2;
+message AppDrawerSettingsProto {
+  int32 appDrawerColumns = 1;
+  int32 appDrawerRowsHeight = 2;
 }

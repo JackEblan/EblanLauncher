@@ -13,17 +13,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -32,6 +38,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
@@ -57,11 +64,14 @@ fun ApplicationScreen(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     drag: Drag,
     appDrawerRowsHeight: Int,
+    alpha: Float,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
+    onUpdateAlpha: (Float) -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
@@ -81,6 +91,68 @@ fun ApplicationScreen(
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
+    val state = rememberLazyGridState()
+
+    var totalDrag by remember { mutableFloatStateOf(0f) }
+
+    val maxDrag = with(LocalDensity.current) { 100.dp.toPx() }
+
+    var isPointerUp by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = isPointerUp) {
+        if (isPointerUp && alpha < 0.5f) {
+            onDismiss()
+        }
+
+        if (isPointerUp && alpha >= 0.5f) {
+            onUpdateAlpha(1f)
+
+            isPointerUp = false
+        }
+    }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val atTop = state.firstVisibleItemIndex == 0 &&
+                        state.firstVisibleItemScrollOffset == 0
+
+                if (atTop) {
+                    totalDrag += available.y
+
+                    totalDrag = totalDrag.coerceIn(-maxDrag, maxDrag)
+
+                    val newAlpha = 1f - (totalDrag / maxDrag)
+
+                    onUpdateAlpha(newAlpha.coerceIn(0f, 1f))
+                }
+
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                if (state.firstVisibleItemIndex > 0 ||
+                    state.firstVisibleItemScrollOffset > 0
+                ) {
+                    totalDrag = 0f
+
+                    onUpdateAlpha(1f)
+                }
+
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                isPointerUp = true
+
+                return super.onPostFling(consumed, available)
+            }
+        }
+    }
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && showPopupApplicationMenu) {
             showPopupApplicationMenu = false
@@ -90,7 +162,9 @@ fun ApplicationScreen(
     }
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .nestedScroll(nestedScrollConnection)
+            .fillMaxSize(),
     ) {
         when {
             eblanApplicationInfos.isEmpty() -> {
@@ -98,7 +172,10 @@ fun ApplicationScreen(
             }
 
             else -> {
-                LazyVerticalGrid(columns = GridCells.Fixed(count = appDrawerColumns)) {
+                LazyVerticalGrid(
+                    state = state,
+                    columns = GridCells.Fixed(count = appDrawerColumns),
+                ) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
                         var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 

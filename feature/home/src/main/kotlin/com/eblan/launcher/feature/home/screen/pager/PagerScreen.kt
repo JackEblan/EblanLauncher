@@ -7,27 +7,33 @@ import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
 import android.os.Build
 import android.widget.FrameLayout
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -69,6 +76,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.VerticalDragDirection
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
@@ -124,72 +132,77 @@ fun PagerScreen(
         },
     )
 
-    val verticalPagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = {
-            2
-        },
+    val anchors = DraggableAnchors {
+        VerticalDragDirection.Up at -50f
+        VerticalDragDirection.None at 0f
+        VerticalDragDirection.Down at 50f
+    }
+
+    val anchoredDraggableState = remember {
+        AnchoredDraggableState(
+            initialValue = VerticalDragDirection.None,
+            anchors = anchors,
+        )
+    }
+
+    HorizontalPagerScreen(
+        modifier = modifier,
+        horizontalPagerState = gridHorizontalPagerState,
+        anchoredDraggableState = anchoredDraggableState,
+        rows = rows,
+        columns = columns,
+        pageCount = pageCount,
+        infiniteScroll = infiniteScroll,
+        dockRows = dockRows,
+        dockColumns = dockColumns,
+        gridItems = gridItems,
+        gridItem = gridItem,
+        dockHeight = dockHeight,
+        dockGridItems = dockGridItems,
+        textColor = textColor,
+        rootWidth = rootWidth,
+        rootHeight = rootHeight,
+        drag = drag,
+        hasShortcutHostPermission = hasShortcutHostPermission,
+        onLongPressGrid = onLongPressGrid,
+        onLongPressGridItem = onLongPressGridItem,
+        onDraggingGridItem = onDraggingGridItem,
+        onEdit = onEdit,
+        onResize = onResize,
+        onSettings = onSettings,
+        onEditPage = onEditPage,
+        onDragStartPinItemRequest = onDragStartPinItemRequest,
     )
 
-    VerticalPager(
-        state = verticalPagerState,
-        modifier = modifier,
-        flingBehavior = PagerDefaults.flingBehavior(
-            state = verticalPagerState,
-            snapPositionalThreshold = 0.2f,
-        ),
-    ) { verticalPage ->
-        when (verticalPage) {
-            0 -> {
-                HorizontalPagerScreen(
-                    horizontalPagerState = gridHorizontalPagerState,
-                    rows = rows,
-                    columns = columns,
-                    pageCount = pageCount,
-                    infiniteScroll = infiniteScroll,
-                    dockRows = dockRows,
-                    dockColumns = dockColumns,
-                    gridItems = gridItems,
-                    gridItem = gridItem,
-                    dockHeight = dockHeight,
-                    dockGridItems = dockGridItems,
-                    textColor = textColor,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
-                    drag = drag,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    onLongPressGrid = onLongPressGrid,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onDraggingGridItem = onDraggingGridItem,
-                    onEdit = onEdit,
-                    onResize = onResize,
-                    onSettings = onSettings,
-                    onEditPage = onEditPage,
-                    onDragStartPinItemRequest = onDragStartPinItemRequest,
-                )
-            }
-
-            1 -> {
-                ApplicationComponentScreen(
-                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    gridHorizontalPagerState = gridHorizontalPagerState,
-                    rows = rows,
-                    columns = columns,
-                    appDrawerColumns = appDrawerColumns,
-                    pageCount = pageCount,
-                    infiniteScroll = infiniteScroll,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
-                    dockHeight = dockHeight,
-                    drag = drag,
-                    appDrawerRowsHeight = appDrawerRowsHeight,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    dragIntOffset = dragIntOffset,
-                    onLongPress = onLongPressGridItem,
-                    onDragging = onDraggingGridItem,
-                )
-            }
+    when (anchoredDraggableState.currentValue) {
+        VerticalDragDirection.Up -> {
+            ApplicationComponentScreen(
+                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                gridHorizontalPagerState = gridHorizontalPagerState,
+                rows = rows,
+                columns = columns,
+                appDrawerColumns = appDrawerColumns,
+                pageCount = pageCount,
+                infiniteScroll = infiniteScroll,
+                rootWidth = rootWidth,
+                rootHeight = rootHeight,
+                dockHeight = dockHeight,
+                drag = drag,
+                appDrawerRowsHeight = appDrawerRowsHeight,
+                hasShortcutHostPermission = hasShortcutHostPermission,
+                dragIntOffset = dragIntOffset,
+                onLongPress = onLongPressGridItem,
+                onDragging = onDraggingGridItem,
+                onDismiss = {
+                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                },
+            )
         }
+
+        VerticalDragDirection.Down -> {
+        }
+
+        VerticalDragDirection.None -> Unit
     }
 }
 
@@ -215,8 +228,21 @@ private fun ApplicationComponentScreen(
         newGridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
-    Surface(modifier = modifier.fillMaxSize()) {
+    var alpha by remember { mutableFloatStateOf(1f) }
+
+    val animatedAlpha by animateFloatAsState(
+        targetValue = alpha,
+        animationSpec = tween(),
+        label = "AlphaAnimation",
+    )
+
+    Surface(
+        modifier = modifier
+            .graphicsLayer(alpha = animatedAlpha)
+            .fillMaxSize(),
+    ) {
         when (eblanApplicationComponentUiState) {
             EblanApplicationComponentUiState.Loading -> {
                 LoadingScreen()
@@ -245,8 +271,13 @@ private fun ApplicationComponentScreen(
                                 eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
                                 drag = drag,
                                 appDrawerRowsHeight = appDrawerRowsHeight,
+                                alpha = alpha,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
+                                },
+                                onDismiss = onDismiss,
                             )
                         }
 
@@ -263,8 +294,13 @@ private fun ApplicationComponentScreen(
                                 dockHeight = dockHeight,
                                 drag = drag,
                                 dragIntOffset = dragIntOffset,
+                                alpha = alpha,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
+                                },
+                                onDismiss = onDismiss,
                             )
                         }
 
@@ -290,6 +326,7 @@ private fun ApplicationComponentScreen(
 private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     horizontalPagerState: PagerState,
+    anchoredDraggableState: AnchoredDraggableState<VerticalDragDirection>,
     rows: Int,
     columns: Int,
     pageCount: Int,
@@ -343,6 +380,8 @@ private fun HorizontalPagerScreen(
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
+
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && showPopupGridItemMenu) {
             showPopupGridItemMenu = false
@@ -366,7 +405,6 @@ private fun HorizontalPagerScreen(
             onDragStart = onDragStartPinItemRequest,
         )
     }
-
     Column(
         modifier = modifier
             .pointerInput(Unit) {
@@ -399,9 +437,14 @@ private fun HorizontalPagerScreen(
                 infiniteScroll = infiniteScroll,
                 pageCount = pageCount,
             )
-
             GridLayout(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .anchoredDraggable(
+                        state = anchoredDraggableState,
+                        orientation = Orientation.Vertical,
+                        enabled = true,
+                    )
+                    .fillMaxSize(),
                 rows = rows,
                 columns = columns,
             ) {
@@ -1050,4 +1093,3 @@ private suspend fun handlePinItemRequest(
         }
     }
 }
-

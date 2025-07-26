@@ -11,24 +11,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
@@ -55,11 +62,14 @@ fun WidgetScreen(
     dockHeight: Int,
     drag: Drag,
     dragIntOffset: IntOffset,
+    alpha: Float,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
+    onUpdateAlpha: (Float) -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -70,6 +80,57 @@ fun WidgetScreen(
     )
 
     var isLongPress by remember { mutableStateOf(false) }
+
+    val state = rememberLazyListState()
+
+    var totalDrag by remember { mutableFloatStateOf(0f) }
+
+    val maxDrag = with(LocalDensity.current) { 100.dp.toPx() }
+
+    var isPointerUp by remember { mutableStateOf(false) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val atTop = state.firstVisibleItemIndex == 0 &&
+                        state.firstVisibleItemScrollOffset == 0
+
+                if (atTop) {
+                    totalDrag += available.y
+
+                    totalDrag = totalDrag.coerceIn(-maxDrag, maxDrag)
+
+                    val newAlpha = 1f - (totalDrag / maxDrag)
+
+                    onUpdateAlpha(newAlpha.coerceIn(0f, 1f))
+                }
+
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                if (state.firstVisibleItemIndex > 0 ||
+                    state.firstVisibleItemScrollOffset > 0
+                ) {
+                    totalDrag = 0f
+
+                    onUpdateAlpha(1f)
+                }
+
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                isPointerUp = true
+
+                return super.onPostFling(consumed, available)
+            }
+        }
+    }
 
     LaunchedEffect(key1 = dragIntOffset) {
         val isDraggingOnGrid = dragIntOffset.y < (rootHeight - dockHeight)
@@ -82,14 +143,28 @@ fun WidgetScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    LaunchedEffect(key1 = isPointerUp) {
+        if (isPointerUp && alpha < 0.5f) {
+            onDismiss()
+        }
+
+        if (isPointerUp && alpha >= 0.5f) {
+            onUpdateAlpha(1f)
+
+            isPointerUp = false
+        }
+    }
+
+    Box(modifier = modifier
+        .nestedScroll(nestedScrollConnection)
+        .fillMaxSize()) {
         when {
             eblanAppWidgetProviderInfos.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
             else -> {
-                LazyColumn {
+                LazyColumn(state = state) {
                     items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),

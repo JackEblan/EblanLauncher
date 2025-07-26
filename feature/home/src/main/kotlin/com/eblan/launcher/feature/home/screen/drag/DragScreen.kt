@@ -140,7 +140,7 @@ fun DragScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleConfigureLauncherResult(
-            currentPage = currentPage,
+            currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
             result = result,

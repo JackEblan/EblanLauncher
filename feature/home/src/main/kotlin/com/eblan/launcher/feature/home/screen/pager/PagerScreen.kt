@@ -60,6 +60,8 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.getShortcutGridItem
 import com.eblan.launcher.domain.grid.getWidgetGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
@@ -108,6 +110,7 @@ fun PagerScreen(
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
     dragIntOffset: IntOffset,
+    gestureSettings: GestureSettings,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -175,33 +178,51 @@ fun PagerScreen(
 
     when (anchoredDraggableState.currentValue) {
         VerticalDragDirection.Up -> {
-            ApplicationComponentScreen(
-                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                gridHorizontalPagerState = gridHorizontalPagerState,
-                rows = rows,
-                columns = columns,
-                appDrawerColumns = appDrawerColumns,
-                pageCount = pageCount,
-                infiniteScroll = infiniteScroll,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
-                dockHeight = dockHeight,
-                drag = drag,
-                appDrawerRowsHeight = appDrawerRowsHeight,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                dragIntOffset = dragIntOffset,
-                onLongPress = onLongPressGridItem,
-                onDragging = onDraggingGridItem,
-                onDismiss = {
-                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
-                },
-            )
+            when (gestureSettings.swipeUp) {
+                GestureAction.None -> {
+
+                }
+
+                is GestureAction.OpenApp -> {
+
+                }
+
+                GestureAction.OpenAppDrawer -> {
+                    ApplicationComponentScreen(
+                        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                        gridHorizontalPagerState = gridHorizontalPagerState,
+                        rows = rows,
+                        columns = columns,
+                        appDrawerColumns = appDrawerColumns,
+                        pageCount = pageCount,
+                        infiniteScroll = infiniteScroll,
+                        rootWidth = rootWidth,
+                        rootHeight = rootHeight,
+                        dockHeight = dockHeight,
+                        drag = drag,
+                        appDrawerRowsHeight = appDrawerRowsHeight,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        dragIntOffset = dragIntOffset,
+                        onLongPress = onLongPressGridItem,
+                        onDragging = onDraggingGridItem,
+                        onDismiss = {
+                            anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                        },
+                    )
+                }
+
+                GestureAction.OpenNotificationPanel -> {
+
+                }
+            }
         }
 
         VerticalDragDirection.Down -> {
         }
 
-        VerticalDragDirection.None -> Unit
+        VerticalDragDirection.None -> {
+            Unit
+        }
     }
 }
 

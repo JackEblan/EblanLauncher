@@ -4,9 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +34,7 @@ fun SettingsRoute(
     viewModel: SettingsViewModel = hiltViewModel(),
     onFinish: () -> Unit,
     onHome: () -> Unit,
+    onGestures: () -> Unit,
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
 
@@ -39,6 +43,7 @@ fun SettingsRoute(
         settingsUiState = settingsUiState,
         onFinish = onFinish,
         onHome = onHome,
+        onGestures = onGestures,
     )
 }
 
@@ -49,6 +54,7 @@ fun SettingsScreen(
     settingsUiState: SettingsUiState,
     onFinish: () -> Unit,
     onHome: () -> Unit,
+    onGestures: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -81,6 +87,7 @@ fun SettingsScreen(
                 is SettingsUiState.Success -> {
                     Success(
                         onHome = onHome,
+                        onGestures = onGestures,
                     )
                 }
             }
@@ -92,28 +99,53 @@ fun SettingsScreen(
 fun Success(
     modifier: Modifier = Modifier,
     onHome: () -> Unit,
+    onGestures: () -> Unit,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        Row(
+        SettingsRow(
+            imageVector = EblanLauncherIcons.Home,
+            title = "Home",
+            subtitle = "Grid, icon, dock, and more",
+            onClick = onHome,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsRow(
+            imageVector = EblanLauncherIcons.Gesture,
+            title = "Gestures",
+            subtitle = "Grid, icon, dock, and more",
+            onClick = onGestures,
+        )
+    }
+}
+
+@Composable
+private fun SettingsRow(
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = null,
+            modifier = Modifier.size(40.dp),
+        )
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onHome),
-            verticalAlignment = Alignment.CenterVertically,
+                .weight(1f),
         ) {
-            Icon(
-                imageVector = EblanLauncherIcons.Home,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-            )
+            Text(text = title)
 
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-            ) {
-                Text(text = "Home")
-
-                Text(text = "Grid, icon, dock, and more")
-            }
+            Text(text = subtitle)
         }
     }
 }

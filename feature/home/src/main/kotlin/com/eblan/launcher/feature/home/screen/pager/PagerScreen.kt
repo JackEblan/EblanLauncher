@@ -60,6 +60,8 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.getShortcutGridItem
 import com.eblan.launcher.domain.grid.getWidgetGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
@@ -108,6 +110,7 @@ fun PagerScreen(
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
     dragIntOffset: IntOffset,
+    gestureSettings: GestureSettings,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -175,7 +178,8 @@ fun PagerScreen(
 
     when (anchoredDraggableState.currentValue) {
         VerticalDragDirection.Up -> {
-            ApplicationComponentScreen(
+            GestureActionScreen(
+                gestureAction = gestureSettings.swipeUp,
                 eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                 gridHorizontalPagerState = gridHorizontalPagerState,
                 rows = rows,
@@ -190,8 +194,8 @@ fun PagerScreen(
                 appDrawerRowsHeight = appDrawerRowsHeight,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 dragIntOffset = dragIntOffset,
-                onLongPress = onLongPressGridItem,
-                onDragging = onDraggingGridItem,
+                onLongPressGridItem = onLongPressGridItem,
+                onDraggingGridItem = onDraggingGridItem,
                 onDismiss = {
                     anchoredDraggableState.snapTo(VerticalDragDirection.None)
                 },
@@ -199,124 +203,32 @@ fun PagerScreen(
         }
 
         VerticalDragDirection.Down -> {
+            GestureActionScreen(
+                gestureAction = gestureSettings.swipeDown,
+                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                gridHorizontalPagerState = gridHorizontalPagerState,
+                rows = rows,
+                columns = columns,
+                appDrawerColumns = appDrawerColumns,
+                pageCount = pageCount,
+                infiniteScroll = infiniteScroll,
+                rootWidth = rootWidth,
+                rootHeight = rootHeight,
+                dockHeight = dockHeight,
+                drag = drag,
+                appDrawerRowsHeight = appDrawerRowsHeight,
+                hasShortcutHostPermission = hasShortcutHostPermission,
+                dragIntOffset = dragIntOffset,
+                onLongPressGridItem = onLongPressGridItem,
+                onDraggingGridItem = onDraggingGridItem,
+                onDismiss = {
+                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                },
+            )
         }
 
-        VerticalDragDirection.None -> Unit
-    }
-}
-
-@Composable
-private fun ApplicationComponentScreen(
-    modifier: Modifier = Modifier,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    gridHorizontalPagerState: PagerState,
-    rows: Int,
-    columns: Int,
-    appDrawerColumns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    rootWidth: Int,
-    rootHeight: Int,
-    dockHeight: Int,
-    drag: Drag,
-    appDrawerRowsHeight: Int,
-    hasShortcutHostPermission: Boolean,
-    dragIntOffset: IntOffset,
-    onLongPress: (
-        currentPage: Int,
-        newGridItemSource: GridItemSource,
-    ) -> Unit,
-    onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
-) {
-    var alpha by remember { mutableFloatStateOf(1f) }
-
-    val animatedAlpha by animateFloatAsState(
-        targetValue = alpha,
-        animationSpec = tween(),
-        label = "AlphaAnimation",
-    )
-
-    Surface(
-        modifier = modifier
-            .graphicsLayer(alpha = animatedAlpha)
-            .fillMaxSize(),
-    ) {
-        when (eblanApplicationComponentUiState) {
-            EblanApplicationComponentUiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is EblanApplicationComponentUiState.Success -> {
-                val applicationHorizontalPagerState = rememberPagerState(
-                    initialPage = 0,
-                    pageCount = {
-                        if (hasShortcutHostPermission) {
-                            3
-                        } else {
-                            2
-                        }
-                    },
-                )
-
-                HorizontalPager(state = applicationHorizontalPagerState) { page ->
-                    when (page) {
-                        0 -> {
-                            ApplicationScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                appDrawerColumns = appDrawerColumns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                                drag = drag,
-                                appDrawerRowsHeight = appDrawerRowsHeight,
-                                alpha = alpha,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onDismiss = onDismiss,
-                            )
-                        }
-
-                        1 -> {
-                            WidgetScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                rows = rows,
-                                columns = columns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
-                                dockHeight = dockHeight,
-                                drag = drag,
-                                dragIntOffset = dragIntOffset,
-                                alpha = alpha,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onDismiss = onDismiss,
-                            )
-                        }
-
-                        2 -> {
-                            ShortcutScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
-                                drag = drag,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
-                            )
-                        }
-                    }
-                }
-            }
+        VerticalDragDirection.None -> {
+            Unit
         }
     }
 }
@@ -774,6 +686,180 @@ private fun HorizontalPagerScreen(
                     onEditPage()
                 },
             )
+        }
+    }
+}
+
+@Composable
+private fun ApplicationComponentScreen(
+    modifier: Modifier = Modifier,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    gridHorizontalPagerState: PagerState,
+    rows: Int,
+    columns: Int,
+    appDrawerColumns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
+    rootWidth: Int,
+    rootHeight: Int,
+    dockHeight: Int,
+    drag: Drag,
+    appDrawerRowsHeight: Int,
+    hasShortcutHostPermission: Boolean,
+    dragIntOffset: IntOffset,
+    onLongPress: (
+        currentPage: Int,
+        newGridItemSource: GridItemSource,
+    ) -> Unit,
+    onDragging: () -> Unit,
+    onDismiss: suspend () -> Unit,
+) {
+    var alpha by remember { mutableFloatStateOf(1f) }
+
+    val animatedAlpha by animateFloatAsState(
+        targetValue = alpha,
+        animationSpec = tween(),
+        label = "AlphaAnimation",
+    )
+
+    Surface(
+        modifier = modifier
+            .graphicsLayer(alpha = animatedAlpha)
+            .fillMaxSize(),
+    ) {
+        when (eblanApplicationComponentUiState) {
+            EblanApplicationComponentUiState.Loading -> {
+                LoadingScreen()
+            }
+
+            is EblanApplicationComponentUiState.Success -> {
+                val applicationHorizontalPagerState = rememberPagerState(
+                    initialPage = 0,
+                    pageCount = {
+                        if (hasShortcutHostPermission) {
+                            3
+                        } else {
+                            2
+                        }
+                    },
+                )
+
+                HorizontalPager(state = applicationHorizontalPagerState) { page ->
+                    when (page) {
+                        0 -> {
+                            ApplicationScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                appDrawerColumns = appDrawerColumns,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
+                                drag = drag,
+                                appDrawerRowsHeight = appDrawerRowsHeight,
+                                alpha = alpha,
+                                onLongPress = onLongPress,
+                                onDragging = onDragging,
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
+                                },
+                                onDismiss = onDismiss,
+                            )
+                        }
+
+                        1 -> {
+                            WidgetScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                rows = rows,
+                                columns = columns,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
+                                rootWidth = rootWidth,
+                                rootHeight = rootHeight,
+                                dockHeight = dockHeight,
+                                drag = drag,
+                                dragIntOffset = dragIntOffset,
+                                alpha = alpha,
+                                onLongPress = onLongPress,
+                                onDragging = onDragging,
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
+                                },
+                                onDismiss = onDismiss,
+                            )
+                        }
+
+                        2 -> {
+                            ShortcutScreen(
+                                currentPage = gridHorizontalPagerState.currentPage,
+                                pageCount = pageCount,
+                                infiniteScroll = infiniteScroll,
+                                eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
+                                drag = drag,
+                                onLongPress = onLongPress,
+                                onDragging = onDragging,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GestureActionScreen(
+    gestureAction: GestureAction,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    gridHorizontalPagerState: PagerState,
+    rows: Int,
+    columns: Int,
+    appDrawerColumns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
+    rootWidth: Int,
+    rootHeight: Int,
+    dockHeight: Int,
+    drag: Drag,
+    appDrawerRowsHeight: Int,
+    hasShortcutHostPermission: Boolean,
+    dragIntOffset: IntOffset,
+    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource) -> Unit,
+    onDraggingGridItem: () -> Unit,
+    onDismiss: suspend () -> Unit,
+) {
+    when (gestureAction) {
+        GestureAction.None -> {
+
+        }
+
+        is GestureAction.OpenApp -> {
+
+        }
+
+        GestureAction.OpenAppDrawer -> {
+            ApplicationComponentScreen(
+                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                gridHorizontalPagerState = gridHorizontalPagerState,
+                rows = rows,
+                columns = columns,
+                appDrawerColumns = appDrawerColumns,
+                pageCount = pageCount,
+                infiniteScroll = infiniteScroll,
+                rootWidth = rootWidth,
+                rootHeight = rootHeight,
+                dockHeight = dockHeight,
+                drag = drag,
+                appDrawerRowsHeight = appDrawerRowsHeight,
+                hasShortcutHostPermission = hasShortcutHostPermission,
+                dragIntOffset = dragIntOffset,
+                onLongPress = onLongPressGridItem,
+                onDragging = onDraggingGridItem,
+                onDismiss = onDismiss,
+            )
+        }
+
+        GestureAction.OpenNotificationPanel -> {
+
         }
     }
 }

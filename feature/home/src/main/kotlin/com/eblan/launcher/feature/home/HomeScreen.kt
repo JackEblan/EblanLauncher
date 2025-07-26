@@ -317,6 +317,7 @@ private fun Success(
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     dragIntOffset = dragIntOffset,
+                    gestureSettings = userData.gestureSettings,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },

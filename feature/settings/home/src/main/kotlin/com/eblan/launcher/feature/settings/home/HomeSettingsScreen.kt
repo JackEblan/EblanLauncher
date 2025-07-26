@@ -40,7 +40,7 @@ fun HomeSettingsRoute(
     viewModel: HomeSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
 ) {
-    val homeSettingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
+    val homeSettingsUiState by viewModel.homeSettingsUiState.collectAsStateWithLifecycle()
 
     HomeSettingsScreen(
         modifier = modifier,

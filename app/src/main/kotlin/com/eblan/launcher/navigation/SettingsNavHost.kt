@@ -20,6 +20,8 @@ package com.eblan.launcher.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.eblan.launcher.feature.settings.gestures.navigation.gesturesSettingsScreen
+import com.eblan.launcher.feature.settings.gestures.navigation.navigateToGesturesSettings
 import com.eblan.launcher.feature.settings.home.navigation.homeSettingsScreen
 import com.eblan.launcher.feature.settings.home.navigation.navigateToHomeSettings
 import com.eblan.launcher.feature.settings.settings.navigation.SettingsRouteData
@@ -37,10 +39,13 @@ fun SettingsNavHost(
         settingsScreen(
             onFinish = onFinish,
             onHome = navController::navigateToHomeSettings,
+            onGestures = navController::navigateToGesturesSettings,
         )
 
         homeSettingsScreen(
             onNavigateUp = navController::navigateUp,
         )
+
+        gesturesSettingsScreen(onNavigateUp = navController::navigateUp)
     }
 }

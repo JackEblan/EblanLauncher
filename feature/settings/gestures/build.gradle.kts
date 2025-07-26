@@ -15,22 +15,18 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.settings.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.settings.settings.SettingsRoute
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
+}
 
-fun NavGraphBuilder.settingsScreen(
-    onFinish: () -> Unit,
-    onHome: () -> Unit,
-    onGestures: () -> Unit,
-) {
-    composable<SettingsRouteData> {
-        SettingsRoute(
-            onFinish = onFinish,
-            onHome = onHome,
-            onGestures = onGestures,
-        )
-    }
+android {
+    namespace = "com.eblan.launcher.feature.settings.gestures"
+}
+
+dependencies {
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
 }

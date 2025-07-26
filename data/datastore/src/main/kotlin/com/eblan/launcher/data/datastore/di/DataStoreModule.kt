@@ -22,7 +22,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import com.eblan.launcher.data.datastore.UserDataSerializer
-import com.eblan.launcher.data.datastore.proto.UserData.UserDataProto
+import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers.IO
 import dagger.Module

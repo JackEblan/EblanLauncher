@@ -12,5 +12,5 @@ sealed interface GestureAction {
 
     data object OpenNotificationPanel : GestureAction
 
-    data class OpenApp(val packageName: String) : GestureAction
+    data class OpenApp(val componentName: String) : GestureAction
 }

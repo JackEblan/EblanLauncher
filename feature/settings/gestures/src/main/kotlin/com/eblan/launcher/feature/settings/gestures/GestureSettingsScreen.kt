@@ -35,8 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.feature.settings.gestures.dialog.SelectApplicationDialog
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
 import kotlinx.coroutines.launch
 
@@ -98,6 +100,7 @@ private fun GestureSettingsScreen(
                     Success(
                         modifier = modifier,
                         gestureSettings = gesturesSettingsUiState.userData.gestureSettings,
+                        eblanApplicationInfos = gesturesSettingsUiState.eblanApplicationInfos,
                         onUpdateSwipeUpGestureAction = onUpdateSwipeUpGestureAction,
                         onUpdateSwipeDownGestureAction = onUpdateSwipeDownGestureAction,
                     )
@@ -111,6 +114,7 @@ private fun GestureSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     gestureSettings: GestureSettings,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     onUpdateSwipeUpGestureAction: (GestureAction) -> Unit,
     onUpdateSwipeDownGestureAction: (GestureAction) -> Unit,
 ) {
@@ -150,6 +154,7 @@ private fun Success(
     if (showDoubleTapBottomSheet) {
         BottomSheetContent(
             gestureAction = GestureAction.None,
+            eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = {
                 //Todo
             },
@@ -162,6 +167,7 @@ private fun Success(
     if (showSwipeUpBottomSheet) {
         BottomSheetContent(
             gestureAction = gestureSettings.swipeUp,
+            eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = onUpdateSwipeUpGestureAction,
             onDismiss = {
                 showSwipeUpBottomSheet = false
@@ -172,6 +178,7 @@ private fun Success(
     if (showSwipeDownBottomSheet) {
         BottomSheetContent(
             gestureAction = gestureSettings.swipeDown,
+            eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = onUpdateSwipeDownGestureAction,
             onDismiss = {
                 showSwipeDownBottomSheet = false
@@ -185,6 +192,7 @@ private fun Success(
 private fun BottomSheetContent(
     modifier: Modifier = Modifier,
     gestureAction: GestureAction,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
     onUpdateGestureAction: (GestureAction) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -193,6 +201,10 @@ private fun BottomSheetContent(
     var selectedGestureAction by remember { mutableStateOf(gestureAction) }
 
     val scope = rememberCoroutineScope()
+
+    var showSelectApplicationDialog by remember { mutableStateOf(false) }
+
+    var selectedComponentName by remember { mutableStateOf("app") }
 
     ModalBottomSheet(
         sheetState = sheetState,
@@ -229,10 +241,10 @@ private fun BottomSheetContent(
                 )
 
                 RadioButtonContent(
-                    text = "Open app",
+                    text = "Open $selectedComponentName",
                     selected = selectedGestureAction is GestureAction.OpenApp,
                     onClick = {
-                        //Show another dialog
+                        showSelectApplicationDialog = true
                     },
                 )
             }
@@ -267,6 +279,20 @@ private fun BottomSheetContent(
         ) {
             Text("Save")
         }
+    }
+
+    if (showSelectApplicationDialog) {
+        SelectApplicationDialog(
+            eblanApplicationInfos = eblanApplicationInfos,
+            onDismissRequest = {
+                showSelectApplicationDialog = false
+            },
+            onUpdateGestureAction = { openAppGestureAction ->
+                selectedGestureAction = openAppGestureAction
+
+                selectedComponentName = openAppGestureAction.componentName
+            },
+        )
     }
 }
 
@@ -326,7 +352,7 @@ private fun GestureColumn(
 private fun GestureAction.getSubtitle(): String {
     return when (this) {
         GestureAction.None -> "None"
-        is GestureAction.OpenApp -> "Open app"
+        is GestureAction.OpenApp -> "Open $componentName"
         GestureAction.OpenAppDrawer -> "Open app drawer"
         GestureAction.OpenNotificationPanel -> "Open notification panel"
     }

@@ -834,13 +834,15 @@ private fun GestureActionScreen(
     onDraggingGridItem: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val launcherApps = LocalLauncherApps.current
+
     when (gestureAction) {
         GestureAction.None -> {
             onDismiss()
         }
 
         is GestureAction.OpenApp -> {
-
+            launcherApps.startMainActivity(gestureAction.componentName)
         }
 
         GestureAction.OpenAppDrawer -> {

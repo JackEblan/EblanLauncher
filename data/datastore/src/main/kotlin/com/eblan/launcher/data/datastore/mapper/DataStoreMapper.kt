@@ -59,7 +59,7 @@ internal fun GestureAction.toGestureActionProto(): GestureActionProto {
             .build()
 
         is GestureAction.OpenApp -> GestureActionProto.newBuilder()
-            .setOpenAppProto(OpenAppProto.newBuilder().setPackageName(packageName))
+            .setOpenAppProto(OpenAppProto.newBuilder().setComponentName(componentName))
             .build()
     }
 }
@@ -82,7 +82,7 @@ internal fun GestureActionProto.toGestureAction(): GestureAction {
             GestureAction.OpenNotificationPanel
 
         GestureActionProto.TypeCase.OPENAPPPROTO ->
-            GestureAction.OpenApp(openAppProto.packageName)
+            GestureAction.OpenApp(openAppProto.componentName)
 
         GestureActionProto.TypeCase.TYPE_NOT_SET, null ->
             error("GestureActionProto type not set")

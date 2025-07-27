@@ -22,5 +22,5 @@ message OpenAppDrawerProto {}
 message OpenNotificationPanelProto {}
 
 message OpenAppProto {
-  string packageName = 1;
+  string componentName = 1;
 }

@@ -36,6 +36,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -85,6 +86,7 @@ import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
@@ -147,6 +149,8 @@ fun PagerScreen(
         )
     }
 
+    val scope = rememberCoroutineScope()
+
     HorizontalPagerScreen(
         modifier = modifier,
         horizontalPagerState = gridHorizontalPagerState,
@@ -197,7 +201,9 @@ fun PagerScreen(
                 onLongPressGridItem = onLongPressGridItem,
                 onDraggingGridItem = onDraggingGridItem,
                 onDismiss = {
-                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                    scope.launch {
+                        anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                    }
                 },
             )
         }
@@ -222,7 +228,9 @@ fun PagerScreen(
                 onLongPressGridItem = onLongPressGridItem,
                 onDraggingGridItem = onDraggingGridItem,
                 onDismiss = {
-                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                    scope.launch {
+                        anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                    }
                 },
             )
         }
@@ -291,8 +299,6 @@ private fun HorizontalPagerScreen(
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
-
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && showPopupGridItemMenu) {
             showPopupGridItemMenu = false
@@ -316,6 +322,7 @@ private fun HorizontalPagerScreen(
             onDragStart = onDragStartPinItemRequest,
         )
     }
+
     Column(
         modifier = modifier
             .pointerInput(Unit) {
@@ -712,7 +719,7 @@ private fun ApplicationComponentScreen(
         newGridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     var alpha by remember { mutableFloatStateOf(1f) }
 
@@ -825,11 +832,11 @@ private fun GestureActionScreen(
     dragIntOffset: IntOffset,
     onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     when (gestureAction) {
         GestureAction.None -> {
-
+            onDismiss()
         }
 
         is GestureAction.OpenApp -> {

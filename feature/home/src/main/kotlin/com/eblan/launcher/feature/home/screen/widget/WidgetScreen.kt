@@ -69,7 +69,7 @@ fun WidgetScreen(
     ) -> Unit,
     onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
-    onDismiss: suspend () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -155,9 +155,11 @@ fun WidgetScreen(
         }
     }
 
-    Box(modifier = modifier
-        .nestedScroll(nestedScrollConnection)
-        .fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .nestedScroll(nestedScrollConnection)
+            .fillMaxSize(),
+    ) {
         when {
             eblanAppWidgetProviderInfos.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
 import android.os.Build
+import android.os.IBinder
 import android.widget.FrameLayout
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -90,9 +91,8 @@ import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import kotlinx.coroutines.flow.collect
+import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onEach
 import java.io.File
 
 @Composable
@@ -403,28 +403,19 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = horizontalPagerState) {
-        snapshotFlow { horizontalPagerState.currentPage }.onEach { currentPage ->
-            val page = calculatePage(
-                index = currentPage,
+        snapshotFlow {
+            horizontalPagerState.currentPage to horizontalPagerState.currentPageOffsetFraction
+        }.collect { (currentPage, offsetFraction) ->
+            handleWallpaperScroll(
+                windowToken = view.windowToken,
+                wallpaperManagerWrapper = wallpaperManagerWrapper,
+                wallpaperScroll = wallpaperScroll,
+                currentPage = currentPage,
                 infiniteScroll = infiniteScroll,
                 pageCount = pageCount,
+                offsetFraction = offsetFraction,
             )
-
-            if (wallpaperScroll) {
-                val offset = page / (pageCount - 1).toFloat()
-
-                wallpaperManagerWrapper.setWallpaperOffsetSteps(
-                    xStep = 1f / (pageCount - 1),
-                    yStep = 1f,
-                )
-
-                wallpaperManagerWrapper.setWallpaperOffsets(
-                    windowToken = view.windowToken,
-                    xOffset = offset,
-                    yOffset = 0f,
-                )
-            }
-        }.collect()
+        }
     }
 
     Column(
@@ -1290,4 +1281,34 @@ private suspend fun handlePinItemRequest(
             else -> Unit
         }
     }
+}
+
+private fun handleWallpaperScroll(
+    windowToken: IBinder,
+    wallpaperManagerWrapper: WallpaperManagerWrapper,
+    wallpaperScroll: Boolean,
+    currentPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+    offsetFraction: Float,
+) {
+    if (!wallpaperScroll) return
+
+    val page = calculatePage(
+        index = currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
+    val scrollProgress = (page + offsetFraction).coerceIn(0f, (pageCount - 1).toFloat())
+
+    val xOffset = scrollProgress / (pageCount - 1)
+
+    wallpaperManagerWrapper.setWallpaperOffsetSteps(xStep = 1f / (pageCount - 1), yStep = 1f)
+
+    wallpaperManagerWrapper.setWallpaperOffsets(
+        windowToken = windowToken,
+        xOffset = xOffset,
+        yOffset = 0f,
+    )
 }

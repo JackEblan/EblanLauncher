@@ -80,6 +80,8 @@ class MainActivity : ComponentActivity() {
                                     SettingsActivity::class.java,
                                 ),
                             )
+
+                            finish()
                         },
                     )
                 }

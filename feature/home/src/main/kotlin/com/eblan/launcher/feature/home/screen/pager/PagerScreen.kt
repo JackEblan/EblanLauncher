@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
 import android.os.Build
-import android.os.IBinder
 import android.widget.FrameLayout
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -93,6 +92,7 @@ import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onStart
 import java.io.File
 
 @Composable
@@ -403,19 +403,14 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = horizontalPagerState) {
-        snapshotFlow {
-            horizontalPagerState.currentPage to horizontalPagerState.currentPageOffsetFraction
-        }.collect { (currentPage, offsetFraction) ->
-            handleWallpaperScroll(
-                windowToken = view.windowToken,
-                wallpaperManagerWrapper = wallpaperManagerWrapper,
-                wallpaperScroll = wallpaperScroll,
-                currentPage = currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
-                offsetFraction = offsetFraction,
-            )
-        }
+        handleWallpaperScroll(
+            horizontalPagerState = horizontalPagerState,
+            wallpaperScroll = wallpaperScroll,
+            wallpaperManagerWrapper = wallpaperManagerWrapper,
+            pageCount = pageCount,
+            infiniteScroll = infiniteScroll,
+            windowToken = view.windowToken,
+        )
     }
 
     Column(
@@ -1283,32 +1278,38 @@ private suspend fun handlePinItemRequest(
     }
 }
 
-private fun handleWallpaperScroll(
-    windowToken: IBinder,
-    wallpaperManagerWrapper: WallpaperManagerWrapper,
+private suspend fun handleWallpaperScroll(
+    horizontalPagerState: PagerState,
     wallpaperScroll: Boolean,
-    currentPage: Int,
-    infiniteScroll: Boolean,
+    wallpaperManagerWrapper: WallpaperManagerWrapper,
     pageCount: Int,
-    offsetFraction: Float,
+    infiniteScroll: Boolean,
+    windowToken: android.os.IBinder,
 ) {
     if (!wallpaperScroll) return
 
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
+    snapshotFlow {
+        horizontalPagerState.currentPage to horizontalPagerState.currentPageOffsetFraction
+    }.onStart {
+        wallpaperManagerWrapper.setWallpaperOffsetSteps(
+            xStep = 1f / (pageCount - 1),
+            yStep = 1f,
+        )
+    }.collect { (currentPage, offsetFraction) ->
+        val page = calculatePage(
+            index = currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+        )
 
-    val scrollProgress = (page + offsetFraction).coerceIn(0f, (pageCount - 1).toFloat())
+        val scrollProgress = (page + offsetFraction).coerceIn(0f, (pageCount - 1).toFloat())
 
-    val xOffset = scrollProgress / (pageCount - 1)
+        val xOffset = scrollProgress / (pageCount - 1)
 
-    wallpaperManagerWrapper.setWallpaperOffsetSteps(xStep = 1f / (pageCount - 1), yStep = 1f)
-
-    wallpaperManagerWrapper.setWallpaperOffsets(
-        windowToken = windowToken,
-        xOffset = xOffset,
-        yOffset = 0f,
-    )
+        wallpaperManagerWrapper.setWallpaperOffsets(
+            windowToken = windowToken,
+            xOffset = xOffset,
+            yOffset = 0f,
+        )
+    }
 }

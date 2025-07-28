@@ -288,7 +288,7 @@ private fun Success(
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
-    var targetPage by remember(key1 = userData.homeSettings.initialPage) {
+    var targetPage by remember {
         mutableIntStateOf(
             userData.homeSettings.initialPage,
         )

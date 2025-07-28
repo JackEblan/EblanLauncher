@@ -117,33 +117,20 @@ fun ApplicationScreen(
                 val atTop = state.firstVisibleItemIndex == 0 &&
                         state.firstVisibleItemScrollOffset == 0
 
-                if (atTop) {
+                if (available.y > 0f && atTop) {
                     totalDrag += available.y
-
-                    totalDrag = totalDrag.coerceIn(-maxDrag, maxDrag)
-
-                    val newAlpha = 1f - (totalDrag / maxDrag)
-
-                    onUpdateAlpha(newAlpha.coerceIn(0f, 1f))
+                } else if (available.y < 0f && totalDrag > 0f) {
+                    totalDrag += available.y
                 }
 
-                return Offset.Zero
-            }
+                totalDrag = totalDrag.coerceIn(0f, maxDrag)
 
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                if (state.firstVisibleItemIndex > 0 ||
-                    state.firstVisibleItemScrollOffset > 0
-                ) {
-                    totalDrag = 0f
+                val progress = totalDrag / maxDrag
+                val newAlpha = 1f - progress
 
-                    onUpdateAlpha(1f)
-                }
+                onUpdateAlpha(newAlpha)
 
-                return Offset.Zero
+                return super.onPreScroll(available, source)
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {

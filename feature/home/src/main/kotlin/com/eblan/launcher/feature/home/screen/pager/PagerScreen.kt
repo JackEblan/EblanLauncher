@@ -91,7 +91,6 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onStart
 import java.io.File
 
@@ -161,12 +160,8 @@ fun PagerScreen(
     var showDoubleTap by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = interactionSource) {
-        interactionSource.interactions.collectLatest { interaction ->
+        interactionSource.interactions.collect { interaction ->
             when (interaction) {
-                is DragInteraction.Start -> {
-
-                }
-
                 is DragInteraction.Stop, is DragInteraction.Cancel -> {
                     if (anchoredDraggableState.currentValue == VerticalDragDirection.None) {
                         anchoredDraggableState.updateAnchors(newAnchors = anchors)

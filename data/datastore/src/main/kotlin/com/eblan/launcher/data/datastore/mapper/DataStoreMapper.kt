@@ -26,6 +26,7 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
         dockHeight = dockHeight,
         textColor = textColorProto.toTextColor(),
         initialPage = initialPage,
+        wallpaperScroll = wallpaperScroll,
     )
 }
 

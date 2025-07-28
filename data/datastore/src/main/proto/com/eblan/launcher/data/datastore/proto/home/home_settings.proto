@@ -15,4 +15,5 @@ message HomeSettingsProto {
   int32 dockHeight = 7;
   TextColorProto textColorProto = 8;
   int32 initialPage = 9;
+  bool wallpaperScroll = 10;
 }

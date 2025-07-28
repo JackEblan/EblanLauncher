@@ -28,6 +28,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         dockHeight = 300
         textColorProto = TextColorProto.System
         initialPage = 0
+        wallpaperScroll = true
     }.build()
 
     private val defaultAppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().apply {

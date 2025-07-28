@@ -322,6 +322,7 @@ private fun Success(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     dragIntOffset = dragIntOffset,
                     gestureSettings = userData.gestureSettings,
+                    wallpaperScroll = userData.homeSettings.wallpaperScroll,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },

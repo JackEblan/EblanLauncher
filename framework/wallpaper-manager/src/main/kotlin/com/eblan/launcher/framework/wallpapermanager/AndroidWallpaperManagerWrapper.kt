@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
-import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
+import com.eblan.launcher.domain.framework.WallpaperManagerDomainWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 internal class AndroidWallpaperManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
-    WallpaperManagerWrapper {
+    WallpaperManagerDomainWrapper, WallpaperManagerWrapper {
     private val wallpaperManager = WallpaperManager.getInstance(context)
 
     override val supportsColorHints = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -46,5 +46,17 @@ internal class AndroidWallpaperManagerWrapper @Inject constructor(@ApplicationCo
                 wallpaperManager.removeOnColorsChangedListener(callback)
             }
         }
+    }
+
+    override fun setWallpaperOffsetSteps(xStep: Float, yStep: Float) {
+        wallpaperManager.setWallpaperOffsetSteps(xStep, yStep)
+    }
+
+    override fun setWallpaperOffsets(
+        windowToken: android.os.IBinder,
+        xOffset: Float,
+        yOffset: Float,
+    ) {
+        wallpaperManager.setWallpaperOffsets(windowToken, xOffset, yOffset)
     }
 }

@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
@@ -58,6 +60,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
+import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.getShortcutGridItem
 import com.eblan.launcher.domain.grid.getWidgetGridItem
@@ -87,7 +90,9 @@ import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import java.io.File
 
 @Composable
@@ -113,6 +118,7 @@ fun PagerScreen(
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
     dragIntOffset: IntOffset,
+    wallpaperScroll: Boolean,
     gestureSettings: GestureSettings,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
@@ -192,6 +198,7 @@ fun PagerScreen(
         rootHeight = rootHeight,
         drag = drag,
         hasShortcutHostPermission = hasShortcutHostPermission,
+        wallpaperScroll = wallpaperScroll,
         onLongPressGrid = onLongPressGrid,
         onLongPressGridItem = onLongPressGridItem,
         onDraggingGridItem = onDraggingGridItem,
@@ -328,6 +335,7 @@ private fun HorizontalPagerScreen(
     rootHeight: Int,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
+    wallpaperScroll: Boolean,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -360,7 +368,11 @@ private fun HorizontalPagerScreen(
 
     val fileManager = LocalFileManager.current
 
+    val wallpaperManagerWrapper = LocalWallpaperManager.current
+
     val context = LocalContext.current
+
+    val view = LocalView.current
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -388,6 +400,31 @@ private fun HorizontalPagerScreen(
             fileManager = fileManager,
             onDragStart = onDragStartPinItemRequest,
         )
+    }
+
+    LaunchedEffect(key1 = horizontalPagerState) {
+        snapshotFlow { horizontalPagerState.currentPage }.onEach { currentPage ->
+            val page = calculatePage(
+                index = currentPage,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+
+            if (wallpaperScroll) {
+                val offset = page / (pageCount - 1).toFloat()
+
+                wallpaperManagerWrapper.setWallpaperOffsetSteps(
+                    xStep = 1f / (pageCount - 1),
+                    yStep = 1f,
+                )
+
+                wallpaperManagerWrapper.setWallpaperOffsets(
+                    windowToken = view.windowToken,
+                    xOffset = offset,
+                    yOffset = 0f,
+                )
+            }
+        }.collect()
     }
 
     Column(
@@ -1127,11 +1164,10 @@ private suspend fun handlePinItemRequest(
     ): GridItemSource {
         val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
 
-        val previewInferred =
-            File(
-                fileManager.widgetsDirectory,
-                appWidgetProviderInfo.provider.className,
-            ).absolutePath
+        val previewInferred = File(
+            fileManager.widgetsDirectory,
+            appWidgetProviderInfo.provider.className,
+        ).absolutePath
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             GridItemSource.Pin(
@@ -1196,8 +1232,7 @@ private suspend fun handlePinItemRequest(
                 density = 0,
             ).toByteArray()
 
-            val iconInferred =
-                File(fileManager.shortcutsDirectory, shortcutInfo.id).absolutePath
+            val iconInferred = File(fileManager.shortcutsDirectory, shortcutInfo.id).absolutePath
 
             GridItemSource.Pin(
                 gridItem = getShortcutGridItem(

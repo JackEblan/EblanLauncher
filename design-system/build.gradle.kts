@@ -41,5 +41,6 @@ dependencies {
     implementation(projects.domain.model)
     implementation(projects.domain.framework)
     api(projects.framework.launcherApps)
+    api(projects.framework.wallpaperManager)
     api(projects.framework.widgetManager)
 }

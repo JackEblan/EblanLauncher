@@ -10,4 +10,5 @@ data class HomeSettings(
     val dockHeight: Int,
     val textColor: TextColor,
     val initialPage: Int,
+    val wallpaperScroll: Boolean,
 )

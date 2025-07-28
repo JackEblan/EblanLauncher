@@ -13,12 +13,14 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
+import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
 import com.eblan.launcher.navigation.MainNavHost
@@ -45,6 +47,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var fileManager: FileManager
 
+    @Inject
+    lateinit var wallpaperManagerWrapper: WallpaperManagerWrapper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
@@ -57,6 +62,7 @@ class MainActivity : ComponentActivity() {
                 LocalLauncherApps provides launcherAppsWrapper,
                 LocalPinItemRequest provides pinItemRequestWrapper,
                 LocalFileManager provides fileManager,
+                LocalWallpaperManager provides wallpaperManagerWrapper,
             ) {
                 val navController = rememberNavController()
 

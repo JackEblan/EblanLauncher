@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
-import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
+import com.eblan.launcher.domain.framework.WallpaperManagerDomainWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeData
@@ -21,7 +21,7 @@ class GetHomeDataUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
-    private val wallpaperManagerWrapper: WallpaperManagerWrapper,
+    private val wallpaperManagerDomainWrapper: WallpaperManagerDomainWrapper,
 ) {
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
@@ -35,7 +35,7 @@ class GetHomeDataUseCase @Inject constructor(
         return combine(
             userDataRepository.userData,
             gridItemsFlow,
-            wallpaperManagerWrapper.getColorsChanged(),
+            wallpaperManagerDomainWrapper.getColorsChanged(),
         ) { userData, gridItems, colorHints ->
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
@@ -78,10 +78,10 @@ class GetHomeDataUseCase @Inject constructor(
     }
 
     private fun getTextColorFromWallpaperColors(colorHints: Int?): Long {
-        if (!wallpaperManagerWrapper.supportsColorHints || colorHints == null) return LIGHT
+        if (!wallpaperManagerDomainWrapper.supportsColorHints || colorHints == null) return LIGHT
 
         val hintSupportsDarkText =
-            (colorHints and wallpaperManagerWrapper.hintSupportsDarkText) != 0
+            (colorHints and wallpaperManagerDomainWrapper.hintSupportsDarkText) != 0
 
         return if (hintSupportsDarkText) {
             DARK

@@ -71,7 +71,7 @@ fun ApplicationScreen(
     ) -> Unit,
     onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 

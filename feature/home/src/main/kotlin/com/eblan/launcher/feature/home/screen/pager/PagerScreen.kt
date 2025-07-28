@@ -20,6 +20,8 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapTo
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +38,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -44,6 +45,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -86,7 +88,7 @@ import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 
 @Composable
@@ -149,12 +151,31 @@ fun PagerScreen(
         )
     }
 
-    val scope = rememberCoroutineScope()
+    val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(key1 = interactionSource) {
+        interactionSource.interactions.collectLatest { interaction ->
+            when (interaction) {
+                is DragInteraction.Start -> {
+
+                }
+
+                is DragInteraction.Stop, is DragInteraction.Cancel -> {
+                    if (anchoredDraggableState.currentValue == VerticalDragDirection.None) {
+                        anchoredDraggableState.updateAnchors(newAnchors = anchors)
+
+                        anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                    }
+                }
+            }
+        }
+    }
 
     HorizontalPagerScreen(
         modifier = modifier,
         horizontalPagerState = gridHorizontalPagerState,
         anchoredDraggableState = anchoredDraggableState,
+        interactionSource = interactionSource,
         rows = rows,
         columns = columns,
         pageCount = pageCount,
@@ -201,9 +222,17 @@ fun PagerScreen(
                 onLongPressGridItem = onLongPressGridItem,
                 onDraggingGridItem = onDraggingGridItem,
                 onDismiss = {
-                    scope.launch {
-                        anchoredDraggableState.snapTo(VerticalDragDirection.None)
-                    }
+                    anchoredDraggableState.updateAnchors(newAnchors = anchors)
+
+                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                },
+                onFirstVisible = {
+                    anchoredDraggableState.updateAnchors(
+                        newAnchors = DraggableAnchors {
+                            VerticalDragDirection.Up at -50f
+                            VerticalDragDirection.None at 50f
+                        },
+                    )
                 },
             )
         }
@@ -228,16 +257,22 @@ fun PagerScreen(
                 onLongPressGridItem = onLongPressGridItem,
                 onDraggingGridItem = onDraggingGridItem,
                 onDismiss = {
-                    scope.launch {
-                        anchoredDraggableState.snapTo(VerticalDragDirection.None)
-                    }
+                    anchoredDraggableState.updateAnchors(newAnchors = anchors)
+
+                    anchoredDraggableState.snapTo(VerticalDragDirection.None)
+                },
+                onFirstVisible = {
+                    anchoredDraggableState.updateAnchors(
+                        newAnchors = DraggableAnchors {
+                            VerticalDragDirection.Down at 50f
+                            VerticalDragDirection.None at -50f
+                        },
+                    )
                 },
             )
         }
 
-        VerticalDragDirection.None -> {
-            Unit
-        }
+        VerticalDragDirection.None -> Unit
     }
 }
 
@@ -246,6 +281,7 @@ private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     horizontalPagerState: PagerState,
     anchoredDraggableState: AnchoredDraggableState<VerticalDragDirection>,
+    interactionSource: MutableInteractionSource,
     rows: Int,
     columns: Int,
     pageCount: Int,
@@ -325,6 +361,12 @@ private fun HorizontalPagerScreen(
 
     Column(
         modifier = modifier
+            .anchoredDraggable(
+                state = anchoredDraggableState,
+                orientation = Orientation.Vertical,
+                enabled = true,
+                interactionSource = interactionSource,
+            )
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { offset ->
@@ -356,13 +398,7 @@ private fun HorizontalPagerScreen(
                 pageCount = pageCount,
             )
             GridLayout(
-                modifier = Modifier
-                    .anchoredDraggable(
-                        state = anchoredDraggableState,
-                        orientation = Orientation.Vertical,
-                        enabled = true,
-                    )
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 rows = rows,
                 columns = columns,
             ) {
@@ -719,7 +755,8 @@ private fun ApplicationComponentScreen(
         newGridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: suspend () -> Unit,
+    onFirstVisible: () -> Unit,
 ) {
     var alpha by remember { mutableFloatStateOf(1f) }
 
@@ -731,6 +768,9 @@ private fun ApplicationComponentScreen(
 
     Surface(
         modifier = modifier
+            .onFirstVisible {
+                onFirstVisible()
+            }
             .graphicsLayer(alpha = animatedAlpha)
             .fillMaxSize(),
     ) {
@@ -832,13 +872,14 @@ private fun GestureActionScreen(
     dragIntOffset: IntOffset,
     onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: suspend () -> Unit,
+    onFirstVisible: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
     when (gestureAction) {
         GestureAction.None -> {
-            onDismiss()
+            return
         }
 
         is GestureAction.OpenApp -> {
@@ -864,6 +905,7 @@ private fun GestureActionScreen(
                 onLongPress = onLongPressGridItem,
                 onDragging = onDraggingGridItem,
                 onDismiss = onDismiss,
+                onFirstVisible = onFirstVisible,
             )
         }
 

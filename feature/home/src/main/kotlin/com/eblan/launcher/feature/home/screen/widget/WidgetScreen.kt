@@ -69,7 +69,7 @@ fun WidgetScreen(
     ) -> Unit,
     onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     val density = LocalDensity.current
 

@@ -7,6 +7,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
@@ -40,6 +41,7 @@ class HomeViewModel @Inject constructor(
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
+    private val pageCacheRepository: PageCacheRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -68,6 +70,12 @@ class HomeViewModel @Inject constructor(
     private var _boundWidgetSource = MutableStateFlow<GridItemSource?>(null)
 
     val boundWidgetSource = _boundWidgetSource.asStateFlow()
+
+    val pageItems = pageCacheRepository.pageItems.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
+    )
 
     fun moveGridItem(
         gridItems: List<GridItem>,

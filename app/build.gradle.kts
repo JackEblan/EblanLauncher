@@ -60,6 +60,7 @@ dependencies {
     implementation(projects.framework.fileManager)
     implementation(projects.framework.launcherApps)
     implementation(projects.framework.packageManager)
+    implementation(projects.framework.wallpaperManager)
     implementation(projects.framework.widgetManager)
     implementation(projects.service)
 

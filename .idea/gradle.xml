@@ -50,6 +50,7 @@
             <option value="$PROJECT_DIR$/framework/file-manager" />
             <option value="$PROJECT_DIR$/framework/launcher-apps" />
             <option value="$PROJECT_DIR$/framework/package-manager" />
+            <option value="$PROJECT_DIR$/framework/wallpaper-manager" />
             <option value="$PROJECT_DIR$/framework/widget-manager" />
             <option value="$PROJECT_DIR$/lint" />
             <option value="$PROJECT_DIR$/service" />

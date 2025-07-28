@@ -5,11 +5,13 @@ import com.eblan.launcher.data.datastore.mapper.toAppDrawerSettings
 import com.eblan.launcher.data.datastore.mapper.toGestureActionProto
 import com.eblan.launcher.data.datastore.mapper.toGestureSettings
 import com.eblan.launcher.data.datastore.mapper.toHomeSettings
+import com.eblan.launcher.data.datastore.mapper.toTextColorProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.data.datastore.proto.copy
 import com.eblan.launcher.data.datastore.proto.gesture.copy
 import com.eblan.launcher.data.datastore.proto.home.copy
 import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -133,6 +135,16 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             userDataProto.copy {
                 gestureSettingsProto = userDataProto.gestureSettingsProto.copy {
                     this.swipeDownProto = gestureAction.toGestureActionProto()
+                }
+            }
+        }
+    }
+
+    suspend fun updateTextColor(textColor: TextColor) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.textColorProto = textColor.toTextColorProto()
                 }
             }
         }

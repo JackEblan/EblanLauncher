@@ -58,6 +58,8 @@ fun HomeRoute(
 
     val boundWidgetSource by viewModel.boundWidgetSource.collectAsStateWithLifecycle()
 
+    val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -65,6 +67,7 @@ fun HomeRoute(
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItems = movedGridItems,
         boundWidgetSource = boundWidgetSource,
+        pageItems = pageItems,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onDeleteGridItem = viewModel::deleteGridItem,
@@ -88,6 +91,7 @@ fun HomeScreen(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItems: Boolean,
     boundWidgetSource: GridItemSource?,
+    pageItems: List<PageItem>,
     onMoveGridItem: (
         gridItems: List<GridItem>,
         movingGridItem: GridItem,
@@ -200,7 +204,7 @@ fun HomeScreen(
                         userData = homeUiState.homeData.userData,
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         dockGridItems = homeUiState.homeData.dockGridItems,
-                        pageItems = homeUiState.homeData.pageItems,
+                        pageItems = pageItems,
                         movedGridItems = movedGridItems,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,

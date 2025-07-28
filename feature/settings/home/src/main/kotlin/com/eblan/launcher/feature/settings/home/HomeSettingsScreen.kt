@@ -30,8 +30,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.settings.home.dialog.DockHeightDialog
 import com.eblan.launcher.feature.settings.home.dialog.GridDialog
+import com.eblan.launcher.feature.settings.home.dialog.TextColorDialog
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
 
 @Composable
@@ -50,6 +52,7 @@ fun HomeSettingsRoute(
         onUpdateInfiniteScroll = viewModel::updateInfiniteScroll,
         onUpdateDockGrid = viewModel::updateDockGrid,
         onUpdateDockHeight = viewModel::updateDockHeight,
+        onUpdateTextColor = viewModel::updateTextColor,
     )
 }
 
@@ -69,6 +72,7 @@ fun HomeSettingsScreen(
         dockColumns: Int,
     ) -> Unit,
     onUpdateDockHeight: (Int) -> Unit,
+    onUpdateTextColor: (TextColor) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -105,6 +109,7 @@ fun HomeSettingsScreen(
                         onUpdateInfiniteScroll = onUpdateInfiniteScroll,
                         onUpdateDockGrid = onUpdateDockGrid,
                         onUpdateDockHeight = onUpdateDockHeight,
+                        onUpdateTextColor = onUpdateTextColor,
                     )
                 }
             }
@@ -127,6 +132,7 @@ fun Success(
         dockColumns: Int,
     ) -> Unit,
     onUpdateDockHeight: (Int) -> Unit,
+    onUpdateTextColor: (TextColor) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -134,80 +140,68 @@ fun Success(
 
     var showDockHeightDialog by remember { mutableStateOf(false) }
 
+    var showTextColorDialog by remember { mutableStateOf(false) }
+
     Column(modifier = modifier.fillMaxSize()) {
         Text(text = "Grid", style = MaterialTheme.typography.bodySmall)
 
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable {
-                    showGridDialog = true
-                },
-        ) {
-            Text(text = "Grid", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(5.dp))
 
-            Text(
-                text = "Number of rows and columns",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        SettingsColumn(
+            title = "Grid",
+            subtitle = "Number of rows and columns",
+            onClick = {
+                showGridDialog = true
+            },
+        )
 
-        Row(
-            modifier = modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Infinite scroll",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+        Spacer(modifier = Modifier.height(10.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+        SwitchRow(
+            modifier = modifier,
+            homeSettings = homeSettings,
+            title = "Infinite Scrolling",
+            subtitle = "Scrolling at the end returns to first page",
+            onUpdateInfiniteScroll = onUpdateInfiniteScroll,
+        )
 
-                Text(
-                    text = "Scrolling at the end returns to first page",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-
-            Switch(
-                checked = homeSettings.infiniteScroll,
-                onCheckedChange = onUpdateInfiniteScroll,
-            )
-        }
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(text = "Dock", style = MaterialTheme.typography.bodySmall)
 
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable {
-                    showDockGridDialog = true
-                },
-        ) {
-            Text(text = "Dock Grid", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(5.dp))
 
-            Text(
-                text = "Number of rows and columns",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        SettingsColumn(
+            title = "Dock Grid",
+            subtitle = "Number of rows and columns",
+            onClick = {
+                showDockGridDialog = true
+            },
+        )
 
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable {
-                    showDockHeightDialog = true
-                },
-        ) {
-            Text(text = "Dock height", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = "Height of the dock by pixels",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        SettingsColumn(
+            title = "Dock Height",
+            subtitle = "Height of the dock by pixels",
+            onClick = {
+                showDockHeightDialog = true
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(text = "Grid Item", style = MaterialTheme.typography.bodySmall)
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        SettingsColumn(
+            title = "Text Color",
+            subtitle = homeSettings.textColor.getTextColorSubtitle(),
+            onClick = {
+                showTextColorDialog = true
+            },
+        )
     }
 
     if (showGridDialog) {
@@ -240,5 +234,79 @@ fun Success(
             },
             onUpdateClick = onUpdateDockHeight,
         )
+    }
+
+    if (showTextColorDialog) {
+        TextColorDialog(
+            textColor = homeSettings.textColor,
+            onDismissRequest = {
+                showTextColorDialog = false
+            },
+            onUpdateClick = onUpdateTextColor,
+        )
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    modifier: Modifier = Modifier,
+    homeSettings: HomeSettings,
+    title: String,
+    subtitle: String,
+    onUpdateInfiniteScroll: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+
+        Switch(
+            checked = homeSettings.infiniteScroll,
+            onCheckedChange = onUpdateInfiniteScroll,
+        )
+    }
+}
+
+@Composable
+private fun SettingsColumn(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+    ) {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
+
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+@Composable
+fun TextColor.getTextColorSubtitle(): String {
+    return when (this) {
+        TextColor.System -> "System"
+        TextColor.Light -> "Light"
+        TextColor.Dark -> "Dark"
     }
 }

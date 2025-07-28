@@ -36,6 +36,14 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings {
     )
 }
 
+internal fun TextColor.toTextColorProto(): TextColorProto {
+    return when (this) {
+        TextColor.System -> TextColorProto.System
+        TextColor.Light -> TextColorProto.Light
+        TextColor.Dark -> TextColorProto.Dark
+    }
+}
+
 internal fun TextColorProto.toTextColor(): TextColor {
     return when (this) {
         TextColorProto.System, TextColorProto.UNRECOGNIZED -> TextColor.System

@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
 
@@ -28,4 +29,6 @@ interface UserDataRepository {
     suspend fun updateSwipeUp(gestureAction: GestureAction)
 
     suspend fun updateSwipeDown(gestureAction: GestureAction)
+
+    suspend fun updateTextColor(textColor: TextColor)
 }

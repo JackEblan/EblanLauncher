@@ -1,13 +1,13 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
+import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
-import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -20,8 +20,8 @@ class GetHomeDataUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
-    private val pageCacheRepository: PageCacheRepository,
     private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
+    private val wallpaperManagerWrapper: WallpaperManagerWrapper,
 ) {
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
@@ -35,8 +35,8 @@ class GetHomeDataUseCase @Inject constructor(
         return combine(
             userDataRepository.userData,
             gridItemsFlow,
-            pageCacheRepository.pageItems,
-        ) { userData, gridItems, pageItems ->
+            wallpaperManagerWrapper.getColorsChanged(),
+        ) { userData, gridItems, colorHints ->
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
@@ -55,15 +55,15 @@ class GetHomeDataUseCase @Inject constructor(
 
             val textColor = when (userData.homeSettings.textColor) {
                 TextColor.System -> {
-                    0xFFFFFFFF
+                    getTextColorFromWallpaperColors(colorHints = colorHints)
                 }
 
                 TextColor.Light -> {
-                    0xFFFFFFFF
+                    LIGHT
                 }
 
                 TextColor.Dark -> {
-                    0xFF000000
+                    DARK
                 }
             }
 
@@ -71,10 +71,25 @@ class GetHomeDataUseCase @Inject constructor(
                 userData = userData,
                 gridItems = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,
-                pageItems = pageItems,
                 hasShortcutHostPermission = launcherAppsDomainWrapper.hasShortcutHostPermission,
                 textColor = textColor,
             )
         }.flowOn(Dispatchers.Default)
     }
+
+    private fun getTextColorFromWallpaperColors(colorHints: Int?): Long {
+        if (!wallpaperManagerWrapper.supportsColorHints || colorHints == null) return LIGHT
+
+        val hintSupportsDarkText =
+            (colorHints and wallpaperManagerWrapper.hintSupportsDarkText) != 0
+
+        return if (hintSupportsDarkText) {
+            DARK
+        } else {
+            LIGHT
+        }
+    }
 }
+
+private const val LIGHT = 0xFFFFFFFF
+private const val DARK = 0xFF000000

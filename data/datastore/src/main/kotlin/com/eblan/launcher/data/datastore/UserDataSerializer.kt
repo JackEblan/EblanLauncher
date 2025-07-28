@@ -26,7 +26,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         dockRows = 1
         dockColumns = 5
         dockHeight = 300
-        textColorProto = TextColorProto.Light
+        textColorProto = TextColorProto.System
         initialPage = 0
     }.build()
 

@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.settings.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,6 +48,12 @@ class HomeSettingsViewModel @Inject constructor(private val userDataRepository: 
     fun updateDockHeight(dockHeight: Int) {
         viewModelScope.launch {
             userDataRepository.updateDockHeight(dockHeight = dockHeight)
+        }
+    }
+
+    fun updateTextColor(textColor: TextColor) {
+        viewModelScope.launch {
+            userDataRepository.updateTextColor(textColor = textColor)
         }
     }
 }

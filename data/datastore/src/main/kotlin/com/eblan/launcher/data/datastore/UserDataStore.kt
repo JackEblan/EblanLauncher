@@ -108,6 +108,16 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
         }
     }
 
+    suspend fun updateDoubleTap(gestureAction: GestureAction) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                gestureSettingsProto = userDataProto.gestureSettingsProto.copy {
+                    this.doubleTapProto = gestureAction.toGestureActionProto()
+                }
+            }
+        }
+    }
+
     suspend fun updateSwipeUp(gestureAction: GestureAction) {
         dataStore.updateData { userDataProto ->
             userDataProto.copy {

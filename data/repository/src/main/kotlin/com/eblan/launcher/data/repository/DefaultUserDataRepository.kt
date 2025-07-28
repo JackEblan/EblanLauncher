@@ -41,6 +41,10 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
         userDataStore.updateInitialPage(initialPage = initialPage)
     }
 
+    override suspend fun updateDoubleTap(gestureAction: GestureAction) {
+        userDataStore.updateDoubleTap(gestureAction = gestureAction)
+    }
+
     override suspend fun updateSwipeUp(gestureAction: GestureAction) {
         userDataStore.updateSwipeUp(gestureAction = gestureAction)
     }

@@ -36,6 +36,8 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     }.build()
 
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {
+        doubleTapProto = GestureAction.None.toGestureActionProto()
+
         swipeUpProto = GestureAction.OpenAppDrawer.toGestureActionProto()
 
         swipeDownProto = GestureAction.None.toGestureActionProto()

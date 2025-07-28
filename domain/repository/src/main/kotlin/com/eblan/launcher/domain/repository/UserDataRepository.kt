@@ -23,6 +23,8 @@ interface UserDataRepository {
 
     suspend fun updateInitialPage(initialPage: Int)
 
+    suspend fun updateDoubleTap(gestureAction: GestureAction)
+
     suspend fun updateSwipeUp(gestureAction: GestureAction)
 
     suspend fun updateSwipeDown(gestureAction: GestureAction)

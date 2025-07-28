@@ -66,6 +66,7 @@ internal fun GestureAction.toGestureActionProto(): GestureActionProto {
 
 internal fun GestureSettingsProto.toGestureSettings(): GestureSettings {
     return GestureSettings(
+        doubleTap = doubleTapProto.toGestureAction(),
         swipeUp = swipeUpProto.toGestureAction(),
         swipeDown = swipeDownProto.toGestureAction(),
     )

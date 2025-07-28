@@ -6,7 +6,9 @@ option java_package = "com.eblan.launcher.data.datastore.proto.gesture";
 option java_multiple_files = true;
 
 message GestureSettingsProto {
-  GestureActionProto swipeUpProto = 1;
+  GestureActionProto doubleTapProto = 1;
 
-  GestureActionProto swipeDownProto = 2;
+  GestureActionProto swipeUpProto = 2;
+
+  GestureActionProto swipeDownProto = 3;
 }

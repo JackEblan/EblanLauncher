@@ -35,6 +35,12 @@ class GestureSettingsViewModel @Inject constructor(
         initialValue = GesturesSettingsUiState.Loading,
     )
 
+    fun updateDoubleTap(gestureAction: GestureAction) {
+        viewModelScope.launch {
+            userDataRepository.updateDoubleTap(gestureAction = gestureAction)
+        }
+    }
+
     fun updateSwipeUp(gestureAction: GestureAction) {
         viewModelScope.launch {
             userDataRepository.updateSwipeUp(gestureAction = gestureAction)

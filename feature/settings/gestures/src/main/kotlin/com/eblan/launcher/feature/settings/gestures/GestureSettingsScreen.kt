@@ -54,6 +54,7 @@ fun GestureSettingsRoute(
         modifier = modifier,
         gesturesSettingsUiState = gesturesSettingsUiState,
         onNavigateUp = onNavigateUp,
+        onUpdateDoubleTapGestureAction = viewModel::updateDoubleTap,
         onUpdateSwipeUpGestureAction = viewModel::updateSwipeUp,
         onUpdateSwipeDownGestureAction = viewModel::updateSwipeDown,
     )
@@ -65,6 +66,7 @@ private fun GestureSettingsScreen(
     modifier: Modifier = Modifier,
     gesturesSettingsUiState: GesturesSettingsUiState,
     onNavigateUp: () -> Unit,
+    onUpdateDoubleTapGestureAction: (GestureAction) -> Unit,
     onUpdateSwipeUpGestureAction: (GestureAction) -> Unit,
     onUpdateSwipeDownGestureAction: (GestureAction) -> Unit,
 ) {
@@ -101,6 +103,7 @@ private fun GestureSettingsScreen(
                         modifier = modifier,
                         gestureSettings = gesturesSettingsUiState.userData.gestureSettings,
                         eblanApplicationInfos = gesturesSettingsUiState.eblanApplicationInfos,
+                        onUpdateDoubleTapGestureAction = onUpdateDoubleTapGestureAction,
                         onUpdateSwipeUpGestureAction = onUpdateSwipeUpGestureAction,
                         onUpdateSwipeDownGestureAction = onUpdateSwipeDownGestureAction,
                     )
@@ -115,6 +118,7 @@ private fun Success(
     modifier: Modifier = Modifier,
     gestureSettings: GestureSettings,
     eblanApplicationInfos: List<EblanApplicationInfo>,
+    onUpdateDoubleTapGestureAction: (GestureAction) -> Unit,
     onUpdateSwipeUpGestureAction: (GestureAction) -> Unit,
     onUpdateSwipeDownGestureAction: (GestureAction) -> Unit,
 ) {
@@ -127,7 +131,7 @@ private fun Success(
     Column(modifier = modifier.fillMaxSize()) {
         GestureColumn(
             title = "Double tap",
-            subtitle = "None",
+            subtitle = gestureSettings.doubleTap.getSubtitle(),
             onClick = {
                 showDoubleTapBottomSheet = true
             },
@@ -153,11 +157,9 @@ private fun Success(
 
     if (showDoubleTapBottomSheet) {
         BottomSheetContent(
-            gestureAction = GestureAction.None,
+            gestureAction = gestureSettings.doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = {
-                //Todo
-            },
+            onUpdateGestureAction = onUpdateDoubleTapGestureAction,
             onDismiss = {
                 showDoubleTapBottomSheet = false
             },

@@ -45,7 +45,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -153,6 +152,8 @@ fun PagerScreen(
 
     val interactionSource = remember { MutableInteractionSource() }
 
+    var showDoubleTap by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = interactionSource) {
         interactionSource.interactions.collectLatest { interaction ->
             when (interaction) {
@@ -199,6 +200,9 @@ fun PagerScreen(
         onSettings = onSettings,
         onEditPage = onEditPage,
         onDragStartPinItemRequest = onDragStartPinItemRequest,
+        onDoubleTap = {
+            showDoubleTap = true
+        },
     )
 
     when (anchoredDraggableState.currentValue) {
@@ -226,7 +230,7 @@ fun PagerScreen(
 
                     anchoredDraggableState.snapTo(VerticalDragDirection.None)
                 },
-                onFirstVisible = {
+                onOpenAppDrawer = {
                     anchoredDraggableState.updateAnchors(
                         newAnchors = DraggableAnchors {
                             VerticalDragDirection.Up at -50f
@@ -261,7 +265,7 @@ fun PagerScreen(
 
                     anchoredDraggableState.snapTo(VerticalDragDirection.None)
                 },
-                onFirstVisible = {
+                onOpenAppDrawer = {
                     anchoredDraggableState.updateAnchors(
                         newAnchors = DraggableAnchors {
                             VerticalDragDirection.Down at 50f
@@ -273,6 +277,32 @@ fun PagerScreen(
         }
 
         VerticalDragDirection.None -> Unit
+    }
+
+    if (showDoubleTap) {
+        GestureActionScreen(
+            gestureAction = gestureSettings.doubleTap,
+            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            gridHorizontalPagerState = gridHorizontalPagerState,
+            rows = rows,
+            columns = columns,
+            appDrawerColumns = appDrawerColumns,
+            pageCount = pageCount,
+            infiniteScroll = infiniteScroll,
+            rootWidth = rootWidth,
+            rootHeight = rootHeight,
+            dockHeight = dockHeight,
+            drag = drag,
+            appDrawerRowsHeight = appDrawerRowsHeight,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            dragIntOffset = dragIntOffset,
+            onLongPressGridItem = onLongPressGridItem,
+            onDraggingGridItem = onDraggingGridItem,
+            onDismiss = {
+                showDoubleTap = false
+            },
+            onOpenAppDrawer = {},
+        )
     }
 }
 
@@ -308,6 +338,7 @@ private fun HorizontalPagerScreen(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
+    onDoubleTap: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -369,6 +400,9 @@ private fun HorizontalPagerScreen(
             )
             .pointerInput(Unit) {
                 detectTapGestures(
+                    onDoubleTap = {
+                        onDoubleTap()
+                    },
                     onLongPress = { offset ->
                         popupSettingsMenuIntOffset = offset.round()
 
@@ -756,7 +790,6 @@ private fun ApplicationComponentScreen(
     ) -> Unit,
     onDragging: () -> Unit,
     onDismiss: suspend () -> Unit,
-    onFirstVisible: () -> Unit,
 ) {
     var alpha by remember { mutableFloatStateOf(1f) }
 
@@ -768,9 +801,6 @@ private fun ApplicationComponentScreen(
 
     Surface(
         modifier = modifier
-            .onFirstVisible {
-                onFirstVisible()
-            }
             .graphicsLayer(alpha = animatedAlpha)
             .fillMaxSize(),
     ) {
@@ -873,7 +903,7 @@ private fun GestureActionScreen(
     onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource) -> Unit,
     onDraggingGridItem: () -> Unit,
     onDismiss: suspend () -> Unit,
-    onFirstVisible: () -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -884,9 +914,15 @@ private fun GestureActionScreen(
 
         is GestureAction.OpenApp -> {
             launcherApps.startMainActivity(gestureAction.componentName)
+
+            LaunchedEffect(key1 = true) {
+                onDismiss()
+            }
         }
 
         GestureAction.OpenAppDrawer -> {
+            onOpenAppDrawer()
+
             ApplicationComponentScreen(
                 eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                 gridHorizontalPagerState = gridHorizontalPagerState,
@@ -905,12 +941,13 @@ private fun GestureActionScreen(
                 onLongPress = onLongPressGridItem,
                 onDragging = onDraggingGridItem,
                 onDismiss = onDismiss,
-                onFirstVisible = onFirstVisible,
             )
         }
 
         GestureAction.OpenNotificationPanel -> {
-
+            LaunchedEffect(key1 = true) {
+                onDismiss()
+            }
         }
     }
 }

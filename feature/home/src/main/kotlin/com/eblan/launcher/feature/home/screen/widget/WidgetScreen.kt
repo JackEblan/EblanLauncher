@@ -1,6 +1,8 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import android.content.ClipData
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -18,24 +20,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
@@ -43,6 +40,7 @@ import com.eblan.launcher.domain.grid.getSize
 import com.eblan.launcher.domain.grid.getWidgetGridItem
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -51,6 +49,7 @@ import com.eblan.launcher.feature.home.util.calculatePage
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
+    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     currentPage: Int,
     rows: Int,
     columns: Int,
@@ -62,14 +61,11 @@ fun WidgetScreen(
     dockHeight: Int,
     drag: Drag,
     dragIntOffset: IntOffset,
-    alpha: Float,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onUpdateAlpha: (Float) -> Unit,
-    onDismiss: suspend () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -83,53 +79,13 @@ fun WidgetScreen(
 
     val state = rememberLazyListState()
 
-    var totalDrag by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope()
 
-    val maxDrag = with(LocalDensity.current) { 100.dp.toPx() }
-
-    var isPointerUp by remember { mutableStateOf(false) }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val atTop = state.firstVisibleItemIndex == 0 &&
-                        state.firstVisibleItemScrollOffset == 0
-
-                if (atTop) {
-                    totalDrag += available.y
-
-                    totalDrag = totalDrag.coerceIn(-maxDrag, maxDrag)
-
-                    val newAlpha = 1f - (totalDrag / maxDrag)
-
-                    onUpdateAlpha(newAlpha.coerceIn(0f, 1f))
-                }
-
-                return Offset.Zero
-            }
-
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                if (state.firstVisibleItemIndex > 0 ||
-                    state.firstVisibleItemScrollOffset > 0
-                ) {
-                    totalDrag = 0f
-
-                    onUpdateAlpha(1f)
-                }
-
-                return Offset.Zero
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                isPointerUp = true
-
-                return super.onPostFling(consumed, available)
-            }
-        }
+    val overscrollEffect = remember(key1 = scope) {
+        OffsetOverscrollEffect(
+            scope = scope,
+            overscrollAlpha = overscrollAlpha,
+        )
     }
 
     LaunchedEffect(key1 = dragIntOffset) {
@@ -143,22 +99,8 @@ fun WidgetScreen(
         }
     }
 
-    LaunchedEffect(key1 = isPointerUp) {
-        if (isPointerUp && alpha < 0.5f) {
-            onDismiss()
-        }
-
-        if (isPointerUp && alpha >= 0.5f) {
-            onUpdateAlpha(1f)
-
-            isPointerUp = false
-        }
-    }
-
     Box(
-        modifier = modifier
-            .nestedScroll(nestedScrollConnection)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         when {
             eblanAppWidgetProviderInfos.isEmpty() -> {
@@ -166,7 +108,10 @@ fun WidgetScreen(
             }
 
             else -> {
-                LazyColumn(state = state) {
+                LazyColumn(
+                    state = state,
+                    overscrollEffect = overscrollEffect,
+                ) {
                     items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),

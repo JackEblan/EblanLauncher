@@ -7,8 +7,7 @@ import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
 import android.os.Build
 import android.widget.FrameLayout
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -33,9 +32,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -93,6 +92,7 @@ import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
 import kotlinx.coroutines.flow.onStart
 import java.io.File
+import kotlin.math.abs
 
 @Composable
 fun PagerScreen(
@@ -809,17 +809,17 @@ private fun ApplicationComponentScreen(
     onDragging: () -> Unit,
     onDismiss: suspend () -> Unit,
 ) {
-    var alpha by remember { mutableFloatStateOf(1f) }
+    val overscrollAlpha = remember { Animatable(0f) }
 
-    val animatedAlpha by animateFloatAsState(
-        targetValue = alpha,
-        animationSpec = tween(),
-        label = "AlphaAnimation",
-    )
+    val alpha by remember {
+        derivedStateOf {
+            1f - (abs(overscrollAlpha.value).coerceIn(0f, 100f) / 100f)
+        }
+    }
 
     Surface(
         modifier = modifier
-            .graphicsLayer(alpha = animatedAlpha)
+            .graphicsLayer(alpha = alpha)
             .fillMaxSize(),
     ) {
         when (eblanApplicationComponentUiState) {
@@ -844,25 +844,22 @@ private fun ApplicationComponentScreen(
                         0 -> {
                             ApplicationScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
+                                overscrollAlpha = overscrollAlpha,
                                 appDrawerColumns = appDrawerColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
                                 drag = drag,
                                 appDrawerRowsHeight = appDrawerRowsHeight,
-                                alpha = alpha,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onDismiss = onDismiss,
                             )
                         }
 
                         1 -> {
                             WidgetScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
+                                overscrollAlpha = overscrollAlpha,
                                 rows = rows,
                                 columns = columns,
                                 pageCount = pageCount,
@@ -873,13 +870,8 @@ private fun ApplicationComponentScreen(
                                 dockHeight = dockHeight,
                                 drag = drag,
                                 dragIntOffset = dragIntOffset,
-                                alpha = alpha,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onDismiss = onDismiss,
                             )
                         }
 

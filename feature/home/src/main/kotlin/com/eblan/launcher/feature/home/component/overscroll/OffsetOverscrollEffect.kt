@@ -92,21 +92,20 @@ class OffsetOverscrollEffect(
 
         val alpha = 1f - (abs(overscrollAlpha.value) / 100f)
 
+        overscrollAlpha.snapTo(0f)
+
         if (isOverScrolled && (isFastFling || alpha < 0.2f)) {
             onDragEnd()
-        } else {
-            val remaining = velocity - consumed
-
-            overscrollOffset.animateTo(
-                targetValue = 0f,
-                initialVelocity = remaining.y,
-                animationSpec = spring(),
-            )
-
-            overscrollAlpha.snapTo(0f)
         }
-    }
 
+        val remaining = velocity - consumed
+
+        overscrollOffset.animateTo(
+            targetValue = 0f,
+            initialVelocity = remaining.y,
+            animationSpec = spring(),
+        )
+    }
 
     override val isInProgress: Boolean
         get() = overscrollOffset.value != 0f

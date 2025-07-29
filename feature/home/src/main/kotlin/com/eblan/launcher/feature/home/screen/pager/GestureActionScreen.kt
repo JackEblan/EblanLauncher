@@ -95,7 +95,7 @@ fun GestureActionScreen(
 }
 
 @Composable
-private fun ApplicationComponentScreen(
+fun ApplicationComponentScreen(
     modifier: Modifier = Modifier,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     gridHorizontalPagerState: PagerState,

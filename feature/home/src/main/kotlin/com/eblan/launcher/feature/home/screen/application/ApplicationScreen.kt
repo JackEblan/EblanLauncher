@@ -68,6 +68,7 @@ fun ApplicationScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
@@ -95,6 +96,7 @@ fun ApplicationScreen(
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
+            onDragEnd = onDismiss,
         )
     }
 
@@ -106,7 +108,10 @@ fun ApplicationScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize(),
+    ) {
         when {
             eblanApplicationInfos.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

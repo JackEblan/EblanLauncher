@@ -24,6 +24,7 @@ import kotlin.math.sign
 class OffsetOverscrollEffect(
     private val scope: CoroutineScope,
     private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    private val onDragEnd: suspend () -> Unit,
 ) : OverscrollEffect {
     private val overscrollOffset = Animatable(0f)
 
@@ -64,11 +65,18 @@ class OffsetOverscrollEffect(
         // if it is a drag, not a fling, add the delta left to our over scroll value
         if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
             scope.launch {
-                // multiply by 0.1 for the sake of parallax effect
-                overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y * 0.1f)
-                overscrollAlpha.snapTo(overscrollOffset.value + overscrollDelta.y * 0.1f)
+                val newOffset = overscrollOffset.value + overscrollDelta.y * 0.1f
+
+                overscrollOffset.snapTo(newOffset)
+
+                if (newOffset > 0f) {
+                    overscrollAlpha.snapTo(newOffset)
+                } else {
+                    overscrollAlpha.snapTo(0f)
+                }
             }
         }
+
         return consumedByPreScroll + consumedByScroll
     }
 
@@ -77,17 +85,28 @@ class OffsetOverscrollEffect(
         performFling: suspend (Velocity) -> Velocity,
     ) {
         val consumed = performFling(velocity)
-        // when the fling happens - we just gradually animate our overscroll to 0
-        val remaining = velocity - consumed
 
-        overscrollOffset.animateTo(
-            targetValue = 0f,
-            initialVelocity = remaining.y,
-            animationSpec = spring(),
-        )
+        val isOverScrolled = overscrollOffset.value > 0f
 
-        overscrollAlpha.snapTo(0f)
+        val isFastFling = abs(velocity.y) > 3000f
+
+        val alpha = 1f - (abs(overscrollAlpha.value) / 100f)
+
+        if (isOverScrolled && (isFastFling || alpha < 0.2f)) {
+            onDragEnd()
+        } else {
+            val remaining = velocity - consumed
+
+            overscrollOffset.animateTo(
+                targetValue = 0f,
+                initialVelocity = remaining.y,
+                animationSpec = spring(),
+            )
+
+            overscrollAlpha.snapTo(0f)
+        }
     }
+
 
     override val isInProgress: Boolean
         get() = overscrollOffset.value != 0f

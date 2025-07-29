@@ -66,6 +66,7 @@ fun WidgetScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -85,6 +86,7 @@ fun WidgetScreen(
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
+            onDragEnd = onDismiss,
         )
     }
 
@@ -99,9 +101,7 @@ fun WidgetScreen(
         }
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         when {
             eblanAppWidgetProviderInfos.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

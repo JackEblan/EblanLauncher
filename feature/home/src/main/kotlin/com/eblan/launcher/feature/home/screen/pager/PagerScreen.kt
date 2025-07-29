@@ -813,7 +813,7 @@ private fun ApplicationComponentScreen(
 
     val alpha by remember {
         derivedStateOf {
-            1f - (abs(overscrollAlpha.value).coerceIn(0f, 100f) / 100f)
+            1f - (abs(overscrollAlpha.value) / 100f)
         }
     }
 
@@ -853,6 +853,7 @@ private fun ApplicationComponentScreen(
                                 appDrawerRowsHeight = appDrawerRowsHeight,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
+                                onDismiss = onDismiss,
                             )
                         }
 
@@ -872,6 +873,7 @@ private fun ApplicationComponentScreen(
                                 dragIntOffset = dragIntOffset,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
+                                onDismiss = onDismiss,
                             )
                         }
 

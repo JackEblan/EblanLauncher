@@ -2,12 +2,7 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipData
-import android.content.Context
-import android.content.pm.LauncherApps.PinItemRequest
-import android.content.pm.ShortcutInfo
-import android.os.Build
 import android.widget.FrameLayout
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -29,21 +24,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -53,18 +44,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
-import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
-import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.grid.getShortcutGridItem
-import com.eblan.launcher.domain.grid.getWidgetGridItem
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -82,17 +68,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.VerticalDragDirection
-import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
-import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
-import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
-import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
-import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
-import kotlinx.coroutines.flow.onStart
-import java.io.File
-import kotlin.math.abs
 
 @Composable
 fun PagerScreen(
@@ -785,185 +761,6 @@ private fun HorizontalPagerScreen(
     }
 }
 
-@Composable
-private fun ApplicationComponentScreen(
-    modifier: Modifier = Modifier,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    gridHorizontalPagerState: PagerState,
-    rows: Int,
-    columns: Int,
-    appDrawerColumns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    rootWidth: Int,
-    rootHeight: Int,
-    dockHeight: Int,
-    drag: Drag,
-    appDrawerRowsHeight: Int,
-    hasShortcutHostPermission: Boolean,
-    dragIntOffset: IntOffset,
-    onLongPress: (
-        currentPage: Int,
-        newGridItemSource: GridItemSource,
-    ) -> Unit,
-    onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
-) {
-    val overscrollAlpha = remember { Animatable(0f) }
-
-    val alpha by remember {
-        derivedStateOf {
-            1f - (abs(overscrollAlpha.value) / 100f)
-        }
-    }
-
-    Surface(
-        modifier = modifier
-            .graphicsLayer(alpha = alpha)
-            .fillMaxSize(),
-    ) {
-        when (eblanApplicationComponentUiState) {
-            EblanApplicationComponentUiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is EblanApplicationComponentUiState.Success -> {
-                val applicationHorizontalPagerState = rememberPagerState(
-                    initialPage = 0,
-                    pageCount = {
-                        if (hasShortcutHostPermission) {
-                            3
-                        } else {
-                            2
-                        }
-                    },
-                )
-
-                HorizontalPager(state = applicationHorizontalPagerState) { page ->
-                    when (page) {
-                        0 -> {
-                            ApplicationScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
-                                appDrawerColumns = appDrawerColumns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                                drag = drag,
-                                appDrawerRowsHeight = appDrawerRowsHeight,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
-                                onDismiss = onDismiss,
-                            )
-                        }
-
-                        1 -> {
-                            WidgetScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
-                                rows = rows,
-                                columns = columns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
-                                dockHeight = dockHeight,
-                                drag = drag,
-                                dragIntOffset = dragIntOffset,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
-                                onDismiss = onDismiss,
-                            )
-                        }
-
-                        2 -> {
-                            ShortcutScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
-                                drag = drag,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GestureActionScreen(
-    gestureAction: GestureAction,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    gridHorizontalPagerState: PagerState,
-    rows: Int,
-    columns: Int,
-    appDrawerColumns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    rootWidth: Int,
-    rootHeight: Int,
-    dockHeight: Int,
-    drag: Drag,
-    appDrawerRowsHeight: Int,
-    hasShortcutHostPermission: Boolean,
-    dragIntOffset: IntOffset,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource) -> Unit,
-    onDraggingGridItem: () -> Unit,
-    onDismiss: suspend () -> Unit,
-    onOpenAppDrawer: () -> Unit,
-) {
-    val launcherApps = LocalLauncherApps.current
-
-    when (gestureAction) {
-        GestureAction.None -> {
-            return
-        }
-
-        is GestureAction.OpenApp -> {
-            launcherApps.startMainActivity(gestureAction.componentName)
-
-            LaunchedEffect(key1 = true) {
-                onDismiss()
-            }
-        }
-
-        GestureAction.OpenAppDrawer -> {
-            onOpenAppDrawer()
-
-            ApplicationComponentScreen(
-                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                gridHorizontalPagerState = gridHorizontalPagerState,
-                rows = rows,
-                columns = columns,
-                appDrawerColumns = appDrawerColumns,
-                pageCount = pageCount,
-                infiniteScroll = infiniteScroll,
-                rootWidth = rootWidth,
-                rootHeight = rootHeight,
-                dockHeight = dockHeight,
-                drag = drag,
-                appDrawerRowsHeight = appDrawerRowsHeight,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                dragIntOffset = dragIntOffset,
-                onLongPress = onLongPressGridItem,
-                onDragging = onDraggingGridItem,
-                onDismiss = onDismiss,
-            )
-        }
-
-        GestureAction.OpenNotificationPanel -> {
-            LaunchedEffect(key1 = true) {
-                onDismiss()
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ApplicationInfoGridItem(
@@ -1107,198 +904,5 @@ private fun WidgetGridItem(
                 },
             )
         }
-    }
-}
-
-private suspend fun handlePinItemRequest(
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
-    rows: Int,
-    columns: Int,
-    gridWidth: Int,
-    gridHeight: Int,
-    drag: Drag,
-    pinItemRequestWrapper: PinItemRequestWrapper,
-    launcherAppsWrapper: LauncherAppsWrapper,
-    context: Context,
-    fileManager: FileManager,
-    onDragStart: (GridItemSource) -> Unit,
-) {
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
-    val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
-
-    suspend fun getWidgetGridItemSource(
-        pinItemRequest: PinItemRequest,
-        appWidgetProviderInfo: AppWidgetProviderInfo,
-    ): GridItemSource {
-        val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
-
-        val previewInferred = File(
-            fileManager.widgetsDirectory,
-            appWidgetProviderInfo.provider.className,
-        ).absolutePath
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            GridItemSource.Pin(
-                gridItem = getWidgetGridItem(
-                    page = targetPage,
-                    rows = rows,
-                    columns = columns,
-                    componentName = appWidgetProviderInfo.provider.flattenToString(),
-                    configure = appWidgetProviderInfo.configure.flattenToString(),
-                    packageName = appWidgetProviderInfo.provider.packageName,
-                    targetCellHeight = appWidgetProviderInfo.targetCellHeight,
-                    targetCellWidth = appWidgetProviderInfo.targetCellWidth,
-                    minWidth = appWidgetProviderInfo.minWidth,
-                    minHeight = appWidgetProviderInfo.minHeight,
-                    resizeMode = appWidgetProviderInfo.resizeMode,
-                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                    maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
-                    maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    preview = previewInferred,
-                ),
-                pinItemRequest = pinItemRequest,
-                byteArray = byteArray,
-            )
-        } else {
-            GridItemSource.Pin(
-                gridItem = getWidgetGridItem(
-                    page = targetPage,
-                    rows = rows,
-                    columns = columns,
-                    componentName = appWidgetProviderInfo.provider.flattenToString(),
-                    configure = appWidgetProviderInfo.configure.flattenToString(),
-                    packageName = appWidgetProviderInfo.provider.packageName,
-                    targetCellHeight = 0,
-                    targetCellWidth = 0,
-                    minWidth = appWidgetProviderInfo.minWidth,
-                    minHeight = appWidgetProviderInfo.minHeight,
-                    resizeMode = appWidgetProviderInfo.resizeMode,
-                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                    maxResizeWidth = 0,
-                    maxResizeHeight = 0,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    preview = previewInferred,
-                ),
-                pinItemRequest = pinItemRequest,
-                byteArray = byteArray,
-            )
-        }
-    }
-
-    suspend fun getShortcutGridItemSource(
-        pinItemRequest: PinItemRequest,
-        shortcutInfo: ShortcutInfo,
-    ): GridItemSource? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            val byteArray = launcherAppsWrapper.getShortcutIconDrawable(
-                shortcutInfo = shortcutInfo,
-                density = 0,
-            ).toByteArray()
-
-            val iconInferred = File(fileManager.shortcutsDirectory, shortcutInfo.id).absolutePath
-
-            GridItemSource.Pin(
-                gridItem = getShortcutGridItem(
-                    page = targetPage,
-                    id = shortcutInfo.id,
-                    packageName = shortcutInfo.`package`,
-                    shortLabel = shortcutInfo.shortLabel.toString(),
-                    longLabel = shortcutInfo.longLabel.toString(),
-                    icon = iconInferred,
-                ),
-                pinItemRequest = pinItemRequest,
-                byteArray = byteArray,
-            )
-        } else {
-            null
-        }
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
-        when (drag) {
-            Drag.Start -> {
-                when (pinItemRequest.requestType) {
-                    PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                        val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
-
-                        if (appWidgetProviderInfo != null) {
-                            onDragStart(
-                                getWidgetGridItemSource(
-                                    pinItemRequest = pinItemRequest,
-                                    appWidgetProviderInfo = appWidgetProviderInfo,
-                                ),
-                            )
-                        }
-                    }
-
-                    PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
-                        val shortcutInfo = pinItemRequest.shortcutInfo
-
-                        if (shortcutInfo != null) {
-                            getShortcutGridItemSource(
-                                pinItemRequest = pinItemRequest,
-                                shortcutInfo = shortcutInfo,
-                            )?.let { gridItemSource ->
-                                onDragStart(gridItemSource)
-                            }
-                        }
-                    }
-                }
-            }
-
-            Drag.End -> {
-                pinItemRequestWrapper.updatePinItemRequest(null)
-            }
-
-            else -> Unit
-        }
-    }
-}
-
-private suspend fun handleWallpaperScroll(
-    horizontalPagerState: PagerState,
-    wallpaperScroll: Boolean,
-    wallpaperManagerWrapper: WallpaperManagerWrapper,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    windowToken: android.os.IBinder,
-) {
-    if (!wallpaperScroll) return
-
-    snapshotFlow {
-        horizontalPagerState.currentPage to horizontalPagerState.currentPageOffsetFraction
-    }.onStart {
-        wallpaperManagerWrapper.setWallpaperOffsetSteps(
-            xStep = 1f / (pageCount - 1),
-            yStep = 1f,
-        )
-    }.collect { (currentPage, offsetFraction) ->
-        val page = calculatePage(
-            index = currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
-        val scrollProgress = (page + offsetFraction).coerceIn(0f, (pageCount - 1).toFloat())
-
-        val xOffset = scrollProgress / (pageCount - 1)
-
-        wallpaperManagerWrapper.setWallpaperOffsets(
-            windowToken = windowToken,
-            xOffset = xOffset,
-            yOffset = 0f,
-        )
     }
 }

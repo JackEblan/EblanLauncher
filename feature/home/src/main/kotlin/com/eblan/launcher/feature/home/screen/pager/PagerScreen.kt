@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
@@ -132,45 +131,9 @@ fun PagerScreen(
 
     val swipeUpY = remember { Animatable(rootHeight.toFloat()) }
 
-    val swipeDownY = remember { Animatable(-rootHeight.toFloat()) }
+    val swipeDownY = remember { Animatable(rootHeight.toFloat()) }
 
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(key1 = swipeUpY) {
-        snapshotFlow { swipeUpY.value }.collect { offset ->
-            if (offset < rootHeight / 2f) {
-                when (val gestureAction = gestureSettings.swipeUp) {
-                    GestureAction.None, GestureAction.OpenAppDrawer -> {
-                    }
-
-                    is GestureAction.OpenApp -> {
-                        launcherApps.startMainActivity(gestureAction.componentName)
-                    }
-
-                    GestureAction.OpenNotificationPanel -> {
-                    }
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(key1 = swipeDownY.value) {
-        snapshotFlow { swipeDownY.value }.collect { offset ->
-            if (offset > -rootHeight / 2f) {
-                when (val gestureAction = gestureSettings.swipeDown) {
-                    GestureAction.None, GestureAction.OpenAppDrawer -> {
-                    }
-
-                    is GestureAction.OpenApp -> {
-                        launcherApps.startMainActivity(gestureAction.componentName)
-                    }
-
-                    GestureAction.OpenNotificationPanel -> {
-                    }
-                }
-            }
-        }
-    }
 
     HorizontalPagerScreen(
         modifier = modifier
@@ -183,6 +146,7 @@ fun PagerScreen(
                                 swipeUpY = swipeUpY,
                                 rootHeight = rootHeight,
                                 swipeDownY = swipeDownY,
+                                onStartMainActivity = launcherApps::startMainActivity,
                             )
                         }
                     },
@@ -190,7 +154,7 @@ fun PagerScreen(
                         scope.launch {
                             swipeUpY.snapTo(swipeUpY.value + dragAmount)
 
-                            swipeDownY.snapTo(swipeDownY.value + dragAmount)
+                            swipeDownY.snapTo(swipeDownY.value - dragAmount)
                         }
                     },
                     onDragEnd = {
@@ -200,6 +164,7 @@ fun PagerScreen(
                                 swipeUpY = swipeUpY,
                                 rootHeight = rootHeight,
                                 swipeDownY = swipeDownY,
+                                onStartMainActivity = launcherApps::startMainActivity,
                             )
                         }
                     },
@@ -287,7 +252,7 @@ fun PagerScreen(
             onDragging = onDraggingGridItem,
             onDismiss = {
                 scope.launch {
-                    swipeDownY.snapTo(-rootHeight.toFloat())
+                    swipeDownY.snapTo(rootHeight.toFloat())
                 }
             },
         )

@@ -223,6 +223,29 @@ suspend fun handleOnDragEndGestureAction(
     swipeUpY: Animatable<Float, AnimationVector1D>,
     rootHeight: Int,
     swipeDownY: Animatable<Float, AnimationVector1D>,
+    onStartMainActivity: (String?) -> Unit,
+) {
+    doGestureActions(
+        gestureSettings = gestureSettings,
+        swipeUpY = swipeUpY,
+        swipeDownY = swipeDownY,
+        rootHeight = rootHeight,
+        onStartMainActivity = onStartMainActivity,
+    )
+
+    resetOffsets(
+        gestureSettings = gestureSettings,
+        swipeUpY = swipeUpY,
+        swipeDownY = swipeDownY,
+        rootHeight = rootHeight,
+    )
+}
+
+private suspend fun resetOffsets(
+    gestureSettings: GestureSettings,
+    swipeUpY: Animatable<Float, AnimationVector1D>,
+    swipeDownY: Animatable<Float, AnimationVector1D>,
+    rootHeight: Int,
 ) {
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
         val swipeUpYTarget = if (swipeUpY.value < rootHeight / 2f) {
@@ -237,14 +260,50 @@ suspend fun handleOnDragEndGestureAction(
     }
 
     if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
-        val swipeDownYTarget = if (swipeDownY.value < -rootHeight / 2f) {
-            -rootHeight.toFloat()
-        } else {
+        val swipeDownYTarget = if (swipeDownY.value < rootHeight / 2f) {
             0f
+        } else {
+            rootHeight.toFloat()
         }
 
         swipeDownY.animateTo(swipeDownYTarget, animationSpec = tween(300))
     } else {
-        swipeDownY.snapTo(-rootHeight.toFloat())
+        swipeDownY.snapTo(rootHeight.toFloat())
+    }
+}
+
+private fun doGestureActions(
+    gestureSettings: GestureSettings,
+    swipeUpY: Animatable<Float, AnimationVector1D>,
+    swipeDownY: Animatable<Float, AnimationVector1D>,
+    rootHeight: Int,
+    onStartMainActivity: (String?) -> Unit,
+) {
+    if (swipeUpY.value < rootHeight / 2f) {
+        when (val gestureAction = gestureSettings.swipeUp) {
+            GestureAction.None, GestureAction.OpenAppDrawer -> {
+            }
+
+            is GestureAction.OpenApp -> {
+                onStartMainActivity(gestureAction.componentName)
+            }
+
+            GestureAction.OpenNotificationPanel -> {
+            }
+        }
+    }
+
+    if (swipeDownY.value < rootHeight / 2f) {
+        when (val gestureAction = gestureSettings.swipeDown) {
+            GestureAction.None, GestureAction.OpenAppDrawer -> {
+            }
+
+            is GestureAction.OpenApp -> {
+                onStartMainActivity(gestureAction.componentName)
+            }
+
+            GestureAction.OpenNotificationPanel -> {
+            }
+        }
     }
 }

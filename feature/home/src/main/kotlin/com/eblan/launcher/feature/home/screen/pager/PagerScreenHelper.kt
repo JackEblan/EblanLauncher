@@ -5,12 +5,17 @@ import android.content.Context
 import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
 import android.os.Build
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.snapshotFlow
 import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.getShortcutGridItem
 import com.eblan.launcher.domain.grid.getWidgetGridItem
+import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -210,5 +215,36 @@ suspend fun handleWallpaperScroll(
             xOffset = xOffset,
             yOffset = 0f,
         )
+    }
+}
+
+suspend fun handleOnDragEndGestureAction(
+    gestureSettings: GestureSettings,
+    swipeUpY: Animatable<Float, AnimationVector1D>,
+    rootHeight: Int,
+    swipeDownY: Animatable<Float, AnimationVector1D>,
+) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+        val swipeUpYTarget = if (swipeUpY.value < rootHeight / 2f) {
+            0f
+        } else {
+            rootHeight.toFloat()
+        }
+
+        swipeUpY.animateTo(swipeUpYTarget, animationSpec = tween(300))
+    } else {
+        swipeUpY.snapTo(rootHeight.toFloat())
+    }
+
+    if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+        val swipeDownYTarget = if (swipeDownY.value < -rootHeight / 2f) {
+            -rootHeight.toFloat()
+        } else {
+            0f
+        }
+
+        swipeDownY.animateTo(swipeDownYTarget, animationSpec = tween(300))
+    } else {
+        swipeDownY.snapTo(-rootHeight.toFloat())
     }
 }

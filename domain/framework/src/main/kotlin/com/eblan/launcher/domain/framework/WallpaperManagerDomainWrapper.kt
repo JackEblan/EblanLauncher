@@ -3,8 +3,6 @@ package com.eblan.launcher.domain.framework
 import kotlinx.coroutines.flow.Flow
 
 interface WallpaperManagerDomainWrapper {
-    val supportsColorHints: Boolean
-
     val hintSupportsDarkText: Int
 
     val hintSupportsDarkTheme: Int

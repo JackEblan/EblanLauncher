@@ -264,7 +264,7 @@ fun resetSwipeOffset(
     rootHeight: Int,
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
-    val swipeThreshold = rootHeight - 100f
+    val swipeThreshold = rootHeight - 200f
 
     scope.launch {
         if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {

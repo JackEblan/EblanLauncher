@@ -179,6 +179,13 @@ fun PagerScreen(
                             swipeUpY = swipeUpY,
                         )
                     },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeUpY.animateTo(rootHeight.toFloat())
+
+                            swipeDownY.animateTo(rootHeight.toFloat())
+                        }
+                    },
                 )
             },
         horizontalPagerState = gridHorizontalPagerState,

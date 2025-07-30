@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.RequiresApi
 import com.eblan.launcher.domain.framework.WallpaperManagerDomainWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
@@ -18,32 +17,39 @@ internal class AndroidWallpaperManagerWrapper @Inject constructor(@ApplicationCo
     WallpaperManagerDomainWrapper, WallpaperManagerWrapper {
     private val wallpaperManager = WallpaperManager.getInstance(context)
 
-    override val supportsColorHints = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    override val hintSupportsDarkText = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        WallpaperColors.HINT_SUPPORTS_DARK_TEXT
+    } else {
+        0
+    }
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    override val hintSupportsDarkText = WallpaperColors.HINT_SUPPORTS_DARK_TEXT
+    override val hintSupportsDarkTheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        WallpaperColors.HINT_SUPPORTS_DARK_THEME
+    } else {
+        0
+    }
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    override val hintSupportsDarkTheme = WallpaperColors.HINT_SUPPORTS_DARK_THEME
-
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun getColorsChanged(): Flow<Int?> {
         return callbackFlow {
-            trySend(wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)?.colorHints)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                trySend(wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)?.colorHints)
 
-            val callback = WallpaperManager.OnColorsChangedListener { wallpaperColors, which ->
-                if ((which and WallpaperManager.FLAG_SYSTEM) != 0) {
-                    trySend(wallpaperColors?.colorHints)
+                val callback = WallpaperManager.OnColorsChangedListener { wallpaperColors, which ->
+                    if ((which and WallpaperManager.FLAG_SYSTEM) != 0) {
+                        trySend(wallpaperColors?.colorHints)
+                    }
                 }
-            }
 
-            wallpaperManager.addOnColorsChangedListener(
-                callback,
-                Handler(Looper.getMainLooper()),
-            )
+                wallpaperManager.addOnColorsChangedListener(
+                    callback,
+                    Handler(Looper.getMainLooper()),
+                )
 
-            awaitClose {
-                wallpaperManager.removeOnColorsChangedListener(callback)
+                awaitClose {
+                    wallpaperManager.removeOnColorsChangedListener(callback)
+                }
+            } else {
+                trySend(0)
             }
         }
     }

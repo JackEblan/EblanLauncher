@@ -778,24 +778,23 @@ private fun HorizontalPagerScreen(
     }
 
     if (showPopupSettingsMenu) {
-        val onDismissRequest1 = {
-            showPopupSettingsMenu = false
-        }
         Popup(
             popupPositionProvider = SettingsMenuPositionProvider(
                 x = popupSettingsMenuIntOffset.x,
                 y = popupSettingsMenuIntOffset.y,
             ),
-            onDismissRequest = onDismissRequest1,
+            onDismissRequest = {
+                showPopupSettingsMenu = false
+            },
         ) {
             SettingsMenu(
                 onSettings = {
-                    onDismissRequest1()
+                    showPopupSettingsMenu = false
 
                     onSettings()
                 },
                 onEditPage = {
-                    onDismissRequest1()
+                    showPopupSettingsMenu = false
 
                     onEditPage()
                 },

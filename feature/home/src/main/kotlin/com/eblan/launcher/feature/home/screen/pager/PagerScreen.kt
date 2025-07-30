@@ -3,17 +3,15 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ClipData
 import android.widget.FrameLayout
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.snapTo
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -67,8 +66,8 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.model.VerticalDragDirection
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -119,21 +118,47 @@ fun PagerScreen(
         },
     )
 
-    val anchoredDraggableState = remember {
-        AnchoredDraggableState(
-            initialValue = VerticalDragDirection.Down,
-            anchors = DraggableAnchors {
-                VerticalDragDirection.Down at 0f
-            },
-        )
-    }
-
     var showDoubleTap by remember { mutableStateOf(false) }
 
+    var swipeUpY = remember { Animatable(rootHeight.toFloat()) }
+
+    var swipeDownY = remember { Animatable(-rootHeight.toFloat()) }
+
+    val scope = rememberCoroutineScope()
+
     HorizontalPagerScreen(
-        modifier = modifier,
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = { _, dragAmount ->
+                        scope.launch {
+                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+
+                            swipeDownY.snapTo(swipeDownY.value + dragAmount)
+                        }
+                    },
+                    onDragEnd = {
+                        scope.launch {
+                            val swipeUpYTarget = if (swipeUpY.value < rootHeight / 2f) {
+                                0f
+                            } else {
+                                rootHeight.toFloat()
+                            }
+
+                            val swipeDownYTarget = if (swipeDownY.value < -rootHeight / 2f) {
+                                -rootHeight.toFloat()
+                            } else {
+                                0f
+                            }
+
+                            swipeUpY.animateTo(swipeUpYTarget, animationSpec = tween(300))
+
+                            swipeDownY.animateTo(swipeDownYTarget, animationSpec = tween(300))
+                        }
+                    },
+                )
+            },
         horizontalPagerState = gridHorizontalPagerState,
-        anchoredDraggableState = anchoredDraggableState,
         rows = rows,
         columns = columns,
         pageCount = pageCount,
@@ -173,17 +198,9 @@ fun PagerScreen(
         }
 
         GestureAction.OpenAppDrawer -> {
-            anchoredDraggableState.updateAnchors(
-                newAnchors = DraggableAnchors {
-                    VerticalDragDirection.Up at 0f
-                    VerticalDragDirection.Down at rootHeight.toFloat()
-                },
-                newTarget = VerticalDragDirection.Down,
-            )
-
             ApplicationComponentScreen(
                 modifier = Modifier.offset {
-                    IntOffset(x = 0, y = anchoredDraggableState.requireOffset().roundToInt())
+                    IntOffset(x = 0, y = swipeUpY.value.roundToInt())
                 },
                 eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                 gridHorizontalPagerState = gridHorizontalPagerState,
@@ -202,7 +219,9 @@ fun PagerScreen(
                 onLongPress = onLongPressGridItem,
                 onDragging = onDraggingGridItem,
                 onDismiss = {
-                    anchoredDraggableState.snapTo(VerticalDragDirection.Down)
+                    scope.launch {
+                        swipeUpY.snapTo(rootHeight.toFloat())
+                    }
                 },
             )
         }
@@ -222,17 +241,9 @@ fun PagerScreen(
         }
 
         GestureAction.OpenAppDrawer -> {
-            anchoredDraggableState.updateAnchors(
-                newAnchors = DraggableAnchors {
-                    VerticalDragDirection.Up at -rootHeight.toFloat()
-                    VerticalDragDirection.Down at 0f
-                },
-                newTarget = VerticalDragDirection.Up,
-            )
-
             ApplicationComponentScreen(
                 modifier = Modifier.offset {
-                    IntOffset(x = 0, y = anchoredDraggableState.requireOffset().roundToInt())
+                    IntOffset(x = 0, y = swipeDownY.value.roundToInt())
                 },
                 eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                 gridHorizontalPagerState = gridHorizontalPagerState,
@@ -251,7 +262,9 @@ fun PagerScreen(
                 onLongPress = onLongPressGridItem,
                 onDragging = onDraggingGridItem,
                 onDismiss = {
-                    anchoredDraggableState.snapTo(VerticalDragDirection.Up)
+                    scope.launch {
+                        swipeDownY.snapTo(-rootHeight.toFloat())
+                    }
                 },
             )
         }
@@ -259,7 +272,6 @@ fun PagerScreen(
         GestureAction.OpenNotificationPanel -> {
 
         }
-
     }
 
     if (showDoubleTap) {
@@ -293,7 +305,6 @@ fun PagerScreen(
 private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     horizontalPagerState: PagerState,
-    anchoredDraggableState: AnchoredDraggableState<VerticalDragDirection>,
     rows: Int,
     columns: Int,
     pageCount: Int,
@@ -390,11 +401,6 @@ private fun HorizontalPagerScreen(
 
     Column(
         modifier = modifier
-            .anchoredDraggable(
-                state = anchoredDraggableState,
-                orientation = Orientation.Vertical,
-                enabled = true,
-            )
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {

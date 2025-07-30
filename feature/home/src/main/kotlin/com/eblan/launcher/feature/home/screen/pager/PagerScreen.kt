@@ -135,6 +135,22 @@ fun PagerScreen(
 
     val scope = rememberCoroutineScope()
 
+    val applicationComponentY by remember {
+        derivedStateOf {
+            if (swipeUpY.value < rootHeight &&
+                gestureSettings.swipeUp is GestureAction.OpenAppDrawer
+            ) {
+                swipeUpY.value
+            } else if (swipeDownY.value < rootHeight &&
+                gestureSettings.swipeDown is GestureAction.OpenAppDrawer
+            ) {
+                swipeDownY.value
+            } else {
+                rootHeight.toFloat()
+            }
+        }
+    }
+
     HorizontalPagerScreen(
         modifier = modifier
             .pointerInput(Unit) {
@@ -200,10 +216,12 @@ fun PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
+        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
+    ) {
         ApplicationComponentScreen(
             modifier = Modifier.offset {
-                IntOffset(x = 0, y = swipeUpY.value.roundToInt())
+                IntOffset(x = 0, y = applicationComponentY.roundToInt())
             },
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridHorizontalPagerState = gridHorizontalPagerState,
@@ -224,34 +242,7 @@ fun PagerScreen(
             onDismiss = {
                 scope.launch {
                     swipeUpY.snapTo(rootHeight.toFloat())
-                }
-            },
-        )
-    }
 
-    if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
-        ApplicationComponentScreen(
-            modifier = Modifier.offset {
-                IntOffset(x = 0, y = swipeDownY.value.roundToInt())
-            },
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            gridHorizontalPagerState = gridHorizontalPagerState,
-            rows = rows,
-            columns = columns,
-            appDrawerColumns = appDrawerColumns,
-            pageCount = pageCount,
-            infiniteScroll = infiniteScroll,
-            rootWidth = rootWidth,
-            rootHeight = rootHeight,
-            dockHeight = dockHeight,
-            drag = drag,
-            appDrawerRowsHeight = appDrawerRowsHeight,
-            hasShortcutHostPermission = hasShortcutHostPermission,
-            dragIntOffset = dragIntOffset,
-            onLongPress = onLongPressGridItem,
-            onDragging = onDraggingGridItem,
-            onDismiss = {
-                scope.launch {
                     swipeDownY.snapTo(rootHeight.toFloat())
                 }
             },

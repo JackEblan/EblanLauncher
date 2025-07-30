@@ -7,7 +7,6 @@ import android.content.pm.ShortcutInfo
 import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.snapshotFlow
 import com.eblan.launcher.common.util.toByteArray
@@ -22,8 +21,12 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import java.io.File
+
+private const val SwipeThreshold = 100f
 
 suspend fun handlePinItemRequest(
     currentPage: Int,
@@ -218,68 +221,14 @@ suspend fun handleWallpaperScroll(
     }
 }
 
-suspend fun handleOnDragEndGestureAction(
-    gestureSettings: GestureSettings,
-    swipeUpY: Animatable<Float, AnimationVector1D>,
-    rootHeight: Int,
-    swipeDownY: Animatable<Float, AnimationVector1D>,
-    onStartMainActivity: (String?) -> Unit,
-) {
-    doGestureActions(
-        gestureSettings = gestureSettings,
-        swipeUpY = swipeUpY,
-        swipeDownY = swipeDownY,
-        rootHeight = rootHeight,
-        onStartMainActivity = onStartMainActivity,
-    )
-
-    resetOffsets(
-        gestureSettings = gestureSettings,
-        swipeUpY = swipeUpY,
-        swipeDownY = swipeDownY,
-        rootHeight = rootHeight,
-    )
-}
-
-private suspend fun resetOffsets(
-    gestureSettings: GestureSettings,
-    swipeUpY: Animatable<Float, AnimationVector1D>,
-    swipeDownY: Animatable<Float, AnimationVector1D>,
-    rootHeight: Int,
-) {
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
-        val swipeUpYTarget = if (swipeUpY.value < rootHeight / 2f) {
-            0f
-        } else {
-            rootHeight.toFloat()
-        }
-
-        swipeUpY.animateTo(swipeUpYTarget, animationSpec = tween(300))
-    } else {
-        swipeUpY.snapTo(rootHeight.toFloat())
-    }
-
-    if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
-        val swipeDownYTarget = if (swipeDownY.value < rootHeight / 2f) {
-            0f
-        } else {
-            rootHeight.toFloat()
-        }
-
-        swipeDownY.animateTo(swipeDownYTarget, animationSpec = tween(300))
-    } else {
-        swipeDownY.snapTo(rootHeight.toFloat())
-    }
-}
-
-private fun doGestureActions(
+fun doGestureActions(
     gestureSettings: GestureSettings,
     swipeUpY: Animatable<Float, AnimationVector1D>,
     swipeDownY: Animatable<Float, AnimationVector1D>,
     rootHeight: Int,
     onStartMainActivity: (String?) -> Unit,
 ) {
-    if (swipeUpY.value < rootHeight / 2f) {
+    if (swipeUpY.value < rootHeight - SwipeThreshold) {
         when (val gestureAction = gestureSettings.swipeUp) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }
@@ -293,7 +242,7 @@ private fun doGestureActions(
         }
     }
 
-    if (swipeDownY.value < rootHeight / 2f) {
+    if (swipeDownY.value < rootHeight - SwipeThreshold) {
         when (val gestureAction = gestureSettings.swipeDown) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }
@@ -304,6 +253,43 @@ private fun doGestureActions(
 
             GestureAction.OpenNotificationPanel -> {
             }
+        }
+    }
+}
+
+fun resetSwipeOffset(
+    scope: CoroutineScope,
+    gestureSettings: GestureSettings,
+    swipeDownY: Animatable<Float, AnimationVector1D>,
+    rootHeight: Int,
+    swipeUpY: Animatable<Float, AnimationVector1D>,
+) {
+    val swipeThreshold = rootHeight - 100f
+
+    scope.launch {
+        if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+            val swipeDownYTarget = if (swipeDownY.value < swipeThreshold) {
+                0f
+            } else {
+                rootHeight.toFloat()
+            }
+
+            swipeDownY.animateTo(swipeDownYTarget)
+        } else {
+            swipeDownY.snapTo(rootHeight.toFloat())
+        }
+    }
+
+    scope.launch {
+        if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+            val swipeUpYTarget = if (swipeUpY.value < swipeThreshold) {
+                0f
+            } else {
+                rootHeight.toFloat()
+            }
+            swipeUpY.animateTo(swipeUpYTarget)
+        } else {
+            swipeUpY.snapTo(rootHeight.toFloat())
         }
     }
 }

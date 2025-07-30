@@ -155,17 +155,6 @@ fun PagerScreen(
         modifier = modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
-                    onDragCancel = {
-                        scope.launch {
-                            handleOnDragEndGestureAction(
-                                gestureSettings = gestureSettings,
-                                swipeUpY = swipeUpY,
-                                rootHeight = rootHeight,
-                                swipeDownY = swipeDownY,
-                                onStartMainActivity = launcherApps::startMainActivity,
-                            )
-                        }
-                    },
                     onVerticalDrag = { _, dragAmount ->
                         scope.launch {
                             swipeUpY.snapTo(swipeUpY.value + dragAmount)
@@ -174,15 +163,21 @@ fun PagerScreen(
                         }
                     },
                     onDragEnd = {
-                        scope.launch {
-                            handleOnDragEndGestureAction(
-                                gestureSettings = gestureSettings,
-                                swipeUpY = swipeUpY,
-                                rootHeight = rootHeight,
-                                swipeDownY = swipeDownY,
-                                onStartMainActivity = launcherApps::startMainActivity,
-                            )
-                        }
+                        doGestureActions(
+                            gestureSettings = gestureSettings,
+                            swipeUpY = swipeUpY,
+                            rootHeight = rootHeight,
+                            swipeDownY = swipeDownY,
+                            onStartMainActivity = launcherApps::startMainActivity,
+                        )
+
+                        resetSwipeOffset(
+                            scope = scope,
+                            gestureSettings = gestureSettings,
+                            swipeDownY = swipeDownY,
+                            rootHeight = rootHeight,
+                            swipeUpY = swipeUpY,
+                        )
                     },
                 )
             },

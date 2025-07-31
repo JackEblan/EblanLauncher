@@ -1,7 +1,7 @@
 package com.eblan.launcher.framework.widgetmanager
 
-import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
-import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
+import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,17 +14,17 @@ internal interface WidgetManagerModule {
 
     @Binds
     @Singleton
-    fun appWidgetManagerWrapper(impl: AndroidAppWidgetManagerWrapper): AppWidgetManagerWrapper
+    fun androidAppWidgetManagerWrapper(impl: DefaultAppWidgetManagerWrapper): AndroidAppWidgetManagerWrapper
 
     @Binds
     @Singleton
-    fun appWidgetManagerDomainWrapper(impl: AndroidAppWidgetManagerWrapper): AppWidgetManagerDomainWrapper
+    fun appWidgetManagerWrapper(impl: DefaultAppWidgetManagerWrapper): AppWidgetManagerWrapper
 
     @Binds
     @Singleton
-    fun appWidgetHostWrapper(impl: AndroidAppWidgetHostWrapper): AppWidgetHostWrapper
+    fun androidAppWidgetHostWrapper(impl: DefaultAppWidgetHostWrapper): AndroidAppWidgetHostWrapper
 
     @Binds
     @Singleton
-    fun appWidgetHostDomainWrapper(impl: AndroidAppWidgetHostWrapper): AppWidgetHostDomainWrapper
+    fun appWidgetHostWrapper(impl: DefaultAppWidgetHostWrapper): AppWidgetHostWrapper
 }

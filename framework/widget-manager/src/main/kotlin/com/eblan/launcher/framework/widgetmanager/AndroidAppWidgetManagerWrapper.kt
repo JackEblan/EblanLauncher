@@ -1,82 +1,13 @@
 package com.eblan.launcher.framework.widgetmanager
 
-import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import com.eblan.launcher.common.util.toByteArray
-import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
-import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
-internal class AndroidAppWidgetManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
-    AppWidgetManagerDomainWrapper, AppWidgetManagerWrapper {
-    private val appWidgetManager = AppWidgetManager.getInstance(context)
+interface AndroidAppWidgetManagerWrapper {
+    fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo?
 
-    private val packageManager = context.packageManager
+    fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean
 
-    override val hasSystemFeatureAppWidgets =
-        packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
-
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
-        return appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
-        }
-    }
-
-    override fun getAppWidgetInfo(appWidgetId: Int): AppWidgetProviderInfo? {
-        return appWidgetManager.getAppWidgetInfo(appWidgetId)
-    }
-
-    override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean {
-        return appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
-    }
-
-    override fun updateAppWidgetOptions(appWidgetId: Int, options: Bundle) {
-        appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
-    }
-
-    private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
-        val preview = loadPreviewImage(context, 0)?.toByteArray()
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AppWidgetManagerAppWidgetProviderInfo(
-                className = provider.className,
-                packageName = provider.packageName,
-                componentName = provider.flattenToString(),
-                configure = configure?.flattenToString(),
-                targetCellWidth = targetCellWidth,
-                targetCellHeight = targetCellHeight,
-                minWidth = minWidth,
-                minHeight = minHeight,
-                resizeMode = resizeMode,
-                minResizeWidth = minResizeWidth,
-                minResizeHeight = minResizeHeight,
-                maxResizeWidth = maxResizeWidth,
-                maxResizeHeight = maxResizeHeight,
-                preview = preview,
-            )
-        } else {
-            AppWidgetManagerAppWidgetProviderInfo(
-                className = provider.className,
-                packageName = provider.packageName,
-                componentName = provider.flattenToString(),
-                configure = configure?.flattenToString(),
-                targetCellWidth = 0,
-                targetCellHeight = 0,
-                minWidth = minWidth,
-                minHeight = minHeight,
-                resizeMode = resizeMode,
-                minResizeWidth = minResizeWidth,
-                minResizeHeight = minResizeHeight,
-                maxResizeWidth = 0,
-                maxResizeHeight = 0,
-                preview = preview,
-            )
-        }
-    }
+    fun updateAppWidgetOptions(appWidgetId: Int, options: Bundle)
 }

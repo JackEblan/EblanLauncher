@@ -18,9 +18,9 @@ import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
+import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ suspend fun handlePinItemRequest(
     gridHeight: Int,
     drag: Drag,
     pinItemRequestWrapper: PinItemRequestWrapper,
-    launcherAppsWrapper: LauncherAppsWrapper,
+    launcherAppsWrapper: AndroidLauncherAppsWrapper,
     context: Context,
     fileManager: FileManager,
     onDragStart: (GridItemSource) -> Unit,
@@ -188,7 +188,7 @@ suspend fun handlePinItemRequest(
 suspend fun handleWallpaperScroll(
     horizontalPagerState: PagerState,
     wallpaperScroll: Boolean,
-    wallpaperManagerWrapper: WallpaperManagerWrapper,
+    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
     pageCount: Int,
     infiniteScroll: Boolean,
     windowToken: android.os.IBinder,

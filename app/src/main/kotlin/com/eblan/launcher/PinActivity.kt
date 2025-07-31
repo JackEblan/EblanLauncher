@@ -16,10 +16,10 @@ import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.feature.pin.PinScreen
-import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -27,13 +27,13 @@ import javax.inject.Inject
 class PinActivity : ComponentActivity() {
 
     @Inject
-    lateinit var appWidgetHostWrapper: AppWidgetHostWrapper
+    lateinit var androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper
 
     @Inject
-    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
+    lateinit var androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper
 
     @Inject
-    lateinit var launcherAppsWrapper: LauncherAppsWrapper
+    lateinit var androidLauncherAppsWrapper: AndroidLauncherAppsWrapper
 
     @Inject
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
@@ -49,14 +49,14 @@ class PinActivity : ComponentActivity() {
                 .setPackage(packageName)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-            val pinItemRequest = launcherAppsWrapper.getPinItemRequest(intent = intent)
+            val pinItemRequest = androidLauncherAppsWrapper.getPinItemRequest(intent = intent)
 
             setContent {
                 CompositionLocalProvider(
-                    LocalAppWidgetHost provides appWidgetHostWrapper,
-                    LocalAppWidgetManager provides appWidgetManagerWrapper,
+                    LocalAppWidgetHost provides androidAppWidgetHostWrapper,
+                    LocalAppWidgetManager provides androidAppWidgetManagerWrapper,
                     LocalPinItemRequest provides pinItemRequestWrapper,
-                    LocalLauncherApps provides launcherAppsWrapper,
+                    LocalLauncherApps provides androidLauncherAppsWrapper,
                 ) {
                     EblanLauncherTheme(
                         themeBrand = ThemeBrand.GREEN,

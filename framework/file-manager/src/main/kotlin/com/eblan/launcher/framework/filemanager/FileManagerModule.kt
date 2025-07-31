@@ -30,5 +30,5 @@ internal interface FileManagerModule {
 
     @Binds
     @Singleton
-    fun fileManager(impl: AndroidFileManager): FileManager
+    fun fileManager(impl: DefaultFileManager): FileManager
 }

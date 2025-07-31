@@ -1,37 +1,17 @@
 package com.eblan.launcher.framework.widgetmanager
 
-import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
-import android.content.Context
-import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
-internal class AndroidAppWidgetHostWrapper @Inject constructor(@ApplicationContext private val context: Context) :
-    AppWidgetHostDomainWrapper, AppWidgetHostWrapper {
-    private val appWidgetHost = AppWidgetHost(context, 2814)
+interface AndroidAppWidgetHostWrapper {
+    fun startListening()
 
-    override fun startListening() {
-        appWidgetHost.startListening()
-    }
+    fun stopListening()
 
-    override fun stopListening() {
-        appWidgetHost.stopListening()
-    }
+    fun allocateAppWidgetId(): Int
 
-    override fun allocateAppWidgetId(): Int {
-        return appWidgetHost.allocateAppWidgetId()
-    }
-
-    override fun createView(
+    fun createView(
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
-    ): AppWidgetHostView {
-        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
-    }
-
-    override fun deleteAppWidgetId(appWidgetId: Int) {
-        appWidgetHost.deleteAppWidgetId(appWidgetId)
-    }
+    ): AppWidgetHostView
 }

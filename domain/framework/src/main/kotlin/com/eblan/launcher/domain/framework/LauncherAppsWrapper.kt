@@ -5,7 +5,7 @@ import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import kotlinx.coroutines.flow.Flow
 
-interface LauncherAppsDomainWrapper {
+interface LauncherAppsWrapper {
     val launcherAppsEvent: Flow<LauncherAppsEvent>
 
     val hasShortcutHostPermission: Boolean

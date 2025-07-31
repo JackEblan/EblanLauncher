@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class AndroidPackageManagerWrapper @Inject constructor(
+internal class DefaultPackageManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : PackageManagerWrapper {
 

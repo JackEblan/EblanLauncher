@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
+import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -13,7 +13,7 @@ class AddPackageUseCase @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val appWidgetManagerDomainWrapper: AppWidgetManagerDomainWrapper,
+    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
 ) {
     suspend operator fun invoke(packageName: String) {
@@ -42,7 +42,7 @@ class AddPackageUseCase @Inject constructor(
             eblanApplicationInfo = eblanApplicationInfo,
         )
 
-        val eblanAppWidgetProviderInfos = appWidgetManagerDomainWrapper.getInstalledProviders()
+        val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.map { appWidgetManagerAppWidgetProviderInfo ->

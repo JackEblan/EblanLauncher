@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
+import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
@@ -13,11 +13,11 @@ import javax.inject.Inject
 class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val appWidgetManagerDomainWrapper: AppWidgetManagerDomainWrapper,
+    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
 ) {
     suspend operator fun invoke() {
-        if (!appWidgetManagerDomainWrapper.hasSystemFeatureAppWidgets) {
+        if (!appWidgetManagerWrapper.hasSystemFeatureAppWidgets) {
             return
         }
 
@@ -29,7 +29,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                 eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
 
             val newEblanAppWidgetProviderInfos =
-                appWidgetManagerDomainWrapper.getInstalledProviders()
+                appWidgetManagerWrapper.getInstalledProviders()
                     .mapNotNull { appWidgetManagerAppWidgetProviderInfo ->
                         val eblanApplicationInfo =
                             oldEblanApplicationInfos.find { eblanApplicationInfo ->

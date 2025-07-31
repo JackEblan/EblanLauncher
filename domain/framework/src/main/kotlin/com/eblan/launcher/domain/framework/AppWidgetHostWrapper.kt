@@ -1,5 +1,5 @@
 package com.eblan.launcher.domain.framework
 
-interface AppWidgetHostDomainWrapper {
+interface AppWidgetHostWrapper {
     fun deleteAppWidgetId(appWidgetId: Int)
 }

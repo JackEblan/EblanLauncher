@@ -13,8 +13,8 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
 fun onDroppedNew(
     currentPage: Int,
@@ -23,8 +23,8 @@ fun onDroppedNew(
     drag: Drag,
     gridItemSource: GridItemSource?,
     movedGridItems: Boolean,
-    appWidgetHostWrapper: AppWidgetHostWrapper,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetHostWrapper: AndroidAppWidgetHostWrapper,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
@@ -45,7 +45,7 @@ fun onDroppedNew(
         onDragEndNew(
             targetPage = targetPage,
             movedGridItems = movedGridItems,
-            appWidgetHostWrapper = appWidgetHostWrapper,
+            androidAppWidgetHostWrapper = appWidgetHostWrapper,
             appWidgetManager = appWidgetManager,
             gridItemSource = gridItemSource,
             onLaunch = onLaunch,
@@ -201,8 +201,8 @@ fun handleBoundWidgetSource(
 private fun onDragEndNew(
     targetPage: Int,
     movedGridItems: Boolean,
-    appWidgetHostWrapper: AppWidgetHostWrapper,
-    appWidgetManager: AppWidgetManagerWrapper,
+    androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource?,
     onDeleteGridItem: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
@@ -226,7 +226,7 @@ private fun onDragEndNew(
             val data = gridItemSource.gridItem.data
 
             if (data is GridItemData.Widget) {
-                val appWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
+                val appWidgetId = androidAppWidgetHostWrapper.allocateAppWidgetId()
 
                 onUpdateAppWidgetId(appWidgetId)
 
@@ -264,7 +264,7 @@ private fun onDragEndNew(
                 }
 
                 is GridItemData.Widget -> {
-                    val appWidgetId = appWidgetHostWrapper.allocateAppWidgetId()
+                    val appWidgetId = androidAppWidgetHostWrapper.allocateAppWidgetId()
 
                     onUpdateAppWidgetId(appWidgetId)
 
@@ -292,7 +292,7 @@ private fun onDragEndNew(
 private fun onDragEndGridItemWidget(
     gridItemSource: GridItemSource,
     appWidgetId: Int,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     componentName: String,
     onLaunch: (Intent) -> Unit,
     onUpdateWidgetGridItem: (
@@ -322,7 +322,7 @@ private fun onDragEndGridItemWidget(
 
 private fun onDragEndPinWidget(
     appWidgetId: Int,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource,
     componentName: String,
     onLaunch: (Intent) -> Unit,

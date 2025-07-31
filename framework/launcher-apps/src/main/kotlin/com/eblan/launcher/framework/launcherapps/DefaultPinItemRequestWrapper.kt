@@ -3,7 +3,7 @@ package com.eblan.launcher.framework.launcherapps
 import android.content.pm.LauncherApps
 import javax.inject.Inject
 
-internal class AndroidPinItemRequestWrapper @Inject constructor() :
+internal class DefaultPinItemRequestWrapper @Inject constructor() :
     PinItemRequestWrapper {
     private var pinItemRequest: LauncherApps.PinItemRequest? = null
 

@@ -1,6 +1,6 @@
 package com.eblan.launcher.framework.wallpapermanager
 
-import com.eblan.launcher.domain.framework.WallpaperManagerDomainWrapper
+import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,9 +13,9 @@ internal interface WallpaperManagerModule {
 
     @Binds
     @Singleton
-    fun wallpaperManagerDomainWrapper(impl: AndroidWallpaperManagerWrapper): WallpaperManagerDomainWrapper
+    fun wallpaperManagerWrapper(impl: DefaultWallpaperManagerWrapper): WallpaperManagerWrapper
 
     @Binds
     @Singleton
-    fun wallpaperManagerWrapper(impl: AndroidWallpaperManagerWrapper): WallpaperManagerWrapper
+    fun androidWallpaperManagerWrapper(impl: DefaultWallpaperManagerWrapper): AndroidWallpaperManagerWrapper
 }

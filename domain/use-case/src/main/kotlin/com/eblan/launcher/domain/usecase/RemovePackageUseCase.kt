@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.framework.AppWidgetManagerDomainWrapper
+import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import javax.inject.Inject
@@ -8,7 +8,7 @@ import javax.inject.Inject
 class RemovePackageUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val appWidgetManagerDomainWrapper: AppWidgetManagerDomainWrapper,
+    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
 ) {
     suspend operator fun invoke(packageName: String) {
         eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
@@ -20,7 +20,7 @@ class RemovePackageUseCase @Inject constructor(
             name = packageName,
         )
 
-        appWidgetManagerDomainWrapper.getInstalledProviders()
+        appWidgetManagerWrapper.getInstalledProviders()
             .filter { appWidgetManagerAppWidgetProviderInfo ->
                 appWidgetManagerAppWidgetProviderInfo.packageName == packageName
             }.forEach { appWidgetManagerAppWidgetProviderInfo ->

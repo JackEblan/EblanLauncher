@@ -2,7 +2,7 @@ package com.eblan.launcher.feature.pin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
+import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridRepository
@@ -20,7 +20,7 @@ class PinViewModel @Inject constructor(
     private val gridRepository: GridRepository,
     private val addPinShortcutToHomeScreenUseCase: AddPinShortcutToHomeScreenUseCase,
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
-    private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
+    private val appWidgetHostWrapper: AppWidgetHostWrapper,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -98,7 +98,7 @@ class PinViewModel @Inject constructor(
 
     fun deleteWidgetGridItem(gridItem: GridItem, appWidgetId: Int) {
         viewModelScope.launch {
-            appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
+            appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
 
             gridRepository.deleteGridItem(gridItem = gridItem)
         }

@@ -56,8 +56,8 @@ import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -445,8 +445,8 @@ private fun PinBottomSheet(
 
 private fun handleGridItem(
     gridItem: GridItem?,
-    appWidgetHostWrapper: AppWidgetHostWrapper,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetHostWrapper: AndroidAppWidgetHostWrapper,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     onUpdateWidgetGridItem: (
         id: Int,
         data: GridItemData.Widget,
@@ -486,7 +486,7 @@ private fun handleGridItem(
 private fun onAddPinWidget(
     gridItem: GridItem,
     appWidgetId: Int,
-    appWidgetManager: AppWidgetManagerWrapper,
+    appWidgetManager: AndroidAppWidgetManagerWrapper,
     data: GridItemData.Widget,
     onUpdateWidgetGridItem: (
         id: Int,

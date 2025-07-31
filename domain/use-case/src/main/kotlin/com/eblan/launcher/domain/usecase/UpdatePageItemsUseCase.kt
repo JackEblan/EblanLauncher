@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.framework.AppWidgetHostDomainWrapper
+import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridRepository
@@ -12,7 +12,7 @@ import javax.inject.Inject
 class UpdatePageItemsUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
-    private val appWidgetHostDomainWrapper: AppWidgetHostDomainWrapper,
+    private val appWidgetHostWrapper: AppWidgetHostWrapper,
 ) {
     suspend operator fun invoke(
         initialPage: Int,
@@ -27,7 +27,7 @@ class UpdatePageItemsUseCase @Inject constructor(
                     val data = gridItem.data
 
                     if (data is GridItemData.Widget) {
-                        appWidgetHostDomainWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
+                        appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
                     }
                 }
             }

@@ -18,11 +18,11 @@ import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
-import com.eblan.launcher.framework.launcherapps.LauncherAppsWrapper
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import com.eblan.launcher.framework.wallpapermanager.WallpaperManagerWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetHostWrapper
-import com.eblan.launcher.framework.widgetmanager.AppWidgetManagerWrapper
+import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
+import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,13 +33,13 @@ class MainActivity : ComponentActivity() {
     private lateinit var applicationInfoServiceIntent: Intent
 
     @Inject
-    lateinit var appWidgetHostWrapper: AppWidgetHostWrapper
+    lateinit var androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper
 
     @Inject
-    lateinit var appWidgetManagerWrapper: AppWidgetManagerWrapper
+    lateinit var androidAppWidgetManagerWrapper: AndroidAppWidgetManagerWrapper
 
     @Inject
-    lateinit var launcherAppsWrapper: LauncherAppsWrapper
+    lateinit var androidLauncherAppsWrapper: AndroidLauncherAppsWrapper
 
     @Inject
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
     lateinit var fileManager: FileManager
 
     @Inject
-    lateinit var wallpaperManagerWrapper: WallpaperManagerWrapper
+    lateinit var androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -57,12 +57,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CompositionLocalProvider(
-                LocalAppWidgetHost provides appWidgetHostWrapper,
-                LocalAppWidgetManager provides appWidgetManagerWrapper,
-                LocalLauncherApps provides launcherAppsWrapper,
+                LocalAppWidgetHost provides androidAppWidgetHostWrapper,
+                LocalAppWidgetManager provides androidAppWidgetManagerWrapper,
+                LocalLauncherApps provides androidLauncherAppsWrapper,
                 LocalPinItemRequest provides pinItemRequestWrapper,
                 LocalFileManager provides fileManager,
-                LocalWallpaperManager provides wallpaperManagerWrapper,
+                LocalWallpaperManager provides androidWallpaperManagerWrapper,
             ) {
                 val navController = rememberNavController()
 
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
 
         startService(applicationInfoServiceIntent)
 
-        appWidgetHostWrapper.startListening()
+        androidAppWidgetHostWrapper.startListening()
 
     }
 
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         stopService(applicationInfoServiceIntent)
 
-        appWidgetHostWrapper.stopListening()
+        androidAppWidgetHostWrapper.stopListening()
     }
 }
 

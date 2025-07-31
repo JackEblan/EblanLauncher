@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
 
-internal class AndroidFileManager @Inject constructor(@ApplicationContext private val context: Context) :
+internal class DefaultFileManager @Inject constructor(@ApplicationContext private val context: Context) :
     FileManager {
     override val iconsDirectory: File by lazy {
         File(context.filesDir, "icons").apply {

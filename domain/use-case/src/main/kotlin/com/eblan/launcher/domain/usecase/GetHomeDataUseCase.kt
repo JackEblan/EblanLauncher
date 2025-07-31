@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.framework.LauncherAppsDomainWrapper
-import com.eblan.launcher.domain.framework.WallpaperManagerDomainWrapper
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.HomeData
@@ -20,8 +20,8 @@ class GetHomeDataUseCase @Inject constructor(
     private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
-    private val launcherAppsDomainWrapper: LauncherAppsDomainWrapper,
-    private val wallpaperManagerDomainWrapper: WallpaperManagerDomainWrapper,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val wallpaperManagerWrapper: WallpaperManagerWrapper,
 ) {
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
@@ -35,7 +35,7 @@ class GetHomeDataUseCase @Inject constructor(
         return combine(
             userDataRepository.userData,
             gridItemsFlow,
-            wallpaperManagerDomainWrapper.getColorsChanged(),
+            wallpaperManagerWrapper.getColorsChanged(),
         ) { userData, gridItems, colorHints ->
             val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
@@ -71,7 +71,7 @@ class GetHomeDataUseCase @Inject constructor(
                 userData = userData,
                 gridItems = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,
-                hasShortcutHostPermission = launcherAppsDomainWrapper.hasShortcutHostPermission,
+                hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
                 textColor = textColor,
             )
         }.flowOn(Dispatchers.Default)
@@ -81,7 +81,7 @@ class GetHomeDataUseCase @Inject constructor(
         if (colorHints == null) return LIGHT
 
         val hintSupportsDarkText =
-            (colorHints and wallpaperManagerDomainWrapper.hintSupportsDarkText) != 0
+            (colorHints and wallpaperManagerWrapper.hintSupportsDarkText) != 0
 
         return if (hintSupportsDarkText) {
             DARK

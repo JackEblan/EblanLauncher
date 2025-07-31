@@ -2,7 +2,7 @@ package com.eblan.launcher.domain.framework
 
 import kotlinx.coroutines.flow.Flow
 
-interface WallpaperManagerDomainWrapper {
+interface WallpaperManagerWrapper {
     val hintSupportsDarkText: Int
 
     val hintSupportsDarkTheme: Int

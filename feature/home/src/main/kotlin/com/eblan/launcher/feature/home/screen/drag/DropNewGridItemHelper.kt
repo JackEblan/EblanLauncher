@@ -213,16 +213,18 @@ private fun onDragEndNew(
         appWidgetId: Int,
     ) -> Unit,
 ) {
+    if (gridItemSource == null) return
+
+    if (!movedGridItems) {
+        onDeleteGridItem(gridItemSource.gridItem)
+
+        onDragEnd(targetPage)
+
+        return
+    }
+
     when (gridItemSource) {
         is GridItemSource.New -> {
-            if (!movedGridItems) {
-                onDeleteGridItem(gridItemSource.gridItem)
-
-                onDragEnd(targetPage)
-
-                return
-            }
-
             val data = gridItemSource.gridItem.data
 
             if (data is GridItemData.Widget) {
@@ -230,7 +232,7 @@ private fun onDragEndNew(
 
                 onUpdateAppWidgetId(appWidgetId)
 
-                onDragEndGridItemWidget(
+                onDragEndWidget(
                     gridItemSource = gridItemSource,
                     appWidgetId = appWidgetId,
                     appWidgetManager = appWidgetManager,
@@ -244,14 +246,6 @@ private fun onDragEndNew(
         }
 
         is GridItemSource.Pin -> {
-            if (!movedGridItems) {
-                onDeleteGridItem(gridItemSource.gridItem)
-
-                onDragEnd(targetPage)
-
-                return
-            }
-
             when (val data = gridItemSource.gridItem.data) {
                 is GridItemData.ShortcutInfo -> {
                     onDragEndPinShortcut(
@@ -268,7 +262,7 @@ private fun onDragEndNew(
 
                     onUpdateAppWidgetId(appWidgetId)
 
-                    onDragEndPinWidget(
+                    onDragEndWidget(
                         appWidgetId = appWidgetId,
                         appWidgetManager = appWidgetManager,
                         gridItemSource = gridItemSource,
@@ -289,41 +283,10 @@ private fun onDragEndNew(
     }
 }
 
-private fun onDragEndGridItemWidget(
+private fun onDragEndWidget(
     gridItemSource: GridItemSource,
     appWidgetId: Int,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
-    componentName: String,
-    onLaunch: (Intent) -> Unit,
-    onUpdateWidgetGridItem: (
-        gridItemSource: GridItemSource,
-        appWidgetId: Int,
-    ) -> Unit,
-) {
-    val provider = ComponentName.unflattenFromString(componentName)
-
-    val bindAppWidgetIdIfAllowed = appWidgetManager.bindAppWidgetIdIfAllowed(
-        appWidgetId = appWidgetId,
-        provider = provider,
-    )
-
-    if (bindAppWidgetIdIfAllowed) {
-        onUpdateWidgetGridItem(gridItemSource, appWidgetId)
-    } else {
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
-        }
-
-        onLaunch(intent)
-    }
-}
-
-private fun onDragEndPinWidget(
-    appWidgetId: Int,
-    appWidgetManager: AndroidAppWidgetManagerWrapper,
-    gridItemSource: GridItemSource,
     componentName: String,
     onLaunch: (Intent) -> Unit,
     onUpdateWidgetGridItem: (

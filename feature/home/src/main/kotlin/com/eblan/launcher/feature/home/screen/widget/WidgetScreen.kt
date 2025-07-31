@@ -45,7 +45,9 @@ import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffe
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -161,12 +163,16 @@ fun WidgetScreen(
                                                         scope.launch {
                                                             isLongPress = true
 
+                                                            val id =
+                                                                withContext(Dispatchers.Default) {
+                                                                    Uuid.random().toHexString()
+                                                                }
+
                                                             onLongPress(
                                                                 page,
                                                                 GridItemSource.New(
                                                                     gridItem = getWidgetGridItem(
-                                                                        id = Uuid.random()
-                                                                            .toHexString(),
+                                                                        id = id,
                                                                         page = page,
                                                                         rows = rows,
                                                                         columns = columns,

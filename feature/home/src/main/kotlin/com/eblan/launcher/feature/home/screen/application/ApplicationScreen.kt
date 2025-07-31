@@ -149,6 +149,7 @@ fun ApplicationScreen(
                                                     val id = withContext(Dispatchers.Default) {
                                                         Uuid.random().toHexString()
                                                     }
+
                                                     val data = GridItemData.ApplicationInfo(
                                                         componentName = eblanApplicationInfo.componentName,
                                                         packageName = eblanApplicationInfo.packageName,

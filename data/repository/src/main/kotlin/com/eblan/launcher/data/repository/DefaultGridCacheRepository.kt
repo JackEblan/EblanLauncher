@@ -16,6 +16,10 @@ internal class DefaultGridCacheRepository @Inject constructor(private val gridCa
         gridCacheDataSource.insertGridItems(gridItems = gridItems)
     }
 
+    override suspend fun deleteGridItems(gridItems: List<GridItem>) {
+        gridCacheDataSource.deleteGridItems(gridItems = gridItems)
+    }
+
     override fun deleteGridItem(gridItem: GridItem) {
         gridCacheDataSource.deleteGridItem(gridItem = gridItem)
     }

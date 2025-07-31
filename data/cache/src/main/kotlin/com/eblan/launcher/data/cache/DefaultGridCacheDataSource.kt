@@ -24,6 +24,12 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
         }
     }
 
+    override suspend fun deleteGridItems(gridItems: List<GridItem>) {
+        _gridCacheItems.update { currentGridCacheItems ->
+            currentGridCacheItems - gridItems.toSet()
+        }
+    }
+
     override fun deleteGridItem(gridItem: GridItem) {
         _gridCacheItems.update { currentGridCacheItems ->
             currentGridCacheItems.toMutableList().apply {

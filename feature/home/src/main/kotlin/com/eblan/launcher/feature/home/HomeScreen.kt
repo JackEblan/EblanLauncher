@@ -56,7 +56,7 @@ fun HomeRoute(
 
     val movedGridItems by viewModel.movedGridItems.collectAsStateWithLifecycle()
 
-    val boundWidgetSource by viewModel.boundWidgetSource.collectAsStateWithLifecycle()
+    val updatedGridItem by viewModel.updatedGridItem.collectAsStateWithLifecycle()
 
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
@@ -66,11 +66,10 @@ fun HomeRoute(
         homeUiState = homeUiState,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItems = movedGridItems,
-        boundWidgetSource = boundWidgetSource,
+        updatedGridItem = updatedGridItem,
         pageItems = pageItems,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
-        onDeleteGridItem = viewModel::deleteGridItem,
         onShowGridCache = viewModel::showGridCache,
         onResetGridCache = viewModel::resetGridCache,
         onEdit = onEdit,
@@ -78,8 +77,8 @@ fun HomeRoute(
         onEditPage = viewModel::showPageCache,
         onSaveEditPage = viewModel::saveEditPage,
         onCancelEditPage = viewModel::cancelEditPage,
-        onUpdateWidgetGridItem = viewModel::updateWidgetGridItem,
-        onDeleteWidgetGridItem = viewModel::deleteWidgetGridItem,
+        onDeleteGridItemCache = viewModel::deleteGridItemCache,
+        onUpdateGridItemDataCache = viewModel::updateGridItemDataCache,
     )
 }
 
@@ -90,7 +89,7 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItems: Boolean,
-    boundWidgetSource: GridItemSource?,
+    updatedGridItem: GridItem?,
     pageItems: List<PageItem>,
     onMoveGridItem: (
         gridItems: List<GridItem>,
@@ -108,7 +107,6 @@ fun HomeScreen(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
@@ -120,14 +118,8 @@ fun HomeScreen(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdateWidgetGridItem: (
-        gridItemSource: GridItemSource,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        gridItem: GridItem,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItemCache: (GridItem) -> Unit,
+    onUpdateGridItemDataCache: (GridItem) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -211,11 +203,10 @@ fun HomeScreen(
                         dragIntOffset = dragIntOffset,
                         drag = drag,
                         hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
-                        boundWidgetSource = boundWidgetSource,
+                        updatedGridItem = updatedGridItem,
                         textColor = homeUiState.homeData.textColor,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
-                        onDeleteGridItem = onDeleteGridItem,
                         onShowGridCache = onShowGridCache,
                         onResetGridCache = onResetGridCache,
                         onEdit = onEdit,
@@ -223,8 +214,8 @@ fun HomeScreen(
                         onEditPage = onEditPage,
                         onSaveEditPage = onSaveEditPage,
                         onCancelEditPage = onCancelEditPage,
-                        onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-                        onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                        onDeleteGridItemCache = onDeleteGridItemCache,
+                        onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     )
                 }
             }
@@ -247,7 +238,7 @@ private fun Success(
     dragIntOffset: IntOffset,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
-    boundWidgetSource: GridItemSource?,
+    updatedGridItem: GridItem?,
     textColor: Long,
     onMoveGridItem: (
         gridItems: List<GridItem>,
@@ -265,7 +256,6 @@ private fun Success(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onDeleteGridItem: (GridItem) -> Unit,
     onShowGridCache: (Screen) -> Unit,
     onResetGridCache: () -> Unit,
     onEdit: (String) -> Unit,
@@ -277,14 +267,8 @@ private fun Success(
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
     onCancelEditPage: () -> Unit,
-    onUpdateWidgetGridItem: (
-        gridItemSource: GridItemSource,
-        appWidgetId: Int,
-    ) -> Unit,
-    onDeleteWidgetGridItem: (
-        gridItem: GridItem,
-        appWidgetId: Int,
-    ) -> Unit,
+    onDeleteGridItemCache: (GridItem) -> Unit,
+    onUpdateGridItemDataCache: (GridItem) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -354,7 +338,7 @@ private fun Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    currentPage = targetPage,
+                    startCurrentPage = targetPage,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
                     pageCount = userData.homeSettings.pageCount,
@@ -371,17 +355,16 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     movedGridItems = movedGridItems,
-                    boundWidgetSource = boundWidgetSource,
+                    updatedGridItem = updatedGridItem,
                     onMoveGridItem = onMoveGridItem,
-                    onDeleteGridItem = onDeleteGridItem,
                     onDragCancel = onResetGridCache,
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage
 
                         onResetGridCache()
                     },
-                    onDeleteWidgetGridItem = onDeleteWidgetGridItem,
-                    onUpdateWidgetGridItem = onUpdateWidgetGridItem,
+                    onDeleteGridItemCache = onDeleteGridItemCache,
+                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                 )
             }
 

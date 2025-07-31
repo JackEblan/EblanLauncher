@@ -9,31 +9,6 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.delay
 
-fun onDroppedExisting(
-    drag: Drag,
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
-    onDragEnd: (Int) -> Unit,
-    onDragCancel: () -> Unit,
-) {
-    if (drag == Drag.End) {
-        val targetPage = calculatePage(
-            index = currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
-        onDragEnd(targetPage)
-
-        return
-    }
-
-    if (drag == Drag.Cancel) {
-        onDragCancel()
-    }
-}
-
 suspend fun handlePageDirection(
     currentPage: Int,
     pageDirection: PageDirection?,

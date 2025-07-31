@@ -1,6 +1,5 @@
 package com.eblan.launcher.domain.grid
 
-import android.appwidget.AppWidgetManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -50,7 +49,7 @@ fun getWidgetGridItem(
     )
 
     val data = GridItemData.Widget(
-        appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID,
+        appWidgetId = 0,
         componentName = componentName,
         configure = configure,
         minWidth = checkedMinWidth,

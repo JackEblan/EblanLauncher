@@ -2,6 +2,7 @@ package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.data.cache.GridCacheDataSource
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import javax.inject.Inject
 
@@ -19,19 +20,15 @@ internal class DefaultGridCacheRepository @Inject constructor(private val gridCa
         gridCacheDataSource.deleteGridItem(gridItem = gridItem)
     }
 
+    override suspend fun updateGridItemData(id: Int, data: GridItemData) {
+        gridCacheDataSource.updateGridItemData(id = id, data = data)
+    }
+
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
         gridCacheDataSource.upsertGridItems(gridItems = gridItems)
     }
 
     override fun updateIsCache(isCache: Boolean) {
         gridCacheDataSource.updateIsCache(isCache = isCache)
-    }
-
-    override suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int) {
-        gridCacheDataSource.updateWidgetGridItemData(id = id, appWidgetId = appWidgetId)
-    }
-
-    override suspend fun updateShortcutGridItemData(id: Int, icon: String?) {
-        gridCacheDataSource.updateShortcutGridItemData(id = id, icon = icon)
     }
 }

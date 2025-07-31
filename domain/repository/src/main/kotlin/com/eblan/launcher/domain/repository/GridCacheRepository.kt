@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.flow.Flow
 
 interface GridCacheRepository {
@@ -12,11 +13,9 @@ interface GridCacheRepository {
 
     fun deleteGridItem(gridItem: GridItem)
 
+    suspend fun updateGridItemData(id: Int, data: GridItemData)
+
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 
     fun updateIsCache(isCache: Boolean)
-
-    suspend fun updateWidgetGridItemData(id: Int, appWidgetId: Int)
-
-    suspend fun updateShortcutGridItemData(id: Int, icon: String?)
 }

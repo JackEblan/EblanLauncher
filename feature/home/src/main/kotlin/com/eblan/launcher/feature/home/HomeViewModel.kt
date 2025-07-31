@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.GridRepository
@@ -15,7 +16,6 @@ import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
-import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,9 +67,9 @@ class HomeViewModel @Inject constructor(
 
     private val screenDelay = 100L
 
-    private var _boundWidgetSource = MutableStateFlow<GridItemSource?>(null)
+    private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
 
-    val boundWidgetSource = _boundWidgetSource.asStateFlow()
+    val updatedGridItem = _updatedGridItem.asStateFlow()
 
     val pageItems = pageCacheRepository.pageItems.stateIn(
         scope = viewModelScope,
@@ -121,14 +121,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deleteGridItem(gridItem: GridItem) {
-        viewModelScope.launch {
-            gridCacheRepository.deleteGridItem(gridItem = gridItem)
-        }
-    }
-
     fun showGridCache(screen: Screen) {
         viewModelScope.launch {
+            _updatedGridItem.update {
+                null
+            }
+
             gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
 
             gridCacheRepository.updateIsCache(isCache = true)
@@ -201,30 +199,29 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateWidgetGridItem(
-        gridItemSource: GridItemSource,
-        appWidgetId: Int,
-    ) {
+    fun updateGridItemDataCache(gridItem: GridItem) {
         viewModelScope.launch {
-            gridCacheRepository.updateWidgetGridItemData(
-                id = gridItemSource.gridItem.id,
-                appWidgetId = appWidgetId,
-            )
+            gridCacheRepository.updateGridItemData(id = gridItem.id, data = gridItem.data)
 
-            _boundWidgetSource.update {
-                gridItemSource
+            _updatedGridItem.update {
+                gridItem
             }
         }
     }
 
-    fun deleteWidgetGridItem(
-        gridItem: GridItem,
-        appWidgetId: Int,
-    ) {
+    fun deleteGridItemCache(gridItem: GridItem) {
         viewModelScope.launch {
-            appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
+            when (val data = gridItem.data) {
+                is GridItemData.Widget -> {
+                    appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
 
-            gridCacheRepository.deleteGridItem(gridItem = gridItem)
+                    gridCacheRepository.deleteGridItem(gridItem = gridItem)
+                }
+
+                else -> {
+                    gridCacheRepository.deleteGridItem(gridItem = gridItem)
+                }
+            }
         }
     }
 }

@@ -37,12 +37,12 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
                     if (eblanApplicationInfo != null) {
                         val icon = fileManager.writeFileBytes(
                             directory = fileManager.shortcutsDirectory,
-                            name = launcherAppsShortcutInfo.id,
+                            name = launcherAppsShortcutInfo.shortcutId,
                             byteArray = launcherAppsShortcutInfo.icon,
                         )
 
                         EblanShortcutInfo(
-                            id = launcherAppsShortcutInfo.id,
+                            shortcutId = launcherAppsShortcutInfo.shortcutId,
                             packageName = launcherAppsShortcutInfo.packageName,
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
@@ -69,7 +69,7 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
                 eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
                     fileManager.deleteFile(
                         directory = fileManager.shortcutsDirectory,
-                        name = eblanShortcutInfo.id,
+                        name = eblanShortcutInfo.shortcutId,
                     )
                 }
             }

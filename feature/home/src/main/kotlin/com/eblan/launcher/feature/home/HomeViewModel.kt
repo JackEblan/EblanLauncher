@@ -7,13 +7,13 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -23,7 +23,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -33,7 +32,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     getHomeDataUseCase: GetHomeDataUseCase,
-    private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
@@ -42,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -127,8 +126,6 @@ class HomeViewModel @Inject constructor(
                 null
             }
 
-            gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
-
             gridCacheRepository.updateIsCache(isCache = true)
 
             delay(screenDelay)
@@ -187,7 +184,7 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache() {
         viewModelScope.launch {
-            gridRepository.upsertGridItems(gridCacheRepository.gridCacheItems.first())
+            updateGridItemsUseCase()
 
             gridCacheRepository.updateIsCache(isCache = false)
 

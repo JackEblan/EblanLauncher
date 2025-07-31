@@ -32,7 +32,7 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
         }
     }
 
-    override suspend fun updateGridItemData(id: Int, data: GridItemData) {
+    override suspend fun updateGridItemData(id: String, data: GridItemData) {
         withContext(Dispatchers.Default) {
             _gridCacheItems.update { currentGridCacheItems ->
                 currentGridCacheItems.toMutableList().apply {

@@ -1,0 +1,25 @@
+package com.eblan.launcher.domain.model
+
+data class WidgetGridItem(
+    val id: String,
+    val page: Int,
+    val startRow: Int,
+    val startColumn: Int,
+    val rowSpan: Int,
+    val columnSpan: Int,
+    val associate: Associate,
+    val appWidgetId: Int,
+    val packageName: String,
+    val componentName: String,
+    val configure: String?,
+    val minWidth: Int,
+    val minHeight: Int,
+    val resizeMode: Int,
+    val minResizeWidth: Int,
+    val minResizeHeight: Int,
+    val maxResizeWidth: Int,
+    val maxResizeHeight: Int,
+    val targetCellHeight: Int,
+    val targetCellWidth: Int,
+    val preview: String?,
+)

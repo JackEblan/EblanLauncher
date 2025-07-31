@@ -216,7 +216,7 @@ private fun PinWidgetScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onAddedToHomeScreenToast: (String) -> Unit,
     onUpdateWidgetGridItem: (
-        id: Int,
+        id: String,
         data: GridItemData.Widget,
     ) -> Unit,
     onDeleteWidgetGridItem: (
@@ -448,7 +448,7 @@ private fun handleGridItem(
     appWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     onUpdateWidgetGridItem: (
-        id: Int,
+        id: String,
         data: GridItemData.Widget,
     ) -> Unit,
     onAddedToHomeScreenToast: (String) -> Unit,
@@ -489,7 +489,7 @@ private fun onAddPinWidget(
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     data: GridItemData.Widget,
     onUpdateWidgetGridItem: (
-        id: Int,
+        id: String,
         data: GridItemData.Widget,
     ) -> Unit,
     onLaunch: (Intent) -> Unit,
@@ -521,7 +521,7 @@ private fun handleAppWidgetLauncherResult(
     result: ActivityResult,
     onFinish: () -> Unit,
     onUpdateWidgetGridItem: (
-        id: Int,
+        id: String,
         data: GridItemData.Widget,
     ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,

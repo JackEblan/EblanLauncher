@@ -18,10 +18,12 @@
 package com.eblan.launcher.data.room.di
 
 import com.eblan.launcher.data.room.EblanDatabase
+import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
-import com.eblan.launcher.data.room.dao.GridDao
+import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
+import com.eblan.launcher.data.room.dao.WidgetGridItemDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +36,20 @@ internal object DaoModule {
 
     @Provides
     @Singleton
-    fun gridDao(eblanDatabase: EblanDatabase): GridDao = eblanDatabase.gridDao()
+    fun applicationInfoGridItemDao(eblanDatabase: EblanDatabase): ApplicationInfoGridItemDao =
+        eblanDatabase.applicationInfoGridItemDao()
+
+
+    @Provides
+    @Singleton
+    fun widgetGridItemDao(eblanDatabase: EblanDatabase): WidgetGridItemDao =
+        eblanDatabase.widgetGridItemDao()
+
+
+    @Provides
+    @Singleton
+    fun shortcutInfoGridItemDao(eblanDatabase: EblanDatabase): ShortcutInfoGridItemDao =
+        eblanDatabase.shortcutInfoGridItemDao()
 
     @Provides
     @Singleton

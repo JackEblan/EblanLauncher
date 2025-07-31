@@ -346,7 +346,7 @@ private fun GridItemContent(
 @Composable
 private fun DragWidgetGridItem(
     modifier: Modifier = Modifier,
-    id: Int,
+    id: String,
     gridItemSource: GridItemSource?,
     data: GridItemData.Widget,
 ) {
@@ -367,7 +367,7 @@ private fun DragWidgetGridItem(
 @Composable
 private fun DragShortcutInfoGridItem(
     modifier: Modifier,
-    id: Int,
+    id: String,
     gridItemSource: GridItemSource?,
     data: GridItemData.ShortcutInfo,
     color: Color,

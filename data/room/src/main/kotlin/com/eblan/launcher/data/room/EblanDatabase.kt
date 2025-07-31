@@ -19,29 +19,37 @@ package com.eblan.launcher.data.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.eblan.launcher.data.room.converter.EblanTypeConverters
+import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
-import com.eblan.launcher.data.room.dao.GridDao
+import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
+import com.eblan.launcher.data.room.dao.WidgetGridItemDao
+import com.eblan.launcher.data.room.entity.ApplicationInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
-import com.eblan.launcher.data.room.entity.GridItemEntity
+import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
+import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
 
 @Database(
     entities = [
-        GridItemEntity::class, EblanApplicationInfoEntity::class,
+        EblanApplicationInfoEntity::class,
         EblanAppWidgetProviderInfoEntity::class,
         EblanShortcutInfoEntity::class,
+        ApplicationInfoGridItemEntity::class,
+        WidgetGridItemEntity::class,
+        ShortcutInfoGridItemEntity::class,
     ],
     version = 1,
     exportSchema = true,
 )
-@TypeConverters(EblanTypeConverters::class)
 internal abstract class EblanDatabase : RoomDatabase() {
-    abstract fun gridDao(): GridDao
+    abstract fun applicationInfoGridItemDao(): ApplicationInfoGridItemDao
+
+    abstract fun widgetGridItemDao(): WidgetGridItemDao
+
+    abstract fun shortcutInfoGridItemDao(): ShortcutInfoGridItemDao
 
     abstract fun eblanApplicationInfoDao(): EblanApplicationInfoDao
 

@@ -497,7 +497,7 @@ private fun HorizontalPagerScreen(
                                         if (hasShortcutHostPermission) {
                                             launcherApps.startShortcut(
                                                 packageName = data.packageName,
-                                                id = data.id,
+                                                id = data.shortcutId,
                                             )
                                         }
                                     },
@@ -601,7 +601,7 @@ private fun HorizontalPagerScreen(
                                 onTap = {
                                     launcherApps.startShortcut(
                                         packageName = data.packageName,
-                                        id = data.id,
+                                        id = data.shortcutId,
                                     )
                                 },
                                 onLongPress = {

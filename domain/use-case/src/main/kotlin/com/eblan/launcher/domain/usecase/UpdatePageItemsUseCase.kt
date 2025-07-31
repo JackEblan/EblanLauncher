@@ -3,14 +3,13 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdatePageItemsUseCase @Inject constructor(
-    private val gridRepository: GridRepository,
+    //private val gridRepository: GridRepository,
     private val userDataRepository: UserDataRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
 ) {
@@ -21,7 +20,7 @@ class UpdatePageItemsUseCase @Inject constructor(
     ) {
         withContext(Dispatchers.Default) {
             pageItemsToDelete.forEach { pageItem ->
-                gridRepository.deleteGridItems(gridItems = pageItem.gridItems)
+                //gridRepository.deleteGridItems(gridItems = pageItem.gridItems)
 
                 pageItem.gridItems.forEach { gridItem ->
                     val data = gridItem.data
@@ -44,7 +43,7 @@ class UpdatePageItemsUseCase @Inject constructor(
                 userDataRepository.updateInitialPage(initialPage = newInitialPage)
             }
 
-            gridRepository.upsertGridItems(gridItems = gridItems)
+            //gridRepository.upsertGridItems(gridItems = gridItems)
 
             userDataRepository.updatePageCount(pageCount = pageItems.size)
         }

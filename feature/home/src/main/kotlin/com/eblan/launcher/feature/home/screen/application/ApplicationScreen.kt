@@ -50,8 +50,13 @@ import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffe
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalUuidApi::class)
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
@@ -134,33 +139,47 @@ fun ApplicationScreen(
                                     block = {
                                         detectTapGestures(
                                             onLongPress = {
-                                                showPopupApplicationMenu = true
+                                                scope.launch {
+                                                    showPopupApplicationMenu = true
 
-                                                popupMenuIntOffset = intOffset
+                                                    popupMenuIntOffset = intOffset
 
-                                                popupMenuIntSize = intSize
+                                                    popupMenuIntSize = intSize
 
-                                                onLongPress(
-                                                    page,
-                                                    GridItemSource.New(
-                                                        gridItem = getGridItem(
-                                                            page = page,
-                                                            componentName = eblanApplicationInfo.componentName,
-                                                            packageName = eblanApplicationInfo.packageName,
-                                                            icon = eblanApplicationInfo.icon,
-                                                            label = eblanApplicationInfo.label,
+                                                    val id = withContext(Dispatchers.Default) {
+                                                        Uuid.random().toHexString()
+                                                    }
+                                                    val data = GridItemData.ApplicationInfo(
+                                                        componentName = eblanApplicationInfo.componentName,
+                                                        packageName = eblanApplicationInfo.packageName,
+                                                        icon = eblanApplicationInfo.icon,
+                                                        label = eblanApplicationInfo.label,
+                                                    )
+                                                    onLongPress(
+                                                        page,
+                                                        GridItemSource.New(
+                                                            gridItem = GridItem(
+                                                                id = id,
+                                                                page = page,
+                                                                startRow = 0,
+                                                                startColumn = 0,
+                                                                rowSpan = 1,
+                                                                columnSpan = 1,
+                                                                data = data,
+                                                                associate = Associate.Grid,
+                                                            ),
                                                         ),
-                                                    ),
-                                                )
+                                                    )
 
-                                                startTransfer(
-                                                    DragAndDropTransferData(
-                                                        clipData = ClipData.newPlainText(
-                                                            "Drag",
-                                                            "Drag",
+                                                    startTransfer(
+                                                        DragAndDropTransferData(
+                                                            clipData = ClipData.newPlainText(
+                                                                "Drag",
+                                                                "Drag",
+                                                            ),
                                                         ),
-                                                    ),
-                                                )
+                                                    )
+                                                }
                                             },
                                         )
                                     },
@@ -216,31 +235,4 @@ fun ApplicationScreen(
             }
         }
     }
-}
-
-private fun getGridItem(
-    page: Int,
-    componentName: String?,
-    packageName: String,
-    icon: String?,
-    label: String?,
-): GridItem {
-    val data = GridItemData.ApplicationInfo(
-        componentName = componentName,
-        packageName = packageName,
-        icon = icon,
-        label = label,
-    )
-
-    return GridItem(
-        id = 0,
-        page = page,
-        startRow = 0,
-        startColumn = 0,
-        rowSpan = 1,
-        columnSpan = 1,
-        dataId = data.packageName,
-        data = data,
-        associate = Associate.Grid,
-    )
 }

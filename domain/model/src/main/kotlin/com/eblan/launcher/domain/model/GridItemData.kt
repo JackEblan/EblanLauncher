@@ -16,6 +16,7 @@ sealed interface GridItemData {
     data class Widget(
         val appWidgetId: Int,
         val componentName: String,
+        val packageName: String,
         val configure: String?,
         val minWidth: Int,
         val minHeight: Int,
@@ -31,10 +32,10 @@ sealed interface GridItemData {
 
     @Serializable
     data class ShortcutInfo(
-        val id: String,
+        val shortcutId: String,
         val packageName: String,
         val shortLabel: String,
         val longLabel: String,
         val icon: String?,
-    ): GridItemData
+    ) : GridItemData
 }

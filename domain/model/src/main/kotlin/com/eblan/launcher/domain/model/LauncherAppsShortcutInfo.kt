@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.model
 
 data class LauncherAppsShortcutInfo(
-    val id: String,
+    val shortcutId: String,
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,
@@ -13,7 +13,7 @@ data class LauncherAppsShortcutInfo(
 
         other as LauncherAppsShortcutInfo
 
-        if (id != other.id) return false
+        if (shortcutId != other.shortcutId) return false
         if (packageName != other.packageName) return false
         if (shortLabel != other.shortLabel) return false
         if (longLabel != other.longLabel) return false
@@ -23,7 +23,7 @@ data class LauncherAppsShortcutInfo(
     }
 
     override fun hashCode(): Int {
-        var result = id.hashCode()
+        var result = shortcutId.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + shortLabel.hashCode()
         result = 31 * result + longLabel.hashCode()

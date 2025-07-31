@@ -26,9 +26,11 @@ import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.eblan.launcher.domain.grid.getShortcutGridItem
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -95,16 +97,27 @@ fun ShortcutScreen(
                                             detectTapGestures(
                                                 onLongPress = {
                                                     isLongPress = true
+
+                                                    val data = GridItemData.ShortcutInfo(
+                                                        shortcutId = eblanShortcutInfo.shortcutId,
+                                                        packageName = eblanShortcutInfo.packageName,
+                                                        shortLabel = eblanShortcutInfo.shortLabel,
+                                                        longLabel = eblanShortcutInfo.longLabel,
+                                                        icon = eblanShortcutInfo.icon,
+                                                    )
+
                                                     onLongPress(
                                                         page,
                                                         GridItemSource.New(
-                                                            gridItem = getShortcutGridItem(
+                                                            gridItem = GridItem(
+                                                                id = eblanShortcutInfo.shortcutId,
                                                                 page = page,
-                                                                id = eblanShortcutInfo.id,
-                                                                packageName = eblanShortcutInfo.packageName,
-                                                                shortLabel = eblanShortcutInfo.shortLabel,
-                                                                longLabel = eblanShortcutInfo.longLabel,
-                                                                icon = eblanShortcutInfo.icon,
+                                                                startRow = 0,
+                                                                startColumn = 0,
+                                                                rowSpan = 1,
+                                                                columnSpan = 1,
+                                                                data = data,
+                                                                associate = Associate.Grid,
                                                             ),
                                                         ),
                                                     )
@@ -126,7 +139,7 @@ fun ShortcutScreen(
                                 )
 
                                 val infoText = """
-                                    ${eblanShortcutInfo.id}
+                                    ${eblanShortcutInfo.shortcutId}
                                     ${eblanShortcutInfo.shortLabel}
                                     ${eblanShortcutInfo.longLabel}
                                 """.trimIndent()

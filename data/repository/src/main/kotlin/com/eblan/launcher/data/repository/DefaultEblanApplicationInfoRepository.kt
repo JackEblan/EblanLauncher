@@ -12,25 +12,25 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
     override val eblanApplicationInfos =
         eblanApplicationInfoDao.getEblanApplicationInfoEntities().map { entities ->
             entities.map { entity ->
-                entity.toEblanApplicationInfo()
+                entity.asModel()
             }
         }
 
     override suspend fun upsertEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
         val entities = eblanApplicationInfos.map { eblanApplicationInfo ->
-            eblanApplicationInfo.toEblanApplicationInfoEntity()
+            eblanApplicationInfo.asEntity()
         }
 
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntities(entities = entities)
     }
 
     override suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
-        eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.toEblanApplicationInfoEntity())
+        eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }
 
     override suspend fun getEblanApplicationInfo(packageName: String): EblanApplicationInfo? {
         return eblanApplicationInfoDao.getEblanApplicationInfoEntity(packageName = packageName)
-            ?.toEblanApplicationInfo()
+            ?.asModel()
     }
 
     override suspend fun deleteEblanApplicationInfoByPackageName(packageName: String) {
@@ -39,14 +39,14 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
 
     override suspend fun deleteEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
         val entities = eblanApplicationInfos.map { eblanApplicationInfo ->
-            eblanApplicationInfo.toEblanApplicationInfoEntity()
+            eblanApplicationInfo.asEntity()
         }
 
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntities(entities = entities)
     }
-
-    private fun EblanApplicationInfoEntity.toEblanApplicationInfo(): EblanApplicationInfo {
-        return EblanApplicationInfo(
+    
+    private fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
+        return EblanApplicationInfoEntity(
             packageName = packageName,
             componentName = componentName,
             icon = icon,
@@ -54,8 +54,8 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         )
     }
 
-    private fun EblanApplicationInfo.toEblanApplicationInfoEntity(): EblanApplicationInfoEntity {
-        return EblanApplicationInfoEntity(
+    private fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
+        return EblanApplicationInfo(
             packageName = packageName,
             componentName = componentName,
             icon = icon,

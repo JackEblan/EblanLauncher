@@ -1,16 +1,16 @@
 package com.eblan.launcher.domain.model
 
-data class GridItem(
+data class ShortcutInfoGridItem(
     val id: String,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,
     val rowSpan: Int,
     val columnSpan: Int,
-    val data: GridItemData,
     val associate: Associate,
+    val shortcutId: String,
+    val packageName: String,
+    val shortLabel: String,
+    val longLabel: String,
+    val icon: String?,
 )
-
-enum class Associate {
-    Grid, Dock
-}

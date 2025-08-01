@@ -11,9 +11,13 @@ interface GridCacheRepository {
 
     fun insertGridItems(gridItems: List<GridItem>)
 
+    fun insertGridItem(gridItem: GridItem)
+
+    suspend fun deleteGridItems(gridItems: List<GridItem>)
+
     fun deleteGridItem(gridItem: GridItem)
 
-    suspend fun updateGridItemData(id: Int, data: GridItemData)
+    suspend fun updateGridItemData(id: String, data: GridItemData)
 
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 

@@ -2,21 +2,27 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.findAvailableRegion
-import com.eblan.launcher.domain.grid.getWidgetGridItem
+import com.eblan.launcher.domain.grid.getWidgetGridItemSize
+import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class AddPinWidgetToHomeScreenUseCase @Inject constructor(
-    private val gridRepository: GridRepository,
+    private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
 ) {
+    @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
         className: String,
         componentName: String,
@@ -47,35 +53,67 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val dockHeight = homeSettings.dockHeight
 
-            val gridItems = gridRepository.gridItems.first()
+            val gridItems = gridCacheRepository.gridCacheItems.first()
 
-            val previewInferred =
-                File(
-                    fileManager.widgetsDirectory,
-                    className,
-                ).absolutePath
+            val previewInferred = File(
+                fileManager.widgetsDirectory,
+                className,
+            ).absolutePath
 
-            var id = 0L
+            val id = Uuid.random().toHexString()
 
-            val gridItem = getWidgetGridItem(
-                page = initialPage,
-                rows = rows,
-                columns = columns,
-                componentName = componentName,
-                configure = configure,
-                packageName = packageName,
+            val gridHeight = rootHeight - dockHeight
+
+            val cellWidth = rootWidth / columns
+
+            val cellHeight = gridHeight / rows
+
+            val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
+                cellHeight = cellHeight,
+                cellWidth = cellWidth,
+                minHeight = minHeight,
+                minWidth = minWidth,
                 targetCellHeight = targetCellHeight,
                 targetCellWidth = targetCellWidth,
-                minWidth = minWidth,
+            )
+
+            val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
+                columns = columns,
+                gridHeight = gridHeight,
+                gridWidth = rootWidth,
                 minHeight = minHeight,
+                minWidth = minWidth,
+                rows = rows,
+                targetCellHeight = targetCellHeight,
+                targetCellWidth = targetCellWidth,
+            )
+
+            val data = GridItemData.Widget(
+                appWidgetId = 0,
+                componentName = componentName,
+                packageName = packageName,
+                configure = configure,
+                minWidth = checkedMinWidth,
+                minHeight = checkedMinHeight,
                 resizeMode = resizeMode,
                 minResizeWidth = minResizeWidth,
                 minResizeHeight = minResizeHeight,
                 maxResizeWidth = maxResizeWidth,
                 maxResizeHeight = maxResizeHeight,
+                targetCellHeight = targetCellHeight,
+                targetCellWidth = targetCellWidth,
                 preview = previewInferred,
-                gridWidth = rootWidth,
-                gridHeight = rootHeight - dockHeight,
+            )
+
+            val gridItem = GridItem(
+                id = id,
+                page = initialPage,
+                startRow = 0,
+                startColumn = 0,
+                rowSpan = checkedRowSpan,
+                columnSpan = checkedColumnSpan,
+                data = data,
+                associate = Associate.Grid,
             )
 
             val newGridItem = findAvailableRegion(
@@ -87,10 +125,10 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             )
 
             if (newGridItem != null) {
-                id = gridRepository.upsertGridItem(gridItem = newGridItem)
+                gridCacheRepository.insertGridItem(gridItem = newGridItem)
             }
 
-            newGridItem?.copy(id = id.toInt())
+            newGridItem
         }
     }
 }

@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
 import android.content.ClipData
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,12 +47,13 @@ import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffe
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalUuidApi::class)
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     currentPage: Int,
     appDrawerColumns: Int,
     pageCount: Int,
@@ -68,7 +66,8 @@ fun ApplicationScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onApplyToScroll: (Float) -> Unit,
+    onApplyToFling: () -> Unit,
 ) {
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
@@ -88,15 +87,13 @@ fun ApplicationScreen(
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val state = rememberLazyGridState()
-
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            onDragEnd = onDismiss,
+            onApplyToScroll = onApplyToScroll,
+            onApplyToFling = onApplyToFling,
         )
     }
 
@@ -119,7 +116,6 @@ fun ApplicationScreen(
 
             else -> {
                 LazyVerticalGrid(
-                    state = state,
                     columns = GridCells.Fixed(count = appDrawerColumns),
                     overscrollEffect = overscrollEffect,
                 ) {
@@ -140,15 +136,24 @@ fun ApplicationScreen(
 
                                                 popupMenuIntSize = intSize
 
+                                                val data = GridItemData.ApplicationInfo(
+                                                    componentName = eblanApplicationInfo.componentName,
+                                                    packageName = eblanApplicationInfo.packageName,
+                                                    icon = eblanApplicationInfo.icon,
+                                                    label = eblanApplicationInfo.label,
+                                                )
                                                 onLongPress(
                                                     page,
                                                     GridItemSource.New(
-                                                        gridItem = getGridItem(
+                                                        gridItem = GridItem(
+                                                            id = Uuid.random().toHexString(),
                                                             page = page,
-                                                            componentName = eblanApplicationInfo.componentName,
-                                                            packageName = eblanApplicationInfo.packageName,
-                                                            icon = eblanApplicationInfo.icon,
-                                                            label = eblanApplicationInfo.label,
+                                                            startRow = 0,
+                                                            startColumn = 0,
+                                                            rowSpan = 1,
+                                                            columnSpan = 1,
+                                                            data = data,
+                                                            associate = Associate.Grid,
                                                         ),
                                                     ),
                                                 )
@@ -216,31 +221,4 @@ fun ApplicationScreen(
             }
         }
     }
-}
-
-private fun getGridItem(
-    page: Int,
-    componentName: String?,
-    packageName: String,
-    icon: String?,
-    label: String?,
-): GridItem {
-    val data = GridItemData.ApplicationInfo(
-        componentName = componentName,
-        packageName = packageName,
-        icon = icon,
-        label = label,
-    )
-
-    return GridItem(
-        id = 0,
-        page = page,
-        startRow = 0,
-        startColumn = 0,
-        rowSpan = 1,
-        columnSpan = 1,
-        dataId = data.packageName,
-        data = data,
-        associate = Associate.Grid,
-    )
 }

@@ -26,6 +26,7 @@ fun handleOnDragEnd(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
+    onMoveGridItemsFailed: (Int) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
@@ -38,9 +39,7 @@ fun handleOnDragEnd(
     )
 
     if (!movedGridItems) {
-        onDeleteGridItemCache(gridItemSource.gridItem)
-
-        onDragEnd(targetPage)
+        onMoveGridItemsFailed(targetPage)
 
         return
     }
@@ -154,7 +153,7 @@ fun handleDeleteAppWidgetId(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
-    onDeleteGridItemCache: (gridItem: GridItem) -> Unit,
+    onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
     val data = (gridItem?.data as? GridItemData.Widget) ?: return

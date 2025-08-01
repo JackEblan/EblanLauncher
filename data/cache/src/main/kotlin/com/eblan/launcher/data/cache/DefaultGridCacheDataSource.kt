@@ -24,6 +24,18 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
         }
     }
 
+    override fun insertGridItem(gridItem: GridItem) {
+        _gridCacheItems.update { currentGridCacheItems ->
+            currentGridCacheItems + gridItem
+        }
+    }
+
+    override suspend fun deleteGridItems(gridItems: List<GridItem>) {
+        _gridCacheItems.update { currentGridCacheItems ->
+            currentGridCacheItems - gridItems.toSet()
+        }
+    }
+
     override fun deleteGridItem(gridItem: GridItem) {
         _gridCacheItems.update { currentGridCacheItems ->
             currentGridCacheItems.toMutableList().apply {
@@ -32,7 +44,7 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
         }
     }
 
-    override suspend fun updateGridItemData(id: Int, data: GridItemData) {
+    override suspend fun updateGridItemData(id: String, data: GridItemData) {
         withContext(Dispatchers.Default) {
             _gridCacheItems.update { currentGridCacheItems ->
                 currentGridCacheItems.toMutableList().apply {

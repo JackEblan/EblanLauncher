@@ -174,7 +174,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         val icon = getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
 
         return LauncherAppsShortcutInfo(
-            id = shortcutInfo.id,
+            shortcutId = shortcutInfo.id,
             packageName = shortcutInfo.`package`,
             shortLabel = shortcutInfo.shortLabel.toString(),
             longLabel = shortcutInfo.longLabel.toString(),

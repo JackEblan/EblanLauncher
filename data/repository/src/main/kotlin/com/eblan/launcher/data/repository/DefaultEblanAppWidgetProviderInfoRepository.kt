@@ -12,31 +12,31 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
     override val eblanAppWidgetProviderInfos =
         eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntities().map { entities ->
             entities.map { entity ->
-                entity.toEblanAppWidgetProviderInfo()
+                entity.asModel()
             }
         }
 
     override suspend fun upsertEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
         val entities = eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
-            eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
+            eblanAppWidgetProviderInfo.asEntity()
         }
 
         eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntities(entities = entities)
     }
 
     override suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo) {
-        eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntity(entity = eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity())
+        eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntity(entity = eblanAppWidgetProviderInfo.asEntity())
     }
 
     override suspend fun deleteEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
         val entities = eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
-            eblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity()
+            eblanAppWidgetProviderInfo.asEntity()
         }
 
         eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntities(entities = entities)
     }
 
-    private fun EblanAppWidgetProviderInfo.toEblanAppWidgetProviderInfoEntity(): EblanAppWidgetProviderInfoEntity {
+    private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,
             componentName = componentName,
@@ -56,7 +56,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         )
     }
 
-    private fun EblanAppWidgetProviderInfoEntity.toEblanAppWidgetProviderInfo(): EblanAppWidgetProviderInfo {
+    private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo {
         return EblanAppWidgetProviderInfo(
             className = className,
             componentName = componentName,

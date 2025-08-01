@@ -7,23 +7,24 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.GridRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -33,7 +34,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     getHomeDataUseCase: GetHomeDataUseCase,
-    private val gridRepository: GridRepository,
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
@@ -42,6 +42,7 @@ class HomeViewModel @Inject constructor(
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -65,7 +66,7 @@ class HomeViewModel @Inject constructor(
 
     val movedGridItems = _movedGridItems.asStateFlow()
 
-    private val screenDelay = 100L
+    private val defaultDelay = 500L
 
     private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
 
@@ -76,6 +77,8 @@ class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList(),
     )
+
+    private var moveGridItemJob: Job? = null
 
     fun moveGridItem(
         gridItems: List<GridItem>,
@@ -88,17 +91,23 @@ class HomeViewModel @Inject constructor(
         gridHeight: Int,
     ) {
         viewModelScope.launch {
-            _movedGridItems.update {
-                moveGridItemUseCase(
-                    gridItems = gridItems.toMutableList(),
-                    movingGridItem = movingGridItem,
-                    x = x,
-                    y = y,
-                    rows = rows,
-                    columns = columns,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                ) != null
+            moveGridItemJob?.cancelAndJoin()
+
+            moveGridItemJob = launch {
+                delay(defaultDelay)
+
+                _movedGridItems.update {
+                    moveGridItemUseCase(
+                        gridItems = gridItems.toMutableList(),
+                        movingGridItem = movingGridItem,
+                        x = x,
+                        y = y,
+                        rows = rows,
+                        columns = columns,
+                        gridWidth = gridWidth,
+                        gridHeight = gridHeight,
+                    ) != null
+                }
             }
         }
     }
@@ -110,28 +119,37 @@ class HomeViewModel @Inject constructor(
         columns: Int,
     ) {
         viewModelScope.launch {
-            _movedGridItems.update {
-                resizeGridItemUseCase(
-                    gridItems = gridItems.toMutableList(),
-                    resizingGridItem = resizingGridItem,
-                    rows = rows,
-                    columns = columns,
-                ) != null
+            moveGridItemJob?.cancelAndJoin()
+
+            moveGridItemJob = launch {
+                delay(defaultDelay)
+
+                _movedGridItems.update {
+                    resizeGridItemUseCase(
+                        gridItems = gridItems.toMutableList(),
+                        resizingGridItem = resizingGridItem,
+                        rows = rows,
+                        columns = columns,
+                    ) != null
+                }
             }
         }
     }
 
-    fun showGridCache(screen: Screen) {
+    fun showGridCache(
+        gridItems: List<GridItem>,
+        screen: Screen,
+    ) {
         viewModelScope.launch {
             _updatedGridItem.update {
                 null
             }
 
-            gridCacheRepository.insertGridItems(gridItems = gridRepository.gridItems.first())
+            gridCacheRepository.insertGridItems(gridItems = gridItems)
 
             gridCacheRepository.updateIsCache(isCache = true)
 
-            delay(screenDelay)
+            delay(defaultDelay)
 
             _screen.update {
                 screen
@@ -147,7 +165,7 @@ class HomeViewModel @Inject constructor(
 
             cachePageItemsUseCase()
 
-            delay(screenDelay)
+            delay(defaultDelay)
 
             _screen.update {
                 Screen.EditPage
@@ -171,7 +189,7 @@ class HomeViewModel @Inject constructor(
                 pageItemsToDelete = pageItemsToDelete,
             )
 
-            delay(screenDelay)
+            delay(defaultDelay)
 
             _screen.update {
                 Screen.Pager
@@ -187,11 +205,23 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache() {
         viewModelScope.launch {
-            gridRepository.upsertGridItems(gridCacheRepository.gridCacheItems.first())
+            updateGridItemsUseCase()
 
             gridCacheRepository.updateIsCache(isCache = false)
 
-            delay(screenDelay)
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
+        }
+    }
+
+    fun cancelGridCache() {
+        viewModelScope.launch {
+            gridCacheRepository.updateIsCache(isCache = false)
+
+            delay(defaultDelay)
 
             _screen.update {
                 Screen.Pager

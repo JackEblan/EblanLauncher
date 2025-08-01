@@ -12,37 +12,37 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
     override val eblanShortcutInfos =
         eblanShortcutInfoDao.getEblanShortcutInfoEntities().map { entities ->
             entities.map { entity ->
-                entity.toEblanShortcutInfo()
+                entity.asModel()
             }
         }
 
     override suspend fun upsertEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>) {
         val entities = eblanShortcutInfos.map { eblanShortcutInfo ->
-            eblanShortcutInfo.toEblanShortcutInfoEntity()
+            eblanShortcutInfo.asEntity()
         }
 
         eblanShortcutInfoDao.upsertEblanShortcutInfoEntities(entities = entities)
     }
 
     override suspend fun upsertEblanShortcutInfo(eblanShortcutInfo: EblanShortcutInfo) {
-        eblanShortcutInfoDao.upsertEblanShortcutInfoEntity(entity = eblanShortcutInfo.toEblanShortcutInfoEntity())
+        eblanShortcutInfoDao.upsertEblanShortcutInfoEntity(entity = eblanShortcutInfo.asEntity())
     }
 
     override suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>) {
         val entities = eblanShortcutInfos.map { eblanShortcutInfo ->
-            eblanShortcutInfo.toEblanShortcutInfoEntity()
+            eblanShortcutInfo.asEntity()
         }
 
         eblanShortcutInfoDao.deleteEblanShortcutInfoEntities(entities = entities)
     }
 
     override suspend fun getEblanShortcutInfo(id: String): EblanShortcutInfo? {
-        return eblanShortcutInfoDao.getEblanShortcutInfoEntity(id = id)?.toEblanShortcutInfo()
+        return eblanShortcutInfoDao.getEblanShortcutInfoEntity(id = id)?.asModel()
     }
 
-    private fun EblanShortcutInfo.toEblanShortcutInfoEntity(): EblanShortcutInfoEntity {
+    private fun EblanShortcutInfo.asEntity(): EblanShortcutInfoEntity {
         return EblanShortcutInfoEntity(
-            id = id,
+            shortcutId = shortcutId,
             packageName = packageName,
             shortLabel = shortLabel,
             longLabel = longLabel,
@@ -51,9 +51,9 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         )
     }
 
-    private fun EblanShortcutInfoEntity.toEblanShortcutInfo(): EblanShortcutInfo {
+    private fun EblanShortcutInfoEntity.asModel(): EblanShortcutInfo {
         return EblanShortcutInfo(
-            id = id,
+            shortcutId = shortcutId,
             packageName = packageName,
             shortLabel = shortLabel,
             longLabel = longLabel,

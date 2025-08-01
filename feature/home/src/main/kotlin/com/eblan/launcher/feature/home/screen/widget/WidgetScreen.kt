@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import android.content.ClipData
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,20 +33,24 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
-import com.eblan.launcher.domain.grid.getSize
-import com.eblan.launcher.domain.grid.getWidgetGridItem
+import com.eblan.launcher.domain.grid.getWidgetGridItemSize
+import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalUuidApi::class)
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     currentPage: Int,
     rows: Int,
     columns: Int,
@@ -66,7 +67,8 @@ fun WidgetScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onApplyToScroll: (Float) -> Unit,
+    onApplyToFling: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -78,15 +80,13 @@ fun WidgetScreen(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val state = rememberLazyListState()
-
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            onDragEnd = onDismiss,
+            onApplyToScroll = onApplyToScroll,
+            onApplyToFling = onApplyToFling,
         )
     }
 
@@ -108,10 +108,7 @@ fun WidgetScreen(
             }
 
             else -> {
-                LazyColumn(
-                    state = state,
-                    overscrollEffect = overscrollEffect,
-                ) {
+                LazyColumn(overscrollEffect = overscrollEffect) {
                     items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -134,7 +131,7 @@ fun WidgetScreen(
                                     ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
 
                                 val size = with(density) {
-                                    val (width, height) = getSize(
+                                    val (width, height) = getWidgetGridItemSize(
                                         rows = rows,
                                         columns = columns,
                                         gridWidth = rootWidth,
@@ -160,6 +157,8 @@ fun WidgetScreen(
                                                             page,
                                                             GridItemSource.New(
                                                                 gridItem = getWidgetGridItem(
+                                                                    id = Uuid.random()
+                                                                        .toHexString(),
                                                                     page = page,
                                                                     rows = rows,
                                                                     columns = columns,
@@ -222,4 +221,78 @@ fun WidgetScreen(
             }
         }
     }
+}
+
+fun getWidgetGridItem(
+    id: String,
+    page: Int,
+    rows: Int,
+    columns: Int,
+    componentName: String,
+    configure: String?,
+    packageName: String,
+    targetCellHeight: Int,
+    targetCellWidth: Int,
+    minWidth: Int,
+    minHeight: Int,
+    resizeMode: Int,
+    minResizeWidth: Int,
+    minResizeHeight: Int,
+    maxResizeWidth: Int,
+    maxResizeHeight: Int,
+    preview: String?,
+    gridWidth: Int,
+    gridHeight: Int,
+): GridItem {
+    val cellWidth = gridWidth / columns
+
+    val cellHeight = gridHeight / rows
+
+    val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
+        cellHeight = cellHeight,
+        cellWidth = cellWidth,
+        minHeight = minHeight,
+        minWidth = minWidth,
+        targetCellHeight = targetCellHeight,
+        targetCellWidth = targetCellWidth,
+    )
+
+    val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
+        columns = columns,
+        gridHeight = gridHeight,
+        gridWidth = gridWidth,
+        minHeight = minHeight,
+        minWidth = minWidth,
+        rows = rows,
+        targetCellHeight = targetCellHeight,
+        targetCellWidth = targetCellWidth,
+    )
+
+    val data = GridItemData.Widget(
+        appWidgetId = 0,
+        componentName = componentName,
+        packageName = packageName,
+        configure = configure,
+        minWidth = checkedMinWidth,
+        minHeight = checkedMinHeight,
+        resizeMode = resizeMode,
+        minResizeWidth = minResizeWidth,
+        minResizeHeight = minResizeHeight,
+        maxResizeWidth = maxResizeWidth,
+        maxResizeHeight = maxResizeHeight,
+        targetCellHeight = targetCellHeight,
+        targetCellWidth = targetCellWidth,
+        preview = preview,
+    )
+
+    return GridItem(
+        id = id,
+        page = page,
+        startRow = 0,
+        startColumn = 0,
+        rowSpan = checkedRowSpan,
+        columnSpan = checkedColumnSpan,
+        data = data,
+        associate = Associate.Grid,
+    )
 }

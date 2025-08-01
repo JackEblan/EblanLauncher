@@ -19,12 +19,24 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = EblanApplicationInfoEntity::class,
+            parentColumns = ["packageName"],
+            childColumns = ["packageName"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index(value = ["packageName"])],
+)
 data class EblanShortcutInfoEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val shortcutId: String,
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,

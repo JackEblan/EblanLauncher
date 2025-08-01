@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -87,7 +88,7 @@ fun PagerScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     gridItem: GridItem?,
     dockHeight: Int,
     drag: Drag,
@@ -137,13 +138,9 @@ fun PagerScreen(
 
     val applicationComponentY by remember {
         derivedStateOf {
-            if (swipeUpY.value < rootHeight &&
-                gestureSettings.swipeUp is GestureAction.OpenAppDrawer
-            ) {
+            if (swipeUpY.value < rootHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
                 swipeUpY.value
-            } else if (swipeDownY.value < rootHeight &&
-                gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-            ) {
+            } else if (swipeDownY.value < rootHeight && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
                 swipeDownY.value
             } else {
                 rootHeight.toFloat()
@@ -152,42 +149,41 @@ fun PagerScreen(
     }
 
     HorizontalPagerScreen(
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, dragAmount ->
-                        scope.launch {
-                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+        modifier = modifier.pointerInput(Unit) {
+            detectVerticalDragGestures(
+                onVerticalDrag = { _, dragAmount ->
+                    scope.launch {
+                        swipeUpY.snapTo(swipeUpY.value + dragAmount)
 
-                            swipeDownY.snapTo(swipeDownY.value - dragAmount)
-                        }
-                    },
-                    onDragEnd = {
-                        doGestureActions(
-                            gestureSettings = gestureSettings,
-                            swipeUpY = swipeUpY,
-                            rootHeight = rootHeight,
-                            swipeDownY = swipeDownY,
-                            onStartMainActivity = launcherApps::startMainActivity,
-                        )
+                        swipeDownY.snapTo(swipeDownY.value - dragAmount)
+                    }
+                },
+                onDragEnd = {
+                    doGestureActions(
+                        gestureSettings = gestureSettings,
+                        swipeUpY = swipeUpY,
+                        rootHeight = rootHeight,
+                        swipeDownY = swipeDownY,
+                        onStartMainActivity = launcherApps::startMainActivity,
+                    )
 
-                        resetSwipeOffset(
-                            scope = scope,
-                            gestureSettings = gestureSettings,
-                            swipeDownY = swipeDownY,
-                            rootHeight = rootHeight,
-                            swipeUpY = swipeUpY,
-                        )
-                    },
-                    onDragCancel = {
-                        scope.launch {
-                            swipeUpY.animateTo(rootHeight.toFloat())
+                    resetSwipeOffset(
+                        scope = scope,
+                        gestureSettings = gestureSettings,
+                        swipeDownY = swipeDownY,
+                        rootHeight = rootHeight,
+                        swipeUpY = swipeUpY,
+                    )
+                },
+                onDragCancel = {
+                    scope.launch {
+                        swipeUpY.animateTo(rootHeight.toFloat())
 
-                            swipeDownY.animateTo(rootHeight.toFloat())
-                        }
-                    },
-                )
-            },
+                        swipeDownY.animateTo(rootHeight.toFloat())
+                    }
+                },
+            )
+        },
         horizontalPagerState = gridHorizontalPagerState,
         rows = rows,
         columns = columns,
@@ -195,7 +191,7 @@ fun PagerScreen(
         infiniteScroll = infiniteScroll,
         dockRows = dockRows,
         dockColumns = dockColumns,
-        gridItems = gridItems,
+        gridItemsByPage = gridItemsByPage,
         gridItem = gridItem,
         dockHeight = dockHeight,
         dockGridItems = dockGridItems,
@@ -218,9 +214,7 @@ fun PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
-        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-    ) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
         ApplicationComponentScreen(
             modifier = Modifier.offset {
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
@@ -303,7 +297,7 @@ private fun HorizontalPagerScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     gridItem: GridItem?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
@@ -431,7 +425,7 @@ private fun HorizontalPagerScreen(
                 rows = rows,
                 columns = columns,
             ) {
-                gridItems[page]?.forEach { gridItem ->
+                gridItemsByPage[page]?.forEach { gridItem ->
                     key(gridItem.id) {
                         val cellWidth = rootWidth / columns
 
@@ -497,7 +491,7 @@ private fun HorizontalPagerScreen(
                                         if (hasShortcutHostPermission) {
                                             launcherApps.startShortcut(
                                                 packageName = data.packageName,
-                                                id = data.id,
+                                                id = data.shortcutId,
                                             )
                                         }
                                     },
@@ -601,7 +595,7 @@ private fun HorizontalPagerScreen(
                                 onTap = {
                                     launcherApps.startShortcut(
                                         packageName = data.packageName,
-                                        id = data.id,
+                                        id = data.shortcutId,
                                     )
                                 },
                                 onLongPress = {
@@ -783,13 +777,13 @@ private fun ApplicationComponentScreen(
         newGridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    val overscrollAlpha = remember { Animatable(0f) }
+    var overscrollOffset by remember { mutableFloatStateOf(0f) }
 
     val alpha by remember {
         derivedStateOf {
-            1f - (abs(overscrollAlpha.value) / 100f)
+            1f - (abs(overscrollOffset) / 500f)
         }
     }
 
@@ -820,7 +814,6 @@ private fun ApplicationComponentScreen(
                         0 -> {
                             ApplicationScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
                                 appDrawerColumns = appDrawerColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
@@ -829,14 +822,20 @@ private fun ApplicationComponentScreen(
                                 appDrawerRowsHeight = appDrawerRowsHeight,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onDismiss = onDismiss,
+                                onApplyToScroll = { newOverscrollOffset ->
+                                    overscrollOffset = newOverscrollOffset
+                                },
+                                onApplyToFling = {
+                                    if (alpha < 0.2f) {
+                                        onDismiss()
+                                    }
+                                },
                             )
                         }
 
                         1 -> {
                             WidgetScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
                                 rows = rows,
                                 columns = columns,
                                 pageCount = pageCount,
@@ -849,7 +848,14 @@ private fun ApplicationComponentScreen(
                                 dragIntOffset = dragIntOffset,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onDismiss = onDismiss,
+                                onApplyToScroll = { newOverscrollOffset ->
+                                    overscrollOffset = newOverscrollOffset
+                                },
+                                onApplyToFling = {
+                                    if (alpha < 0.2f) {
+                                        onDismiss()
+                                    }
+                                },
                             )
                         }
 
@@ -862,6 +868,14 @@ private fun ApplicationComponentScreen(
                                 drag = drag,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
+                                onApplyToScroll = { newOverscrollOffset ->
+                                    overscrollOffset = newOverscrollOffset
+                                },
+                                onApplyToFling = {
+                                    if (alpha < 0.2f) {
+                                        onDismiss()
+                                    }
+                                },
                             )
                         }
                     }

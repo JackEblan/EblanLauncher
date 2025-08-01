@@ -3,7 +3,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -13,14 +13,14 @@ import javax.inject.Inject
 
 class CachePageItemsUseCase @Inject constructor(
     private val pageCacheRepository: PageCacheRepository,
-    private val gridRepository: GridRepository,
+    private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
 ) {
     suspend operator fun invoke() {
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val gridItems = gridRepository.gridItems.first().filter { gridItem ->
+            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.homeSettings.rows,

@@ -5,10 +5,8 @@ import com.eblan.launcher.domain.grid.findAvailableRegion
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -21,7 +19,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
-    private val widgetGridItemRepository: WidgetGridItemRepository,
 ) {
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
@@ -126,31 +123,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             )
 
             if (newGridItem != null) {
-                val widgetGridItem = WidgetGridItem(
-                    id = id,
-                    page = initialPage,
-                    startRow = 0,
-                    startColumn = 0,
-                    rowSpan = checkedRowSpan,
-                    columnSpan = checkedColumnSpan,
-                    associate = Associate.Grid,
-                    appWidgetId = 0,
-                    packageName = packageName,
-                    componentName = componentName,
-                    configure = configure,
-                    minWidth = minWidth,
-                    minHeight = minHeight,
-                    resizeMode = resizeMode,
-                    minResizeWidth = minResizeWidth,
-                    minResizeHeight = minResizeHeight,
-                    maxResizeWidth = maxResizeWidth,
-                    maxResizeHeight = maxResizeHeight,
-                    targetCellHeight = targetCellHeight,
-                    targetCellWidth = targetCellWidth,
-                    preview = previewInferred,
-                )
-
-                widgetGridItemRepository.upsertWidgetGridItem(widgetGridItem = widgetGridItem)
+                gridCacheRepository.insertGridItem(gridItem = newGridItem)
             }
 
             newGridItem

@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.repository.GridRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,9 +18,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PinViewModel @Inject constructor(
+    private val gridCacheRepository: GridCacheRepository,
     private val addPinShortcutToHomeScreenUseCase: AddPinShortcutToHomeScreenUseCase,
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -28,6 +31,10 @@ class PinViewModel @Inject constructor(
     private val _isBoundWidget = MutableStateFlow(false)
 
     val isBoundWidget = _isBoundWidget.asStateFlow()
+
+    private val _isFinished = MutableStateFlow(false)
+
+    val isFinished = _isFinished.asStateFlow()
 
     fun addPinShortcutToHomeScreen(
         id: String,
@@ -89,21 +96,41 @@ class PinViewModel @Inject constructor(
         }
     }
 
-    fun deleteGridItem(gridItem: GridItem) {
+    fun updateGridItemDataCache(gridItem: GridItem) {
         viewModelScope.launch {
-        }
-    }
-
-    fun deleteWidgetGridItem(gridItem: GridItem, appWidgetId: Int) {
-        viewModelScope.launch {
-            appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
-        }
-    }
-
-    fun updateGridItemData(id: String, data: GridItemData) {
-        viewModelScope.launch {
+            gridCacheRepository.updateGridItemData(id = gridItem.id, data = gridItem.data)
 
             _isBoundWidget.update {
+                true
+            }
+        }
+    }
+
+    fun deleteGridItemCache(gridItem: GridItem) {
+        viewModelScope.launch {
+            when (val data = gridItem.data) {
+                is GridItemData.Widget -> {
+                    appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
+
+                    gridCacheRepository.deleteGridItem(gridItem = gridItem)
+                }
+
+                else -> {
+                    gridCacheRepository.deleteGridItem(gridItem = gridItem)
+                }
+            }
+
+            _isFinished.update {
+                true
+            }
+        }
+    }
+
+    fun updateGridItems() {
+        viewModelScope.launch {
+            updateGridItemsUseCase()
+
+            _isFinished.update {
                 true
             }
         }

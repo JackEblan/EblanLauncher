@@ -45,9 +45,6 @@ import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffe
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -160,50 +157,44 @@ fun WidgetScreen(
                                             block = {
                                                 detectTapGestures(
                                                     onLongPress = {
-                                                        scope.launch {
-                                                            isLongPress = true
+                                                        isLongPress = true
 
-                                                            val id =
-                                                                withContext(Dispatchers.Default) {
-                                                                    Uuid.random().toHexString()
-                                                                }
-
-                                                            onLongPress(
-                                                                page,
-                                                                GridItemSource.New(
-                                                                    gridItem = getWidgetGridItem(
-                                                                        id = id,
-                                                                        page = page,
-                                                                        rows = rows,
-                                                                        columns = columns,
-                                                                        componentName = eblanAppWidgetProviderInfo.componentName,
-                                                                        configure = eblanAppWidgetProviderInfo.configure,
-                                                                        packageName = eblanAppWidgetProviderInfo.packageName,
-                                                                        targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                                                                        minWidth = eblanAppWidgetProviderInfo.minWidth,
-                                                                        minHeight = eblanAppWidgetProviderInfo.minHeight,
-                                                                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                                                                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                                                                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                                                                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                                                                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                                                        preview = eblanAppWidgetProviderInfo.preview,
-                                                                        gridWidth = rootWidth,
-                                                                        gridHeight = rootHeight - dockHeight,
-                                                                    ),
+                                                        onLongPress(
+                                                            page,
+                                                            GridItemSource.New(
+                                                                gridItem = getWidgetGridItem(
+                                                                    id = Uuid.random()
+                                                                        .toHexString(),
+                                                                    page = page,
+                                                                    rows = rows,
+                                                                    columns = columns,
+                                                                    componentName = eblanAppWidgetProviderInfo.componentName,
+                                                                    configure = eblanAppWidgetProviderInfo.configure,
+                                                                    packageName = eblanAppWidgetProviderInfo.packageName,
+                                                                    targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                                                                    targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
+                                                                    minWidth = eblanAppWidgetProviderInfo.minWidth,
+                                                                    minHeight = eblanAppWidgetProviderInfo.minHeight,
+                                                                    resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                                                                    minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                                                                    minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                                                                    maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                                                                    maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                                                                    preview = eblanAppWidgetProviderInfo.preview,
+                                                                    gridWidth = rootWidth,
+                                                                    gridHeight = rootHeight - dockHeight,
                                                                 ),
-                                                            )
+                                                            ),
+                                                        )
 
-                                                            startTransfer(
-                                                                DragAndDropTransferData(
-                                                                    clipData = ClipData.newPlainText(
-                                                                        "Drag",
-                                                                        "Drag",
-                                                                    ),
+                                                        startTransfer(
+                                                            DragAndDropTransferData(
+                                                                clipData = ClipData.newPlainText(
+                                                                    "Drag",
+                                                                    "Drag",
                                                                 ),
-                                                            )
-                                                        }
+                                                            ),
+                                                        )
                                                     },
                                                 )
                                             },

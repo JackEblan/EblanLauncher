@@ -1,10 +1,11 @@
 package com.eblan.launcher.domain.repository
 
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
 interface ShortcutInfoGridItemRepository {
-    val shortcutInfoGridItems: Flow<List<ShortcutInfoGridItem>>
+    val shortcutInfoGridItems: Flow<List<GridItem>>
 
     suspend fun upsertShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>)
 

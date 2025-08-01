@@ -154,7 +154,7 @@ fun handleDeleteAppWidgetId(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
-    onDeleteGridItemCache: (gridItem: GridItem) -> Unit,
+    onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
     val data = (gridItem?.data as? GridItemData.Widget) ?: return

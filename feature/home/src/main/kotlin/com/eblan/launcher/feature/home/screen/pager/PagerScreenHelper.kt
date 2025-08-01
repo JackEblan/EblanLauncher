@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.pm.LauncherApps.PinItemRequest
 import android.content.pm.ShortcutInfo
@@ -17,6 +18,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
@@ -25,9 +27,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private const val SwipeThreshold = 100f
 
+@OptIn(ExperimentalUuidApi::class)
 suspend fun handlePinItemRequest(
     currentPage: Int,
     infiniteScroll: Boolean,
@@ -51,69 +56,73 @@ suspend fun handlePinItemRequest(
 
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-//    suspend fun getWidgetGridItemSource(
-//        pinItemRequest: PinItemRequest,
-//        appWidgetProviderInfo: AppWidgetProviderInfo,
-//    ): GridItemSource {
-//        val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
-//
-//        val previewInferred = File(
-//            fileManager.widgetsDirectory,
-//            appWidgetProviderInfo.provider.className,
-//        ).absolutePath
-//
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            GridItemSource.Pin(
-//                gridItem = getWidgetGridItem(
-//                    page = targetPage,
-//                    rows = rows,
-//                    columns = columns,
-//                    componentName = appWidgetProviderInfo.provider.flattenToString(),
-//                    configure = appWidgetProviderInfo.configure.flattenToString(),
-//                    packageName = appWidgetProviderInfo.provider.packageName,
-//                    targetCellHeight = appWidgetProviderInfo.targetCellHeight,
-//                    targetCellWidth = appWidgetProviderInfo.targetCellWidth,
-//                    minWidth = appWidgetProviderInfo.minWidth,
-//                    minHeight = appWidgetProviderInfo.minHeight,
-//                    resizeMode = appWidgetProviderInfo.resizeMode,
-//                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-//                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-//                    maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
-//                    maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
-//                    gridWidth = gridWidth,
-//                    gridHeight = gridHeight,
-//                    preview = previewInferred,
-//                ),
-//                pinItemRequest = pinItemRequest,
-//                byteArray = byteArray,
-//            )
-//        } else {
-//            GridItemSource.Pin(
-//                gridItem = getWidgetGridItem(
-//                    page = targetPage,
-//                    rows = rows,
-//                    columns = columns,
-//                    componentName = appWidgetProviderInfo.provider.flattenToString(),
-//                    configure = appWidgetProviderInfo.configure.flattenToString(),
-//                    packageName = appWidgetProviderInfo.provider.packageName,
-//                    targetCellHeight = 0,
-//                    targetCellWidth = 0,
-//                    minWidth = appWidgetProviderInfo.minWidth,
-//                    minHeight = appWidgetProviderInfo.minHeight,
-//                    resizeMode = appWidgetProviderInfo.resizeMode,
-//                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-//                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-//                    maxResizeWidth = 0,
-//                    maxResizeHeight = 0,
-//                    gridWidth = gridWidth,
-//                    gridHeight = gridHeight,
-//                    preview = previewInferred,
-//                ),
-//                pinItemRequest = pinItemRequest,
-//                byteArray = byteArray,
-//            )
-//        }
-//    }
+    suspend fun getWidgetGridItemSource(
+        pinItemRequest: PinItemRequest,
+        appWidgetProviderInfo: AppWidgetProviderInfo,
+    ): GridItemSource {
+        val id = Uuid.random().toHexString()
+
+        val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
+
+        val previewInferred = File(
+            fileManager.widgetsDirectory,
+            appWidgetProviderInfo.provider.className,
+        ).absolutePath
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            GridItemSource.Pin(
+                gridItem = getWidgetGridItem(
+                    id = id,
+                    page = targetPage,
+                    rows = rows,
+                    columns = columns,
+                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                    packageName = appWidgetProviderInfo.provider.packageName,
+                    targetCellHeight = appWidgetProviderInfo.targetCellHeight,
+                    targetCellWidth = appWidgetProviderInfo.targetCellWidth,
+                    minWidth = appWidgetProviderInfo.minWidth,
+                    minHeight = appWidgetProviderInfo.minHeight,
+                    resizeMode = appWidgetProviderInfo.resizeMode,
+                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                    maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                    preview = previewInferred,
+                ),
+                pinItemRequest = pinItemRequest,
+                byteArray = byteArray,
+            )
+        } else {
+            GridItemSource.Pin(
+                gridItem = getWidgetGridItem(
+                    id = id,
+                    page = targetPage,
+                    rows = rows,
+                    columns = columns,
+                    componentName = appWidgetProviderInfo.provider.flattenToString(),
+                    configure = appWidgetProviderInfo.configure.flattenToString(),
+                    packageName = appWidgetProviderInfo.provider.packageName,
+                    targetCellHeight = 0,
+                    targetCellWidth = 0,
+                    minWidth = appWidgetProviderInfo.minWidth,
+                    minHeight = appWidgetProviderInfo.minHeight,
+                    resizeMode = appWidgetProviderInfo.resizeMode,
+                    minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                    minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                    maxResizeWidth = 0,
+                    maxResizeHeight = 0,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                    preview = previewInferred,
+                ),
+                pinItemRequest = pinItemRequest,
+                byteArray = byteArray,
+            )
+        }
+    }
 
     suspend fun getShortcutGridItemSource(
         pinItemRequest: PinItemRequest,
@@ -134,6 +143,7 @@ suspend fun handlePinItemRequest(
                 longLabel = shortcutInfo.longLabel.toString(),
                 icon = iconInferred,
             )
+
             GridItemSource.Pin(
                 gridItem = GridItem(
                     id = shortcutInfo.id,
@@ -161,12 +171,12 @@ suspend fun handlePinItemRequest(
                         val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
 
                         if (appWidgetProviderInfo != null) {
-//                            onDragStart(
-//                                getWidgetGridItemSource(
-//                                    pinItemRequest = pinItemRequest,
-//                                    appWidgetProviderInfo = appWidgetProviderInfo,
-//                                ),
-//                            )
+                            onDragStart(
+                                getWidgetGridItemSource(
+                                    pinItemRequest = pinItemRequest,
+                                    appWidgetProviderInfo = appWidgetProviderInfo,
+                                ),
+                            )
                         }
                     }
 

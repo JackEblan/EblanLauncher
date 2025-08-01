@@ -13,7 +13,7 @@ class UpdatePageItemsUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    private val combineGridItemsUseCase: CombineGridItemsUseCase,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) {
     suspend operator fun invoke(
         initialPage: Int,
@@ -47,9 +47,9 @@ class UpdatePageItemsUseCase @Inject constructor(
 
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
 
-            combineGridItemsUseCase()
-
             userDataRepository.updatePageCount(pageCount = pageItems.size)
+
+            updateGridItemsUseCase()
         }
     }
 }

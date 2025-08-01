@@ -26,7 +26,6 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
@@ -148,8 +147,6 @@ fun GridItemResizeOverlay(
     }
 
     LaunchedEffect(key1 = width, key2 = height) {
-        delay(250L)
-
         val allowedWidth = width.coerceAtLeast(cellWidth)
 
         val allowedHeight = height.coerceAtLeast(cellHeight)

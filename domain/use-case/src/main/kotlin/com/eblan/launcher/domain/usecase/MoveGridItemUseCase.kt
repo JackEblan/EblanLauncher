@@ -25,7 +25,6 @@ class MoveGridItemUseCase @Inject constructor(
         gridHeight: Int,
     ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
-
             val index =
                 gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 

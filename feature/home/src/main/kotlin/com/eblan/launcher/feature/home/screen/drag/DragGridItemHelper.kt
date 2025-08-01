@@ -31,7 +31,7 @@ suspend fun handleDragIntOffset(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     dockGridItems: List<GridItem>,
     drag: Drag,
     gridItem: GridItem?,
@@ -57,10 +57,7 @@ suspend fun handleDragIntOffset(
         gridHeight: Int,
     ) -> Unit,
 ) {
-    if (drag != Drag.Dragging ||
-        gridItem == null ||
-        isScrollInProgress
-    ) {
+    if (drag != Drag.Dragging || gridItem == null || isScrollInProgress) {
         return
     }
 
@@ -70,24 +67,17 @@ suspend fun handleDragIntOffset(
         pageCount = pageCount,
     )
 
-    val gridItemsByPage = gridItems[targetPage].orEmpty()
+    val gridItemsByTargetPage = gridItemsByPage[targetPage].orEmpty()
 
-    val isDraggingOnDock =
-        dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
-
-    val delay = 250L
+    val isDraggingOnDock = dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 
     if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
-        delay(delay)
-
+        delay(250L)
         onUpdatePageDirection(PageDirection.Left)
     } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
-        delay(delay)
-
+        delay(250L)
         onUpdatePageDirection(PageDirection.Right)
     } else if (isDraggingOnDock) {
-        delay(delay)
-
         val cellWidth = rootWidth / dockColumns
 
         val cellHeight = dockHeight / dockRows
@@ -120,8 +110,6 @@ suspend fun handleDragIntOffset(
             )
         }
     } else {
-        delay(delay)
-
         val gridWidth = rootWidth - (gridPadding * 2)
 
         val gridHeight = (rootHeight - dockHeight) - (gridPadding * 2)
@@ -149,7 +137,7 @@ suspend fun handleDragIntOffset(
 
         if (isGridItemSpanWithinBounds) {
             onMoveGridItem(
-                gridItemsByPage,
+                gridItemsByTargetPage,
                 newGridItem,
                 gridX,
                 gridY,

@@ -26,6 +26,7 @@ fun handleOnDragEnd(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
+    onMoveGridItemsFailed: (Int) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
@@ -38,9 +39,7 @@ fun handleOnDragEnd(
     )
 
     if (!movedGridItems) {
-        onDeleteGridItemCache(gridItemSource.gridItem)
-
-        onDragEnd(targetPage)
+        onMoveGridItemsFailed(targetPage)
 
         return
     }

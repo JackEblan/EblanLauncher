@@ -64,7 +64,7 @@ fun DragScreen(
     dockColumns: Int,
     dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     drag: Drag,
     rootWidth: Int,
     rootHeight: Int,
@@ -85,6 +85,7 @@ fun DragScreen(
     ) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
+    onMoveGridItemsFailed: (Int) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
 ) {
@@ -155,7 +156,7 @@ fun DragScreen(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
-            gridItems = gridItems,
+            gridItemsByPage = gridItemsByPage,
             dockGridItems = dockGridItems,
             drag = drag,
             gridItem = gridItemSource?.gridItem,
@@ -201,6 +202,7 @@ fun DragScreen(
                     gridItemSource = gridItemSource,
                     onLaunch = appWidgetLauncher::launch,
                     onDragEnd = onDragEnd,
+                    onMoveGridItemsFailed = onMoveGridItemsFailed,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onUpdateAppWidgetId = { appWidgetId ->
@@ -268,7 +270,7 @@ fun DragScreen(
                 rows = rows,
                 columns = columns,
             ) {
-                gridItems[page]?.forEach { gridItem ->
+                gridItemsByPage[page]?.forEach { gridItem ->
                     GridItemContent(
                         gridItem = gridItem,
                         color = Color(textColor),

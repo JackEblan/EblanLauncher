@@ -72,6 +72,7 @@ fun HomeRoute(
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
         onResetGridCache = viewModel::resetGridCache,
+        onCancelGridCache = viewModel::cancelGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
@@ -107,8 +108,12 @@ fun HomeScreen(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onShowGridCache: (Screen) -> Unit,
+    onShowGridCache: (
+        gridItems: List<GridItem>,
+        screen: Screen,
+    ) -> Unit,
     onResetGridCache: () -> Unit,
+    onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
@@ -193,6 +198,7 @@ fun HomeScreen(
                     Success(
                         screen = screen,
                         gridItems = homeUiState.homeData.gridItems,
+                        gridItemsByPage = homeUiState.homeData.gridItemsByPage,
                         userData = homeUiState.homeData.userData,
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         dockGridItems = homeUiState.homeData.dockGridItems,
@@ -209,6 +215,7 @@ fun HomeScreen(
                         onResizeGridItem = onResizeGridItem,
                         onShowGridCache = onShowGridCache,
                         onResetGridCache = onResetGridCache,
+                        onCancelGridCache = onCancelGridCache,
                         onEdit = onEdit,
                         onSettings = onSettings,
                         onEditPage = onEditPage,
@@ -227,7 +234,8 @@ fun HomeScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     screen: Screen,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItems: List<GridItem>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     userData: UserData,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     dockGridItems: List<GridItem>,
@@ -256,8 +264,12 @@ private fun Success(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onShowGridCache: (Screen) -> Unit,
+    onShowGridCache: (
+        gridItems: List<GridItem>,
+        screen: Screen,
+    ) -> Unit,
     onResetGridCache: () -> Unit,
+    onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
@@ -293,7 +305,7 @@ private fun Success(
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
                     gridItem = gridItemSource?.gridItem,
-                    gridItems = gridItems,
+                    gridItemsByPage = gridItemsByPage,
                     dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,
                     dockGridItems = dockGridItems,
@@ -316,7 +328,7 @@ private fun Success(
                         gridItemSource = newGridItemSource
                     },
                     onDraggingGridItem = {
-                        onShowGridCache(Screen.Drag)
+                        onShowGridCache(gridItems, Screen.Drag)
                     },
                     onEdit = {
 
@@ -324,14 +336,14 @@ private fun Success(
                     onResize = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        onShowGridCache(Screen.Resize)
+                        onShowGridCache(gridItems, Screen.Resize)
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
                     onDragStartPinItemRequest = { newGridItemSource ->
                         gridItemSource = newGridItemSource
 
-                        onShowGridCache(Screen.Drag)
+                        onShowGridCache(gridItems, Screen.Drag)
                     },
                 )
             }
@@ -345,7 +357,7 @@ private fun Success(
                     infiniteScroll = userData.homeSettings.infiniteScroll,
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
-                    gridItems = gridItems,
+                    gridItemsByPage = gridItemsByPage,
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
@@ -363,6 +375,11 @@ private fun Success(
 
                         onResetGridCache()
                     },
+                    onMoveGridItemsFailed = { newTargetPage ->
+                        targetPage = newTargetPage
+
+                        onCancelGridCache()
+                    },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                 )
@@ -374,7 +391,7 @@ private fun Success(
                     columns = userData.homeSettings.columns,
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
-                    gridItems = gridItems[targetPage],
+                    gridItems = gridItemsByPage[targetPage],
                     gridItem = gridItemSource?.gridItem,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,

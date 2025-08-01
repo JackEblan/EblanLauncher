@@ -87,7 +87,7 @@ fun PagerScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     gridItem: GridItem?,
     dockHeight: Int,
     drag: Drag,
@@ -149,40 +149,40 @@ fun PagerScreen(
 
     HorizontalPagerScreen(
         modifier = modifier.pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, dragAmount ->
-                        scope.launch {
-                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+            detectVerticalDragGestures(
+                onVerticalDrag = { _, dragAmount ->
+                    scope.launch {
+                        swipeUpY.snapTo(swipeUpY.value + dragAmount)
 
-                            swipeDownY.snapTo(swipeDownY.value - dragAmount)
-                        }
-                    },
-                    onDragEnd = {
-                        doGestureActions(
-                            gestureSettings = gestureSettings,
-                            swipeUpY = swipeUpY,
-                            rootHeight = rootHeight,
-                            swipeDownY = swipeDownY,
-                            onStartMainActivity = launcherApps::startMainActivity,
-                        )
+                        swipeDownY.snapTo(swipeDownY.value - dragAmount)
+                    }
+                },
+                onDragEnd = {
+                    doGestureActions(
+                        gestureSettings = gestureSettings,
+                        swipeUpY = swipeUpY,
+                        rootHeight = rootHeight,
+                        swipeDownY = swipeDownY,
+                        onStartMainActivity = launcherApps::startMainActivity,
+                    )
 
-                        resetSwipeOffset(
-                            scope = scope,
-                            gestureSettings = gestureSettings,
-                            swipeDownY = swipeDownY,
-                            rootHeight = rootHeight,
-                            swipeUpY = swipeUpY,
-                        )
-                    },
-                    onDragCancel = {
-                        scope.launch {
-                            swipeUpY.animateTo(rootHeight.toFloat())
+                    resetSwipeOffset(
+                        scope = scope,
+                        gestureSettings = gestureSettings,
+                        swipeDownY = swipeDownY,
+                        rootHeight = rootHeight,
+                        swipeUpY = swipeUpY,
+                    )
+                },
+                onDragCancel = {
+                    scope.launch {
+                        swipeUpY.animateTo(rootHeight.toFloat())
 
-                            swipeDownY.animateTo(rootHeight.toFloat())
-                        }
-                    },
-                )
-            },
+                        swipeDownY.animateTo(rootHeight.toFloat())
+                    }
+                },
+            )
+        },
         horizontalPagerState = gridHorizontalPagerState,
         rows = rows,
         columns = columns,
@@ -190,7 +190,7 @@ fun PagerScreen(
         infiniteScroll = infiniteScroll,
         dockRows = dockRows,
         dockColumns = dockColumns,
-        gridItems = gridItems,
+        gridItemsByPage = gridItemsByPage,
         gridItem = gridItem,
         dockHeight = dockHeight,
         dockGridItems = dockGridItems,
@@ -296,7 +296,7 @@ private fun HorizontalPagerScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
-    gridItems: Map<Int, List<GridItem>>,
+    gridItemsByPage: Map<Int, List<GridItem>>,
     gridItem: GridItem?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
@@ -424,7 +424,7 @@ private fun HorizontalPagerScreen(
                 rows = rows,
                 columns = columns,
             ) {
-                gridItems[page]?.forEach { gridItem ->
+                gridItemsByPage[page]?.forEach { gridItem ->
                     key(gridItem.id) {
                         val cellWidth = rootWidth / columns
 

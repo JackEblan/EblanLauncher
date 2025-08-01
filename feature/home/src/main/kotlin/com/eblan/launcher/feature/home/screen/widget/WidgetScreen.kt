@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -81,8 +80,6 @@ fun WidgetScreen(
 
     var isLongPress by remember { mutableStateOf(false) }
 
-    val state = rememberLazyListState()
-
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
@@ -111,10 +108,7 @@ fun WidgetScreen(
             }
 
             else -> {
-                LazyColumn(
-                    state = state,
-                    overscrollEffect = overscrollEffect,
-                ) {
+                LazyColumn(overscrollEffect = overscrollEffect) {
                     items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),

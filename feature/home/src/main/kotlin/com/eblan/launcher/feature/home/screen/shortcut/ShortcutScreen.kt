@@ -1,6 +1,8 @@
 package com.eblan.launcher.feature.home.screen.shortcut
 
 import android.content.ClipData
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -19,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +34,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -39,6 +43,7 @@ import com.eblan.launcher.feature.home.util.calculatePage
 @Composable
 fun ShortcutScreen(
     modifier: Modifier = Modifier,
+    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     currentPage: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
@@ -49,6 +54,7 @@ fun ShortcutScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
+    onDismiss: suspend () -> Unit,
 ) {
     val page = calculatePage(
         index = currentPage,
@@ -57,6 +63,16 @@ fun ShortcutScreen(
     )
 
     var isLongPress by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+    val overscrollEffect = remember(key1 = scope) {
+        OffsetOverscrollEffect(
+            scope = scope,
+            overscrollAlpha = overscrollAlpha,
+            onDragEnd = onDismiss,
+        )
+    }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isLongPress) {
@@ -71,7 +87,7 @@ fun ShortcutScreen(
             }
 
             else -> {
-                LazyColumn {
+                LazyColumn(overscrollEffect = overscrollEffect) {
                     items(eblanShortcutInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),

@@ -137,13 +137,9 @@ fun PagerScreen(
 
     val applicationComponentY by remember {
         derivedStateOf {
-            if (swipeUpY.value < rootHeight &&
-                gestureSettings.swipeUp is GestureAction.OpenAppDrawer
-            ) {
+            if (swipeUpY.value < rootHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
                 swipeUpY.value
-            } else if (swipeDownY.value < rootHeight &&
-                gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-            ) {
+            } else if (swipeDownY.value < rootHeight && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
                 swipeDownY.value
             } else {
                 rootHeight.toFloat()
@@ -152,8 +148,7 @@ fun PagerScreen(
     }
 
     HorizontalPagerScreen(
-        modifier = modifier
-            .pointerInput(Unit) {
+        modifier = modifier.pointerInput(Unit) {
                 detectVerticalDragGestures(
                     onVerticalDrag = { _, dragAmount ->
                         scope.launch {
@@ -218,9 +213,7 @@ fun PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
-        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-    ) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
         ApplicationComponentScreen(
             modifier = Modifier.offset {
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
@@ -856,12 +849,14 @@ private fun ApplicationComponentScreen(
                         2 -> {
                             ShortcutScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
+                                overscrollAlpha = overscrollAlpha,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
                                 drag = drag,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
+                                onDismiss = onDismiss,
                             )
                         }
                     }

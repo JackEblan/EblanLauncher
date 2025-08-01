@@ -30,7 +30,7 @@ fun handleOnDragEnd(
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
-    if (gridItemSource == null) return
+    requireNotNull(gridItemSource)
 
     val targetPage = calculatePage(
         index = currentPage,
@@ -109,7 +109,11 @@ fun handleAppWidgetLauncherResult(
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteAppWidgetId: () -> Unit,
 ) {
-    val data = (gridItem?.data as? GridItemData.Widget) ?: return
+    requireNotNull(gridItem)
+
+    require(gridItem.data is GridItemData.Widget)
+
+    val data = gridItem.data as GridItemData.Widget
 
     if (result.resultCode == Activity.RESULT_OK) {
         val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
@@ -131,7 +135,7 @@ fun handleConfigureLauncherResult(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
-    if (gridItem == null) return
+    requireNotNull(gridItem)
 
     val targetPage = calculatePage(
         index = currentPage,
@@ -156,9 +160,15 @@ fun handleDeleteAppWidgetId(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
-    val data = (gridItem?.data as? GridItemData.Widget) ?: return
+    if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID &&
+        deleteAppWidgetId
+    ) {
+        requireNotNull(gridItem)
 
-    if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && deleteAppWidgetId) {
+        require(gridItem.data is GridItemData.Widget)
+
+        val data = gridItem.data as GridItemData.Widget
+
         val targetPage = calculatePage(
             index = currentPage,
             infiniteScroll = infiniteScroll,
@@ -254,7 +264,10 @@ private fun onDragEndPinShortcut(
     gridItem: GridItem,
     onDeleteGridItemCache: (GridItem) -> Unit,
 ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null && pinItemRequest.isValid && pinItemRequest.accept()) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null &&
+        pinItemRequest.isValid &&
+        pinItemRequest.accept()
+    ) {
         return
     }
 

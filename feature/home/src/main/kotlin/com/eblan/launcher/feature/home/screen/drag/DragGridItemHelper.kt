@@ -57,7 +57,9 @@ suspend fun handleDragIntOffset(
         gridHeight: Int,
     ) -> Unit,
 ) {
-    if (drag != Drag.Dragging || gridItem == null || isScrollInProgress) {
+    requireNotNull(gridItem)
+
+    if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
 
@@ -67,15 +69,17 @@ suspend fun handleDragIntOffset(
         pageCount = pageCount,
     )
 
-    val gridItemsByTargetPage = gridItemsByPage[targetPage].orEmpty()
+    val gridItemsByTargetPage = requireNotNull(gridItemsByPage[targetPage])
 
     val isDraggingOnDock = dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 
     if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
         delay(250L)
+
         onUpdatePageDirection(PageDirection.Left)
     } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
         delay(250L)
+
         onUpdatePageDirection(PageDirection.Right)
     } else if (isDraggingOnDock) {
         val cellWidth = rootWidth / dockColumns

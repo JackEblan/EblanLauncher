@@ -56,4 +56,10 @@ class HomeSettingsViewModel @Inject constructor(private val userDataRepository: 
             userDataRepository.updateTextColor(textColor = textColor)
         }
     }
+
+    fun updateWallpaperScroll(wallpaperScroll: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateWallpaperScroll(wallpaperScroll = wallpaperScroll)
+        }
+    }
 }

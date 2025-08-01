@@ -58,4 +58,8 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateTextColor(textColor: TextColor) {
         userDataStore.updateTextColor(textColor = textColor)
     }
+
+    override suspend fun updateWallpaperScroll(wallpaperScroll: Boolean) {
+        userDataStore.updateWallpaperScroll(wallpaperScroll = wallpaperScroll)
+    }
 }

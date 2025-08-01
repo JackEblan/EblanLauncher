@@ -50,6 +50,7 @@ fun HomeSettingsRoute(
         onNavigateUp = onNavigateUp,
         onUpdateGrid = viewModel::updateGrid,
         onUpdateInfiniteScroll = viewModel::updateInfiniteScroll,
+        onUpdateWallpaperScroll = viewModel::updateWallpaperScroll,
         onUpdateDockGrid = viewModel::updateDockGrid,
         onUpdateDockHeight = viewModel::updateDockHeight,
         onUpdateTextColor = viewModel::updateTextColor,
@@ -67,6 +68,7 @@ fun HomeSettingsScreen(
         columns: Int,
     ) -> Unit,
     onUpdateInfiniteScroll: (Boolean) -> Unit,
+    onUpdateWallpaperScroll: (Boolean) -> Unit,
     onUpdateDockGrid: (
         dockRows: Int,
         dockColumns: Int,
@@ -107,6 +109,7 @@ fun HomeSettingsScreen(
                         homeSettings = homeSettingsUiState.userData.homeSettings,
                         onUpdateGrid = onUpdateGrid,
                         onUpdateInfiniteScroll = onUpdateInfiniteScroll,
+                        onUpdateWallpaperScroll = onUpdateWallpaperScroll,
                         onUpdateDockGrid = onUpdateDockGrid,
                         onUpdateDockHeight = onUpdateDockHeight,
                         onUpdateTextColor = onUpdateTextColor,
@@ -127,6 +130,7 @@ fun Success(
         columns: Int,
     ) -> Unit,
     onUpdateInfiniteScroll: (Boolean) -> Unit,
+    onUpdateWallpaperScroll: (Boolean) -> Unit,
     onUpdateDockGrid: (
         dockRows: Int,
         dockColumns: Int,
@@ -159,10 +163,20 @@ fun Success(
 
         SwitchRow(
             modifier = modifier,
-            homeSettings = homeSettings,
+            checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
             subtitle = "Scrolling at the end returns to first page",
             onUpdateInfiniteScroll = onUpdateInfiniteScroll,
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SwitchRow(
+            modifier = modifier,
+            checked = homeSettings.wallpaperScroll,
+            title = "Wallpaper Scrolling",
+            subtitle = "Scroll the wallpaper as you go through pages",
+            onUpdateInfiniteScroll = onUpdateWallpaperScroll,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -250,7 +264,7 @@ fun Success(
 @Composable
 private fun SwitchRow(
     modifier: Modifier = Modifier,
-    homeSettings: HomeSettings,
+    checked: Boolean,
     title: String,
     subtitle: String,
     onUpdateInfiniteScroll: (Boolean) -> Unit,
@@ -275,7 +289,7 @@ private fun SwitchRow(
         }
 
         Switch(
-            checked = homeSettings.infiniteScroll,
+            checked = checked,
             onCheckedChange = onUpdateInfiniteScroll,
         )
     }

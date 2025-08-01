@@ -149,4 +149,14 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             }
         }
     }
+
+    suspend fun updateWallpaperScroll(wallpaperScroll: Boolean) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.wallpaperScroll = wallpaperScroll
+                }
+            }
+        }
+    }
 }

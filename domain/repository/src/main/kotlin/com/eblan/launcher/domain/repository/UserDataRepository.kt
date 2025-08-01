@@ -31,4 +31,6 @@ interface UserDataRepository {
     suspend fun updateSwipeDown(gestureAction: GestureAction)
 
     suspend fun updateTextColor(textColor: TextColor)
+
+    suspend fun updateWallpaperScroll(wallpaperScroll: Boolean)
 }

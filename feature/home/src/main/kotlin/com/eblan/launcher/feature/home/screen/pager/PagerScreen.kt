@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -776,13 +777,13 @@ private fun ApplicationComponentScreen(
         newGridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    val overscrollAlpha = remember { Animatable(0f) }
+    var overscrollOffset by remember { mutableFloatStateOf(0f) }
 
     val alpha by remember {
         derivedStateOf {
-            1f - (abs(overscrollAlpha.value) / 100f)
+            1f - (abs(overscrollOffset) / 500f)
         }
     }
 
@@ -813,7 +814,6 @@ private fun ApplicationComponentScreen(
                         0 -> {
                             ApplicationScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
                                 appDrawerColumns = appDrawerColumns,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
@@ -822,14 +822,20 @@ private fun ApplicationComponentScreen(
                                 appDrawerRowsHeight = appDrawerRowsHeight,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onDismiss = onDismiss,
+                                onApplyToScroll = { newOverscrollOffset ->
+                                    overscrollOffset = newOverscrollOffset
+                                },
+                                onApplyToFling = {
+                                    if (alpha < 0.2f) {
+                                        onDismiss()
+                                    }
+                                },
                             )
                         }
 
                         1 -> {
                             WidgetScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
                                 rows = rows,
                                 columns = columns,
                                 pageCount = pageCount,
@@ -842,21 +848,34 @@ private fun ApplicationComponentScreen(
                                 dragIntOffset = dragIntOffset,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onDismiss = onDismiss,
+                                onApplyToScroll = { newOverscrollOffset ->
+                                    overscrollOffset = newOverscrollOffset
+                                },
+                                onApplyToFling = {
+                                    if (alpha < 0.2f) {
+                                        onDismiss()
+                                    }
+                                },
                             )
                         }
 
                         2 -> {
                             ShortcutScreen(
                                 currentPage = gridHorizontalPagerState.currentPage,
-                                overscrollAlpha = overscrollAlpha,
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
                                 drag = drag,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onDismiss = onDismiss,
+                                onApplyToScroll = { newOverscrollOffset ->
+                                    overscrollOffset = newOverscrollOffset
+                                },
+                                onApplyToFling = {
+                                    if (alpha < 0.2f) {
+                                        onDismiss()
+                                    }
+                                },
                             )
                         }
                     }

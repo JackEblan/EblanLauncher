@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import android.content.ClipData
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -53,7 +51,6 @@ import kotlin.uuid.Uuid
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     currentPage: Int,
     rows: Int,
     columns: Int,
@@ -70,7 +67,8 @@ fun WidgetScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onApplyToScroll: (Float) -> Unit,
+    onApplyToFling: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -87,8 +85,8 @@ fun WidgetScreen(
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            onDragEnd = onDismiss,
+            onApplyToScroll = onApplyToScroll,
+            onApplyToFling = onApplyToFling,
         )
     }
 

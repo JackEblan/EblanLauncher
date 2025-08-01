@@ -1,8 +1,6 @@
 package com.eblan.launcher.feature.home.screen.shortcut
 
 import android.content.ClipData
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -43,7 +41,6 @@ import com.eblan.launcher.feature.home.util.calculatePage
 @Composable
 fun ShortcutScreen(
     modifier: Modifier = Modifier,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     currentPage: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
@@ -54,7 +51,8 @@ fun ShortcutScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onDismiss: suspend () -> Unit,
+    onApplyToScroll: (Float) -> Unit,
+    onApplyToFling: () -> Unit,
 ) {
     val page = calculatePage(
         index = currentPage,
@@ -69,8 +67,8 @@ fun ShortcutScreen(
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            onDragEnd = onDismiss,
+            onApplyToScroll = onApplyToScroll,
+            onApplyToFling = onApplyToFling,
         )
     }
 

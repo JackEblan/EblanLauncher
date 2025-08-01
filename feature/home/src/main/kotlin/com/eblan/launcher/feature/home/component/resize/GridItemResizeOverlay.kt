@@ -148,7 +148,7 @@ fun GridItemResizeOverlay(
     }
 
     LaunchedEffect(key1 = width, key2 = height) {
-        delay(100)
+        delay(250L)
 
         val allowedWidth = width.coerceAtLeast(cellWidth)
 

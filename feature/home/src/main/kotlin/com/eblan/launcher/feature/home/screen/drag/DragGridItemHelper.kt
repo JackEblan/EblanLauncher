@@ -75,7 +75,7 @@ suspend fun handleDragIntOffset(
     val isDraggingOnDock =
         dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 
-    val delay = 500L
+    val delay = 250L
 
     if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
         delay(delay)

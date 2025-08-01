@@ -119,7 +119,7 @@ fun WidgetGridItemResizeOverlay(
     }
 
     LaunchedEffect(key1 = width, key2 = height) {
-        delay(100L)
+        delay(250L)
 
         val allowedWidth = if (data.minResizeWidth > 0 && width <= data.minResizeWidth) {
             data.minResizeWidth

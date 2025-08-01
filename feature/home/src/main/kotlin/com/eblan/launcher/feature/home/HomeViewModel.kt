@@ -19,7 +19,6 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,8 +62,6 @@ class HomeViewModel @Inject constructor(
     private var _movedGridItems = MutableStateFlow(false)
 
     val movedGridItems = _movedGridItems.asStateFlow()
-
-    private val screenDelay = 100L
 
     private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
 
@@ -128,8 +125,6 @@ class HomeViewModel @Inject constructor(
 
             gridCacheRepository.updateIsCache(isCache = true)
 
-            delay(screenDelay)
-
             _screen.update {
                 screen
             }
@@ -143,8 +138,6 @@ class HomeViewModel @Inject constructor(
             }
 
             cachePageItemsUseCase()
-
-            delay(screenDelay)
 
             _screen.update {
                 Screen.EditPage
@@ -168,8 +161,6 @@ class HomeViewModel @Inject constructor(
                 pageItemsToDelete = pageItemsToDelete,
             )
 
-            delay(screenDelay)
-
             _screen.update {
                 Screen.Pager
             }
@@ -187,8 +178,6 @@ class HomeViewModel @Inject constructor(
             updateGridItemsUseCase()
 
             gridCacheRepository.updateIsCache(isCache = false)
-
-            delay(screenDelay)
 
             _screen.update {
                 Screen.Pager

@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetHomeDataUseCase @Inject constructor(
-    private val getGridItemsUseCase: GetGridItemsUseCase,
+    private val combineGridItemsUseCase: CombineGridItemsUseCase,
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
@@ -27,7 +27,7 @@ class GetHomeDataUseCase @Inject constructor(
             if (isCache) {
                 gridCacheRepository.gridCacheItems
             } else {
-                getGridItemsUseCase()
+                combineGridItemsUseCase()
             }
         }
 

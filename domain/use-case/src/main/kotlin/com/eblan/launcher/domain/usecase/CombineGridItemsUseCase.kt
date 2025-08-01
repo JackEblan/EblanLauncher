@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
-class GetGridItemsUseCase @Inject constructor(
+class CombineGridItemsUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,

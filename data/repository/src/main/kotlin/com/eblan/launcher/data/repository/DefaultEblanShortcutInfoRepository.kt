@@ -42,7 +42,7 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
 
     private fun EblanShortcutInfo.asEntity(): EblanShortcutInfoEntity {
         return EblanShortcutInfoEntity(
-            id = shortcutId,
+            shortcutId = shortcutId,
             packageName = packageName,
             shortLabel = shortLabel,
             longLabel = longLabel,
@@ -53,7 +53,7 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
 
     private fun EblanShortcutInfoEntity.asModel(): EblanShortcutInfo {
         return EblanShortcutInfo(
-            shortcutId = id,
+            shortcutId = shortcutId,
             packageName = packageName,
             shortLabel = shortLabel,
             longLabel = longLabel,

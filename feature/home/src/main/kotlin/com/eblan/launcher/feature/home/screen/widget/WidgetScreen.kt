@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
+import com.eblan.launcher.domain.grid.getWidgetGridItemSize
+import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -131,7 +133,7 @@ fun WidgetScreen(
                                     ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
 
                                 val size = with(density) {
-                                    val (width, height) = getSize(
+                                    val (width, height) = getWidgetGridItemSize(
                                         rows = rows,
                                         columns = columns,
                                         gridWidth = rootWidth,
@@ -248,7 +250,7 @@ fun getWidgetGridItem(
 
     val cellHeight = gridHeight / rows
 
-    val (checkedRowSpan, checkedColumnSpan) = getSpan(
+    val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
         cellHeight = cellHeight,
         cellWidth = cellWidth,
         minHeight = minHeight,
@@ -257,7 +259,7 @@ fun getWidgetGridItem(
         targetCellWidth = targetCellWidth,
     )
 
-    val (checkedMinWidth, checkedMinHeight) = getSize(
+    val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
         columns = columns,
         gridHeight = gridHeight,
         gridWidth = gridWidth,
@@ -295,56 +297,4 @@ fun getWidgetGridItem(
         data = data,
         associate = Associate.Grid,
     )
-}
-
-private fun getSpan(
-    cellWidth: Int,
-    cellHeight: Int,
-    minWidth: Int,
-    minHeight: Int,
-    targetCellWidth: Int,
-    targetCellHeight: Int,
-): Pair<Int, Int> {
-    val rowSpan = if (targetCellHeight == 0) {
-        (minHeight + cellHeight - 1) / cellHeight
-    } else {
-        targetCellHeight
-    }
-
-    val columnSpan = if (targetCellWidth == 0) {
-        (minWidth + cellWidth - 1) / cellWidth
-    } else {
-        targetCellWidth
-    }
-
-    return rowSpan to columnSpan
-}
-
-private fun getSize(
-    rows: Int,
-    columns: Int,
-    gridWidth: Int,
-    gridHeight: Int,
-    targetCellWidth: Int,
-    targetCellHeight: Int,
-    minWidth: Int,
-    minHeight: Int,
-): Pair<Int, Int> {
-    val cellWidth = gridWidth / columns
-
-    val cellHeight = gridHeight / rows
-
-    val width = if (targetCellWidth > 0) {
-        targetCellWidth * cellWidth
-    } else {
-        minWidth
-    }
-
-    val height = if (targetCellHeight > 0) {
-        targetCellHeight * cellHeight
-    } else {
-        minHeight
-    }
-
-    return width to height
 }

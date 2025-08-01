@@ -36,7 +36,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
     indices = [Index(value = ["packageName"])],
 )
 data class EblanShortcutInfoEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val shortcutId: String,
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,

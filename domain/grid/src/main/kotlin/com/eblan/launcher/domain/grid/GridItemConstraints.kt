@@ -154,3 +154,55 @@ suspend fun findAvailableRegion(
 
     return null
 }
+
+fun getWidgetGridItemSpan(
+    cellWidth: Int,
+    cellHeight: Int,
+    minWidth: Int,
+    minHeight: Int,
+    targetCellWidth: Int,
+    targetCellHeight: Int,
+): Pair<Int, Int> {
+    val rowSpan = if (targetCellHeight == 0) {
+        (minHeight + cellHeight - 1) / cellHeight
+    } else {
+        targetCellHeight
+    }
+
+    val columnSpan = if (targetCellWidth == 0) {
+        (minWidth + cellWidth - 1) / cellWidth
+    } else {
+        targetCellWidth
+    }
+
+    return rowSpan to columnSpan
+}
+
+fun getWidgetGridItemSize(
+    rows: Int,
+    columns: Int,
+    gridWidth: Int,
+    gridHeight: Int,
+    targetCellWidth: Int,
+    targetCellHeight: Int,
+    minWidth: Int,
+    minHeight: Int,
+): Pair<Int, Int> {
+    val cellWidth = gridWidth / columns
+
+    val cellHeight = gridHeight / rows
+
+    val width = if (targetCellWidth > 0) {
+        targetCellWidth * cellWidth
+    } else {
+        minWidth
+    }
+
+    val height = if (targetCellHeight > 0) {
+        targetCellHeight * cellHeight
+    } else {
+        minHeight
+    }
+
+    return width to height
+}

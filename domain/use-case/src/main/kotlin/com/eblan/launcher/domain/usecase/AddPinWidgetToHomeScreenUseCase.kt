@@ -2,6 +2,8 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.findAvailableRegion
+import com.eblan.launcher.domain.grid.getWidgetGridItemSize
+import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -66,7 +68,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val cellHeight = gridHeight / rows
 
-            val (checkedRowSpan, checkedColumnSpan) = getSpan(
+            val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
                 cellHeight = cellHeight,
                 cellWidth = cellWidth,
                 minHeight = minHeight,
@@ -75,7 +77,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 targetCellWidth = targetCellWidth,
             )
 
-            val (checkedMinWidth, checkedMinHeight) = getSize(
+            val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
                 columns = columns,
                 gridHeight = gridHeight,
                 gridWidth = rootWidth,
@@ -128,57 +130,5 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             newGridItem
         }
-    }
-
-    private fun getSpan(
-        cellWidth: Int,
-        cellHeight: Int,
-        minWidth: Int,
-        minHeight: Int,
-        targetCellWidth: Int,
-        targetCellHeight: Int,
-    ): Pair<Int, Int> {
-        val rowSpan = if (targetCellHeight == 0) {
-            (minHeight + cellHeight - 1) / cellHeight
-        } else {
-            targetCellHeight
-        }
-
-        val columnSpan = if (targetCellWidth == 0) {
-            (minWidth + cellWidth - 1) / cellWidth
-        } else {
-            targetCellWidth
-        }
-
-        return rowSpan to columnSpan
-    }
-
-    private fun getSize(
-        rows: Int,
-        columns: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-        targetCellWidth: Int,
-        targetCellHeight: Int,
-        minWidth: Int,
-        minHeight: Int,
-    ): Pair<Int, Int> {
-        val cellWidth = gridWidth / columns
-
-        val cellHeight = gridHeight / rows
-
-        val width = if (targetCellWidth > 0) {
-            targetCellWidth * cellWidth
-        } else {
-            minWidth
-        }
-
-        val height = if (targetCellHeight > 0) {
-            targetCellHeight * cellHeight
-        } else {
-            minHeight
-        }
-
-        return width to height
     }
 }

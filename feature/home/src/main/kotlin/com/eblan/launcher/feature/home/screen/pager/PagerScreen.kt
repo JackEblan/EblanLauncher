@@ -336,8 +336,6 @@ private fun HorizontalPagerScreen(
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
-    val launcherAppsWrapper = LocalLauncherApps.current
-
     val fileManager = LocalFileManager.current
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
@@ -367,7 +365,6 @@ private fun HorizontalPagerScreen(
             gridHeight = rootHeight - dockHeight,
             drag = drag,
             pinItemRequestWrapper = pinItemRequestWrapper,
-            launcherAppsWrapper = launcherAppsWrapper,
             context = context,
             fileManager = fileManager,
             onDragStart = onDragStartPinItemRequest,

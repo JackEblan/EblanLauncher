@@ -48,6 +48,7 @@ fun WidgetGridItemResizeOverlay(
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
+    color: Color,
     onResizeWidgetGridItem: (
         gridItems: List<GridItem>,
         gridItem: GridItem,
@@ -211,7 +212,7 @@ fun WidgetGridItemResizeOverlay(
 
     val circleModifier = Modifier
         .size(dragHandleSize)
-        .background(Color.White, shape = CircleShape)
+        .background(color = color, shape = CircleShape)
 
     Box(
         modifier = modifier
@@ -222,7 +223,7 @@ fun WidgetGridItemResizeOverlay(
                 )
             }
             .size(width = borderWidth, height = borderHeight)
-            .border(width = 2.dp, color = Color.White),
+            .border(width = 2.dp, color = color),
     ) {
         Box(
             modifier = Modifier.run {

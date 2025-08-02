@@ -44,6 +44,7 @@ fun GridItemResizeOverlay(
     startColumn: Int,
     rowSpan: Int,
     columnSpan: Int,
+    color: Color,
     onResizeGridItem: (
         gridItems: List<GridItem>,
         gridItem: GridItem,
@@ -217,6 +218,10 @@ fun GridItemResizeOverlay(
         }
     }
 
+    val circleModifier = Modifier
+        .size(dragHandleSize)
+        .background(color = color, shape = CircleShape)
+
     Box(
         modifier = modifier
             .offset {
@@ -226,14 +231,13 @@ fun GridItemResizeOverlay(
                 )
             }
             .size(width = borderWidth, height = borderHeight)
-            .border(width = 2.dp, color = Color.White),
+            .border(width = 2.dp, color = color),
     ) {
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset((-15).dp, (-15).dp)
-                .size(dragHandleSize)
-                .background(Color.White, shape = CircleShape)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {
@@ -264,8 +268,7 @@ fun GridItemResizeOverlay(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(15.dp, (-15).dp)
-                .size(dragHandleSize)
-                .background(Color.White, shape = CircleShape)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {
@@ -295,8 +298,7 @@ fun GridItemResizeOverlay(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .offset((-15).dp, 15.dp)
-                .size(dragHandleSize)
-                .background(Color.White, shape = CircleShape)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {
@@ -326,8 +328,7 @@ fun GridItemResizeOverlay(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(15.dp, 15.dp)
-                .size(dragHandleSize)
-                .background(Color.White, shape = CircleShape)
+                .then(circleModifier)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {

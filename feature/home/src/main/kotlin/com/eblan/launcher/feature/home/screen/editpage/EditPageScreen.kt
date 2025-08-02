@@ -62,10 +62,6 @@ fun EditPageScreen(
 ) {
     val density = LocalDensity.current
 
-    val dockHeightDp = with(density) {
-        dockHeight.toDp()
-    }
-
     var currentPageItems by remember { mutableStateOf(pageItems) }
 
     val pageItemsToDelete = remember { mutableStateListOf<PageItem>() }
@@ -82,6 +78,8 @@ fun EditPageScreen(
     val gridHeight = with(density) {
         ((rootHeight - dockHeight) / 2).toDp()
     }
+
+    val color = Color(textColor)
 
     Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -101,8 +99,8 @@ fun EditPageScreen(
                 DraggableItem(state = gridDragAndDropState, index = index) {
                     OutlinedCard(
                         modifier = Modifier.padding(vertical = 10.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.25f)),
-                        border = BorderStroke(width = 2.dp, color = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.25f)),
+                        border = BorderStroke(width = 2.dp, color = color),
                     ) {
                         GridLayout(
                             modifier = Modifier.height(gridHeight),
@@ -117,7 +115,7 @@ fun EditPageScreen(
                                         ApplicationInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = Color(textColor),
+                                            color = color,
                                         )
                                     }
 
@@ -132,7 +130,7 @@ fun EditPageScreen(
                                         ShortcutInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = Color(textColor),
+                                            color = color,
                                         )
                                     }
                                 }
@@ -190,9 +188,7 @@ fun EditPageScreen(
         }
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dockHeightDp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(

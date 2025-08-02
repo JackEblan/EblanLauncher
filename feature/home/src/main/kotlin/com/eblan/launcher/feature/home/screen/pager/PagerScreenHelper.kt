@@ -9,7 +9,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.snapshotFlow
-import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GestureAction
@@ -20,7 +19,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +31,7 @@ import kotlin.uuid.Uuid
 private const val SwipeThreshold = 100f
 
 @OptIn(ExperimentalUuidApi::class)
-suspend fun handlePinItemRequest(
+fun handlePinItemRequest(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
@@ -43,7 +41,6 @@ suspend fun handlePinItemRequest(
     gridHeight: Int,
     drag: Drag,
     pinItemRequestWrapper: PinItemRequestWrapper,
-    launcherAppsWrapper: AndroidLauncherAppsWrapper,
     context: Context,
     fileManager: FileManager,
     onDragStart: (GridItemSource) -> Unit,
@@ -56,13 +53,11 @@ suspend fun handlePinItemRequest(
 
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-    suspend fun getWidgetGridItemSource(
+    fun getWidgetGridItemSource(
         pinItemRequest: PinItemRequest,
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): GridItemSource {
         val id = Uuid.random().toHexString()
-
-        val byteArray = appWidgetProviderInfo.loadPreviewImage(context, 0)?.toByteArray()
 
         val previewInferred = File(
             fileManager.widgetsDirectory,
@@ -93,7 +88,6 @@ suspend fun handlePinItemRequest(
                     preview = previewInferred,
                 ),
                 pinItemRequest = pinItemRequest,
-                byteArray = byteArray,
             )
         } else {
             GridItemSource.Pin(
@@ -119,21 +113,15 @@ suspend fun handlePinItemRequest(
                     preview = previewInferred,
                 ),
                 pinItemRequest = pinItemRequest,
-                byteArray = byteArray,
             )
         }
     }
 
-    suspend fun getShortcutGridItemSource(
+    fun getShortcutGridItemSource(
         pinItemRequest: PinItemRequest,
         shortcutInfo: ShortcutInfo,
     ): GridItemSource? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            val byteArray = launcherAppsWrapper.getShortcutIconDrawable(
-                shortcutInfo = shortcutInfo,
-                density = 0,
-            ).toByteArray()
-
             val iconInferred = File(fileManager.shortcutsDirectory, shortcutInfo.id).absolutePath
 
             val data = GridItemData.ShortcutInfo(
@@ -156,7 +144,6 @@ suspend fun handlePinItemRequest(
                     associate = Associate.Grid,
                 ),
                 pinItemRequest = pinItemRequest,
-                byteArray = byteArray,
             )
         } else {
             null

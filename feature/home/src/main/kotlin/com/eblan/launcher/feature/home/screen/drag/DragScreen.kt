@@ -7,18 +7,16 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,17 +25,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
@@ -123,6 +116,8 @@ fun DragScreen(
     val gridPaddingPx = with(density) {
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
+
+    val color = Color(textColor)
 
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -263,10 +258,10 @@ fun DragScreen(
                     .padding(gridPaddingDp)
                     .border(
                         width = 2.dp,
-                        color = Color.White,
+                        color = color,
                         shape = RoundedCornerShape(8.dp),
                     )
-                    .background(color = Color.White.copy(alpha = 0.25f)),
+                    .background(color = color.copy(alpha = 0.25f)),
                 rows = rows,
                 columns = columns,
             ) {
@@ -290,7 +285,7 @@ fun DragScreen(
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = Color(textColor),
+                    color = color,
                     gridItemSource = gridItemSource,
                 )
             }
@@ -314,99 +309,63 @@ private fun GridItemContent(
 
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource?.gridItem?.id == gridItem.id,
                         color = color,
-                    )
+                    ) {
+                        ApplicationInfoGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
 
                 is GridItemData.Widget -> {
-                    DragWidgetGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        id = gridItem.id,
-                        gridItemSource = gridItemSource,
-                        data = data,
-                    )
+                        isDragging = gridItemSource?.gridItem?.id == gridItem.id,
+                        color = color,
+                    ) {
+                        WidgetGridItem(modifier = gridItemModifier, data = data)
+                    }
                 }
 
                 is GridItemData.ShortcutInfo -> {
-                    DragShortcutInfoGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        id = gridItem.id,
-                        gridItemSource = gridItemSource,
-                        data = data,
+                        isDragging = gridItemSource?.gridItem?.id == gridItem.id,
                         color = color,
-                    )
+                    ) {
+                        ShortcutInfoGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-
 @Composable
-private fun DragWidgetGridItem(
-    modifier: Modifier = Modifier,
-    id: String,
-    gridItemSource: GridItemSource?,
-    data: GridItemData.Widget,
-) {
-    if (gridItemSource?.gridItem?.id == id &&
-        gridItemSource is GridItemSource.Pin
-    ) {
-        AsyncImage(
-            model = gridItemSource.byteArray,
-            contentDescription = null,
-            modifier = modifier,
-        )
-    } else {
-        WidgetGridItem(modifier = modifier, data = data)
-    }
-}
-
-
-@Composable
-private fun DragShortcutInfoGridItem(
+private fun DragGridItem(
     modifier: Modifier,
-    id: String,
-    gridItemSource: GridItemSource?,
-    data: GridItemData.ShortcutInfo,
+    isDragging: Boolean,
     color: Color,
+    content: @Composable () -> Unit,
 ) {
-    if (gridItemSource?.gridItem?.id == id &&
-        gridItemSource is GridItemSource.Pin
-    ) {
-        Column(
-            modifier = modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            AsyncImage(
-                model = gridItemSource.byteArray,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(40.dp, 40.dp)
-                    .weight(1f),
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = data.shortLabel,
-                modifier = Modifier.weight(1f),
+    if (isDragging) {
+        Box(
+            modifier = modifier.border(
+                width = 1.dp,
                 color = color,
-                textAlign = TextAlign.Center,
-                fontSize = TextUnit(
-                    value = 10f,
-                    type = TextUnitType.Sp,
-                ),
-            )
-        }
-    } else {
-        ShortcutInfoGridItem(
-            modifier = modifier,
-            data = data,
-            color = color,
+                shape = RoundedCornerShape(8.dp),
+            ),
         )
+    } else {
+        content()
     }
 }

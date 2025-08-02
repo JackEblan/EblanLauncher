@@ -61,6 +61,8 @@ fun ResizeScreen(
         gridPaddingDp.roundToPx()
     }
 
+    val color = Color(textColor)
+
     Column(modifier = modifier.fillMaxSize()) {
         GridLayout(
             modifier = Modifier
@@ -69,17 +71,17 @@ fun ResizeScreen(
                 .weight(1f)
                 .border(
                     width = 2.dp,
-                    color = Color.White,
+                    color = color,
                     shape = RoundedCornerShape(8.dp),
                 )
-                .background(color = Color.White.copy(alpha = 0.25f)),
+                .background(color = color.copy(alpha = 0.25f)),
             rows = rows,
             columns = columns,
         ) {
             gridItems?.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = Color(textColor),
+                    color = color,
                 )
             }
         }
@@ -94,7 +96,7 @@ fun ResizeScreen(
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = Color(textColor),
+                    color = color,
                 )
             }
         }
@@ -125,6 +127,7 @@ fun ResizeScreen(
                     startColumn = gridItem.startColumn,
                     rowSpan = gridItem.rowSpan,
                     columnSpan = gridItem.columnSpan,
+                    color = color,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResizeEnd,
                 )
@@ -146,6 +149,7 @@ fun ResizeScreen(
                     startColumn = gridItem.startColumn,
                     rowSpan = gridItem.rowSpan,
                     columnSpan = gridItem.columnSpan,
+                    color = color,
                     onResizeWidgetGridItem = onResizeGridItem,
                     onResizeEnd = onResizeEnd,
                 )

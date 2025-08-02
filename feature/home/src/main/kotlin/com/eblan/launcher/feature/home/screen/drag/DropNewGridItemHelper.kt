@@ -22,7 +22,7 @@ fun handleOnDragEnd(
     movedGridItems: Boolean,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
-    gridItemSource: GridItemSource?,
+    gridItemSource: GridItemSource,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEnd: (Int) -> Unit,
@@ -30,8 +30,6 @@ fun handleOnDragEnd(
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
-    requireNotNull(gridItemSource)
-
     val targetPage = calculatePage(
         index = currentPage,
         infiniteScroll = infiniteScroll,
@@ -105,11 +103,11 @@ fun handleOnDragEnd(
 
 fun handleAppWidgetLauncherResult(
     result: ActivityResult,
-    gridItem: GridItem?,
+    gridItem: GridItem,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteAppWidgetId: () -> Unit,
 ) {
-    val data = (gridItem?.data as? GridItemData.Widget)
+    val data = (gridItem.data as? GridItemData.Widget)
         ?: error("Expected GridItemData.Widget")
 
     if (result.resultCode == Activity.RESULT_OK) {
@@ -128,11 +126,11 @@ fun handleConfigureLauncherResult(
     infiniteScroll: Boolean,
     pageCount: Int,
     resultCode: Int,
-    gridItem: GridItem?,
+    updatedGridItem: GridItem?,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEnd: (Int) -> Unit,
 ) {
-    requireNotNull(gridItem)
+    requireNotNull(updatedGridItem)
 
     val targetPage = calculatePage(
         index = currentPage,
@@ -141,14 +139,14 @@ fun handleConfigureLauncherResult(
     )
 
     if (resultCode == Activity.RESULT_CANCELED) {
-        onDeleteGridItemCache(gridItem)
+        onDeleteGridItemCache(updatedGridItem)
     }
 
     onDragEnd(targetPage)
 }
 
 fun handleDeleteAppWidgetId(
-    gridItem: GridItem?,
+    gridItem: GridItem,
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
     currentPage: Int,
@@ -160,7 +158,7 @@ fun handleDeleteAppWidgetId(
     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID &&
         deleteAppWidgetId
     ) {
-        val data = (gridItem?.data as? GridItemData.Widget)
+        val data = (gridItem.data as? GridItemData.Widget)
             ?: error("Expected GridItemData.Widget")
 
         val targetPage = calculatePage(
@@ -178,7 +176,7 @@ fun handleDeleteAppWidgetId(
 }
 
 fun handleBoundWidget(
-    gridItemSource: GridItemSource?,
+    gridItemSource: GridItemSource,
     updatedGridItem: GridItem?,
     currentPage: Int,
     infiniteScroll: Boolean,
@@ -187,8 +185,6 @@ fun handleBoundWidget(
     onDragEnd: (Int) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
 ) {
-    if (gridItemSource == null) return
-
     val data = (updatedGridItem?.data as? GridItemData.Widget) ?: return
 
     val targetPage = calculatePage(

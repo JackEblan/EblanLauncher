@@ -49,6 +49,8 @@ fun ResizeScreen(
     ) -> Unit,
     onResizeEnd: () -> Unit,
 ) {
+    requireNotNull(gridItem)
+
     val density = LocalDensity.current
 
     val dockHeightDp = with(density) {
@@ -69,12 +71,15 @@ fun ResizeScreen(
                 .fillMaxWidth()
                 .padding(gridPaddingDp)
                 .weight(1f)
+                .background(
+                    color = color.copy(alpha = 0.25f),
+                    shape = RoundedCornerShape(8.dp),
+                )
                 .border(
                     width = 2.dp,
                     color = color,
                     shape = RoundedCornerShape(8.dp),
-                )
-                .background(color = color.copy(alpha = 0.25f)),
+                ),
             rows = rows,
             columns = columns,
         ) {
@@ -102,58 +107,56 @@ fun ResizeScreen(
         }
     }
 
-    if (gridItem != null) {
-        val gridWidth = rootWidth - (gridPaddingPx * 2)
+    val gridWidth = rootWidth - (gridPaddingPx * 2)
 
-        val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
+    val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
 
-        val cellWidth = gridWidth / columns
+    val cellWidth = gridWidth / columns
 
-        val cellHeight = gridHeight / rows
+    val cellHeight = gridHeight / rows
 
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
-                GridItemResizeOverlay(
-                    gridPadding = gridPaddingPx,
-                    gridItems = gridItems,
-                    gridItem = gridItem,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
-                    rows = rows,
-                    columns = columns,
-                    startRow = gridItem.startRow,
-                    startColumn = gridItem.startColumn,
-                    rowSpan = gridItem.rowSpan,
-                    columnSpan = gridItem.columnSpan,
-                    color = color,
-                    onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = onResizeEnd,
-                )
-            }
+    when (val data = gridItem.data) {
+        is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
+            GridItemResizeOverlay(
+                gridPadding = gridPaddingPx,
+                gridItems = gridItems,
+                gridItem = gridItem,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                rows = rows,
+                columns = columns,
+                startRow = gridItem.startRow,
+                startColumn = gridItem.startColumn,
+                rowSpan = gridItem.rowSpan,
+                columnSpan = gridItem.columnSpan,
+                color = color,
+                onResizeGridItem = onResizeGridItem,
+                onResizeEnd = onResizeEnd,
+            )
+        }
 
-            is GridItemData.Widget -> {
-                WidgetGridItemResizeOverlay(
-                    gridPadding = gridPaddingPx,
-                    gridItems = gridItems,
-                    gridItem = gridItem,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    cellWidth = cellWidth,
-                    cellHeight = cellHeight,
-                    rows = rows,
-                    columns = columns,
-                    data = data,
-                    startRow = gridItem.startRow,
-                    startColumn = gridItem.startColumn,
-                    rowSpan = gridItem.rowSpan,
-                    columnSpan = gridItem.columnSpan,
-                    color = color,
-                    onResizeWidgetGridItem = onResizeGridItem,
-                    onResizeEnd = onResizeEnd,
-                )
-            }
+        is GridItemData.Widget -> {
+            WidgetGridItemResizeOverlay(
+                gridPadding = gridPaddingPx,
+                gridItems = gridItems,
+                gridItem = gridItem,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                rows = rows,
+                columns = columns,
+                data = data,
+                startRow = gridItem.startRow,
+                startColumn = gridItem.startColumn,
+                rowSpan = gridItem.rowSpan,
+                columnSpan = gridItem.columnSpan,
+                color = color,
+                onResizeWidgetGridItem = onResizeGridItem,
+                onResizeEnd = onResizeEnd,
+            )
         }
     }
 }

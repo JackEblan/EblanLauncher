@@ -82,6 +82,8 @@ fun DragScreen(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
 ) {
+    requireNotNull(gridItemSource)
+
     val appWidgetHostWrapper = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
@@ -127,7 +129,7 @@ fun DragScreen(
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
             resultCode = result.resultCode,
-            gridItem = updatedGridItem,
+            updatedGridItem = updatedGridItem,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragEnd = onDragEnd,
         )
@@ -138,7 +140,7 @@ fun DragScreen(
     ) { result ->
         handleAppWidgetLauncherResult(
             result = result,
-            gridItem = gridItemSource?.gridItem,
+            gridItem = gridItemSource.gridItem,
             onUpdateGridItemDataCache = onUpdateGridItemDataCache,
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
@@ -154,7 +156,7 @@ fun DragScreen(
             gridItemsByPage = gridItemsByPage,
             dockGridItems = dockGridItems,
             drag = drag,
-            gridItem = gridItemSource?.gridItem,
+            gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             rootHeight = rootHeight,
             dockHeight = dockHeight,
@@ -216,7 +218,7 @@ fun DragScreen(
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
         handleDeleteAppWidgetId(
-            gridItem = gridItemSource?.gridItem,
+            gridItem = gridItemSource.gridItem,
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
             currentPage = horizontalPagerState.currentPage,
@@ -256,12 +258,15 @@ fun DragScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(gridPaddingDp)
+                    .background(
+                        color = color.copy(alpha = 0.25f),
+                        shape = RoundedCornerShape(8.dp),
+                    )
                     .border(
                         width = 2.dp,
                         color = color,
                         shape = RoundedCornerShape(8.dp),
-                    )
-                    .background(color = color.copy(alpha = 0.25f)),
+                    ),
                 rows = rows,
                 columns = columns,
             ) {
@@ -270,6 +275,7 @@ fun DragScreen(
                         gridItem = gridItem,
                         color = Color(textColor),
                         gridItemSource = gridItemSource,
+                        drag = drag,
                     )
                 }
             }
@@ -287,6 +293,7 @@ fun DragScreen(
                     gridItem = gridItem,
                     color = color,
                     gridItemSource = gridItemSource,
+                    drag = drag,
                 )
             }
         }
@@ -299,7 +306,8 @@ private fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     color: Color,
-    gridItemSource: GridItemSource?,
+    gridItemSource: GridItemSource,
+    drag: Drag,
 ) {
     key(gridItem.id) {
         LookaheadScope {
@@ -311,7 +319,7 @@ private fun GridItemContent(
                 is GridItemData.ApplicationInfo -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource?.gridItem?.id == gridItem.id,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
                     ) {
                         ApplicationInfoGridItem(
@@ -325,7 +333,7 @@ private fun GridItemContent(
                 is GridItemData.Widget -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource?.gridItem?.id == gridItem.id,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
                     ) {
                         WidgetGridItem(modifier = gridItemModifier, data = data)
@@ -335,7 +343,7 @@ private fun GridItemContent(
                 is GridItemData.ShortcutInfo -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource?.gridItem?.id == gridItem.id,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
                     ) {
                         ShortcutInfoGridItem(

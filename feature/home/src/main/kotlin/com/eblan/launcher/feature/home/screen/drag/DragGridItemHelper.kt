@@ -34,7 +34,7 @@ suspend fun handleDragIntOffset(
     gridItemsByPage: Map<Int, List<GridItem>>,
     dockGridItems: List<GridItem>,
     drag: Drag,
-    gridItem: GridItem?,
+    gridItem: GridItem,
     dragIntOffset: IntOffset,
     rootHeight: Int,
     dockHeight: Int,
@@ -57,8 +57,6 @@ suspend fun handleDragIntOffset(
         gridHeight: Int,
     ) -> Unit,
 ) {
-    requireNotNull(gridItem)
-
     if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }

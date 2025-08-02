@@ -242,12 +242,12 @@ suspend fun handleWallpaperScroll(
 
 fun doGestureActions(
     gestureSettings: GestureSettings,
-    swipeUpY: Animatable<Float, AnimationVector1D>,
-    swipeDownY: Animatable<Float, AnimationVector1D>,
+    swipeUpY: Float,
+    swipeDownY: Float,
     rootHeight: Int,
     onStartMainActivity: (String?) -> Unit,
 ) {
-    if (swipeUpY.value < rootHeight - SwipeThreshold) {
+    if (swipeUpY < rootHeight - SwipeThreshold) {
         when (val gestureAction = gestureSettings.swipeUp) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }
@@ -261,7 +261,7 @@ fun doGestureActions(
         }
     }
 
-    if (swipeDownY.value < rootHeight - SwipeThreshold) {
+    if (swipeDownY < rootHeight - SwipeThreshold) {
         when (val gestureAction = gestureSettings.swipeDown) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }

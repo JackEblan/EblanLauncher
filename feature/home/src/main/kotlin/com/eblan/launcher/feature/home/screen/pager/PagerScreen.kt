@@ -161,9 +161,9 @@ fun PagerScreen(
                 onDragEnd = {
                     doGestureActions(
                         gestureSettings = gestureSettings,
-                        swipeUpY = swipeUpY,
+                        swipeUpY = swipeUpY.value,
+                        swipeDownY = swipeDownY.value,
                         rootHeight = rootHeight,
-                        swipeDownY = swipeDownY,
                         onStartMainActivity = launcherApps::startMainActivity,
                     )
 

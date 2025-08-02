@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.absoluteValue
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -201,29 +202,51 @@ suspend fun handleWallpaperScroll(
 ) {
     if (!wallpaperScroll) return
 
-    snapshotFlow {
-        horizontalPagerState.currentPage to horizontalPagerState.currentPageOffsetFraction
-    }.onStart {
+    var reverseXOffset: Float
+
+    snapshotFlow { horizontalPagerState.currentPageOffsetFraction }.onStart {
         wallpaperManagerWrapper.setWallpaperOffsetSteps(
             xStep = 1f / (pageCount - 1),
             yStep = 1f,
         )
-    }.collect { (currentPage, offsetFraction) ->
+    }.collect { offsetFraction ->
         val page = calculatePage(
-            index = currentPage,
+            index = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
         )
 
-        val scrollProgress = (page + offsetFraction).coerceIn(0f, (pageCount - 1).toFloat())
+        val scrollProgress = page + offsetFraction
 
-        val xOffset = scrollProgress / (pageCount - 1)
+        if (scrollProgress < 0f) {
+            reverseXOffset = offsetFraction.absoluteValue
 
-        wallpaperManagerWrapper.setWallpaperOffsets(
-            windowToken = windowToken,
-            xOffset = xOffset,
-            yOffset = 0f,
-        )
+            wallpaperManagerWrapper.setWallpaperOffsets(
+                windowToken = windowToken,
+                xOffset = reverseXOffset,
+                yOffset = 0f,
+            )
+        } else if (scrollProgress > pageCount - 1) {
+            reverseXOffset = 1f - offsetFraction
+
+            wallpaperManagerWrapper.setWallpaperOffsets(
+                windowToken = windowToken,
+                xOffset = reverseXOffset,
+                yOffset = 0f,
+            )
+        } else {
+            val xOffset = scrollProgress / (pageCount - 1)
+
+            wallpaperManagerWrapper.setWallpaperOffsets(
+                windowToken = windowToken,
+                xOffset = xOffset,
+                yOffset = 0f,
+            )
+        }
+
+        if (offsetFraction == 0f) {
+            reverseXOffset = offsetFraction
+        }
     }
 }
 

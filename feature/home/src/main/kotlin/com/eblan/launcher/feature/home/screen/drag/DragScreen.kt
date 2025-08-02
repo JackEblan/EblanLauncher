@@ -131,7 +131,7 @@ fun DragScreen(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
-            result = result,
+            resultCode = result.resultCode,
             gridItem = updatedGridItem,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragEnd = onDragEnd,

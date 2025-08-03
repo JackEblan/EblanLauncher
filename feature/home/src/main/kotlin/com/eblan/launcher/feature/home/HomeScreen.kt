@@ -38,9 +38,11 @@ import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
+@ExperimentalCoroutinesApi
 @Composable
 fun HomeRoute(
     modifier: Modifier = Modifier,
@@ -116,7 +118,7 @@ fun HomeScreen(
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -272,7 +274,7 @@ private fun Success(
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -305,6 +307,7 @@ private fun Success(
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
                     gridItem = gridItemSource?.gridItem,
+                    gridItems = gridItems,
                     gridItemsByPage = gridItemsByPage,
                     dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,

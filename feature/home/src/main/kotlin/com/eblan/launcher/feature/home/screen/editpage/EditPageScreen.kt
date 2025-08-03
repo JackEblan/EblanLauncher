@@ -133,6 +133,8 @@ fun EditPageScreen(
                                             color = color,
                                         )
                                     }
+
+                                    is GridItemData.Folder -> TODO()
                                 }
                             }
                         }

@@ -51,6 +51,8 @@ import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.domain.model.GridItem
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -194,6 +196,7 @@ private fun PinShortcutScreen(
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun PinWidgetScreen(
@@ -205,6 +208,7 @@ private fun PinWidgetScreen(
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
     onAddWidgetToHomeScreen: (
+        id: String,
         className: String,
         componentName: String,
         configure: String?,
@@ -308,8 +312,11 @@ private fun PinWidgetScreen(
                 PinBottomSheet(
                     icon = icon,
                     onAdd = {
+                        val id = Uuid.random().toHexString()
+
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             onAddWidgetToHomeScreen(
+                                id,
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
@@ -328,6 +335,7 @@ private fun PinWidgetScreen(
                             )
                         } else {
                             onAddWidgetToHomeScreen(
+                                id,
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
@@ -420,9 +428,7 @@ private fun PinBottomSheet(
                 ) {
                     Button(
                         onClick = {
-                            scope
-                                .launch { sheetState.hide() }
-                                .invokeOnCompletion {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
                                     if (!sheetState.isVisible) {
                                         showBottomSheet = false
                                         onFinish()

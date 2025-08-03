@@ -1,11 +1,10 @@
 [versions]
 accompanist = "0.34.0"
-androidDesugarJdkLibs = "2.1.2"
-# AGP and tools should be updated together
 androidGradlePlugin = "8.6.1"
 androidTools = "31.7.0"
 androidxActivity = "1.10.1"
 androidxComposeBom = "2025.06.01"
+androidxComposeUi = "1.9.0-rc01"
 androidxCoreKtx = "1.13.1"
 androidxCoreSplashscreen = "1.0.1"
 androidxDataStore = "1.1.1"
@@ -28,6 +27,7 @@ jacoco = "0.8.7"
 javaxInject = "1"
 junit4 = "4.13.2"
 kotlin = "2.0.0"
+kotlin-stdlib = "2.1.20"
 kotlinxCoroutines = "1.8.1"
 kotlinxSerializationJson = "1.8.0"
 ksp = "2.0.0-1.0.21"
@@ -42,7 +42,6 @@ androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-tes
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 accompanist-testharness = { group = "com.google.accompanist", name = "accompanist-testharness", version.ref = "accompanist" }
-android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidxActivity" }
 androidx-benchmark-macro = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "androidxMacroBenchmark" }
@@ -56,7 +55,7 @@ androidx-compose-material3-adaptive-layout = { group = "androidx.compose.materia
 androidx-compose-material3-adaptive-navigation = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation" }
 androidx-compose-material-iconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
-androidx-compose-ui-ui = { group = "androidx.compose.ui", name = "ui", version = "1.10.0-SNAPSHOT" }
+androidx-compose-ui-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "androidxComposeUi" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
@@ -92,7 +91,7 @@ junit-junit = { group = "junit", name = "junit", version.ref = "junit4" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin-stdlib" }
 lint-api = { group = "com.android.tools.lint", name = "lint-api", version.ref = "androidTools" }
 lint-checks = { group = "com.android.tools.lint", name = "lint-checks", version.ref = "androidTools" }
 lint-tests = { group = "com.android.tools.lint", name = "lint-tests", version.ref = "androidTools" }

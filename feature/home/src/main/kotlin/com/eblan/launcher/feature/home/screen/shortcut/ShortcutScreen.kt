@@ -125,6 +125,7 @@ fun ShortcutScreen(
                                                         GridItemSource.New(
                                                             gridItem = GridItem(
                                                                 id = eblanShortcutInfo.shortcutId,
+                                                                folderId = null,
                                                                 page = page,
                                                                 startRow = 0,
                                                                 startColumn = 0,

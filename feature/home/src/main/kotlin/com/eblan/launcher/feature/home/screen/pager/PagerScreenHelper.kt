@@ -136,6 +136,7 @@ fun handlePinItemRequest(
             GridItemSource.Pin(
                 gridItem = GridItem(
                     id = shortcutInfo.id,
+                    folderId = null,
                     page = targetPage,
                     startRow = 0,
                     startColumn = 0,

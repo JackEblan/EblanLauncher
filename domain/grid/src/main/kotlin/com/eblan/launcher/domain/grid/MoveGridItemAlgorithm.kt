@@ -34,11 +34,13 @@ private suspend fun resolveConflicts(
     columns: Int,
 ): Boolean {
     for (gridItem in gridItems) {
-        if (gridItem.id != moving.id && rectanglesOverlap(
-                moving = moving,
-                other = gridItem,
-            )
-        ) {
+        val isOverlapping = gridItem.id != moving.id &&
+                rectanglesOverlap(
+                    moving = moving,
+                    other = gridItem,
+                )
+
+        if (isOverlapping) {
             val movedGridItem = moveGridItem(
                 resolveDirection = resolveDirection,
                 moving = moving,
@@ -93,7 +95,7 @@ fun moveGridItem(
             )
         }
 
-        ResolveDirection.Center -> null
+        ResolveDirection.Center -> throw IllegalStateException()
     }
 }
 

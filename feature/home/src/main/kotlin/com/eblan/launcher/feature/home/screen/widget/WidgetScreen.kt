@@ -287,6 +287,7 @@ fun getWidgetGridItem(
 
     return GridItem(
         id = id,
+        folderId = null,
         page = page,
         startRow = 0,
         startColumn = 0,

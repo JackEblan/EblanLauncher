@@ -19,6 +19,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -44,6 +45,8 @@ class HomeViewModel @Inject constructor(
     pageCacheRepository: PageCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) : ViewModel() {
+    
+    @ExperimentalCoroutinesApi
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -157,13 +160,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showPageCache() {
+    fun showPageCache(gridItems: List<GridItem>) {
         viewModelScope.launch {
             _screen.update {
                 Screen.Loading
             }
 
-            cachePageItemsUseCase()
+            cachePageItemsUseCase(gridItems = gridItems)
 
             delay(defaultDelay)
 

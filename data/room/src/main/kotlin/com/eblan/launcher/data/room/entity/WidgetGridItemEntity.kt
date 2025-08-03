@@ -20,6 +20,7 @@ import com.eblan.launcher.domain.model.Associate
 data class WidgetGridItemEntity(
     @PrimaryKey
     val id: String,
+    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,

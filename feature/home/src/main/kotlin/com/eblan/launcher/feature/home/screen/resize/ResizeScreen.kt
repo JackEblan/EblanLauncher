@@ -158,6 +158,8 @@ fun ResizeScreen(
                 onResizeEnd = onResizeEnd,
             )
         }
+
+        is GridItemData.Folder -> TODO()
     }
 }
 
@@ -197,6 +199,8 @@ private fun GridItemContent(
                         color = color,
                     )
                 }
+
+                is GridItemData.Folder -> TODO()
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.grid.findAvailableRegion
+import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -50,8 +50,10 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 longLabel = longLabel,
                 icon = icon,
             )
+
             val gridItem = GridItem(
                 id = shortcutId,
+                folderId = null,
                 page = initialPage,
                 startRow = 0,
                 startColumn = 0,
@@ -61,12 +63,12 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 associate = Associate.Grid,
             )
 
-            val newGridItem = findAvailableRegion(
+            val newGridItem = findAvailableRegionByPage(
                 gridItems = gridItems,
+                gridItem = gridItem,
                 pageCount = pageCount,
                 rows = rows,
                 columns = columns,
-                gridItem = gridItem,
             )
 
             if (newGridItem != null) {

@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.com.eblan.launcher.application)
     alias(libs.plugins.com.eblan.launcher.applicationCompose)
-    alias(libs.plugins.com.eblan.launcher.applicationJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -73,6 +72,5 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.profileinstaller)
     implementation(libs.kotlinx.serialization.json)
 }

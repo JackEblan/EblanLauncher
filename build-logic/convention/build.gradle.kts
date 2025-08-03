@@ -66,19 +66,9 @@ gradlePlugin {
             implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
 
-        register("androidApplicationJacoco") {
-            id = "com.eblan.launcher.applicationJacoco"
-            implementationClass = "AndroidApplicationJacocoConventionPlugin"
-        }
-
         register("androidLibrary") {
             id = "com.eblan.launcher.library"
             implementationClass = "AndroidLibraryConventionPlugin"
-        }
-
-        register("androidLibraryJacoco") {
-            id = "com.eblan.launcher.libraryJacoco"
-            implementationClass = "AndroidLibraryJacocoConventionPlugin"
         }
 
         register("androidLibraryCompose") {
@@ -96,19 +86,9 @@ gradlePlugin {
             implementationClass = "AndroidHiltConventionPlugin"
         }
 
-        register("androidLint") {
-            id = "com.eblan.launcher.lint"
-            implementationClass = "AndroidLintConventionPlugin"
-        }
-
         register("androidRoom") {
             id = "com.eblan.launcher.room"
             implementationClass = "AndroidRoomConventionPlugin"
-        }
-
-        register("androidTest") {
-            id = "com.eblan.launcher.test"
-            implementationClass = "AndroidTestConventionPlugin"
         }
 
         register("jvmLibrary") {

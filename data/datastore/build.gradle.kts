@@ -19,7 +19,6 @@
 plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
     alias(libs.plugins.com.eblan.launcher.hilt)
 }
 

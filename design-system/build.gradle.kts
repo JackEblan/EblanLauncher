@@ -19,7 +19,6 @@
 plugins {
     alias(libs.plugins.com.eblan.launcher.library)
     alias(libs.plugins.com.eblan.launcher.libraryCompose)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
 }
 
 android {
@@ -27,8 +26,6 @@ android {
 }
 
 dependencies {
-    lintPublish(projects.lint)
-
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.foundation.layout)
     api(libs.androidx.compose.material3)

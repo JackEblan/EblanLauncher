@@ -38,11 +38,9 @@ import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-@ExperimentalCoroutinesApi
 @Composable
 fun HomeRoute(
     modifier: Modifier = Modifier,

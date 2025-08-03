@@ -17,7 +17,6 @@
  */
 
 import com.android.build.gradle.LibraryExtension
-import com.eblan.launcher.configureGradleManagedDevices
 import com.eblan.launcher.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,8 +34,6 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
             extensions.configure<LibraryExtension> {
                 testOptions.animationsDisabled = true
-
-                configureGradleManagedDevices(this)
             }
 
             dependencies {
@@ -49,19 +46,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                     libs.findLibrary("androidx.lifecycle.viewmodel.compose").get(),
                 )
                 add("implementation", libs.findLibrary("androidx.navigation.compose").get())
-                add("implementation", libs.findLibrary("androidx.tracing.ktx").get())
                 add("implementation", libs.findLibrary("kotlinx.serialization.json").get())
-
-                add(
-                    "androidTestImplementation",
-                    libs.findLibrary("androidx.lifecycle.runtime.testing").get(),
-                )
-                add(
-                    "androidTestImplementation",
-                    libs.findLibrary("androidx.test.core").get(),
-                )
-
-                add("testImplementation", libs.findLibrary("androidx-navigation-testing").get())
             }
         }
     }

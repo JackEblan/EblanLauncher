@@ -13,7 +13,6 @@ import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -30,7 +29,6 @@ class GetHomeDataUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
 ) {
-    @ExperimentalCoroutinesApi
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
             if (isCache) {

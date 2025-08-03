@@ -2,8 +2,8 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -13,22 +13,19 @@ import javax.inject.Inject
 
 class CachePageItemsUseCase @Inject constructor(
     private val pageCacheRepository: PageCacheRepository,
-    private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(gridItems: List<GridItem>) {
         withContext(Dispatchers.Default) {
             val userData = userDataRepository.userData.first()
 
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+            val gridItemsByPage = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
                 ) && gridItem.associate == Associate.Grid
-            }
-
-            val gridItemsByPage = gridItems.groupBy { gridItem -> gridItem.page }
+            }.groupBy { gridItem -> gridItem.page }
 
             val pageItems = (0 until userData.homeSettings.pageCount).map { page ->
                 PageItem(

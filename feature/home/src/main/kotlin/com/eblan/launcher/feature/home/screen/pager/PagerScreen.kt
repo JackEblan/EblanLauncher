@@ -88,6 +88,7 @@ fun PagerScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
+    gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridItem: GridItem?,
     dockHeight: Int,
@@ -112,7 +113,7 @@ fun PagerScreen(
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
@@ -191,6 +192,7 @@ fun PagerScreen(
         infiniteScroll = infiniteScroll,
         dockRows = dockRows,
         dockColumns = dockColumns,
+        gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
         gridItem = gridItem,
         dockHeight = dockHeight,
@@ -297,6 +299,7 @@ private fun HorizontalPagerScreen(
     infiniteScroll: Boolean,
     dockRows: Int,
     dockColumns: Int,
+    gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridItem: GridItem?,
     dockHeight: Int,
@@ -316,7 +319,7 @@ private fun HorizontalPagerScreen(
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onDoubleTap: () -> Unit,
 ) {
@@ -506,6 +509,8 @@ private fun HorizontalPagerScreen(
                                     },
                                 )
                             }
+
+                            is GridItemData.Folder -> TODO()
                         }
                     }
                 }
@@ -613,6 +618,8 @@ private fun HorizontalPagerScreen(
                                 },
                             )
                         }
+
+                        is GridItemData.Folder -> TODO()
                     }
                 }
             }
@@ -668,6 +675,8 @@ private fun HorizontalPagerScreen(
                                     },
                                 )
                             }
+
+                            is GridItemData.Folder -> TODO()
                         }
                     },
                 )
@@ -717,6 +726,8 @@ private fun HorizontalPagerScreen(
                                     },
                                 )
                             }
+
+                            is GridItemData.Folder -> TODO()
                         }
                     },
                 )
@@ -745,7 +756,7 @@ private fun HorizontalPagerScreen(
                 onEditPage = {
                     showPopupSettingsMenu = false
 
-                    onEditPage()
+                    onEditPage(gridItems)
                 },
             )
         }

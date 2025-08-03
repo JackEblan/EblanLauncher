@@ -116,7 +116,7 @@ fun HomeScreen(
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -272,7 +272,7 @@ private fun Success(
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
-    onEditPage: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -305,6 +305,7 @@ private fun Success(
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
                     gridItem = gridItemSource?.gridItem,
+                    gridItems = gridItems,
                     gridItemsByPage = gridItemsByPage,
                     dockHeight = userData.homeSettings.dockHeight,
                     drag = drag,

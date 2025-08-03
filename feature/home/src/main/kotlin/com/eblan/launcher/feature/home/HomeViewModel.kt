@@ -157,13 +157,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun showPageCache() {
+    fun showPageCache(gridItems: List<GridItem>) {
         viewModelScope.launch {
             _screen.update {
                 Screen.Loading
             }
 
-            cachePageItemsUseCase()
+            cachePageItemsUseCase(gridItems = gridItems)
 
             delay(defaultDelay)
 

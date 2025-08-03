@@ -120,34 +120,52 @@ fun getResolveDirectionBySpan(
     }
 }
 
-suspend fun findAvailableRegion(
+suspend fun findAvailableRegionByPage(
     gridItems: List<GridItem>,
+    gridItem: GridItem,
     pageCount: Int,
     rows: Int,
     columns: Int,
-    gridItem: GridItem,
 ): GridItem? {
     for (page in 0..pageCount) {
-        for (row in 0..(rows - gridItem.rowSpan)) {
-            for (column in 0..(columns - gridItem.columnSpan)) {
-                if (!coroutineContext.isActive) return null
+        return findAvailableRegion(
+            gridItems = gridItems,
+            page = page,
+            gridItem = gridItem,
+            rows = rows,
+            columns = columns,
+        )
+    }
 
-                val candidateGridItem = gridItem.copy(
-                    page = page,
-                    startRow = row,
-                    startColumn = column,
+    return null
+}
+
+suspend fun findAvailableRegion(
+    gridItems: List<GridItem>,
+    page: Int,
+    gridItem: GridItem,
+    rows: Int,
+    columns: Int,
+): GridItem? {
+    for (row in 0..(rows - gridItem.rowSpan)) {
+        for (column in 0..(columns - gridItem.columnSpan)) {
+            if (!coroutineContext.isActive) return null
+
+            val candidateGridItem = gridItem.copy(
+                page = page,
+                startRow = row,
+                startColumn = column,
+            )
+
+            val overlaps = gridItems.any { otherGridItem ->
+                otherGridItem.page == page && rectanglesOverlap(
+                    moving = candidateGridItem,
+                    other = otherGridItem,
                 )
+            }
 
-                val overlaps = gridItems.any { otherGridItem ->
-                    otherGridItem.page == page && rectanglesOverlap(
-                        moving = candidateGridItem,
-                        other = otherGridItem,
-                    )
-                }
-
-                if (!overlaps) {
-                    return candidateGridItem
-                }
+            if (!overlaps) {
+                return candidateGridItem
             }
         }
     }

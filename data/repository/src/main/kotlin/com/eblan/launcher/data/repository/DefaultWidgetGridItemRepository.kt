@@ -13,9 +13,10 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
     WidgetGridItemRepository {
     override val widgetGridItems =
         widgetGridItemDao.getWidgetGridItemEntities().map { entities ->
-            entities.map { entity ->
-                entity.asGridItem()
-            }
+            entities.filterNot { entity -> entity.folderId == null }
+                .map { entity ->
+                    entity.asGridItem()
+                }
         }
 
     override suspend fun upsertWidgetGridItems(widgetGridItems: List<WidgetGridItem>) {

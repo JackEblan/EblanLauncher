@@ -1,7 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.grid.findAvailableRegion
+import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.model.Associate
@@ -116,12 +116,12 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 associate = Associate.Grid,
             )
 
-            val newGridItem = findAvailableRegion(
+            val newGridItem = findAvailableRegionByPage(
                 gridItems = gridItems,
+                gridItem = gridItem,
                 pageCount = pageCount,
                 rows = rows,
                 columns = columns,
-                gridItem = gridItem,
             )
 
             if (newGridItem != null) {

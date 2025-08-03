@@ -17,14 +17,5 @@
  */
 
 plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.libraryJacoco)
-}
-
-android {
-    namespace = "com.eblan.launcher.domain.model"
-
-    defaultConfig {
-        consumerProguardFiles("consumer-proguard-rules.pro")
-    }
+    alias(libs.plugins.com.eblan.launcher.jvmLibrary)
 }

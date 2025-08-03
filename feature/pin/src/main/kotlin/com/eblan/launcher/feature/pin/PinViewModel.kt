@@ -57,6 +57,7 @@ class PinViewModel @Inject constructor(
     }
 
     fun addPinWidgetToHomeScreen(
+        id: String,
         className: String,
         componentName: String,
         configure: String?,
@@ -76,6 +77,7 @@ class PinViewModel @Inject constructor(
         viewModelScope.launch {
             _gridItem.update {
                 addPinWidgetToHomeScreenUseCase(
+                    id = id,
                     className = className,
                     componentName = componentName,
                     configure = configure,

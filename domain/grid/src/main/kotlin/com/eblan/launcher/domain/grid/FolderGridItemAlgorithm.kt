@@ -49,16 +49,7 @@ suspend fun folderGridItem(
                     ),
                 )
 
-                return GridItem(
-                    id = id,
-                    page = page,
-                    startRow = startRow,
-                    startColumn = startColumn,
-                    rowSpan = rowSpan,
-                    columnSpan = columnSpan,
-                    data = data,
-                    associate = associate,
-                )
+                return null
             }
         }
     }

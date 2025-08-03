@@ -353,6 +353,8 @@ private fun GridItemContent(
                         )
                     }
                 }
+
+                is GridItemData.Folder -> TODO()
             }
         }
     }

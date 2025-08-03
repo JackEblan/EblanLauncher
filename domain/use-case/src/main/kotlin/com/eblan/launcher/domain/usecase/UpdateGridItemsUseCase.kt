@@ -31,6 +31,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
                         toApplicationInfoGridItem(
                             id = gridItem.id,
+                            folderId = gridItem.folderId,
                             page = gridItem.page,
                             startRow = gridItem.startRow,
                             startColumn = gridItem.startColumn,
@@ -51,6 +52,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
                         toWidgetGridItem(
                             id = gridItem.id,
+                            folderId = gridItem.folderId,
                             page = gridItem.page,
                             startRow = gridItem.startRow,
                             startColumn = gridItem.startColumn,
@@ -81,6 +83,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
                         toShortcutInfoGridItem(
                             id = gridItem.id,
+                            folderId = gridItem.folderId,
                             page = gridItem.page,
                             startRow = gridItem.startRow,
                             startColumn = gridItem.startColumn,
@@ -107,6 +110,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
     private fun toApplicationInfoGridItem(
         id: String,
+        folderId: String?,
         page: Int,
         startRow: Int,
         startColumn: Int,
@@ -120,6 +124,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     ): ApplicationInfoGridItem {
         return ApplicationInfoGridItem(
             id = id,
+            folderId = folderId,
             page = page,
             startRow = startRow,
             startColumn = startColumn,
@@ -135,6 +140,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
     private fun toWidgetGridItem(
         id: String,
+        folderId: String?,
         page: Int,
         startRow: Int,
         startColumn: Int,
@@ -158,6 +164,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     ): WidgetGridItem {
         return WidgetGridItem(
             id = id,
+            folderId = folderId,
             page = page,
             startRow = startRow,
             startColumn = startColumn,
@@ -183,6 +190,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
     private fun toShortcutInfoGridItem(
         id: String,
+        folderId: String?,
         page: Int,
         startRow: Int,
         startColumn: Int,
@@ -197,6 +205,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     ): ShortcutInfoGridItem {
         return ShortcutInfoGridItem(
             id = id,
+            folderId = folderId,
             page = page,
             startRow = startRow,
             startColumn = startColumn,

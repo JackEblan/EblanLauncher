@@ -31,7 +31,6 @@ import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
 import com.eblan.launcher.data.room.entity.FolderGridItemEntity
-import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
 import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
 
@@ -43,7 +42,6 @@ import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
         ApplicationInfoGridItemEntity::class,
         WidgetGridItemEntity::class,
         ShortcutInfoGridItemEntity::class,
-        FolderGridItemWrapperEntity::class,
         FolderGridItemEntity::class,
     ],
     version = 1,

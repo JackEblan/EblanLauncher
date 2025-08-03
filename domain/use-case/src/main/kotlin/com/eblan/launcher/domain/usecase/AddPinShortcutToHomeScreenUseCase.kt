@@ -50,8 +50,10 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 longLabel = longLabel,
                 icon = icon,
             )
+
             val gridItem = GridItem(
                 id = shortcutId,
+                folderId = null,
                 page = initialPage,
                 startRow = 0,
                 startColumn = 0,

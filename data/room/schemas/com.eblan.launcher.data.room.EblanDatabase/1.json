@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1fc5e02f88fd6188c675c93826dd66d7",
+    "identityHash": "b02aec34f2e1888a4cbbc09d6ccb24f3",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -278,13 +278,19 @@
       },
       {
         "tableName": "ApplicationInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folderId",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "page",
@@ -380,13 +386,19 @@
       },
       {
         "tableName": "WidgetGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folderId",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "page",
@@ -542,13 +554,19 @@
       },
       {
         "tableName": "ShortcutInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folderId",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "page",
@@ -647,12 +665,68 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "FolderGridItemEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "page",
+            "columnName": "page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startRow",
+            "columnName": "startRow",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startColumn",
+            "columnName": "startColumn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rowSpan",
+            "columnName": "rowSpan",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "columnSpan",
+            "columnName": "columnSpan",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "associate",
+            "columnName": "associate",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1fc5e02f88fd6188c675c93826dd66d7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b02aec34f2e1888a4cbbc09d6ccb24f3')"
     ]
   }
 }

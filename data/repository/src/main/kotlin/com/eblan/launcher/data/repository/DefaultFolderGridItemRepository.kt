@@ -1,6 +1,6 @@
 package com.eblan.launcher.data.repository
 
-import com.eblan.launcher.data.repository.mapper.asModels
+import com.eblan.launcher.data.repository.mapper.asGridItem
 import com.eblan.launcher.data.room.dao.FolderGridItemDao
 import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
 import com.eblan.launcher.domain.model.GridItem
@@ -19,17 +19,24 @@ internal class DefaultFolderGridItemRepository @Inject constructor(folderGridIte
         }
 
     private fun FolderGridItemWrapperEntity.asModel(): GridItem {
-        val applicationInfoGridItems = applicationInfos.asModels()
+        val applicationInfoGridItems = applicationInfos?.map { applicationInfoGridItemEntity ->
+            applicationInfoGridItemEntity.asGridItem()
+        } ?: emptyList()
 
-        val widgetGridItems = widgets.asModels()
+        val widgetGridItems = widgets?.map { widgetGridItemEntity ->
+            widgetGridItemEntity.asGridItem()
+        } ?: emptyList()
 
-        val shortcutInfos = shortcutInfos.asModels()
+        val shortcutInfos = shortcutInfos?.map { shortcutGridItemEntity ->
+            shortcutGridItemEntity.asGridItem()
+        } ?: emptyList()
 
         val data =
             GridItemData.Folder(gridItems = applicationInfoGridItems + widgetGridItems + shortcutInfos)
 
         return GridItem(
             id = folderGridItemEntity.id,
+            folderId = null,
             page = folderGridItemEntity.page,
             startRow = folderGridItemEntity.startRow,
             startColumn = folderGridItemEntity.startColumn,

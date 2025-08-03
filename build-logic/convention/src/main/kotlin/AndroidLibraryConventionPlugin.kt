@@ -21,7 +21,6 @@ import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.eblan.launcher.configureGradleManagedDevices
 import com.eblan.launcher.configureKotlinAndroid
 import com.eblan.launcher.disableUnnecessaryAndroidTests
-import com.eblan.launcher.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -35,7 +34,6 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 apply("com.android.library")
                 apply("com.eblan.launcher.lint")
                 apply("org.jetbrains.kotlin.android")
-                apply("org.jetbrains.kotlin.plugin.compose")
             }
 
             extensions.configure<LibraryExtension> {
@@ -51,7 +49,6 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                add("implementation", libs.findLibrary("kotlin.stdlib").get())
                 add("testImplementation", kotlin("test"))
             }
         }

@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.model.WidgetGridItem
 internal fun WidgetGridItemEntity.asGridItem(): GridItem {
     return GridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,

@@ -106,8 +106,7 @@ fun ApplicationScreen(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         when {
             eblanApplicationInfos.isEmpty() -> {
@@ -147,6 +146,7 @@ fun ApplicationScreen(
                                                     GridItemSource.New(
                                                         gridItem = GridItem(
                                                             id = Uuid.random().toHexString(),
+                                                            folderId = null,
                                                             page = page,
                                                             startRow = 0,
                                                             startColumn = 0,

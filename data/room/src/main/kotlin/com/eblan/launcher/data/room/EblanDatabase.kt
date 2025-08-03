@@ -23,12 +23,15 @@ import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
+import com.eblan.launcher.data.room.dao.FolderGridItemDao
 import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
 import com.eblan.launcher.data.room.dao.WidgetGridItemDao
 import com.eblan.launcher.data.room.entity.ApplicationInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
+import com.eblan.launcher.data.room.entity.FolderGridItemEntity
+import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
 import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
 
@@ -40,6 +43,8 @@ import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
         ApplicationInfoGridItemEntity::class,
         WidgetGridItemEntity::class,
         ShortcutInfoGridItemEntity::class,
+        FolderGridItemWrapperEntity::class,
+        FolderGridItemEntity::class,
     ],
     version = 1,
     exportSchema = true,
@@ -56,6 +61,8 @@ internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun eblanAppWidgetProviderInfoDao(): EblanAppWidgetProviderInfoDao
 
     abstract fun eblanShortcutInfoDao(): EblanShortcutInfoDao
+
+    abstract fun folderGridItemDao(): FolderGridItemDao
 
     companion object {
         const val DATABASE_NAME = "Eblan.db"

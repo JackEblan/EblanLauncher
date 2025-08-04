@@ -1,6 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.grid.findOverlappingGridItems
+import com.eblan.launcher.domain.grid.groupOverlappingGridItems
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
@@ -35,23 +35,19 @@ class GetGridItemsUseCase @Inject constructor(
             }
         }.map { gridItems ->
             gridItems
-                .groupBy { gridItem -> gridItem.page }
+                .groupBy { it.page }
                 .flatMap { (page, gridItemsByPage) ->
-                    val overlappingGridItems = findOverlappingGridItems(gridItems = gridItemsByPage)
+                    val overlappingGroups = groupOverlappingGridItems(gridItems = gridItemsByPage)
 
-                    val folderGridItem = if (overlappingGridItems.isNotEmpty()) {
-                        createFolderFromOverlappingGridItems(page, overlappingGridItems)
-                    } else {
-                        null
+                    val folderGridItems = overlappingGroups.map { group ->
+                        createFolderFromOverlappingGridItems(page, group)
                     }
 
-                    val remaining = gridItemsByPage.filterNot { it in overlappingGridItems }
+                    val groupedItems = overlappingGroups.flatten().toSet()
 
-                    if (folderGridItem != null) {
-                        remaining + folderGridItem
-                    } else {
-                        remaining
-                    }
+                    val remaining = gridItemsByPage.filterNot { it in groupedItems }
+
+                    remaining + folderGridItems
                 }
         }
     }

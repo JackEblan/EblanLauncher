@@ -128,44 +128,26 @@ suspend fun findAvailableRegionByPage(
     columns: Int,
 ): GridItem? {
     for (page in 0..pageCount) {
-        return findAvailableRegion(
-            gridItems = gridItems,
-            page = page,
-            gridItem = gridItem,
-            rows = rows,
-            columns = columns,
-        )
-    }
+        for (row in 0..(rows - gridItem.rowSpan)) {
+            for (column in 0..(columns - gridItem.columnSpan)) {
+                if (!coroutineContext.isActive) return null
 
-    return null
-}
-
-suspend fun findAvailableRegion(
-    gridItems: List<GridItem>,
-    page: Int,
-    gridItem: GridItem,
-    rows: Int,
-    columns: Int,
-): GridItem? {
-    for (row in 0..(rows - gridItem.rowSpan)) {
-        for (column in 0..(columns - gridItem.columnSpan)) {
-            if (!coroutineContext.isActive) return null
-
-            val candidateGridItem = gridItem.copy(
-                page = page,
-                startRow = row,
-                startColumn = column,
-            )
-
-            val overlaps = gridItems.any { otherGridItem ->
-                otherGridItem.page == page && rectanglesOverlap(
-                    moving = candidateGridItem,
-                    other = otherGridItem,
+                val candidateGridItem = gridItem.copy(
+                    page = page,
+                    startRow = row,
+                    startColumn = column,
                 )
-            }
 
-            if (!overlaps) {
-                return candidateGridItem
+                val overlaps = gridItems.any { otherGridItem ->
+                    otherGridItem.page == page && rectanglesOverlap(
+                        moving = candidateGridItem,
+                        other = otherGridItem,
+                    )
+                }
+
+                if (!overlaps) {
+                    return candidateGridItem
+                }
             }
         }
     }
@@ -225,19 +207,32 @@ fun getWidgetGridItemSize(
     return width to height
 }
 
-fun findOverlappingGridItems(gridItems: List<GridItem>): List<GridItem> {
-    val overlappingItems = mutableSetOf<GridItem>()
+fun groupOverlappingGridItems(gridItems: List<GridItem>): List<List<GridItem>> {
+    val visited = mutableSetOf<GridItem>()
+    val groups = mutableListOf<List<GridItem>>()
 
-    for (i in gridItems.indices) {
-        for (j in i + 1 until gridItems.size) {
-            val a = gridItems[i]
-            val b = gridItems[j]
-            if (rectanglesOverlap(moving = a, other = b)) {
-                overlappingItems += a
-                overlappingItems += b
-            }
+    for (item in gridItems) {
+        if (item in visited) continue
+
+        val group = mutableListOf<GridItem>()
+        val queue = ArrayDeque<GridItem>()
+        queue += item
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            if (current in visited) continue
+
+            visited += current
+            group += current
+
+            val neighbors = gridItems.filter { it !in visited && rectanglesOverlap(current, it) }
+            queue += neighbors
+        }
+
+        if (group.size > 1) { // Only group if there's actual conflict
+            groups += group
         }
     }
 
-    return overlappingItems.toList()
+    return groups
 }

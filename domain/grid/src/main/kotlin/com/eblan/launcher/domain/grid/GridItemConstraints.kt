@@ -232,7 +232,7 @@ fun findOverlappingGridItems(gridItems: List<GridItem>): List<GridItem> {
         for (j in i + 1 until gridItems.size) {
             val a = gridItems[i]
             val b = gridItems[j]
-            if (rectanglesOverlap(a, b)) {
+            if (rectanglesOverlap(moving = a, other = b)) {
                 overlappingItems += a
                 overlappingItems += b
             }

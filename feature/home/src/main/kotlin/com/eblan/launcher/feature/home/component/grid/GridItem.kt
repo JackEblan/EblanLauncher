@@ -62,7 +62,7 @@ fun WidgetGridItem(
 
 @Composable
 fun ApplicationInfoGridItem(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
     color: Color,
 ) {
@@ -95,7 +95,7 @@ fun ApplicationInfoGridItem(
 
 @Composable
 fun ShortcutInfoGridItem(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
     color: Color,
 ) {
@@ -128,7 +128,7 @@ fun ShortcutInfoGridItem(
 
 @Composable
 fun FolderGridItem(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     data: GridItemData.Folder,
     color: Color,
 ) {
@@ -137,15 +137,18 @@ fun FolderGridItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         FlowRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
             maxItemsInEachRow = 2,
         ) {
-            data.gridItems.take(4).forEach { gridItem ->
+            data.gridItems.forEach { gridItem ->
                 when (val currentData = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         AsyncImage(
                             model = currentData.icon,
                             contentDescription = null,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
 
@@ -157,6 +160,7 @@ fun FolderGridItem(
                         AsyncImage(
                             model = currentData.icon,
                             contentDescription = null,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
 
@@ -164,17 +168,15 @@ fun FolderGridItem(
                         AsyncImage(
                             model = currentData.preview,
                             contentDescription = null,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         Text(
             text = data.label,
-            modifier = Modifier.weight(1f),
             color = color,
             textAlign = TextAlign.Center,
             fontSize = TextUnit(

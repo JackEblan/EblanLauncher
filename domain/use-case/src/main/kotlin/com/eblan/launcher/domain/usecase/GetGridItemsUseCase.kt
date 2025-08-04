@@ -34,7 +34,9 @@ class GetGridItemsUseCase @Inject constructor(
                 }
             }
         }.map { gridItems ->
-            gridItems.groupBy { gridItem -> gridItem.page }.flatMap { (page, gridItemsByPage) ->
+            gridItems
+                .groupBy { gridItem -> gridItem.page }
+                .flatMap { (page, gridItemsByPage) ->
                     val overlappingGridItems = findOverlappingGridItems(gridItems = gridItemsByPage)
 
                     val folderGridItem = if (overlappingGridItems.isNotEmpty()) {
@@ -60,8 +62,6 @@ class GetGridItemsUseCase @Inject constructor(
     ): GridItem {
         val firstGridItem = gridItems.minBy { gridItem -> gridItem.zIndex }
 
-        val zIndex = gridItems.maxOf { gridItem -> gridItem.zIndex }
-
         return GridItem(
             id = firstGridItem.id,
             page = page,
@@ -74,7 +74,7 @@ class GetGridItemsUseCase @Inject constructor(
                 gridItems = gridItems,
             ),
             associate = firstGridItem.associate,
-            zIndex = zIndex,
+            zIndex = firstGridItem.zIndex,
         )
     }
 }

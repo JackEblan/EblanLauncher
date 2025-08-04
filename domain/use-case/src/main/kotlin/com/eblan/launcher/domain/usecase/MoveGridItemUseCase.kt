@@ -54,7 +54,7 @@ class MoveGridItemUseCase @Inject constructor(
                 )
             }
 
-            var resolvedConflictsGridItems: List<GridItem>? = null
+            val resolvedConflictsGridItems: List<GridItem>?
 
             if (gridItemByCoordinates != null) {
                 val resolveDirection = getResolveDirectionByX(

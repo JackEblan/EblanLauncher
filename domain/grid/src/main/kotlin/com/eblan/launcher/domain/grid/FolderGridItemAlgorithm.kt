@@ -37,8 +37,6 @@ private fun moveGridItemIntoFolder(
                 val movingIndex = gridItems.indexOfFirst { it.id == moving.id }
 
                 gridItems[movingIndex] = moving.copy(zIndex = zIndex + 1)
-
-                return true
             } else {
                 val firstIndex = gridItems.indexOfFirst { it.id == gridItem.id }
 
@@ -47,9 +45,9 @@ private fun moveGridItemIntoFolder(
                 gridItems[firstIndex] = gridItem.copy(zIndex = 0)
 
                 gridItems[secondIndex] = moving.copy(zIndex = 1)
-
-                return true
             }
+
+            return true
         }
     }
 

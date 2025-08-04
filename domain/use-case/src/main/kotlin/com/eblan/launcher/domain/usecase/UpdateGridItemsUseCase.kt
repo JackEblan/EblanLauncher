@@ -2,11 +2,11 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
-import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
@@ -15,88 +15,101 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateGridItemsUseCase @Inject constructor(
-    private val gridCacheRepository: GridCacheRepository,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
+    private val getGridItemsUseCase: GetGridItemsUseCase,
 ) {
     suspend operator fun invoke() {
         withContext(Dispatchers.Default) {
-            val gridCacheItems = gridCacheRepository.gridCacheItems.first()
+            val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
-            val applicationInfoGridItems =
-                gridCacheItems.filter { gridItem -> gridItem.data is GridItemData.ApplicationInfo }
-                    .map { gridItem ->
-                        val data = gridItem.data as GridItemData.ApplicationInfo
+            val widgetGridItems = mutableListOf<WidgetGridItem>()
 
-                        toApplicationInfoGridItem(
-                            id = gridItem.id,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            componentName = data.componentName,
-                            packageName = data.packageName,
-                            icon = data.icon,
-                            label = data.label,
-                            zIndex = gridItem.zIndex,
+            val shortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
+
+            getGridItemsUseCase().first().map { gridItem ->
+                when (val data = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        applicationInfoGridItems.add(
+                            toApplicationInfoGridItem(
+                                id = gridItem.id,
+                                page = gridItem.page,
+                                startRow = gridItem.startRow,
+                                startColumn = gridItem.startColumn,
+                                rowSpan = gridItem.rowSpan,
+                                columnSpan = gridItem.columnSpan,
+                                associate = gridItem.associate,
+                                componentName = data.componentName,
+                                packageName = data.packageName,
+                                icon = data.icon,
+                                label = data.label,
+                                zIndex = gridItem.zIndex,
+                            ),
                         )
                     }
 
-            val widgetGridItems =
-                gridCacheItems.filter { gridItem -> gridItem.data is GridItemData.Widget }
-                    .map { gridItem ->
-                        val data = gridItem.data as GridItemData.Widget
-
-                        toWidgetGridItem(
-                            id = gridItem.id,
-                            page = gridItem.page,
+                    is GridItemData.Folder -> {
+                        addFolderGridItems(
                             startRow = gridItem.startRow,
                             startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            appWidgetId = data.appWidgetId,
-                            packageName = data.packageName,
-                            componentName = data.componentName,
-                            configure = data.configure,
-                            minWidth = data.minWidth,
-                            minHeight = data.minHeight,
-                            resizeMode = data.resizeMode,
-                            minResizeWidth = data.minResizeWidth,
-                            minResizeHeight = data.minResizeHeight,
-                            maxResizeWidth = data.maxResizeWidth,
-                            maxResizeHeight = data.maxResizeHeight,
-                            targetCellHeight = data.targetCellHeight,
-                            targetCellWidth = data.targetCellWidth,
-                            preview = data.preview,
-                            zIndex = gridItem.zIndex,
+                            folderGridItems = data.gridItems,
+                            applicationInfoGridItems = applicationInfoGridItems,
+                            shortcutInfoGridItems = shortcutInfoGridItems,
+                            widgetGridItems = widgetGridItems,
                         )
                     }
 
-            val shortcutInfoGridItems =
-                gridCacheItems.filter { gridItem -> gridItem.data is GridItemData.ShortcutInfo }
-                    .map { gridItem ->
-                        val data = gridItem.data as GridItemData.ShortcutInfo
-
-                        toShortcutInfoGridItem(
-                            id = gridItem.id,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            shortcutId = data.shortcutId,
-                            packageName = data.packageName,
-                            shortLabel = data.shortLabel,
-                            longLabel = data.longLabel,
-                            icon = data.icon,
-                            zIndex = gridItem.zIndex,
+                    is GridItemData.Widget -> {
+                        widgetGridItems.add(
+                            toWidgetGridItem(
+                                id = gridItem.id,
+                                page = gridItem.page,
+                                startRow = gridItem.startRow,
+                                startColumn = gridItem.startColumn,
+                                rowSpan = gridItem.rowSpan,
+                                columnSpan = gridItem.columnSpan,
+                                associate = gridItem.associate,
+                                appWidgetId = data.appWidgetId,
+                                packageName = data.packageName,
+                                componentName = data.componentName,
+                                configure = data.configure,
+                                minWidth = data.minWidth,
+                                minHeight = data.minHeight,
+                                resizeMode = data.resizeMode,
+                                minResizeWidth = data.minResizeWidth,
+                                minResizeHeight = data.minResizeHeight,
+                                maxResizeWidth = data.maxResizeWidth,
+                                maxResizeHeight = data.maxResizeHeight,
+                                targetCellHeight = data.targetCellHeight,
+                                targetCellWidth = data.targetCellWidth,
+                                preview = data.preview,
+                                zIndex = gridItem.zIndex,
+                            ),
                         )
                     }
+
+                    is GridItemData.ShortcutInfo -> {
+                        shortcutInfoGridItems.add(
+                            toShortcutInfoGridItem(
+                                id = gridItem.id,
+                                page = gridItem.page,
+                                startRow = gridItem.startRow,
+                                startColumn = gridItem.startColumn,
+                                rowSpan = gridItem.rowSpan,
+                                columnSpan = gridItem.columnSpan,
+                                associate = gridItem.associate,
+                                shortcutId = data.shortcutId,
+                                packageName = data.packageName,
+                                shortLabel = data.shortLabel,
+                                longLabel = data.longLabel,
+                                icon = data.icon,
+                                zIndex = gridItem.zIndex,
+                            ),
+                        )
+                    }
+                }
+            }
 
             applicationInfoGridItemRepository.upsertApplicationInfoGridItems(
                 applicationInfoGridItems = applicationInfoGridItems,
@@ -105,6 +118,89 @@ class UpdateGridItemsUseCase @Inject constructor(
             widgetGridItemRepository.upsertWidgetGridItems(widgetGridItems = widgetGridItems)
 
             shortcutInfoGridItemRepository.upsertShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
+        }
+    }
+
+    private fun addFolderGridItems(
+        startRow: Int,
+        startColumn: Int,
+        folderGridItems: List<GridItem>,
+        applicationInfoGridItems: MutableList<ApplicationInfoGridItem>,
+        shortcutInfoGridItems: MutableList<ShortcutInfoGridItem>,
+        widgetGridItems: MutableList<WidgetGridItem>,
+    ) {
+        folderGridItems.forEach { folderGridItem ->
+            when (val folderData = folderGridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    applicationInfoGridItems.add(
+                        toApplicationInfoGridItem(
+                            id = folderGridItem.id,
+                            page = folderGridItem.page,
+                            startRow = startRow,
+                            startColumn = startColumn,
+                            rowSpan = folderGridItem.rowSpan,
+                            columnSpan = folderGridItem.columnSpan,
+                            associate = folderGridItem.associate,
+                            componentName = folderData.componentName,
+                            packageName = folderData.packageName,
+                            icon = folderData.icon,
+                            label = folderData.label,
+                            zIndex = folderGridItem.zIndex,
+                        ),
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    shortcutInfoGridItems.add(
+                        toShortcutInfoGridItem(
+                            id = folderGridItem.id,
+                            page = folderGridItem.page,
+                            startRow = startRow,
+                            startColumn = startColumn,
+                            rowSpan = folderGridItem.rowSpan,
+                            columnSpan = folderGridItem.columnSpan,
+                            associate = folderGridItem.associate,
+                            shortcutId = folderData.shortcutId,
+                            packageName = folderData.packageName,
+                            shortLabel = folderData.shortLabel,
+                            longLabel = folderData.longLabel,
+                            icon = folderData.icon,
+                            zIndex = folderGridItem.zIndex,
+                        ),
+                    )
+                }
+
+                is GridItemData.Widget -> {
+                    widgetGridItems.add(
+                        toWidgetGridItem(
+                            id = folderGridItem.id,
+                            page = folderGridItem.page,
+                            startRow = startRow,
+                            startColumn = startColumn,
+                            rowSpan = folderGridItem.rowSpan,
+                            columnSpan = folderGridItem.columnSpan,
+                            associate = folderGridItem.associate,
+                            appWidgetId = folderData.appWidgetId,
+                            packageName = folderData.packageName,
+                            componentName = folderData.componentName,
+                            configure = folderData.configure,
+                            minWidth = folderData.minWidth,
+                            minHeight = folderData.minHeight,
+                            resizeMode = folderData.resizeMode,
+                            minResizeWidth = folderData.minResizeWidth,
+                            minResizeHeight = folderData.minResizeHeight,
+                            maxResizeWidth = folderData.maxResizeWidth,
+                            maxResizeHeight = folderData.maxResizeHeight,
+                            targetCellHeight = folderData.targetCellHeight,
+                            targetCellWidth = folderData.targetCellWidth,
+                            preview = folderData.preview,
+                            zIndex = folderGridItem.zIndex,
+                        ),
+                    )
+                }
+
+                is GridItemData.Folder -> Unit
+            }
         }
     }
 

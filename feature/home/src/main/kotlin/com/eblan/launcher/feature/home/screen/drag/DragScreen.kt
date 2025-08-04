@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -309,61 +310,63 @@ private fun GridItemContent(
     gridItemSource: GridItemSource,
     drag: Drag,
 ) {
-    LookaheadScope {
-        val gridItemModifier = modifier
-            .animateBounds(this)
-            .gridItem(gridItem)
+    key(gridItem.id){
+        LookaheadScope {
+            val gridItemModifier = modifier
+                .animateBounds(this)
+                .gridItem(gridItem)
 
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                DragGridItem(
-                    modifier = gridItemModifier,
-                    isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
-                    color = color,
-                ) {
-                    ApplicationInfoGridItem(
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
-                    )
+                    ) {
+                        ApplicationInfoGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
-            }
 
-            is GridItemData.Widget -> {
-                DragGridItem(
-                    modifier = gridItemModifier,
-                    isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
-                    color = color,
-                ) {
-                    WidgetGridItem(modifier = gridItemModifier, data = data)
-                }
-            }
-
-            is GridItemData.ShortcutInfo -> {
-                DragGridItem(
-                    modifier = gridItemModifier,
-                    isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
-                    color = color,
-                ) {
-                    ShortcutInfoGridItem(
+                is GridItemData.Widget -> {
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
-                    )
+                    ) {
+                        WidgetGridItem(modifier = gridItemModifier, data = data)
+                    }
                 }
-            }
 
-            is GridItemData.Folder -> {
-                DragGridItem(
-                    modifier = gridItemModifier,
-                    isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
-                    color = color,
-                ) {
-                    FolderGridItem(
+                is GridItemData.ShortcutInfo -> {
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
-                    )
+                    ) {
+                        ShortcutInfoGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
+                }
+
+                is GridItemData.Folder -> {
+                    DragGridItem(
+                        modifier = gridItemModifier,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        color = color,
+                    ) {
+                        FolderGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
             }
         }

@@ -229,7 +229,7 @@ fun groupOverlappingGridItems(gridItems: List<GridItem>): List<List<GridItem>> {
             queue += neighbors
         }
 
-        if (group.size > 1) { // Only group if there's actual conflict
+        if (group.size > 1) {
             groups += group
         }
     }

@@ -40,7 +40,7 @@ class GetGridItemsUseCase @Inject constructor(
                     val overlappingGridItems = findOverlappingGridItems(gridItems = gridItemsByPage)
 
                     val folderGridItem = if (overlappingGridItems.isNotEmpty()) {
-                        createFolderFromOverlappingGridItems(overlappingGridItems, page)
+                        createFolderFromOverlappingGridItems(page, overlappingGridItems)
                     } else {
                         null
                     }
@@ -57,8 +57,8 @@ class GetGridItemsUseCase @Inject constructor(
     }
 
     private fun createFolderFromOverlappingGridItems(
-        gridItems: List<GridItem>,
         page: Int,
+        gridItems: List<GridItem>,
     ): GridItem {
         val firstGridItem = gridItems.minBy { gridItem -> gridItem.zIndex }
 
@@ -70,7 +70,7 @@ class GetGridItemsUseCase @Inject constructor(
             rowSpan = firstGridItem.rowSpan,
             columnSpan = firstGridItem.columnSpan,
             data = GridItemData.Folder(
-                label = "Folder",
+                label = "Unknown",
                 gridItems = gridItems,
             ),
             associate = firstGridItem.associate,

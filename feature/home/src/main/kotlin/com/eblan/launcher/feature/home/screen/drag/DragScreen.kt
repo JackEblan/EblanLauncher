@@ -368,7 +368,6 @@ private fun GridItemContent(
             }
         }
     }
-
 }
 
 @Composable

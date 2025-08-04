@@ -67,7 +67,7 @@ suspend fun handleDragIntOffset(
         pageCount = pageCount,
     )
 
-    val gridItemsByTargetPage = requireNotNull(gridItemsByPage[targetPage])
+    val gridItemsByTargetPage = gridItemsByPage[targetPage].orEmpty()
 
     val isDraggingOnDock = dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 

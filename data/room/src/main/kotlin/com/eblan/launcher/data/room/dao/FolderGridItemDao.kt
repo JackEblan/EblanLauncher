@@ -3,6 +3,8 @@ package com.eblan.launcher.data.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
+import com.eblan.launcher.data.room.entity.FolderGridItemEntity
 import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -12,4 +14,7 @@ interface FolderGridItemDao {
     @Transaction
     @Query("SELECT * FROM FolderGridItemEntity")
     fun getFolderGridItemWrapperEntities(): Flow<List<FolderGridItemWrapperEntity>>
+
+    @Upsert
+    suspend fun upsertFolderGridItemEntities(entities: List<FolderGridItemEntity>)
 }

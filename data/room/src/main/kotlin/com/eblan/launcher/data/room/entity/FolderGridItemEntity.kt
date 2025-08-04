@@ -14,4 +14,5 @@ data class FolderGridItemEntity(
     val rowSpan: Int,
     val columnSpan: Int,
     val associate: Associate,
+    val label: String,
 )

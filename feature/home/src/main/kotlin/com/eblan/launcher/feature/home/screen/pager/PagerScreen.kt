@@ -57,6 +57,7 @@ import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
@@ -510,7 +511,28 @@ private fun HorizontalPagerScreen(
                                 )
                             }
 
-                            is GridItemData.Folder -> TODO()
+                            is GridItemData.Folder -> {
+                                FolderGridItem(
+                                    textColor = textColor,
+                                    gridItem = gridItem,
+                                    data = data,
+                                    onTap = {
+
+                                    },
+                                    onLongPress = {
+                                        popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                        popupMenuIntSize = IntSize(width = width, height = height)
+
+                                        showPopupGridItemMenu = true
+
+                                        onLongPressGridItem(
+                                            page,
+                                            GridItemSource.Existing(gridItem = gridItem),
+                                        )
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -619,7 +641,32 @@ private fun HorizontalPagerScreen(
                             )
                         }
 
-                        is GridItemData.Folder -> TODO()
+                        is GridItemData.Folder -> {
+                            FolderGridItem(
+                                textColor = textColor,
+                                gridItem = gridItem,
+                                data = data,
+                                onTap = {
+
+                                },
+                                onLongPress = {
+                                    popupMenuIntOffset = IntOffset(x = x, y = y)
+
+                                    popupMenuIntSize = IntSize(width = width, height = height)
+
+                                    showPopupGridItemMenu = true
+
+                                    onLongPressGridItem(
+                                        calculatePage(
+                                            index = horizontalPagerState.currentPage,
+                                            infiniteScroll = infiniteScroll,
+                                            pageCount = pageCount,
+                                        ),
+                                        GridItemSource.Existing(gridItem = gridItem),
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -676,7 +723,9 @@ private fun HorizontalPagerScreen(
                                 )
                             }
 
-                            is GridItemData.Folder -> TODO()
+                            is GridItemData.Folder -> {
+
+                            }
                         }
                     },
                 )
@@ -727,7 +776,9 @@ private fun HorizontalPagerScreen(
                                 )
                             }
 
-                            is GridItemData.Folder -> TODO()
+                            is GridItemData.Folder -> {
+
+                            }
                         }
                     },
                 )
@@ -1037,4 +1088,40 @@ private fun WidgetGridItem(
             )
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun FolderGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    FolderGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .dragAndDropSource(
+                block = {
+                    detectTapGestures(
+                        onTap = {
+                            onTap()
+                        },
+                        onLongPress = {
+                            onLongPress()
+
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
+                                ),
+                            )
+                        },
+                    )
+                },
+            ),
+        data = data,
+        color = Color(textColor),
+    )
 }

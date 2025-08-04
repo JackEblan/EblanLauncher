@@ -8,4 +8,5 @@ data class FolderGridItem(
     val rowSpan: Int,
     val columnSpan: Int,
     val associate: Associate,
+    val label: String,
 )

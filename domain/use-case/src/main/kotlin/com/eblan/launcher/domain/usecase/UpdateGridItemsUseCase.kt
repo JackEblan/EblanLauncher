@@ -2,10 +2,12 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
+import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -19,6 +21,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
+    private val folderGridItemRepository: FolderGridItemRepository,
 ) {
     suspend operator fun invoke() {
         withContext(Dispatchers.Default) {
@@ -98,6 +101,23 @@ class UpdateGridItemsUseCase @Inject constructor(
                         )
                     }
 
+            val folderGridItems =
+                gridCacheItems.filter { gridItem -> gridItem.data is GridItemData.Folder }
+                    .map { gridItem ->
+                        val data = gridItem.data as GridItemData.Folder
+
+                        toFolderGridItem(
+                            id = gridItem.id,
+                            page = gridItem.page,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
+                            associate = gridItem.associate,
+                            label = data.label,
+                        )
+                    }
+
             applicationInfoGridItemRepository.upsertApplicationInfoGridItems(
                 applicationInfoGridItems = applicationInfoGridItems,
             )
@@ -105,6 +125,8 @@ class UpdateGridItemsUseCase @Inject constructor(
             widgetGridItemRepository.upsertWidgetGridItems(widgetGridItems = widgetGridItems)
 
             shortcutInfoGridItemRepository.upsertShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
+
+            folderGridItemRepository.upsertFolderGridItem(folderGridItems = folderGridItems)
         }
     }
 
@@ -217,6 +239,28 @@ class UpdateGridItemsUseCase @Inject constructor(
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
+        )
+    }
+
+    private fun toFolderGridItem(
+        id: String,
+        page: Int,
+        startRow: Int,
+        startColumn: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        associate: Associate,
+        label: String,
+    ): FolderGridItem {
+        return FolderGridItem(
+            id = id,
+            page = page,
+            startRow = startRow,
+            startColumn = startColumn,
+            rowSpan = rowSpan,
+            columnSpan = columnSpan,
+            associate = associate,
+            label = label,
         )
     }
 }

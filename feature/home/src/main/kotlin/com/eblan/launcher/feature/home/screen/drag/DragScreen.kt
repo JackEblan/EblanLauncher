@@ -36,6 +36,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
@@ -354,7 +355,19 @@ private fun GridItemContent(
                     }
                 }
 
-                is GridItemData.Folder -> TODO()
+                is GridItemData.Folder -> {
+                    DragGridItem(
+                        modifier = gridItemModifier,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        color = color,
+                    ) {
+                        FolderGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
+                }
             }
         }
     }

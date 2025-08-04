@@ -99,7 +99,7 @@ fun moveGridItem(
     }
 }
 
-private fun moveGridItemToRight(
+fun moveGridItemToRight(
     moving: GridItem,
     conflicting: GridItem,
     rows: Int,

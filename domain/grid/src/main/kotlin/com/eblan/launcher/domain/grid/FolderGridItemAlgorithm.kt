@@ -2,19 +2,40 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-suspend fun folderGridItem(
+suspend fun resolveConflictsWhenGrouping(
     gridItems: MutableList<GridItem>,
     moving: GridItem,
     folderRows: Int,
     folderColumns: Int,
-): GridItem? {
+): List<GridItem>? {
+    return if (moveGridItemIntoFolder(
+            gridItems = gridItems,
+            moving = moving,
+            folderRows = folderRows,
+            folderColumns = folderColumns,
+        )
+    ) {
+        gridItems
+    } else {
+        null
+    }
+}
+
+@OptIn(ExperimentalUuidApi::class)
+private suspend fun moveGridItemIntoFolder(
+    gridItems: MutableList<GridItem>,
+    moving: GridItem,
+    folderRows: Int,
+    folderColumns: Int,
+): Boolean {
     for (gridItem in gridItems) {
-        val isOverlapping = gridItem.id != moving.id &&
-                rectanglesOverlap(
-                    moving = moving,
-                    other = gridItem,
-                )
+        val isOverlapping = gridItem.id != moving.id && rectanglesOverlap(
+            moving = moving,
+            other = gridItem,
+        )
 
         if (isOverlapping) {
             val data = gridItem.data
@@ -28,31 +49,50 @@ suspend fun folderGridItem(
                     gridItem = moving,
                     rows = folderRows,
                     columns = folderColumns,
-                )
+                )?.copy(folderId = gridItem.folderId) ?: return false
 
-                if (newGridItem != null) {
-                    // Add the moving into the folder
-                    val newData = data.copy(gridItems + newGridItem)
+                // Update folderId of the moving
+                val movingIndex = gridItems.indexOfFirst { it.id == newGridItem.id }
+                gridItems[movingIndex] = newGridItem.copy(folderId = gridItem.folderId)
 
-                    return gridItem.copy(data = newData)
-                }
+                // Add the moving to the folder
+                val newData = data.copy(gridItems = data.gridItems + newGridItem)
+
+                val conflictingIndex = gridItems.indexOfFirst { it.id == gridItem.id }
+
+                gridItems[conflictingIndex] = gridItem.copy(data = newData)
+
+                return true
             } else {
-                // Add the moving grid item at the end of the conflicting one
-                val secondGridItem = moving.copy(
+                val folderId = Uuid.random().toHexString()
+                val firstGridItem = gridItem.copy(folderId = folderId)
+                val secondGridItem = moveGridItemToRight(
+                    moving = moving,
+                    conflicting = firstGridItem,
+                    rows = folderRows,
+                    columns = folderColumns,
+                ) ?: return false
 
-                )
+                // Update folderId of the moving and conflicting to use same folderId
+                val firstIndex = gridItems.indexOfFirst { it.id == gridItem.id }
+                val secondIndex = gridItems.indexOfFirst { it.id == moving.id }
+                gridItems[firstIndex] = gridItem.copy(folderId = folderId)
+                gridItems[secondIndex] = moving.copy(folderId = folderId)
 
-                val newData = GridItemData.Folder(
-                    listOf(
-                        gridItem,
-                        secondGridItem,
+                // Use conflicting grid item as source
+                val newGridItem = gridItem.copy(
+                    data = GridItemData.Folder(
+                        label = "Unknown",
+                        gridItems = listOf(firstGridItem, secondGridItem),
                     ),
                 )
 
-                return null
+                gridItems.add(newGridItem)
+
+                return true
             }
         }
     }
 
-    return null
+    return false
 }

@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
@@ -134,7 +135,13 @@ fun EditPageScreen(
                                         )
                                     }
 
-                                    is GridItemData.Folder -> TODO()
+                                    is GridItemData.Folder -> {
+                                        FolderGridItem(
+                                            modifier = gridItemModifier,
+                                            data = data,
+                                            color = color,
+                                        )
+                                    }
                                 }
                             }
                         }

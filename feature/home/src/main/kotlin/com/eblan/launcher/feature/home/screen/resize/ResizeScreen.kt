@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
@@ -116,7 +117,10 @@ fun ResizeScreen(
     val cellHeight = gridHeight / rows
 
     when (val data = gridItem.data) {
-        is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
+        is GridItemData.ApplicationInfo,
+        is GridItemData.ShortcutInfo,
+        is GridItemData.Folder,
+            -> {
             GridItemResizeOverlay(
                 gridPadding = gridPaddingPx,
                 gridItems = gridItems,
@@ -158,8 +162,6 @@ fun ResizeScreen(
                 onResizeEnd = onResizeEnd,
             )
         }
-
-        is GridItemData.Folder -> TODO()
     }
 }
 
@@ -200,7 +202,13 @@ private fun GridItemContent(
                     )
                 }
 
-                is GridItemData.Folder -> TODO()
+                is GridItemData.Folder -> {
+                    FolderGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = color,
+                    )
+                }
             }
         }
     }

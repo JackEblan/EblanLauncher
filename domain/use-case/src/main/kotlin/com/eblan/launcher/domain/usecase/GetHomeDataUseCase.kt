@@ -29,6 +29,7 @@ class GetHomeDataUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
 ) {
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = gridCacheRepository.isCache.flatMapLatest { isCache ->
             if (isCache) {

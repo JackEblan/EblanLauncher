@@ -14,14 +14,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
 ) {
+    @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
-        id: String,
         className: String,
         componentName: String,
         configure: String?,
@@ -102,7 +104,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             )
 
             val gridItem = GridItem(
-                id = id,
+                id = Uuid.random().toHexString(),
                 folderId = null,
                 page = initialPage,
                 startRow = 0,

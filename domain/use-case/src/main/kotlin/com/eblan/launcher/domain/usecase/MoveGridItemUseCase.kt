@@ -4,6 +4,7 @@ import com.eblan.launcher.domain.grid.getGridItemByCoordinates
 import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.rectanglesOverlap
+import com.eblan.launcher.domain.grid.resolveConflictsWhenGrouping
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
@@ -75,7 +76,12 @@ class MoveGridItemUseCase @Inject constructor(
                     }
 
                     ResolveDirection.Center -> {
-
+                        resolvedConflictsGridItems = resolveConflictsWhenGrouping(
+                            gridItems = gridItems,
+                            moving = movingGridItem,
+                            folderRows = rows,
+                            folderColumns = columns,
+                        )
                     }
                 }
 

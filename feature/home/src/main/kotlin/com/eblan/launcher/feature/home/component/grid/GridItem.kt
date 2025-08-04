@@ -2,7 +2,9 @@ package com.eblan.launcher.feature.home.component.grid
 
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -113,6 +115,65 @@ fun ShortcutInfoGridItem(
 
         Text(
             text = data.shortLabel,
+            modifier = Modifier.weight(1f),
+            color = color,
+            textAlign = TextAlign.Center,
+            fontSize = TextUnit(
+                value = 10f,
+                type = TextUnitType.Sp,
+            ),
+        )
+    }
+}
+
+@Composable
+fun FolderGridItem(
+    modifier: Modifier,
+    data: GridItemData.Folder,
+    color: Color,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            maxItemsInEachRow = 2,
+        ) {
+            data.gridItems.take(4).forEach { gridItem ->
+                when (val currentData = gridItem.data) {
+                    is GridItemData.ApplicationInfo -> {
+                        AsyncImage(
+                            model = currentData.icon,
+                            contentDescription = null,
+                        )
+                    }
+
+                    is GridItemData.Folder -> {
+
+                    }
+
+                    is GridItemData.ShortcutInfo -> {
+                        AsyncImage(
+                            model = currentData.icon,
+                            contentDescription = null,
+                        )
+                    }
+
+                    is GridItemData.Widget -> {
+                        AsyncImage(
+                            model = currentData.preview,
+                            contentDescription = null,
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = data.label,
             modifier = Modifier.weight(1f),
             color = color,
             textAlign = TextAlign.Center,

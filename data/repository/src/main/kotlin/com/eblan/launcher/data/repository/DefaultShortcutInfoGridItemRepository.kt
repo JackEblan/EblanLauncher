@@ -13,7 +13,7 @@ internal class DefaultShortcutInfoGridItemRepository @Inject constructor(private
     ShortcutInfoGridItemRepository {
     override val shortcutInfoGridItems =
         shortcutInfoGridItemDao.getShortcutInfoGridItemEntities().map { entities ->
-            entities.filterNot { entity -> entity.folderId == null }
+            entities.filter { entity -> entity.folderId == null }
                 .map { entity ->
                     entity.asGridItem()
                 }

@@ -287,7 +287,6 @@ fun getWidgetGridItem(
 
     return GridItem(
         id = id,
-        folderId = null,
         page = page,
         startRow = 0,
         startColumn = 0,
@@ -295,5 +294,6 @@ fun getWidgetGridItem(
         columnSpan = checkedColumnSpan,
         data = data,
         associate = Associate.Grid,
+        zIndex = 0,
     )
 }

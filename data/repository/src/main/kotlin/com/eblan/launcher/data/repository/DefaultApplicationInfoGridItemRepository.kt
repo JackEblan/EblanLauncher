@@ -13,10 +13,9 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
     ApplicationInfoGridItemRepository {
     override val applicationInfoGridItems =
         applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
-            entities.filter { entity -> entity.folderId == null }
-                .map { entity ->
-                    entity.asGridItem()
-                }
+            entities.map { entity ->
+                entity.asGridItem()
+            }
         }
 
     override suspend fun upsertApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>) {

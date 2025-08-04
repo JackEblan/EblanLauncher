@@ -136,7 +136,6 @@ fun handlePinItemRequest(
             GridItemSource.Pin(
                 gridItem = GridItem(
                     id = shortcutInfo.id,
-                    folderId = null,
                     page = targetPage,
                     startRow = 0,
                     startColumn = 0,
@@ -144,6 +143,7 @@ fun handlePinItemRequest(
                     columnSpan = 1,
                     data = data,
                     associate = Associate.Grid,
+                    zIndex = 0,
                 ),
                 pinItemRequest = pinItemRequest,
             )

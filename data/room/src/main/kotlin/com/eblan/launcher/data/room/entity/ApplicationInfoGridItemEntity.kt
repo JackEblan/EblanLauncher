@@ -20,7 +20,6 @@ import com.eblan.launcher.domain.model.Associate
 data class ApplicationInfoGridItemEntity(
     @PrimaryKey
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,
@@ -31,4 +30,5 @@ data class ApplicationInfoGridItemEntity(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    val zIndex: Int,
 )

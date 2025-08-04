@@ -2,7 +2,6 @@ package com.eblan.launcher.domain.model
 
 data class ApplicationInfoGridItem(
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,
@@ -13,4 +12,5 @@ data class ApplicationInfoGridItem(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    val zIndex: Int,
 )

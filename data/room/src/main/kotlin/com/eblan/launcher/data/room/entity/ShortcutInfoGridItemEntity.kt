@@ -20,7 +20,6 @@ import com.eblan.launcher.domain.model.Associate
 data class ShortcutInfoGridItemEntity(
     @PrimaryKey
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,
@@ -32,4 +31,5 @@ data class ShortcutInfoGridItemEntity(
     val shortLabel: String,
     val longLabel: String,
     val icon: String?,
+    val zIndex: Int,
 )

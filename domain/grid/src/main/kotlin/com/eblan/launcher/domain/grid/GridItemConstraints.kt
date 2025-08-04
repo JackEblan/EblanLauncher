@@ -224,3 +224,20 @@ fun getWidgetGridItemSize(
 
     return width to height
 }
+
+fun findOverlappingGridItems(gridItems: List<GridItem>): List<GridItem> {
+    val overlappingItems = mutableSetOf<GridItem>()
+
+    for (i in gridItems.indices) {
+        for (j in i + 1 until gridItems.size) {
+            val a = gridItems[i]
+            val b = gridItems[j]
+            if (rectanglesOverlap(a, b)) {
+                overlappingItems += a
+                overlappingItems += b
+            }
+        }
+    }
+
+    return overlappingItems.toList()
+}

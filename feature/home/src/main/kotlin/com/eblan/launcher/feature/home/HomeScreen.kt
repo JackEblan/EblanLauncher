@@ -421,9 +421,7 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = {
-                        onResetGridCache(gridItems)
-                    },
+                    onResizeEnd = onResetGridCache,
                 )
             }
 

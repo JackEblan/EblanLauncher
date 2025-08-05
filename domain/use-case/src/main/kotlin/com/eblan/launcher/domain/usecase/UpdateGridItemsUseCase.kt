@@ -128,5 +128,4 @@ class UpdateGridItemsUseCase @Inject constructor(
             folderGridItemRepository.upsertFolderGridItems(folderGridItems = folderGridItems)
         }
     }
-
 }

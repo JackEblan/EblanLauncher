@@ -28,6 +28,7 @@ import com.eblan.launcher.domain.grid.resizeWidgetGridItemWithPixels
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.SideAnchor
+import com.eblan.launcher.feature.home.model.Drag
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -35,7 +36,7 @@ import kotlin.math.roundToInt
 fun WidgetGridItemResizeOverlay(
     modifier: Modifier = Modifier,
     gridPadding: Int,
-    gridItems: List<GridItem>?,
+    gridItems: List<GridItem>,
     gridItem: GridItem,
     gridWidth: Int,
     gridHeight: Int,
@@ -55,7 +56,7 @@ fun WidgetGridItemResizeOverlay(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onResizeEnd: () -> Unit,
+    onResizeEnd: (List<GridItem>) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -118,6 +119,12 @@ fun WidgetGridItemResizeOverlay(
             }
         }
     }
+
+    var drag by remember { mutableStateOf(Drag.None) }
+
+    val circleModifier = Modifier
+        .size(dragHandleSize)
+        .background(color = color, shape = CircleShape)
 
     LaunchedEffect(key1 = width, key2 = height) {
         delay(250L)
@@ -202,7 +209,7 @@ fun WidgetGridItemResizeOverlay(
             )
         ) {
             onResizeWidgetGridItem(
-                gridItems.orEmpty(),
+                gridItems,
                 resizingGridItem,
                 rows,
                 columns,
@@ -210,9 +217,11 @@ fun WidgetGridItemResizeOverlay(
         }
     }
 
-    val circleModifier = Modifier
-        .size(dragHandleSize)
-        .background(color = color, shape = CircleShape)
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.End) {
+            onResizeEnd(gridItems)
+        }
+    }
 
     Box(
         modifier = modifier
@@ -236,7 +245,9 @@ fun WidgetGridItemResizeOverlay(
                                 onDragStart = {
                                     dragHandle = Alignment.TopCenter
                                 },
-                                onDragEnd = onResizeEnd,
+                                onDragEnd = {
+                                    drag = Drag.End
+                                },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
                                     val dragAmountY = with(density) {
@@ -264,7 +275,9 @@ fun WidgetGridItemResizeOverlay(
                                 onDragStart = {
                                     dragHandle = Alignment.CenterEnd
                                 },
-                                onDragEnd = onResizeEnd,
+                                onDragEnd = {
+                                    drag = Drag.End
+                                },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
                                     val dragAmountX = with(density) {
@@ -290,7 +303,9 @@ fun WidgetGridItemResizeOverlay(
                                 onDragStart = {
                                     dragHandle = Alignment.BottomCenter
                                 },
-                                onDragEnd = onResizeEnd,
+                                onDragEnd = {
+                                    drag = Drag.End
+                                },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
                                     val dragAmountY = with(density) {
@@ -316,7 +331,9 @@ fun WidgetGridItemResizeOverlay(
                                 onDragStart = {
                                     dragHandle = Alignment.CenterStart
                                 },
-                                onDragEnd = onResizeEnd,
+                                onDragEnd = {
+                                    drag = Drag.End
+                                },
                                 onDrag = { change, dragAmount ->
                                     change.consume()
                                     val dragAmountX = with(density) {

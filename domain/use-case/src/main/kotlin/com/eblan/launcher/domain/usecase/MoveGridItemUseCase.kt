@@ -66,23 +66,25 @@ class MoveGridItemUseCase @Inject constructor(
                     gridWidth = gridWidth,
                 )
 
-                resolvedConflictsGridItems = when (resolveDirection) {
+                when (resolveDirection) {
                     ResolveDirection.Start, ResolveDirection.End -> {
-                        resolveConflictsWhenMoving(
+                        resolvedConflictsGridItems = resolveConflictsWhenMoving(
                             gridItems = gridItems,
                             resolveDirection = resolveDirection,
                             moving = movingGridItem,
                             rows = rows,
                             columns = columns,
                         )
+
+                        conflictingGridItem = null
                     }
 
                     ResolveDirection.Center -> {
-                        gridItems
+                        resolvedConflictsGridItems = gridItems
+
+                        conflictingGridItem = gridItemByCoordinates
                     }
                 }
-
-                conflictingGridItem = gridItemByCoordinates
 
             } else if (gridItemBySpan != null) {
                 val resolveDirection = getResolveDirectionBySpan(
@@ -98,7 +100,7 @@ class MoveGridItemUseCase @Inject constructor(
                     columns = columns,
                 )
 
-                conflictingGridItem = gridItemBySpan
+                conflictingGridItem = null
             } else {
                 resolvedConflictsGridItems = gridItems
 

@@ -127,15 +127,13 @@ class HomeViewModel @Inject constructor(
 
             moveGridItemJob = launch {
                 delay(defaultDelay)
-// Todo We add a flag that resize is success
-//                _moveGridItemResult.update {
-//                    resizeGridItemUseCase(
-//                        gridItems = gridItems.toMutableList(),
-//                        resizingGridItem = resizingGridItem,
-//                        rows = rows,
-//                        columns = columns,
-//                    )
-//                }
+
+                resizeGridItemUseCase(
+                    gridItems = gridItems.toMutableList(),
+                    resizingGridItem = resizingGridItem,
+                    rows = rows,
+                    columns = columns,
+                )
             }
         }
     }

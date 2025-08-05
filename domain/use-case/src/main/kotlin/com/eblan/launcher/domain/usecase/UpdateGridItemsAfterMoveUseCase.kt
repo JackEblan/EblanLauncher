@@ -13,7 +13,6 @@ import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.uuid.ExperimentalUuidApi
 
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
@@ -21,7 +20,6 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
 ) {
-    @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
         gridItems: MutableList<GridItem>,
         movingGridItem: GridItem,

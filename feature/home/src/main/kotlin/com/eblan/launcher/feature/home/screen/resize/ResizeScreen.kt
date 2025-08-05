@@ -48,9 +48,11 @@ fun ResizeScreen(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onResizeEnd: () -> Unit,
+    onResizeEnd: (List<GridItem>) -> Unit,
 ) {
     requireNotNull(gridItem)
+
+    requireNotNull(gridItems)
 
     val density = LocalDensity.current
 
@@ -84,7 +86,7 @@ fun ResizeScreen(
             rows = rows,
             columns = columns,
         ) {
-            gridItems?.forEach { gridItem ->
+            gridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     color = color,

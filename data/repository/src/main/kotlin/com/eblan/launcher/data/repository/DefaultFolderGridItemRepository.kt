@@ -17,7 +17,7 @@ internal class DefaultFolderGridItemRepository @Inject constructor(private val f
             }
         }
 
-    override suspend fun upsertFolderGridItemEntities(folderGridItems: List<FolderGridItem>) {
+    override suspend fun upsertFolderGridItems(folderGridItems: List<FolderGridItem>) {
         val entities = folderGridItems.map { folderGridItem ->
             folderGridItem.asEntity()
         }

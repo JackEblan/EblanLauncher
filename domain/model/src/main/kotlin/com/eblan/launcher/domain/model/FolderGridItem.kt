@@ -9,7 +9,4 @@ data class FolderGridItem(
     val columnSpan: Int,
     val associate: Associate,
     val label: String,
-    val applicationInfos: List<ApplicationInfoGridItem>?,
-    val widgets: List<WidgetGridItem>?,
-    val shortcutInfos: List<ShortcutInfoGridItem>?,
 )

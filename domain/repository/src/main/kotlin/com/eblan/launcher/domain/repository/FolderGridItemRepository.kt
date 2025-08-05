@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface FolderGridItemRepository {
     val folderGridItems: Flow<List<GridItem>>
 
-    suspend fun upsertFolderGridItemEntities(folderGridItems: List<FolderGridItem>)
+    suspend fun upsertFolderGridItems(folderGridItems: List<FolderGridItem>)
 
     suspend fun upsertFolderGridItem(folderGridItem: FolderGridItem): Long
 

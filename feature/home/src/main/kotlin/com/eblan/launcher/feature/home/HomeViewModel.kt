@@ -14,6 +14,7 @@ import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdateMoveGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -43,6 +44,7 @@ class HomeViewModel @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val updateMoveGridItemsUseCase: UpdateMoveGridItemsUseCase,
 ) : ViewModel() {
 
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -206,7 +208,39 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache(gridItems: List<GridItem>) {
         viewModelScope.launch {
-            updateGridItemsUseCase(gridItems = gridItems)
+            updateGridItemsUseCase(gridItems = gridItems.toMutableList())
+
+            gridCacheRepository.updateIsCache(isCache = false)
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
+        }
+    }
+
+    fun resetGridCacheAfterMove(
+        gridItems: MutableList<GridItem>,
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        rows: Int,
+        columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) {
+        viewModelScope.launch {
+            updateMoveGridItemsUseCase(
+                gridItems = gridItems.toMutableList(),
+                movingGridItem = movingGridItem,
+                x = x,
+                y = y,
+                rows = rows,
+                columns = columns,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+            )
 
             gridCacheRepository.updateIsCache(isCache = false)
 

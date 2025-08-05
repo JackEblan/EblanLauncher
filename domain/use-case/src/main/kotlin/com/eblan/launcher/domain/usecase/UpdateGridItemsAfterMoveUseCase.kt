@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
@@ -46,18 +45,31 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
                 when (conflictingGridItem.data) {
                     is GridItemData.Folder -> {
-                        // Add moving to folder by copying the same folderId
                         gridItems[movingIndex] =
-                            movingGridItem.copy(folderId = conflictingGridItem.folderId)
+                            movingGridItem.copy(folderId = conflictingGridItem.id)
                     }
 
                     else -> {
-                        // Assign the same folderId of these two
-                        val folderId = Uuid.random().toHexString()
+                        val folderId = conflictingGridItem.id
 
-                        gridItems[movingIndex] = movingGridItem.copy(folderId = folderId)
+                        val conflictingGridItemWithNewFolderId =
+                            conflictingGridItem.copy(folderId = folderId)
 
-                        gridItems[conflictingIndex] = conflictingGridItem.copy(folderId = folderId)
+                        val movingGridItemWithNewFolderId = movingGridItem.copy(folderId = folderId)
+
+                        val newData = GridItemData.Folder(
+                            label = "Unknown",
+                            gridItems = listOf(
+                                movingGridItemWithNewFolderId,
+                                conflictingGridItemWithNewFolderId,
+                            ),
+                        )
+
+                        gridItems[conflictingIndex] = conflictingGridItemWithNewFolderId
+
+                        gridItems[movingIndex] = movingGridItemWithNewFolderId
+
+                        gridItems.add(conflictingGridItemWithNewFolderId.copy(data = newData))
                     }
                 }
             }

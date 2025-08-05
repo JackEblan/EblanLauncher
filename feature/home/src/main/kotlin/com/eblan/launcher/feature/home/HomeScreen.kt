@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
@@ -54,7 +55,7 @@ fun HomeRoute(
 
     val eblanApplicationComponentUiState by viewModel.eblanApplicationComponentUiState.collectAsStateWithLifecycle()
 
-    val movedGridItems by viewModel.movedGridItems.collectAsStateWithLifecycle()
+    val movedGridItemResult by viewModel.movedGridItemResult.collectAsStateWithLifecycle()
 
     val updatedGridItem by viewModel.updatedGridItem.collectAsStateWithLifecycle()
 
@@ -65,13 +66,14 @@ fun HomeRoute(
         screen = screen,
         homeUiState = homeUiState,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-        movedGridItems = movedGridItems,
+        movedGridItemResult = movedGridItemResult,
         updatedGridItem = updatedGridItem,
         pageItems = pageItems,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
         onResetGridCache = viewModel::resetGridCache,
+        onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onCancelGridCache = viewModel::cancelGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
@@ -89,7 +91,7 @@ fun HomeScreen(
     screen: Screen,
     homeUiState: HomeUiState,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    movedGridItems: Boolean,
+    movedGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     pageItems: List<PageItem>,
     onMoveGridItem: (
@@ -113,6 +115,11 @@ fun HomeScreen(
         screen: Screen,
     ) -> Unit,
     onResetGridCache: (List<GridItem>) -> Unit,
+    onResetGridCacheAfterMove: (
+        gridItems: List<GridItem>,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -203,7 +210,7 @@ fun HomeScreen(
                         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                         dockGridItems = homeUiState.homeData.dockGridItems,
                         pageItems = pageItems,
-                        movedGridItems = movedGridItems,
+                        movedGridItemResult = movedGridItemResult,
                         rootWidth = constraints.maxWidth,
                         rootHeight = constraints.maxHeight,
                         dragIntOffset = dragIntOffset,
@@ -215,6 +222,7 @@ fun HomeScreen(
                         onResizeGridItem = onResizeGridItem,
                         onShowGridCache = onShowGridCache,
                         onResetGridCache = onResetGridCache,
+                        onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                         onCancelGridCache = onCancelGridCache,
                         onEdit = onEdit,
                         onSettings = onSettings,
@@ -240,7 +248,7 @@ private fun Success(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     dockGridItems: List<GridItem>,
     pageItems: List<PageItem>,
-    movedGridItems: Boolean,
+    movedGridItemResult: MoveGridItemResult?,
     rootWidth: Int,
     rootHeight: Int,
     dragIntOffset: IntOffset,
@@ -269,6 +277,11 @@ private fun Success(
         screen: Screen,
     ) -> Unit,
     onResetGridCache: (List<GridItem>) -> Unit,
+    onResetGridCacheAfterMove: (
+        gridItems: List<GridItem>,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -365,9 +378,10 @@ private fun Success(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     dockHeight = userData.homeSettings.dockHeight,
+                    gridItems = gridItems,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
-                    movedGridItems = movedGridItems,
+                    movedGridItemResult = movedGridItemResult,
                     updatedGridItem = updatedGridItem,
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = {
@@ -377,6 +391,11 @@ private fun Success(
                         targetPage = newTargetPage
 
                         onResetGridCache(gridItems)
+                    },
+                    onDragEndAfterMove = { newTargetPage, gridItems, movingGridItem, conflictingGridItem ->
+                        targetPage = newTargetPage
+
+                        onResetGridCacheAfterMove(gridItems, movingGridItem, conflictingGridItem)
                     },
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage

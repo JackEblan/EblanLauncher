@@ -20,7 +20,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
 ) {
-    suspend operator fun invoke(gridItems: MutableList<GridItem>) {
+    suspend operator fun invoke(gridItems: List<GridItem>) {
         withContext(Dispatchers.Default) {
             val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 

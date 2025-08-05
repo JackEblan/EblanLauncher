@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.drag
 
+import android.app.Activity
 import android.appwidget.AppWidgetManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +36,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -63,9 +65,10 @@ fun DragScreen(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
+    gridItems: List<GridItem>,
     dockGridItems: List<GridItem>,
     textColor: Long,
-    movedGridItems: Boolean,
+    movedGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     onMoveGridItem: (
         gridItems: List<GridItem>,
@@ -79,6 +82,12 @@ fun DragScreen(
     ) -> Unit,
     onDragCancel: () -> Unit,
     onDragEnd: (Int) -> Unit,
+    onDragEndAfterMove: (
+        targetPage: Int,
+        gridItems: List<GridItem>,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
     onMoveGridItemsFailed: (Int) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
@@ -125,15 +134,19 @@ fun DragScreen(
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        handleConfigureLauncherResult(
-            currentPage = horizontalPagerState.currentPage,
+        requireNotNull(updatedGridItem)
+
+        if (result.resultCode == Activity.RESULT_CANCELED) {
+            onDeleteGridItemCache(updatedGridItem)
+        }
+
+        val targetPage = calculatePage(
+            index = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
-            resultCode = result.resultCode,
-            updatedGridItem = updatedGridItem,
-            onDeleteGridItemCache = onDeleteGridItemCache,
-            onDragEnd = onDragEnd,
         )
+
+        onDragEnd(targetPage)
     }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
@@ -194,12 +207,13 @@ fun DragScreen(
                     currentPage = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
                     pageCount = pageCount,
-                    movedGridItems = movedGridItems,
+                    moveGridItemResult = movedGridItemResult,
                     androidAppWidgetHostWrapper = appWidgetHostWrapper,
                     appWidgetManager = appWidgetManager,
                     gridItemSource = gridItemSource,
+                    gridItems = gridItems,
                     onLaunch = appWidgetLauncher::launch,
-                    onDragEnd = onDragEnd,
+                    onDragEndAfterMove = onDragEndAfterMove,
                     onMoveGridItemsFailed = onMoveGridItemsFailed,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
@@ -310,7 +324,7 @@ private fun GridItemContent(
     gridItemSource: GridItemSource,
     drag: Drag,
 ) {
-    key(gridItem.id){
+    key(gridItem.id) {
         LookaheadScope {
             val gridItemModifier = modifier
                 .animateBounds(this)

@@ -6,6 +6,7 @@ import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,7 @@ class MoveGridItemUseCase @Inject constructor(
         columns: Int,
         gridWidth: Int,
         gridHeight: Int,
-    ): List<GridItem>? {
+    ): MoveGridItemResult {
         return withContext(Dispatchers.Default) {
             val index =
                 gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
@@ -55,6 +56,8 @@ class MoveGridItemUseCase @Inject constructor(
 
             val resolvedConflictsGridItems: List<GridItem>?
 
+            val conflictingGridItem: GridItem?
+
             if (gridItemByCoordinates != null) {
                 val resolveDirection = getResolveDirectionByX(
                     gridItem = gridItemByCoordinates,
@@ -79,6 +82,7 @@ class MoveGridItemUseCase @Inject constructor(
                     }
                 }
 
+                conflictingGridItem = gridItemByCoordinates
 
             } else if (gridItemBySpan != null) {
                 val resolveDirection = getResolveDirectionBySpan(
@@ -93,15 +97,23 @@ class MoveGridItemUseCase @Inject constructor(
                     rows = rows,
                     columns = columns,
                 )
+
+                conflictingGridItem = gridItemBySpan
             } else {
                 resolvedConflictsGridItems = gridItems
+
+                conflictingGridItem = null
             }
 
             if (resolvedConflictsGridItems != null) {
                 gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
             }
 
-            resolvedConflictsGridItems
+            MoveGridItemResult(
+                gridItems = resolvedConflictsGridItems,
+                movingGridItem = movingGridItem,
+                conflictingGridItem = conflictingGridItem,
+            )
         }
     }
 }

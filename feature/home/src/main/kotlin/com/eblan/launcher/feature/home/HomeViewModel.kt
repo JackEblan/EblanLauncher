@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
@@ -13,8 +14,8 @@ import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
-import com.eblan.launcher.domain.usecase.UpdateMoveGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -44,7 +45,7 @@ class HomeViewModel @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
-    private val updateMoveGridItemsUseCase: UpdateMoveGridItemsUseCase,
+    private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
 ) : ViewModel() {
 
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -65,9 +66,9 @@ class HomeViewModel @Inject constructor(
 
     val screen = _screen.asStateFlow()
 
-    private var _movedGridItems = MutableStateFlow(false)
+    private var _moveGridItemResult = MutableStateFlow<MoveGridItemResult?>(null)
 
-    val movedGridItems = _movedGridItems.asStateFlow()
+    val movedGridItemResult = _moveGridItemResult.asStateFlow()
 
     private val defaultDelay = 500L
 
@@ -99,7 +100,7 @@ class HomeViewModel @Inject constructor(
             moveGridItemJob = launch {
                 delay(defaultDelay)
 
-                _movedGridItems.update {
+                _moveGridItemResult.update {
                     moveGridItemUseCase(
                         gridItems = gridItems.toMutableList(),
                         movingGridItem = movingGridItem,
@@ -109,7 +110,7 @@ class HomeViewModel @Inject constructor(
                         columns = columns,
                         gridWidth = gridWidth,
                         gridHeight = gridHeight,
-                    ) != null
+                    )
                 }
             }
         }
@@ -126,15 +127,15 @@ class HomeViewModel @Inject constructor(
 
             moveGridItemJob = launch {
                 delay(defaultDelay)
-
-                _movedGridItems.update {
-                    resizeGridItemUseCase(
-                        gridItems = gridItems.toMutableList(),
-                        resizingGridItem = resizingGridItem,
-                        rows = rows,
-                        columns = columns,
-                    ) != null
-                }
+// Todo We add a flag that resize is success
+//                _moveGridItemResult.update {
+//                    resizeGridItemUseCase(
+//                        gridItems = gridItems.toMutableList(),
+//                        resizingGridItem = resizingGridItem,
+//                        rows = rows,
+//                        columns = columns,
+//                    )
+//                }
             }
         }
     }
@@ -208,7 +209,7 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache(gridItems: List<GridItem>) {
         viewModelScope.launch {
-            updateGridItemsUseCase(gridItems = gridItems.toMutableList())
+            updateGridItemsUseCase(gridItems = gridItems)
 
             gridCacheRepository.updateIsCache(isCache = false)
 
@@ -221,25 +222,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetGridCacheAfterMove(
-        gridItems: MutableList<GridItem>,
+        gridItems: List<GridItem>,
         movingGridItem: GridItem,
-        x: Int,
-        y: Int,
-        rows: Int,
-        columns: Int,
-        gridWidth: Int,
-        gridHeight: Int,
+        conflictingGridItem: GridItem?,
     ) {
         viewModelScope.launch {
-            updateMoveGridItemsUseCase(
+            updateGridItemsAfterMoveUseCase(
                 gridItems = gridItems.toMutableList(),
                 movingGridItem = movingGridItem,
-                x = x,
-                y = y,
-                rows = rows,
-                columns = columns,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
+                conflictingGridItem = conflictingGridItem,
             )
 
             gridCacheRepository.updateIsCache(isCache = false)

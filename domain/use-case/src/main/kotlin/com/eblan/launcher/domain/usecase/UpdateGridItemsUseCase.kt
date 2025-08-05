@@ -49,6 +49,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
                     is GridItemData.Folder -> {
                         addFolderGridItems(
+                            page = gridItem.page,
                             startRow = gridItem.startRow,
                             startColumn = gridItem.startColumn,
                             associate = gridItem.associate,
@@ -121,6 +122,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     }
 
     private fun addFolderGridItems(
+        page: Int,
         startRow: Int,
         startColumn: Int,
         associate: Associate,
@@ -135,7 +137,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                     applicationInfoGridItems.add(
                         toApplicationInfoGridItem(
                             id = folderGridItem.id,
-                            page = folderGridItem.page,
+                            page = page,
                             startRow = startRow,
                             startColumn = startColumn,
                             rowSpan = folderGridItem.rowSpan,
@@ -154,7 +156,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                     shortcutInfoGridItems.add(
                         toShortcutInfoGridItem(
                             id = folderGridItem.id,
-                            page = folderGridItem.page,
+                            page = page,
                             startRow = startRow,
                             startColumn = startColumn,
                             rowSpan = folderGridItem.rowSpan,
@@ -174,7 +176,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                     widgetGridItems.add(
                         toWidgetGridItem(
                             id = folderGridItem.id,
-                            page = folderGridItem.page,
+                            page = page,
                             startRow = startRow,
                             startColumn = startColumn,
                             rowSpan = folderGridItem.rowSpan,

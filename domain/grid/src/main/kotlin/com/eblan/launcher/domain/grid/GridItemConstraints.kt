@@ -1,13 +1,15 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ResolveDirection
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 
 fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boolean {
-    return gridItem.startRow in 0 until rows && gridItem.startColumn in 0 until columns && gridItem.startRow + gridItem.rowSpan <= rows && gridItem.startColumn + gridItem.columnSpan <= columns
+    return gridItem.startRow in 0 until rows &&
+            gridItem.startColumn in 0 until columns &&
+            gridItem.startRow + gridItem.rowSpan <= rows &&
+            gridItem.startColumn + gridItem.columnSpan <= columns
 }
 
 fun rectanglesOverlap(moving: GridItem, other: GridItem): Boolean {
@@ -206,51 +208,5 @@ fun getWidgetGridItemSize(
     }
 
     return width to height
-}
-
-fun groupOverlappingGridItems(gridItems: List<GridItem>): List<List<GridItem>> {
-    val visited = mutableSetOf<GridItem>()
-    val groups = mutableListOf<List<GridItem>>()
-
-    for (item in gridItems) {
-        if (item in visited) continue
-
-        val group = mutableListOf<GridItem>()
-        val queue = ArrayDeque<GridItem>()
-        queue += item
-
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            if (current in visited) continue
-
-            visited += current
-            group += current
-
-            val neighbors = gridItems.filter { it !in visited && rectanglesOverlap(current, it) }
-            queue += neighbors
-        }
-
-        if (group.size > 1) {
-            groups += group
-        }
-    }
-
-    return groups
-}
-
-fun findGridItemOverlappingWithFolder(gridItems: List<GridItem>): GridItem? {
-    for (a in gridItems) {
-        for (b in gridItems) {
-            if (a != b && b.data is GridItemData.Folder && rectanglesOverlap(
-                    moving = a,
-                    other = b,
-                )
-            ) {
-                return a
-            }
-        }
-    }
-
-    return null
 }
 

@@ -45,11 +45,9 @@ class UpdatePageItemsUseCase @Inject constructor(
                 userDataRepository.updateInitialPage(initialPage = newInitialPage)
             }
 
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
-
             userDataRepository.updatePageCount(pageCount = pageItems.size)
 
-            updateGridItemsUseCase()
+            updateGridItemsUseCase(gridItems = gridItems)
         }
     }
 }

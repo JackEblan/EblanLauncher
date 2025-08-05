@@ -3,55 +3,30 @@ package com.eblan.launcher.domain.grid
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 
-fun resolveConflictsWhenFolding(
+fun moveGridItemIntoFolder(
     gridItems: MutableList<GridItem>,
     moving: GridItem,
+    conflicting: GridItem,
 ): List<GridItem>? {
-    return if (moveGridItemIntoFolder(
-            gridItems = gridItems,
-            moving = moving,
-        )
-    ) {
-        gridItems
+    if (moving.data is GridItemData.Folder) return null
+
+    val data = conflicting.data
+
+    if (data is GridItemData.Folder) {
+        val zIndex = data.gridItems.maxOf { it.zIndex }
+
+        val conflictingIndex = gridItems.indexOfFirst { it.id == conflicting.id }
+
+        gridItems[conflictingIndex] = conflicting.copy(zIndex = zIndex)
     } else {
-        null
-    }
-}
+        val conflictingIndex = gridItems.indexOfFirst { it.id == conflicting.id }
 
-private fun moveGridItemIntoFolder(
-    gridItems: MutableList<GridItem>,
-    moving: GridItem,
-): Boolean {
-    for (gridItem in gridItems) {
-        val isOverlapping = gridItem.id != moving.id && rectanglesOverlap(
-            moving = moving,
-            other = gridItem,
-        )
+        val movingIndex = gridItems.indexOfFirst { it.id == moving.id }
 
-        if (!isOverlapping) {
-            continue
-        }
+        gridItems[conflictingIndex] = conflicting.copy(zIndex = 0)
 
-        val data = gridItem.data
-
-        if (data is GridItemData.Folder) {
-            val zIndex = data.gridItems.maxOf { it.zIndex }
-
-            val movingIndex = gridItems.indexOfFirst { it.id == moving.id }
-
-            gridItems[movingIndex] = moving.copy(zIndex = zIndex + 1)
-        } else {
-            val firstIndex = gridItems.indexOfFirst { it.id == gridItem.id }
-
-            val secondIndex = gridItems.indexOfFirst { it.id == moving.id }
-
-            gridItems[firstIndex] = gridItem.copy(zIndex = 0)
-
-            gridItems[secondIndex] = moving.copy(zIndex = 1)
-        }
-
-        return true
+        gridItems[movingIndex] = moving.copy(zIndex = 1)
     }
 
-    return false
+    return gridItems
 }

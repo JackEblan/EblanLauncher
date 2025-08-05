@@ -3,8 +3,8 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.getGridItemByCoordinates
 import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
+import com.eblan.launcher.domain.grid.moveGridItemIntoFolder
 import com.eblan.launcher.domain.grid.rectanglesOverlap
-import com.eblan.launcher.domain.grid.resolveConflictsWhenFolding
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
@@ -76,9 +76,10 @@ class MoveGridItemUseCase @Inject constructor(
                     }
 
                     ResolveDirection.Center -> {
-                        resolvedConflictsGridItems = resolveConflictsWhenFolding(
+                        resolvedConflictsGridItems = moveGridItemIntoFolder(
                             gridItems = gridItems,
                             moving = movingGridItem,
+                            conflicting = gridItemByCoordinates,
                         )
                     }
                 }

@@ -10,7 +10,6 @@ import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -18,9 +17,8 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val getGridItemsUseCase: GetGridItemsUseCase,
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(gridItems: List<GridItem>) {
         withContext(Dispatchers.Default) {
             val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
@@ -28,7 +26,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
             val shortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
 
-            getGridItemsUseCase().first().map { gridItem ->
+            gridItems.map { gridItem ->
                 when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         applicationInfoGridItems.add(

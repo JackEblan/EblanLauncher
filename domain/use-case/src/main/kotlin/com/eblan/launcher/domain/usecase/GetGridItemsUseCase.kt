@@ -34,30 +34,31 @@ class GetGridItemsUseCase @Inject constructor(
                     shortcutInfoGridItemRepository.shortcutInfoGridItems,
                 ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems ->
                     applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems
+                }.map { gridItems ->
+                    gridItems
+                        .groupBy { it.page }
+                        .flatMap { (_, gridItemsByPage) ->
+                            val overlappingGroups =
+                                groupOverlappingGridItems(gridItems = gridItemsByPage)
+
+                            val folderGridItems = overlappingGroups.map { group ->
+                                group.minBy { it.zIndex }.copy(
+                                    id = Uuid.random().toHexString(),
+                                    data = GridItemData.Folder(
+                                        label = "Unknown",
+                                        gridItems = group,
+                                    ),
+                                )
+                            }
+
+                            val groupedItems = overlappingGroups.flatten().toSet()
+
+                            val remaining = gridItemsByPage.filterNot { it in groupedItems }
+
+                            remaining + folderGridItems
+                        }
                 }
             }
-        }.map { gridItems ->
-            gridItems
-                .groupBy { it.page }
-                .flatMap { (_, gridItemsByPage) ->
-                    val overlappingGroups = groupOverlappingGridItems(gridItems = gridItemsByPage)
-
-                    val folderGridItems = overlappingGroups.map { group ->
-                        group.minBy { it.zIndex }.copy(
-                            id = Uuid.random().toHexString(),
-                            data = GridItemData.Folder(
-                                label = "Unknown",
-                                gridItems = group,
-                            ),
-                        )
-                    }
-
-                    val groupedItems = overlappingGroups.flatten().toSet()
-
-                    val remaining = gridItemsByPage.filterNot { it in groupedItems }
-
-                    remaining + folderGridItems
-                }
         }
     }
 }

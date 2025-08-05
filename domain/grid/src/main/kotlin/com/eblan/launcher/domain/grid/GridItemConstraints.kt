@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ResolveDirection
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
@@ -236,3 +237,20 @@ fun groupOverlappingGridItems(gridItems: List<GridItem>): List<List<GridItem>> {
 
     return groups
 }
+
+fun findGridItemOverlappingWithFolder(gridItems: List<GridItem>): GridItem? {
+    for (a in gridItems) {
+        for (b in gridItems) {
+            if (a != b && b.data is GridItemData.Folder && rectanglesOverlap(
+                    moving = a,
+                    other = b,
+                )
+            ) {
+                return a
+            }
+        }
+    }
+
+    return null
+}
+

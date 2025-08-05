@@ -8,10 +8,12 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
+import com.eblan.launcher.domain.usecase.GetGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +25,7 @@ class PinViewModel @Inject constructor(
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val getGridItemsUseCase: GetGridItemsUseCase,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -128,7 +131,7 @@ class PinViewModel @Inject constructor(
 
     fun updateGridItems() {
         viewModelScope.launch {
-            updateGridItemsUseCase()
+            updateGridItemsUseCase(gridItems = getGridItemsUseCase().first())
 
             _isFinished.update {
                 true

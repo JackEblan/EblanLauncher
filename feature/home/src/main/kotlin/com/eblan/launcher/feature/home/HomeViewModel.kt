@@ -204,9 +204,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCache() {
+    fun resetGridCache(gridItems: List<GridItem>) {
         viewModelScope.launch {
-            updateGridItemsUseCase()
+            updateGridItemsUseCase(gridItems = gridItems)
 
             gridCacheRepository.updateIsCache(isCache = false)
 

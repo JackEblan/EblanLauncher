@@ -112,7 +112,7 @@ fun HomeScreen(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCache: () -> Unit,
+    onResetGridCache: (List<GridItem>) -> Unit,
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -268,7 +268,7 @@ private fun Success(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCache: () -> Unit,
+    onResetGridCache: (List<GridItem>) -> Unit,
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -370,11 +370,13 @@ private fun Success(
                     movedGridItems = movedGridItems,
                     updatedGridItem = updatedGridItem,
                     onMoveGridItem = onMoveGridItem,
-                    onDragCancel = onResetGridCache,
+                    onDragCancel = {
+                        onResetGridCache(gridItems)
+                    },
                     onDragEnd = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        onResetGridCache()
+                        onResetGridCache(gridItems)
                     },
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage
@@ -400,7 +402,9 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = onResetGridCache,
+                    onResizeEnd = {
+                        onResetGridCache(gridItems)
+                    },
                 )
             }
 

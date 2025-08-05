@@ -146,6 +146,7 @@ fun ApplicationScreen(
                                                     GridItemSource.New(
                                                         gridItem = GridItem(
                                                             id = Uuid.random().toHexString(),
+                                                            folderId = null,
                                                             page = page,
                                                             startRow = 0,
                                                             startColumn = 0,
@@ -153,7 +154,6 @@ fun ApplicationScreen(
                                                             columnSpan = 1,
                                                             data = data,
                                                             associate = Associate.Grid,
-                                                            zIndex = 0,
                                                         ),
                                                     ),
                                                 )

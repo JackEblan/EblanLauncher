@@ -105,6 +105,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val gridItem = GridItem(
                 id = Uuid.random().toHexString(),
+                folderId = null,
                 page = initialPage,
                 startRow = 0,
                 startColumn = 0,
@@ -112,7 +113,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 columnSpan = checkedColumnSpan,
                 data = data,
                 associate = Associate.Grid,
-                zIndex = 0,
             )
 
             val newGridItem = findAvailableRegionByPage(

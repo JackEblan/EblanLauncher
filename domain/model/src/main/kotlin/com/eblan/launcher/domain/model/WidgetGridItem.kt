@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.model
 
 data class WidgetGridItem(
     val id: String,
+    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,
@@ -22,5 +23,4 @@ data class WidgetGridItem(
     val targetCellHeight: Int,
     val targetCellWidth: Int,
     val preview: String?,
-    val zIndex: Int,
 )

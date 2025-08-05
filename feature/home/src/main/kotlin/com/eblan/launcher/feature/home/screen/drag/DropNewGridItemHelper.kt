@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResult
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
@@ -19,13 +20,19 @@ fun handleOnDragEnd(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
-    movedGridItems: Boolean,
+    moveGridItemResult: MoveGridItemResult?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource,
+    gridItems: List<GridItem>,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragEndAfterMove: (
+        targetPage: Int,
+        gridItems: List<GridItem>,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
     onMoveGridItemsFailed: (Int) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
@@ -36,7 +43,7 @@ fun handleOnDragEnd(
         pageCount = pageCount,
     )
 
-    if (!movedGridItems) {
+    if (moveGridItemResult?.gridItems == null) {
         onMoveGridItemsFailed(targetPage)
 
         return
@@ -60,7 +67,12 @@ fun handleOnDragEnd(
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                 )
             } else {
-                onDragEnd(targetPage)
+                onDragEndAfterMove(
+                    targetPage,
+                    gridItems,
+                    moveGridItemResult.movingGridItem,
+                    moveGridItemResult.conflictingGridItem,
+                )
             }
         }
 
@@ -73,7 +85,12 @@ fun handleOnDragEnd(
                         onDeleteGridItemCache = onDeleteGridItemCache,
                     )
 
-                    onDragEnd(targetPage)
+                    onDragEndAfterMove(
+                        targetPage,
+                        gridItems,
+                        moveGridItemResult.movingGridItem,
+                        moveGridItemResult.conflictingGridItem,
+                    )
                 }
 
                 is GridItemData.Widget -> {
@@ -96,7 +113,12 @@ fun handleOnDragEnd(
         }
 
         else -> {
-            onDragEnd(targetPage)
+            onDragEndAfterMove(
+                targetPage,
+                gridItems,
+                moveGridItemResult.movingGridItem,
+                moveGridItemResult.conflictingGridItem,
+            )
         }
     }
 }
@@ -119,30 +141,6 @@ fun handleAppWidgetLauncherResult(
     } else {
         onDeleteAppWidgetId()
     }
-}
-
-fun handleConfigureLauncherResult(
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
-    resultCode: Int,
-    updatedGridItem: GridItem?,
-    onDeleteGridItemCache: (GridItem) -> Unit,
-    onDragEnd: (Int) -> Unit,
-) {
-    requireNotNull(updatedGridItem)
-
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
-    if (resultCode == Activity.RESULT_CANCELED) {
-        onDeleteGridItemCache(updatedGridItem)
-    }
-
-    onDragEnd(targetPage)
 }
 
 fun handleDeleteAppWidgetId(

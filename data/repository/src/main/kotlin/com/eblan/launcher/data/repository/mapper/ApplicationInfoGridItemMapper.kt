@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.model.GridItemData
 internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
     return GridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -21,13 +22,13 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
             label = label,
         ),
         associate = associate,
-        zIndex = zIndex,
     )
 }
 
 internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
     return ApplicationInfoGridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -38,13 +39,13 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
         packageName = packageName,
         icon = icon,
         label = label,
-        zIndex = zIndex,
     )
 }
 
 internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
     return ApplicationInfoGridItemEntity(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -55,6 +56,5 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
         packageName = packageName,
         icon = icon,
         label = label,
-        zIndex = zIndex,
     )
 }

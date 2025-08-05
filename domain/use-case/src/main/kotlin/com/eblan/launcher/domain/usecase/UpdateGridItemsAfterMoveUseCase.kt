@@ -13,14 +13,20 @@ import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
 
-class UpdateGridItemsUseCase @Inject constructor(
+class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
 ) {
-    suspend operator fun invoke(gridItems: List<GridItem>) {
+    @OptIn(ExperimentalUuidApi::class)
+    suspend operator fun invoke(
+        gridItems: MutableList<GridItem>,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) {
         withContext(Dispatchers.Default) {
             val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
@@ -29,6 +35,44 @@ class UpdateGridItemsUseCase @Inject constructor(
             val shortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
 
             val folderGridItems = mutableListOf<FolderGridItem>()
+
+            if (conflictingGridItem != null) {
+                val movingIndex =
+                    gridItems.indexOfFirst { it.id == movingGridItem.id }
+
+                val conflictingIndex =
+                    gridItems.indexOfFirst { it.id == conflictingGridItem.id }
+
+                when (conflictingGridItem.data) {
+                    is GridItemData.Folder -> {
+                        gridItems[movingIndex] =
+                            movingGridItem.copy(folderId = conflictingGridItem.id)
+                    }
+
+                    else -> {
+                        val folderId = conflictingGridItem.id
+
+                        val conflictingGridItemWithNewFolderId =
+                            conflictingGridItem.copy(folderId = folderId)
+
+                        val movingGridItemWithNewFolderId = movingGridItem.copy(folderId = folderId)
+
+                        val newData = GridItemData.Folder(
+                            label = "Unknown",
+                            gridItems = listOf(
+                                movingGridItemWithNewFolderId,
+                                conflictingGridItemWithNewFolderId,
+                            ),
+                        )
+
+                        gridItems[conflictingIndex] = conflictingGridItemWithNewFolderId
+
+                        gridItems[movingIndex] = movingGridItemWithNewFolderId
+
+                        gridItems.add(conflictingGridItemWithNewFolderId.copy(data = newData))
+                    }
+                }
+            }
 
             gridItems.map { gridItem ->
                 when (val data = gridItem.data) {
@@ -128,5 +172,4 @@ class UpdateGridItemsUseCase @Inject constructor(
             folderGridItemRepository.upsertFolderGridItems(folderGridItems = folderGridItems)
         }
     }
-
 }

@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
     return GridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -22,13 +23,13 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
             icon = icon,
         ),
         associate = associate,
-        zIndex = zIndex,
     )
 }
 
 internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
     return ShortcutInfoGridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -40,13 +41,13 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         shortLabel = shortLabel,
         longLabel = longLabel,
         icon = icon,
-        zIndex = zIndex,
     )
 }
 
 internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
     return ShortcutInfoGridItemEntity(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -58,6 +59,5 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         shortLabel = shortLabel,
         longLabel = longLabel,
         icon = icon,
-        zIndex = zIndex,
     )
 }

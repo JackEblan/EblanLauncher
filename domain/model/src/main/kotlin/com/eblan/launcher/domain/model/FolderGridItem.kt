@@ -1,16 +1,15 @@
 package com.eblan.launcher.domain.model
 
-data class ApplicationInfoGridItem(
+data class FolderGridItem(
     val id: String,
-    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,
     val rowSpan: Int,
     val columnSpan: Int,
     val associate: Associate,
-    val componentName: String?,
-    val packageName: String,
-    val icon: String?,
-    val label: String?,
+    val label: String,
+    val applicationInfos: List<ApplicationInfoGridItem>?,
+    val widgets: List<WidgetGridItem>?,
+    val shortcutInfos: List<ShortcutInfoGridItem>?,
 )

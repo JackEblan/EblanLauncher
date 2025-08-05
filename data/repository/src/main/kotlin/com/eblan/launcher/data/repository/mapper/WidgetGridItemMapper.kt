@@ -9,6 +9,7 @@ import com.eblan.launcher.domain.model.WidgetGridItem
 internal fun WidgetGridItemEntity.asGridItem(): GridItem {
     return GridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -31,13 +32,13 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
             preview = preview,
         ),
         associate = associate,
-        zIndex = zIndex,
     )
 }
 
 internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
     return WidgetGridItem(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -58,13 +59,13 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
-        zIndex = zIndex,
     )
 }
 
 internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
     return WidgetGridItemEntity(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,
@@ -85,6 +86,5 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
-        zIndex = zIndex,
     )
 }

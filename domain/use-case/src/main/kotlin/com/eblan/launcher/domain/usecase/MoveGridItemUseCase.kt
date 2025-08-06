@@ -7,6 +7,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -28,14 +29,16 @@ class MoveGridItemUseCase @Inject constructor(
         gridHeight: Int,
     ): MoveGridItemResult {
         return withContext(Dispatchers.Default) {
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+            val fallbackGridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = rows,
                     columns = columns,
                 ) && gridItem.page == movingGridItem.page &&
                         gridItem.associate == movingGridItem.associate
-            }.toMutableList()
+            }
+
+            val gridItems = fallbackGridItems.toMutableList()
 
             val index =
                 gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
@@ -70,6 +73,7 @@ class MoveGridItemUseCase @Inject constructor(
                     x = x,
                     columns = columns,
                     gridWidth = gridWidth,
+                    fallbackGridItems = fallbackGridItems,
                     gridItems = gridItems,
                     movingGridItem = movingGridItem,
                     rows = rows,
@@ -134,6 +138,7 @@ class MoveGridItemUseCase @Inject constructor(
         x: Int,
         columns: Int,
         gridWidth: Int,
+        fallbackGridItems: List<GridItem>,
         gridItems: MutableList<GridItem>,
         movingGridItem: GridItem,
         rows: Int,
@@ -163,26 +168,15 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             ResolveDirection.Center -> {
-                resolvedConflictsGridItems = gridItems
+                if (movingGridItem.data is GridItemData.Folder) {
+                    resolvedConflictsGridItems = fallbackGridItems
 
-                conflictingGridItem = gridItemByCoordinates
-//                // Only Application is allowed to enter folder like other launchers do
-//                val movingGridItemDataAllowed = movingGridItem.data is GridItemData.ApplicationInfo
-//
-//                // Only Folder and application is allowed to group with other grid items
-//                val conflictingGridItemDataAllowed =
-//                    gridItemByCoordinates.data is GridItemData.Folder ||
-//                            gridItemByCoordinates.data is GridItemData.ApplicationInfo
-//
-//                if (movingGridItemDataAllowed && conflictingGridItemDataAllowed) {
-//                    resolvedConflictsGridItems = gridItems
-//
-//                    conflictingGridItem = gridItemByCoordinates
-//                } else {
-//                    resolvedConflictsGridItems = null
-//
-//                    conflictingGridItem = null
-//                }
+                    conflictingGridItem = null
+                } else {
+                    resolvedConflictsGridItems = gridItems
+
+                    conflictingGridItem = gridItemByCoordinates
+                }
             }
         }
 

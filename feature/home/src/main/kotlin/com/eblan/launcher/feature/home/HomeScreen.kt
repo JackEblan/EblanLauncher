@@ -96,7 +96,6 @@ fun HomeScreen(
     updatedGridItem: GridItem?,
     pageItems: List<PageItem>,
     onMoveGridItem: (
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -106,7 +105,6 @@ fun HomeScreen(
         gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
-        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -262,7 +260,6 @@ private fun Success(
     updatedGridItem: GridItem?,
     textColor: Long,
     onMoveGridItem: (
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -272,7 +269,6 @@ private fun Success(
         gridHeight: Int,
     ) -> Unit,
     onResizeGridItem: (
-        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,

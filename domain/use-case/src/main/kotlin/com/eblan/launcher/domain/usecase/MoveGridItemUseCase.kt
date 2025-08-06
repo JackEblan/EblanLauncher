@@ -3,6 +3,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.grid.getGridItemByCoordinates
 import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
@@ -10,6 +11,7 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -17,7 +19,6 @@ class MoveGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
-        gridItems: MutableList<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -27,6 +28,15 @@ class MoveGridItemUseCase @Inject constructor(
         gridHeight: Int,
     ): MoveGridItemResult {
         return withContext(Dispatchers.Default) {
+            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
+                ) && gridItem.page == movingGridItem.page &&
+                        gridItem.associate == movingGridItem.associate
+            }.toMutableList()
+
             val index =
                 gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 

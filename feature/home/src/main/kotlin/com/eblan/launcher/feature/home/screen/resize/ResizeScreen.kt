@@ -43,7 +43,6 @@ fun ResizeScreen(
     dockGridItems: List<GridItem>,
     textColor: Long,
     onResizeGridItem: (
-        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -125,7 +124,6 @@ fun ResizeScreen(
             -> {
             GridItemResizeOverlay(
                 gridPadding = gridPaddingPx,
-                gridItems = gridItems,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
@@ -146,7 +144,6 @@ fun ResizeScreen(
         is GridItemData.Widget -> {
             WidgetGridItemResizeOverlay(
                 gridPadding = gridPaddingPx,
-                gridItems = gridItems,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,

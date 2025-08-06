@@ -69,7 +69,6 @@ fun DragScreen(
     moveGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     onMoveGridItem: (
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -165,8 +164,6 @@ fun DragScreen(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
-            gridItemsByPage = gridItemsByPage,
-            dockGridItems = dockGridItems,
             drag = drag,
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,

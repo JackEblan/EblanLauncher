@@ -2,16 +2,15 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItem
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
-import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -20,14 +19,9 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
-    private val gridCacheRepository: GridCacheRepository,
 ) {
-    suspend operator fun invoke(page: Int) {
+    suspend operator fun invoke(gridItems: List<GridItem>) {
         withContext(Dispatchers.Default) {
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
-                gridItem.page == page
-            }
-
             val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
             val widgetGridItems = mutableListOf<WidgetGridItem>()

@@ -8,7 +8,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterPinUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +22,7 @@ class PinViewModel @Inject constructor(
     private val addPinShortcutToHomeScreenUseCase: AddPinShortcutToHomeScreenUseCase,
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val updateGridItemsAfterPinUseCase: UpdateGridItemsAfterPinUseCase,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -128,8 +128,7 @@ class PinViewModel @Inject constructor(
 
     fun updateGridItems() {
         viewModelScope.launch {
-            // TODO update the grid items in different use case
-            //updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
+            updateGridItemsAfterPinUseCase()
 
             _isFinished.update {
                 true

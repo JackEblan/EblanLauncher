@@ -1,10 +1,12 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.getResolveDirectionByDiff
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -12,12 +14,20 @@ class ResizeGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
-        gridItems: MutableList<GridItem>,
         resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
     ): List<GridItem>? {
         return withContext(Dispatchers.Default) {
+            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
+                ) && gridItem.page == resizingGridItem.page &&
+                        gridItem.associate == resizingGridItem.associate
+            }.toMutableList()
+
             val index =
                 gridItems.indexOfFirst { gridItem -> gridItem.id == resizingGridItem.id }
 

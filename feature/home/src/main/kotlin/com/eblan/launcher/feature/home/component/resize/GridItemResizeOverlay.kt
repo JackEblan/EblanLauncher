@@ -33,7 +33,6 @@ import kotlin.math.roundToInt
 fun GridItemResizeOverlay(
     modifier: Modifier = Modifier,
     gridPadding: Int,
-    gridItems: List<GridItem>,
     gridItem: GridItem,
     gridWidth: Int,
     gridHeight: Int,
@@ -47,7 +46,6 @@ fun GridItemResizeOverlay(
     columnSpan: Int,
     color: Color,
     onResizeGridItem: (
-        gridItems: List<GridItem>,
         gridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -221,7 +219,7 @@ fun GridItemResizeOverlay(
                 columns = columns,
             )
         ) {
-            onResizeGridItem(gridItems, resizingGridItem, rows, columns)
+            onResizeGridItem(resizingGridItem, rows, columns)
         }
     }
 

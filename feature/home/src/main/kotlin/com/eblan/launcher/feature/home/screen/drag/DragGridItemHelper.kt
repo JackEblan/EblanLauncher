@@ -31,8 +31,6 @@ suspend fun handleDragIntOffset(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
-    gridItemsByPage: Map<Int, List<GridItem>>,
-    dockGridItems: List<GridItem>,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
@@ -47,7 +45,6 @@ suspend fun handleDragIntOffset(
     isScrollInProgress: Boolean,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -66,8 +63,6 @@ suspend fun handleDragIntOffset(
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
     )
-
-    val gridItemsByTargetPage = gridItemsByPage[targetPage].orEmpty()
 
     val isDraggingOnDock = dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 
@@ -101,7 +96,6 @@ suspend fun handleDragIntOffset(
 
         if (isGridItemSpanWithinBounds) {
             onMoveGridItem(
-                dockGridItems,
                 newGridItem,
                 dragIntOffset.x,
                 dockY,
@@ -139,7 +133,6 @@ suspend fun handleDragIntOffset(
 
         if (isGridItemSpanWithinBounds) {
             onMoveGridItem(
-                gridItemsByTargetPage,
                 newGridItem,
                 gridX,
                 gridY,

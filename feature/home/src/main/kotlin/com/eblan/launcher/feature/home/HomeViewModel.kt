@@ -14,7 +14,7 @@ import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterMoveUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsByPageUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val updateGridItemsByPageUseCase: UpdateGridItemsByPageUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
 ) : ViewModel() {
 
@@ -84,7 +84,6 @@ class HomeViewModel @Inject constructor(
     private var moveGridItemJob: Job? = null
 
     fun moveGridItem(
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         x: Int,
         y: Int,
@@ -101,7 +100,6 @@ class HomeViewModel @Inject constructor(
 
                 _moveGridItemResult.update {
                     moveGridItemUseCase(
-                        gridItems = gridItems.toMutableList(),
                         movingGridItem = movingGridItem,
                         x = x,
                         y = y,
@@ -116,7 +114,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resizeGridItem(
-        gridItems: List<GridItem>,
         resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
@@ -128,7 +125,6 @@ class HomeViewModel @Inject constructor(
                 delay(defaultDelay)
 
                 resizeGridItemUseCase(
-                    gridItems = gridItems.toMutableList(),
                     resizingGridItem = resizingGridItem,
                     rows = rows,
                     columns = columns,
@@ -206,7 +202,7 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCache(page: Int) {
         viewModelScope.launch {
-            updateGridItemsUseCase(page = page)
+            updateGridItemsByPageUseCase(page = page)
 
             gridCacheRepository.updateIsCache(isCache = false)
 
@@ -275,7 +271,7 @@ class HomeViewModel @Inject constructor(
 
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsUseCase(page = gridItem.page)
+            updateGridItemsByPageUseCase(page = gridItem.page)
 
             gridCacheRepository.updateIsCache(isCache = false)
 

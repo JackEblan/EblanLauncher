@@ -43,6 +43,7 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
+import com.eblan.launcher.feature.home.model.Screen
 
 @Composable
 fun EditPageScreen(
@@ -59,7 +60,7 @@ fun EditPageScreen(
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
-    onCancelEditPage: () -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -211,7 +212,7 @@ fun EditPageScreen(
 
             Button(
                 onClick = {
-                    onCancelEditPage()
+                    onUpdateScreen(Screen.Pager)
                 },
             ) {
                 Text(text = "Cancel")

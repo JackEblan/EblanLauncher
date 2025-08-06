@@ -72,14 +72,14 @@ fun HomeRoute(
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
-        onResetGridCache = viewModel::resetGridCache,
+        onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onCancelGridCache = viewModel::cancelGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
         onSaveEditPage = viewModel::saveEditPage,
-        onCancelEditPage = viewModel::cancelEditPage,
+        onUpdateScreen = viewModel::updateScreen,
         onDeleteGridItemCache = viewModel::deleteGridItemCache,
         onUpdateGridItemDataCache = viewModel::updateGridItemDataCache,
         onDeleteWidgetGridItemCache = viewModel::deleteWidgetGridItemCache,
@@ -113,7 +113,7 @@ fun HomeScreen(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCache: (Int) -> Unit,
+    onResetGridCacheAfterResize: (Int) -> Unit,
     onResetGridCacheAfterMove: (
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
@@ -127,7 +127,7 @@ fun HomeScreen(
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
-    onCancelEditPage: () -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
@@ -223,14 +223,14 @@ fun HomeScreen(
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onShowGridCache = onShowGridCache,
-                        onResetGridCache = onResetGridCache,
+                        onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                         onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                         onCancelGridCache = onCancelGridCache,
                         onEdit = onEdit,
                         onSettings = onSettings,
                         onEditPage = onEditPage,
                         onSaveEditPage = onSaveEditPage,
-                        onCancelEditPage = onCancelEditPage,
+                        onUpdateScreen = onUpdateScreen,
                         onDeleteGridItemCache = onDeleteGridItemCache,
                         onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                         onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
@@ -277,7 +277,7 @@ private fun Success(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCache: (Int) -> Unit,
+    onResetGridCacheAfterResize: (Int) -> Unit,
     onResetGridCacheAfterMove: (
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
@@ -291,7 +291,7 @@ private fun Success(
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
-    onCancelEditPage: () -> Unit,
+    onUpdateScreen: (Screen) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
@@ -388,7 +388,7 @@ private fun Success(
                     updatedGridItem = updatedGridItem,
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = { newTargetPage ->
-                        onResetGridCache(newTargetPage)
+                        onResetGridCacheAfterResize(newTargetPage)
                     },
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
@@ -425,7 +425,7 @@ private fun Success(
                     textColor = textColor,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = {
-                        onResetGridCache(targetPage)
+                        onResetGridCacheAfterResize(targetPage)
                     },
                 )
             }
@@ -444,7 +444,7 @@ private fun Success(
                     initialPage = userData.homeSettings.initialPage,
                     textColor = textColor,
                     onSaveEditPage = onSaveEditPage,
-                    onCancelEditPage = onCancelEditPage,
+                    onUpdateScreen = onUpdateScreen,
                 )
             }
         }

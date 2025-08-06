@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdateGridItemsByPageUseCase @Inject constructor(
+class UpdateGridItemsAfterResizeUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
 ) {

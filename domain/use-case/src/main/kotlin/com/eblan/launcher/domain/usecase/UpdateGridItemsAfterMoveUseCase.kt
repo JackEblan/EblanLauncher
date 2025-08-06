@@ -17,9 +17,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         conflictingGridItem: GridItem?,
     ) {
         withContext(Dispatchers.Default) {
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
-                gridItem.page == movingGridItem.page
-            }.toMutableList()
+            val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
 
             if (conflictingGridItem != null) {
                 val movingIndex =

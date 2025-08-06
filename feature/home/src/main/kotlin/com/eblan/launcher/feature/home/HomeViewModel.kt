@@ -14,7 +14,7 @@ import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterMoveUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemsByPageUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
-    private val updateGridItemsByPageUseCase: UpdateGridItemsByPageUseCase,
+    private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
 ) : ViewModel() {
 
@@ -194,15 +194,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun cancelEditPage() {
+    fun updateScreen(screen: Screen) {
         _screen.update {
-            Screen.Pager
+            screen
         }
     }
 
-    fun resetGridCache(page: Int) {
+    fun resetGridCacheAfterResize(page: Int) {
         viewModelScope.launch {
-            updateGridItemsByPageUseCase(page = page)
+            updateGridItemsAfterResizeUseCase(page = page)
 
             gridCacheRepository.updateIsCache(isCache = false)
 
@@ -271,7 +271,7 @@ class HomeViewModel @Inject constructor(
 
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsByPageUseCase(page = gridItem.page)
+            updateGridItemsAfterResizeUseCase(page = gridItem.page)
 
             gridCacheRepository.updateIsCache(isCache = false)
 

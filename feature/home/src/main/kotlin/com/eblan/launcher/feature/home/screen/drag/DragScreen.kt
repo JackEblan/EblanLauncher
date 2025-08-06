@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.drag
 
-import android.app.Activity
 import android.appwidget.AppWidgetManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,10 +64,9 @@ fun DragScreen(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
-    gridItems: List<GridItem>,
     dockGridItems: List<GridItem>,
     textColor: Long,
-    movedGridItemResult: MoveGridItemResult?,
+    moveGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     onMoveGridItem: (
         gridItems: List<GridItem>,
@@ -80,17 +78,20 @@ fun DragScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
-    onDragCancel: () -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragCancel: (Int) -> Unit,
     onDragEndAfterMove: (
         targetPage: Int,
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
     onMoveGridItemsFailed: (Int) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        targetPage: Int,
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -134,19 +135,16 @@ fun DragScreen(
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        requireNotNull(updatedGridItem)
-
-        if (result.resultCode == Activity.RESULT_CANCELED) {
-            onDeleteGridItemCache(updatedGridItem)
-        }
-
-        val targetPage = calculatePage(
-            index = horizontalPagerState.currentPage,
+        handleConfigureResult(
+            moveGridItemResult = moveGridItemResult,
+            updatedGridItem = updatedGridItem,
+            resultCode = result.resultCode,
+            horizontalPagerState = horizontalPagerState,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+            onDragEndAfterMove = onDragEndAfterMove,
         )
-
-        onDragEnd(targetPage)
     }
 
     val appWidgetLauncher = rememberLauncherForActivityResult(
@@ -203,15 +201,18 @@ fun DragScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.End -> {
-                handleOnDragEnd(
-                    currentPage = horizontalPagerState.currentPage,
+                val targetPage = calculatePage(
+                    index = horizontalPagerState.currentPage,
                     infiniteScroll = infiniteScroll,
                     pageCount = pageCount,
-                    moveGridItemResult = movedGridItemResult,
+                )
+
+                handleOnDragEnd(
+                    targetPage = targetPage,
+                    moveGridItemResult = moveGridItemResult,
                     androidAppWidgetHostWrapper = appWidgetHostWrapper,
                     appWidgetManager = appWidgetManager,
                     gridItemSource = gridItemSource,
-                    gridItems = gridItems,
                     onLaunch = appWidgetLauncher::launch,
                     onDragEndAfterMove = onDragEndAfterMove,
                     onMoveGridItemsFailed = onMoveGridItemsFailed,
@@ -224,7 +225,13 @@ fun DragScreen(
             }
 
             Drag.Cancel -> {
-                onDragCancel()
+                val targetPage = calculatePage(
+                    index = horizontalPagerState.currentPage,
+                    infiniteScroll = infiniteScroll,
+                    pageCount = pageCount,
+                )
+
+                onDragCancel(targetPage)
             }
 
             else -> Unit
@@ -239,8 +246,7 @@ fun DragScreen(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
-            onDeleteGridItemCache = onDeleteGridItemCache,
-            onDragEnd = onDragEnd,
+            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
         )
     }
 
@@ -251,9 +257,10 @@ fun DragScreen(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
+            moveGridItemResult = moveGridItemResult,
             onConfigure = configureLauncher::launch,
-            onDragEnd = onDragEnd,
             onDeleteGridItemCache = onDeleteGridItemCache,
+            onDragEndAfterMove = onDragEndAfterMove,
         )
     }
 

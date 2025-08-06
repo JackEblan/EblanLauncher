@@ -82,6 +82,7 @@ fun HomeRoute(
         onCancelEditPage = viewModel::cancelEditPage,
         onDeleteGridItemCache = viewModel::deleteGridItemCache,
         onUpdateGridItemDataCache = viewModel::updateGridItemDataCache,
+        onDeleteWidgetGridItemCache = viewModel::deleteWidgetGridItemCache,
     )
 }
 
@@ -114,9 +115,8 @@ fun HomeScreen(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCache: (List<GridItem>) -> Unit,
+    onResetGridCache: (Int) -> Unit,
     onResetGridCacheAfterMove: (
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -132,6 +132,10 @@ fun HomeScreen(
     onCancelEditPage: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -231,6 +235,7 @@ fun HomeScreen(
                         onCancelEditPage = onCancelEditPage,
                         onDeleteGridItemCache = onDeleteGridItemCache,
                         onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                        onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     )
                 }
             }
@@ -276,9 +281,8 @@ private fun Success(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCache: (List<GridItem>) -> Unit,
+    onResetGridCache: (Int) -> Unit,
     onResetGridCacheAfterMove: (
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -294,6 +298,10 @@ private fun Success(
     onCancelEditPage: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -378,24 +386,18 @@ private fun Success(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     dockHeight = userData.homeSettings.dockHeight,
-                    gridItems = gridItems,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
-                    movedGridItemResult = movedGridItemResult,
+                    moveGridItemResult = movedGridItemResult,
                     updatedGridItem = updatedGridItem,
                     onMoveGridItem = onMoveGridItem,
-                    onDragCancel = {
-                        onResetGridCache(gridItems)
+                    onDragCancel = { newTargetPage ->
+                        onResetGridCache(newTargetPage)
                     },
-                    onDragEnd = { newTargetPage ->
+                    onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
 
-                        onResetGridCache(gridItems)
-                    },
-                    onDragEndAfterMove = { newTargetPage, gridItems, movingGridItem, conflictingGridItem ->
-                        targetPage = newTargetPage
-
-                        onResetGridCacheAfterMove(gridItems, movingGridItem, conflictingGridItem)
+                        onResetGridCacheAfterMove(movingGridItem, conflictingGridItem)
                     },
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage
@@ -404,6 +406,11 @@ private fun Success(
                     },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                    onDeleteWidgetGridItemCache = { newTargetPage, gridItem, appWidgetId ->
+                        targetPage = newTargetPage
+
+                        onDeleteWidgetGridItemCache(gridItem, appWidgetId)
+                    },
                 )
             }
 
@@ -421,7 +428,9 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = onResetGridCache,
+                    onResizeEnd = {
+                        onResetGridCache(targetPage)
+                    },
                 )
             }
 

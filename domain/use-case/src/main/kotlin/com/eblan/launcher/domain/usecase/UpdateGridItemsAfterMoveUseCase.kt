@@ -8,9 +8,11 @@ import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -19,13 +21,17 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
-        gridItems: MutableList<GridItem>,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) {
         withContext(Dispatchers.Default) {
+            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+                gridItem.page == movingGridItem.page
+            }.toMutableList()
+
             val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
             val widgetGridItems = mutableListOf<WidgetGridItem>()

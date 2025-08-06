@@ -8,6 +8,7 @@ import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
+import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
@@ -17,19 +18,15 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
 fun handleOnDragEnd(
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
+    targetPage: Int,
     moveGridItemResult: MoveGridItemResult?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     gridItemSource: GridItemSource,
-    gridItems: List<GridItem>,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEndAfterMove: (
         targetPage: Int,
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -37,12 +34,6 @@ fun handleOnDragEnd(
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     if (moveGridItemResult?.gridItems == null) {
         onMoveGridItemsFailed(targetPage)
 
@@ -69,7 +60,6 @@ fun handleOnDragEnd(
             } else {
                 onDragEndAfterMove(
                     targetPage,
-                    gridItems,
                     moveGridItemResult.movingGridItem,
                     moveGridItemResult.conflictingGridItem,
                 )
@@ -87,7 +77,6 @@ fun handleOnDragEnd(
 
                     onDragEndAfterMove(
                         targetPage,
-                        gridItems,
                         moveGridItemResult.movingGridItem,
                         moveGridItemResult.conflictingGridItem,
                     )
@@ -115,7 +104,6 @@ fun handleOnDragEnd(
         else -> {
             onDragEndAfterMove(
                 targetPage,
-                gridItems,
                 moveGridItemResult.movingGridItem,
                 moveGridItemResult.conflictingGridItem,
             )
@@ -143,6 +131,52 @@ fun handleAppWidgetLauncherResult(
     }
 }
 
+fun handleConfigureResult(
+    moveGridItemResult: MoveGridItemResult?,
+    updatedGridItem: GridItem?,
+    resultCode: Int,
+    horizontalPagerState: PagerState,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+    onDeleteWidgetGridItemCache: (
+        targetPage: Int,
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
+    onDragEndAfterMove: (
+        targetPage: Int,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
+) {
+    requireNotNull(moveGridItemResult)
+
+    requireNotNull(updatedGridItem)
+
+    val data = (updatedGridItem.data as? GridItemData.Widget)
+        ?: error("Expected GridItemData.Widget")
+
+    val (gridItems, _, conflictingGridItem) = moveGridItemResult
+
+    requireNotNull(gridItems)
+
+    val targetPage = calculatePage(
+        index = horizontalPagerState.currentPage,
+        infiniteScroll = infiniteScroll,
+        pageCount = pageCount,
+    )
+
+    if (resultCode == Activity.RESULT_CANCELED) {
+        onDeleteWidgetGridItemCache(targetPage, updatedGridItem, data.appWidgetId)
+    }
+
+    onDragEndAfterMove(
+        targetPage,
+        updatedGridItem,
+        conflictingGridItem,
+    )
+}
+
 fun handleDeleteAppWidgetId(
     gridItem: GridItem,
     appWidgetId: Int,
@@ -150,14 +184,16 @@ fun handleDeleteAppWidgetId(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
-    onDeleteGridItemCache: (GridItem) -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDeleteWidgetGridItemCache: (
+        targetPage: Int,
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) -> Unit,
 ) {
     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID &&
         deleteAppWidgetId
     ) {
-        val data = (gridItem.data as? GridItemData.Widget)
-            ?: error("Expected GridItemData.Widget")
+        check(gridItem.data is GridItemData.Widget)
 
         val targetPage = calculatePage(
             index = currentPage,
@@ -165,11 +201,7 @@ fun handleDeleteAppWidgetId(
             pageCount = pageCount,
         )
 
-        val newData = data.copy(appWidgetId = appWidgetId)
-
-        onDeleteGridItemCache(gridItem.copy(data = newData))
-
-        onDragEnd(targetPage)
+        onDeleteWidgetGridItemCache(targetPage, gridItem, appWidgetId)
     }
 }
 
@@ -179,11 +211,22 @@ fun handleBoundWidget(
     currentPage: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
+    moveGridItemResult: MoveGridItemResult?,
     onConfigure: (Intent) -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragEndAfterMove: (
+        targetPage: Int,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
 ) {
     val data = (updatedGridItem?.data as? GridItemData.Widget) ?: return
+
+    requireNotNull(moveGridItemResult)
+
+    val (gridItems, _, conflictingGridItem) = moveGridItemResult
+
+    requireNotNull(gridItems)
 
     val targetPage = calculatePage(
         index = currentPage,
@@ -197,18 +240,22 @@ fun handleBoundWidget(
                 targetPage = targetPage,
                 appWidgetId = data.appWidgetId,
                 configure = data.configure,
+                updatedGridItem = updatedGridItem,
+                conflictingGridItem = conflictingGridItem,
                 onConfigure = onConfigure,
-                onDragEnd = onDragEnd,
+                onDragEndAfterMove = onDragEndAfterMove,
             )
         }
 
         is GridItemSource.Pin -> {
             bindPinWidget(
+                targetPage = targetPage,
                 appWidgetId = data.appWidgetId,
                 gridItem = updatedGridItem,
                 pinItemRequest = gridItemSource.pinItemRequest,
-                onDragEnd = onDragEnd,
-                targetPage = targetPage,
+                updatedGridItem = updatedGridItem,
+                conflictingGridItem = conflictingGridItem,
+                onDragEndAfterMove = onDragEndAfterMove,
                 onDeleteGridItemCache = onDeleteGridItemCache,
             )
         }
@@ -266,8 +313,14 @@ private fun configureComponent(
     targetPage: Int,
     appWidgetId: Int,
     configure: String?,
+    updatedGridItem: GridItem,
+    conflictingGridItem: GridItem?,
     onConfigure: (Intent) -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragEndAfterMove: (
+        targetPage: Int,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
@@ -280,16 +333,26 @@ private fun configureComponent(
 
         onConfigure(intent)
     } else {
-        onDragEnd(targetPage)
+        onDragEndAfterMove(
+            targetPage,
+            updatedGridItem,
+            conflictingGridItem,
+        )
     }
 }
 
 private fun bindPinWidget(
+    targetPage: Int,
     appWidgetId: Int,
     gridItem: GridItem,
     pinItemRequest: PinItemRequest,
-    onDragEnd: (Int) -> Unit,
-    targetPage: Int,
+    updatedGridItem: GridItem,
+    conflictingGridItem: GridItem?,
+    onDragEndAfterMove: (
+        targetPage: Int,
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
 ) {
     val extras = Bundle().apply {
@@ -302,7 +365,11 @@ private fun bindPinWidget(
         )
 
     if (bindPinWidget) {
-        onDragEnd(targetPage)
+        onDragEndAfterMove(
+            targetPage,
+            updatedGridItem,
+            conflictingGridItem,
+        )
     } else {
         onDeleteGridItemCache(gridItem)
     }

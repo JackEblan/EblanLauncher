@@ -48,7 +48,7 @@ fun ResizeScreen(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onResizeEnd: (List<GridItem>) -> Unit,
+    onResizeEnd: () -> Unit,
 ) {
     requireNotNull(gridItem)
 

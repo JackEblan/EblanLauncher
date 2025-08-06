@@ -6,7 +6,6 @@ import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -154,23 +153,26 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             ResolveDirection.Center -> {
-                // Only Application is allowed to enter folder like other launchers do
-                val movingGridItemDataAllowed = movingGridItem.data is GridItemData.ApplicationInfo
+                resolvedConflictsGridItems = gridItems
 
-                // Only Folder and application is allowed to group with other grid items
-                val conflictingGridItemDataAllowed =
-                    gridItemByCoordinates.data is GridItemData.Folder ||
-                            gridItemByCoordinates.data is GridItemData.ApplicationInfo
-
-                if (movingGridItemDataAllowed && conflictingGridItemDataAllowed) {
-                    resolvedConflictsGridItems = gridItems
-
-                    conflictingGridItem = gridItemByCoordinates
-                } else {
-                    resolvedConflictsGridItems = null
-
-                    conflictingGridItem = null
-                }
+                conflictingGridItem = gridItemByCoordinates
+//                // Only Application is allowed to enter folder like other launchers do
+//                val movingGridItemDataAllowed = movingGridItem.data is GridItemData.ApplicationInfo
+//
+//                // Only Folder and application is allowed to group with other grid items
+//                val conflictingGridItemDataAllowed =
+//                    gridItemByCoordinates.data is GridItemData.Folder ||
+//                            gridItemByCoordinates.data is GridItemData.ApplicationInfo
+//
+//                if (movingGridItemDataAllowed && conflictingGridItemDataAllowed) {
+//                    resolvedConflictsGridItems = gridItems
+//
+//                    conflictingGridItem = gridItemByCoordinates
+//                } else {
+//                    resolvedConflictsGridItems = null
+//
+//                    conflictingGridItem = null
+//                }
             }
         }
 

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -205,9 +204,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCache(gridItems: List<GridItem>) {
+    fun resetGridCache(page: Int) {
         viewModelScope.launch {
-            updateGridItemsUseCase(gridItems = gridItems)
+            updateGridItemsUseCase(page = page)
 
             gridCacheRepository.updateIsCache(isCache = false)
 
@@ -220,13 +219,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun resetGridCacheAfterMove(
-        gridItems: List<GridItem>,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) {
         viewModelScope.launch {
             updateGridItemsAfterMoveUseCase(
-                gridItems = gridItems.toMutableList(),
                 movingGridItem = movingGridItem,
                 conflictingGridItem = conflictingGridItem,
             )
@@ -265,16 +262,27 @@ class HomeViewModel @Inject constructor(
 
     fun deleteGridItemCache(gridItem: GridItem) {
         viewModelScope.launch {
-            when (val data = gridItem.data) {
-                is GridItemData.Widget -> {
-                    appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
+            gridCacheRepository.deleteGridItem(gridItem = gridItem)
+        }
+    }
 
-                    gridCacheRepository.deleteGridItem(gridItem = gridItem)
-                }
+    fun deleteWidgetGridItemCache(
+        gridItem: GridItem,
+        appWidgetId: Int,
+    ) {
+        viewModelScope.launch {
+            appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = appWidgetId)
 
-                else -> {
-                    gridCacheRepository.deleteGridItem(gridItem = gridItem)
-                }
+            gridCacheRepository.deleteGridItem(gridItem = gridItem)
+
+            updateGridItemsUseCase(page = gridItem.page)
+
+            gridCacheRepository.updateIsCache(isCache = false)
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
             }
         }
     }

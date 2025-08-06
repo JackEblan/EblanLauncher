@@ -56,7 +56,7 @@ fun WidgetGridItemResizeOverlay(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onResizeEnd: (List<GridItem>) -> Unit,
+    onResizeEnd: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -219,7 +219,7 @@ fun WidgetGridItemResizeOverlay(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.End) {
-            onResizeEnd(gridItems)
+            onResizeEnd()
         }
     }
 

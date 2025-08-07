@@ -2,8 +2,6 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
-import kotlinx.coroutines.isActive
-import kotlin.coroutines.coroutineContext
 
 fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boolean {
     return gridItem.startRow in 0 until rows &&
@@ -123,7 +121,7 @@ fun getResolveDirectionBySpan(
     }
 }
 
-suspend fun findAvailableRegionByPage(
+fun findAvailableRegionByPage(
     gridItems: List<GridItem>,
     gridItem: GridItem,
     pageCount: Int,
@@ -131,26 +129,42 @@ suspend fun findAvailableRegionByPage(
     columns: Int,
 ): GridItem? {
     for (page in 0..pageCount) {
-        for (row in 0..(rows - gridItem.rowSpan)) {
-            for (column in 0..(columns - gridItem.columnSpan)) {
-                if (!coroutineContext.isActive) return null
+        return findAvailableRegion(
+            page = page,
+            gridItems = gridItems,
+            gridItem = gridItem,
+            rows = rows,
+            columns = columns,
+        )
+    }
 
-                val candidateGridItem = gridItem.copy(
-                    page = page,
-                    startRow = row,
-                    startColumn = column,
+    return null
+}
+
+fun findAvailableRegion(
+    page: Int,
+    gridItems: List<GridItem>,
+    gridItem: GridItem,
+    rows: Int,
+    columns: Int,
+): GridItem? {
+    for (row in 0..(rows - gridItem.rowSpan)) {
+        for (column in 0..(columns - gridItem.columnSpan)) {
+            val candidateGridItem = gridItem.copy(
+                page = page,
+                startRow = row,
+                startColumn = column,
+            )
+
+            val overlaps = gridItems.any { otherGridItem ->
+                otherGridItem.page == page && rectanglesOverlap(
+                    moving = candidateGridItem,
+                    other = otherGridItem,
                 )
+            }
 
-                val overlaps = gridItems.any { otherGridItem ->
-                    otherGridItem.page == page && rectanglesOverlap(
-                        moving = candidateGridItem,
-                        other = otherGridItem,
-                    )
-                }
-
-                if (!overlaps) {
-                    return candidateGridItem
-                }
+            if (!overlaps) {
+                return candidateGridItem
             }
         }
     }

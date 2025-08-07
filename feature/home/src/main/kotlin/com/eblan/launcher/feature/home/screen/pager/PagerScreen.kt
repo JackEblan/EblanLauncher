@@ -41,7 +41,6 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.component.dialog.FolderDialog
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
@@ -92,6 +91,10 @@ fun PagerScreen(
     gestureSettings: GestureSettings,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+    ) -> Unit,
+    onTapFolderGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
     ) -> Unit,
@@ -191,6 +194,7 @@ fun PagerScreen(
         wallpaperScroll = wallpaperScroll,
         onLongPressGrid = onLongPressGrid,
         onLongPressGridItem = onLongPressGridItem,
+        onTapFolderGridItem = onTapFolderGridItem,
         onDraggingGridItem = onDraggingGridItem,
         onEdit = onEdit,
         onResize = onResize,
@@ -301,6 +305,10 @@ private fun HorizontalPagerScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
     ) -> Unit,
+    onTapFolderGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+    ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
     onResize: (Int) -> Unit,
@@ -336,8 +344,6 @@ private fun HorizontalPagerScreen(
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
-
-    var folderData by remember { mutableStateOf<GridItemData.Folder?>(null) }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && showPopupGridItemMenu) {
@@ -503,7 +509,10 @@ private fun HorizontalPagerScreen(
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
-                                    folderData = data
+                                    onTapFolderGridItem(
+                                        page,
+                                        GridItemSource.Existing(gridItem = gridItem),
+                                    )
                                 },
                                 onLongPress = {
                                     popupMenuIntOffset = IntOffset(x = x, y = y)
@@ -794,14 +803,6 @@ private fun HorizontalPagerScreen(
             )
         }
     }
-
-    FolderDialog(
-        textColor = textColor,
-        folderData = folderData,
-        onDismissRequest = {
-            folderData = null
-        },
-    )
 }
 
 @Composable

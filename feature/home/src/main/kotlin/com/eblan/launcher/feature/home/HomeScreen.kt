@@ -36,6 +36,7 @@ import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
+import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -345,6 +346,13 @@ private fun Success(
 
                         gridItemSource = newGridItemSource
                     },
+                    onTapFolderGridItem = { newCurrentPage, newGridItemSource ->
+                        targetPage = newCurrentPage
+
+                        gridItemSource = newGridItemSource
+
+                        onUpdateScreen(Screen.Folder)
+                    },
                     onDraggingGridItem = {
                         onShowGridCache(gridItems, Screen.Drag)
                     },
@@ -444,6 +452,15 @@ private fun Success(
                     initialPage = userData.homeSettings.initialPage,
                     textColor = textColor,
                     onSaveEditPage = onSaveEditPage,
+                    onUpdateScreen = onUpdateScreen,
+                )
+            }
+
+            Screen.Folder -> {
+                FolderScreen(
+                    gridItem = gridItemSource?.gridItem,
+                    textColor = textColor,
+                    rootHeight = rootHeight,
                     onUpdateScreen = onUpdateScreen,
                 )
             }

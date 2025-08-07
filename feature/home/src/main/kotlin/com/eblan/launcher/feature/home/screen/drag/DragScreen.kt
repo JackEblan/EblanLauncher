@@ -129,8 +129,6 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
-    val color = Color(textColor)
-
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -278,12 +276,12 @@ fun DragScreen(
                     .fillMaxSize()
                     .padding(gridPaddingDp)
                     .background(
-                        color = color.copy(alpha = 0.25f),
+                        color = Color(textColor).copy(alpha = 0.25f),
                         shape = RoundedCornerShape(8.dp),
                     )
                     .border(
                         width = 2.dp,
-                        color = color,
+                        color = Color(textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
                 rows = rows,
@@ -310,7 +308,7 @@ fun DragScreen(
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = color,
+                    color = Color(textColor),
                     gridItemSource = gridItemSource,
                     drag = drag,
                 )

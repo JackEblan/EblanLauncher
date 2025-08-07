@@ -154,7 +154,7 @@ fun handleConfigureResult(
     requireNotNull(updatedGridItem)
 
     val data = (updatedGridItem.data as? GridItemData.Widget)
-        ?: error("Expected GridItemData.Widget")
+        ?: error("Expected GridItemData as Widget")
 
     val targetPage = calculatePage(
         index = horizontalPagerState.currentPage,

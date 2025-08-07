@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItemData
@@ -152,10 +154,6 @@ fun FolderGridItem(
                         )
                     }
 
-                    is GridItemData.Folder -> {
-
-                    }
-
                     is GridItemData.ShortcutInfo -> {
                         AsyncImage(
                             model = currentData.icon,
@@ -165,12 +163,14 @@ fun FolderGridItem(
                     }
 
                     is GridItemData.Widget -> {
-                        AsyncImage(
-                            model = currentData.preview,
+                        Icon(
+                            imageVector = EblanLauncherIcons.Widgets,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp),
                         )
                     }
+
+                    is GridItemData.Folder -> Unit
                 }
             }
         }

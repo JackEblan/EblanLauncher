@@ -34,7 +34,7 @@ fun handleOnDragEnd(
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
-    if (moveGridItemResult?.gridItems == null) {
+    if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
         onMoveGridItemsFailed(targetPage)
 
         return
@@ -156,10 +156,6 @@ fun handleConfigureResult(
     val data = (updatedGridItem.data as? GridItemData.Widget)
         ?: error("Expected GridItemData.Widget")
 
-    val (gridItems, _, conflictingGridItem) = moveGridItemResult
-
-    requireNotNull(gridItems)
-
     val targetPage = calculatePage(
         index = horizontalPagerState.currentPage,
         infiniteScroll = infiniteScroll,
@@ -173,7 +169,7 @@ fun handleConfigureResult(
     onDragEndAfterMove(
         targetPage,
         updatedGridItem,
-        conflictingGridItem,
+        moveGridItemResult.conflictingGridItem,
     )
 }
 
@@ -224,10 +220,6 @@ fun handleBoundWidget(
 
     requireNotNull(moveGridItemResult)
 
-    val (gridItems, _, conflictingGridItem) = moveGridItemResult
-
-    requireNotNull(gridItems)
-
     val targetPage = calculatePage(
         index = currentPage,
         infiniteScroll = infiniteScroll,
@@ -241,7 +233,7 @@ fun handleBoundWidget(
                 appWidgetId = data.appWidgetId,
                 configure = data.configure,
                 updatedGridItem = updatedGridItem,
-                conflictingGridItem = conflictingGridItem,
+                conflictingGridItem = moveGridItemResult.conflictingGridItem,
                 onConfigure = onConfigure,
                 onDragEndAfterMove = onDragEndAfterMove,
             )
@@ -254,7 +246,7 @@ fun handleBoundWidget(
                 gridItem = updatedGridItem,
                 pinItemRequest = gridItemSource.pinItemRequest,
                 updatedGridItem = updatedGridItem,
-                conflictingGridItem = conflictingGridItem,
+                conflictingGridItem = moveGridItemResult.conflictingGridItem,
                 onDragEndAfterMove = onDragEndAfterMove,
                 onDeleteGridItemCache = onDeleteGridItemCache,
             )

@@ -37,6 +37,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
+import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
+import com.eblan.launcher.feature.home.component.draganddrop.rememberLazyGridDragAndDropState
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -73,7 +76,7 @@ fun EditPageScreen(
     val gridState = rememberLazyGridState()
 
     val gridDragAndDropState =
-        rememberGridDragAndDropState(gridState = gridState) { from, to ->
+        rememberLazyGridDragAndDropState(gridState = gridState) { from, to ->
             currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
         }
 

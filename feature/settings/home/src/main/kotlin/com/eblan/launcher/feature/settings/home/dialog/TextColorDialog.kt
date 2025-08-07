@@ -35,11 +35,9 @@ fun TextColorDialog(
     var selectedTextColor by remember { mutableStateOf(textColor) }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = modifier.fillMaxWidth(),
-        ) {
+        Surface{
             Column(
-                modifier = Modifier
+                modifier = modifier
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {

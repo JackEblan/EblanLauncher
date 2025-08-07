@@ -28,9 +28,7 @@ fun DockHeightDialog(
     var currentDockHeight by remember { mutableStateOf("$dockHeight") }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = modifier.fillMaxWidth(),
-        ) {
+        Surface {
             Column(modifier = modifier.fillMaxWidth()) {
                 Text(text = "Dock Height")
 

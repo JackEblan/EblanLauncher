@@ -1,17 +1,9 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
-import android.content.ClipData
-import android.widget.FrameLayout
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,9 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropTransferData
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -42,10 +31,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
@@ -55,11 +41,12 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.FolderGridItem
+import com.eblan.launcher.feature.home.component.dialog.FolderDialog
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.gridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveWidgetGridItem
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.SettingsMenu
@@ -68,7 +55,6 @@ import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
@@ -351,6 +337,8 @@ private fun HorizontalPagerScreen(
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
+    var folderData by remember { mutableStateOf<GridItemData.Folder?>(null) }
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && showPopupGridItemMenu) {
             showPopupGridItemMenu = false
@@ -440,7 +428,7 @@ private fun HorizontalPagerScreen(
 
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            ApplicationInfoGridItem(
+                            InteractiveApplicationInfoGridItem(
                                 textColor = textColor,
                                 gridItem = gridItem,
                                 data = data,
@@ -463,7 +451,7 @@ private fun HorizontalPagerScreen(
                         }
 
                         is GridItemData.Widget -> {
-                            WidgetGridItem(
+                            InteractiveWidgetGridItem(
                                 gridItem = gridItem,
                                 gridItemData = data,
                                 onLongPress = {
@@ -482,7 +470,7 @@ private fun HorizontalPagerScreen(
                         }
 
                         is GridItemData.ShortcutInfo -> {
-                            ShortcutInfoGridItem(
+                            InteractiveShortcutInfoGridItem(
                                 textColor = textColor,
                                 gridItem = gridItem,
                                 data = data,
@@ -510,12 +498,12 @@ private fun HorizontalPagerScreen(
                         }
 
                         is GridItemData.Folder -> {
-                            FolderGridItem(
+                            InteractiveFolderGridItem(
                                 textColor = textColor,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
-
+                                    folderData = data
                                 },
                                 onLongPress = {
                                     popupMenuIntOffset = IntOffset(x = x, y = y)
@@ -558,7 +546,7 @@ private fun HorizontalPagerScreen(
 
                 when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
-                        ApplicationInfoGridItem(
+                        InteractiveApplicationInfoGridItem(
                             textColor = textColor,
                             gridItem = gridItem,
                             data = data,
@@ -585,7 +573,7 @@ private fun HorizontalPagerScreen(
                     }
 
                     is GridItemData.Widget -> {
-                        WidgetGridItem(
+                        InteractiveWidgetGridItem(
                             gridItem = gridItem,
                             gridItemData = data,
                             onLongPress = {
@@ -608,7 +596,7 @@ private fun HorizontalPagerScreen(
                     }
 
                     is GridItemData.ShortcutInfo -> {
-                        ShortcutInfoGridItem(
+                        InteractiveShortcutInfoGridItem(
                             textColor = textColor,
                             gridItem = gridItem,
                             data = data,
@@ -638,7 +626,7 @@ private fun HorizontalPagerScreen(
                     }
 
                     is GridItemData.Folder -> {
-                        FolderGridItem(
+                        InteractiveFolderGridItem(
                             textColor = textColor,
                             gridItem = gridItem,
                             data = data,
@@ -739,7 +727,10 @@ private fun HorizontalPagerScreen(
                     },
                     content = {
                         when (gridItem.data) {
-                            is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
+                            is GridItemData.ApplicationInfo,
+                            is GridItemData.ShortcutInfo,
+                            is GridItemData.Folder,
+                                -> {
                                 ApplicationInfoGridItemMenu(
                                     showResize = false,
                                     onEdit = onEdit,
@@ -769,10 +760,6 @@ private fun HorizontalPagerScreen(
                                         )
                                     },
                                 )
-                            }
-
-                            is GridItemData.Folder -> {
-
                             }
                         }
                     },
@@ -807,6 +794,14 @@ private fun HorizontalPagerScreen(
             )
         }
     }
+
+    FolderDialog(
+        textColor = textColor,
+        folderData = folderData,
+        onDismissRequest = {
+            folderData = null
+        },
+    )
 }
 
 @Composable
@@ -937,186 +932,4 @@ private fun ApplicationComponentScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ApplicationInfoGridItem(
-    modifier: Modifier = Modifier,
-    textColor: Long,
-    gridItem: GridItem,
-    data: GridItemData.ApplicationInfo,
-    onTap: () -> Unit,
-    onLongPress: () -> Unit,
-) {
-    ApplicationInfoGridItem(
-        modifier = modifier
-            .gridItem(gridItem)
-            .dragAndDropSource(
-                block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
-                            onLongPress()
-
-                            startTransfer(
-                                DragAndDropTransferData(
-                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
-                                ),
-                            )
-                        },
-                    )
-                },
-            ),
-        data = data,
-        color = Color(textColor),
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ShortcutInfoGridItem(
-    modifier: Modifier = Modifier,
-    textColor: Long,
-    gridItem: GridItem,
-    data: GridItemData.ShortcutInfo,
-    onTap: () -> Unit,
-    onLongPress: () -> Unit,
-) {
-    ShortcutInfoGridItem(
-        modifier = modifier
-            .gridItem(gridItem)
-            .dragAndDropSource(
-                block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
-                            onLongPress()
-
-                            startTransfer(
-                                DragAndDropTransferData(
-                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
-                                ),
-                            )
-                        },
-                    )
-                },
-            ),
-        data = data,
-        color = Color(textColor),
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun WidgetGridItem(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    gridItemData: GridItemData.Widget,
-    onLongPress: () -> Unit,
-) {
-    val appWidgetHost = LocalAppWidgetHost.current
-
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
-
-    Box(modifier = modifier.gridItem(gridItem)) {
-        if (appWidgetInfo != null) {
-            Box(
-                modifier = modifier
-                    .dragAndDropSource(
-                        drawDragDecoration = {
-                            drawRoundRect(
-                                color = Color.White,
-                                alpha = 0.2f,
-                                cornerRadius = CornerRadius(
-                                    x = 25f,
-                                    y = 25f,
-                                ),
-                            )
-                        },
-                        block = {
-                            awaitEachGesture {
-                                val down = awaitFirstDown(requireUnconsumed = false)
-
-                                down.consume()
-
-                                val longPress = awaitLongPressOrCancellation(pointerId = down.id)
-
-                                if (longPress != null) {
-                                    onLongPress()
-
-                                    startTransfer(
-                                        DragAndDropTransferData(
-                                            clipData = ClipData.newPlainText(
-                                                "Screen",
-                                                Screen.Drag.name,
-                                            ),
-                                        ),
-                                    )
-                                }
-                            }
-                        },
-                    )
-                    .matchParentSize(),
-            )
-
-            AndroidView(
-                factory = {
-                    appWidgetHost.createView(
-                        appWidgetId = gridItemData.appWidgetId,
-                        appWidgetProviderInfo = appWidgetInfo,
-                    ).apply {
-                        layoutParams = FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT,
-                            FrameLayout.LayoutParams.MATCH_PARENT,
-                        )
-
-                        setAppWidget(appWidgetId, appWidgetInfo)
-                    }
-                },
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun FolderGridItem(
-    modifier: Modifier = Modifier,
-    textColor: Long,
-    gridItem: GridItem,
-    data: GridItemData.Folder,
-    onTap: () -> Unit,
-    onLongPress: () -> Unit,
-) {
-    FolderGridItem(
-        modifier = modifier
-            .gridItem(gridItem)
-            .dragAndDropSource(
-                block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
-                            onLongPress()
-
-                            startTransfer(
-                                DragAndDropTransferData(
-                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
-                                ),
-                            )
-                        },
-                    )
-                },
-            ),
-        data = data,
-        color = Color(textColor),
-    )
 }

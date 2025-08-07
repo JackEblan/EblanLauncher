@@ -1,6 +1,14 @@
 package com.eblan.launcher.feature.home.component.grid
 
+import android.content.ClipData
 import android.widget.FrameLayout
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -22,7 +32,192 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.feature.home.model.Screen
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun InteractiveApplicationInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItem: GridItem,
+    data: GridItemData.ApplicationInfo,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    ApplicationInfoGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .dragAndDropSource(
+                block = {
+                    detectTapGestures(
+                        onTap = {
+                            onTap()
+                        },
+                        onLongPress = {
+                            onLongPress()
+
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
+                                ),
+                            )
+                        },
+                    )
+                },
+            ),
+        data = data,
+        color = Color(textColor),
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun InteractiveShortcutInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItem: GridItem,
+    data: GridItemData.ShortcutInfo,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    ShortcutInfoGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .dragAndDropSource(
+                block = {
+                    detectTapGestures(
+                        onTap = {
+                            onTap()
+                        },
+                        onLongPress = {
+                            onLongPress()
+
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
+                                ),
+                            )
+                        },
+                    )
+                },
+            ),
+        data = data,
+        color = Color(textColor),
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun InteractiveWidgetGridItem(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    gridItemData: GridItemData.Widget,
+    onLongPress: () -> Unit,
+) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+    Box(modifier = modifier.gridItem(gridItem)) {
+        if (appWidgetInfo != null) {
+            Box(
+                modifier = modifier
+                    .dragAndDropSource(
+                        drawDragDecoration = {
+                            drawRoundRect(
+                                color = Color.White,
+                                alpha = 0.2f,
+                                cornerRadius = CornerRadius(
+                                    x = 25f,
+                                    y = 25f,
+                                ),
+                            )
+                        },
+                        block = {
+                            awaitEachGesture {
+                                val down = awaitFirstDown(requireUnconsumed = false)
+
+                                down.consume()
+
+                                val longPress = awaitLongPressOrCancellation(pointerId = down.id)
+
+                                if (longPress != null) {
+                                    onLongPress()
+
+                                    startTransfer(
+                                        DragAndDropTransferData(
+                                            clipData = ClipData.newPlainText(
+                                                "Screen",
+                                                Screen.Drag.name,
+                                            ),
+                                        ),
+                                    )
+                                }
+                            }
+                        },
+                    )
+                    .matchParentSize(),
+            )
+
+            AndroidView(
+                factory = {
+                    appWidgetHost.createView(
+                        appWidgetId = gridItemData.appWidgetId,
+                        appWidgetProviderInfo = appWidgetInfo,
+                    ).apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                        )
+
+                        setAppWidget(appWidgetId, appWidgetInfo)
+                    }
+                },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun InteractiveFolderGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    FolderGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .dragAndDropSource(
+                block = {
+                    detectTapGestures(
+                        onTap = {
+                            onTap()
+                        },
+                        onLongPress = {
+                            onLongPress()
+
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
+                                ),
+                            )
+                        },
+                    )
+                },
+            ),
+        data = data,
+        color = Color(textColor),
+    )
+}
 
 @Composable
 fun WidgetGridItem(

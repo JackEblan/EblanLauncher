@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.editpage
+package com.eblan.launcher.feature.home.component.draganddrop
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -37,17 +37,17 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberGridDragAndDropState(
+fun rememberLazyGridDragAndDropState(
     gridState: LazyGridState,
     onMove: (
         from: Int,
         to: Int,
     ) -> Unit,
-): GridDragAndDropState {
+): LazyGridDragAndDropState {
     val scope = rememberCoroutineScope()
 
     val state = remember(key1 = gridState) {
-        GridDragAndDropState(
+        LazyGridDragAndDropState(
             state = gridState,
             onMove = onMove,
             scope = scope,
@@ -63,7 +63,7 @@ fun rememberGridDragAndDropState(
     return state
 }
 
-class GridDragAndDropState(
+class LazyGridDragAndDropState(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
     private val onMove: (Int, Int) -> Unit,
@@ -181,7 +181,7 @@ private operator fun Offset.plus(size: Size): Offset {
     return Offset(x + size.width, y + size.height)
 }
 
-fun Modifier.dragContainer(state: GridDragAndDropState): Modifier {
+fun Modifier.dragContainer(state: LazyGridDragAndDropState): Modifier {
     return pointerInput(state) {
         detectDragGesturesAfterLongPress(
             onDrag = { change, offset ->
@@ -198,7 +198,7 @@ fun Modifier.dragContainer(state: GridDragAndDropState): Modifier {
 @Composable
 fun LazyGridItemScope.DraggableItem(
     modifier: Modifier = Modifier,
-    state: GridDragAndDropState,
+    state: LazyGridDragAndDropState,
     index: Int,
     content: @Composable (isDragging: Boolean) -> Unit,
 ) {

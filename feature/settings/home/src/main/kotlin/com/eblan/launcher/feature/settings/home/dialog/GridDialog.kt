@@ -34,9 +34,7 @@ fun GridDialog(
     var currentColumns by remember { mutableStateOf("$columns") }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = modifier.fillMaxWidth(),
-        ) {
+        Surface {
             Column(modifier = modifier.fillMaxWidth()) {
                 Text(text = "Grid")
 

@@ -22,88 +22,96 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         conflictingGridItem: GridItem?,
     ) {
         withContext(Dispatchers.Default) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
+            updateGridItems(
+                movingGridItem = movingGridItem,
+                conflictingGridItem = conflictingGridItem,
+            )
+        }
+    }
 
-            val folderRows = homeSettings.folderRows
+    private suspend fun updateGridItems(
+        movingGridItem: GridItem,
+        conflictingGridItem: GridItem?,
+    ) {
+        val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val folderColumns = homeSettings.folderColumns
+        val folderRows = homeSettings.folderRows
 
-            val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
+        val folderColumns = homeSettings.folderColumns
 
-            val movingIndex =
-                gridItems.indexOfFirst { it.id == movingGridItem.id }
+        val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
 
-            if (movingIndex != -1 && conflictingGridItem != null) {
-                val conflictingIndex =
-                    gridItems.indexOfFirst { it.id == conflictingGridItem.id }
+        val movingIndex =
+            gridItems.indexOfFirst { it.id == movingGridItem.id }
 
-                when (val data = conflictingGridItem.data) {
-                    is GridItemData.Folder -> {
-                        val newGridItem = findAvailableRegion(
-                            page = conflictingGridItem.page,
-                            gridItems = data.gridItems,
-                            gridItem = movingGridItem,
-                            rows = folderRows,
-                            columns = folderColumns,
-                        )
+        if (movingIndex != -1 && conflictingGridItem == null) {
+            updateGridItemsUseCase(gridItems = gridItems)
 
-                        if (newGridItem != null) {
-                            gridItems[movingIndex] =
-                                newGridItem.copy(folderId = conflictingGridItem.id)
+            return
+        }
 
-                            updateGridItemsUseCase(gridItems = gridItems)
-                        }
-                    }
+        if (movingIndex != -1 && conflictingGridItem != null) {
+            val conflictingIndex =
+                gridItems.indexOfFirst { it.id == conflictingGridItem.id }
 
-                    else -> {
-                        val folderId = conflictingGridItem.id
+            when (val data = conflictingGridItem.data) {
+                is GridItemData.Folder -> {
+                    val newGridItem = findAvailableRegion(
+                        page = conflictingGridItem.page,
+                        gridItems = data.gridItems,
+                        gridItem = movingGridItem,
+                        rows = folderRows,
+                        columns = folderColumns,
+                    )
 
-                        // Conflict both grid items at 0,0
-                        val firstGridItem =
-                            conflictingGridItem.copy(
-                                startRow = 0,
-                                startColumn = 0,
-                                folderId = folderId,
-                            )
+                    if (newGridItem != null) {
+                        gridItems[movingIndex] =
+                            newGridItem.copy(folderId = conflictingGridItem.id)
 
-                        val secondGridItem =
-                            movingGridItem.copy(
-                                startRow = 0,
-                                startColumn = 0,
-                                folderId = folderId,
-                            )
-
-                        // movingGridItem is the one that will adjust itself
-                        // not the conflicting
-                        val movedSecondGridItem = moveGridItem(
-                            resolveDirection = ResolveDirection.End,
-                            moving = firstGridItem,
-                            conflicting = secondGridItem,
-                            rows = folderRows,
-                            columns = folderColumns,
-                        )
-
-                        if (movedSecondGridItem != null) {
-                            val newData = GridItemData.Folder(
-                                label = "Unknown",
-                                gridItems = emptyList(),
-                            )
-
-                            gridItems[conflictingIndex] = firstGridItem
-
-                            gridItems[movingIndex] = movedSecondGridItem
-
-                            // We use the position of the conflicting then change its Data to a Folder
-                            gridItems.add(conflictingGridItem.copy(data = newData))
-
-                            updateGridItemsUseCase(gridItems = gridItems)
-                        }
+                        updateGridItemsUseCase(gridItems = gridItems)
                     }
                 }
-            }
 
-            if (movingIndex != -1 && conflictingGridItem == null) {
-                updateGridItemsUseCase(gridItems = gridItems)
+                else -> {
+                    val folderId = conflictingGridItem.id
+
+                    val firstGridItem =
+                        conflictingGridItem.copy(
+                            startRow = 0,
+                            startColumn = 0,
+                            folderId = folderId,
+                        )
+
+                    val secondGridItem =
+                        movingGridItem.copy(
+                            startRow = 0,
+                            startColumn = 0,
+                            folderId = folderId,
+                        )
+
+                    val movedSecondGridItem = moveGridItem(
+                        resolveDirection = ResolveDirection.End,
+                        moving = firstGridItem,
+                        conflicting = secondGridItem,
+                        rows = folderRows,
+                        columns = folderColumns,
+                    )
+
+                    if (movedSecondGridItem != null) {
+                        val newData = GridItemData.Folder(
+                            label = "Unknown",
+                            gridItems = emptyList(),
+                        )
+
+                        gridItems[conflictingIndex] = firstGridItem
+
+                        gridItems[movingIndex] = movedSecondGridItem
+
+                        gridItems.add(conflictingGridItem.copy(data = newData))
+
+                        updateGridItemsUseCase(gridItems = gridItems)
+                    }
+                }
             }
         }
     }

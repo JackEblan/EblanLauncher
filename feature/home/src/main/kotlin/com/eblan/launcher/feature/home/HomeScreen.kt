@@ -458,6 +458,8 @@ private fun Success(
 
             Screen.Folder -> {
                 FolderScreen(
+                    folderRows = userData.homeSettings.folderRows,
+                    folderColumns = userData.homeSettings.folderColumns,
                     gridItem = gridItemSource?.gridItem,
                     textColor = textColor,
                     rootHeight = rootHeight,

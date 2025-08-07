@@ -27,6 +27,8 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
         textColor = textColorProto.toTextColor(),
         initialPage = initialPage,
         wallpaperScroll = wallpaperScroll,
+        folderRows = folderRows,
+        folderColumns = folderColumns,
     )
 }
 

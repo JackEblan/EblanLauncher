@@ -29,6 +29,8 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         textColorProto = TextColorProto.System
         initialPage = 0
         wallpaperScroll = true
+        folderRows = 5
+        folderColumns = 5
     }.build()
 
     private val defaultAppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().apply {

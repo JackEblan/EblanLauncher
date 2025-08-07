@@ -11,4 +11,6 @@ data class HomeSettings(
     val textColor: TextColor,
     val initialPage: Int,
     val wallpaperScroll: Boolean,
+    val folderRows: Int,
+    val folderColumns: Int,
 )

@@ -31,8 +31,8 @@ import com.eblan.launcher.feature.home.model.Screen
 fun FolderScreen(
     modifier: Modifier = Modifier,
     gridItem: GridItem?,
-    folderRows: Int = 5,
-    folderColumns: Int = 5,
+    folderRows: Int,
+    folderColumns: Int,
     textColor: Long,
     rootHeight: Int,
     onUpdateScreen: (Screen) -> Unit,

@@ -26,6 +26,8 @@ import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.screen.drag.DragGridItem
 
 @Composable
 fun FolderDragScreen(
@@ -33,7 +35,7 @@ fun FolderDragScreen(
     folderRows: Int,
     folderColumns: Int,
     gridItems: List<GridItem>?,
-    gridItem: GridItem?,
+    gridItemSource: GridItemSource?,
     textColor: Long,
     drag: Drag,
     dragIntOffset: IntOffset,
@@ -50,7 +52,7 @@ fun FolderDragScreen(
     ) -> Unit,
     onDragEnd: () -> Unit,
 ) {
-    requireNotNull(gridItem)
+    requireNotNull(gridItemSource)
 
     requireNotNull(gridItems)
 
@@ -65,7 +67,7 @@ fun FolderDragScreen(
     LaunchedEffect(key1 = dragIntOffset) {
         handleFolderDragIntOffset(
             drag = drag,
-            gridItem = gridItem,
+            gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             rootHeight = rootHeight,
             gridPadding = gridPaddingPx,
@@ -107,6 +109,8 @@ fun FolderDragScreen(
                 GridItemContent(
                     gridItem = gridItem,
                     color = Color(textColor),
+                    gridItemSource = gridItemSource,
+                    drag = drag,
                 )
             }
         }
@@ -120,6 +124,8 @@ private fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     color: Color,
+    gridItemSource: GridItemSource,
+    drag: Drag,
 ) {
     key(gridItem.id) {
         LookaheadScope {
@@ -129,34 +135,58 @@ private fun GridItemContent(
 
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
-                    )
+                    ) {
+                        ApplicationInfoGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
 
                 is GridItemData.Widget -> {
-                    WidgetGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
-                    )
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        color = color,
+                    ) {
+                        WidgetGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                        )
+                    }
                 }
 
                 is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
-                    )
+                    ) {
+                        ShortcutInfoGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
 
                 is GridItemData.Folder -> {
-                    NestedFolderGridItem(
+                    DragGridItem(
                         modifier = gridItemModifier,
-                        data = data,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
                         color = color,
-                    )
+                    ) {
+                        NestedFolderGridItem(
+                            modifier = gridItemModifier,
+                            data = data,
+                            color = color,
+                        )
+                    }
                 }
             }
         }

@@ -406,7 +406,7 @@ private fun GridItemContent(
 }
 
 @Composable
-private fun DragGridItem(
+fun DragGridItem(
     modifier: Modifier,
     isDragging: Boolean,
     color: Color,

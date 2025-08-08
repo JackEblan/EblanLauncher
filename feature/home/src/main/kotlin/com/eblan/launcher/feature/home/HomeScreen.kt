@@ -522,7 +522,7 @@ private fun Success(
                     folderRows = userData.homeSettings.folderRows,
                     folderColumns = userData.homeSettings.folderColumns,
                     gridItems = gridItems,
-                    gridItem = gridItemSource?.gridItem,
+                    gridItemSource = gridItemSource,
                     textColor = textColor,
                     drag = drag,
                     dragIntOffset = dragIntOffset,

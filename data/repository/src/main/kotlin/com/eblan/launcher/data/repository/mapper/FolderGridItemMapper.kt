@@ -7,6 +7,20 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 
 internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem {
+    return GridItem(
+        id = folderGridItemEntity.id,
+        folderId = folderGridItemEntity.folderId,
+        page = folderGridItemEntity.page,
+        startRow = folderGridItemEntity.startRow,
+        startColumn = folderGridItemEntity.startColumn,
+        rowSpan = folderGridItemEntity.rowSpan,
+        columnSpan = folderGridItemEntity.columnSpan,
+        data = asFolderGridItemData(),
+        associate = folderGridItemEntity.associate,
+    )
+}
+
+internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Folder {
     val applicationInfoGridItems = applicationInfos?.map { applicationInfoGridItemEntity ->
         applicationInfoGridItemEntity.asGridItem()
     } ?: emptyList()
@@ -19,28 +33,38 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem {
         shortcutGridItemEntity.asGridItem()
     } ?: emptyList()
 
-    val data =
-        GridItemData.Folder(
-            label = folderGridItemEntity.label,
-            gridItems = applicationInfoGridItems + widgetGridItems + shortcutInfos,
-        )
+    val folders = folders?.map { folderGridItemEntity ->
+        folderGridItemEntity.asGridItem()
+    } ?: emptyList()
 
+    return GridItemData.Folder(
+        label = folderGridItemEntity.label,
+        gridItems = applicationInfoGridItems + widgetGridItems + shortcutInfos + folders,
+    )
+}
+
+@JvmName("FolderGridItemEntity")
+internal fun FolderGridItemEntity.asGridItem(): GridItem {
     return GridItem(
-        id = folderGridItemEntity.id,
-        folderId = null,
-        page = folderGridItemEntity.page,
-        startRow = folderGridItemEntity.startRow,
-        startColumn = folderGridItemEntity.startColumn,
-        rowSpan = folderGridItemEntity.rowSpan,
-        columnSpan = folderGridItemEntity.columnSpan,
-        data = data,
-        associate = folderGridItemEntity.associate,
+        id = id,
+        folderId = folderId,
+        page = page,
+        startRow = startRow,
+        startColumn = startColumn,
+        rowSpan = rowSpan,
+        columnSpan = columnSpan,
+        data = GridItemData.Folder(
+            label = label,
+            gridItems = emptyList(),
+        ),
+        associate = associate,
     )
 }
 
 internal fun FolderGridItem.asEntity(): FolderGridItemEntity {
     return FolderGridItemEntity(
         id = id,
+        folderId = folderId,
         page = page,
         startRow = startRow,
         startColumn = startColumn,

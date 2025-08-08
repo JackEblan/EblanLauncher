@@ -55,6 +55,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                         folderGridItems.add(
                             FolderGridItem(
                                 id = gridItem.id,
+                                folderId = gridItem.folderId,
                                 page = gridItem.page,
                                 startRow = gridItem.startRow,
                                 startColumn = gridItem.startColumn,

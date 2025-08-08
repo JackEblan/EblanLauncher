@@ -7,7 +7,6 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -155,15 +154,9 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             ResolveDirection.Center -> {
-                if (movingGridItem.data is GridItemData.Folder) {
-                    resolvedConflictsGridItems = fallbackGridItems
+                resolvedConflictsGridItems = gridItems
 
-                    conflictingGridItem = null
-                } else {
-                    resolvedConflictsGridItems = gridItems
-
-                    conflictingGridItem = gridItemByCoordinates
-                }
+                conflictingGridItem = gridItemByCoordinates
             }
         }
 

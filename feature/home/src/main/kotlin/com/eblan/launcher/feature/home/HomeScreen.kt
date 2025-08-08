@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.UserData
@@ -62,6 +63,8 @@ fun HomeRoute(
 
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
+    val folders by viewModel.folders.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -70,6 +73,7 @@ fun HomeRoute(
         movedGridItemResult = movedGridItemResult,
         updatedGridItem = updatedGridItem,
         pageItems = pageItems,
+        folders = folders,
         onMoveGridItem = viewModel::moveGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
@@ -84,6 +88,9 @@ fun HomeRoute(
         onDeleteGridItemCache = viewModel::deleteGridItemCache,
         onUpdateGridItemDataCache = viewModel::updateGridItemDataCache,
         onDeleteWidgetGridItemCache = viewModel::deleteWidgetGridItemCache,
+        onGetFolderGridItemData = viewModel::getFolderGridItemData,
+        onRemoveLastFolder = viewModel::removeLastFolder,
+        onAddFolder = viewModel::addFolder,
     )
 }
 
@@ -96,6 +103,7 @@ fun HomeScreen(
     movedGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     pageItems: List<PageItem>,
+    folders: ArrayDeque<GridItemData.Folder>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -135,6 +143,9 @@ fun HomeScreen(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
+    onGetFolderGridItemData: (String) -> Unit,
+    onRemoveLastFolder: () -> Unit,
+    onAddFolder: (String) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -221,6 +232,7 @@ fun HomeScreen(
                         hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
                         updatedGridItem = updatedGridItem,
                         textColor = homeUiState.homeData.textColor,
+                        folders = folders,
                         onMoveGridItem = onMoveGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onShowGridCache = onShowGridCache,
@@ -235,6 +247,9 @@ fun HomeScreen(
                         onDeleteGridItemCache = onDeleteGridItemCache,
                         onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                         onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+                        onGetFolderGridItemData = onGetFolderGridItemData,
+                        onRemoveLastFolder = onRemoveLastFolder,
+                        onAddFolder = onAddFolder,
                     )
                 }
             }
@@ -260,6 +275,7 @@ private fun Success(
     hasShortcutHostPermission: Boolean,
     updatedGridItem: GridItem?,
     textColor: Long,
+    folders: ArrayDeque<GridItemData.Folder>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -299,6 +315,9 @@ private fun Success(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
+    onGetFolderGridItemData: (String) -> Unit,
+    onRemoveLastFolder: () -> Unit,
+    onAddFolder: (String) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -346,12 +365,11 @@ private fun Success(
 
                         gridItemSource = newGridItemSource
                     },
-                    onTapFolderGridItem = { newCurrentPage, newGridItemSource ->
+                    onTapFolderGridItem = { newCurrentPage, id ->
                         targetPage = newCurrentPage
 
-                        gridItemSource = newGridItemSource
 
-                        onUpdateScreen(Screen.Folder)
+                        onGetFolderGridItemData(id)
                     },
                     onDraggingGridItem = {
                         onShowGridCache(gridItems, Screen.Drag)
@@ -460,10 +478,12 @@ private fun Success(
                 FolderScreen(
                     folderRows = userData.homeSettings.folderRows,
                     folderColumns = userData.homeSettings.folderColumns,
-                    gridItem = gridItemSource?.gridItem,
+                    folders = folders,
                     textColor = textColor,
                     rootHeight = rootHeight,
                     onUpdateScreen = onUpdateScreen,
+                    onRemoveLastFolder = onRemoveLastFolder,
+                    onAddFolder = onAddFolder,
                 )
             }
         }

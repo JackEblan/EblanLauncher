@@ -219,6 +219,61 @@ fun InteractiveFolderGridItem(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun InteractiveNestedFolderGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .gridItem(gridItem)
+            .dragAndDropSource(
+                block = {
+                    detectTapGestures(
+                        onTap = {
+                            onTap()
+                        },
+                        onLongPress = {
+                            onLongPress()
+
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
+                                ),
+                            )
+                        },
+                    )
+                },
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = EblanLauncherIcons.Link,
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp, 40.dp)
+                .weight(1f),
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = data.label,
+            modifier = Modifier.weight(1f),
+            color = Color(textColor),
+            textAlign = TextAlign.Center,
+            fontSize = TextUnit(
+                value = 10f,
+                type = TextUnitType.Sp,
+            ),
+        )
+    }
+}
+
 @Composable
 fun WidgetGridItem(
     modifier: Modifier = Modifier,

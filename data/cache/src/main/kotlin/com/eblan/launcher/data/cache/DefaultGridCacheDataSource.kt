@@ -14,7 +14,7 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
 
     override val gridCacheItems = _gridCacheItems.asStateFlow()
 
-    private var _isCache = MutableStateFlow(false)
+    private val _isCache = MutableStateFlow(false)
 
     override val isCache = _isCache.asStateFlow()
 

@@ -2,6 +2,7 @@ package com.eblan.launcher.domain.model
 
 data class FolderGridItem(
     val id: String,
+    val folderId: String?,
     val page: Int,
     val startRow: Int,
     val startColumn: Int,

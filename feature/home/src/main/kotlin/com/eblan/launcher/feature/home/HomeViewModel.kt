@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
@@ -45,6 +47,7 @@ class HomeViewModel @Inject constructor(
     pageCacheRepository: PageCacheRepository,
     private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
+    private val folderGridItemRepository: FolderGridItemRepository,
 ) : ViewModel() {
 
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -61,17 +64,17 @@ class HomeViewModel @Inject constructor(
                 initialValue = EblanApplicationComponentUiState.Loading,
             )
 
-    private var _screen = MutableStateFlow(Screen.Pager)
+    private val _screen = MutableStateFlow(Screen.Pager)
 
     val screen = _screen.asStateFlow()
 
-    private var _moveGridItemResult = MutableStateFlow<MoveGridItemResult?>(null)
+    private val _moveGridItemResult = MutableStateFlow<MoveGridItemResult?>(null)
 
     val movedGridItemResult = _moveGridItemResult.asStateFlow()
 
     private val defaultDelay = 500L
 
-    private var _updatedGridItem = MutableStateFlow<GridItem?>(null)
+    private val _updatedGridItem = MutableStateFlow<GridItem?>(null)
 
     val updatedGridItem = _updatedGridItem.asStateFlow()
 
@@ -82,6 +85,10 @@ class HomeViewModel @Inject constructor(
     )
 
     private var moveGridItemJob: Job? = null
+
+    private val _folders = MutableStateFlow(ArrayDeque<GridItemData.Folder>())
+
+    val folders = _folders.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -279,6 +286,42 @@ class HomeViewModel @Inject constructor(
 
             _screen.update {
                 Screen.Pager
+            }
+        }
+    }
+
+    fun getFolderGridItemData(id: String) {
+        viewModelScope.launch {
+            folderGridItemRepository.getFolderGridItemData(id = id)?.let { folder ->
+                _folders.update { currentFolders ->
+                    ArrayDeque(currentFolders).apply {
+                        add(folder)
+                    }
+                }
+
+                _screen.update {
+                    Screen.Folder
+                }
+            }
+        }
+    }
+
+    fun addFolder(id: String) {
+        viewModelScope.launch {
+            folderGridItemRepository.getFolderGridItemData(id = id)?.let { folder ->
+                _folders.update { currentFolders ->
+                    ArrayDeque(currentFolders).apply {
+                        add(folder)
+                    }
+                }
+            }
+        }
+    }
+
+    fun removeLastFolder() {
+        _folders.update { currentFolders ->
+            ArrayDeque(currentFolders).apply {
+                removeLast()
             }
         }
     }

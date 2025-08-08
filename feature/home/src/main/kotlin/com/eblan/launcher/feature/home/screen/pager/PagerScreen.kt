@@ -96,7 +96,7 @@ fun PagerScreen(
     ) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
-        gridItemSource: GridItemSource,
+        id: String,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
@@ -307,7 +307,7 @@ private fun HorizontalPagerScreen(
     ) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
-        gridItemSource: GridItemSource,
+        id: String,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: () -> Unit,
@@ -511,7 +511,7 @@ private fun HorizontalPagerScreen(
                                 onTap = {
                                     onTapFolderGridItem(
                                         page,
-                                        GridItemSource.Existing(gridItem = gridItem),
+                                        gridItem.id,
                                     )
                                 },
                                 onLongPress = {

@@ -280,15 +280,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val lastId = _folders.value.last().id
 
-            _screen.update {
-                Screen.Loading
-            }
-
             updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
-
-            gridCacheRepository.updateIsCache(isCache = false)
-
-            delay(defaultDelay)
 
             folderGridItemRepository.getFolderGridItemData(id = lastId)
                 ?.let { folder ->
@@ -304,6 +296,10 @@ class HomeViewModel @Inject constructor(
                         Screen.Folder
                     }
                 }
+
+            delay(defaultDelay)
+
+            gridCacheRepository.updateIsCache(isCache = false)
         }
     }
 

@@ -132,13 +132,17 @@ fun DragScreen(
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
+        val targetPage = calculatePage(
+            index = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+        )
+
         handleConfigureResult(
+            targetPage = targetPage,
             moveGridItemResult = moveGridItemResult,
             updatedGridItem = updatedGridItem,
             resultCode = result.resultCode,
-            horizontalPagerState = horizontalPagerState,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMove = onDragEndAfterMove,
         )
@@ -158,10 +162,14 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = dragIntOffset) {
-        handleDragIntOffset(
-            currentPage = horizontalPagerState.currentPage,
+        val targetPage = calculatePage(
+            index = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
+        )
+
+        handleDragIntOffset(
+            targetPage = targetPage,
             drag = drag,
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
@@ -171,8 +179,8 @@ fun DragScreen(
             rootWidth = rootWidth,
             dockColumns = dockColumns,
             dockRows = dockRows,
-            columns = columns,
             rows = rows,
+            columns = columns,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
@@ -234,24 +242,32 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
+        val targetPage = calculatePage(
+            index = horizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+        )
+
         handleDeleteAppWidgetId(
+            targetPage = targetPage,
             gridItem = gridItemSource.gridItem,
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
-            currentPage = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
         )
     }
 
     LaunchedEffect(key1 = updatedGridItem) {
-        handleBoundWidget(
-            gridItemSource = gridItemSource,
-            updatedGridItem = updatedGridItem,
-            currentPage = horizontalPagerState.currentPage,
+        val targetPage = calculatePage(
+            index = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
             pageCount = pageCount,
+        )
+
+        handleBoundWidget(
+            targetPage = targetPage,
+            gridItemSource = gridItemSource,
+            updatedGridItem = updatedGridItem,
             moveGridItemResult = moveGridItemResult,
             onConfigure = configureLauncher::launch,
             onDeleteGridItemCache = onDeleteGridItemCache,

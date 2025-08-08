@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.home.screen.resize
+package com.eblan.launcher.feature.home.screen.folderdrag
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
@@ -6,48 +6,49 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.NestedFolderGridItem
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.component.grid.gridItem
-import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
-import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
+import com.eblan.launcher.feature.home.model.Drag
 
 @Composable
-fun ResizeScreen(
+fun FolderDragScreen(
     modifier: Modifier = Modifier,
-    rows: Int,
-    columns: Int,
-    dockRows: Int,
-    dockColumns: Int,
+    folderRows: Int,
+    folderColumns: Int,
     gridItems: List<GridItem>?,
     gridItem: GridItem?,
+    textColor: Long,
+    drag: Drag,
+    dragIntOffset: IntOffset,
     rootWidth: Int,
     rootHeight: Int,
-    dockHeight: Int,
-    dockGridItems: List<GridItem>,
-    textColor: Long,
-    onResizeGridItem: (
-        gridItem: GridItem,
+    onMoveFolderGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
         rows: Int,
         columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
     ) -> Unit,
-    onResizeEnd: () -> Unit,
+    onDragEnd: () -> Unit,
 ) {
     requireNotNull(gridItem)
 
@@ -55,22 +56,41 @@ fun ResizeScreen(
 
     val density = LocalDensity.current
 
-    val dockHeightDp = with(density) {
-        dockHeight.toDp()
-    }
-
     val gridPaddingDp = 20.dp
 
     val gridPaddingPx = with(density) {
         gridPaddingDp.roundToPx()
     }
 
+    LaunchedEffect(key1 = dragIntOffset) {
+        handleFolderDragIntOffset(
+            drag = drag,
+            gridItem = gridItem,
+            dragIntOffset = dragIntOffset,
+            rootHeight = rootHeight,
+            gridPadding = gridPaddingPx,
+            rootWidth = rootWidth,
+            columns = folderColumns,
+            rows = folderRows,
+            onMoveFolderGridItem = onMoveFolderGridItem,
+        )
+    }
+
+    LaunchedEffect(key1 = drag) {
+        when (drag) {
+            Drag.End, Drag.Cancel -> {
+                onDragEnd()
+            }
+
+            else -> Unit
+        }
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         GridLayout(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(gridPaddingDp)
-                .weight(1f)
                 .background(
                     color = Color(textColor).copy(alpha = 0.25f),
                     shape = RoundedCornerShape(8.dp),
@@ -80,8 +100,8 @@ fun ResizeScreen(
                     color = Color(textColor),
                     shape = RoundedCornerShape(8.dp),
                 ),
-            rows = rows,
-            columns = columns,
+            rows = folderRows,
+            columns = folderColumns,
         ) {
             gridItems.forEach { gridItem ->
                 GridItemContent(
@@ -90,76 +110,8 @@ fun ResizeScreen(
                 )
             }
         }
-
-        GridLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dockHeightDp),
-            rows = dockRows,
-            columns = dockColumns,
-        ) {
-            dockGridItems.forEach { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    color = Color(textColor),
-                )
-            }
-        }
     }
 
-    val gridWidth = rootWidth - (gridPaddingPx * 2)
-
-    val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
-
-    val cellWidth = gridWidth / columns
-
-    val cellHeight = gridHeight / rows
-
-    when (val data = gridItem.data) {
-        is GridItemData.ApplicationInfo,
-        is GridItemData.ShortcutInfo,
-        is GridItemData.Folder,
-            -> {
-            GridItemResizeOverlay(
-                gridPadding = gridPaddingPx,
-                gridItem = gridItem,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                rows = rows,
-                columns = columns,
-                startRow = gridItem.startRow,
-                startColumn = gridItem.startColumn,
-                rowSpan = gridItem.rowSpan,
-                columnSpan = gridItem.columnSpan,
-                color = Color(textColor),
-                onResizeGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
-            )
-        }
-
-        is GridItemData.Widget -> {
-            WidgetGridItemResizeOverlay(
-                gridPadding = gridPaddingPx,
-                gridItem = gridItem,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
-                rows = rows,
-                columns = columns,
-                data = data,
-                startRow = gridItem.startRow,
-                startColumn = gridItem.startColumn,
-                rowSpan = gridItem.rowSpan,
-                columnSpan = gridItem.columnSpan,
-                color = Color(textColor),
-                onResizeWidgetGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
-            )
-        }
-    }
 }
 
 @Composable
@@ -200,7 +152,7 @@ private fun GridItemContent(
                 }
 
                 is GridItemData.Folder -> {
-                    FolderGridItem(
+                    NestedFolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         color = color,

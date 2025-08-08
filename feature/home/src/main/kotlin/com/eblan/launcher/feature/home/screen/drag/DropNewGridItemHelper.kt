@@ -8,12 +8,10 @@ import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
-import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
@@ -135,9 +133,7 @@ fun handleConfigureResult(
     moveGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     resultCode: Int,
-    horizontalPagerState: PagerState,
-    infiniteScroll: Boolean,
-    pageCount: Int,
+    targetPage: Int,
     onDeleteWidgetGridItemCache: (
         targetPage: Int,
         gridItem: GridItem,
@@ -156,12 +152,6 @@ fun handleConfigureResult(
     val data = (updatedGridItem.data as? GridItemData.Widget)
         ?: error("Expected GridItemData as Widget")
 
-    val targetPage = calculatePage(
-        index = horizontalPagerState.currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     if (resultCode == Activity.RESULT_CANCELED) {
         onDeleteWidgetGridItemCache(targetPage, updatedGridItem, data.appWidgetId)
     }
@@ -177,9 +167,7 @@ fun handleDeleteAppWidgetId(
     gridItem: GridItem,
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
+    targetPage: Int,
     onDeleteWidgetGridItemCache: (
         targetPage: Int,
         gridItem: GridItem,
@@ -191,12 +179,6 @@ fun handleDeleteAppWidgetId(
     ) {
         check(gridItem.data is GridItemData.Widget)
 
-        val targetPage = calculatePage(
-            index = currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
         onDeleteWidgetGridItemCache(targetPage, gridItem, appWidgetId)
     }
 }
@@ -204,9 +186,7 @@ fun handleDeleteAppWidgetId(
 fun handleBoundWidget(
     gridItemSource: GridItemSource,
     updatedGridItem: GridItem?,
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
+    targetPage: Int,
     moveGridItemResult: MoveGridItemResult?,
     onConfigure: (Intent) -> Unit,
     onDragEndAfterMove: (
@@ -219,12 +199,6 @@ fun handleBoundWidget(
     val data = (updatedGridItem?.data as? GridItemData.Widget) ?: return
 
     requireNotNull(moveGridItemResult)
-
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
 
     when (gridItemSource) {
         is GridItemSource.New -> {

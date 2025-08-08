@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class MoveGridItemUseCase @Inject constructor(
+class MoveFolderGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
 ) {
     suspend operator fun invoke(
@@ -150,9 +150,9 @@ class MoveGridItemUseCase @Inject constructor(
             }
 
             ResolveDirection.Center -> {
-                resolvedConflictsGridItems = gridItems
+                resolvedConflictsGridItems = null
 
-                conflictingGridItem = gridItemByCoordinates
+                conflictingGridItem = null
             }
         }
 

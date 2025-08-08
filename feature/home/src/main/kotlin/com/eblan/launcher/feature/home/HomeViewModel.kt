@@ -13,10 +13,12 @@ import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
+import com.eblan.launcher.domain.usecase.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterMoveUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterResizeUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
@@ -28,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -47,7 +50,9 @@ class HomeViewModel @Inject constructor(
     pageCacheRepository: PageCacheRepository,
     private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
 ) : ViewModel() {
 
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -136,6 +141,36 @@ class HomeViewModel @Inject constructor(
                     rows = rows,
                     columns = columns,
                 )
+            }
+        }
+    }
+
+    fun moveFolderGridItem(
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        rows: Int,
+        columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) {
+        viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
+            moveGridItemJob = launch {
+                delay(defaultDelay)
+
+                _moveGridItemResult.update {
+                    moveFolderGridItemUseCase(
+                        movingGridItem = movingGridItem,
+                        x = x,
+                        y = y,
+                        rows = rows,
+                        columns = columns,
+                        gridWidth = gridWidth,
+                        gridHeight = gridHeight,
+                    )
+                }
             }
         }
     }
@@ -241,6 +276,37 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun resetGridCacheAfterMoveFolder() {
+        viewModelScope.launch {
+            val lastId = _folders.value.last().id
+
+            _screen.update {
+                Screen.Loading
+            }
+
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
+
+            gridCacheRepository.updateIsCache(isCache = false)
+
+            delay(defaultDelay)
+
+            folderGridItemRepository.getFolderGridItemData(id = lastId)
+                ?.let { folder ->
+                    _folders.update { currentFolders ->
+                        ArrayDeque(currentFolders).apply {
+                            val index = indexOfFirst { it.id == lastId }
+
+                            set(index, folder)
+                        }
+                    }
+
+                    _screen.update {
+                        Screen.Folder
+                    }
+                }
+        }
+    }
+
     fun cancelGridCache() {
         viewModelScope.launch {
             gridCacheRepository.updateIsCache(isCache = false)
@@ -290,7 +356,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getFolderGridItemData(id: String) {
+    fun showFolder(id: String) {
         viewModelScope.launch {
             folderGridItemRepository.getFolderGridItemData(id = id)?.let { folder ->
                 _folders.update { currentFolders ->

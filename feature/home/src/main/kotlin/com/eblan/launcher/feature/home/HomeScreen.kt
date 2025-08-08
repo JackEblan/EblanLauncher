@@ -38,6 +38,7 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
+import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
@@ -75,10 +76,12 @@ fun HomeRoute(
         pageItems = pageItems,
         folders = folders,
         onMoveGridItem = viewModel::moveGridItem,
+        onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
         onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
+        onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
         onCancelGridCache = viewModel::cancelGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
@@ -88,7 +91,7 @@ fun HomeRoute(
         onDeleteGridItemCache = viewModel::deleteGridItemCache,
         onUpdateGridItemDataCache = viewModel::updateGridItemDataCache,
         onDeleteWidgetGridItemCache = viewModel::deleteWidgetGridItemCache,
-        onGetFolderGridItemData = viewModel::getFolderGridItemData,
+        onShowFolder = viewModel::showFolder,
         onRemoveLastFolder = viewModel::removeLastFolder,
         onAddFolder = viewModel::addFolder,
     )
@@ -113,6 +116,15 @@ fun HomeScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onMoveFolderGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        rows: Int,
+        columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -127,6 +139,7 @@ fun HomeScreen(
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
+    onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -143,7 +156,7 @@ fun HomeScreen(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onGetFolderGridItemData: (String) -> Unit,
+    onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
 ) {
@@ -234,6 +247,7 @@ fun HomeScreen(
                         textColor = homeUiState.homeData.textColor,
                         folders = folders,
                         onMoveGridItem = onMoveGridItem,
+                        onMoveFolderGridItem = onMoveFolderGridItem,
                         onResizeGridItem = onResizeGridItem,
                         onShowGridCache = onShowGridCache,
                         onResetGridCacheAfterResize = onResetGridCacheAfterResize,
@@ -247,9 +261,10 @@ fun HomeScreen(
                         onDeleteGridItemCache = onDeleteGridItemCache,
                         onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                         onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                        onGetFolderGridItemData = onGetFolderGridItemData,
+                        onShowFolder = onShowFolder,
                         onRemoveLastFolder = onRemoveLastFolder,
                         onAddFolder = onAddFolder,
+                        onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                     )
                 }
             }
@@ -285,6 +300,15 @@ private fun Success(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onMoveFolderGridItem: (
+        movingGridItem: GridItem,
+        x: Int,
+        y: Int,
+        rows: Int,
+        columns: Int,
+        gridWidth: Int,
+        gridHeight: Int,
+    ) -> Unit,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -299,6 +323,7 @@ private fun Success(
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
+    onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
@@ -315,7 +340,7 @@ private fun Success(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
-    onGetFolderGridItemData: (String) -> Unit,
+    onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
 ) {
@@ -368,8 +393,7 @@ private fun Success(
                     onTapFolderGridItem = { newCurrentPage, id ->
                         targetPage = newCurrentPage
 
-
-                        onGetFolderGridItemData(id)
+                        onShowFolder(id)
                     },
                     onDraggingGridItem = {
                         onShowGridCache(gridItems, Screen.Drag)
@@ -480,10 +504,32 @@ private fun Success(
                     folderColumns = userData.homeSettings.folderColumns,
                     folders = folders,
                     textColor = textColor,
-                    rootHeight = rootHeight,
+                    drag = drag,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
+                    onLongPressGridItem = { newGridItemSource ->
+                        gridItemSource = newGridItemSource
+                    },
+                    onDraggingGridItem = { folderGridItems ->
+                        onShowGridCache(folderGridItems, Screen.FolderDrag)
+                    },
+                )
+            }
+
+            Screen.FolderDrag -> {
+                FolderDragScreen(
+                    folderRows = userData.homeSettings.folderRows,
+                    folderColumns = userData.homeSettings.folderColumns,
+                    gridItems = gridItems,
+                    gridItem = gridItemSource?.gridItem,
+                    textColor = textColor,
+                    drag = drag,
+                    dragIntOffset = dragIntOffset,
+                    rootWidth = rootWidth,
+                    rootHeight = rootHeight,
+                    onMoveFolderGridItem = onMoveFolderGridItem,
+                    onDragEnd = onResetGridCacheAfterMoveFolder,
                 )
             }
         }

@@ -99,6 +99,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
                     if (movedSecondGridItem != null) {
                         val newData = GridItemData.Folder(
+                            id = conflictingGridItem.id,
                             label = "Unknown",
                             gridItems = emptyList(),
                         )

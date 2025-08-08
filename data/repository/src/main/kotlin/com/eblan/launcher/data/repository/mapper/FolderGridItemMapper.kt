@@ -38,6 +38,7 @@ internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Fo
     } ?: emptyList()
 
     return GridItemData.Folder(
+        id = folderGridItemEntity.id,
         label = folderGridItemEntity.label,
         gridItems = applicationInfoGridItems + widgetGridItems + shortcutInfos + folders,
     )
@@ -54,6 +55,7 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem {
         rowSpan = rowSpan,
         columnSpan = columnSpan,
         data = GridItemData.Folder(
+            id = id,
             label = label,
             gridItems = emptyList(),
         ),

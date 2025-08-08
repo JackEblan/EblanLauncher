@@ -229,7 +229,7 @@ fun InteractiveNestedFolderGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
-    Column(
+    NestedFolderGridItem(
         modifier = modifier
             .gridItem(gridItem)
             .dragAndDropSource(
@@ -250,28 +250,9 @@ fun InteractiveNestedFolderGridItem(
                     )
                 },
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Icon(
-            imageVector = EblanLauncherIcons.Link,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp, 40.dp)
-                .weight(1f),
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = data.label,
-            modifier = Modifier.weight(1f),
-            color = Color(textColor),
-            textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
-        )
-    }
+        data = data,
+        color = Color(textColor),
+    )
 }
 
 @Composable
@@ -427,6 +408,38 @@ fun FolderGridItem(
 
         Text(
             text = data.label,
+            color = color,
+            textAlign = TextAlign.Center,
+            fontSize = TextUnit(
+                value = 10f,
+                type = TextUnitType.Sp,
+            ),
+        )
+    }
+}
+
+@Composable
+fun NestedFolderGridItem(
+    modifier: Modifier,
+    data: GridItemData.Folder,
+    color: Color,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = EblanLauncherIcons.Link,
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp, 40.dp)
+                .weight(1f),
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = data.label,
+            modifier = Modifier.weight(1f),
             color = color,
             textAlign = TextAlign.Center,
             fontSize = TextUnit(

@@ -6,7 +6,6 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.PageDirection
-import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.delay
 
 suspend fun handlePageDirection(
@@ -28,9 +27,7 @@ suspend fun handlePageDirection(
 }
 
 suspend fun handleDragIntOffset(
-    currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
+    targetPage: Int,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
@@ -40,8 +37,8 @@ suspend fun handleDragIntOffset(
     rootWidth: Int,
     dockColumns: Int,
     dockRows: Int,
-    columns: Int,
     rows: Int,
+    columns: Int,
     isScrollInProgress: Boolean,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
@@ -57,12 +54,6 @@ suspend fun handleDragIntOffset(
     if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
-
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
 
     val isDraggingOnDock = dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
 

@@ -39,7 +39,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    getHomeDataUseCase: GetHomeDataUseCase,
+    private val getHomeDataUseCase: GetHomeDataUseCase,
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
@@ -384,6 +384,32 @@ class HomeViewModel @Inject constructor(
         _folders.update { currentFolders ->
             ArrayDeque(currentFolders).apply {
                 removeLast()
+            }
+        }
+    }
+
+    fun moveGridItemOutsideFolder() {
+        viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
+            moveGridItemJob = launch {
+                delay(defaultDelay)
+
+                updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
+
+                gridCacheRepository.updateIsCache(isCache = false)
+
+                gridCacheRepository.insertGridItems(gridItems = getHomeDataUseCase().first().gridItems)
+
+                gridCacheRepository.updateIsCache(isCache = true)
+
+                _folders.update {
+                    ArrayDeque()
+                }
+
+                _screen.update {
+                    Screen.Drag
+                }
             }
         }
     }

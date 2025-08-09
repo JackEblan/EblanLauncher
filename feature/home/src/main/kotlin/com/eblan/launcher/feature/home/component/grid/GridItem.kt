@@ -401,7 +401,13 @@ fun FolderGridItem(
                         )
                     }
 
-                    is GridItemData.Folder -> Unit
+                    is GridItemData.Folder -> {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Folder,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
         }

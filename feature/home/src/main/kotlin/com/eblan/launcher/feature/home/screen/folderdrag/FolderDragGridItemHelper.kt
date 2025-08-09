@@ -5,6 +5,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 
 fun handleFolderDragIntOffset(
     drag: Drag,
@@ -24,6 +25,7 @@ fun handleFolderDragIntOffset(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
     if (drag != Drag.Dragging) {
         return
@@ -40,6 +42,17 @@ fun handleFolderDragIntOffset(
     val cellWidth = gridWidth / columns
 
     val cellHeight = gridHeight / rows
+
+    val verticalOutOfBounds =
+        dragIntOffset.y < gridPadding || dragIntOffset.y > gridHeight
+
+    if (verticalOutOfBounds) {
+        onMoveOutsideFolder(
+            GridItemSource.Existing(gridItem = gridItem.copy(folderId = null)),
+        )
+
+        return
+    }
 
     val newGridItem = gridItem.copy(
         page = gridItem.page,

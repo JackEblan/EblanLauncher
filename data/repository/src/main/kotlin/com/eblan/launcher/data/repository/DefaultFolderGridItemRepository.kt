@@ -30,4 +30,8 @@ internal class DefaultFolderGridItemRepository @Inject constructor(private val f
 
         folderGridItemDao.upsertFolderGridItemEntities(entities = entities)
     }
+
+    override suspend fun deleteFolderGridItem(folderGridItem: FolderGridItem) {
+        folderGridItemDao.deleteFolderGridItemEntity(entity = folderGridItem.asEntity())
+    }
 }

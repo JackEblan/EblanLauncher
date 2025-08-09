@@ -94,6 +94,7 @@ fun HomeRoute(
         onShowFolder = viewModel::showFolder,
         onRemoveLastFolder = viewModel::removeLastFolder,
         onAddFolder = viewModel::addFolder,
+        onMoveOutsideFolder = viewModel::moveGridItemOutsideFolder,
     )
 }
 
@@ -159,6 +160,7 @@ fun HomeScreen(
     onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
+    onMoveOutsideFolder: () -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -265,6 +267,7 @@ fun HomeScreen(
                         onRemoveLastFolder = onRemoveLastFolder,
                         onAddFolder = onAddFolder,
                         onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                        onMoveOutsideFolder = onMoveOutsideFolder,
                     )
                 }
             }
@@ -343,6 +346,7 @@ private fun Success(
     onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
+    onMoveOutsideFolder: () -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -530,6 +534,11 @@ private fun Success(
                     rootHeight = rootHeight,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
+                    onMoveOutsideFolder = { newGridItemSource ->
+                        gridItemSource = newGridItemSource
+
+                        onMoveOutsideFolder()
+                    },
                 )
             }
         }

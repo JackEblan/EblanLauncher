@@ -51,6 +51,7 @@ fun FolderDragScreen(
         gridHeight: Int,
     ) -> Unit,
     onDragEnd: () -> Unit,
+    onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -58,7 +59,7 @@ fun FolderDragScreen(
 
     val density = LocalDensity.current
 
-    val gridPaddingDp = 20.dp
+    val gridPaddingDp = 80.dp
 
     val gridPaddingPx = with(density) {
         gridPaddingDp.roundToPx()
@@ -75,6 +76,7 @@ fun FolderDragScreen(
             columns = folderColumns,
             rows = folderRows,
             onMoveFolderGridItem = onMoveFolderGridItem,
+            onMoveOutsideFolder = onMoveOutsideFolder,
         )
     }
 
@@ -92,7 +94,10 @@ fun FolderDragScreen(
         GridLayout(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(gridPaddingDp)
+                .padding(
+                    vertical = gridPaddingDp,
+                    horizontal = 5.dp,
+                )
                 .background(
                     color = Color(textColor).copy(alpha = 0.25f),
                     shape = RoundedCornerShape(8.dp),

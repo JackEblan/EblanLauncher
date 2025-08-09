@@ -11,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
@@ -29,6 +31,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun updateGridItems(
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
@@ -73,20 +76,20 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 }
 
                 else -> {
-                    val folderId = conflictingGridItem.id
+                    val id = Uuid.random().toHexString()
 
                     val firstGridItem =
                         conflictingGridItem.copy(
                             startRow = 0,
                             startColumn = 0,
-                            folderId = folderId,
+                            folderId = id,
                         )
 
                     val secondGridItem =
                         movingGridItem.copy(
                             startRow = 0,
                             startColumn = 0,
-                            folderId = folderId,
+                            folderId = id,
                         )
 
                     val movedSecondGridItem = moveGridItem(
@@ -99,7 +102,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
                     if (movedSecondGridItem != null) {
                         val newData = GridItemData.Folder(
-                            id = conflictingGridItem.id,
+                            id = id,
                             label = "Unknown",
                             gridItems = emptyList(),
                         )
@@ -108,7 +111,12 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
                         gridItems[movingIndex] = movedSecondGridItem
 
-                        gridItems.add(conflictingGridItem.copy(data = newData))
+                        gridItems.add(
+                            conflictingGridItem.copy(
+                                id = id,
+                                data = newData,
+                            ),
+                        )
 
                         updateGridItemsUseCase(gridItems = gridItems)
                     }

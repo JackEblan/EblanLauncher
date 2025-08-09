@@ -11,4 +11,6 @@ interface FolderGridItemRepository {
     suspend fun getFolderGridItemData(id: String): GridItemData.Folder?
 
     suspend fun upsertFolderGridItems(folderGridItems: List<FolderGridItem>)
+
+    suspend fun deleteFolderGridItem(folderGridItem: FolderGridItem)
 }

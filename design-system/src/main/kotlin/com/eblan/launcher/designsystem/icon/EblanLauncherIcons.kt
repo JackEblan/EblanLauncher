@@ -4,9 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Settings
@@ -22,5 +22,5 @@ object EblanLauncherIcons {
     val Settings = Icons.Default.Settings
     val Pages = Icons.Default.Pages
     val Gesture = Icons.Default.Gesture
-    val Link = Icons.Default.Link
+    val Folder = Icons.Default.Folder
 }

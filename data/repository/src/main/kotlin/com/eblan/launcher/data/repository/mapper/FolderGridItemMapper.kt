@@ -21,11 +21,11 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem {
 }
 
 internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Folder {
-    val applicationInfoGridItems = applicationInfos?.map { applicationInfoGridItemEntity ->
+    val applicationInfos = applicationInfos?.map { applicationInfoGridItemEntity ->
         applicationInfoGridItemEntity.asGridItem()
     } ?: emptyList()
 
-    val widgetGridItems = widgets?.map { widgetGridItemEntity ->
+    val widgets = widgets?.map { widgetGridItemEntity ->
         widgetGridItemEntity.asGridItem()
     } ?: emptyList()
 
@@ -40,7 +40,7 @@ internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Fo
     return GridItemData.Folder(
         id = folderGridItemEntity.id,
         label = folderGridItemEntity.label,
-        gridItems = applicationInfoGridItems + widgetGridItems + shortcutInfos + folders,
+        gridItems = applicationInfos + widgets + shortcutInfos + folders,
     )
 }
 

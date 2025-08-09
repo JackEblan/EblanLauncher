@@ -83,7 +83,9 @@ fun FolderScreen(
                                     gridItem = gridItem,
                                     gridItemData = data,
                                     onLongPress = {
-
+                                        onLongPressGridItem(
+                                            GridItemSource.Existing(gridItem = gridItem),
+                                        )
                                     },
                                 )
                             }

@@ -429,7 +429,7 @@ fun NestedFolderGridItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
-            imageVector = EblanLauncherIcons.Link,
+            imageVector = EblanLauncherIcons.Folder,
             contentDescription = null,
             modifier = Modifier
                 .size(40.dp, 40.dp)

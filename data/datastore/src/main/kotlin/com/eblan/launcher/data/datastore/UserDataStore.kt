@@ -159,4 +159,24 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             }
         }
     }
+
+    suspend fun updateFolderRows(folderRows: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.folderRows = folderRows
+                }
+            }
+        }
+    }
+
+    suspend fun updateFolderColumns(folderColumns: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.folderColumns = folderColumns
+                }
+            }
+        }
+    }
 }

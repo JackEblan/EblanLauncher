@@ -62,4 +62,12 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateWallpaperScroll(wallpaperScroll: Boolean) {
         userDataStore.updateWallpaperScroll(wallpaperScroll = wallpaperScroll)
     }
+
+    override suspend fun updateFolderRows(folderRows: Int) {
+        userDataStore.updateFolderRows(folderRows = folderRows)
+    }
+
+    override suspend fun updateFolderColumns(folderColumns: Int) {
+        userDataStore.updateFolderColumns(folderColumns = folderColumns)
+    }
 }

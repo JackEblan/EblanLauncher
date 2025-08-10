@@ -33,4 +33,8 @@ interface UserDataRepository {
     suspend fun updateTextColor(textColor: TextColor)
 
     suspend fun updateWallpaperScroll(wallpaperScroll: Boolean)
+
+    suspend fun updateFolderRows(folderRows: Int)
+
+    suspend fun updateFolderColumns(folderColumns: Int)
 }

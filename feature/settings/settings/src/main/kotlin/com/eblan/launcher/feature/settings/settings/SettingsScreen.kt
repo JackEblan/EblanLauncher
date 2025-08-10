@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,8 +35,11 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
     onFinish: () -> Unit,
+    onGeneral: () -> Unit,
     onHome: () -> Unit,
+    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
+    onFolder: () -> Unit,
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
 
@@ -42,8 +47,11 @@ fun SettingsRoute(
         modifier = modifier,
         settingsUiState = settingsUiState,
         onFinish = onFinish,
+        onGeneral = onGeneral,
         onHome = onHome,
+        onAppDrawer = onAppDrawer,
         onGestures = onGestures,
+        onFolder = onFolder,
     )
 }
 
@@ -53,8 +61,11 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     settingsUiState: SettingsUiState,
     onFinish: () -> Unit,
+    onGeneral: () -> Unit,
     onHome: () -> Unit,
+    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
+    onFolder: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -86,8 +97,11 @@ fun SettingsScreen(
 
                 is SettingsUiState.Success -> {
                     Success(
+                        onGeneral = onGeneral,
                         onHome = onHome,
+                        onAppDrawer = onAppDrawer,
                         onGestures = onGestures,
+                        onFolder = onFolder,
                     )
                 }
             }
@@ -98,16 +112,51 @@ fun SettingsScreen(
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
+    onGeneral: () -> Unit,
     onHome: () -> Unit,
+    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
+    onFolder: () -> Unit,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxSize(),
+    ) {
+        SettingsRow(
+            imageVector = EblanLauncherIcons.Settings,
+            title = "General",
+            subtitle = "Colors, icon packs",
+            onClick = onGeneral,
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         SettingsRow(
             imageVector = EblanLauncherIcons.Home,
             title = "Home",
             subtitle = "Grid, icon, dock, and more",
             onClick = onHome,
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsRow(
+            imageVector = EblanLauncherIcons.Apps,
+            title = "App Drawer",
+            subtitle = "Rows and columns count",
+            onClick = onAppDrawer,
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsRow(
+            imageVector = EblanLauncherIcons.Folder,
+            title = "Folder",
+            subtitle = "Rows and columns count",
+            onClick = onFolder,
+        )
+
         Spacer(modifier = Modifier.height(10.dp))
 
         SettingsRow(

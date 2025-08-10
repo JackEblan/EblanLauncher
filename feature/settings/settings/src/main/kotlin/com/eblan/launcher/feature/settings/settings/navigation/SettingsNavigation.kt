@@ -23,14 +23,20 @@ import com.eblan.launcher.feature.settings.settings.SettingsRoute
 
 fun NavGraphBuilder.settingsScreen(
     onFinish: () -> Unit,
+    onGeneral: () -> Unit,
     onHome: () -> Unit,
+    onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
+    onFolder: () -> Unit,
 ) {
     composable<SettingsRouteData> {
         SettingsRoute(
             onFinish = onFinish,
+            onGeneral = onGeneral,
             onHome = onHome,
+            onAppDrawer = onAppDrawer,
             onGestures = onGestures,
+            onFolder = onFolder,
         )
     }
 }

@@ -12,7 +12,8 @@ fun handleFolderDragIntOffset(
     gridItem: GridItem,
     dragIntOffset: IntOffset,
     rootHeight: Int,
-    gridPadding: Int,
+    verticalGridPadding: Int,
+    horizontalGridPadding: Int,
     rootWidth: Int,
     columns: Int,
     rows: Int,
@@ -31,20 +32,20 @@ fun handleFolderDragIntOffset(
         return
     }
 
-    val gridWidth = rootWidth - (gridPadding * 2)
+    val gridWidth = rootWidth - (horizontalGridPadding * 2)
 
-    val gridHeight = rootHeight - (gridPadding * 2)
+    val gridHeight = rootHeight - (verticalGridPadding * 2)
 
-    val gridX = dragIntOffset.x - gridPadding
+    val gridX = dragIntOffset.x - horizontalGridPadding
 
-    val gridY = dragIntOffset.y - gridPadding
+    val gridY = dragIntOffset.y - verticalGridPadding
 
     val cellWidth = gridWidth / columns
 
     val cellHeight = gridHeight / rows
 
     val verticalOutOfBounds =
-        dragIntOffset.y < gridPadding || dragIntOffset.y > rootHeight - gridPadding
+        dragIntOffset.y < verticalGridPadding || dragIntOffset.y > rootHeight - verticalGridPadding
 
     if (verticalOutOfBounds) {
         onMoveOutsideFolder(

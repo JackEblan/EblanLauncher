@@ -59,10 +59,16 @@ fun FolderDragScreen(
 
     val density = LocalDensity.current
 
-    val gridPaddingDp = 80.dp
+    val verticalGridPaddingDp = 80.dp
 
-    val gridPaddingPx = with(density) {
-        gridPaddingDp.roundToPx()
+    val horizontalGridPaddingDp = 5.dp
+
+    val verticalGridPaddingPx = with(density) {
+        verticalGridPaddingDp.roundToPx()
+    }
+
+    val horizontalGridPaddingPx = with(density) {
+        horizontalGridPaddingDp.roundToPx()
     }
 
     LaunchedEffect(key1 = dragIntOffset) {
@@ -71,7 +77,8 @@ fun FolderDragScreen(
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             rootHeight = rootHeight,
-            gridPadding = gridPaddingPx,
+            verticalGridPadding = verticalGridPaddingPx,
+            horizontalGridPadding = horizontalGridPaddingPx,
             rootWidth = rootWidth,
             columns = folderColumns,
             rows = folderRows,
@@ -95,8 +102,8 @@ fun FolderDragScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    vertical = gridPaddingDp,
-                    horizontal = 5.dp,
+                    vertical = verticalGridPaddingDp,
+                    horizontal = horizontalGridPaddingDp,
                 )
                 .background(
                     color = Color(textColor).copy(alpha = 0.25f),

@@ -107,6 +107,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
+            _moveGridItemResult.update {
+                null
+            }
+
             moveGridItemJob = launch {
                 delay(defaultDelay)
 
@@ -133,6 +137,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
+            _moveGridItemResult.update {
+                null
+            }
+
             moveGridItemJob = launch {
                 delay(defaultDelay)
 
@@ -157,6 +165,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
+            _moveGridItemResult.update {
+                null
+            }
+
             moveGridItemJob = launch {
                 delay(defaultDelay)
 
@@ -180,10 +192,6 @@ class HomeViewModel @Inject constructor(
         screen: Screen,
     ) {
         viewModelScope.launch {
-            _updatedGridItem.update {
-                null
-            }
-
             gridCacheRepository.insertGridItems(gridItems = gridItems)
 
             gridCacheRepository.updateIsCache(isCache = true)
@@ -267,6 +275,10 @@ class HomeViewModel @Inject constructor(
             )
 
             gridCacheRepository.updateIsCache(isCache = false)
+
+            _updatedGridItem.update {
+                null
+            }
 
             delay(defaultDelay)
 

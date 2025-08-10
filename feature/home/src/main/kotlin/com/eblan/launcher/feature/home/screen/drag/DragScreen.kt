@@ -22,6 +22,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,6 +53,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -136,15 +138,19 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
+    val targetPage by remember {
+        derivedStateOf {
+            calculatePage(
+                index = horizontalPagerState.currentPage,
+                infiniteScroll = infiniteScroll,
+                pageCount = pageCount,
+            )
+        }
+    }
+
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        val targetPage = calculatePage(
-            index = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
         handleConfigureResult(
             targetPage = targetPage,
             moveGridItemResult = moveGridItemResult,
@@ -169,12 +175,6 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = dragIntOffset) {
-        val targetPage = calculatePage(
-            index = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
         handleDragIntOffset(
             targetPage = targetPage,
             drag = drag,
@@ -211,12 +211,6 @@ fun DragScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.End -> {
-                val targetPage = calculatePage(
-                    index = horizontalPagerState.currentPage,
-                    infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
-                )
-
                 handleOnDragEnd(
                     targetPage = targetPage,
                     moveGridItemResult = moveGridItemResult,
@@ -235,12 +229,6 @@ fun DragScreen(
             }
 
             Drag.Cancel -> {
-                val targetPage = calculatePage(
-                    index = horizontalPagerState.currentPage,
-                    infiniteScroll = infiniteScroll,
-                    pageCount = pageCount,
-                )
-
                 onDragCancel(targetPage)
             }
 
@@ -249,12 +237,6 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
-        val targetPage = calculatePage(
-            index = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
         handleDeleteAppWidgetId(
             targetPage = targetPage,
             gridItem = gridItemSource.gridItem,
@@ -265,12 +247,6 @@ fun DragScreen(
     }
 
     LaunchedEffect(key1 = updatedGridItem) {
-        val targetPage = calculatePage(
-            index = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
         handleBoundWidget(
             targetPage = targetPage,
             gridItemSource = gridItemSource,
@@ -338,6 +314,7 @@ fun DragScreen(
     }
 
     if (moveGridItemResult != null &&
+        moveGridItemResult.isSuccess &&
         moveGridItemResult.conflictingGridItem == null &&
         drag == Drag.End
     ) {
@@ -474,12 +451,14 @@ private fun AnimatedDropGridItem(
                 Animatable(shadowY.toFloat())
             }
 
-            LaunchedEffect(key1 = animatedX) {
-                animatedX.animateTo(x.toFloat() + gridPaddingPx)
-            }
+            LaunchedEffect(key1 = moveGridItemResult) {
+                launch {
+                    animatedX.animateTo(x.toFloat() + gridPaddingPx)
+                }
 
-            LaunchedEffect(key1 = animatedY) {
-                animatedY.animateTo(y.toFloat() + gridPaddingPx)
+                launch {
+                    animatedY.animateTo(y.toFloat() + gridPaddingPx)
+                }
             }
 
             val size = with(density) {

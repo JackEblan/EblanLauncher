@@ -393,7 +393,15 @@ class HomeViewModel @Inject constructor(
             moveGridItemJob?.cancelAndJoin()
 
             moveGridItemJob = launch {
+                _screen.update {
+                    Screen.Loading
+                }
+
                 delay(defaultDelay)
+
+                _folders.update {
+                    ArrayDeque()
+                }
 
                 updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
 
@@ -402,10 +410,6 @@ class HomeViewModel @Inject constructor(
                 gridCacheRepository.insertGridItems(gridItems = getHomeDataUseCase().first().gridItems)
 
                 gridCacheRepository.updateIsCache(isCache = true)
-
-                _folders.update {
-                    ArrayDeque()
-                }
 
                 _screen.update {
                     Screen.Drag

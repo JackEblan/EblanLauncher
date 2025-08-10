@@ -1,7 +1,9 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.grid.findAvailableRegion
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.moveGridItem
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ResolveDirection
@@ -38,11 +40,31 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     ) {
         val homeSettings = userDataRepository.userData.first().homeSettings
 
+        val rows = if (movingGridItem.associate == Associate.Grid) {
+            homeSettings.rows
+        } else {
+            homeSettings.dockRows
+        }
+
+        val columns = if (movingGridItem.associate == Associate.Grid) {
+            homeSettings.columns
+        } else {
+            homeSettings.dockColumns
+        }
+
         val folderRows = homeSettings.folderRows
 
         val folderColumns = homeSettings.folderColumns
 
-        val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
+        val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+            isGridItemSpanWithinBounds(
+                gridItem = gridItem,
+                rows = rows,
+                columns = columns,
+            ) && gridItem.page == movingGridItem.page &&
+                    gridItem.associate == movingGridItem.associate
+
+        }.toMutableList()
 
         val movingIndex =
             gridItems.indexOfFirst { it.id == movingGridItem.id }

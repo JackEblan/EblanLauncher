@@ -638,7 +638,14 @@ private fun HorizontalPagerScreen(
                             gridItem = gridItem,
                             data = data,
                             onTap = {
-
+                                onTapFolderGridItem(
+                                    calculatePage(
+                                        index = horizontalPagerState.currentPage,
+                                        infiniteScroll = infiniteScroll,
+                                        pageCount = pageCount,
+                                    ),
+                                    gridItem.id,
+                                )
                             },
                             onLongPress = {
                                 popupMenuIntOffset = IntOffset(x = x, y = y)

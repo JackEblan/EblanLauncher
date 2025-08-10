@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -408,43 +409,51 @@ fun FolderGridItem(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            maxItemsInEachRow = 2,
+            horizontalArrangement = Arrangement.SpaceAround,
+            maxItemsInEachRow = 3,
         ) {
-            data.gridItems.forEach { gridItem ->
-                when (val currentData = gridItem.data) {
-                    is GridItemData.ApplicationInfo -> {
-                        AsyncImage(
-                            model = currentData.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    }
+            data.gridItems
+                .take(6)
+                .sortedBy { it.startRow + it.startColumn }
+                .forEach { gridItem ->
+                    Column {
+                        when (val currentData = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                AsyncImage(
+                                    model = currentData.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
 
-                    is GridItemData.ShortcutInfo -> {
-                        AsyncImage(
-                            model = currentData.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    }
+                            is GridItemData.ShortcutInfo -> {
+                                AsyncImage(
+                                    model = currentData.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
 
-                    is GridItemData.Widget -> {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Widgets,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    }
+                            is GridItemData.Widget -> {
+                                Icon(
+                                    imageVector = EblanLauncherIcons.Widgets,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
 
-                    is GridItemData.Folder -> {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Folder,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
+                            is GridItemData.Folder -> {
+                                Icon(
+                                    imageVector = EblanLauncherIcons.Folder,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(5.dp))
                     }
                 }
-            }
         }
 
         Text(

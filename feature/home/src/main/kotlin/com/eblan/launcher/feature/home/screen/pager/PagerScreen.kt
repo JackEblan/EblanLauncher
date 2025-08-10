@@ -679,7 +679,10 @@ private fun HorizontalPagerScreen(
                     },
                     content = {
                         when (val data = gridItem.data) {
-                            is GridItemData.ApplicationInfo, is GridItemData.ShortcutInfo -> {
+                            is GridItemData.ApplicationInfo,
+                            is GridItemData.ShortcutInfo,
+                            is GridItemData.Folder,
+                                -> {
                                 ApplicationInfoGridItemMenu(
                                     showResize = true,
                                     onEdit = onEdit,
@@ -712,10 +715,6 @@ private fun HorizontalPagerScreen(
                                         )
                                     },
                                 )
-                            }
-
-                            is GridItemData.Folder -> {
-
                             }
                         }
                     },

@@ -7,6 +7,7 @@ import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -46,24 +48,32 @@ fun InteractiveApplicationInfoGridItem(
     data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
+    onDragging: () -> Unit,
 ) {
     ApplicationInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        onTap()
+                    },
+                )
+            }
             .dragAndDropSource(
                 block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
                             onLongPress()
-
+                        },
+                        onDrag = { _, _ ->
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+
+                            onDragging()
                         },
                     )
                 },
@@ -82,24 +92,32 @@ fun InteractiveShortcutInfoGridItem(
     data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
+    onDragging: () -> Unit,
 ) {
     ShortcutInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        onTap()
+                    },
+                )
+            }
             .dragAndDropSource(
                 block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
                             onLongPress()
-
+                        },
+                        onDrag = { _, _ ->
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+
+                            onDragging()
                         },
                     )
                 },
@@ -116,6 +134,7 @@ fun InteractiveWidgetGridItem(
     gridItem: GridItem,
     gridItemData: GridItemData.Widget,
     onLongPress: () -> Unit,
+    onDragging: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -192,24 +211,32 @@ fun InteractiveFolderGridItem(
     data: GridItemData.Folder,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
+    onDragging: () -> Unit,
 ) {
     FolderGridItem(
         modifier = modifier
             .gridItem(gridItem)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        onTap()
+                    },
+                )
+            }
             .dragAndDropSource(
                 block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
                             onLongPress()
-
+                        },
+                        onDrag = { _, _ ->
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+
+                            onDragging()
                         },
                     )
                 },
@@ -228,24 +255,32 @@ fun InteractiveNestedFolderGridItem(
     data: GridItemData.Folder,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
+    onDragging: () -> Unit,
 ) {
     NestedFolderGridItem(
         modifier = modifier
             .gridItem(gridItem)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        onTap()
+                    },
+                )
+            }
             .dragAndDropSource(
                 block = {
-                    detectTapGestures(
-                        onTap = {
-                            onTap()
-                        },
-                        onLongPress = {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
                             onLongPress()
-
+                        },
+                        onDrag = { _, _ ->
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+
+                            onDragging()
                         },
                     )
                 },

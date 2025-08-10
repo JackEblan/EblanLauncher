@@ -383,7 +383,6 @@ private fun Success(
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    dragIntOffset = dragIntOffset,
                     gestureSettings = userData.gestureSettings,
                     wallpaperScroll = userData.homeSettings.wallpaperScroll,
                     onLongPressGrid = { newCurrentPage ->
@@ -508,7 +507,6 @@ private fun Success(
                     folderColumns = userData.homeSettings.folderColumns,
                     folders = folders,
                     textColor = textColor,
-                    drag = drag,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,

@@ -86,7 +86,6 @@ fun PagerScreen(
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
-    dragIntOffset: IntOffset,
     wallpaperScroll: Boolean,
     gestureSettings: GestureSettings,
     onLongPressGrid: (Int) -> Unit,
@@ -224,7 +223,6 @@ fun PagerScreen(
             drag = drag,
             appDrawerRowsHeight = appDrawerRowsHeight,
             hasShortcutHostPermission = hasShortcutHostPermission,
-            dragIntOffset = dragIntOffset,
             onLongPress = onLongPressGridItem,
             onDragging = onDraggingGridItem,
             onDismiss = {
@@ -262,7 +260,6 @@ fun PagerScreen(
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    dragIntOffset = dragIntOffset,
                     onLongPress = onLongPressGridItem,
                     onDragging = onDraggingGridItem,
                     onDismiss = {
@@ -346,12 +343,6 @@ private fun HorizontalPagerScreen(
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && showPopupGridItemMenu) {
-            showPopupGridItemMenu = false
-
-            onDraggingGridItem()
-        }
-
         handlePinItemRequest(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
@@ -453,6 +444,7 @@ private fun HorizontalPagerScreen(
                                         GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
+                                onDragging = onDraggingGridItem,
                             )
                         }
 
@@ -472,6 +464,7 @@ private fun HorizontalPagerScreen(
                                         GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
+                                onDragging = onDraggingGridItem,
                             )
                         }
 
@@ -500,6 +493,7 @@ private fun HorizontalPagerScreen(
                                         GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
+                                onDragging = onDraggingGridItem,
                             )
                         }
 
@@ -526,6 +520,7 @@ private fun HorizontalPagerScreen(
                                         GridItemSource.Existing(gridItem = gridItem),
                                     )
                                 },
+                                onDragging = onDraggingGridItem,
                             )
                         }
                     }
@@ -578,6 +573,7 @@ private fun HorizontalPagerScreen(
                                     GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
+                            onDragging = onDraggingGridItem,
                         )
                     }
 
@@ -601,6 +597,7 @@ private fun HorizontalPagerScreen(
                                     GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
+                            onDragging = onDraggingGridItem,
                         )
                     }
 
@@ -631,6 +628,7 @@ private fun HorizontalPagerScreen(
                                     GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
+                            onDragging = onDraggingGridItem,
                         )
                     }
 
@@ -658,6 +656,7 @@ private fun HorizontalPagerScreen(
                                     GridItemSource.Existing(gridItem = gridItem),
                                 )
                             },
+                            onDragging = onDraggingGridItem,
                         )
                     }
                 }
@@ -821,7 +820,6 @@ private fun ApplicationComponentScreen(
     drag: Drag,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
-    dragIntOffset: IntOffset,
     onLongPress: (
         currentPage: Int,
         newGridItemSource: GridItemSource,
@@ -868,7 +866,6 @@ private fun ApplicationComponentScreen(
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                                drag = drag,
                                 appDrawerRowsHeight = appDrawerRowsHeight,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
@@ -894,8 +891,6 @@ private fun ApplicationComponentScreen(
                                 rootWidth = rootWidth,
                                 rootHeight = rootHeight,
                                 dockHeight = dockHeight,
-                                drag = drag,
-                                dragIntOffset = dragIntOffset,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                                 onApplyToScroll = { newOverscrollOffset ->

@@ -3,7 +3,7 @@ package com.eblan.launcher.feature.home.screen.widget
 import android.content.ClipData
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +40,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
-import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.uuid.ExperimentalUuidApi
@@ -60,8 +58,6 @@ fun WidgetScreen(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
-    drag: Drag,
-    dragIntOffset: IntOffset,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -78,8 +74,6 @@ fun WidgetScreen(
         pageCount = pageCount,
     )
 
-    var isLongPress by remember { mutableStateOf(false) }
-
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
@@ -88,17 +82,6 @@ fun WidgetScreen(
             onApplyToScroll = onApplyToScroll,
             onApplyToFling = onApplyToFling,
         )
-    }
-
-    LaunchedEffect(key1 = dragIntOffset) {
-        val isDraggingOnGrid = dragIntOffset.y < (rootHeight - dockHeight)
-
-        if (drag == Drag.Dragging &&
-            isLongPress &&
-            isDraggingOnGrid
-        ) {
-            onDragging()
-        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -149,10 +132,8 @@ fun WidgetScreen(
                                     modifier = Modifier
                                         .dragAndDropSource(
                                             block = {
-                                                detectTapGestures(
-                                                    onLongPress = {
-                                                        isLongPress = true
-
+                                                detectDragGesturesAfterLongPress(
+                                                    onDragStart = {
                                                         onLongPress(
                                                             page,
                                                             GridItemSource.New(
@@ -180,7 +161,8 @@ fun WidgetScreen(
                                                                 ),
                                                             ),
                                                         )
-
+                                                    },
+                                                    onDrag = { change, dragAmount ->
                                                         startTransfer(
                                                             DragAndDropTransferData(
                                                                 clipData = ClipData.newPlainText(
@@ -189,6 +171,8 @@ fun WidgetScreen(
                                                                 ),
                                                             ),
                                                         )
+
+                                                        onDragging()
                                                     },
                                                 )
                                             },

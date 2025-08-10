@@ -530,6 +530,7 @@ private fun Success(
                     dragIntOffset = dragIntOffset,
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
+                    moveGridItemResult = movedGridItemResult,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onMoveOutsideFolder = { newGridItemSource ->

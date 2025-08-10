@@ -2,24 +2,33 @@ package com.eblan.launcher.feature.home.screen.folderdrag
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.NestedFolderGridItem
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
@@ -28,6 +37,7 @@ import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.drag.DragGridItem
+import kotlin.math.roundToInt
 
 @Composable
 fun FolderDragScreen(
@@ -41,6 +51,7 @@ fun FolderDragScreen(
     dragIntOffset: IntOffset,
     rootWidth: Int,
     rootHeight: Int,
+    moveGridItemResult: MoveGridItemResult?,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -122,12 +133,25 @@ fun FolderDragScreen(
                     gridItem = gridItem,
                     color = Color(textColor),
                     gridItemSource = gridItemSource,
-                    drag = drag,
                 )
             }
         }
     }
 
+    if (moveGridItemResult != null && drag == Drag.End) {
+        AnimatedDropGridItem(
+            moveGridItemResult = moveGridItemResult,
+            verticalGridPaddingPx = verticalGridPaddingPx,
+            horizontalGridPaddingPx = horizontalGridPaddingPx,
+            rootWidth = rootWidth,
+            rootHeight = rootHeight,
+            folderRows = folderRows,
+            folderColumns = folderColumns,
+            dragIntOffset = dragIntOffset,
+            density = density,
+            textColor = textColor,
+        )
+    }
 }
 
 @Composable
@@ -137,7 +161,6 @@ private fun GridItemContent(
     gridItem: GridItem,
     color: Color,
     gridItemSource: GridItemSource,
-    drag: Drag,
 ) {
     key(gridItem.id) {
         LookaheadScope {
@@ -149,7 +172,7 @@ private fun GridItemContent(
                 is GridItemData.ApplicationInfo -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id,
                         color = color,
                     ) {
                         ApplicationInfoGridItem(
@@ -163,7 +186,7 @@ private fun GridItemContent(
                 is GridItemData.Widget -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id,
                         color = color,
                     ) {
                         WidgetGridItem(
@@ -176,7 +199,7 @@ private fun GridItemContent(
                 is GridItemData.ShortcutInfo -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id,
                         color = color,
                     ) {
                         ShortcutInfoGridItem(
@@ -190,7 +213,7 @@ private fun GridItemContent(
                 is GridItemData.Folder -> {
                     DragGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id && drag == Drag.Dragging,
+                        isDragging = gridItemSource.gridItem.id == gridItem.id,
                         color = color,
                     ) {
                         NestedFolderGridItem(
@@ -202,5 +225,107 @@ private fun GridItemContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AnimatedDropGridItem(
+    moveGridItemResult: MoveGridItemResult,
+    verticalGridPaddingPx: Int,
+    horizontalGridPaddingPx: Int,
+    rootWidth: Int,
+    rootHeight: Int,
+    folderRows: Int,
+    folderColumns: Int,
+    dragIntOffset: IntOffset,
+    density: Density,
+    textColor: Long,
+) {
+    when (moveGridItemResult.movingGridItem.associate) {
+        Associate.Grid -> {
+            val gridWidth = rootWidth - (horizontalGridPaddingPx * 2)
+
+            val gridHeight = rootHeight - (verticalGridPaddingPx * 2)
+
+            val cellWidth = gridWidth / folderColumns
+
+            val cellHeight = gridHeight / folderRows
+
+            val x = moveGridItemResult.movingGridItem.startColumn * cellWidth
+
+            val y = moveGridItemResult.movingGridItem.startRow * cellHeight
+
+            val width = moveGridItemResult.movingGridItem.columnSpan * cellWidth
+
+            val height = moveGridItemResult.movingGridItem.rowSpan * cellHeight
+
+            val shadowX = dragIntOffset.x - (width / 2)
+
+            val shadowY = dragIntOffset.y - (height / 2)
+
+            val animatedX = remember {
+                Animatable(shadowX.toFloat())
+            }
+
+            val animatedY = remember {
+                Animatable(shadowY.toFloat())
+            }
+
+            LaunchedEffect(key1 = animatedX) {
+                animatedX.animateTo(x.toFloat() + horizontalGridPaddingPx)
+            }
+
+            LaunchedEffect(key1 = animatedY) {
+                animatedY.animateTo(y.toFloat() + verticalGridPaddingPx)
+            }
+
+            val size = with(density) {
+                DpSize(width = width.toDp(), height = height.toDp())
+            }
+
+            val gridItemModifier = Modifier
+                .offset {
+                    IntOffset(
+                        x = animatedX.value.roundToInt(),
+                        y = animatedY.value.roundToInt(),
+                    )
+                }
+                .size(size)
+
+            when (val data = moveGridItemResult.movingGridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = Color(textColor),
+                    )
+                }
+
+                is GridItemData.Widget -> {
+                    WidgetGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    ShortcutInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = Color(textColor),
+                    )
+                }
+
+                is GridItemData.Folder -> {
+                    FolderGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        color = Color(textColor),
+                    )
+                }
+            }
+        }
+
+        Associate.Dock -> Unit
     }
 }

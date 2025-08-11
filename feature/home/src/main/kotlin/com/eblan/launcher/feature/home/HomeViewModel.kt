@@ -297,6 +297,10 @@ class HomeViewModel @Inject constructor(
             delay(defaultDelay)
 
             gridCacheRepository.updateIsCache(isCache = false)
+
+            _moveGridItemResult.update {
+                null
+            }
         }
     }
 

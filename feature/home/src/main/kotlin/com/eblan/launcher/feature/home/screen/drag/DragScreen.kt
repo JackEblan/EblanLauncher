@@ -174,6 +174,19 @@ fun DragScreen(
         )
     }
 
+    val dropGridItem = remember(key1 = drag) {
+        if (drag == Drag.End &&
+            moveGridItemResult != null &&
+            moveGridItemResult.isSuccess &&
+            moveGridItemResult.conflictingGridItem == null &&
+            moveGridItemResult.movingGridItem.page == targetPage
+        ) {
+            moveGridItemResult.movingGridItem
+        } else {
+            null
+        }
+    }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             targetPage = targetPage,
@@ -313,13 +326,9 @@ fun DragScreen(
         }
     }
 
-    if (moveGridItemResult != null &&
-        moveGridItemResult.isSuccess &&
-        moveGridItemResult.conflictingGridItem == null &&
-        drag == Drag.End
-    ) {
+    if (dropGridItem != null) {
         AnimatedDropGridItem(
-            moveGridItemResult = moveGridItemResult,
+            gridItem = dropGridItem,
             gridPaddingPx = gridPaddingPx,
             rootWidth = rootWidth,
             rootHeight = rootHeight,
@@ -408,7 +417,7 @@ private fun GridItemContent(
 
 @Composable
 private fun AnimatedDropGridItem(
-    moveGridItemResult: MoveGridItemResult,
+    gridItem: GridItem,
     gridPaddingPx: Int,
     rootWidth: Int,
     rootHeight: Int,
@@ -421,7 +430,7 @@ private fun AnimatedDropGridItem(
     density: Density,
     textColor: Long,
 ) {
-    when (moveGridItemResult.movingGridItem.associate) {
+    when (gridItem.associate) {
         Associate.Grid -> {
             val gridWidth = rootWidth - (gridPaddingPx * 2)
 
@@ -431,13 +440,13 @@ private fun AnimatedDropGridItem(
 
             val cellHeight = gridHeight / rows
 
-            val x = moveGridItemResult.movingGridItem.startColumn * cellWidth
+            val x = gridItem.startColumn * cellWidth
 
-            val y = moveGridItemResult.movingGridItem.startRow * cellHeight
+            val y = gridItem.startRow * cellHeight
 
-            val width = moveGridItemResult.movingGridItem.columnSpan * cellWidth
+            val width = gridItem.columnSpan * cellWidth
 
-            val height = moveGridItemResult.movingGridItem.rowSpan * cellHeight
+            val height = gridItem.rowSpan * cellHeight
 
             val shadowX = dragIntOffset.x - (width / 2)
 
@@ -451,7 +460,7 @@ private fun AnimatedDropGridItem(
                 Animatable(shadowY.toFloat())
             }
 
-            LaunchedEffect(key1 = moveGridItemResult) {
+            LaunchedEffect(key1 = gridItem) {
                 launch {
                     animatedX.animateTo(x.toFloat() + gridPaddingPx)
                 }
@@ -474,7 +483,7 @@ private fun AnimatedDropGridItem(
                 }
                 .size(size)
 
-            when (val data = moveGridItemResult.movingGridItem.data) {
+            when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
@@ -513,11 +522,11 @@ private fun AnimatedDropGridItem(
 
             val cellHeight = dockHeight / dockRows
 
-            val x = moveGridItemResult.movingGridItem.startColumn * cellWidth
+            val x = gridItem.startColumn * cellWidth
 
-            val width = moveGridItemResult.movingGridItem.columnSpan * cellWidth
+            val width = gridItem.columnSpan * cellWidth
 
-            val height = moveGridItemResult.movingGridItem.rowSpan * cellHeight
+            val height = gridItem.rowSpan * cellHeight
 
             val shadowX = dragIntOffset.x - (width / 2)
 
@@ -552,7 +561,7 @@ private fun AnimatedDropGridItem(
                 }
                 .size(size)
 
-            when (val data = moveGridItemResult.movingGridItem.data) {
+            when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,

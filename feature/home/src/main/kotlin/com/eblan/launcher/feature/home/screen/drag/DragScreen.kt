@@ -174,19 +174,6 @@ fun DragScreen(
         )
     }
 
-    val dropGridItem = remember(key1 = drag) {
-        if (drag == Drag.End &&
-            moveGridItemResult != null &&
-            moveGridItemResult.isSuccess &&
-            moveGridItemResult.conflictingGridItem == null &&
-            moveGridItemResult.movingGridItem.page == targetPage
-        ) {
-            moveGridItemResult.movingGridItem
-        } else {
-            null
-        }
-    }
-
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
             targetPage = targetPage,
@@ -326,9 +313,14 @@ fun DragScreen(
         }
     }
 
-    if (dropGridItem != null) {
+    if (drag == Drag.End &&
+        moveGridItemResult != null &&
+        moveGridItemResult.isSuccess &&
+        moveGridItemResult.conflictingGridItem == null &&
+        moveGridItemResult.movingGridItem.page == targetPage
+    ) {
         AnimatedDropGridItem(
-            gridItem = dropGridItem,
+            gridItem = moveGridItemResult.movingGridItem,
             gridPaddingPx = gridPaddingPx,
             rootWidth = rootWidth,
             rootHeight = rootHeight,

@@ -251,6 +251,8 @@ class HomeViewModel @Inject constructor(
         conflictingGridItem: GridItem?,
     ) {
         viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
             updateGridItemsAfterMoveUseCase(
                 movingGridItem = movingGridItem,
                 conflictingGridItem = conflictingGridItem,
@@ -306,6 +308,8 @@ class HomeViewModel @Inject constructor(
 
     fun cancelGridCacheAfterMove() {
         viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
             gridCacheRepository.updateIsCache(isCache = false)
 
             delay(defaultDelay)

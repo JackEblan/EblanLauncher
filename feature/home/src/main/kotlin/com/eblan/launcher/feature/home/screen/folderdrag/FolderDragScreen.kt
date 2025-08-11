@@ -82,17 +82,6 @@ fun FolderDragScreen(
         horizontalGridPaddingDp.roundToPx()
     }
 
-    val dropGridItem = remember(key1 = drag) {
-        if (drag == Drag.End &&
-            moveGridItemResult != null &&
-            moveGridItemResult.isSuccess
-        ) {
-            moveGridItemResult.movingGridItem
-        } else {
-            null
-        }
-    }
-
     LaunchedEffect(key1 = dragIntOffset) {
         handleFolderDragIntOffset(
             drag = drag,
@@ -149,9 +138,12 @@ fun FolderDragScreen(
         }
     }
 
-    if (dropGridItem != null) {
+    if (drag == Drag.End &&
+        moveGridItemResult != null &&
+        moveGridItemResult.isSuccess
+    ) {
         AnimatedDropGridItem(
-            gridItem = dropGridItem,
+            gridItem = moveGridItemResult.movingGridItem,
             verticalGridPaddingPx = verticalGridPaddingPx,
             horizontalGridPaddingPx = horizontalGridPaddingPx,
             rootWidth = rootWidth,

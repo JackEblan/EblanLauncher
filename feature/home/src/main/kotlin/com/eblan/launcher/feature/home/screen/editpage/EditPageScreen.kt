@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.editpage
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -85,6 +86,10 @@ fun EditPageScreen(
     }
 
     val color = Color(textColor)
+
+    BackHandler {
+        onUpdateScreen(Screen.Pager)
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(

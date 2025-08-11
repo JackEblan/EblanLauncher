@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.resize
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
@@ -63,6 +64,10 @@ fun ResizeScreen(
 
     val gridPaddingPx = with(density) {
         gridPaddingDp.roundToPx()
+    }
+
+    BackHandler {
+        onResizeEnd()
     }
 
     Column(modifier = modifier.fillMaxSize()) {

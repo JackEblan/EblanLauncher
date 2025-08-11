@@ -60,11 +60,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         val index =
             gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 
-        if (index != -1) {
-            gridItems[index] = movingGridItem
-        } else {
-            gridItems.add(movingGridItem)
-        }
+        gridItems[index] = movingGridItem
 
         val gridItemByCoordinates = getGridItemByCoordinates(
             id = movingGridItem.id,

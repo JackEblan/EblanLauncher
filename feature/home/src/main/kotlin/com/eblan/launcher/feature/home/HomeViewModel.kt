@@ -104,23 +104,21 @@ class HomeViewModel @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ) {
-        viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
+        moveGridItemJob?.cancel()
 
-            moveGridItemJob = launch {
-                delay(defaultDelay)
+        moveGridItemJob = viewModelScope.launch {
+            delay(defaultDelay)
 
-                _moveGridItemResult.update {
-                    moveGridItemUseCase(
-                        movingGridItem = movingGridItem,
-                        x = x,
-                        y = y,
-                        rows = rows,
-                        columns = columns,
-                        gridWidth = gridWidth,
-                        gridHeight = gridHeight,
-                    )
-                }
+            _moveGridItemResult.update {
+                moveGridItemUseCase(
+                    movingGridItem = movingGridItem,
+                    x = x,
+                    y = y,
+                    rows = rows,
+                    columns = columns,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                )
             }
         }
     }
@@ -130,18 +128,16 @@ class HomeViewModel @Inject constructor(
         rows: Int,
         columns: Int,
     ) {
-        viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
+        moveGridItemJob?.cancel()
 
-            moveGridItemJob = launch {
-                delay(defaultDelay)
+        moveGridItemJob = viewModelScope.launch {
+            delay(defaultDelay)
 
-                resizeGridItemUseCase(
-                    resizingGridItem = resizingGridItem,
-                    rows = rows,
-                    columns = columns,
-                )
-            }
+            resizeGridItemUseCase(
+                resizingGridItem = resizingGridItem,
+                rows = rows,
+                columns = columns,
+            )
         }
     }
 
@@ -154,23 +150,21 @@ class HomeViewModel @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ) {
-        viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
+        moveGridItemJob?.cancel()
 
-            moveGridItemJob = launch {
-                delay(defaultDelay)
+        moveGridItemJob = viewModelScope.launch {
+            delay(defaultDelay)
 
-                _moveGridItemResult.update {
-                    moveFolderGridItemUseCase(
-                        movingGridItem = movingGridItem,
-                        x = x,
-                        y = y,
-                        rows = rows,
-                        columns = columns,
-                        gridWidth = gridWidth,
-                        gridHeight = gridHeight,
-                    )
-                }
+            _moveGridItemResult.update {
+                moveFolderGridItemUseCase(
+                    movingGridItem = movingGridItem,
+                    x = x,
+                    y = y,
+                    rows = rows,
+                    columns = columns,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                )
             }
         }
     }
@@ -286,20 +280,19 @@ class HomeViewModel @Inject constructor(
 
             updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
 
-            folderGridItemRepository.getFolderGridItemData(id = lastId)
-                ?.let { folder ->
-                    _folders.update { currentFolders ->
-                        ArrayDeque(currentFolders).apply {
-                            val index = indexOfFirst { it.id == lastId }
+            folderGridItemRepository.getFolderGridItemData(id = lastId)?.let { folder ->
+                _folders.update { currentFolders ->
+                    ArrayDeque(currentFolders).apply {
+                        val index = indexOfFirst { it.id == lastId }
 
-                            set(index, folder)
-                        }
-                    }
-
-                    _screen.update {
-                        Screen.Folder
+                        set(index, folder)
                     }
                 }
+
+                _screen.update {
+                    Screen.Folder
+                }
+            }
 
             delay(defaultDelay)
 

@@ -37,4 +37,8 @@ interface UserDataRepository {
     suspend fun updateFolderRows(folderRows: Int)
 
     suspend fun updateFolderColumns(folderColumns: Int)
+
+    suspend fun updateAppDrawerColumns(appDrawerColumns: Int)
+
+    suspend fun updateAppDrawerRowsHeight(appDrawerRowsHeight: Int)
 }

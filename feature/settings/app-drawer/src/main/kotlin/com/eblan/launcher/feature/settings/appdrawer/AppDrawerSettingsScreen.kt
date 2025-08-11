@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.settings.folder
+package com.eblan.launcher.feature.settings.appdrawer
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,42 +26,42 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.HomeSettings
-import com.eblan.launcher.feature.settings.folder.dialog.GridDialog
-import com.eblan.launcher.feature.settings.folder.model.FolderSettingsUiState
+import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.feature.settings.appdrawer.dialog.GridDialog
+import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiState
 
 @Composable
-fun FolderSettingsRoute(
+fun AppDrawerSettingsRoute(
     modifier: Modifier = Modifier,
-    viewModel: FolderSettingsViewModel = hiltViewModel(),
+    viewModel: AppDrawerSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
 ) {
-    val folderSettingsUiState by viewModel.folderSettingsUiState.collectAsStateWithLifecycle()
+    val appDrawerSettingsUiState by viewModel.appDrawerSettingsUiState.collectAsStateWithLifecycle()
 
-    FolderSettingsScreen(
+    AppDrawerSettingsScreen(
         modifier = modifier,
-        folderSettingsUiState = folderSettingsUiState,
+        appDrawerSettingsUiState = appDrawerSettingsUiState,
         onNavigateUp = onNavigateUp,
-        onUpdateFolderGrid = viewModel::updateFolderGrid,
+        onUpdateAppDrawerGrid = viewModel::updateAppDrawerGrid,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderSettingsScreen(
+fun AppDrawerSettingsScreen(
     modifier: Modifier = Modifier,
-    folderSettingsUiState: FolderSettingsUiState,
+    appDrawerSettingsUiState: AppDrawerSettingsUiState,
     onNavigateUp: () -> Unit,
-    onUpdateFolderGrid: (
-        rows: Int,
+    onUpdateAppDrawerGrid: (
         columns: Int,
+        rowsHeight: Int,
     ) -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Folder")
+                    Text(text = "AppDrawer")
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
@@ -80,15 +80,15 @@ fun FolderSettingsScreen(
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues),
         ) {
-            when (folderSettingsUiState) {
-                FolderSettingsUiState.Loading -> {
+            when (appDrawerSettingsUiState) {
+                AppDrawerSettingsUiState.Loading -> {
 
                 }
 
-                is FolderSettingsUiState.Success -> {
+                is AppDrawerSettingsUiState.Success -> {
                     Success(
-                        homeSettings = folderSettingsUiState.userData.homeSettings,
-                        onUpdateFolderGrid = onUpdateFolderGrid,
+                        appDrawerSettings = appDrawerSettingsUiState.userData.appDrawerSettings,
+                        onUpdateAppDrawerGrid = onUpdateAppDrawerGrid,
                     )
                 }
             }
@@ -100,10 +100,10 @@ fun FolderSettingsScreen(
 @Composable
 fun Success(
     modifier: Modifier = Modifier,
-    homeSettings: HomeSettings,
-    onUpdateFolderGrid: (
-        rows: Int,
+    appDrawerSettings: AppDrawerSettings,
+    onUpdateAppDrawerGrid: (
         columns: Int,
+        rowsHeight: Int,
     ) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
@@ -114,8 +114,8 @@ fun Success(
         Spacer(modifier = Modifier.height(5.dp))
 
         SettingsColumn(
-            title = "Grid",
-            subtitle = "Number of rows and columns",
+            title = "App Drawer",
+            subtitle = "Number of columns and rows height",
             onClick = {
                 showGridDialog = true
             },
@@ -124,12 +124,12 @@ fun Success(
 
     if (showGridDialog) {
         GridDialog(
-            rows = homeSettings.folderRows,
-            columns = homeSettings.folderColumns,
+            columns = appDrawerSettings.appDrawerColumns,
+            rowsHeight = appDrawerSettings.appDrawerRowsHeight,
             onDismissRequest = {
                 showGridDialog = false
             },
-            onUpdateClick = onUpdateFolderGrid,
+            onUpdateClick = onUpdateAppDrawerGrid,
         )
     }
 }

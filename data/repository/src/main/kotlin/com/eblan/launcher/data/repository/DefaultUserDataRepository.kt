@@ -70,4 +70,12 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateFolderColumns(folderColumns: Int) {
         userDataStore.updateFolderColumns(folderColumns = folderColumns)
     }
+
+    override suspend fun updateAppDrawerColumns(appDrawerColumns: Int) {
+        userDataStore.updateAppDrawerColumns(appDrawerColumns = appDrawerColumns)
+    }
+
+    override suspend fun updateAppDrawerRowsHeight(appDrawerRowsHeight: Int) {
+        userDataStore.updateAppDrawerRowsHeight(appDrawerRowsHeight = appDrawerRowsHeight)
+    }
 }

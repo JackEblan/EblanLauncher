@@ -7,6 +7,7 @@ import com.eblan.launcher.data.datastore.mapper.toGestureSettings
 import com.eblan.launcher.data.datastore.mapper.toHomeSettings
 import com.eblan.launcher.data.datastore.mapper.toTextColorProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
+import com.eblan.launcher.data.datastore.proto.appdrawer.copy
 import com.eblan.launcher.data.datastore.proto.copy
 import com.eblan.launcher.data.datastore.proto.gesture.copy
 import com.eblan.launcher.data.datastore.proto.home.copy
@@ -175,6 +176,26 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             userDataProto.copy {
                 homeSettingsProto = userDataProto.homeSettingsProto.copy {
                     this.folderColumns = folderColumns
+                }
+            }
+        }
+    }
+
+    suspend fun updateAppDrawerColumns(appDrawerColumns: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.appDrawerColumns = appDrawerColumns
+                }
+            }
+        }
+    }
+
+    suspend fun updateAppDrawerRowsHeight(appDrawerRowsHeight: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.appDrawerRowsHeight = appDrawerRowsHeight
                 }
             }
         }

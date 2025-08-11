@@ -49,6 +49,7 @@ dependencies {
     implementation(projects.domain.model)
     implementation(projects.feature.home)
     implementation(projects.feature.pin)
+    implementation(projects.feature.settings.appDrawer)
     implementation(projects.feature.settings.folder)
     implementation(projects.feature.settings.gestures)
     implementation(projects.feature.settings.home)

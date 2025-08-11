@@ -20,13 +20,9 @@ android {
     }
 
     buildTypes {
-        debug {
-            applicationIdSuffix = com.eblan.launcher.EblanBuildType.DEBUG.applicationIdSuffix
-        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            applicationIdSuffix = com.eblan.launcher.EblanBuildType.RELEASE.applicationIdSuffix
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

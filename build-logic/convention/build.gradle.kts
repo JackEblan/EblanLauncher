@@ -44,6 +44,8 @@ dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
     compileOnly(libs.room.gradlePlugin)
+
+    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }
 
 tasks {

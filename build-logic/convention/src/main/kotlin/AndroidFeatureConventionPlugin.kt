@@ -27,9 +27,9 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("com.eblan.launcher.library")
-                apply("com.eblan.launcher.hilt")
-                apply("org.jetbrains.kotlin.plugin.serialization")
+                apply(libs.plugins.com.eblan.launcher.library.get().pluginId)
+                apply(libs.plugins.com.eblan.launcher.hilt.get().pluginId)
+                apply(libs.plugins.kotlin.serialization.get().pluginId)
             }
 
             extensions.configure<LibraryExtension> {
@@ -39,14 +39,11 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             dependencies {
                 add("implementation", project(":design-system"))
 
-                add("implementation", libs.findLibrary("androidx.hilt.navigation.compose").get())
-                add("implementation", libs.findLibrary("androidx.lifecycle.runtime.compose").get())
-                add(
-                    "implementation",
-                    libs.findLibrary("androidx.lifecycle.viewmodel.compose").get(),
-                )
-                add("implementation", libs.findLibrary("androidx.navigation.compose").get())
-                add("implementation", libs.findLibrary("kotlinx.serialization.json").get())
+                add("implementation", libs.androidx.hilt.navigation.compose)
+                add("implementation", libs.androidx.lifecycle.runtime.compose)
+                add("implementation", libs.androidx.lifecycle.viewmodel.compose)
+                add("implementation", libs.androidx.navigation.compose)
+                add("implementation", libs.kotlinx.serialization.json)
             }
         }
     }

@@ -82,7 +82,7 @@ fun HomeRoute(
         onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
-        onCancelGridCache = viewModel::cancelGridCache,
+        onCancelGridCacheAfterMove = viewModel::cancelGridCacheAfterMove,
         onEdit = onEdit,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
@@ -141,7 +141,7 @@ fun HomeScreen(
         conflictingGridItem: GridItem?,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
-    onCancelGridCache: () -> Unit,
+    onCancelGridCacheAfterMove: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -254,7 +254,7 @@ fun HomeScreen(
                         onShowGridCache = onShowGridCache,
                         onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                         onResetGridCacheAfterMove = onResetGridCacheAfterMove,
-                        onCancelGridCache = onCancelGridCache,
+                        onCancelGridCacheAfterMove = onCancelGridCacheAfterMove,
                         onEdit = onEdit,
                         onSettings = onSettings,
                         onEditPage = onEditPage,
@@ -327,7 +327,7 @@ private fun Success(
         conflictingGridItem: GridItem?,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
-    onCancelGridCache: () -> Unit,
+    onCancelGridCacheAfterMove: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -451,7 +451,7 @@ private fun Success(
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        onCancelGridCache()
+                        onCancelGridCacheAfterMove()
                     },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,

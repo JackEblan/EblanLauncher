@@ -207,7 +207,9 @@ fun PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
+        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
+    ) {
         ApplicationComponentScreen(
             modifier = Modifier.offset {
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
@@ -261,7 +263,16 @@ fun PagerScreen(
             }
 
             GestureAction.OpenAppDrawer -> {
+                val animatedSwipeUpY = remember { Animatable(rootHeight.toFloat()) }
+
+                LaunchedEffect(key1 = animatedSwipeUpY) {
+                    animatedSwipeUpY.animateTo(0f)
+                }
+
                 ApplicationComponentScreen(
+                    modifier = Modifier.offset {
+                        IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
+                    },
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     rows = rows,
@@ -281,7 +292,14 @@ fun PagerScreen(
                         showDoubleTap = false
                     },
                     onBackPress = {
-                        showDoubleTap = false
+                        scope.launch {
+                            animatedSwipeUpY.animateTo(
+                                targetValue = rootHeight.toFloat(),
+                                animationSpec = tween(500),
+                            )
+
+                            showDoubleTap = false
+                        }
                     },
                 )
 

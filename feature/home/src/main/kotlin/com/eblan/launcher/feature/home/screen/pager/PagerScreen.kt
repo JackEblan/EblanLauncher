@@ -1,7 +1,9 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Column
@@ -232,6 +234,19 @@ fun PagerScreen(
                     swipeDownY.snapTo(rootHeight.toFloat())
                 }
             },
+            onBackPress = {
+                scope.launch {
+                    swipeUpY.animateTo(
+                        targetValue = rootHeight.toFloat(),
+                        animationSpec = tween(500),
+                    )
+
+                    swipeDownY.animateTo(
+                        targetValue = rootHeight.toFloat(),
+                        animationSpec = tween(500),
+                    )
+                }
+            },
         )
     }
 
@@ -263,6 +278,9 @@ fun PagerScreen(
                     onLongPress = onLongPressGridItem,
                     onDragging = onDraggingGridItem,
                     onDismiss = {
+                        showDoubleTap = false
+                    },
+                    onBackPress = {
                         showDoubleTap = false
                     },
                 )
@@ -832,6 +850,7 @@ private fun ApplicationComponentScreen(
     ) -> Unit,
     onDragging: () -> Unit,
     onDismiss: () -> Unit,
+    onBackPress: () -> Unit,
 ) {
     var overscrollOffset by remember { mutableFloatStateOf(0f) }
 
@@ -839,6 +858,10 @@ private fun ApplicationComponentScreen(
         derivedStateOf {
             1f - (abs(overscrollOffset) / 500f)
         }
+    }
+
+    BackHandler {
+        onBackPress()
     }
 
     Surface(

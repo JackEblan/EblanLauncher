@@ -94,7 +94,9 @@ fun FolderScreen(
 
                             is GridItemData.ShortcutInfo -> {
                                 InteractiveShortcutInfoGridItem(
+                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
+                                    textSize = gridItemSettings.textSize,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -113,7 +115,9 @@ fun FolderScreen(
 
                             is GridItemData.Folder -> {
                                 InteractiveNestedFolderGridItem(
+                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
+                                    textSize = gridItemSettings.textSize,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {

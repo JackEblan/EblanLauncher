@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -28,8 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
@@ -93,7 +90,9 @@ fun InteractiveApplicationInfoGridItem(
 @Composable
 fun InteractiveShortcutInfoGridItem(
     modifier: Modifier = Modifier,
+    iconSize: Int,
     textColor: Long,
+    textSize: Int,
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
@@ -129,8 +128,11 @@ fun InteractiveShortcutInfoGridItem(
                 },
             ),
         data = data,
-        color = Color(textColor),
-    )
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
+
+        )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -212,7 +214,9 @@ fun InteractiveWidgetGridItem(
 @Composable
 fun InteractiveFolderGridItem(
     modifier: Modifier = Modifier,
+    iconSize: Int,
     textColor: Long,
+    textSize: Int,
     gridItem: GridItem,
     data: GridItemData.Folder,
     onTap: () -> Unit,
@@ -248,7 +252,9 @@ fun InteractiveFolderGridItem(
                 },
             ),
         data = data,
-        color = Color(textColor),
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }
 
@@ -256,7 +262,9 @@ fun InteractiveFolderGridItem(
 @Composable
 fun InteractiveNestedFolderGridItem(
     modifier: Modifier = Modifier,
+    iconSize: Int,
     textColor: Long,
+    textSize: Int,
     gridItem: GridItem,
     data: GridItemData.Folder,
     onTap: () -> Unit,
@@ -292,7 +300,9 @@ fun InteractiveNestedFolderGridItem(
                 },
             ),
         data = data,
-        color = Color(textColor),
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }
 
@@ -350,7 +360,7 @@ fun ApplicationInfoGridItem(
 
     val color = Color(textColor)
 
-    val textSizeDp = with(density) {
+    val textSizeSp = with(density) {
         textSize.toSp()
     }
 
@@ -358,21 +368,25 @@ fun ApplicationInfoGridItem(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AsyncImage(
-            model = data.icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSizeDp)
-                .weight(1f),
-        )
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = data.icon,
+                contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
+            )
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
+            modifier = Modifier.weight(1f),
             text = data.label.toString(),
             color = color,
             textAlign = TextAlign.Center,
-            fontSize = textSizeDp,
+            fontSize = textSizeSp,
         )
     }
 }
@@ -381,31 +395,45 @@ fun ApplicationInfoGridItem(
 fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
-    color: Color,
+    iconSize: Int,
+    textColor: Long,
+    textSize: Int,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        iconSize.toDp()
+    }
+
+    val color = Color(textColor)
+
+    val textSizeSp = with(density) {
+        textSize.toSp()
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AsyncImage(
-            model = data.icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp, 40.dp)
-                .weight(1f),
-        )
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = data.icon,
+                contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
+            )
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = data.shortLabel,
             modifier = Modifier.weight(1f),
+            text = data.shortLabel,
             color = color,
             textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
+            fontSize = textSizeSp,
         )
     }
 }
@@ -414,16 +442,28 @@ fun ShortcutInfoGridItem(
 fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
-    color: Color,
+    iconSize: Int,
+    textColor: Long,
+    textSize: Int,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        iconSize.toDp()
+    }
+
+    val color = Color(textColor)
+
+    val textSizeSp = with(density) {
+        textSize.toSp()
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         FlowRow(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
+            modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.SpaceAround,
             maxItemsInEachRow = 3,
         ) {
@@ -472,13 +512,11 @@ fun FolderGridItem(
         }
 
         Text(
+            modifier = Modifier.weight(1f),
             text = data.label,
             color = color,
             textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
+            fontSize = textSizeSp,
         )
     }
 }
@@ -487,30 +525,45 @@ fun FolderGridItem(
 fun NestedFolderGridItem(
     modifier: Modifier,
     data: GridItemData.Folder,
-    color: Color,
+    iconSize: Int,
+    textColor: Long,
+    textSize: Int,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        iconSize.toDp()
+    }
+
+    val color = Color(textColor)
+
+    val textSizeSp = with(density) {
+        textSize.toSp()
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(
-            imageVector = EblanLauncherIcons.Folder,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp, 40.dp)
-                .weight(1f),
-        )
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = EblanLauncherIcons.Folder,
+                contentDescription = null,
+                modifier = Modifier.height(iconSizeDp),
+            )
+        }
+
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = data.label,
             modifier = Modifier.weight(1f),
+            text = data.label,
             color = color,
             textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
+            fontSize = textSizeSp,
         )
     }
 }

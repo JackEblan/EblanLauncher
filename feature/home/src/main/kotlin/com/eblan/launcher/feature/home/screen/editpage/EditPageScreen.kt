@@ -146,7 +146,9 @@ fun EditPageScreen(
                                         ShortcutInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = Color(textColor),
+                                            iconSize = gridItemSettings.iconSize,
+                                            textColor = textColor,
+                                            textSize = gridItemSettings.textSize,
                                         )
                                     }
 
@@ -154,7 +156,9 @@ fun EditPageScreen(
                                         FolderGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = Color(textColor),
+                                            iconSize = gridItemSettings.iconSize,
+                                            textColor = textColor,
+                                            textSize = gridItemSettings.textSize,
                                         )
                                     }
                                 }

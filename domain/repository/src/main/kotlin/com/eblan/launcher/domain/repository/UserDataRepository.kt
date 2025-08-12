@@ -41,4 +41,8 @@ interface UserDataRepository {
     suspend fun updateAppDrawerColumns(appDrawerColumns: Int)
 
     suspend fun updateAppDrawerRowsHeight(appDrawerRowsHeight: Int)
+
+    suspend fun updateIconSize(iconSize: Int)
+
+    suspend fun updateTextSize(textSize: Int)
 }

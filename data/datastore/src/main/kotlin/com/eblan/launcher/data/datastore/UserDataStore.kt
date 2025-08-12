@@ -202,4 +202,28 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             }
         }
     }
+
+    suspend fun updateIconSize(iconSize: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.iconSize = iconSize
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun updateTextSize(textSize: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.textSize = textSize
+                    }
+                }
+            }
+        }
+    }
 }

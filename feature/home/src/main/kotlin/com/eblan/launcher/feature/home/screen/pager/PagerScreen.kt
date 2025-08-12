@@ -512,7 +512,9 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.ShortcutInfo -> {
                             InteractiveShortcutInfoGridItem(
+                                iconSize = gridItemSettings.iconSize,
                                 textColor = textColor,
+                                textSize = gridItemSettings.textSize,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
@@ -541,7 +543,9 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Folder -> {
                             InteractiveFolderGridItem(
+                                iconSize = gridItemSettings.iconSize,
                                 textColor = textColor,
+                                textSize = gridItemSettings.textSize,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
@@ -648,7 +652,9 @@ private fun HorizontalPagerScreen(
 
                     is GridItemData.ShortcutInfo -> {
                         InteractiveShortcutInfoGridItem(
+                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
+                            textSize = gridItemSettings.textSize,
                             gridItem = gridItem,
                             data = data,
                             onTap = {
@@ -679,7 +685,9 @@ private fun HorizontalPagerScreen(
 
                     is GridItemData.Folder -> {
                         InteractiveFolderGridItem(
+                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
+                            textSize = gridItemSettings.textSize,
                             gridItem = gridItem,
                             data = data,
                             onTap = {

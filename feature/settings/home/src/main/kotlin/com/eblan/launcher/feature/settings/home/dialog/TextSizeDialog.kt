@@ -19,18 +19,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun DockHeightDialog(
+fun TextSizeDialog(
     modifier: Modifier = Modifier,
-    dockHeight: Int,
+    textSize: Int,
     onDismissRequest: () -> Unit,
     onUpdateClick: (Int) -> Unit,
 ) {
-    var currentValue by remember { mutableStateOf("$dockHeight") }
+    var currentValue by remember { mutableStateOf("$textSize") }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface {
             Column(modifier = modifier.fillMaxWidth()) {
-                Text(text = "Dock Height")
+                Text(text = "Icon Size")
 
                 TextField(
                     value = currentValue,
@@ -39,7 +39,7 @@ fun DockHeightDialog(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = {
-                        Text(text = "Dock height")
+                        Text(text = "Icon size")
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
@@ -56,7 +56,7 @@ fun DockHeightDialog(
                     }
                     TextButton(
                         onClick = {
-                            onUpdateClick(currentValue.toInt().coerceAtLeast(300))
+                            onUpdateClick(currentValue.toInt().coerceAtLeast(10))
 
                             onDismissRequest()
                         },

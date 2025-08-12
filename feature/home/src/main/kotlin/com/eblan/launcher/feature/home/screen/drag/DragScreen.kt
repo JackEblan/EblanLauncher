@@ -387,7 +387,9 @@ private fun GridItemContent(
                         ShortcutInfoGridItem(
                             modifier = gridItemModifier,
                             data = data,
-                            color = Color(textColor),
+                            iconSize = gridItemSettings.iconSize,
+                            textColor = textColor,
+                            textSize = gridItemSettings.textSize,
                         )
                     }
                 }
@@ -401,7 +403,9 @@ private fun GridItemContent(
                         FolderGridItem(
                             modifier = gridItemModifier,
                             data = data,
-                            color = Color(textColor),
+                            iconSize = gridItemSettings.iconSize,
+                            textColor = textColor,
+                            textSize = gridItemSettings.textSize,
                         )
                     }
                 }
@@ -501,7 +505,9 @@ private fun AnimatedDropGridItem(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = Color(textColor),
+                        iconSize = gridItemSettings.iconSize,
+                        textColor = textColor,
+                        textSize = gridItemSettings.textSize,
                     )
                 }
 
@@ -509,7 +515,9 @@ private fun AnimatedDropGridItem(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = Color(textColor),
+                        iconSize = gridItemSettings.iconSize,
+                        textColor = textColor,
+                        textSize = gridItemSettings.textSize,
                     )
                 }
             }
@@ -581,7 +589,9 @@ private fun AnimatedDropGridItem(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = Color(textColor),
+                        iconSize = gridItemSettings.iconSize,
+                        textColor = textColor,
+                        textSize = gridItemSettings.textSize,
                     )
                 }
 
@@ -589,7 +599,9 @@ private fun AnimatedDropGridItem(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = Color(textColor),
+                        iconSize = gridItemSettings.iconSize,
+                        textColor = textColor,
+                        textSize = gridItemSettings.textSize,
                     )
                 }
             }

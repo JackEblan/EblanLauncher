@@ -78,4 +78,12 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateAppDrawerRowsHeight(appDrawerRowsHeight: Int) {
         userDataStore.updateAppDrawerRowsHeight(appDrawerRowsHeight = appDrawerRowsHeight)
     }
+
+    override suspend fun updateIconSize(iconSize: Int) {
+        userDataStore.updateIconSize(iconSize = iconSize)
+    }
+
+    override suspend fun updateTextSize(textSize: Int) {
+        userDataStore.updateTextSize(textSize = textSize)
+    }
 }

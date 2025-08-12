@@ -33,7 +33,9 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.settings.home.dialog.DockHeightDialog
 import com.eblan.launcher.feature.settings.home.dialog.GridDialog
+import com.eblan.launcher.feature.settings.home.dialog.IconSizeDialog
 import com.eblan.launcher.feature.settings.home.dialog.TextColorDialog
+import com.eblan.launcher.feature.settings.home.dialog.TextSizeDialog
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
 
 @Composable
@@ -53,7 +55,9 @@ fun HomeSettingsRoute(
         onUpdateWallpaperScroll = viewModel::updateWallpaperScroll,
         onUpdateDockGrid = viewModel::updateDockGrid,
         onUpdateDockHeight = viewModel::updateDockHeight,
+        onUpdateIconSize = viewModel::updateIconSize,
         onUpdateTextColor = viewModel::updateTextColor,
+        onUpdateTextSize = viewModel::updateTextSize,
     )
 }
 
@@ -74,7 +78,9 @@ fun HomeSettingsScreen(
         dockColumns: Int,
     ) -> Unit,
     onUpdateDockHeight: (Int) -> Unit,
+    onUpdateIconSize: (Int) -> Unit,
     onUpdateTextColor: (TextColor) -> Unit,
+    onUpdateTextSize: (Int) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -112,7 +118,9 @@ fun HomeSettingsScreen(
                         onUpdateWallpaperScroll = onUpdateWallpaperScroll,
                         onUpdateDockGrid = onUpdateDockGrid,
                         onUpdateDockHeight = onUpdateDockHeight,
+                        onUpdateIconSize = onUpdateIconSize,
                         onUpdateTextColor = onUpdateTextColor,
+                        onUpdateTextSize = onUpdateTextSize,
                     )
                 }
             }
@@ -136,7 +144,9 @@ fun Success(
         dockColumns: Int,
     ) -> Unit,
     onUpdateDockHeight: (Int) -> Unit,
+    onUpdateIconSize: (Int) -> Unit,
     onUpdateTextColor: (TextColor) -> Unit,
+    onUpdateTextSize: (Int) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -144,7 +154,11 @@ fun Success(
 
     var showDockHeightDialog by remember { mutableStateOf(false) }
 
+    var showIconSizeDialog by remember { mutableStateOf(false) }
+
     var showTextColorDialog by remember { mutableStateOf(false) }
+
+    var showTextSizeDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
         Text(text = "Grid", style = MaterialTheme.typography.bodySmall)
@@ -210,10 +224,30 @@ fun Success(
         Spacer(modifier = Modifier.height(5.dp))
 
         SettingsColumn(
+            title = "Icon Size",
+            subtitle = "${homeSettings.gridItemSettings.iconSize}",
+            onClick = {
+                showIconSizeDialog = true
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsColumn(
             title = "Text Color",
             subtitle = homeSettings.gridItemSettings.textColor.getTextColorSubtitle(),
             onClick = {
                 showTextColorDialog = true
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsColumn(
+            title = "Text Size",
+            subtitle = "${homeSettings.gridItemSettings.textSize}",
+            onClick = {
+                showTextSizeDialog = true
             },
         )
     }
@@ -250,6 +284,16 @@ fun Success(
         )
     }
 
+    if (showIconSizeDialog) {
+        IconSizeDialog(
+            iconSize = homeSettings.gridItemSettings.iconSize,
+            onDismissRequest = {
+                showIconSizeDialog = false
+            },
+            onUpdateClick = onUpdateIconSize,
+        )
+    }
+
     if (showTextColorDialog) {
         TextColorDialog(
             textColor = homeSettings.gridItemSettings.textColor,
@@ -257,6 +301,16 @@ fun Success(
                 showTextColorDialog = false
             },
             onUpdateClick = onUpdateTextColor,
+        )
+    }
+
+    if (showTextSizeDialog) {
+        TextSizeDialog(
+            textSize = homeSettings.gridItemSettings.textSize,
+            onDismissRequest = {
+                showTextSizeDialog = false
+            },
+            onUpdateClick = onUpdateTextSize,
         )
     }
 }

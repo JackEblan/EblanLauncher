@@ -62,4 +62,16 @@ class HomeSettingsViewModel @Inject constructor(private val userDataRepository: 
             userDataRepository.updateWallpaperScroll(wallpaperScroll = wallpaperScroll)
         }
     }
+
+    fun updateIconSize(iconSize: Int) {
+        viewModelScope.launch {
+            userDataRepository.updateIconSize(iconSize = iconSize)
+        }
+    }
+
+    fun updateTextSize(textSize: Int) {
+        viewModelScope.launch {
+            userDataRepository.updateTextSize(textSize = textSize)
+        }
+    }
 }

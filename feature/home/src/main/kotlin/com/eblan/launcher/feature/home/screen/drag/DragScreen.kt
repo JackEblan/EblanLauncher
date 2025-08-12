@@ -530,6 +530,8 @@ private fun AnimatedDropGridItem(
 
             val x = gridItem.startColumn * cellWidth
 
+            val y = gridItem.startRow * cellHeight
+
             val width = gridItem.columnSpan * cellWidth
 
             val height = gridItem.rowSpan * cellHeight
@@ -546,12 +548,14 @@ private fun AnimatedDropGridItem(
                 Animatable(shadowY.toFloat())
             }
 
-            LaunchedEffect(key1 = animatedX) {
-                animatedX.animateTo(x.toFloat())
-            }
+            LaunchedEffect(key1 = gridItem) {
+                launch {
+                    animatedX.animateTo(x.toFloat())
+                }
 
-            LaunchedEffect(key1 = animatedY) {
-                animatedY.animateTo((rootHeight - dockHeight).toFloat())
+                launch {
+                    animatedY.animateTo(y.toFloat() + (rootHeight - dockHeight))
+                }
             }
 
             val size = with(density) {

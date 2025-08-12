@@ -8,6 +8,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import kotlinx.coroutines.delay
 
@@ -43,6 +44,7 @@ suspend fun handleDragIntOffset(
     rows: Int,
     columns: Int,
     isScrollInProgress: Boolean,
+    gridItemSource: GridItemSource,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -87,6 +89,7 @@ suspend fun handleDragIntOffset(
             gridX = dragIntOffset.x,
             gridY = dockY,
             associate = Associate.Dock,
+            gridItemSource = gridItemSource,
         )
 
         val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -131,6 +134,7 @@ suspend fun handleDragIntOffset(
             gridX = gridX,
             gridY = gridY,
             associate = Associate.Grid,
+            gridItemSource = gridItemSource,
         )
 
         val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
@@ -165,41 +169,116 @@ private fun getMoveGridItem(
     gridX: Int,
     gridY: Int,
     associate: Associate,
-) = when (val data = gridItem.data) {
+    gridItemSource: GridItemSource,
+): GridItem {
+    return when (gridItemSource) {
+        is GridItemSource.Existing -> {
+            getMoveExistingGridItem(
+                targetPage = targetPage,
+                gridItem = gridItem,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                gridX = gridX,
+                gridY = gridY,
+                associate = associate,
+            )
+        }
+
+        is GridItemSource.New, is GridItemSource.Pin -> {
+            getMoveNewGridItem(
+                targetPage = targetPage,
+                gridItem = gridItem,
+                cellHeight = cellHeight,
+                cellWidth = cellWidth,
+                rows = rows,
+                columns = columns,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+                gridX = gridX,
+                gridY = gridY,
+                associate = associate,
+            )
+        }
+    }
+}
+
+private fun getMoveNewGridItem(
+    targetPage: Int,
+    gridItem: GridItem,
+    cellHeight: Int,
+    cellWidth: Int,
+    rows: Int,
+    columns: Int,
+    gridWidth: Int,
+    gridHeight: Int,
+    gridX: Int,
+    gridY: Int,
+    associate: Associate,
+): GridItem {
+    return when (val data = gridItem.data) {
+        is GridItemData.Widget -> {
+            val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
+                cellHeight = cellHeight,
+                cellWidth = cellWidth,
+                minHeight = data.minHeight,
+                minWidth = data.minWidth,
+                targetCellHeight = data.targetCellHeight,
+                targetCellWidth = data.targetCellWidth,
+            )
+
+            val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
+                rows = rows,
+                columns = columns,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+                minWidth = data.minWidth,
+                minHeight = data.minHeight,
+                targetCellWidth = data.targetCellWidth,
+                targetCellHeight = data.targetCellHeight,
+            )
+
+            val newData = data.copy(
+                minWidth = checkedMinWidth,
+                minHeight = checkedMinHeight,
+            )
+
+            gridItem.copy(
+                page = targetPage,
+                startRow = gridY / cellHeight,
+                startColumn = gridX / cellWidth,
+                rowSpan = checkedRowSpan,
+                columnSpan = checkedColumnSpan,
+                associate = associate,
+                data = newData,
+            )
+        }
+
+        else -> {
+            gridItem.copy(
+                page = targetPage,
+                startRow = gridY / cellHeight,
+                startColumn = gridX / cellWidth,
+                associate = associate,
+            )
+        }
+    }
+}
+
+private fun getMoveExistingGridItem(
+    targetPage: Int,
+    gridItem: GridItem,
+    cellWidth: Int,
+    cellHeight: Int,
+    gridX: Int,
+    gridY: Int,
+    associate: Associate,
+) = when (gridItem.data) {
     is GridItemData.Widget -> {
-        val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
-            cellHeight = cellHeight,
-            cellWidth = cellWidth,
-            minHeight = data.minHeight,
-            minWidth = data.minWidth,
-            targetCellHeight = data.targetCellHeight,
-            targetCellWidth = data.targetCellWidth,
-        )
-
-        val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-            rows = rows,
-            columns = columns,
-            gridWidth = gridWidth,
-            gridHeight = gridHeight,
-            minWidth = data.minWidth,
-            minHeight = data.minHeight,
-            targetCellWidth = data.targetCellWidth,
-            targetCellHeight = data.targetCellHeight,
-        )
-
-        val newData = data.copy(
-            minWidth = checkedMinWidth,
-            minHeight = checkedMinHeight,
-        )
-
         gridItem.copy(
             page = targetPage,
             startRow = gridY / cellHeight,
             startColumn = gridX / cellWidth,
-            rowSpan = checkedRowSpan,
-            columnSpan = checkedColumnSpan,
             associate = associate,
-            data = newData,
         )
     }
 

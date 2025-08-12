@@ -490,6 +490,7 @@ private fun HorizontalPagerScreen(
                             InteractiveWidgetGridItem(
                                 gridItem = gridItem,
                                 gridItemData = data,
+                                drag = drag,
                                 onLongPress = {
                                     popupMenuIntOffset = IntOffset(x = x, y = y)
 
@@ -626,6 +627,7 @@ private fun HorizontalPagerScreen(
                         InteractiveWidgetGridItem(
                             gridItem = gridItem,
                             gridItemData = data,
+                            drag = drag,
                             onLongPress = {
                                 popupMenuIntOffset = IntOffset(x = x, y = y)
 

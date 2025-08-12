@@ -16,6 +16,7 @@ import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfo
 import com.eblan.launcher.feature.home.component.grid.InteractiveNestedFolderGridItem
 import com.eblan.launcher.feature.home.component.grid.InteractiveShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.InteractiveWidgetGridItem
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 
@@ -27,6 +28,7 @@ fun FolderScreen(
     folderColumns: Int,
     textColor: Long,
     gridItemSettings: GridItemSettings,
+    drag: Drag,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -81,6 +83,7 @@ fun FolderScreen(
                                 InteractiveWidgetGridItem(
                                     gridItem = gridItem,
                                     gridItemData = data,
+                                    drag = drag,
                                     onLongPress = {
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),

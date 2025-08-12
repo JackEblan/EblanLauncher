@@ -191,6 +191,7 @@ fun DragScreen(
             rows = rows,
             columns = columns,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
+            gridItemSource = gridItemSource,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },

@@ -19,6 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -35,6 +40,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 
 
@@ -141,6 +147,7 @@ fun InteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridItemData: GridItemData.Widget,
+    drag: Drag,
     onLongPress: () -> Unit,
     onDragging: () -> Unit,
 ) {
@@ -149,6 +156,16 @@ fun InteractiveWidgetGridItem(
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+    var isLongPress by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPress) {
+            isLongPress = false
+
+            onDragging()
+        }
+    }
 
     Box(modifier = modifier.gridItem(gridItem)) {
         if (appWidgetInfo != null) {
@@ -174,6 +191,8 @@ fun InteractiveWidgetGridItem(
                                 val longPress = awaitLongPressOrCancellation(pointerId = down.id)
 
                                 if (longPress != null) {
+                                    isLongPress = true
+
                                     onLongPress()
 
                                     startTransfer(

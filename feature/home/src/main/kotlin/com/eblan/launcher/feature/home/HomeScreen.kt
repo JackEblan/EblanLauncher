@@ -512,6 +512,7 @@ private fun Success(
                     folders = folders,
                     textColor = textColor,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
+                    drag = drag,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,

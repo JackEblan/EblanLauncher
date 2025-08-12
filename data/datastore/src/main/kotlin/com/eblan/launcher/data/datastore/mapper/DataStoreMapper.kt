@@ -7,11 +7,13 @@ import com.eblan.launcher.data.datastore.proto.gesture.NoneProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenAppDrawerProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenAppProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenNotificationPanelProto
+import com.eblan.launcher.data.datastore.proto.home.GridItemSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 
@@ -24,11 +26,11 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
         dockRows = dockRows,
         dockColumns = dockColumns,
         dockHeight = dockHeight,
-        textColor = textColorProto.toTextColor(),
         initialPage = initialPage,
         wallpaperScroll = wallpaperScroll,
         folderRows = folderRows,
         folderColumns = folderColumns,
+        gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
     )
 }
 
@@ -36,6 +38,14 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings {
     return AppDrawerSettings(
         appDrawerColumns = appDrawerColumns,
         appDrawerRowsHeight = appDrawerRowsHeight,
+    )
+}
+
+internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings {
+    return GridItemSettings(
+        iconSize = iconSize,
+        textColor = textColorProto.toTextColor(),
+        textSize = textSize,
     )
 }
 

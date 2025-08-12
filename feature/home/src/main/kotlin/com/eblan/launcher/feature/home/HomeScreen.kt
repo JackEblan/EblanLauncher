@@ -385,6 +385,7 @@ private fun Success(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     gestureSettings = userData.gestureSettings,
                     wallpaperScroll = userData.homeSettings.wallpaperScroll,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -439,6 +440,7 @@ private fun Success(
                     textColor = textColor,
                     moveGridItemResult = movedGridItemResult,
                     updatedGridItem = updatedGridItem,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = { newTargetPage ->
                         onResetGridCacheAfterResize(newTargetPage)
@@ -476,6 +478,7 @@ private fun Success(
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = {
                         onResetGridCacheAfterResize(targetPage)
@@ -496,6 +499,7 @@ private fun Success(
                     dockHeight = userData.homeSettings.dockHeight,
                     initialPage = userData.homeSettings.initialPage,
                     textColor = textColor,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                 )
@@ -507,6 +511,7 @@ private fun Success(
                     folderColumns = userData.homeSettings.folderColumns,
                     folders = folders,
                     textColor = textColor,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -531,6 +536,7 @@ private fun Success(
                     rootWidth = rootWidth,
                     rootHeight = rootHeight,
                     moveGridItemResult = movedGridItemResult,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onMoveOutsideFolder = { newGridItemSource ->

@@ -211,7 +211,7 @@ fun Success(
 
         SettingsColumn(
             title = "Text Color",
-            subtitle = homeSettings.textColor.getTextColorSubtitle(),
+            subtitle = homeSettings.gridItemSettings.textColor.getTextColorSubtitle(),
             onClick = {
                 showTextColorDialog = true
             },
@@ -252,7 +252,7 @@ fun Success(
 
     if (showTextColorDialog) {
         TextColorDialog(
-            textColor = homeSettings.textColor,
+            textColor = homeSettings.gridItemSettings.textColor,
             onDismissRequest = {
                 showTextColorDialog = false
             },

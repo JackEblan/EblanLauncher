@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "com/eblan/launcher/data/datastore/proto/home/text_color.proto";
+import "com/eblan/launcher/data/datastore/proto/home/grid_item_settings.proto";
 
 option java_package = "com.eblan.launcher.data.datastore.proto.home";
 option java_multiple_files = true;
@@ -13,9 +14,9 @@ message HomeSettingsProto {
   int32 dockRows = 5;
   int32 dockColumns = 6;
   int32 dockHeight = 7;
-  TextColorProto textColorProto = 8;
-  int32 initialPage = 9;
-  bool wallpaperScroll = 10;
-  int32 folderRows = 11;
-  int32 folderColumns = 12;
+  int32 initialPage = 8;
+  bool wallpaperScroll = 9;
+  int32 folderRows = 10;
+  int32 folderColumns = 11;
+  GridItemSettingsProto gridItemSettingsProto = 12;
 }

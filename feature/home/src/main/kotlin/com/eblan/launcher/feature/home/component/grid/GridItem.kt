@@ -26,6 +26,7 @@ import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -44,7 +45,9 @@ import com.eblan.launcher.feature.home.model.Screen
 @Composable
 fun InteractiveApplicationInfoGridItem(
     modifier: Modifier = Modifier,
+    iconSize: Int,
     textColor: Long,
+    textSize: Int,
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
@@ -80,7 +83,9 @@ fun InteractiveApplicationInfoGridItem(
                 },
             ),
         data = data,
-        color = Color(textColor),
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }
 
@@ -333,8 +338,22 @@ fun WidgetGridItem(
 fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
-    color: Color,
+    iconSize: Int,
+    textColor: Long,
+    textSize: Int,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        iconSize.toDp()
+    }
+
+    val color = Color(textColor)
+
+    val textSizeDp = with(density) {
+        textSize.toSp()
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -343,7 +362,7 @@ fun ApplicationInfoGridItem(
             model = data.icon,
             contentDescription = null,
             modifier = Modifier
-                .size(40.dp, 40.dp)
+                .size(iconSizeDp)
                 .weight(1f),
         )
 
@@ -351,13 +370,9 @@ fun ApplicationInfoGridItem(
 
         Text(
             text = data.label.toString(),
-            modifier = Modifier.weight(1f),
             color = color,
             textAlign = TextAlign.Center,
-            fontSize = TextUnit(
-                value = 10f,
-                type = TextUnitType.Sp,
-            ),
+            fontSize = textSizeDp,
         )
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.InteractiveNestedFolderGridItem
@@ -25,6 +26,7 @@ fun FolderScreen(
     folderRows: Int,
     folderColumns: Int,
     textColor: Long,
+    gridItemSettings: GridItemSettings,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -56,7 +58,9 @@ fun FolderScreen(
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 InteractiveApplicationInfoGridItem(
+                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
+                                    textSize = gridItemSettings.textSize,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {

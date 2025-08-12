@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -43,6 +44,7 @@ fun ResizeScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
+    gridItemSettings: GridItemSettings,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -91,7 +93,8 @@ fun ResizeScreen(
             gridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = Color(textColor),
+                    textColor = textColor,
+                    gridItemSettings = gridItemSettings,
                 )
             }
         }
@@ -106,7 +109,8 @@ fun ResizeScreen(
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
-                    color = Color(textColor),
+                    textColor = textColor,
+                    gridItemSettings = gridItemSettings,
                 )
             }
         }
@@ -172,7 +176,8 @@ fun ResizeScreen(
 private fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    color: Color,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
 ) {
     key(gridItem.id) {
         LookaheadScope {
@@ -185,7 +190,9 @@ private fun GridItemContent(
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = color,
+                        iconSize = gridItemSettings.iconSize,
+                        textColor = textColor,
+                        textSize = gridItemSettings.textSize,
                     )
                 }
 
@@ -200,7 +207,7 @@ private fun GridItemContent(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = color,
+                        color = Color(textColor),
                     )
                 }
 
@@ -208,7 +215,7 @@ private fun GridItemContent(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        color = color,
+                        color = Color(textColor),
                     )
                 }
             }

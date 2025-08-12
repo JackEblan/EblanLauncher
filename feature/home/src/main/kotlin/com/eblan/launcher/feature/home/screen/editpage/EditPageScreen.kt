@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
 import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
@@ -59,6 +60,7 @@ fun EditPageScreen(
     dockHeight: Int,
     initialPage: Int,
     textColor: Long,
+    gridItemSettings: GridItemSettings,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -85,8 +87,6 @@ fun EditPageScreen(
         ((rootHeight - dockHeight) / 2).toDp()
     }
 
-    val color = Color(textColor)
-
     BackHandler {
         onUpdateScreen(Screen.Pager)
     }
@@ -109,8 +109,12 @@ fun EditPageScreen(
                 DraggableItem(state = gridDragAndDropState, index = index) {
                     OutlinedCard(
                         modifier = Modifier.padding(vertical = 10.dp),
-                        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.25f)),
-                        border = BorderStroke(width = 2.dp, color = color),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(textColor).copy(
+                                alpha = 0.25f,
+                            ),
+                        ),
+                        border = BorderStroke(width = 2.dp, color = Color(textColor)),
                     ) {
                         GridLayout(
                             modifier = Modifier.height(gridHeight),
@@ -125,7 +129,9 @@ fun EditPageScreen(
                                         ApplicationInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = color,
+                                            iconSize = gridItemSettings.iconSize,
+                                            textColor = textColor,
+                                            textSize = gridItemSettings.textSize,
                                         )
                                     }
 
@@ -140,7 +146,7 @@ fun EditPageScreen(
                                         ShortcutInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = color,
+                                            color = Color(textColor),
                                         )
                                     }
 
@@ -148,7 +154,7 @@ fun EditPageScreen(
                                         FolderGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            color = color,
+                                            color = Color(textColor),
                                         )
                                     }
                                 }

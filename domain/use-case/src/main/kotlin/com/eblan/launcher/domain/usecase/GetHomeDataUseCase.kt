@@ -71,7 +71,9 @@ class GetHomeDataUseCase @Inject constructor(
                 ) && gridItem.associate == Associate.Dock
             }
 
-            val textColor = when (userData.homeSettings.textColor) {
+            val gridItemSettings = userData.homeSettings.gridItemSettings
+
+            val textColor = when (gridItemSettings.textColor) {
                 TextColor.System -> {
                     getTextColorFromWallpaperColors(colorHints = colorHints)
                 }

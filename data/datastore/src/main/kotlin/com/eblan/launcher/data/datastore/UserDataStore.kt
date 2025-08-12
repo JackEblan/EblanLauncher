@@ -145,7 +145,9 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
         dataStore.updateData { userDataProto ->
             userDataProto.copy {
                 homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.textColorProto = textColor.toTextColorProto()
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.textColorProto = textColor.toTextColorProto()
+                    }
                 }
             }
         }

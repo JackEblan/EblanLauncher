@@ -8,9 +8,9 @@ data class HomeSettings(
     val dockRows: Int,
     val dockColumns: Int,
     val dockHeight: Int,
-    val textColor: TextColor,
     val initialPage: Int,
     val wallpaperScroll: Boolean,
     val folderRows: Int,
     val folderColumns: Int,
+    val gridItemSettings: GridItemSettings,
 )

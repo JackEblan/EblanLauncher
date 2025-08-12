@@ -43,6 +43,7 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
@@ -90,6 +91,7 @@ fun PagerScreen(
     hasShortcutHostPermission: Boolean,
     wallpaperScroll: Boolean,
     gestureSettings: GestureSettings,
+    gridItemSettings: GridItemSettings,
     onLongPressGrid: (Int) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -193,6 +195,7 @@ fun PagerScreen(
         drag = drag,
         hasShortcutHostPermission = hasShortcutHostPermission,
         wallpaperScroll = wallpaperScroll,
+        gridItemSettings = gridItemSettings,
         onLongPressGrid = onLongPressGrid,
         onLongPressGridItem = onLongPressGridItem,
         onTapFolderGridItem = onTapFolderGridItem,
@@ -328,6 +331,7 @@ private fun HorizontalPagerScreen(
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
+    gridItemSettings: GridItemSettings,
     onLongPressGrid: (Int) -> Unit,
     rootWidth: Int,
     rootHeight: Int,
@@ -462,7 +466,6 @@ private fun HorizontalPagerScreen(
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             InteractiveApplicationInfoGridItem(
-                                textColor = textColor,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
@@ -481,6 +484,9 @@ private fun HorizontalPagerScreen(
                                     )
                                 },
                                 onDragging = onDraggingGridItem,
+                                iconSize = gridItemSettings.iconSize,
+                                textColor = textColor,
+                                textSize = gridItemSettings.textSize,
                             )
                         }
 
@@ -587,7 +593,6 @@ private fun HorizontalPagerScreen(
                 when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         InteractiveApplicationInfoGridItem(
-                            textColor = textColor,
                             gridItem = gridItem,
                             data = data,
                             onTap = {
@@ -610,7 +615,11 @@ private fun HorizontalPagerScreen(
                                 )
                             },
                             onDragging = onDraggingGridItem,
-                        )
+                            iconSize = gridItemSettings.iconSize,
+                            textColor = textColor,
+                            textSize = gridItemSettings.textSize,
+
+                            )
                     }
 
                     is GridItemData.Widget -> {

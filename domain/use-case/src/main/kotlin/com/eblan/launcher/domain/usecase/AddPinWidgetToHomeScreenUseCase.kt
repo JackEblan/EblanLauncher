@@ -76,14 +76,14 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             )
 
             val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-                columns = columns,
-                gridHeight = gridHeight,
-                gridWidth = rootWidth,
-                minHeight = minHeight,
-                minWidth = minWidth,
                 rows = rows,
-                targetCellHeight = targetCellHeight,
+                columns = columns,
+                gridWidth = rootWidth,
+                gridHeight = gridHeight,
+                minWidth = minWidth,
+                minHeight = minHeight,
                 targetCellWidth = targetCellWidth,
+                targetCellHeight = targetCellHeight,
             )
 
             val data = GridItemData.Widget(

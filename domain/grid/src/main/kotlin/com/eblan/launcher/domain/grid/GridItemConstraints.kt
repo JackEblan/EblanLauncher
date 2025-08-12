@@ -200,10 +200,10 @@ fun getWidgetGridItemSize(
     columns: Int,
     gridWidth: Int,
     gridHeight: Int,
-    targetCellWidth: Int,
-    targetCellHeight: Int,
     minWidth: Int,
     minHeight: Int,
+    targetCellWidth: Int,
+    targetCellHeight: Int,
 ): Pair<Int, Int> {
     val cellWidth = gridWidth / columns
 

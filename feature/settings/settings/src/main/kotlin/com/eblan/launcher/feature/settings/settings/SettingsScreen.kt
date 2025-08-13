@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.settings.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,6 +68,10 @@ fun SettingsScreen(
     onGestures: () -> Unit,
     onFolder: () -> Unit,
 ) {
+    BackHandler {
+        onFinish()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

@@ -391,6 +391,10 @@ private fun HorizontalPagerScreen(
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
+            onDraggingGridItem()
+        }
+
         handlePinItemRequest(
             currentPage = horizontalPagerState.currentPage,
             infiniteScroll = infiniteScroll,
@@ -413,12 +417,6 @@ private fun HorizontalPagerScreen(
             infiniteScroll = infiniteScroll,
             windowToken = view.windowToken,
         )
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
-            onDraggingGridItem()
-        }
     }
 
     Column(

@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -360,70 +359,69 @@ private fun GridItemContent(
     gridItemSource: GridItemSource,
     gridItemSettings: GridItemSettings,
 ) {
-    key(gridItem.id) {
-        LookaheadScope {
-            val gridItemModifier = modifier
-                .animateBounds(this)
-                .gridItem(gridItem)
+    LookaheadScope {
+        val gridItemModifier = modifier
+            .animateBounds(this)
+            .gridItem(gridItem)
 
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    DragGridItem(
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                DragGridItem(
+                    modifier = gridItemModifier,
+                    isDragging = gridItemSource.gridItem.id == gridItem.id,
+                    color = Color(textColor),
+                ) {
+                    ApplicationInfoGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id,
-                        color = Color(textColor),
-                    ) {
-                        ApplicationInfoGridItem(
-                            modifier = gridItemModifier,
-                            data = data,
-                            textColor = textColor,
-                            gridItemSettings = gridItemSettings,
-                        )
-                    }
+                        data = data,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
+                    )
                 }
+            }
 
-                is GridItemData.Widget -> {
-                    DragGridItem(
-                        modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id,
-                        color = Color(textColor),
-                    ) {
-                        WidgetGridItem(modifier = gridItemModifier, data = data)
-                    }
+            is GridItemData.Widget -> {
+                DragGridItem(
+                    modifier = gridItemModifier,
+                    isDragging = gridItemSource.gridItem.id == gridItem.id,
+                    color = Color(textColor),
+                ) {
+                    WidgetGridItem(modifier = gridItemModifier, data = data)
                 }
+            }
 
-                is GridItemData.ShortcutInfo -> {
-                    DragGridItem(
+            is GridItemData.ShortcutInfo -> {
+                DragGridItem(
+                    modifier = gridItemModifier,
+                    isDragging = gridItemSource.gridItem.id == gridItem.id,
+                    color = Color(textColor),
+                ) {
+                    ShortcutInfoGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id,
-                        color = Color(textColor),
-                    ) {
-                        ShortcutInfoGridItem(
-                            modifier = gridItemModifier,
-                            data = data,
-                            textColor = textColor,
-                            gridItemSettings = gridItemSettings,
-                        )
-                    }
+                        data = data,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
+                    )
                 }
+            }
 
-                is GridItemData.Folder -> {
-                    DragGridItem(
+            is GridItemData.Folder -> {
+                DragGridItem(
+                    modifier = gridItemModifier,
+                    isDragging = gridItemSource.gridItem.id == gridItem.id,
+                    color = Color(textColor),
+                ) {
+                    FolderGridItem(
                         modifier = gridItemModifier,
-                        isDragging = gridItemSource.gridItem.id == gridItem.id,
-                        color = Color(textColor),
-                    ) {
-                        FolderGridItem(
-                            modifier = gridItemModifier,
-                            data = data,
-                            textColor = textColor,
-                            gridItemSettings = gridItemSettings,
-                        )
-                    }
+                        data = data,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
+                    )
                 }
             }
         }
     }
+
 }
 
 @Composable

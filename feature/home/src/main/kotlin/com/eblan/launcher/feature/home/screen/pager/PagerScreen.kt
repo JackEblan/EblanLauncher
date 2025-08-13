@@ -448,7 +448,7 @@ private fun HorizontalPagerScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    key(gridItem.id) {
+                    key(gridItem) {
                         val cellWidth = rootWidth / columns
 
                         val cellHeight = (rootHeight - dockHeight) / rows
@@ -589,7 +589,7 @@ private fun HorizontalPagerScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                key(gridItem.id, gridItem.override) {
+                key(gridItem) {
                     val cellWidth = rootWidth / dockColumns
 
                     val cellHeight = dockHeight / dockRows

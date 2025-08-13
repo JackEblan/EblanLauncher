@@ -23,4 +23,6 @@ data class WidgetGridItem(
     val targetCellHeight: Int,
     val targetCellWidth: Int,
     val preview: String?,
+    val override: Boolean,
+    val gridItemSettings: GridItemSettings,
 )

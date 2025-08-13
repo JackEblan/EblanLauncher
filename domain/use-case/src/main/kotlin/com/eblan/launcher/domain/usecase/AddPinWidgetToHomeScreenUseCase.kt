@@ -113,6 +113,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 columnSpan = checkedColumnSpan,
                 data = data,
                 associate = Associate.Grid,
+                override = false,
+                gridItemSettings = homeSettings.gridItemSettings,
             )
 
             val newGridItem = findAvailableRegionByPage(

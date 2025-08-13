@@ -14,4 +14,6 @@ data class ShortcutInfoGridItem(
     val shortLabel: String,
     val longLabel: String,
     val icon: String?,
+    val override: Boolean,
+    val gridItemSettings: GridItemSettings,
 )

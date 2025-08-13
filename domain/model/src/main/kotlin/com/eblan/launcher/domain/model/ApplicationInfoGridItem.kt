@@ -13,4 +13,6 @@ data class ApplicationInfoGridItem(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    val override: Boolean,
+    val gridItemSettings: GridItemSettings,
 )

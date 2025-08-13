@@ -84,6 +84,12 @@ fun FolderDragScreen(
         horizontalGridPaddingDp.roundToPx()
     }
 
+    val currentGridItemSettings = if (gridItemSource.gridItem.override) {
+        gridItemSource.gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleFolderDragIntOffset(
             drag = drag,
@@ -135,7 +141,7 @@ fun FolderDragScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSource = gridItemSource,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = currentGridItemSettings,
                 )
             }
         }
@@ -156,7 +162,7 @@ fun FolderDragScreen(
             dragIntOffset = dragIntOffset,
             density = density,
             textColor = textColor,
-            gridItemSettings = gridItemSettings,
+            gridItemSettings = currentGridItemSettings,
         )
     }
 }
@@ -186,9 +192,8 @@ private fun GridItemContent(
                         ApplicationInfoGridItem(
                             modifier = gridItemModifier,
                             data = data,
-                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
-                            textSize = gridItemSettings.textSize,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -215,9 +220,8 @@ private fun GridItemContent(
                         ShortcutInfoGridItem(
                             modifier = gridItemModifier,
                             data = data,
-                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
-                            textSize = gridItemSettings.textSize,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -231,9 +235,8 @@ private fun GridItemContent(
                         NestedFolderGridItem(
                             modifier = gridItemModifier,
                             data = data,
-                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
-                            textSize = gridItemSettings.textSize,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -312,9 +315,8 @@ private fun AnimatedDropGridItem(
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        iconSize = gridItemSettings.iconSize,
                         textColor = textColor,
-                        textSize = gridItemSettings.textSize,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -329,9 +331,8 @@ private fun AnimatedDropGridItem(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        iconSize = gridItemSettings.iconSize,
                         textColor = textColor,
-                        textSize = gridItemSettings.textSize,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -339,9 +340,8 @@ private fun AnimatedDropGridItem(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        iconSize = gridItemSettings.iconSize,
                         textColor = textColor,
-                        textSize = gridItemSettings.textSize,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
             }

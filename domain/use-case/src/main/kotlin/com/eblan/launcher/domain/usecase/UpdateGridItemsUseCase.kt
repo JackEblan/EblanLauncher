@@ -47,6 +47,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 packageName = data.packageName,
                                 icon = data.icon,
                                 label = data.label,
+                                override = gridItem.override,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -63,6 +65,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 columnSpan = gridItem.columnSpan,
                                 associate = gridItem.associate,
                                 label = data.label,
+                                override = gridItem.override,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -92,6 +96,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 targetCellHeight = data.targetCellHeight,
                                 targetCellWidth = data.targetCellWidth,
                                 preview = data.preview,
+                                override = gridItem.override,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -112,6 +118,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 shortLabel = data.shortLabel,
                                 longLabel = data.longLabel,
                                 icon = data.icon,
+                                override = gridItem.override,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }

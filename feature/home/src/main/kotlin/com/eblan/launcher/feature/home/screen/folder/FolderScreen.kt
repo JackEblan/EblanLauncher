@@ -29,6 +29,7 @@ fun FolderScreen(
     textColor: Long,
     gridItemSettings: GridItemSettings,
     drag: Drag,
+    gridItemSource: GridItemSource?,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -45,6 +46,12 @@ fun FolderScreen(
         onRemoveLastFolder()
     }
 
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
+            onDraggingGridItem(folders.last().gridItems)
+        }
+    }
+
     folders.forEach { folderData ->
         Surface(modifier = modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -57,12 +64,17 @@ fun FolderScreen(
                     columns = folderColumns,
                 ) {
                     folderData.gridItems.forEach { gridItem ->
+                        val currentGridItemSettings = if (gridItem.override) {
+                            gridItem.gridItemSettings
+                        } else {
+                            gridItemSettings
+                        }
+
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 InteractiveApplicationInfoGridItem(
-                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
-                                    textSize = gridItemSettings.textSize,
+                                    gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -72,9 +84,6 @@ fun FolderScreen(
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
-                                    },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
                                     },
                                 )
                             }
@@ -83,23 +92,18 @@ fun FolderScreen(
                                 InteractiveWidgetGridItem(
                                     gridItem = gridItem,
                                     gridItemData = data,
-                                    drag = drag,
                                     onLongPress = {
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
-                                    },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
                                     },
                                 )
                             }
 
                             is GridItemData.ShortcutInfo -> {
                                 InteractiveShortcutInfoGridItem(
-                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
-                                    textSize = gridItemSettings.textSize,
+                                    gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -110,17 +114,13 @@ fun FolderScreen(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
                                     },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
-                                    },
                                 )
                             }
 
                             is GridItemData.Folder -> {
                                 InteractiveNestedFolderGridItem(
-                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
-                                    textSize = gridItemSettings.textSize,
+                                    gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -130,9 +130,6 @@ fun FolderScreen(
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
-                                    },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
                                     },
                                 )
                             }

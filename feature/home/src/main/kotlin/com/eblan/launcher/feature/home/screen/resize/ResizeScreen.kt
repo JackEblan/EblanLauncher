@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
@@ -68,6 +67,12 @@ fun ResizeScreen(
         gridPaddingDp.roundToPx()
     }
 
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
     BackHandler {
         onResizeEnd()
     }
@@ -94,7 +99,7 @@ fun ResizeScreen(
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = currentGridItemSettings,
                 )
             }
         }
@@ -110,7 +115,7 @@ fun ResizeScreen(
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = currentGridItemSettings,
                 )
             }
         }
@@ -179,49 +184,44 @@ private fun GridItemContent(
     textColor: Long,
     gridItemSettings: GridItemSettings,
 ) {
-    key(gridItem.id) {
-        LookaheadScope {
-            val gridItemModifier = modifier
-                .animateBounds(this)
-                .gridItem(gridItem)
+    LookaheadScope {
+        val gridItemModifier = modifier
+            .animateBounds(this)
+            .gridItem(gridItem)
 
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        iconSize = gridItemSettings.iconSize,
-                        textColor = textColor,
-                        textSize = gridItemSettings.textSize,
-                    )
-                }
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                ApplicationInfoGridItem(
+                    modifier = gridItemModifier,
+                    data = data,
+                    textColor = textColor,
+                    gridItemSettings = gridItemSettings,
+                )
+            }
 
-                is GridItemData.Widget -> {
-                    WidgetGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                    )
-                }
+            is GridItemData.Widget -> {
+                WidgetGridItem(
+                    modifier = gridItemModifier,
+                    data = data,
+                )
+            }
 
-                is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        iconSize = gridItemSettings.iconSize,
-                        textColor = textColor,
-                        textSize = gridItemSettings.textSize,
-                    )
-                }
+            is GridItemData.ShortcutInfo -> {
+                ShortcutInfoGridItem(
+                    modifier = gridItemModifier,
+                    data = data,
+                    textColor = textColor,
+                    gridItemSettings = gridItemSettings,
+                )
+            }
 
-                is GridItemData.Folder -> {
-                    FolderGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        iconSize = gridItemSettings.iconSize,
-                        textColor = textColor,
-                        textSize = gridItemSettings.textSize,
-                    )
-                }
+            is GridItemData.Folder -> {
+                FolderGridItem(
+                    modifier = gridItemModifier,
+                    data = data,
+                    textColor = textColor,
+                    gridItemSettings = gridItemSettings,
+                )
             }
         }
     }

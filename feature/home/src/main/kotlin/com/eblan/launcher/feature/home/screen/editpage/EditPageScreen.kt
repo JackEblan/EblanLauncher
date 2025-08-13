@@ -124,14 +124,19 @@ fun EditPageScreen(
                             pageItem.gridItems.forEach { gridItem ->
                                 val gridItemModifier = Modifier.gridItem(gridItem)
 
+                                val currentGridItemSettings = if (gridItem.override) {
+                                    gridItem.gridItemSettings
+                                } else {
+                                    gridItemSettings
+                                }
+
                                 when (val data = gridItem.data) {
                                     is GridItemData.ApplicationInfo -> {
                                         ApplicationInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            iconSize = gridItemSettings.iconSize,
                                             textColor = textColor,
-                                            textSize = gridItemSettings.textSize,
+                                            gridItemSettings = currentGridItemSettings,
                                         )
                                     }
 
@@ -146,9 +151,8 @@ fun EditPageScreen(
                                         ShortcutInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            iconSize = gridItemSettings.iconSize,
                                             textColor = textColor,
-                                            textSize = gridItemSettings.textSize,
+                                            gridItemSettings = currentGridItemSettings,
                                         )
                                     }
 
@@ -156,9 +160,8 @@ fun EditPageScreen(
                                         FolderGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            iconSize = gridItemSettings.iconSize,
                                             textColor = textColor,
-                                            textSize = gridItemSettings.textSize,
+                                            gridItemSettings = currentGridItemSettings,
                                         )
                                     }
                                 }

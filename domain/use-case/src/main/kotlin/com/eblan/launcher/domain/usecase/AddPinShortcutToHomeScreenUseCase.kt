@@ -61,6 +61,8 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 columnSpan = 1,
                 data = data,
                 associate = Associate.Grid,
+                override = false,
+                gridItemSettings = homeSettings.gridItemSettings,
             )
 
             val newGridItem = findAvailableRegionByPage(

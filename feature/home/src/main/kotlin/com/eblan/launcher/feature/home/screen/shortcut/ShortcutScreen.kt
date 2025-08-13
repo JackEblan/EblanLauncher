@@ -16,11 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -32,6 +29,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -45,7 +43,9 @@ fun ShortcutScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanShortcutInfos: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
+    gridItemSettings: GridItemSettings,
     drag: Drag,
+    gridItemSource: GridItemSource?,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -60,8 +60,6 @@ fun ShortcutScreen(
         pageCount = pageCount,
     )
 
-    var isLongPress by remember { mutableStateOf(false) }
-
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
@@ -73,7 +71,7 @@ fun ShortcutScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPress) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
             onDragging()
         }
     }
@@ -110,8 +108,6 @@ fun ShortcutScreen(
                                         block = {
                                             detectTapGestures(
                                                 onLongPress = {
-                                                    isLongPress = true
-
                                                     val data = GridItemData.ShortcutInfo(
                                                         shortcutId = eblanShortcutInfo.shortcutId,
                                                         packageName = eblanShortcutInfo.packageName,
@@ -133,6 +129,8 @@ fun ShortcutScreen(
                                                                 columnSpan = 1,
                                                                 data = data,
                                                                 associate = Associate.Grid,
+                                                                override = false,
+                                                                gridItemSettings = gridItemSettings,
                                                             ),
                                                         ),
                                                     )

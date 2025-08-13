@@ -371,7 +371,7 @@ private fun SettingsColumn(
 }
 
 @Composable
-fun TextColor.getTextColorSubtitle(): String {
+private fun TextColor.getTextColorSubtitle(): String {
     return when (this) {
         TextColor.System -> "System"
         TextColor.Light -> "Light"

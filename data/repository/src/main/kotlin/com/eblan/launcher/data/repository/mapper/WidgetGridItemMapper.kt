@@ -32,6 +32,8 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
             preview = preview,
         ),
         associate = associate,
+        override = override,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -59,6 +61,8 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        override = override,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -86,5 +90,7 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        override = override,
+        gridItemSettings = gridItemSettings,
     )
 }

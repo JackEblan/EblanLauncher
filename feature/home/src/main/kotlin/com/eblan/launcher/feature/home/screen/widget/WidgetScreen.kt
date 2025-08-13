@@ -3,7 +3,7 @@ package com.eblan.launcher.feature.home.screen.widget
 import android.content.ClipData
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,9 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.uuid.ExperimentalUuidApi
@@ -57,6 +60,9 @@ fun WidgetScreen(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
+    gridItemSettings: GridItemSettings,
+    drag: Drag,
+    gridItemSource: GridItemSource?,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -81,6 +87,12 @@ fun WidgetScreen(
             onApplyToScroll = onApplyToScroll,
             onApplyToFling = onApplyToFling,
         )
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
+            onDragging()
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -131,8 +143,8 @@ fun WidgetScreen(
                                     modifier = Modifier
                                         .dragAndDropSource(
                                             block = {
-                                                detectDragGesturesAfterLongPress(
-                                                    onDragStart = {
+                                                detectTapGestures(
+                                                    onLongPress = {
                                                         onLongPress(
                                                             page,
                                                             GridItemSource.New(
@@ -153,11 +165,11 @@ fun WidgetScreen(
                                                                     maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                                                     maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                                                                     preview = eblanAppWidgetProviderInfo.preview,
+                                                                    gridItemSettings = gridItemSettings,
                                                                 ),
                                                             ),
                                                         )
-                                                    },
-                                                    onDrag = { change, dragAmount ->
+
                                                         startTransfer(
                                                             DragAndDropTransferData(
                                                                 clipData = ClipData.newPlainText(
@@ -166,8 +178,6 @@ fun WidgetScreen(
                                                                 ),
                                                             ),
                                                         )
-
-                                                        onDragging()
                                                     },
                                                 )
                                             },
@@ -218,6 +228,7 @@ fun getWidgetGridItem(
     maxResizeWidth: Int,
     maxResizeHeight: Int,
     preview: String?,
+    gridItemSettings: GridItemSettings,
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
@@ -246,5 +257,7 @@ fun getWidgetGridItem(
         columnSpan = 1,
         data = data,
         associate = Associate.Grid,
+        override = false,
+        gridItemSettings = gridItemSettings,
     )
 }

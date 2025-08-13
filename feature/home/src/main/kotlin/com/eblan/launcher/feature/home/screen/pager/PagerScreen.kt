@@ -102,7 +102,7 @@ fun PagerScreen(
         id: String,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onEdit: () -> Unit,
+    onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -347,7 +347,7 @@ private fun HorizontalPagerScreen(
         id: String,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onEdit: () -> Unit,
+    onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -736,7 +736,9 @@ private fun HorizontalPagerScreen(
                                 -> {
                                 ApplicationInfoGridItemMenu(
                                     showResize = true,
-                                    onEdit = onEdit,
+                                    onEdit = {
+                                        onEdit(gridItem.id)
+                                    },
                                     onResize = {
                                         onResize(
                                             calculatePage(
@@ -755,7 +757,9 @@ private fun HorizontalPagerScreen(
 
                                 WidgetGridItemMenu(
                                     showResize = showResize,
-                                    onEdit = onEdit,
+                                    onEdit = {
+                                        onEdit(gridItem.id)
+                                    },
                                     onResize = {
                                         onResize(
                                             calculatePage(
@@ -791,7 +795,9 @@ private fun HorizontalPagerScreen(
                                 -> {
                                 ApplicationInfoGridItemMenu(
                                     showResize = false,
-                                    onEdit = onEdit,
+                                    onEdit = {
+                                        onEdit(gridItem.id)
+                                    },
                                     onResize = {
                                         onResize(
                                             calculatePage(
@@ -807,7 +813,9 @@ private fun HorizontalPagerScreen(
                             is GridItemData.Widget -> {
                                 WidgetGridItemMenu(
                                     showResize = false,
-                                    onEdit = onEdit,
+                                    onEdit = {
+                                        onEdit(gridItem.id)
+                                    },
                                     onResize = {
                                         onResize(
                                             calculatePage(

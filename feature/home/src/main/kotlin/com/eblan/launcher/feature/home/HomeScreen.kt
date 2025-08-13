@@ -402,9 +402,7 @@ private fun Success(
                     onDraggingGridItem = {
                         onShowGridCache(gridItems, Screen.Drag)
                     },
-                    onEdit = {
-
-                    },
+                    onEdit = onEdit,
                     onResize = { newTargetPage ->
                         targetPage = newTargetPage
 

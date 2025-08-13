@@ -23,6 +23,7 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
             icon = icon,
         ),
         associate = associate,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -41,6 +42,7 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         shortLabel = shortLabel,
         longLabel = longLabel,
         icon = icon,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -59,5 +61,6 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         shortLabel = shortLabel,
         longLabel = longLabel,
         icon = icon,
+        gridItemSettings = gridItemSettings,
     )
 }

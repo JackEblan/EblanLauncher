@@ -462,6 +462,8 @@ private fun HorizontalPagerScreen(
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             InteractiveApplicationInfoGridItem(
+                                textColor = textColor,
+                                gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
@@ -480,9 +482,6 @@ private fun HorizontalPagerScreen(
                                     )
                                 },
                                 onDragging = onDraggingGridItem,
-                                iconSize = gridItemSettings.iconSize,
-                                textColor = textColor,
-                                textSize = gridItemSettings.textSize,
                             )
                         }
 
@@ -509,9 +508,8 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.ShortcutInfo -> {
                             InteractiveShortcutInfoGridItem(
-                                iconSize = gridItemSettings.iconSize,
+                                gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                                 textColor = textColor,
-                                textSize = gridItemSettings.textSize,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
@@ -540,9 +538,8 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Folder -> {
                             InteractiveFolderGridItem(
-                                iconSize = gridItemSettings.iconSize,
+                                gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                                 textColor = textColor,
-                                textSize = gridItemSettings.textSize,
                                 gridItem = gridItem,
                                 data = data,
                                 onTap = {
@@ -594,6 +591,8 @@ private fun HorizontalPagerScreen(
                 when (val data = gridItem.data) {
                     is GridItemData.ApplicationInfo -> {
                         InteractiveApplicationInfoGridItem(
+                            textColor = textColor,
+                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                             gridItem = gridItem,
                             data = data,
                             onTap = {
@@ -616,11 +615,7 @@ private fun HorizontalPagerScreen(
                                 )
                             },
                             onDragging = onDraggingGridItem,
-                            iconSize = gridItemSettings.iconSize,
-                            textColor = textColor,
-                            textSize = gridItemSettings.textSize,
-
-                            )
+                        )
                     }
 
                     is GridItemData.Widget -> {
@@ -650,9 +645,8 @@ private fun HorizontalPagerScreen(
 
                     is GridItemData.ShortcutInfo -> {
                         InteractiveShortcutInfoGridItem(
-                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
-                            textSize = gridItemSettings.textSize,
+                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                             gridItem = gridItem,
                             data = data,
                             onTap = {
@@ -683,9 +677,8 @@ private fun HorizontalPagerScreen(
 
                     is GridItemData.Folder -> {
                         InteractiveFolderGridItem(
-                            iconSize = gridItemSettings.iconSize,
                             textColor = textColor,
-                            textSize = gridItemSettings.textSize,
+                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                             gridItem = gridItem,
                             data = data,
                             onTap = {

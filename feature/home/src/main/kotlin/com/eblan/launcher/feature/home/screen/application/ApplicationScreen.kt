@@ -143,6 +143,7 @@ fun ApplicationScreen(
                                                             columnSpan = 1,
                                                             data = data,
                                                             associate = Associate.Grid,
+                                                            gridItemSettings = null,
                                                         ),
                                                     ),
                                                 )

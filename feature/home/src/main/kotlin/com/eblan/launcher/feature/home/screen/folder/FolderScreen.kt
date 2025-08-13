@@ -60,9 +60,9 @@ fun FolderScreen(
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 InteractiveApplicationInfoGridItem(
-                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
-                                    textSize = gridItemSettings.textSize,
+                                    gridItemSettings = gridItem.gridItemSettings
+                                        ?: gridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -97,9 +97,9 @@ fun FolderScreen(
 
                             is GridItemData.ShortcutInfo -> {
                                 InteractiveShortcutInfoGridItem(
-                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
-                                    textSize = gridItemSettings.textSize,
+                                    gridItemSettings = gridItem.gridItemSettings
+                                        ?: gridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -118,9 +118,9 @@ fun FolderScreen(
 
                             is GridItemData.Folder -> {
                                 InteractiveNestedFolderGridItem(
-                                    iconSize = gridItemSettings.iconSize,
                                     textColor = textColor,
-                                    textSize = gridItemSettings.textSize,
+                                    gridItemSettings = gridItem.gridItemSettings
+                                        ?: gridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {

@@ -17,25 +17,26 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem {
         columnSpan = folderGridItemEntity.columnSpan,
         data = asFolderGridItemData(),
         associate = folderGridItemEntity.associate,
+        gridItemSettings = folderGridItemEntity.gridItemSettings,
     )
 }
 
 internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Folder {
-    val applicationInfos = applicationInfos?.map { applicationInfoGridItemEntity ->
+    val applicationInfos = applicationInfos.map { applicationInfoGridItemEntity ->
         applicationInfoGridItemEntity.asGridItem()
-    } ?: emptyList()
+    }
 
-    val widgets = widgets?.map { widgetGridItemEntity ->
+    val widgets = widgets.map { widgetGridItemEntity ->
         widgetGridItemEntity.asGridItem()
-    } ?: emptyList()
+    }
 
-    val shortcutInfos = shortcutInfos?.map { shortcutGridItemEntity ->
+    val shortcutInfos = shortcutInfos.map { shortcutGridItemEntity ->
         shortcutGridItemEntity.asGridItem()
-    } ?: emptyList()
+    }
 
-    val folders = folders?.map { folderGridItemEntity ->
+    val folders = folders.map { folderGridItemEntity ->
         folderGridItemEntity.asGridItem()
-    } ?: emptyList()
+    }
 
     return GridItemData.Folder(
         id = folderGridItemEntity.id,
@@ -60,6 +61,7 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem {
             gridItems = emptyList(),
         ),
         associate = associate,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -74,5 +76,6 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity {
         columnSpan = columnSpan,
         associate = associate,
         label = label,
+        gridItemSettings = gridItemSettings,
     )
 }

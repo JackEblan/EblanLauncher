@@ -10,6 +10,7 @@ data class GridItem(
     val columnSpan: Int,
     val data: GridItemData,
     val associate: Associate,
+    val gridItemSettings: GridItemSettings?,
 )
 
 enum class Associate {

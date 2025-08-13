@@ -32,6 +32,7 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
             preview = preview,
         ),
         associate = associate,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -59,6 +60,7 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -86,5 +88,6 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        gridItemSettings = gridItemSettings,
     )
 }

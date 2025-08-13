@@ -133,6 +133,7 @@ fun ShortcutScreen(
                                                                 columnSpan = 1,
                                                                 data = data,
                                                                 associate = Associate.Grid,
+                                                                gridItemSettings = null,
                                                             ),
                                                         ),
                                                     )

@@ -1,10 +1,12 @@
 package com.eblan.launcher.data.room.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity(
     foreignKeys = [
@@ -31,4 +33,5 @@ data class ApplicationInfoGridItemEntity(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    @Embedded val gridItemSettings: GridItemSettings?,
 )

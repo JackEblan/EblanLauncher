@@ -190,9 +190,8 @@ private fun GridItemContent(
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        iconSize = gridItemSettings.iconSize,
                         textColor = textColor,
-                        textSize = gridItemSettings.textSize,
+                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                     )
                 }
 
@@ -207,9 +206,8 @@ private fun GridItemContent(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        iconSize = gridItemSettings.iconSize,
                         textColor = textColor,
-                        textSize = gridItemSettings.textSize,
+                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                     )
                 }
 
@@ -217,9 +215,8 @@ private fun GridItemContent(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        iconSize = gridItemSettings.iconSize,
                         textColor = textColor,
-                        textSize = gridItemSettings.textSize,
+                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
                     )
                 }
             }

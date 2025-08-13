@@ -40,6 +40,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 
@@ -48,9 +49,8 @@ import com.eblan.launcher.feature.home.model.Screen
 @Composable
 fun InteractiveApplicationInfoGridItem(
     modifier: Modifier = Modifier,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
@@ -86,9 +86,8 @@ fun InteractiveApplicationInfoGridItem(
                 },
             ),
         data = data,
-        iconSize = iconSize,
         textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -96,9 +95,8 @@ fun InteractiveApplicationInfoGridItem(
 @Composable
 fun InteractiveShortcutInfoGridItem(
     modifier: Modifier = Modifier,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
@@ -134,11 +132,9 @@ fun InteractiveShortcutInfoGridItem(
                 },
             ),
         data = data,
-        iconSize = iconSize,
         textColor = textColor,
-        textSize = textSize,
-
-        )
+        gridItemSettings = gridItemSettings,
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -233,9 +229,8 @@ fun InteractiveWidgetGridItem(
 @Composable
 fun InteractiveFolderGridItem(
     modifier: Modifier = Modifier,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.Folder,
     onTap: () -> Unit,
@@ -271,9 +266,8 @@ fun InteractiveFolderGridItem(
                 },
             ),
         data = data,
-        iconSize = iconSize,
         textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -281,9 +275,8 @@ fun InteractiveFolderGridItem(
 @Composable
 fun InteractiveNestedFolderGridItem(
     modifier: Modifier = Modifier,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.Folder,
     onTap: () -> Unit,
@@ -319,9 +312,8 @@ fun InteractiveNestedFolderGridItem(
                 },
             ),
         data = data,
-        iconSize = iconSize,
         textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -367,20 +359,19 @@ fun WidgetGridItem(
 fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
-        iconSize.toDp()
+        gridItemSettings.iconSize.toDp()
     }
 
     val color = Color(textColor)
 
     val textSizeSp = with(density) {
-        textSize.toSp()
+        gridItemSettings.textSize.toSp()
     }
 
     Column(
@@ -414,20 +405,19 @@ fun ApplicationInfoGridItem(
 fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
-        iconSize.toDp()
+        gridItemSettings.iconSize.toDp()
     }
 
     val color = Color(textColor)
 
     val textSizeSp = with(density) {
-        textSize.toSp()
+        gridItemSettings.textSize.toSp()
     }
 
     Column(
@@ -461,20 +451,19 @@ fun ShortcutInfoGridItem(
 fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
-        iconSize.toDp()
+        gridItemSettings.iconSize.toDp()
     }
 
     val color = Color(textColor)
 
     val textSizeSp = with(density) {
-        textSize.toSp()
+        gridItemSettings.textSize.toSp()
     }
 
     Column(
@@ -544,20 +533,19 @@ fun FolderGridItem(
 fun NestedFolderGridItem(
     modifier: Modifier,
     data: GridItemData.Folder,
-    iconSize: Int,
     textColor: Long,
-    textSize: Int,
+    gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
-        iconSize.toDp()
+        gridItemSettings.iconSize.toDp()
     }
 
     val color = Color(textColor)
 
     val textSizeSp = with(density) {
-        textSize.toSp()
+        gridItemSettings.textSize.toSp()
     }
 
     Column(

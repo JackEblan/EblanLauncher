@@ -129,9 +129,9 @@ fun EditPageScreen(
                                         ApplicationInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            iconSize = gridItemSettings.iconSize,
                                             textColor = textColor,
-                                            textSize = gridItemSettings.textSize,
+                                            gridItemSettings = gridItem.gridItemSettings
+                                                ?: gridItemSettings,
                                         )
                                     }
 
@@ -146,9 +146,9 @@ fun EditPageScreen(
                                         ShortcutInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            iconSize = gridItemSettings.iconSize,
                                             textColor = textColor,
-                                            textSize = gridItemSettings.textSize,
+                                            gridItemSettings = gridItem.gridItemSettings
+                                                ?: gridItemSettings,
                                         )
                                     }
 
@@ -156,9 +156,9 @@ fun EditPageScreen(
                                         FolderGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
-                                            iconSize = gridItemSettings.iconSize,
                                             textColor = textColor,
-                                            textSize = gridItemSettings.textSize,
+                                            gridItemSettings = gridItem.gridItemSettings
+                                                ?: gridItemSettings,
                                         )
                                     }
                                 }

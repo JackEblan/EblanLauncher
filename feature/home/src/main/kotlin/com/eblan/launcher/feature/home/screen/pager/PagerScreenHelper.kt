@@ -132,6 +132,7 @@ fun handlePinItemRequest(
                     columnSpan = 1,
                     data = data,
                     associate = Associate.Grid,
+                    gridItemSettings = null,
                 ),
                 pinItemRequest = pinItemRequest,
             )

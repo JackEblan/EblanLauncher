@@ -22,6 +22,7 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
             label = label,
         ),
         associate = associate,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -39,6 +40,7 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
         packageName = packageName,
         icon = icon,
         label = label,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -56,5 +58,6 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
         packageName = packageName,
         icon = icon,
         label = label,
+        gridItemSettings = gridItemSettings,
     )
 }

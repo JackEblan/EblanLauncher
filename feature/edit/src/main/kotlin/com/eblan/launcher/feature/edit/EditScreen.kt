@@ -121,7 +121,6 @@ fun Success(
         Spacer(modifier = Modifier.height(5.dp))
 
         SwitchRow(
-            modifier = modifier,
             checked = gridItem.override,
             title = "Override",
             subtitle = "Override the Grid Item Settings",
@@ -134,7 +133,7 @@ fun Success(
 
         SettingsColumn(
             title = "Icon Size",
-            subtitle = "${gridItem.iconSize}",
+            subtitle = "${gridItem.gridItemSettings.iconSize}",
             onClick = {
                 showIconSizeDialog = true
             },
@@ -144,7 +143,7 @@ fun Success(
 
         SettingsColumn(
             title = "Text Color",
-            subtitle = gridItem.textColor.getTextColorSubtitle(),
+            subtitle = gridItem.gridItemSettings.textColor.getTextColorSubtitle(),
             onClick = {
                 showTextColorDialog = true
             },
@@ -154,7 +153,7 @@ fun Success(
 
         SettingsColumn(
             title = "Text Size",
-            subtitle = "${gridItem.textSize}",
+            subtitle = "${gridItem.gridItemSettings.textSize}",
             onClick = {
                 showTextSizeDialog = true
             },
@@ -163,37 +162,42 @@ fun Success(
 
     if (showIconSizeDialog) {
         IconSizeDialog(
-            iconSize = gridItem.iconSize,
+            iconSize = gridItem.gridItemSettings.iconSize,
             onDismissRequest = {
                 showIconSizeDialog = false
             },
             onUpdateClick = { newIconSize ->
-                onUpdateGridItem(gridItem.copy(iconSize = newIconSize))
+                val newGridItemSettings = gridItem.gridItemSettings.copy(iconSize = newIconSize)
+
+                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
             },
         )
     }
 
     if (showTextColorDialog) {
         TextColorDialog(
-            textColor = gridItem.textColor,
+            textColor = gridItem.gridItemSettings.textColor,
             onDismissRequest = {
                 showTextColorDialog = false
             },
             onUpdateClick = { newTextColor ->
-                onUpdateGridItem(gridItem.copy(textColor = newTextColor))
+                val newGridItemSettings = gridItem.gridItemSettings.copy(textColor = newTextColor)
+
+                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
             },
         )
     }
 
     if (showTextSizeDialog) {
         TextSizeDialog(
-            textSize = gridItem.textSize,
+            textSize = gridItem.gridItemSettings.textSize,
             onDismissRequest = {
                 showTextSizeDialog = false
             },
             onUpdateClick = { newTextSize ->
+                val newGridItemSettings = gridItem.gridItemSettings.copy(textSize = newTextSize)
 
-                onUpdateGridItem(gridItem.copy(textSize = newTextSize))
+                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
             },
         )
     }

@@ -38,7 +38,7 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -58,6 +58,7 @@ fun WidgetScreen(
     rootWidth: Int,
     rootHeight: Int,
     dockHeight: Int,
+    gridItemSettings: GridItemSettings,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -154,6 +155,7 @@ fun WidgetScreen(
                                                                     maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                                                     maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                                                                     preview = eblanAppWidgetProviderInfo.preview,
+                                                                    gridItemSettings = gridItemSettings,
                                                                 ),
                                                             ),
                                                         )
@@ -219,6 +221,7 @@ fun getWidgetGridItem(
     maxResizeWidth: Int,
     maxResizeHeight: Int,
     preview: String?,
+    gridItemSettings: GridItemSettings,
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
@@ -248,8 +251,6 @@ fun getWidgetGridItem(
         data = data,
         associate = Associate.Grid,
         override = false,
-        iconSize = 0,
-        textColor = TextColor.System,
-        textSize = 0,
+        gridItemSettings = gridItemSettings,
     )
 }

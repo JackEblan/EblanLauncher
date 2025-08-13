@@ -23,9 +23,7 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
         ),
         associate = associate,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -44,9 +42,7 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
         icon = icon,
         label = label,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -65,8 +61,6 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
         icon = icon,
         label = label,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }

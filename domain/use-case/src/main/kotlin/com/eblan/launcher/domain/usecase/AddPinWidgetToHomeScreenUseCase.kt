@@ -7,7 +7,6 @@ import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -115,9 +114,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 data = data,
                 associate = Associate.Grid,
                 override = false,
-                iconSize = 0,
-                textColor = TextColor.System,
-                textSize = 0,
+                gridItemSettings = homeSettings.gridItemSettings,
             )
 
             val newGridItem = findAvailableRegionByPage(

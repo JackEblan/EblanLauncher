@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.FolderGridItemEntity
 import com.eblan.launcher.data.room.entity.FolderGridItemWrapperEntity
@@ -22,6 +23,9 @@ interface FolderGridItemDao {
 
     @Upsert
     suspend fun upsertFolderGridItemEntities(entities: List<FolderGridItemEntity>)
+
+    @Update
+    suspend fun updateFolderGridItemEntity(entity: FolderGridItemEntity)
 
     @Delete
     suspend fun deleteFolderGridItemEntity(entity: FolderGridItemEntity)

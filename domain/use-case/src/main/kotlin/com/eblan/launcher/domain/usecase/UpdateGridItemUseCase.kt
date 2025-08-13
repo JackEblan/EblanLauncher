@@ -1,6 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
@@ -38,15 +39,27 @@ class UpdateGridItemUseCase @Inject constructor(
                             icon = data.icon,
                             label = data.label,
                             override = gridItem.override,
-                            iconSize = gridItem.iconSize,
-                            textColor = gridItem.textColor,
-                            textSize = gridItem.textSize,
+                            gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )
                 }
 
                 is GridItemData.Folder -> {
-
+                    folderGridItemRepository.updateFolderGridItem(
+                        folderGridItem = FolderGridItem(
+                            id = gridItem.id,
+                            folderId = gridItem.folderId,
+                            page = gridItem.page,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
+                            associate = gridItem.associate,
+                            label = data.label,
+                            override = gridItem.override,
+                            gridItemSettings = gridItem.gridItemSettings,
+                        ),
+                    )
                 }
 
                 is GridItemData.ShortcutInfo -> {
@@ -66,9 +79,7 @@ class UpdateGridItemUseCase @Inject constructor(
                             longLabel = data.longLabel,
                             icon = data.icon,
                             override = gridItem.override,
-                            iconSize = gridItem.iconSize,
-                            textColor = gridItem.textColor,
-                            textSize = gridItem.textSize,
+                            gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )
                 }
@@ -99,9 +110,7 @@ class UpdateGridItemUseCase @Inject constructor(
                             targetCellWidth = data.targetCellWidth,
                             preview = data.preview,
                             override = gridItem.override,
-                            iconSize = gridItem.iconSize,
-                            textColor = gridItem.textColor,
-                            textSize = gridItem.textSize,
+                            gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )
                 }

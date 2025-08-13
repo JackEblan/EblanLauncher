@@ -1,9 +1,10 @@
 package com.eblan.launcher.data.room.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity
 data class FolderGridItemEntity(
@@ -18,7 +19,5 @@ data class FolderGridItemEntity(
     val associate: Associate,
     val label: String,
     val override: Boolean,
-    val iconSize: Int,
-    val textColor: TextColor,
-    val textSize: Int,
+    @Embedded val gridItemSettings: GridItemSettings,
 )

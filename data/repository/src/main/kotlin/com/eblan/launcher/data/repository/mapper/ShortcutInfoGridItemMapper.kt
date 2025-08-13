@@ -24,9 +24,7 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
         ),
         associate = associate,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -46,9 +44,7 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         longLabel = longLabel,
         icon = icon,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -68,8 +64,6 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         longLabel = longLabel,
         icon = icon,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }

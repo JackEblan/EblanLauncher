@@ -15,7 +15,7 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
@@ -41,6 +41,7 @@ fun handlePinItemRequest(
     pinItemRequestWrapper: PinItemRequestWrapper,
     context: Context,
     fileManager: FileManager,
+    gridItemSettings: GridItemSettings,
     onDragStart: (GridItemSource) -> Unit,
 ) {
     val targetPage = calculatePage(
@@ -80,6 +81,7 @@ fun handlePinItemRequest(
                     maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
                     preview = previewInferred,
+                    gridItemSettings = gridItemSettings,
                 ),
                 pinItemRequest = pinItemRequest,
             )
@@ -101,6 +103,7 @@ fun handlePinItemRequest(
                     maxResizeWidth = 0,
                     maxResizeHeight = 0,
                     preview = previewInferred,
+                    gridItemSettings = gridItemSettings,
                 ),
                 pinItemRequest = pinItemRequest,
             )
@@ -134,9 +137,7 @@ fun handlePinItemRequest(
                     data = data,
                     associate = Associate.Grid,
                     override = false,
-                    iconSize = 0,
-                    textColor = TextColor.System,
-                    textSize = 0,
+                    gridItemSettings = gridItemSettings,
                 ),
                 pinItemRequest = pinItemRequest,
             )

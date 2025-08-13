@@ -33,9 +33,7 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
         ),
         associate = associate,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -64,9 +62,7 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         targetCellWidth = targetCellWidth,
         preview = preview,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -95,8 +91,6 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         targetCellWidth = targetCellWidth,
         preview = preview,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }

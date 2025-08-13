@@ -140,11 +140,7 @@ fun DragScreen(
     }
 
     val currentGridItemSettings = if (gridItemSource.gridItem.override) {
-        GridItemSettings(
-            iconSize = gridItemSource.gridItem.iconSize,
-            textColor = gridItemSource.gridItem.textColor,
-            textSize = gridItemSource.gridItem.textSize,
-        )
+        gridItemSource.gridItem.gridItemSettings
     } else {
         gridItemSettings
     }

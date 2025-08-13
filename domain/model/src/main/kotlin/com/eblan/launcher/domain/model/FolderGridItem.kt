@@ -11,7 +11,5 @@ data class FolderGridItem(
     val associate: Associate,
     val label: String,
     val override: Boolean,
-    val iconSize: Int,
-    val textColor: TextColor,
-    val textSize: Int
+    val gridItemSettings: GridItemSettings,
 )

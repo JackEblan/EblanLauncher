@@ -11,9 +11,7 @@ data class GridItem(
     val data: GridItemData,
     val associate: Associate,
     val override: Boolean,
-    val iconSize: Int,
-    val textColor: TextColor,
-    val textSize: Int,
+    val gridItemSettings: GridItemSettings,
 )
 
 enum class Associate {

@@ -18,9 +18,7 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem {
         data = asFolderGridItemData(),
         associate = folderGridItemEntity.associate,
         override = folderGridItemEntity.override,
-        iconSize = folderGridItemEntity.iconSize,
-        textColor = folderGridItemEntity.textColor,
-        textSize = folderGridItemEntity.textSize,
+        gridItemSettings = folderGridItemEntity.gridItemSettings,
     )
 }
 
@@ -65,9 +63,7 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem {
         ),
         associate = associate,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -83,8 +79,6 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity {
         associate = associate,
         label = label,
         override = override,
-        iconSize = iconSize,
-        textColor = textColor,
-        textSize = textSize,
+        gridItemSettings = gridItemSettings,
     )
 }

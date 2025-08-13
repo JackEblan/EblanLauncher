@@ -24,7 +24,5 @@ data class WidgetGridItem(
     val targetCellWidth: Int,
     val preview: String?,
     val override: Boolean,
-    val iconSize: Int,
-    val textColor: TextColor,
-    val textSize: Int
+    val gridItemSettings: GridItemSettings,
 )

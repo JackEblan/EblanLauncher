@@ -40,7 +40,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
@@ -59,6 +59,7 @@ fun ApplicationScreen(
     infiniteScroll: Boolean,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appDrawerRowsHeight: Int,
+    gridItemSettings: GridItemSettings,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -145,14 +146,12 @@ fun ApplicationScreen(
                                                             data = data,
                                                             associate = Associate.Grid,
                                                             override = false,
-                                                            iconSize = 0,
-                                                            textColor = TextColor.System,
-                                                            textSize = 0,
+                                                            gridItemSettings = gridItemSettings,
                                                         ),
                                                     ),
                                                 )
                                             },
-                                            onDrag = { change, dragAmount ->
+                                            onDrag = { _, _ ->
                                                 startTransfer(
                                                     DragAndDropTransferData(
                                                         clipData = ClipData.newPlainText(

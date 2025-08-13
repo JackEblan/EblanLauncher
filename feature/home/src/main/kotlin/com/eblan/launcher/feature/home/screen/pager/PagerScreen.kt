@@ -231,6 +231,7 @@ fun PagerScreen(
             drag = drag,
             appDrawerRowsHeight = appDrawerRowsHeight,
             hasShortcutHostPermission = hasShortcutHostPermission,
+            gridItemSettings = gridItemSettings,
             onLongPress = onLongPressGridItem,
             onDragging = onDraggingGridItem,
             onDismiss = {
@@ -290,6 +291,7 @@ fun PagerScreen(
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    gridItemSettings = gridItemSettings,
                     onLongPress = onLongPressGridItem,
                     onDragging = onDraggingGridItem,
                     onDismiss = {
@@ -392,6 +394,7 @@ private fun HorizontalPagerScreen(
             pinItemRequestWrapper = pinItemRequestWrapper,
             context = context,
             fileManager = fileManager,
+            gridItemSettings = gridItemSettings,
             onDragStart = onDragStartPinItemRequest,
         )
     }
@@ -462,11 +465,7 @@ private fun HorizontalPagerScreen(
                         val height = gridItem.rowSpan * cellHeight
 
                         val currentGridItemSettings = if (gridItem.override) {
-                            GridItemSettings(
-                                iconSize = gridItem.iconSize,
-                                textColor = gridItem.textColor,
-                                textSize = gridItem.textSize,
-                            )
+                            gridItem.gridItemSettings
                         } else {
                             gridItemSettings
                         }
@@ -603,11 +602,7 @@ private fun HorizontalPagerScreen(
                     val height = gridItem.rowSpan * cellHeight
 
                     val currentGridItemSettings = if (gridItem.override) {
-                        GridItemSettings(
-                            iconSize = gridItem.iconSize,
-                            textColor = gridItem.textColor,
-                            textSize = gridItem.textSize,
-                        )
+                        gridItem.gridItemSettings
                     } else {
                         gridItemSettings
                     }
@@ -903,6 +898,7 @@ private fun ApplicationComponentScreen(
     drag: Drag,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
+    gridItemSettings: GridItemSettings,
     onLongPress: (
         currentPage: Int,
         newGridItemSource: GridItemSource,
@@ -955,6 +951,7 @@ private fun ApplicationComponentScreen(
                                 infiniteScroll = infiniteScroll,
                                 eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
                                 appDrawerRowsHeight = appDrawerRowsHeight,
+                                gridItemSettings = gridItemSettings,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                                 onApplyToScroll = { newOverscrollOffset ->
@@ -979,6 +976,7 @@ private fun ApplicationComponentScreen(
                                 rootWidth = rootWidth,
                                 rootHeight = rootHeight,
                                 dockHeight = dockHeight,
+                                gridItemSettings = gridItemSettings,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                                 onApplyToScroll = { newOverscrollOffset ->
@@ -999,6 +997,7 @@ private fun ApplicationComponentScreen(
                                 infiniteScroll = infiniteScroll,
                                 eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
                                 drag = drag,
+                                gridItemSettings = gridItemSettings,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
                                 onApplyToScroll = { newOverscrollOffset ->

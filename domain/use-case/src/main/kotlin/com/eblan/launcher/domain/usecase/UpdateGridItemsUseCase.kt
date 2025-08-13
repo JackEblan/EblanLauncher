@@ -48,9 +48,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 icon = data.icon,
                                 label = data.label,
                                 override = gridItem.override,
-                                iconSize = gridItem.iconSize,
-                                textColor = gridItem.textColor,
-                                textSize = gridItem.textSize,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -68,9 +66,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 associate = gridItem.associate,
                                 label = data.label,
                                 override = gridItem.override,
-                                iconSize = gridItem.iconSize,
-                                textColor = gridItem.textColor,
-                                textSize = gridItem.textSize,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -101,9 +97,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 targetCellWidth = data.targetCellWidth,
                                 preview = data.preview,
                                 override = gridItem.override,
-                                iconSize = gridItem.iconSize,
-                                textColor = gridItem.textColor,
-                                textSize = gridItem.textSize,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -125,9 +119,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 longLabel = data.longLabel,
                                 icon = data.icon,
                                 override = gridItem.override,
-                                iconSize = gridItem.iconSize,
-                                textColor = gridItem.textColor,
-                                textSize = gridItem.textSize,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }

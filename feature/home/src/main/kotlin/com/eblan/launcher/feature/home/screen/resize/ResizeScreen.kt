@@ -68,11 +68,7 @@ fun ResizeScreen(
     }
 
     val currentGridItemSettings = if (gridItem.override) {
-        GridItemSettings(
-            iconSize = gridItem.iconSize,
-            textColor = gridItem.textColor,
-            textSize = gridItem.textSize,
-        )
+        gridItem.gridItemSettings
     } else {
         gridItemSettings
     }

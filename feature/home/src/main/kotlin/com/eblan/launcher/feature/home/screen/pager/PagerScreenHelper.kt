@@ -15,6 +15,7 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
@@ -132,7 +133,10 @@ fun handlePinItemRequest(
                     columnSpan = 1,
                     data = data,
                     associate = Associate.Grid,
-                    gridItemSettings = null,
+                    override = false,
+                    iconSize = 0,
+                    textColor = TextColor.System,
+                    textSize = 0,
                 ),
                 pinItemRequest = pinItemRequest,
             )

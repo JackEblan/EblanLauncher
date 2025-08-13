@@ -40,6 +40,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
@@ -143,7 +144,10 @@ fun ApplicationScreen(
                                                             columnSpan = 1,
                                                             data = data,
                                                             associate = Associate.Grid,
-                                                            gridItemSettings = null,
+                                                            override = false,
+                                                            iconSize = 0,
+                                                            textColor = TextColor.System,
+                                                            textSize = 0,
                                                         ),
                                                     ),
                                                 )

@@ -5,6 +5,7 @@ import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +62,10 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 columnSpan = 1,
                 data = data,
                 associate = Associate.Grid,
-                gridItemSettings = null,
+                override = false,
+                iconSize = 0,
+                textColor = TextColor.System,
+                textSize = 0,
             )
 
             val newGridItem = findAvailableRegionByPage(

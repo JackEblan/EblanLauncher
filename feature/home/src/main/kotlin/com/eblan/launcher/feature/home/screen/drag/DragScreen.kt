@@ -140,6 +140,16 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
+    val currentGridItemSettings = if (gridItemSource.gridItem.override) {
+        GridItemSettings(
+            iconSize = gridItemSource.gridItem.iconSize,
+            textColor = gridItemSource.gridItem.textColor,
+            textSize = gridItemSource.gridItem.textSize,
+        )
+    } else {
+        gridItemSettings
+    }
+
     val targetPage by remember {
         derivedStateOf {
             calculatePage(
@@ -294,7 +304,7 @@ fun DragScreen(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSource = gridItemSource,
-                        gridItemSettings = gridItemSettings,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
             }
@@ -318,7 +328,11 @@ fun DragScreen(
         }
     }
 
-    if (drag == Drag.End && moveGridItemResult != null && moveGridItemResult.isSuccess && moveGridItemResult.conflictingGridItem == null && moveGridItemResult.movingGridItem.page == targetPage) {
+    if (drag == Drag.End && moveGridItemResult != null &&
+        moveGridItemResult.isSuccess &&
+        moveGridItemResult.conflictingGridItem == null &&
+        moveGridItemResult.movingGridItem.page == targetPage
+    ) {
         AnimatedDropGridItem(
             gridItem = moveGridItemResult.movingGridItem,
             gridPaddingPx = gridPaddingPx,
@@ -363,7 +377,7 @@ private fun GridItemContent(
                             modifier = gridItemModifier,
                             data = data,
                             textColor = textColor,
-                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -388,7 +402,7 @@ private fun GridItemContent(
                             modifier = gridItemModifier,
                             data = data,
                             textColor = textColor,
-                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -403,7 +417,7 @@ private fun GridItemContent(
                             modifier = gridItemModifier,
                             data = data,
                             textColor = textColor,
-                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -487,7 +501,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -503,7 +517,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -512,7 +526,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
             }
@@ -572,7 +586,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -588,7 +602,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -597,7 +611,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
             }

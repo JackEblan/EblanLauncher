@@ -17,7 +17,10 @@ internal fun FolderGridItemWrapperEntity.asGridItem(): GridItem {
         columnSpan = folderGridItemEntity.columnSpan,
         data = asFolderGridItemData(),
         associate = folderGridItemEntity.associate,
-        gridItemSettings = folderGridItemEntity.gridItemSettings,
+        override = folderGridItemEntity.override,
+        iconSize = folderGridItemEntity.iconSize,
+        textColor = folderGridItemEntity.textColor,
+        textSize = folderGridItemEntity.textSize,
     )
 }
 
@@ -61,7 +64,10 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem {
             gridItems = emptyList(),
         ),
         associate = associate,
-        gridItemSettings = gridItemSettings,
+        override = override,
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }
 
@@ -76,6 +82,9 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity {
         columnSpan = columnSpan,
         associate = associate,
         label = label,
-        gridItemSettings = gridItemSettings,
+        override = override,
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }

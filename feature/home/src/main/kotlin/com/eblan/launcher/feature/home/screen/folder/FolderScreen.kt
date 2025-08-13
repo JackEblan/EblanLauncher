@@ -57,12 +57,21 @@ fun FolderScreen(
                     columns = folderColumns,
                 ) {
                     folderData.gridItems.forEach { gridItem ->
+                        val currentGridItemSettings = if (gridItem.override) {
+                            GridItemSettings(
+                                iconSize = gridItem.iconSize,
+                                textColor = gridItem.textColor,
+                                textSize = gridItem.textSize,
+                            )
+                        } else {
+                            gridItemSettings
+                        }
+
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 InteractiveApplicationInfoGridItem(
                                     textColor = textColor,
-                                    gridItemSettings = gridItem.gridItemSettings
-                                        ?: gridItemSettings,
+                                    gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -98,8 +107,7 @@ fun FolderScreen(
                             is GridItemData.ShortcutInfo -> {
                                 InteractiveShortcutInfoGridItem(
                                     textColor = textColor,
-                                    gridItemSettings = gridItem.gridItemSettings
-                                        ?: gridItemSettings,
+                                    gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -119,8 +127,7 @@ fun FolderScreen(
                             is GridItemData.Folder -> {
                                 InteractiveNestedFolderGridItem(
                                     textColor = textColor,
-                                    gridItemSettings = gridItem.gridItemSettings
-                                        ?: gridItemSettings,
+                                    gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {

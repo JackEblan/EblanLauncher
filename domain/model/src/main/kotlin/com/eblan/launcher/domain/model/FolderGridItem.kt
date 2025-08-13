@@ -10,5 +10,8 @@ data class FolderGridItem(
     val columnSpan: Int,
     val associate: Associate,
     val label: String,
-    val gridItemSettings: GridItemSettings?,
+    val override: Boolean,
+    val iconSize: Int,
+    val textColor: TextColor,
+    val textSize: Int
 )

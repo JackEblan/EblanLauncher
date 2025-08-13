@@ -38,6 +38,7 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -246,6 +247,9 @@ fun getWidgetGridItem(
         columnSpan = 1,
         data = data,
         associate = Associate.Grid,
-        gridItemSettings = null,
+        override = false,
+        iconSize = 0,
+        textColor = TextColor.System,
+        textSize = 0,
     )
 }

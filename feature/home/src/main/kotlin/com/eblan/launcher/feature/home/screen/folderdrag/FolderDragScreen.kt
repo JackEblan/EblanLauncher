@@ -84,6 +84,16 @@ fun FolderDragScreen(
         horizontalGridPaddingDp.roundToPx()
     }
 
+    val currentGridItemSettings = if (gridItemSource.gridItem.override) {
+        GridItemSettings(
+            iconSize = gridItemSource.gridItem.iconSize,
+            textColor = gridItemSource.gridItem.textColor,
+            textSize = gridItemSource.gridItem.textSize,
+        )
+    } else {
+        gridItemSettings
+    }
+
     LaunchedEffect(key1 = dragIntOffset) {
         handleFolderDragIntOffset(
             drag = drag,
@@ -135,7 +145,7 @@ fun FolderDragScreen(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSource = gridItemSource,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = currentGridItemSettings,
                 )
             }
         }
@@ -156,7 +166,7 @@ fun FolderDragScreen(
             dragIntOffset = dragIntOffset,
             density = density,
             textColor = textColor,
-            gridItemSettings = gridItemSettings,
+            gridItemSettings = currentGridItemSettings,
         )
     }
 }
@@ -187,7 +197,7 @@ private fun GridItemContent(
                             modifier = gridItemModifier,
                             data = data,
                             textColor = textColor,
-                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -215,7 +225,7 @@ private fun GridItemContent(
                             modifier = gridItemModifier,
                             data = data,
                             textColor = textColor,
-                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -230,7 +240,7 @@ private fun GridItemContent(
                             modifier = gridItemModifier,
                             data = data,
                             textColor = textColor,
-                            gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                            gridItemSettings = gridItemSettings,
                         )
                     }
                 }
@@ -310,7 +320,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -326,7 +336,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -335,7 +345,7 @@ private fun AnimatedDropGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
             }

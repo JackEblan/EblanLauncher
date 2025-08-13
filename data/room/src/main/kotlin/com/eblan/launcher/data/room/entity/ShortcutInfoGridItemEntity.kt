@@ -1,12 +1,11 @@
 package com.eblan.launcher.data.room.entity
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.TextColor
 
 @Entity(
     foreignKeys = [
@@ -34,5 +33,8 @@ data class ShortcutInfoGridItemEntity(
     val shortLabel: String,
     val longLabel: String,
     val icon: String?,
-    @Embedded val gridItemSettings: GridItemSettings?,
+    val override: Boolean,
+    val iconSize: Int,
+    val textColor: TextColor,
+    val textSize: Int,
 )

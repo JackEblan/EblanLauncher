@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
 import com.eblan.launcher.feature.edit.model.EditUiState
@@ -13,7 +12,6 @@ import com.eblan.launcher.feature.edit.navigation.EditRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -25,7 +23,6 @@ class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
-    private val userDataRepository: UserDataRepository,
 ) :
     ViewModel() {
     private val editRouteData = savedStateHandle.toRoute<EditRouteData>()
@@ -43,6 +40,8 @@ class EditViewModel @Inject constructor(
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
             updateGridItemUseCase(gridItem = gridItem)
+
+            getGridItem()
         }
     }
 
@@ -51,7 +50,6 @@ class EditViewModel @Inject constructor(
             _editUiState.update {
                 EditUiState.Success(
                     gridItem = getGridItemUseCase(id = editRouteData.id),
-                    gridItemSettings = userDataRepository.userData.first().homeSettings.gridItemSettings,
                 )
             }
         }

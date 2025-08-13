@@ -68,6 +68,16 @@ fun ResizeScreen(
         gridPaddingDp.roundToPx()
     }
 
+    val currentGridItemSettings = if (gridItem.override) {
+        GridItemSettings(
+            iconSize = gridItem.iconSize,
+            textColor = gridItem.textColor,
+            textSize = gridItem.textSize,
+        )
+    } else {
+        gridItemSettings
+    }
+
     BackHandler {
         onResizeEnd()
     }
@@ -94,7 +104,7 @@ fun ResizeScreen(
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = currentGridItemSettings,
                 )
             }
         }
@@ -110,7 +120,7 @@ fun ResizeScreen(
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = currentGridItemSettings,
                 )
             }
         }
@@ -191,7 +201,7 @@ private fun GridItemContent(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -207,7 +217,7 @@ private fun GridItemContent(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 
@@ -216,7 +226,7 @@ private fun GridItemContent(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = textColor,
-                        gridItemSettings = gridItem.gridItemSettings ?: gridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
             }

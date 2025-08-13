@@ -32,6 +32,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -133,7 +134,10 @@ fun ShortcutScreen(
                                                                 columnSpan = 1,
                                                                 data = data,
                                                                 associate = Associate.Grid,
-                                                                gridItemSettings = null,
+                                                                override = false,
+                                                                iconSize = 0,
+                                                                textColor = TextColor.System,
+                                                                textSize = 0,
                                                             ),
                                                         ),
                                                     )

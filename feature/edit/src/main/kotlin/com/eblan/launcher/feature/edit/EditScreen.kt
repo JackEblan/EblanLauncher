@@ -3,6 +3,7 @@ package com.eblan.launcher.feature.edit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -21,13 +23,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.edit.dialog.IconSizeDialog
 import com.eblan.launcher.feature.edit.dialog.TextColorDialog
@@ -91,7 +93,6 @@ fun EditScreen(
                         Success(
                             modifier = modifier,
                             gridItem = editUiState.gridItem,
-                            gridItemSettings = editUiState.gridItemSettings,
                             onUpdateGridItem = onUpdateGridItem,
                         )
                     }
@@ -106,7 +107,6 @@ fun EditScreen(
 fun Success(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    gridItemSettings: GridItemSettings,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
     var showIconSizeDialog by remember { mutableStateOf(false) }
@@ -120,9 +120,21 @@ fun Success(
 
         Spacer(modifier = Modifier.height(5.dp))
 
+        SwitchRow(
+            modifier = modifier,
+            checked = gridItem.override,
+            title = "Override",
+            subtitle = "Override the Grid Item Settings",
+            onCheckedChange = {
+                onUpdateGridItem(gridItem.copy(override = it))
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         SettingsColumn(
             title = "Icon Size",
-            subtitle = "${gridItem.gridItemSettings?.iconSize ?: gridItemSettings.iconSize}",
+            subtitle = "${gridItem.iconSize}",
             onClick = {
                 showIconSizeDialog = true
             },
@@ -132,8 +144,7 @@ fun Success(
 
         SettingsColumn(
             title = "Text Color",
-            subtitle = gridItem.gridItemSettings?.textColor?.getTextColorSubtitle()
-                ?: gridItemSettings.textColor.getTextColorSubtitle(),
+            subtitle = gridItem.textColor.getTextColorSubtitle(),
             onClick = {
                 showTextColorDialog = true
             },
@@ -143,7 +154,7 @@ fun Success(
 
         SettingsColumn(
             title = "Text Size",
-            subtitle = "${gridItem.gridItemSettings?.textSize ?: gridItemSettings.textSize}",
+            subtitle = "${gridItem.textSize}",
             onClick = {
                 showTextSizeDialog = true
             },
@@ -152,70 +163,72 @@ fun Success(
 
     if (showIconSizeDialog) {
         IconSizeDialog(
-            iconSize = gridItem.gridItemSettings?.iconSize ?: gridItemSettings.iconSize,
+            iconSize = gridItem.iconSize,
             onDismissRequest = {
                 showIconSizeDialog = false
             },
             onUpdateClick = { newIconSize ->
-                val gridItemSettingsFromGridItem = gridItem.gridItemSettings
-
-                if (gridItemSettingsFromGridItem != null) {
-                    val newGridItemSettings =
-                        gridItemSettingsFromGridItem.copy(iconSize = newIconSize)
-
-                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                } else {
-                    val newGridItemSettings = gridItemSettings.copy(iconSize = newIconSize)
-
-                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                }
+                onUpdateGridItem(gridItem.copy(iconSize = newIconSize))
             },
         )
     }
 
     if (showTextColorDialog) {
         TextColorDialog(
-            textColor = gridItem.gridItemSettings?.textColor ?: gridItemSettings.textColor,
+            textColor = gridItem.textColor,
             onDismissRequest = {
                 showTextColorDialog = false
             },
             onUpdateClick = { newTextColor ->
-                val gridItemSettingsFromGridItem = gridItem.gridItemSettings
-
-                if (gridItemSettingsFromGridItem != null) {
-                    val newGridItemSettings =
-                        gridItemSettingsFromGridItem.copy(textColor = newTextColor)
-
-                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                } else {
-                    val newGridItemSettings = gridItemSettings.copy(textColor = newTextColor)
-
-                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                }
+                onUpdateGridItem(gridItem.copy(textColor = newTextColor))
             },
         )
     }
 
     if (showTextSizeDialog) {
         TextSizeDialog(
-            textSize = gridItem.gridItemSettings?.textSize ?: gridItemSettings.textSize,
+            textSize = gridItem.textSize,
             onDismissRequest = {
                 showTextSizeDialog = false
             },
             onUpdateClick = { newTextSize ->
-                val gridItemSettingsFromGridItem = gridItem.gridItemSettings
 
-                if (gridItemSettingsFromGridItem != null) {
-                    val newGridItemSettings =
-                        gridItemSettingsFromGridItem.copy(textSize = newTextSize)
-
-                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                } else {
-                    val newGridItemSettings = gridItemSettings.copy(textSize = newTextSize)
-
-                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                }
+                onUpdateGridItem(gridItem.copy(textSize = newTextSize))
             },
+        )
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    modifier: Modifier = Modifier,
+    checked: Boolean,
+    title: String,
+    subtitle: String,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
         )
     }
 }

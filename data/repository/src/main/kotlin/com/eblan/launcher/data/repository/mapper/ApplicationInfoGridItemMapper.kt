@@ -22,7 +22,10 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
             label = label,
         ),
         associate = associate,
-        gridItemSettings = gridItemSettings,
+        override = override,
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }
 
@@ -40,7 +43,10 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
         packageName = packageName,
         icon = icon,
         label = label,
-        gridItemSettings = gridItemSettings,
+        override = override,
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }
 
@@ -58,6 +64,9 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
         packageName = packageName,
         icon = icon,
         label = label,
-        gridItemSettings = gridItemSettings,
+        override = override,
+        iconSize = iconSize,
+        textColor = textColor,
+        textSize = textSize,
     )
 }

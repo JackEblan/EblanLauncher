@@ -386,6 +386,7 @@ private fun Success(
                     gestureSettings = userData.gestureSettings,
                     wallpaperScroll = userData.homeSettings.wallpaperScroll,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
+                    gridItemSource = gridItemSource,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -511,6 +512,7 @@ private fun Success(
                     textColor = textColor,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     drag = drag,
+                    gridItemSource = gridItemSource,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,

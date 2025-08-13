@@ -29,6 +29,7 @@ fun FolderScreen(
     textColor: Long,
     gridItemSettings: GridItemSettings,
     drag: Drag,
+    gridItemSource: GridItemSource?,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -43,6 +44,12 @@ fun FolderScreen(
 
     BackHandler(folders.isNotEmpty()) {
         onRemoveLastFolder()
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
+            onDraggingGridItem(folders.last().gridItems)
+        }
     }
 
     folders.forEach { folderData ->
@@ -78,9 +85,6 @@ fun FolderScreen(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
                                     },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
-                                    },
                                 )
                             }
 
@@ -88,14 +92,10 @@ fun FolderScreen(
                                 InteractiveWidgetGridItem(
                                     gridItem = gridItem,
                                     gridItemData = data,
-                                    drag = drag,
                                     onLongPress = {
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
-                                    },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
                                     },
                                 )
                             }
@@ -114,9 +114,6 @@ fun FolderScreen(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
                                     },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
-                                    },
                                 )
                             }
 
@@ -133,9 +130,6 @@ fun FolderScreen(
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),
                                         )
-                                    },
-                                    onDragging = {
-                                        onDraggingGridItem(folders.last().gridItems)
                                     },
                                 )
                             }

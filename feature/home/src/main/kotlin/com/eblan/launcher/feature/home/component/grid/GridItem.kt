@@ -7,7 +7,6 @@ import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,11 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -41,7 +35,6 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.Screen
 
 
@@ -55,7 +48,6 @@ fun InteractiveApplicationInfoGridItem(
     data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
-    onDragging: () -> Unit,
 ) {
     ApplicationInfoGridItem(
         modifier = modifier
@@ -69,18 +61,15 @@ fun InteractiveApplicationInfoGridItem(
             }
             .dragAndDropSource(
                 block = {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
+                    detectTapGestures(
+                        onLongPress = {
                             onLongPress()
-                        },
-                        onDrag = { _, _ ->
+
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
-
-                            onDragging()
                         },
                     )
                 },
@@ -101,7 +90,6 @@ fun InteractiveShortcutInfoGridItem(
     data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
-    onDragging: () -> Unit,
 ) {
     ShortcutInfoGridItem(
         modifier = modifier
@@ -115,18 +103,15 @@ fun InteractiveShortcutInfoGridItem(
             }
             .dragAndDropSource(
                 block = {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
+                    detectTapGestures(
+                        onLongPress = {
                             onLongPress()
-                        },
-                        onDrag = { _, _ ->
+
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
-
-                            onDragging()
                         },
                     )
                 },
@@ -143,25 +128,13 @@ fun InteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridItemData: GridItemData.Widget,
-    drag: Drag,
     onLongPress: () -> Unit,
-    onDragging: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
-
-    var isLongPress by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPress) {
-            isLongPress = false
-
-            onDragging()
-        }
-    }
 
     Box(modifier = modifier.gridItem(gridItem)) {
         if (appWidgetInfo != null) {
@@ -187,8 +160,6 @@ fun InteractiveWidgetGridItem(
                                 val longPress = awaitLongPressOrCancellation(pointerId = down.id)
 
                                 if (longPress != null) {
-                                    isLongPress = true
-
                                     onLongPress()
 
                                     startTransfer(
@@ -235,7 +206,6 @@ fun InteractiveFolderGridItem(
     data: GridItemData.Folder,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
-    onDragging: () -> Unit,
 ) {
     FolderGridItem(
         modifier = modifier
@@ -249,18 +219,15 @@ fun InteractiveFolderGridItem(
             }
             .dragAndDropSource(
                 block = {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
+                    detectTapGestures(
+                        onLongPress = {
                             onLongPress()
-                        },
-                        onDrag = { _, _ ->
+
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
-
-                            onDragging()
                         },
                     )
                 },
@@ -281,7 +248,6 @@ fun InteractiveNestedFolderGridItem(
     data: GridItemData.Folder,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
-    onDragging: () -> Unit,
 ) {
     NestedFolderGridItem(
         modifier = modifier
@@ -295,18 +261,15 @@ fun InteractiveNestedFolderGridItem(
             }
             .dragAndDropSource(
                 block = {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
+                    detectTapGestures(
+                        onLongPress = {
                             onLongPress()
-                        },
-                        onDrag = { _, _ ->
+
                             startTransfer(
                                 DragAndDropTransferData(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
-
-                            onDragging()
                         },
                     )
                 },

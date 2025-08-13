@@ -4,6 +4,7 @@ import android.content.ClipData
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +46,7 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlin.uuid.ExperimentalUuidApi
@@ -60,6 +63,8 @@ fun ApplicationScreen(
     eblanApplicationInfos: List<EblanApplicationInfo>,
     appDrawerRowsHeight: Int,
     gridItemSettings: GridItemSettings,
+    drag: Drag,
+    gridItemSource: GridItemSource?,
     onLongPress: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -95,6 +100,14 @@ fun ApplicationScreen(
             onApplyToFling = onApplyToFling,
         )
     }
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
+            showPopupApplicationMenu = false
+
+            onDragging()
+        }
+    }
+
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -118,8 +131,8 @@ fun ApplicationScreen(
                             modifier = Modifier
                                 .dragAndDropSource(
                                     block = {
-                                        detectDragGesturesAfterLongPress(
-                                            onDragStart = {
+                                        detectTapGestures(
+                                            onLongPress = {
                                                 showPopupApplicationMenu = true
 
                                                 popupMenuIntOffset = intOffset
@@ -150,8 +163,7 @@ fun ApplicationScreen(
                                                         ),
                                                     ),
                                                 )
-                                            },
-                                            onDrag = { _, _ ->
+
                                                 startTransfer(
                                                     DragAndDropTransferData(
                                                         clipData = ClipData.newPlainText(
@@ -160,10 +172,6 @@ fun ApplicationScreen(
                                                         ),
                                                     ),
                                                 )
-
-                                                showPopupApplicationMenu = false
-
-                                                onDragging()
                                             },
                                         )
                                     },

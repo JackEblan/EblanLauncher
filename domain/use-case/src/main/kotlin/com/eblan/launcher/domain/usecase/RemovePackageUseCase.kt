@@ -3,6 +3,8 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class RemovePackageUseCase @Inject constructor(
@@ -11,23 +13,25 @@ class RemovePackageUseCase @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
 ) {
     suspend operator fun invoke(packageName: String) {
-        eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
-            packageName = packageName,
-        )
+        withContext(Dispatchers.Default) {
+            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
+                packageName = packageName,
+            )
 
-        fileManager.deleteFile(
-            directory = fileManager.iconsDirectory,
-            name = packageName,
-        )
+            fileManager.deleteFile(
+                directory = fileManager.iconsDirectory,
+                name = packageName,
+            )
 
-        appWidgetManagerWrapper.getInstalledProviders()
-            .filter { appWidgetManagerAppWidgetProviderInfo ->
-                appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-            }.forEach { appWidgetManagerAppWidgetProviderInfo ->
-                fileManager.deleteFile(
-                    directory = fileManager.widgetsDirectory,
-                    name = appWidgetManagerAppWidgetProviderInfo.className,
-                )
-            }
+            appWidgetManagerWrapper.getInstalledProviders()
+                .filter { appWidgetManagerAppWidgetProviderInfo ->
+                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                }.forEach { appWidgetManagerAppWidgetProviderInfo ->
+                    fileManager.deleteFile(
+                        directory = fileManager.widgetsDirectory,
+                        name = appWidgetManagerAppWidgetProviderInfo.className,
+                    )
+                }
+        }
     }
 }

@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,13 +51,6 @@ fun InteractiveApplicationInfoGridItem(
     ApplicationInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onTap()
-                    },
-                )
-            }
             .dragAndDropSource(
                 block = {
                     detectTapGestures(
@@ -70,6 +62,9 @@ fun InteractiveApplicationInfoGridItem(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+                        },
+                        onTap = {
+                            onTap()
                         },
                     )
                 },

@@ -21,6 +21,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -460,7 +461,7 @@ private fun HorizontalPagerScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    key(gridItem) {
+                    key(gridItem.id) {
                         val cellWidth = rootWidth / columns
 
                         val cellHeight = (rootHeight - dockHeight) / rows
@@ -473,28 +474,36 @@ private fun HorizontalPagerScreen(
 
                         val height = gridItem.rowSpan * cellHeight
 
-                        val currentGridItemSettings = if (gridItem.override) {
-                            gridItem.gridItemSettings
-                        } else {
-                            gridItemSettings
+                        val currentGridItemSettings by remember(key1 = gridItem) {
+                            val currentGridItemSettings = if (gridItem.override) {
+                                gridItem.gridItemSettings
+                            } else {
+                                gridItemSettings
+                            }
+
+                            mutableStateOf(currentGridItemSettings)
                         }
 
-                        val currentTextColor = if (gridItem.override) {
-                            when (gridItem.gridItemSettings.textColor) {
-                                TextColor.System -> {
-                                    textColor
-                                }
+                        val currentTextColor by remember(key1 = gridItem) {
+                            val currentTextColor = if (gridItem.override) {
+                                when (gridItem.gridItemSettings.textColor) {
+                                    TextColor.System -> {
+                                        textColor
+                                    }
 
-                                TextColor.Light -> {
-                                    0xFFFFFFFF
-                                }
+                                    TextColor.Light -> {
+                                        0xFFFFFFFF
+                                    }
 
-                                TextColor.Dark -> {
-                                    0xFF000000
+                                    TextColor.Dark -> {
+                                        0xFF000000
+                                    }
                                 }
+                            } else {
+                                textColor
                             }
-                        } else {
-                            textColor
+
+                            mutableLongStateOf(currentTextColor)
                         }
 
                         when (val data = gridItem.data) {

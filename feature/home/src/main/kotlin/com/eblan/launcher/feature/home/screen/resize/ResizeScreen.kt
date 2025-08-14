@@ -12,6 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
@@ -20,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -90,16 +96,10 @@ fun ResizeScreen(
             columns = columns,
         ) {
             gridItems.forEach { gridItem ->
-                val currentGridItemSettings = if (gridItem.override) {
-                    gridItem.gridItemSettings
-                } else {
-                    gridItemSettings
-                }
-
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = currentGridItemSettings,
+                    gridItemSettings = gridItemSettings,
                 )
             }
         }
@@ -190,44 +190,78 @@ private fun GridItemContent(
     textColor: Long,
     gridItemSettings: GridItemSettings,
 ) {
-    LookaheadScope {
-        val gridItemModifier = modifier
-            .animateBounds(this)
-            .gridItem(gridItem)
-
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                ApplicationInfoGridItem(
-                    modifier = gridItemModifier,
-                    data = data,
-                    textColor = textColor,
-                    gridItemSettings = gridItemSettings,
-                )
+    key(gridItem.id) {
+        val currentGridItemSettings by remember(key1 = gridItem) {
+            val currentGridItemSettings = if (gridItem.override) {
+                gridItem.gridItemSettings
+            } else {
+                gridItemSettings
             }
 
-            is GridItemData.Widget -> {
-                WidgetGridItem(
-                    modifier = gridItemModifier,
-                    data = data,
-                )
+            mutableStateOf(currentGridItemSettings)
+        }
+
+        val currentTextColor by remember(key1 = gridItem) {
+            val currentTextColor = if (gridItem.override) {
+                when (gridItem.gridItemSettings.textColor) {
+                    TextColor.System -> {
+                        textColor
+                    }
+
+                    TextColor.Light -> {
+                        0xFFFFFFFF
+                    }
+
+                    TextColor.Dark -> {
+                        0xFF000000
+                    }
+                }
+            } else {
+                textColor
             }
 
-            is GridItemData.ShortcutInfo -> {
-                ShortcutInfoGridItem(
-                    modifier = gridItemModifier,
-                    data = data,
-                    textColor = textColor,
-                    gridItemSettings = gridItemSettings,
-                )
-            }
+            mutableLongStateOf(currentTextColor)
+        }
 
-            is GridItemData.Folder -> {
-                FolderGridItem(
-                    modifier = gridItemModifier,
-                    data = data,
-                    textColor = textColor,
-                    gridItemSettings = gridItemSettings,
-                )
+        LookaheadScope {
+            val gridItemModifier = modifier
+                .animateBounds(this)
+                .gridItem(gridItem)
+
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                    )
+                }
+
+                is GridItemData.Widget -> {
+                    WidgetGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    ShortcutInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                    )
+                }
+
+                is GridItemData.Folder -> {
+                    FolderGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                    )
+                }
             }
         }
     }

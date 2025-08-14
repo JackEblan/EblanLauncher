@@ -58,6 +58,7 @@ fun HomeSettingsRoute(
         onUpdateIconSize = viewModel::updateIconSize,
         onUpdateTextColor = viewModel::updateTextColor,
         onUpdateTextSize = viewModel::updateTextSize,
+        onUpdateShowLabel = viewModel::updateShowLabel,
     )
 }
 
@@ -81,6 +82,7 @@ fun HomeSettingsScreen(
     onUpdateIconSize: (Int) -> Unit,
     onUpdateTextColor: (TextColor) -> Unit,
     onUpdateTextSize: (Int) -> Unit,
+    onUpdateShowLabel: (Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -121,6 +123,7 @@ fun HomeSettingsScreen(
                         onUpdateIconSize = onUpdateIconSize,
                         onUpdateTextColor = onUpdateTextColor,
                         onUpdateTextSize = onUpdateTextSize,
+                        onUpdateShowLabel = onUpdateShowLabel,
                     )
                 }
             }
@@ -147,6 +150,7 @@ fun Success(
     onUpdateIconSize: (Int) -> Unit,
     onUpdateTextColor: (TextColor) -> Unit,
     onUpdateTextSize: (Int) -> Unit,
+    onUpdateShowLabel: (Boolean) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -249,6 +253,16 @@ fun Success(
             onClick = {
                 showTextSizeDialog = true
             },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SwitchRow(
+            modifier = modifier,
+            checked = homeSettings.gridItemSettings.showLabel,
+            title = "Show Label",
+            subtitle = "Show the label",
+            onUpdateInfiniteScroll = onUpdateShowLabel,
         )
     }
 

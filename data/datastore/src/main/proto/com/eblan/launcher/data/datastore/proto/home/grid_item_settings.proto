@@ -9,4 +9,5 @@ message GridItemSettingsProto {
   int32 iconSize = 1;
   TextColorProto textColorProto = 2;
   int32 textSize = 3;
+  bool showLabel = 4;
 }

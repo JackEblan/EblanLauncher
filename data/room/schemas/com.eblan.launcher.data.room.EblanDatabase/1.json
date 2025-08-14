@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "447c0a192ee8313cf4320c9c7f18dc66",
+    "identityHash": "a82c3408ba5e3e755f890e90b7782bc1",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -264,7 +264,7 @@
       },
       {
         "tableName": "ApplicationInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -341,20 +341,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "iconSize",
+            "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "textColor",
+            "fieldPath": "gridItemSettings.textColor",
             "columnName": "textColor",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "textSize",
+            "fieldPath": "gridItemSettings.textSize",
             "columnName": "textSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.showLabel",
+            "columnName": "showLabel",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -392,7 +398,7 @@
       },
       {
         "tableName": "WidgetGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -530,20 +536,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "iconSize",
+            "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "textColor",
+            "fieldPath": "gridItemSettings.textColor",
             "columnName": "textColor",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "textSize",
+            "fieldPath": "gridItemSettings.textSize",
             "columnName": "textSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.showLabel",
+            "columnName": "showLabel",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -581,7 +593,7 @@
       },
       {
         "tableName": "ShortcutInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -666,20 +678,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "iconSize",
+            "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "textColor",
+            "fieldPath": "gridItemSettings.textColor",
             "columnName": "textColor",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "textSize",
+            "fieldPath": "gridItemSettings.textSize",
             "columnName": "textSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.showLabel",
+            "columnName": "showLabel",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -717,7 +735,7 @@
       },
       {
         "tableName": "FolderGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `label` TEXT NOT NULL, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `label` TEXT NOT NULL, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -779,20 +797,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "iconSize",
+            "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "textColor",
+            "fieldPath": "gridItemSettings.textColor",
             "columnName": "textColor",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "textSize",
+            "fieldPath": "gridItemSettings.textSize",
             "columnName": "textSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.showLabel",
+            "columnName": "showLabel",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -807,7 +831,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '447c0a192ee8313cf4320c9c7f18dc66')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a82c3408ba5e3e755f890e90b7782bc1')"
     ]
   }
 }

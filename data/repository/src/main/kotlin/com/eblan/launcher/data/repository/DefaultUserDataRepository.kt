@@ -86,4 +86,8 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateTextSize(textSize: Int) {
         userDataStore.updateTextSize(textSize = textSize)
     }
+
+    override suspend fun updateShowLabel(showLabel: Boolean) {
+        userDataStore.updateShowLabel(showLabel = showLabel)
+    }
 }

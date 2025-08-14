@@ -20,6 +20,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         iconSize = 100
         textColorProto = TextColorProto.System
         textSize = 50
+        showLabel = true
     }.build()
 
     private val defaultHomeSettingsProto = HomeSettingsProto.newBuilder().apply {

@@ -74,4 +74,10 @@ class HomeSettingsViewModel @Inject constructor(private val userDataRepository: 
             userDataRepository.updateTextSize(textSize = textSize)
         }
     }
+
+    fun updateShowLabel(showLabel: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateShowLabel(showLabel = showLabel)
+        }
+    }
 }

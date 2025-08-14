@@ -46,6 +46,7 @@ internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings {
         iconSize = iconSize,
         textColor = textColorProto.toTextColor(),
         textSize = textSize,
+        showLabel = showLabel,
     )
 }
 

@@ -158,6 +158,19 @@ fun Success(
                 showTextSizeDialog = true
             },
         )
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        SwitchRow(
+            checked = gridItem.gridItemSettings.showLabel,
+            title = "Show Label",
+            subtitle = "Show the label",
+            onCheckedChange = {
+                val newGridItemSettings = gridItem.gridItemSettings.copy(showLabel = it)
+
+                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+            },
+        )
     }
 
     if (showIconSizeDialog) {

@@ -352,15 +352,17 @@ fun ApplicationInfoGridItem(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        if (gridItemSettings.showLabel) {
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.label.toString(),
-            color = color,
-            textAlign = TextAlign.Center,
-            fontSize = textSizeSp,
-        )
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.label.toString(),
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
     }
 }
 
@@ -398,15 +400,17 @@ fun ShortcutInfoGridItem(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        if (gridItemSettings.showLabel) {
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.shortLabel,
-            color = color,
-            textAlign = TextAlign.Center,
-            fontSize = textSizeSp,
-        )
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.shortLabel,
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
     }
 }
 
@@ -482,13 +486,15 @@ fun FolderGridItem(
                 }
         }
 
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.label,
-            color = color,
-            textAlign = TextAlign.Center,
-            fontSize = textSizeSp,
-        )
+        if (gridItemSettings.showLabel) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.label,
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
     }
 }
 
@@ -526,14 +532,16 @@ fun NestedFolderGridItem(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        if (gridItemSettings.showLabel) {
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.label,
-            color = color,
-            textAlign = TextAlign.Center,
-            fontSize = textSizeSp,
-        )
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.label,
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
     }
 }

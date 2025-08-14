@@ -94,13 +94,6 @@ fun InteractiveShortcutInfoGridItem(
     ShortcutInfoGridItem(
         modifier = modifier
             .gridItem(gridItem)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onTap()
-                    },
-                )
-            }
             .dragAndDropSource(
                 block = {
                     detectTapGestures(
@@ -112,6 +105,9 @@ fun InteractiveShortcutInfoGridItem(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+                        },
+                        onTap = {
+                            onTap()
                         },
                     )
                 },
@@ -210,13 +206,6 @@ fun InteractiveFolderGridItem(
     FolderGridItem(
         modifier = modifier
             .gridItem(gridItem)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onTap()
-                    },
-                )
-            }
             .dragAndDropSource(
                 block = {
                     detectTapGestures(
@@ -228,6 +217,9 @@ fun InteractiveFolderGridItem(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+                        },
+                        onTap = {
+                            onTap()
                         },
                     )
                 },
@@ -252,13 +244,6 @@ fun InteractiveNestedFolderGridItem(
     NestedFolderGridItem(
         modifier = modifier
             .gridItem(gridItem)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onTap()
-                    },
-                )
-            }
             .dragAndDropSource(
                 block = {
                     detectTapGestures(
@@ -270,6 +255,9 @@ fun InteractiveNestedFolderGridItem(
                                     clipData = ClipData.newPlainText("Screen", Screen.Drag.name),
                                 ),
                             )
+                        },
+                        onTap = {
+                            onTap()
                         },
                     )
                 },

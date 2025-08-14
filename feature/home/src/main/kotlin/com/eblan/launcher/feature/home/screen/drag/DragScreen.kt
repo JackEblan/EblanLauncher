@@ -341,7 +341,7 @@ fun DragScreen(
             dragIntOffset = dragIntOffset,
             density = density,
             textColor = textColor,
-            gridItemSettings = gridItemSettings,
+            gridItemSettings = currentGridItemSettings,
         )
     }
 }

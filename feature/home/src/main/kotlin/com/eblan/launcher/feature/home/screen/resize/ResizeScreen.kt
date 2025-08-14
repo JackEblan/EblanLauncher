@@ -67,12 +67,6 @@ fun ResizeScreen(
         gridPaddingDp.roundToPx()
     }
 
-    val currentGridItemSettings = if (gridItem.override) {
-        gridItem.gridItemSettings
-    } else {
-        gridItemSettings
-    }
-
     BackHandler {
         onResizeEnd()
     }
@@ -96,6 +90,12 @@ fun ResizeScreen(
             columns = columns,
         ) {
             gridItems.forEach { gridItem ->
+                val currentGridItemSettings = if (gridItem.override) {
+                    gridItem.gridItemSettings
+                } else {
+                    gridItemSettings
+                }
+
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
@@ -112,6 +112,12 @@ fun ResizeScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
+                val currentGridItemSettings = if (gridItem.override) {
+                    gridItem.gridItemSettings
+                } else {
+                    gridItemSettings
+                }
+
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,

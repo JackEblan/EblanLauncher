@@ -45,6 +45,7 @@ import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
@@ -479,10 +480,28 @@ private fun HorizontalPagerScreen(
                             gridItemSettings
                         }
 
+                        val currentTextColor = if (gridItem.override) {
+                            when (gridItem.gridItemSettings.textColor) {
+                                TextColor.System -> {
+                                    textColor
+                                }
+
+                                TextColor.Light -> {
+                                    0xFFFFFFFF
+                                }
+
+                                TextColor.Dark -> {
+                                    0xFF000000
+                                }
+                            }
+                        } else {
+                            textColor
+                        }
+
                         when (val data = gridItem.data) {
                             is GridItemData.ApplicationInfo -> {
                                 InteractiveApplicationInfoGridItem(
-                                    textColor = textColor,
+                                    textColor = currentTextColor,
                                     gridItemSettings = currentGridItemSettings,
                                     gridItem = gridItem,
                                     data = data,
@@ -526,7 +545,7 @@ private fun HorizontalPagerScreen(
                             is GridItemData.ShortcutInfo -> {
                                 InteractiveShortcutInfoGridItem(
                                     gridItemSettings = currentGridItemSettings,
-                                    textColor = textColor,
+                                    textColor = currentTextColor,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -555,7 +574,7 @@ private fun HorizontalPagerScreen(
                             is GridItemData.Folder -> {
                                 InteractiveFolderGridItem(
                                     gridItemSettings = currentGridItemSettings,
-                                    textColor = textColor,
+                                    textColor = currentTextColor,
                                     gridItem = gridItem,
                                     data = data,
                                     onTap = {
@@ -611,10 +630,28 @@ private fun HorizontalPagerScreen(
                         gridItemSettings
                     }
 
+                    val currentTextColor = if (gridItem.override) {
+                        when (gridItem.gridItemSettings.textColor) {
+                            TextColor.System -> {
+                                textColor
+                            }
+
+                            TextColor.Light -> {
+                                0xFFFFFFFF
+                            }
+
+                            TextColor.Dark -> {
+                                0xFF000000
+                            }
+                        }
+                    } else {
+                        textColor
+                    }
+
                     when (val data = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             InteractiveApplicationInfoGridItem(
-                                textColor = textColor,
+                                textColor = currentTextColor,
                                 gridItemSettings = currentGridItemSettings,
                                 gridItem = gridItem,
                                 data = data,
@@ -665,7 +702,7 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.ShortcutInfo -> {
                             InteractiveShortcutInfoGridItem(
-                                textColor = textColor,
+                                textColor = currentTextColor,
                                 gridItemSettings = currentGridItemSettings,
                                 gridItem = gridItem,
                                 data = data,
@@ -696,7 +733,7 @@ private fun HorizontalPagerScreen(
 
                         is GridItemData.Folder -> {
                             InteractiveFolderGridItem(
-                                textColor = textColor,
+                                textColor = currentTextColor,
                                 gridItemSettings = currentGridItemSettings,
                                 gridItem = gridItem,
                                 data = data,
@@ -756,6 +793,8 @@ private fun HorizontalPagerScreen(
                                 ApplicationInfoGridItemMenu(
                                     showResize = true,
                                     onEdit = {
+                                        showPopupGridItemMenu = false
+
                                         onEdit(gridItem.id)
                                     },
                                     onResize = {
@@ -815,6 +854,8 @@ private fun HorizontalPagerScreen(
                                 ApplicationInfoGridItemMenu(
                                     showResize = false,
                                     onEdit = {
+                                        showPopupGridItemMenu = false
+
                                         onEdit(gridItem.id)
                                     },
                                     onResize = {
@@ -833,6 +874,8 @@ private fun HorizontalPagerScreen(
                                 WidgetGridItemMenu(
                                     showResize = false,
                                     onEdit = {
+                                        showPopupGridItemMenu = false
+
                                         onEdit(gridItem.id)
                                     },
                                     onResize = {

@@ -43,6 +43,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -295,11 +296,11 @@ fun DragScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    GridItemContent(
+                    DragGridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSource = gridItemSource,
-                        gridItemSettings = currentGridItemSettings,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
             }
@@ -313,7 +314,7 @@ fun DragScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                GridItemContent(
+                DragGridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSource = gridItemSource,
@@ -341,20 +342,44 @@ fun DragScreen(
             dragIntOffset = dragIntOffset,
             density = density,
             textColor = textColor,
-            gridItemSettings = currentGridItemSettings,
+            gridItemSettings = gridItemSettings,
         )
     }
 }
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
-private fun GridItemContent(
+fun DragGridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: Long,
     gridItemSource: GridItemSource,
     gridItemSettings: GridItemSettings,
 ) {
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
+    val currentTextColor = if (gridItem.override) {
+        when (gridItem.gridItemSettings.textColor) {
+            TextColor.System -> {
+                textColor
+            }
+
+            TextColor.Light -> {
+                0xFFFFFFFF
+            }
+
+            TextColor.Dark -> {
+                0xFF000000
+            }
+        }
+    } else {
+        textColor
+    }
+
     LookaheadScope {
         val gridItemModifier = modifier
             .animateBounds(this)
@@ -365,13 +390,13 @@ private fun GridItemContent(
                 DragGridItem(
                     modifier = gridItemModifier,
                     isDragging = gridItemSource.gridItem.id == gridItem.id,
-                    color = Color(textColor),
+                    color = Color(currentTextColor),
                 ) {
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
             }
@@ -380,7 +405,7 @@ private fun GridItemContent(
                 DragGridItem(
                     modifier = gridItemModifier,
                     isDragging = gridItemSource.gridItem.id == gridItem.id,
-                    color = Color(textColor),
+                    color = Color(currentTextColor),
                 ) {
                     WidgetGridItem(modifier = gridItemModifier, data = data)
                 }
@@ -390,13 +415,13 @@ private fun GridItemContent(
                 DragGridItem(
                     modifier = gridItemModifier,
                     isDragging = gridItemSource.gridItem.id == gridItem.id,
-                    color = Color(textColor),
+                    color = Color(currentTextColor),
                 ) {
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
             }
@@ -405,19 +430,18 @@ private fun GridItemContent(
                 DragGridItem(
                     modifier = gridItemModifier,
                     isDragging = gridItemSource.gridItem.id == gridItem.id,
-                    color = Color(textColor),
+                    color = Color(currentTextColor),
                 ) {
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -436,6 +460,30 @@ private fun AnimatedDropGridItem(
     textColor: Long,
     gridItemSettings: GridItemSettings,
 ) {
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
+    val currentTextColor = if (gridItem.override) {
+        when (gridItem.gridItemSettings.textColor) {
+            TextColor.System -> {
+                textColor
+            }
+
+            TextColor.Light -> {
+                0xFFFFFFFF
+            }
+
+            TextColor.Dark -> {
+                0xFF000000
+            }
+        }
+    } else {
+        textColor
+    }
+
     when (gridItem.associate) {
         Associate.Grid -> {
             val gridWidth = rootWidth - (gridPaddingPx * 2)
@@ -494,8 +542,8 @@ private fun AnimatedDropGridItem(
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
 
@@ -510,8 +558,8 @@ private fun AnimatedDropGridItem(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
 
@@ -519,8 +567,8 @@ private fun AnimatedDropGridItem(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
             }
@@ -579,8 +627,8 @@ private fun AnimatedDropGridItem(
                     ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
 
@@ -595,8 +643,8 @@ private fun AnimatedDropGridItem(
                     ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
 
@@ -604,8 +652,8 @@ private fun AnimatedDropGridItem(
                     FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
-                        textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
                 }
             }

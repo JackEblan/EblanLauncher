@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.component.overscroll
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.ui.Modifier
@@ -22,10 +23,12 @@ import kotlin.math.sign
 
 class OffsetOverscrollEffect(
     private val scope: CoroutineScope,
-    private val onApplyToScroll: (Float) -> Unit,
-    private val onApplyToFling: () -> Unit,
+    private val onFling: () -> Unit,
+    private val onFastFling: suspend () -> Unit,
 ) : OverscrollEffect {
     private val overscrollOffset = Animatable(0f)
+
+    val overscrollAlpha = Animatable(0f)
 
     override fun applyToScroll(
         delta: Offset,
@@ -45,14 +48,14 @@ class OffsetOverscrollEffect(
                 scope.launch {
                     overscrollOffset.snapTo(0f)
 
-                    onApplyToScroll(0f)
+                    overscrollAlpha.snapTo(0f)
                 }
                 Offset(x = 0f, y = delta.y + prevOverscrollValue)
             } else {
                 scope.launch {
                     overscrollOffset.snapTo(overscrollOffset.value + delta.y)
 
-                    onApplyToScroll(overscrollOffset.value + delta.y)
+                    overscrollAlpha.snapTo(overscrollOffset.value + delta.y)
                 }
 
                 delta.copy(x = 0f)
@@ -73,9 +76,9 @@ class OffsetOverscrollEffect(
                 overscrollOffset.snapTo(newOffset)
 
                 if (newOffset > 0f) {
-                    onApplyToScroll(newOffset)
+                    overscrollAlpha.snapTo(newOffset)
                 } else {
-                    onApplyToScroll(0f)
+                    overscrollAlpha.snapTo(0f)
                 }
             }
         }
@@ -91,21 +94,31 @@ class OffsetOverscrollEffect(
 
         val remaining = velocity - consumed
 
-        onApplyToFling()
+        if (overscrollOffset.value == 0f && remaining.y > 10000F) {
+            onFastFling()
 
-        onApplyToScroll(0f)
+            overscrollAlpha.snapTo(0f)
 
-        overscrollOffset.animateTo(
-            targetValue = 0f,
-            initialVelocity = remaining.y,
-            animationSpec = spring(),
-        )
+            overscrollOffset.snapTo(0f)
+        } else {
+            onFling()
+
+            overscrollAlpha.snapTo(0f)
+
+            overscrollOffset.animateTo(
+                targetValue = 0f,
+                initialVelocity = remaining.y,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
+        }
     }
 
     override val isInProgress: Boolean
         get() = overscrollOffset.value != 0f
 
-    // Create a LayoutModifierNode that offsets by overscrollOffset.value
     override val node: DelegatableNode = object : Modifier.Node(), LayoutModifierNode {
         override fun MeasureScope.measure(
             measurable: Measurable,

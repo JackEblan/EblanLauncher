@@ -65,7 +65,6 @@ import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
@@ -245,7 +244,7 @@ fun PagerScreen(
                     swipeDownY.snapTo(rootHeight.toFloat())
                 }
             },
-            onBackPress = {
+            onAnimateDismiss = {
                 scope.launch {
                     swipeUpY.animateTo(
                         targetValue = rootHeight.toFloat(),
@@ -302,7 +301,7 @@ fun PagerScreen(
                     onDismiss = {
                         showDoubleTap = false
                     },
-                    onBackPress = {
+                    onAnimateDismiss = {
                         scope.launch {
                             animatedSwipeUpY.animateTo(
                                 targetValue = rootHeight.toFloat(),
@@ -948,18 +947,12 @@ private fun ApplicationComponentScreen(
     ) -> Unit,
     onDragging: () -> Unit,
     onDismiss: () -> Unit,
-    onBackPress: () -> Unit,
+    onAnimateDismiss: () -> Unit,
 ) {
-    var overscrollOffset by remember { mutableFloatStateOf(0f) }
-
-    val alpha by remember {
-        derivedStateOf {
-            1f - (abs(overscrollOffset) / 500f)
-        }
-    }
+    var alpha by remember { mutableFloatStateOf(1f) }
 
     BackHandler {
-        onBackPress()
+        onAnimateDismiss()
     }
 
     Surface(
@@ -999,14 +992,15 @@ private fun ApplicationComponentScreen(
                                 gridItemSource = gridItemSource,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onApplyToScroll = { newOverscrollOffset ->
-                                    overscrollOffset = newOverscrollOffset
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
                                 },
-                                onApplyToFling = {
+                                onFling = {
                                     if (alpha < 0.2f) {
                                         onDismiss()
                                     }
                                 },
+                                onFastFling = onAnimateDismiss,
                             )
                         }
 
@@ -1026,14 +1020,15 @@ private fun ApplicationComponentScreen(
                                 gridItemSource = gridItemSource,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onApplyToScroll = { newOverscrollOffset ->
-                                    overscrollOffset = newOverscrollOffset
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
                                 },
-                                onApplyToFling = {
+                                onFling = {
                                     if (alpha < 0.2f) {
                                         onDismiss()
                                     }
                                 },
+                                onFastFling = onAnimateDismiss,
                             )
                         }
 
@@ -1048,14 +1043,15 @@ private fun ApplicationComponentScreen(
                                 gridItemSource = gridItemSource,
                                 onLongPress = onLongPress,
                                 onDragging = onDragging,
-                                onApplyToScroll = { newOverscrollOffset ->
-                                    overscrollOffset = newOverscrollOffset
+                                onUpdateAlpha = { newAlpha ->
+                                    alpha = newAlpha
                                 },
-                                onApplyToFling = {
+                                onFling = {
                                     if (alpha < 0.2f) {
                                         onDismiss()
                                     }
                                 },
+                                onFastFling = onAnimateDismiss,
                             )
                         }
                     }

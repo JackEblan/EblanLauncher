@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -34,6 +35,7 @@ import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffe
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -51,8 +53,9 @@ fun ShortcutScreen(
         gridItemSource: GridItemSource,
     ) -> Unit,
     onDragging: () -> Unit,
-    onApplyToScroll: (Float) -> Unit,
-    onApplyToFling: () -> Unit,
+    onUpdateAlpha: (Float) -> Unit,
+    onFling: () -> Unit,
+    onFastFling: () -> Unit,
 ) {
     val page = calculatePage(
         index = currentPage,
@@ -65,9 +68,15 @@ fun ShortcutScreen(
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
-            onApplyToScroll = onApplyToScroll,
-            onApplyToFling = onApplyToFling,
+            onFling = onFling,
+            onFastFling = onFastFling,
         )
+    }
+
+    LaunchedEffect(key1 = overscrollEffect) {
+        snapshotFlow { overscrollEffect.overscrollAlpha.value }.collect { overscrollAlpha ->
+            onUpdateAlpha(1f - (abs(overscrollAlpha) / 500f))
+        }
     }
 
     LaunchedEffect(key1 = drag) {

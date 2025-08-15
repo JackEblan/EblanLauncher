@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.UserData
@@ -64,7 +64,7 @@ fun HomeRoute(
 
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
-    val folders by viewModel.folders.collectAsStateWithLifecycle()
+    val folders by viewModel.foldersDataById.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
@@ -74,7 +74,7 @@ fun HomeRoute(
         movedGridItemResult = movedGridItemResult,
         updatedGridItem = updatedGridItem,
         pageItems = pageItems,
-        folders = folders,
+        foldersDataById = folders,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -107,7 +107,7 @@ fun HomeScreen(
     movedGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     pageItems: List<PageItem>,
-    folders: ArrayDeque<GridItemData.Folder>,
+    foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -247,7 +247,7 @@ fun HomeScreen(
                         hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
                         updatedGridItem = updatedGridItem,
                         textColor = homeUiState.homeData.textColor,
-                        folders = folders,
+                        foldersDataById = foldersDataById,
                         onMoveGridItem = onMoveGridItem,
                         onMoveFolderGridItem = onMoveFolderGridItem,
                         onResizeGridItem = onResizeGridItem,
@@ -293,7 +293,7 @@ private fun Success(
     hasShortcutHostPermission: Boolean,
     updatedGridItem: GridItem?,
     textColor: Long,
-    folders: ArrayDeque<GridItemData.Folder>,
+    foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -508,7 +508,7 @@ private fun Success(
                 FolderScreen(
                     folderRows = userData.homeSettings.folderRows,
                     folderColumns = userData.homeSettings.folderColumns,
-                    folders = folders,
+                    foldersDataById = foldersDataById,
                     textColor = textColor,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     drag = drag,

@@ -19,5 +19,6 @@ data class FolderGridItemEntity(
     val associate: Associate,
     val label: String,
     val override: Boolean,
+    val pageCount: Int,
     @Embedded val gridItemSettings: GridItemSettings,
 )

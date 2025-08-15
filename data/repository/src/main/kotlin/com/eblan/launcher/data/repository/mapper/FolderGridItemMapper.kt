@@ -43,6 +43,7 @@ internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Fo
         id = folderGridItemEntity.id,
         label = folderGridItemEntity.label,
         gridItems = applicationInfos + widgets + shortcutInfos + folders,
+        pageCount = folderGridItemEntity.pageCount,
     )
 }
 
@@ -60,6 +61,7 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem {
             id = id,
             label = label,
             gridItems = emptyList(),
+            pageCount = pageCount,
         ),
         associate = associate,
         override = override,
@@ -79,6 +81,7 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity {
         associate = associate,
         label = label,
         override = override,
+        pageCount = pageCount,
         gridItemSettings = gridItemSettings,
     )
 }

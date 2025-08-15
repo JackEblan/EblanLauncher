@@ -70,6 +70,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 label = data.label,
                                 override = gridItem.override,
                                 gridItemSettings = gridItem.gridItemSettings,
+                                pageCount = data.pageCount,
                             ),
                         )
                     }

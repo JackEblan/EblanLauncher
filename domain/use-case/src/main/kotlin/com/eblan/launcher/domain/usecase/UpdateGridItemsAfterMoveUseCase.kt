@@ -2,7 +2,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.grid.findAvailableRegion
+import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.moveGridItem
 import com.eblan.launcher.domain.model.Associate
@@ -84,20 +84,37 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
             when (val data = conflictingGridItem.data) {
                 is GridItemData.Folder -> {
-                    val newGridItem = findAvailableRegion(
-                        page = conflictingGridItem.page,
+                    val newGridItem = findAvailableRegionByPage(
                         gridItems = data.gridItems,
                         gridItem = movingGridItem,
                         rows = folderRows,
                         columns = folderColumns,
+                        pageCount = data.pageCount - 1,
                     )
 
                     if (newGridItem != null) {
                         gridItems[movingIndex] =
                             newGridItem.copy(folderId = conflictingGridItem.id)
+                    } else {
+                        val newPageCount = data.pageCount + 1
 
-                        updateGridItemsUseCase(gridItems = gridItems)
+                        val newData = data.copy(pageCount = newPageCount)
+
+                        gridItems[movingIndex] =
+                            movingGridItem.copy(
+                                page = newPageCount - 1,
+                                startRow = 0,
+                                startColumn = 0,
+                                folderId = conflictingGridItem.id,
+                            )
+
+                        gridItems[conflictingIndex] =
+                            conflictingGridItem.copy(data = newData)
+
+                        println(gridItems[conflictingIndex].data)
                     }
+
+                    updateGridItemsUseCase(gridItems = gridItems)
                 }
 
                 else -> {
@@ -105,6 +122,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
                     val firstGridItem =
                         conflictingGridItem.copy(
+                            page = 0,
                             startRow = 0,
                             startColumn = 0,
                             folderId = id,
@@ -112,6 +130,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
                     val secondGridItem =
                         movingGridItem.copy(
+                            page = 0,
                             startRow = 0,
                             startColumn = 0,
                             folderId = id,
@@ -130,6 +149,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                             id = id,
                             label = "Unknown",
                             gridItems = emptyList(),
+                            pageCount = 1,
                         )
 
                         gridItems[conflictingIndex] = firstGridItem

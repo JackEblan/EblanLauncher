@@ -38,5 +38,6 @@ sealed interface GridItemData {
         val id: String,
         val label: String,
         val gridItems: List<GridItem>,
+        val pageCount: Int,
     ) : GridItemData
 }

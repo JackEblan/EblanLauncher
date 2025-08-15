@@ -129,42 +129,24 @@ fun findAvailableRegionByPage(
     columns: Int,
 ): GridItem? {
     for (page in 0..pageCount) {
-        return findAvailableRegion(
-            page = page,
-            gridItems = gridItems,
-            gridItem = gridItem,
-            rows = rows,
-            columns = columns,
-        )
-    }
-
-    return null
-}
-
-fun findAvailableRegion(
-    page: Int,
-    gridItems: List<GridItem>,
-    gridItem: GridItem,
-    rows: Int,
-    columns: Int,
-): GridItem? {
-    for (row in 0..(rows - gridItem.rowSpan)) {
-        for (column in 0..(columns - gridItem.columnSpan)) {
-            val candidateGridItem = gridItem.copy(
-                page = page,
-                startRow = row,
-                startColumn = column,
-            )
-
-            val overlaps = gridItems.any { otherGridItem ->
-                otherGridItem.page == page && rectanglesOverlap(
-                    moving = candidateGridItem,
-                    other = otherGridItem,
+        for (row in 0..(rows - gridItem.rowSpan)) {
+            for (column in 0..(columns - gridItem.columnSpan)) {
+                val candidateGridItem = gridItem.copy(
+                    page = page,
+                    startRow = row,
+                    startColumn = column,
                 )
-            }
 
-            if (!overlaps) {
-                return candidateGridItem
+                val overlaps = gridItems.any { otherGridItem ->
+                    otherGridItem.page == page && rectanglesOverlap(
+                        moving = candidateGridItem,
+                        other = otherGridItem,
+                    )
+                }
+
+                if (!overlaps) {
+                    return candidateGridItem
+                }
             }
         }
     }

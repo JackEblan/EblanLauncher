@@ -60,6 +60,7 @@ class UpdateGridItemUseCase @Inject constructor(
                             associate = gridItem.associate,
                             label = data.label,
                             override = gridItem.override,
+                            pageCount = data.pageCount,
                             gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )

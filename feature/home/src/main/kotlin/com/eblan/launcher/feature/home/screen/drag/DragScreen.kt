@@ -142,12 +142,6 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
-    val currentGridItemSettings = if (gridItemSource.gridItem.override) {
-        gridItemSource.gridItem.gridItemSettings
-    } else {
-        gridItemSettings
-    }
-
     val targetPage by remember {
         derivedStateOf {
             calculatePage(

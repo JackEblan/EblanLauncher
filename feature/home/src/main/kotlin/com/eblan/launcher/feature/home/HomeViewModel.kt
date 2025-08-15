@@ -3,15 +3,15 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
+import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
@@ -51,10 +51,9 @@ class HomeViewModel @Inject constructor(
     private val updateGridItemsByPageUseCase: UpdateGridItemsByPageUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
-    private val folderGridItemRepository: FolderGridItemRepository,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
+    private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
 ) : ViewModel() {
-
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -91,9 +90,9 @@ class HomeViewModel @Inject constructor(
 
     private var moveGridItemJob: Job? = null
 
-    private val _folders = MutableStateFlow(ArrayDeque<GridItemData.Folder>())
+    private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
 
-    val folders = _folders.asStateFlow()
+    val foldersDataById = _foldersDataById.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -278,12 +277,12 @@ class HomeViewModel @Inject constructor(
 
     fun resetGridCacheAfterMoveFolder() {
         viewModelScope.launch {
-            val lastId = _folders.value.last().id
+            val lastId = _foldersDataById.value.last().id
 
             updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
 
-            folderGridItemRepository.getFolderGridItemData(id = lastId)?.let { folder ->
-                _folders.update { currentFolders ->
+            getFolderDataByIdUseCase(id = lastId)?.let { folder ->
+                _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
                         val index = indexOfFirst { it.id == lastId }
 
@@ -367,8 +366,8 @@ class HomeViewModel @Inject constructor(
 
     fun showFolder(id: String) {
         viewModelScope.launch {
-            folderGridItemRepository.getFolderGridItemData(id = id)?.let { folder ->
-                _folders.update { currentFolders ->
+            getFolderDataByIdUseCase(id = id)?.let { folder ->
+                _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
                         add(folder)
                     }
@@ -383,8 +382,8 @@ class HomeViewModel @Inject constructor(
 
     fun addFolder(id: String) {
         viewModelScope.launch {
-            folderGridItemRepository.getFolderGridItemData(id = id)?.let { folder ->
-                _folders.update { currentFolders ->
+            getFolderDataByIdUseCase(id = id)?.let { folder ->
+                _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
                         add(folder)
                     }
@@ -394,7 +393,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun removeLastFolder() {
-        _folders.update { currentFolders ->
+        _foldersDataById.update { currentFolders ->
             ArrayDeque(currentFolders).apply {
                 removeLast()
             }
@@ -412,7 +411,7 @@ class HomeViewModel @Inject constructor(
 
                 delay(defaultDelay)
 
-                _folders.update {
+                _foldersDataById.update {
                     ArrayDeque()
                 }
 

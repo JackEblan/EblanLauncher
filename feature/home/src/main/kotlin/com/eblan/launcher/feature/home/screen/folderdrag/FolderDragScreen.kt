@@ -26,8 +26,8 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.ApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.FolderGridItem
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.NestedFolderGridItem
 import com.eblan.launcher.feature.home.component.grid.ShortcutInfoGridItem
 import com.eblan.launcher.feature.home.component.grid.WidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
@@ -77,12 +77,6 @@ fun FolderDragScreen(
 
     val horizontalGridPaddingPx = with(density) {
         horizontalGridPaddingDp.roundToPx()
-    }
-
-    val currentGridItemSettings = if (gridItemSource.gridItem.override) {
-        gridItemSource.gridItem.gridItemSettings
-    } else {
-        gridItemSettings
     }
 
     LaunchedEffect(key1 = dragIntOffset) {
@@ -278,7 +272,7 @@ private fun AnimatedDropGridItem(
                 }
 
                 is GridItemData.Folder -> {
-                    FolderGridItem(
+                    NestedFolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,

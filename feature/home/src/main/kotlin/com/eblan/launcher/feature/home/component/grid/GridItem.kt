@@ -36,7 +36,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Screen
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun InteractiveApplicationInfoGridItem(

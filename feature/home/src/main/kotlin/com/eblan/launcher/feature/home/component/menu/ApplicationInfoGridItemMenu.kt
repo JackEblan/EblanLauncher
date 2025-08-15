@@ -13,7 +13,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 @Composable
 fun ApplicationInfoGridItemMenu(
     modifier: Modifier = Modifier,
-    showResize: Boolean,
     onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
@@ -29,12 +28,10 @@ fun ApplicationInfoGridItemMenu(
                     Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
                 }
 
-                if (showResize) {
-                    IconButton(
-                        onClick = onResize,
-                    ) {
-                        Icon(imageVector = EblanLauncherIcons.Resize, contentDescription = null)
-                    }
+                IconButton(
+                    onClick = onResize,
+                ) {
+                    Icon(imageVector = EblanLauncherIcons.Resize, contentDescription = null)
                 }
 
                 IconButton(

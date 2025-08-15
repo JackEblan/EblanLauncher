@@ -35,8 +35,6 @@ private const val SwipeThreshold = 100f
 @OptIn(ExperimentalUuidApi::class)
 fun handlePinItemRequest(
     currentPage: Int,
-    infiniteScroll: Boolean,
-    pageCount: Int,
     drag: Drag,
     pinItemRequestWrapper: PinItemRequestWrapper,
     context: Context,
@@ -44,12 +42,6 @@ fun handlePinItemRequest(
     gridItemSettings: GridItemSettings,
     onDragStart: (GridItemSource) -> Unit,
 ) {
-    val targetPage = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
     fun getWidgetGridItemSource(
@@ -67,7 +59,7 @@ fun handlePinItemRequest(
             GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
                     id = id,
-                    page = targetPage,
+                    page = currentPage,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
                     configure = appWidgetProviderInfo.configure.flattenToString(),
                     packageName = appWidgetProviderInfo.provider.packageName,
@@ -89,7 +81,7 @@ fun handlePinItemRequest(
             GridItemSource.Pin(
                 gridItem = getWidgetGridItem(
                     id = id,
-                    page = targetPage,
+                    page = currentPage,
                     componentName = appWidgetProviderInfo.provider.flattenToString(),
                     configure = appWidgetProviderInfo.configure.flattenToString(),
                     packageName = appWidgetProviderInfo.provider.packageName,
@@ -129,7 +121,7 @@ fun handlePinItemRequest(
                 gridItem = GridItem(
                     id = shortcutInfo.id,
                     folderId = null,
-                    page = targetPage,
+                    page = currentPage,
                     startRow = 0,
                     startColumn = 0,
                     rowSpan = 1,

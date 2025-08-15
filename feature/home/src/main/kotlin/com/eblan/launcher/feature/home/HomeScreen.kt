@@ -356,6 +356,8 @@ private fun Success(
         )
     }
 
+    var folderTargetPage by remember { mutableIntStateOf(0) }
+
     AnimatedContent(
         modifier = modifier,
         targetState = screen,
@@ -506,6 +508,7 @@ private fun Success(
 
             Screen.Folder -> {
                 FolderScreen(
+                    startCurrentPage = folderTargetPage,
                     folderRows = userData.homeSettings.folderRows,
                     folderColumns = userData.homeSettings.folderColumns,
                     foldersDataById = foldersDataById,
@@ -516,7 +519,12 @@ private fun Success(
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
-                    onLongPressGridItem = { newGridItemSource ->
+                    onResetTargetPage = {
+                        folderTargetPage = 0
+                    },
+                    onLongPressGridItem = { newTargetPage, newGridItemSource ->
+                        folderTargetPage = newTargetPage
+
                         gridItemSource = newGridItemSource
                     },
                     onDraggingGridItem = { folderGridItems ->
@@ -527,9 +535,10 @@ private fun Success(
 
             Screen.FolderDrag -> {
                 FolderDragScreen(
+                    startCurrentPage = folderTargetPage,
                     folderRows = userData.homeSettings.folderRows,
                     folderColumns = userData.homeSettings.folderColumns,
-                    gridItems = gridItems,
+                    gridItemsByPage = gridItemsByPage,
                     gridItemSource = gridItemSource,
                     textColor = textColor,
                     drag = drag,
@@ -538,9 +547,16 @@ private fun Success(
                     rootHeight = rootHeight,
                     moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
+                    folderDataById = foldersDataById.last(),
                     onMoveFolderGridItem = onMoveFolderGridItem,
-                    onDragEnd = onResetGridCacheAfterMoveFolder,
+                    onDragEnd = { newTargetPage ->
+                        folderTargetPage = newTargetPage
+
+                        onResetGridCacheAfterMoveFolder()
+                    },
                     onMoveOutsideFolder = { newGridItemSource ->
+                        folderTargetPage = 0
+
                         gridItemSource = newGridItemSource
 
                         onMoveOutsideFolder()

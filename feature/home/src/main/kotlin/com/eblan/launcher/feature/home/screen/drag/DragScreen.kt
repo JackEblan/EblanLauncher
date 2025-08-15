@@ -345,7 +345,7 @@ fun DragScreen(
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
-fun DragGridItemContent(
+private fun DragGridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: Long,

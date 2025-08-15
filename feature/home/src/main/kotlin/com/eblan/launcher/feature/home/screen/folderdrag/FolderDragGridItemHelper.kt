@@ -6,17 +6,21 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.PageDirection
+import kotlinx.coroutines.delay
 
-fun handleFolderDragIntOffset(
+suspend fun handleFolderDragIntOffset(
+    targetPage: Int,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
     rootHeight: Int,
-    verticalGridPadding: Int,
-    horizontalGridPadding: Int,
+    gridPadding: Int,
     rootWidth: Int,
     columns: Int,
     rows: Int,
+    isScrollInProgress: Boolean,
+    onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -28,55 +32,61 @@ fun handleFolderDragIntOffset(
     ) -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
-    if (drag != Drag.Dragging) {
+    if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
 
-    val gridWidth = rootWidth - (horizontalGridPadding * 2)
-
-    val gridHeight = rootHeight - (verticalGridPadding * 2)
-
-    val gridX = dragIntOffset.x - horizontalGridPadding
-
-    val gridY = dragIntOffset.y - verticalGridPadding
-
-    val cellWidth = gridWidth / columns
-
-    val cellHeight = gridHeight / rows
-
     val verticalOutOfBounds =
-        dragIntOffset.y < verticalGridPadding || dragIntOffset.y > rootHeight - verticalGridPadding
+        dragIntOffset.y < gridPadding || dragIntOffset.y > rootHeight - gridPadding
 
-    if (verticalOutOfBounds) {
+    if (dragIntOffset.x <= gridPadding && !verticalOutOfBounds) {
+        delay(250L)
+
+        onUpdatePageDirection(PageDirection.Left)
+    } else if (dragIntOffset.x >= rootWidth - gridPadding && !verticalOutOfBounds) {
+        delay(250L)
+
+        onUpdatePageDirection(PageDirection.Right)
+    } else if (verticalOutOfBounds) {
         onMoveOutsideFolder(
             GridItemSource.Existing(gridItem = gridItem.copy(folderId = null)),
         )
+    } else {
+        val gridWidth = rootWidth - (gridPadding * 2)
 
-        return
-    }
+        val gridHeight = rootHeight - (gridPadding * 2)
 
-    val newGridItem = gridItem.copy(
-        page = gridItem.page,
-        startRow = gridY / cellHeight,
-        startColumn = gridX / cellWidth,
-        associate = Associate.Grid,
-    )
+        val gridX = dragIntOffset.x - gridPadding
 
-    val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-        gridItem = newGridItem,
-        rows = rows,
-        columns = columns,
-    )
+        val gridY = dragIntOffset.y - gridPadding
 
-    if (isGridItemSpanWithinBounds) {
-        onMoveFolderGridItem(
-            newGridItem,
-            gridX,
-            gridY,
-            rows,
-            columns,
-            gridWidth,
-            gridHeight,
+        val cellWidth = gridWidth / columns
+
+        val cellHeight = gridHeight / rows
+
+        val newGridItem = gridItem.copy(
+            page = targetPage,
+            startRow = gridY / cellHeight,
+            startColumn = gridX / cellWidth,
+            associate = Associate.Grid,
         )
+
+        val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+            gridItem = newGridItem,
+            rows = rows,
+            columns = columns,
+        )
+
+        if (isGridItemSpanWithinBounds) {
+            onMoveFolderGridItem(
+                newGridItem,
+                gridX,
+                gridY,
+                rows,
+                columns,
+                gridWidth,
+                gridHeight,
+            )
+        }
     }
 }

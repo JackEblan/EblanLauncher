@@ -32,6 +32,7 @@ import com.eblan.launcher.feature.home.model.Screen
 @Composable
 fun FolderScreen(
     modifier: Modifier = Modifier,
+    startCurrentPage: Int,
     foldersDataById: ArrayDeque<FolderDataById>,
     folderRows: Int,
     folderColumns: Int,
@@ -42,11 +43,17 @@ fun FolderScreen(
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
-    onLongPressGridItem: (GridItemSource) -> Unit,
+    onResetTargetPage: () -> Unit,
+    onLongPressGridItem: (
+        targetPage: Int,
+        gridItemSource: GridItemSource,
+    ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
 ) {
     LaunchedEffect(key1 = foldersDataById) {
         if (foldersDataById.isEmpty()) {
+            onResetTargetPage()
+
             onUpdateScreen(Screen.Pager)
         }
     }
@@ -63,6 +70,7 @@ fun FolderScreen(
 
     foldersDataById.forEach { folderDataById ->
         val horizontalPagerState = rememberPagerState(
+            initialPage = startCurrentPage,
             pageCount = {
                 folderDataById.pageCount
             },
@@ -125,6 +133,7 @@ fun FolderScreen(
                                             },
                                             onLongPress = {
                                                 onLongPressGridItem(
+                                                    index,
                                                     GridItemSource.Existing(gridItem = gridItem),
                                                 )
                                             },
@@ -137,6 +146,7 @@ fun FolderScreen(
                                             gridItemData = data,
                                             onLongPress = {
                                                 onLongPressGridItem(
+                                                    index,
                                                     GridItemSource.Existing(gridItem = gridItem),
                                                 )
                                             },
@@ -154,6 +164,7 @@ fun FolderScreen(
                                             },
                                             onLongPress = {
                                                 onLongPressGridItem(
+                                                    index,
                                                     GridItemSource.Existing(gridItem = gridItem),
                                                 )
                                             },
@@ -167,10 +178,13 @@ fun FolderScreen(
                                             gridItem = gridItem,
                                             data = data,
                                             onTap = {
+                                                onResetTargetPage()
+
                                                 onAddFolder(gridItem.id)
                                             },
                                             onLongPress = {
                                                 onLongPressGridItem(
+                                                    index,
                                                     GridItemSource.Existing(gridItem = gridItem),
                                                 )
                                             },

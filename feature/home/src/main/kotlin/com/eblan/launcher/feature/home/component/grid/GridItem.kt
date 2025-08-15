@@ -8,12 +8,12 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -420,8 +420,9 @@ fun FolderGridItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         FlowRow(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier
+                .padding(5.dp)
+                .weight(1f),
             maxItemsInEachRow = 3,
         ) {
             data.gridItems

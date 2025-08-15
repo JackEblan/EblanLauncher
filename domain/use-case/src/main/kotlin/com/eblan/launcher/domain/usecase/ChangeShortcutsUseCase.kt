@@ -1,11 +1,13 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -14,12 +16,13 @@ class ChangeShortcutsUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         packageName: String,
         launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
     ) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             val eblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 

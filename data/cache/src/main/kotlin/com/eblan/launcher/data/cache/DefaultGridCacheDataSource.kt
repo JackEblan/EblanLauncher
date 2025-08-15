@@ -1,15 +1,18 @@
 package com.eblan.launcher.data.cache
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataSource {
+internal class DefaultGridCacheDataSource @Inject constructor(@Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher) :
+    GridCacheDataSource {
     private val _gridCacheItems = MutableStateFlow(emptyList<GridItem>())
 
     override val gridCacheItems = _gridCacheItems.asStateFlow()
@@ -45,7 +48,7 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
     }
 
     override suspend fun updateGridItemData(id: String, data: GridItemData) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             _gridCacheItems.update { currentGridCacheItems ->
                 currentGridCacheItems.toMutableList().apply {
                     val index = indexOfFirst { it.id == id }
@@ -59,7 +62,7 @@ internal class DefaultGridCacheDataSource @Inject constructor() : GridCacheDataS
     }
 
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             _gridCacheItems.update { currentGridCacheItems ->
                 currentGridCacheItems.toMutableList().apply {
                     gridItems.forEach { gridItem ->

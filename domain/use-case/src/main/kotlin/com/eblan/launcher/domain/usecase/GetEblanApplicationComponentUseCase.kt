@@ -1,10 +1,12 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanApplicationComponent
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -14,6 +16,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<EblanApplicationComponent> {
         return combine(
@@ -45,6 +48,6 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
                 eblanShortcutInfos = groupedEblanShortcutInfos,
             )
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(defaultDispatcher)
     }
 }

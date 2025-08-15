@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.getGridItemByCoordinates
 import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
@@ -10,13 +12,14 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MoveFolderGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         movingGridItem: GridItem,
@@ -27,7 +30,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ): MoveGridItemResult {
-        return withContext(Dispatchers.Default) {
+        return withContext(defaultDispatcher) {
             moveGridItems(
                 movingGridItem = movingGridItem,
                 x = x,

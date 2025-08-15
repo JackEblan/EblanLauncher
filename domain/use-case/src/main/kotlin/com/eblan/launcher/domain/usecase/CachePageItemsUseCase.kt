@@ -1,12 +1,14 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -14,9 +16,10 @@ import javax.inject.Inject
 class CachePageItemsUseCase @Inject constructor(
     private val pageCacheRepository: PageCacheRepository,
     private val userDataRepository: UserDataRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItems: List<GridItem>) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             val userData = userDataRepository.userData.first()
 
             val gridItemsByPage = gridItems.filter { gridItem ->

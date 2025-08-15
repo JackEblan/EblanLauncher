@@ -16,13 +16,15 @@ import android.os.Process
 import android.os.UserHandle
 import androidx.annotation.RequiresApi
 import com.eblan.launcher.common.util.toByteArray
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanLauncherActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,6 +36,7 @@ import javax.inject.Inject
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -106,10 +109,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         awaitClose {
             launcherApps.unregisterCallback(callback)
         }
-    }.flowOn(Dispatchers.Default)
+    }.flowOn(defaultDispatcher)
 
     override suspend fun getActivityList(): List<EblanLauncherActivityInfo> {
-        return withContext(Dispatchers.Default) {
+        return withContext(defaultDispatcher) {
             launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
                 launcherActivityInfo.toEblanLauncherActivityInfo()
             }

@@ -1,11 +1,13 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -15,13 +17,14 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         if (!appWidgetManagerWrapper.hasSystemFeatureAppWidgets) {
             return
         }
 
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             val oldEblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 

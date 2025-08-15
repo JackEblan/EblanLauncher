@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
@@ -7,7 +9,7 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -17,9 +19,10 @@ class AddPackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
             val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)

@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
@@ -10,7 +12,7 @@ import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -19,9 +21,10 @@ class UpdateGridItemUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     applicationInfoGridItemRepository.updateApplicationInfoGridItem(

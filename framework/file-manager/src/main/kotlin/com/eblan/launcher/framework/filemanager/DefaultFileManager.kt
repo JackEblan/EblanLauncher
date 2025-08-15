@@ -1,9 +1,11 @@
 package com.eblan.launcher.framework.filemanager
 
 import android.content.Context
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -11,7 +13,10 @@ import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
 
-internal class DefaultFileManager @Inject constructor(@ApplicationContext private val context: Context) :
+internal class DefaultFileManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+) :
     FileManager {
     override val iconsDirectory: File by lazy {
         File(context.filesDir, "icons").apply {
@@ -36,7 +41,7 @@ internal class DefaultFileManager @Inject constructor(@ApplicationContext privat
         name: String,
         byteArray: ByteArray,
     ): String? {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val file = File(directory, name)
 
             val oldFile = readFileBytes(file = file)
@@ -58,7 +63,7 @@ internal class DefaultFileManager @Inject constructor(@ApplicationContext privat
     }
 
     override suspend fun deleteFile(directory: File, name: String) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val file = File(directory, name)
 
             try {

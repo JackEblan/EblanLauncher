@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
@@ -12,7 +14,7 @@ import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -29,6 +31,7 @@ class GetHomeDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(): Flow<HomeData> {
@@ -95,7 +98,7 @@ class GetHomeDataUseCase @Inject constructor(
                 hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
                 textColor = textColor,
             )
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(defaultDispatcher)
     }
 
     private fun getTextColorFromWallpaperColors(colorHints: Int?): Long {

@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.findAvailableRegion
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.moveGridItem
@@ -9,7 +11,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -20,12 +22,13 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val userDataRepository: UserDataRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) {
-        withContext(Dispatchers.Default) {
+        withContext(defaultDispatcher) {
             updateGridItems(
                 movingGridItem = movingGridItem,
                 conflictingGridItem = conflictingGridItem,

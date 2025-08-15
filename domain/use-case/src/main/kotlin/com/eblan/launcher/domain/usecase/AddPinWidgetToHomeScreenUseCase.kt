@@ -1,5 +1,7 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
@@ -9,7 +11,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -21,6 +23,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
@@ -40,7 +43,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         rootWidth: Int,
         rootHeight: Int,
     ): GridItem? {
-        return withContext(Dispatchers.Default) {
+        return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
             val rows = homeSettings.rows

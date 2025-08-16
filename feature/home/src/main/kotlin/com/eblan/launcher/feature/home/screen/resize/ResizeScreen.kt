@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -112,29 +113,108 @@ fun ResizeScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                val currentGridItemSettings = if (gridItem.override) {
-                    gridItem.gridItemSettings
-                } else {
-                    gridItemSettings
-                }
-
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = currentGridItemSettings,
+                    gridItemSettings = gridItemSettings,
                 )
             }
         }
     }
 
-    val gridWidth = rootWidth - (gridPaddingPx * 2)
+    when (gridItem.associate) {
+        Associate.Grid -> {
+            val gridWidth = rootWidth - (gridPaddingPx * 2)
 
-    val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
+            val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
 
-    val cellWidth = gridWidth / columns
+            val cellWidth = gridWidth / columns
 
-    val cellHeight = gridHeight / rows
+            val cellHeight = gridHeight / rows
 
+            val x = gridItem.startColumn * cellWidth
+
+            val y = gridItem.startRow * cellHeight
+
+            val width = gridItem.columnSpan * cellWidth
+
+            val height = gridItem.rowSpan * cellHeight
+
+            ResizeOverlay(
+                gridItem = gridItem,
+                gridPaddingPx = gridPaddingPx,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                rows = rows,
+                columns = columns,
+                x = x,
+                y = y,
+                width = width,
+                height = height,
+                textColor = textColor,
+                onResizeGridItem = onResizeGridItem,
+                onResizeEnd = onResizeEnd,
+            )
+        }
+
+        Associate.Dock -> {
+            val cellWidth = rootWidth / dockColumns
+
+            val cellHeight = dockHeight / dockRows
+
+            val x = gridItem.startColumn * cellWidth
+
+            val dockY = (rootHeight - dockHeight) + (gridItem.startRow * cellHeight)
+
+            val width = gridItem.columnSpan * cellWidth
+
+            val height = gridItem.rowSpan * cellHeight
+
+            ResizeOverlay(
+                gridItem = gridItem,
+                gridPaddingPx = 0,
+                gridWidth = rootWidth,
+                gridHeight = dockHeight,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                rows = dockRows,
+                columns = dockColumns,
+                x = x,
+                y = dockY,
+                width = width,
+                height = height,
+                textColor = textColor,
+                onResizeGridItem = onResizeGridItem,
+                onResizeEnd = onResizeEnd,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ResizeOverlay(
+    gridItem: GridItem,
+    gridPaddingPx: Int,
+    gridWidth: Int,
+    gridHeight: Int,
+    cellWidth: Int,
+    cellHeight: Int,
+    rows: Int,
+    columns: Int,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    textColor: Long,
+    onResizeGridItem: (
+        gridItem: GridItem,
+        rows: Int,
+        columns: Int,
+    ) -> Unit,
+    onResizeEnd: () -> Unit,
+) {
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo,
         is GridItemData.ShortcutInfo,
@@ -149,10 +229,10 @@ fun ResizeScreen(
                 cellHeight = cellHeight,
                 rows = rows,
                 columns = columns,
-                startRow = gridItem.startRow,
-                startColumn = gridItem.startColumn,
-                rowSpan = gridItem.rowSpan,
-                columnSpan = gridItem.columnSpan,
+                x = x,
+                y = y,
+                width = width,
+                height = height,
                 color = Color(textColor),
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
@@ -165,15 +245,13 @@ fun ResizeScreen(
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
-                cellWidth = cellWidth,
-                cellHeight = cellHeight,
                 rows = rows,
                 columns = columns,
                 data = data,
-                startRow = gridItem.startRow,
-                startColumn = gridItem.startColumn,
-                rowSpan = gridItem.rowSpan,
-                columnSpan = gridItem.columnSpan,
+                x = x,
+                y = y,
+                width = width,
+                height = height,
                 color = Color(textColor),
                 onResizeWidgetGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,

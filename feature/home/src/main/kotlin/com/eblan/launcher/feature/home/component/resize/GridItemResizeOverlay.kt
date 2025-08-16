@@ -40,10 +40,10 @@ fun GridItemResizeOverlay(
     cellHeight: Int,
     rows: Int,
     columns: Int,
-    startRow: Int,
-    startColumn: Int,
-    rowSpan: Int,
-    columnSpan: Int,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
     color: Color,
     onResizeGridItem: (
         gridItem: GridItem,
@@ -54,13 +54,13 @@ fun GridItemResizeOverlay(
 ) {
     val density = LocalDensity.current
 
-    var width by remember { mutableIntStateOf(columnSpan * cellWidth) }
+    var currentX by remember { mutableIntStateOf(x) }
 
-    var height by remember { mutableIntStateOf(rowSpan * cellHeight) }
+    var currentY by remember { mutableIntStateOf(y) }
 
-    var x by remember { mutableIntStateOf(startColumn * cellWidth) }
+    var currentWidth by remember { mutableIntStateOf(width) }
 
-    var y by remember { mutableIntStateOf(startRow * cellHeight) }
+    var currentHeight by remember { mutableIntStateOf(height) }
 
     var dragHandle by remember { mutableStateOf(Alignment.Center) }
 
@@ -73,7 +73,7 @@ fun GridItemResizeOverlay(
     val borderWidth by remember {
         derivedStateOf {
             with(density) {
-                width.coerceAtLeast(dragHandleSizePx).toDp()
+                currentWidth.coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -81,7 +81,7 @@ fun GridItemResizeOverlay(
     val borderHeight by remember {
         derivedStateOf {
             with(density) {
-                height.coerceAtLeast(dragHandleSizePx).toDp()
+                currentHeight.coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -89,28 +89,28 @@ fun GridItemResizeOverlay(
     val borderX by remember {
         derivedStateOf {
             if (dragHandle == Alignment.TopStart) {
-                if (width >= dragHandleSizePx) {
-                    x
+                if (currentWidth >= dragHandleSizePx) {
+                    currentX
                 } else {
-                    (startColumn * cellWidth) + (columnSpan * cellWidth) - dragHandleSizePx
+                    (x + width) - dragHandleSizePx
                 }
             } else if (dragHandle == Alignment.TopEnd) {
-                if (width >= dragHandleSizePx) {
-                    x
+                if (currentWidth >= dragHandleSizePx) {
+                    currentX
                 } else {
-                    startColumn * cellWidth
+                    x
                 }
             } else if (dragHandle == Alignment.BottomStart) {
-                if (width >= dragHandleSizePx) {
-                    x
+                if (currentWidth >= dragHandleSizePx) {
+                    currentX
                 } else {
-                    (startColumn * cellWidth) + (columnSpan * cellWidth) - dragHandleSizePx
+                    (x + width) - dragHandleSizePx
                 }
             } else {
-                if (width >= dragHandleSizePx) {
-                    x
+                if (currentWidth >= dragHandleSizePx) {
+                    currentX
                 } else {
-                    startColumn * cellWidth
+                    x
                 }
             }
         }
@@ -119,28 +119,28 @@ fun GridItemResizeOverlay(
     val borderY by remember {
         derivedStateOf {
             if (dragHandle == Alignment.TopStart) {
-                if (height >= dragHandleSizePx) {
-                    y
+                if (currentHeight >= dragHandleSizePx) {
+                    currentY
                 } else {
-                    (startRow * cellHeight) + (rowSpan * cellHeight) - dragHandleSizePx
+                    (y + height) - dragHandleSizePx
                 }
             } else if (dragHandle == Alignment.TopEnd) {
-                if (height >= dragHandleSizePx) {
-                    y
+                if (currentHeight >= dragHandleSizePx) {
+                    currentY
                 } else {
-                    (startRow * cellHeight) + (rowSpan * cellHeight) - dragHandleSizePx
+                    (y + height) - dragHandleSizePx
                 }
             } else if (dragHandle == Alignment.BottomStart) {
-                if (height >= dragHandleSizePx) {
-                    y
+                if (currentHeight >= dragHandleSizePx) {
+                    currentY
                 } else {
-                    startRow * cellHeight
+                    y
                 }
             } else {
-                if (height >= dragHandleSizePx) {
-                    y
+                if (currentHeight >= dragHandleSizePx) {
+                    currentY
                 } else {
-                    startRow * cellHeight
+                    y
                 }
             }
         }
@@ -152,10 +152,10 @@ fun GridItemResizeOverlay(
         .size(dragHandleSize)
         .background(color = color, shape = CircleShape)
 
-    LaunchedEffect(key1 = width, key2 = height) {
-        val allowedWidth = width.coerceAtLeast(cellWidth)
+    LaunchedEffect(key1 = currentWidth, key2 = currentHeight) {
+        val allowedWidth = currentWidth.coerceAtLeast(cellWidth)
 
-        val allowedHeight = height.coerceAtLeast(cellHeight)
+        val allowedHeight = currentHeight.coerceAtLeast(cellHeight)
 
         val resizingGridItem = when (dragHandle) {
             Alignment.TopStart -> {
@@ -263,11 +263,11 @@ fun GridItemResizeOverlay(
                                 dragAmount.y.toDp().roundToPx()
                             }
 
-                            width += -dragAmountX
-                            height += -dragAmountY
+                            currentWidth += -dragAmountX
+                            currentHeight += -dragAmountY
 
-                            x += dragAmount.x.roundToInt()
-                            y += dragAmount.y.roundToInt()
+                            currentX += dragAmount.x.roundToInt()
+                            currentY += dragAmount.y.roundToInt()
                         },
                     )
                 },
@@ -296,10 +296,10 @@ fun GridItemResizeOverlay(
                                 dragAmount.y.toDp().roundToPx()
                             }
 
-                            width += dragAmountX
-                            height += -dragAmountY
+                            currentWidth += dragAmountX
+                            currentHeight += -dragAmountY
 
-                            y += dragAmount.y.roundToInt()
+                            currentY += dragAmount.y.roundToInt()
                         },
                     )
                 },
@@ -328,10 +328,10 @@ fun GridItemResizeOverlay(
                                 dragAmount.y.toDp().roundToPx()
                             }
 
-                            width += -dragAmountX
-                            height += dragAmountY
+                            currentWidth += -dragAmountX
+                            currentHeight += dragAmountY
 
-                            x += dragAmount.x.roundToInt()
+                            currentX += dragAmount.x.roundToInt()
                         },
                     )
                 },
@@ -360,8 +360,8 @@ fun GridItemResizeOverlay(
                                 dragAmount.y.toDp().roundToPx()
                             }
 
-                            width += dragAmountX
-                            height += dragAmountY
+                            currentWidth += dragAmountX
+                            currentHeight += dragAmountY
                         },
                     )
                 },

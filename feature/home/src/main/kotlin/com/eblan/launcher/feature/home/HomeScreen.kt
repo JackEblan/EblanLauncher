@@ -372,7 +372,6 @@ private fun Success(
                     infiniteScroll = userData.homeSettings.infiniteScroll,
                     dockRows = userData.homeSettings.dockRows,
                     dockColumns = userData.homeSettings.dockColumns,
-                    gridItem = gridItemSource?.gridItem,
                     gridItems = gridItems,
                     gridItemsByPage = gridItemsByPage,
                     dockHeight = userData.homeSettings.dockHeight,

@@ -39,15 +39,13 @@ fun WidgetGridItemResizeOverlay(
     gridItem: GridItem,
     gridWidth: Int,
     gridHeight: Int,
-    cellWidth: Int,
-    cellHeight: Int,
     rows: Int,
     columns: Int,
     data: GridItemData.Widget,
-    startRow: Int,
-    startColumn: Int,
-    rowSpan: Int,
-    columnSpan: Int,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
     color: Color,
     onResizeWidgetGridItem: (
         gridItem: GridItem,
@@ -58,13 +56,13 @@ fun WidgetGridItemResizeOverlay(
 ) {
     val density = LocalDensity.current
 
-    var width by remember { mutableIntStateOf(columnSpan * cellWidth) }
+    var currentX by remember { mutableIntStateOf(x) }
 
-    var height by remember { mutableIntStateOf(rowSpan * cellHeight) }
+    var currentY by remember { mutableIntStateOf(y) }
 
-    var x by remember { mutableIntStateOf(startColumn * cellWidth) }
+    var currentWidth by remember { mutableIntStateOf(width) }
 
-    var y by remember { mutableIntStateOf(startRow * cellHeight) }
+    var currentHeight by remember { mutableIntStateOf(height) }
 
     var dragHandle by remember { mutableStateOf(Alignment.Center) }
 
@@ -77,7 +75,7 @@ fun WidgetGridItemResizeOverlay(
     val borderWidth by remember {
         derivedStateOf {
             with(density) {
-                width.coerceAtLeast(dragHandleSizePx).toDp()
+                currentWidth.coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -85,7 +83,7 @@ fun WidgetGridItemResizeOverlay(
     val borderHeight by remember {
         derivedStateOf {
             with(density) {
-                height.coerceAtLeast(dragHandleSizePx).toDp()
+                currentHeight.coerceAtLeast(dragHandleSizePx).toDp()
             }
         }
     }
@@ -93,13 +91,13 @@ fun WidgetGridItemResizeOverlay(
     val borderX by remember {
         derivedStateOf {
             if (dragHandle == Alignment.CenterStart) {
-                if (width >= dragHandleSizePx) {
-                    x
+                if (currentWidth >= dragHandleSizePx) {
+                    currentX
                 } else {
-                    (startColumn * cellWidth) + (columnSpan * cellWidth) - dragHandleSizePx
+                    (x + width) - dragHandleSizePx
                 }
             } else {
-                startColumn * cellWidth
+                x
             }
         }
     }
@@ -107,13 +105,13 @@ fun WidgetGridItemResizeOverlay(
     val borderY by remember {
         derivedStateOf {
             if (dragHandle == Alignment.TopCenter) {
-                if (height >= dragHandleSizePx) {
-                    y
+                if (currentHeight >= dragHandleSizePx) {
+                    currentY
                 } else {
-                    (startRow * cellHeight) + (rowSpan * cellHeight) - dragHandleSizePx
+                    (y + height) - dragHandleSizePx
                 }
             } else {
-                startRow * cellHeight
+                y
             }
         }
     }
@@ -124,30 +122,30 @@ fun WidgetGridItemResizeOverlay(
         .size(dragHandleSize)
         .background(color = color, shape = CircleShape)
 
-    LaunchedEffect(key1 = width, key2 = height) {
+    LaunchedEffect(key1 = currentWidth, key2 = currentHeight) {
         delay(250L)
 
-        val allowedWidth = if (data.minResizeWidth > 0 && width <= data.minResizeWidth) {
+        val allowedWidth = if (data.minResizeWidth > 0 && currentWidth <= data.minResizeWidth) {
             data.minResizeWidth
-        } else if (data.maxResizeWidth in 1..<width) {
+        } else if (data.maxResizeWidth in 1..<currentWidth) {
             data.maxResizeWidth
         } else {
-            width
+            currentWidth
         }
 
-        val allowedHeight = if (data.minResizeHeight > 0 && height <= data.minResizeHeight) {
+        val allowedHeight = if (data.minResizeHeight > 0 && currentHeight <= data.minResizeHeight) {
             data.minResizeHeight
-        } else if (data.maxResizeHeight in 1..<height) {
+        } else if (data.maxResizeHeight in 1..<currentHeight) {
             data.maxResizeHeight
         } else {
-            height
+            currentHeight
         }
 
         val resizingGridItem = when (dragHandle) {
             Alignment.TopCenter -> {
                 resizeWidgetGridItemWithPixels(
                     gridItem = gridItem,
-                    width = columnSpan * cellWidth,
+                    width = width,
                     height = allowedHeight,
                     rows = rows,
                     columns = columns,
@@ -161,7 +159,7 @@ fun WidgetGridItemResizeOverlay(
                 resizeWidgetGridItemWithPixels(
                     gridItem = gridItem,
                     width = allowedWidth,
-                    height = rowSpan * cellHeight,
+                    height = height,
                     rows = rows,
                     columns = columns,
                     gridWidth = gridWidth,
@@ -174,7 +172,7 @@ fun WidgetGridItemResizeOverlay(
             Alignment.BottomCenter -> {
                 resizeWidgetGridItemWithPixels(
                     gridItem = gridItem,
-                    width = columnSpan * cellWidth,
+                    width = width,
                     height = allowedHeight,
                     rows = rows,
                     columns = columns,
@@ -188,7 +186,7 @@ fun WidgetGridItemResizeOverlay(
                 resizeWidgetGridItemWithPixels(
                     gridItem = gridItem,
                     width = allowedWidth,
-                    height = rowSpan * cellHeight,
+                    height = height,
                     rows = rows,
                     columns = columns,
                     gridWidth = gridWidth,
@@ -251,9 +249,9 @@ fun WidgetGridItemResizeOverlay(
                                         dragAmount.y.toDp().roundToPx()
                                     }
 
-                                    height += -dragAmountY
+                                    currentHeight += -dragAmountY
 
-                                    y += dragAmount.y.roundToInt()
+                                    currentY += dragAmount.y.roundToInt()
                                 },
                             )
                         }
@@ -281,7 +279,7 @@ fun WidgetGridItemResizeOverlay(
                                         dragAmount.x.toDp().roundToPx()
                                     }
 
-                                    width += dragAmountX
+                                    currentWidth += dragAmountX
                                 },
                             )
                         }
@@ -309,7 +307,7 @@ fun WidgetGridItemResizeOverlay(
                                         dragAmount.y.toDp().roundToPx()
                                     }
 
-                                    height += dragAmountY
+                                    currentHeight += dragAmountY
                                 },
                             )
                         }
@@ -337,9 +335,9 @@ fun WidgetGridItemResizeOverlay(
                                         dragAmount.x.toDp().roundToPx()
                                     }
 
-                                    width += -dragAmountX
+                                    currentWidth += -dragAmountX
 
-                                    x += dragAmount.x.roundToInt()
+                                    currentX += dragAmount.x.roundToInt()
                                 },
                             )
                         }

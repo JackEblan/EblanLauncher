@@ -80,7 +80,6 @@ fun PagerScreen(
     dockColumns: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
-    gridItem: GridItem?,
     dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
@@ -189,7 +188,6 @@ fun PagerScreen(
         dockColumns = dockColumns,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
-        gridItem = gridItem,
         dockHeight = dockHeight,
         dockGridItems = dockGridItems,
         textColor = textColor,
@@ -334,7 +332,6 @@ private fun HorizontalPagerScreen(
     dockColumns: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
-    gridItem: GridItem?,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
@@ -508,6 +505,8 @@ private fun HorizontalPagerScreen(
     }
 
     if (showPopupGridItemMenu) {
+        val gridItem = gridItemSource?.gridItem
+
         when (gridItem?.associate) {
             Associate.Grid -> {
                 PopupGridItemMenu(
@@ -530,7 +529,7 @@ private fun HorizontalPagerScreen(
                     currentPage = currentPage,
                     gridItem = gridItem,
                     x = popupMenuIntOffset.x,
-                    y = rootHeight - dockHeight,
+                    y = (rootHeight - dockHeight) + popupMenuIntOffset.y,
                     width = popupMenuIntSize.width,
                     height = popupMenuIntSize.height,
                     onEdit = onEdit,
@@ -569,63 +568,6 @@ private fun HorizontalPagerScreen(
             )
         }
     }
-}
-
-@Composable
-private fun PopupGridItemMenu(
-    currentPage: Int,
-    gridItem: GridItem,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
-    onEdit: (String) -> Unit,
-    onResize: (Int) -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    Popup(
-        popupPositionProvider = MenuPositionProvider(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-        ),
-        onDismissRequest = onDismissRequest,
-        content = {
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo,
-                is GridItemData.ShortcutInfo,
-                is GridItemData.Folder,
-                    -> {
-                    ApplicationInfoGridItemMenu(
-                        onEdit = {
-                            onDismissRequest()
-
-                            onEdit(gridItem.id)
-                        },
-                        onResize = {
-                            onResize(currentPage)
-                        },
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    val showResize =
-                        data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
-                    WidgetGridItemMenu(
-                        showResize = showResize,
-                        onEdit = {
-                            onEdit(gridItem.id)
-                        },
-                        onResize = {
-                            onResize(currentPage)
-                        },
-                    )
-                }
-            }
-        },
-    )
 }
 
 @Composable
@@ -808,6 +750,63 @@ private fun PageGridLayout(
             }
         }
     }
+}
+
+@Composable
+private fun PopupGridItemMenu(
+    currentPage: Int,
+    gridItem: GridItem,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    onEdit: (String) -> Unit,
+    onResize: (Int) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    Popup(
+        popupPositionProvider = MenuPositionProvider(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+        ),
+        onDismissRequest = onDismissRequest,
+        content = {
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo,
+                is GridItemData.ShortcutInfo,
+                is GridItemData.Folder,
+                    -> {
+                    ApplicationInfoGridItemMenu(
+                        onEdit = {
+                            onDismissRequest()
+
+                            onEdit(gridItem.id)
+                        },
+                        onResize = {
+                            onResize(currentPage)
+                        },
+                    )
+                }
+
+                is GridItemData.Widget -> {
+                    val showResize =
+                        data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+
+                    WidgetGridItemMenu(
+                        showResize = showResize,
+                        onEdit = {
+                            onEdit(gridItem.id)
+                        },
+                        onResize = {
+                            onResize(currentPage)
+                        },
+                    )
+                }
+            }
+        },
+    )
 }
 
 @Composable

@@ -78,10 +78,6 @@ class HomeViewModel @Inject constructor(
 
     private val defaultDelay = 500L
 
-    private val _updatedGridItem = MutableStateFlow<GridItem?>(null)
-
-    val updatedGridItem = _updatedGridItem.asStateFlow()
-
     val pageItems = pageCacheRepository.pageItems.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -268,10 +264,6 @@ class HomeViewModel @Inject constructor(
             _moveGridItemResult.update {
                 null
             }
-
-            _updatedGridItem.update {
-                null
-            }
         }
     }
 
@@ -320,20 +312,12 @@ class HomeViewModel @Inject constructor(
             _moveGridItemResult.update {
                 null
             }
-
-            _updatedGridItem.update {
-                null
-            }
         }
     }
 
     fun updateGridItemDataCache(gridItem: GridItem) {
         viewModelScope.launch {
             gridCacheRepository.updateGridItemData(id = gridItem.id, data = gridItem.data)
-
-            _updatedGridItem.update {
-                gridItem
-            }
         }
     }
 

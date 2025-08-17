@@ -60,8 +60,6 @@ fun HomeRoute(
 
     val movedGridItemResult by viewModel.movedGridItemResult.collectAsStateWithLifecycle()
 
-    val updatedGridItem by viewModel.updatedGridItem.collectAsStateWithLifecycle()
-
     val pageItems by viewModel.pageItems.collectAsStateWithLifecycle()
 
     val folders by viewModel.foldersDataById.collectAsStateWithLifecycle()
@@ -72,7 +70,6 @@ fun HomeRoute(
         homeUiState = homeUiState,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         movedGridItemResult = movedGridItemResult,
-        updatedGridItem = updatedGridItem,
         pageItems = pageItems,
         foldersDataById = folders,
         onMoveGridItem = viewModel::moveGridItem,
@@ -105,7 +102,6 @@ fun HomeScreen(
     homeUiState: HomeUiState,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     movedGridItemResult: MoveGridItemResult?,
-    updatedGridItem: GridItem?,
     pageItems: List<PageItem>,
     foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
@@ -245,7 +241,6 @@ fun HomeScreen(
                         dragIntOffset = dragIntOffset,
                         drag = drag,
                         hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
-                        updatedGridItem = updatedGridItem,
                         textColor = homeUiState.homeData.textColor,
                         foldersDataById = foldersDataById,
                         onMoveGridItem = onMoveGridItem,
@@ -291,7 +286,6 @@ private fun Success(
     dragIntOffset: IntOffset,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
-    updatedGridItem: GridItem?,
     textColor: Long,
     foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
@@ -439,7 +433,6 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     moveGridItemResult = movedGridItemResult,
-                    updatedGridItem = updatedGridItem,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = { newTargetPage ->

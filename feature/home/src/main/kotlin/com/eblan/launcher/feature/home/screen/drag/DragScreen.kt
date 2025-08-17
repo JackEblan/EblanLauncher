@@ -79,7 +79,6 @@ fun DragScreen(
     dockGridItems: List<GridItem>,
     textColor: Long,
     moveGridItemResult: MoveGridItemResult?,
-    updatedGridItem: GridItem?,
     gridItemSettings: GridItemSettings,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -122,6 +121,8 @@ fun DragScreen(
     var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
 
     var deleteAppWidgetId by remember { mutableStateOf(false) }
+
+    var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     val horizontalPagerState = rememberPagerState(
         initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + startCurrentPage else startCurrentPage,
@@ -171,7 +172,11 @@ fun DragScreen(
         handleAppWidgetLauncherResult(
             result = result,
             gridItem = gridItemSource.gridItem,
-            onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+            onUpdateGridItemDataCache = { gridItem ->
+                updatedGridItem = gridItem
+
+                onUpdateGridItemDataCache(gridItem)
+            },
             onDeleteAppWidgetId = {
                 deleteAppWidgetId = true
             },
@@ -226,7 +231,11 @@ fun DragScreen(
                     onDragEndAfterMove = onDragEndAfterMove,
                     onMoveGridItemsFailed = onMoveGridItemsFailed,
                     onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                    onUpdateGridItemDataCache = { gridItem ->
+                        updatedGridItem = gridItem
+
+                        onUpdateGridItemDataCache(gridItem)
+                    },
                     onUpdateAppWidgetId = { appWidgetId ->
                         lastAppWidgetId = appWidgetId
                     },

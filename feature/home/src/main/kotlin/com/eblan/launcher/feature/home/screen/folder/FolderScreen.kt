@@ -9,11 +9,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
@@ -88,108 +83,98 @@ fun FolderScreen(
                         columns = folderColumns,
                     ) {
                         folderDataById.gridItemsByPage[index]?.forEach { gridItem ->
-                            key(gridItem.id) {
-                                val currentGridItemSettings by remember(key1 = gridItem) {
-                                    val currentGridItemSettings = if (gridItem.override) {
-                                        gridItem.gridItemSettings
-                                    } else {
-                                        gridItemSettings
-                                    }
+                            val currentGridItemSettings = if (gridItem.override) {
+                                gridItem.gridItemSettings
+                            } else {
+                                gridItemSettings
+                            }
 
-                                    mutableStateOf(currentGridItemSettings)
-                                }
-
-                                val currentTextColor by remember(key1 = gridItem) {
-                                    val currentTextColor = if (gridItem.override) {
-                                        when (gridItem.gridItemSettings.textColor) {
-                                            TextColor.System -> {
-                                                textColor
-                                            }
-
-                                            TextColor.Light -> {
-                                                0xFFFFFFFF
-                                            }
-
-                                            TextColor.Dark -> {
-                                                0xFF000000
-                                            }
-                                        }
-                                    } else {
+                            val currentTextColor = if (gridItem.override) {
+                                when (gridItem.gridItemSettings.textColor) {
+                                    TextColor.System -> {
                                         textColor
                                     }
 
-                                    mutableLongStateOf(currentTextColor)
+                                    TextColor.Light -> {
+                                        0xFFFFFFFF
+                                    }
+
+                                    TextColor.Dark -> {
+                                        0xFF000000
+                                    }
+                                }
+                            } else {
+                                textColor
+                            }
+
+                            when (val data = gridItem.data) {
+                                is GridItemData.ApplicationInfo -> {
+                                    InteractiveApplicationInfoGridItem(
+                                        textColor = currentTextColor,
+                                        gridItemSettings = currentGridItemSettings,
+                                        gridItem = gridItem,
+                                        data = data,
+                                        onTap = {
+
+                                        },
+                                        onLongPress = {
+                                            onLongPressGridItem(
+                                                index,
+                                                GridItemSource.Existing(gridItem = gridItem),
+                                            )
+                                        },
+                                    )
                                 }
 
-                                when (val data = gridItem.data) {
-                                    is GridItemData.ApplicationInfo -> {
-                                        InteractiveApplicationInfoGridItem(
-                                            textColor = currentTextColor,
-                                            gridItemSettings = currentGridItemSettings,
-                                            gridItem = gridItem,
-                                            data = data,
-                                            onTap = {
+                                is GridItemData.Widget -> {
+                                    InteractiveWidgetGridItem(
+                                        gridItem = gridItem,
+                                        gridItemData = data,
+                                        onLongPress = {
+                                            onLongPressGridItem(
+                                                index,
+                                                GridItemSource.Existing(gridItem = gridItem),
+                                            )
+                                        },
+                                    )
+                                }
 
-                                            },
-                                            onLongPress = {
-                                                onLongPressGridItem(
-                                                    index,
-                                                    GridItemSource.Existing(gridItem = gridItem),
-                                                )
-                                            },
-                                        )
-                                    }
+                                is GridItemData.ShortcutInfo -> {
+                                    InteractiveShortcutInfoGridItem(
+                                        textColor = currentTextColor,
+                                        gridItemSettings = currentGridItemSettings,
+                                        gridItem = gridItem,
+                                        data = data,
+                                        onTap = {
 
-                                    is GridItemData.Widget -> {
-                                        InteractiveWidgetGridItem(
-                                            gridItem = gridItem,
-                                            gridItemData = data,
-                                            onLongPress = {
-                                                onLongPressGridItem(
-                                                    index,
-                                                    GridItemSource.Existing(gridItem = gridItem),
-                                                )
-                                            },
-                                        )
-                                    }
+                                        },
+                                        onLongPress = {
+                                            onLongPressGridItem(
+                                                index,
+                                                GridItemSource.Existing(gridItem = gridItem),
+                                            )
+                                        },
+                                    )
+                                }
 
-                                    is GridItemData.ShortcutInfo -> {
-                                        InteractiveShortcutInfoGridItem(
-                                            textColor = currentTextColor,
-                                            gridItemSettings = currentGridItemSettings,
-                                            gridItem = gridItem,
-                                            data = data,
-                                            onTap = {
+                                is GridItemData.Folder -> {
+                                    InteractiveNestedFolderGridItem(
+                                        textColor = currentTextColor,
+                                        gridItemSettings = currentGridItemSettings,
+                                        gridItem = gridItem,
+                                        data = data,
+                                        onTap = {
+                                            onResetTargetPage()
 
-                                            },
-                                            onLongPress = {
-                                                onLongPressGridItem(
-                                                    index,
-                                                    GridItemSource.Existing(gridItem = gridItem),
-                                                )
-                                            },
-                                        )
-                                    }
-
-                                    is GridItemData.Folder -> {
-                                        InteractiveNestedFolderGridItem(
-                                            textColor = currentTextColor,
-                                            gridItemSettings = currentGridItemSettings,
-                                            gridItem = gridItem,
-                                            data = data,
-                                            onTap = {
-                                                onResetTargetPage()
-
-                                                onAddFolder(gridItem.id)
-                                            },
-                                            onLongPress = {
-                                                onLongPressGridItem(
-                                                    index,
-                                                    GridItemSource.Existing(gridItem = gridItem),
-                                                )
-                                            },
-                                        )
-                                    }
+                                            onAddFolder(gridItem.id)
+                                        },
+                                        onLongPress = {
+                                            onLongPressGridItem(
+                                                index,
+                                                GridItemSource.Existing(gridItem = gridItem),
+                                            )
+                                        },
+                                    )
                                 }
                             }
                         }

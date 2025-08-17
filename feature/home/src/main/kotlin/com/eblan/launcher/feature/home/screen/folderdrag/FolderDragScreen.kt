@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -199,36 +198,28 @@ private fun FolderDragGridItemContent(
     gridItemSettings: GridItemSettings,
 ) {
     key(gridItem.id) {
-        val currentGridItemSettings by remember(key1 = gridItem) {
-            val currentGridItemSettings = if (gridItem.override) {
-                gridItem.gridItemSettings
-            } else {
-                gridItemSettings
-            }
-
-            mutableStateOf(currentGridItemSettings)
+        val currentGridItemSettings = if (gridItem.override) {
+            gridItem.gridItemSettings
+        } else {
+            gridItemSettings
         }
 
-        val currentTextColor by remember(key1 = gridItem) {
-            val currentTextColor = if (gridItem.override) {
-                when (gridItem.gridItemSettings.textColor) {
-                    TextColor.System -> {
-                        textColor
-                    }
-
-                    TextColor.Light -> {
-                        0xFFFFFFFF
-                    }
-
-                    TextColor.Dark -> {
-                        0xFF000000
-                    }
+        val currentTextColor = if (gridItem.override) {
+            when (gridItem.gridItemSettings.textColor) {
+                TextColor.System -> {
+                    textColor
                 }
-            } else {
-                textColor
-            }
 
-            mutableLongStateOf(currentTextColor)
+                TextColor.Light -> {
+                    0xFFFFFFFF
+                }
+
+                TextColor.Dark -> {
+                    0xFF000000
+                }
+            }
+        } else {
+            textColor
         }
 
         LookaheadScope {

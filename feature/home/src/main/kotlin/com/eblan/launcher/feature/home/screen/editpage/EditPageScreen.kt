@@ -124,19 +124,13 @@ fun EditPageScreen(
                             pageItem.gridItems.forEach { gridItem ->
                                 val gridItemModifier = Modifier.gridItem(gridItem)
 
-                                val currentGridItemSettings = if (gridItem.override) {
-                                    gridItem.gridItemSettings
-                                } else {
-                                    gridItemSettings
-                                }
-
                                 when (val data = gridItem.data) {
                                     is GridItemData.ApplicationInfo -> {
                                         ApplicationInfoGridItem(
                                             modifier = gridItemModifier,
                                             data = data,
                                             textColor = textColor,
-                                            gridItemSettings = currentGridItemSettings,
+                                            gridItemSettings = gridItemSettings,
                                         )
                                     }
 
@@ -152,7 +146,7 @@ fun EditPageScreen(
                                             modifier = gridItemModifier,
                                             data = data,
                                             textColor = textColor,
-                                            gridItemSettings = currentGridItemSettings,
+                                            gridItemSettings = gridItemSettings,
                                         )
                                     }
 
@@ -161,7 +155,7 @@ fun EditPageScreen(
                                             modifier = gridItemModifier,
                                             data = data,
                                             textColor = textColor,
-                                            gridItemSettings = currentGridItemSettings,
+                                            gridItemSettings = gridItemSettings,
                                         )
                                     }
                                 }

@@ -22,7 +22,7 @@ class RemovePackageUseCase @Inject constructor(
             )
 
             fileManager.deleteFile(
-                directory = fileManager.iconsDirectory,
+                directory = fileManager.getDirectory(FileManager.ICONS_DIR),
                 name = packageName,
             )
 
@@ -31,7 +31,7 @@ class RemovePackageUseCase @Inject constructor(
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.forEach { appWidgetManagerAppWidgetProviderInfo ->
                     fileManager.deleteFile(
-                        directory = fileManager.widgetsDirectory,
+                        directory = fileManager.getDirectory(FileManager.WIDGETS_DIR),
                         name = appWidgetManagerAppWidgetProviderInfo.className,
                     )
                 }

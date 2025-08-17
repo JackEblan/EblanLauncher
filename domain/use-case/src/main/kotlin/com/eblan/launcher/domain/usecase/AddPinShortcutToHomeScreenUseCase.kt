@@ -41,7 +41,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             val gridItems = gridCacheRepository.gridCacheItems.first()
 
             val icon = fileManager.writeFileBytes(
-                directory = fileManager.shortcutsDirectory,
+                directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
                 name = shortcutId,
                 byteArray = byteArray,
             )

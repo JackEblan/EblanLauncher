@@ -212,9 +212,7 @@ fun PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
-        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-    ) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
         ApplicationComponentScreen(
             modifier = Modifier.offset {
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
@@ -452,56 +450,70 @@ private fun HorizontalPagerScreen(
                 pageCount = pageCount,
             )
 
-            PageGridLayout(
+            GridLayout(
                 modifier = Modifier.fillMaxSize(),
-                currentPage = currentPage,
-                gridItems = gridItemsByPage[page],
                 rows = rows,
                 columns = columns,
-                gridWidth = rootWidth,
-                gridHeight = rootHeight - dockHeight,
-                gridItemSettings = gridItemSettings,
-                textColor = textColor,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                onLongPressGridItem = onLongPressGridItem,
-                onTapFolderGridItem = onTapFolderGridItem,
-                onUpdatePopupMenu = { newPopupMenuIntOffset, newPopupMenuIntSize ->
-                    popupMenuIntOffset = newPopupMenuIntOffset
+            ) {
+                gridItemsByPage[page]?.forEach { gridItem ->
+                    GridItemContent(
+                        currentPage = currentPage,
+                        gridItem = gridItem,
+                        rows = rows,
+                        columns = columns,
+                        gridWidth = rootWidth,
+                        gridHeight = rootHeight - dockHeight,
+                        gridItemSettings = gridItemSettings,
+                        textColor = textColor,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        onTapApplicationInfo = launcherApps::startMainActivity,
+                        onUpdatePopupMenu = { newPopupMenuIntOffset, newPopupMenuIntSize ->
+                            popupMenuIntOffset = newPopupMenuIntOffset
 
-                    popupMenuIntSize = newPopupMenuIntSize
+                            popupMenuIntSize = newPopupMenuIntSize
 
-                    showPopupGridItemMenu = true
-                },
-                onTapApplicationInfo = launcherApps::startMainActivity,
-                onTapShortcutInfo = launcherApps::startShortcut,
-            )
+                            showPopupGridItemMenu = true
+                        },
+                        onLongPressGridItem = onLongPressGridItem,
+                        onTapShortcutInfo = launcherApps::startShortcut,
+                        onTapFolderGridItem = onTapFolderGridItem,
+                    )
+                }
+            }
         }
 
-        PageGridLayout(
+        GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
-            currentPage = currentPage,
-            gridItems = dockGridItems,
             rows = dockRows,
             columns = dockColumns,
-            gridWidth = rootWidth,
-            gridHeight = dockHeight,
-            gridItemSettings = gridItemSettings,
-            textColor = textColor,
-            hasShortcutHostPermission = hasShortcutHostPermission,
-            onLongPressGridItem = onLongPressGridItem,
-            onTapFolderGridItem = onTapFolderGridItem,
-            onUpdatePopupMenu = { newPopupMenuIntOffset, newPopupMenuIntSize ->
-                popupMenuIntOffset = newPopupMenuIntOffset
+        ) {
+            dockGridItems.forEach { gridItem ->
+                GridItemContent(
+                    currentPage = currentPage,
+                    gridItem = gridItem,
+                    rows = dockRows,
+                    columns = dockColumns,
+                    gridWidth = rootWidth,
+                    gridHeight = dockHeight,
+                    gridItemSettings = gridItemSettings,
+                    textColor = textColor,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                    onTapApplicationInfo = launcherApps::startMainActivity,
+                    onUpdatePopupMenu = { newPopupMenuIntOffset, newPopupMenuIntSize ->
+                        popupMenuIntOffset = newPopupMenuIntOffset
 
-                popupMenuIntSize = newPopupMenuIntSize
+                        popupMenuIntSize = newPopupMenuIntSize
 
-                showPopupGridItemMenu = true
-            },
-            onTapApplicationInfo = launcherApps::startMainActivity,
-            onTapShortcutInfo = launcherApps::startShortcut,
-        )
+                        showPopupGridItemMenu = true
+                    },
+                    onLongPressGridItem = onLongPressGridItem,
+                    onTapShortcutInfo = launcherApps::startShortcut,
+                    onTapFolderGridItem = onTapFolderGridItem,
+                )
+            }
+        }
     }
 
     if (showPopupGridItemMenu) {
@@ -571,10 +583,9 @@ private fun HorizontalPagerScreen(
 }
 
 @Composable
-private fun PageGridLayout(
-    modifier: Modifier = Modifier,
+private fun GridItemContent(
     currentPage: Int,
-    gridItems: List<GridItem>?,
+    gridItem: GridItem,
     rows: Int,
     columns: Int,
     gridWidth: Int,
@@ -582,171 +593,163 @@ private fun PageGridLayout(
     gridItemSettings: GridItemSettings,
     textColor: Long,
     hasShortcutHostPermission: Boolean,
+    onTapApplicationInfo: (String?) -> Unit,
+    onUpdatePopupMenu: (
+        popupMenuIntOffset: IntOffset,
+        popupMenuIntSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
+    ) -> Unit,
+    onTapShortcutInfo: (
+        packageName: String,
+        shortcutId: String,
     ) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
         shortcutId: String,
     ) -> Unit,
-    onUpdatePopupMenu: (
-        popupMenuIntOffset: IntOffset,
-        popupMenuIntSize: IntSize,
-    ) -> Unit,
-    onTapApplicationInfo: (String?) -> Unit,
-    onTapShortcutInfo: (
-        packageName: String,
-        shortcutId: String,
-    ) -> Unit,
 ) {
-    GridLayout(
-        modifier = modifier,
-        rows = rows,
-        columns = columns,
-    ) {
-        gridItems?.forEach { gridItem ->
-            key(gridItem.id) {
-                val cellWidth = gridWidth / columns
+    key(gridItem.id) {
+        val cellWidth = gridWidth / columns
 
-                val cellHeight = gridHeight / rows
+        val cellHeight = gridHeight / rows
 
-                val x = gridItem.startColumn * cellWidth
+        val x = gridItem.startColumn * cellWidth
 
-                val y = gridItem.startRow * cellHeight
+        val y = gridItem.startRow * cellHeight
 
-                val width = gridItem.columnSpan * cellWidth
+        val width = gridItem.columnSpan * cellWidth
 
-                val height = gridItem.rowSpan * cellHeight
+        val height = gridItem.rowSpan * cellHeight
 
-                val currentGridItemSettings by remember(key1 = gridItem) {
-                    val currentGridItemSettings = if (gridItem.override) {
-                        gridItem.gridItemSettings
-                    } else {
-                        gridItemSettings
-                    }
+        val currentGridItemSettings by remember(key1 = gridItem) {
+            val currentGridItemSettings = if (gridItem.override) {
+                gridItem.gridItemSettings
+            } else {
+                gridItemSettings
+            }
 
-                    mutableStateOf(currentGridItemSettings)
-                }
+            mutableStateOf(currentGridItemSettings)
+        }
 
-                val currentTextColor by remember(key1 = gridItem) {
-                    val currentTextColor = if (gridItem.override) {
-                        when (gridItem.gridItemSettings.textColor) {
-                            TextColor.System -> {
-                                textColor
-                            }
-
-                            TextColor.Light -> {
-                                0xFFFFFFFF
-                            }
-
-                            TextColor.Dark -> {
-                                0xFF000000
-                            }
-                        }
-                    } else {
+        val currentTextColor by remember(key1 = gridItem) {
+            val currentTextColor = if (gridItem.override) {
+                when (gridItem.gridItemSettings.textColor) {
+                    TextColor.System -> {
                         textColor
                     }
 
-                    mutableLongStateOf(currentTextColor)
-                }
-
-                when (val data = gridItem.data) {
-                    is GridItemData.ApplicationInfo -> {
-                        InteractiveApplicationInfoGridItem(
-                            textColor = currentTextColor,
-                            gridItemSettings = currentGridItemSettings,
-                            gridItem = gridItem,
-                            data = data,
-                            onTap = {
-                                onTapApplicationInfo(data.componentName)
-                            },
-                            onLongPress = {
-                                onUpdatePopupMenu(
-                                    IntOffset(x = x, y = y),
-                                    IntSize(width = width, height = height),
-                                )
-
-                                onLongPressGridItem(
-                                    currentPage,
-                                    GridItemSource.Existing(gridItem = gridItem),
-                                )
-                            },
-                        )
+                    TextColor.Light -> {
+                        0xFFFFFFFF
                     }
 
-                    is GridItemData.Widget -> {
-                        InteractiveWidgetGridItem(
-                            gridItem = gridItem,
-                            gridItemData = data,
-                            onLongPress = {
-                                onUpdatePopupMenu(
-                                    IntOffset(x = x, y = y),
-                                    IntSize(width = width, height = height),
-                                )
-
-                                onLongPressGridItem(
-                                    currentPage,
-                                    GridItemSource.Existing(gridItem = gridItem),
-                                )
-                            },
-                        )
-                    }
-
-                    is GridItemData.ShortcutInfo -> {
-                        InteractiveShortcutInfoGridItem(
-                            gridItemSettings = currentGridItemSettings,
-                            textColor = currentTextColor,
-                            gridItem = gridItem,
-                            data = data,
-                            onTap = {
-                                if (hasShortcutHostPermission) {
-                                    onTapShortcutInfo(
-                                        data.packageName,
-                                        data.shortcutId,
-                                    )
-                                }
-                            },
-                            onLongPress = {
-                                onUpdatePopupMenu(
-                                    IntOffset(x = x, y = y),
-                                    IntSize(width = width, height = height),
-                                )
-
-                                onLongPressGridItem(
-                                    currentPage,
-                                    GridItemSource.Existing(gridItem = gridItem),
-                                )
-                            },
-                        )
-                    }
-
-                    is GridItemData.Folder -> {
-                        InteractiveFolderGridItem(
-                            gridItemSettings = currentGridItemSettings,
-                            textColor = currentTextColor,
-                            gridItem = gridItem,
-                            data = data,
-                            onTap = {
-                                onTapFolderGridItem(
-                                    currentPage,
-                                    gridItem.id,
-                                )
-                            },
-                            onLongPress = {
-                                onUpdatePopupMenu(
-                                    IntOffset(x = x, y = y),
-                                    IntSize(width = width, height = height),
-                                )
-
-                                onLongPressGridItem(
-                                    currentPage,
-                                    GridItemSource.Existing(gridItem = gridItem),
-                                )
-                            },
-                        )
+                    TextColor.Dark -> {
+                        0xFF000000
                     }
                 }
+            } else {
+                textColor
+            }
+
+            mutableLongStateOf(currentTextColor)
+        }
+
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                InteractiveApplicationInfoGridItem(
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                    gridItem = gridItem,
+                    data = data,
+                    onTap = {
+                        onTapApplicationInfo(data.componentName)
+                    },
+                    onLongPress = {
+                        onUpdatePopupMenu(
+                            IntOffset(x = x, y = y),
+                            IntSize(width = width, height = height),
+                        )
+
+                        onLongPressGridItem(
+                            currentPage,
+                            GridItemSource.Existing(gridItem = gridItem),
+                        )
+                    },
+                )
+            }
+
+            is GridItemData.Widget -> {
+                InteractiveWidgetGridItem(
+                    gridItem = gridItem,
+                    gridItemData = data,
+                    onLongPress = {
+                        onUpdatePopupMenu(
+                            IntOffset(x = x, y = y),
+                            IntSize(width = width, height = height),
+                        )
+
+                        onLongPressGridItem(
+                            currentPage,
+                            GridItemSource.Existing(gridItem = gridItem),
+                        )
+                    },
+                )
+            }
+
+            is GridItemData.ShortcutInfo -> {
+                InteractiveShortcutInfoGridItem(
+                    gridItemSettings = currentGridItemSettings,
+                    textColor = currentTextColor,
+                    gridItem = gridItem,
+                    data = data,
+                    onTap = {
+                        if (hasShortcutHostPermission) {
+                            onTapShortcutInfo(
+                                data.packageName,
+                                data.shortcutId,
+                            )
+                        }
+                    },
+                    onLongPress = {
+                        onUpdatePopupMenu(
+                            IntOffset(x = x, y = y),
+                            IntSize(width = width, height = height),
+                        )
+
+                        onLongPressGridItem(
+                            currentPage,
+                            GridItemSource.Existing(gridItem = gridItem),
+                        )
+                    },
+                )
+            }
+
+            is GridItemData.Folder -> {
+                InteractiveFolderGridItem(
+                    gridItemSettings = currentGridItemSettings,
+                    textColor = currentTextColor,
+                    gridItem = gridItem,
+                    data = data,
+                    onTap = {
+                        onTapFolderGridItem(
+                            currentPage,
+                            gridItem.id,
+                        )
+                    },
+                    onLongPress = {
+                        onUpdatePopupMenu(
+                            IntOffset(x = x, y = y),
+                            IntSize(width = width, height = height),
+                        )
+
+                        onLongPressGridItem(
+                            currentPage,
+                            GridItemSource.Existing(gridItem = gridItem),
+                        )
+                    },
+                )
             }
         }
     }
@@ -791,8 +794,7 @@ private fun PopupGridItemMenu(
                 }
 
                 is GridItemData.Widget -> {
-                    val showResize =
-                        data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+                    val showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
                     WidgetGridItemMenu(
                         showResize = showResize,

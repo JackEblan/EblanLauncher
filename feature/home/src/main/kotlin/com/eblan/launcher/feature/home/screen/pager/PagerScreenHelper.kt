@@ -33,7 +33,7 @@ import kotlin.uuid.Uuid
 private const val SwipeThreshold = 100f
 
 @OptIn(ExperimentalUuidApi::class)
-fun handlePinItemRequest(
+suspend fun handlePinItemRequest(
     currentPage: Int,
     drag: Drag,
     pinItemRequestWrapper: PinItemRequestWrapper,
@@ -44,14 +44,14 @@ fun handlePinItemRequest(
 ) {
     val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-    fun getWidgetGridItemSource(
+    suspend fun getWidgetGridItemSource(
         pinItemRequest: PinItemRequest,
         appWidgetProviderInfo: AppWidgetProviderInfo,
     ): GridItemSource {
         val id = Uuid.random().toHexString()
 
         val previewInferred = File(
-            fileManager.widgetsDirectory,
+            fileManager.getDirectory(FileManager.WIDGETS_DIR),
             appWidgetProviderInfo.provider.className,
         ).absolutePath
 
@@ -102,12 +102,15 @@ fun handlePinItemRequest(
         }
     }
 
-    fun getShortcutGridItemSource(
+    suspend fun getShortcutGridItemSource(
         pinItemRequest: PinItemRequest,
         shortcutInfo: ShortcutInfo,
     ): GridItemSource? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            val iconInferred = File(fileManager.shortcutsDirectory, shortcutInfo.id).absolutePath
+            val iconInferred = File(
+                fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
+                shortcutInfo.id,
+            ).absolutePath
 
             val data = GridItemData.ShortcutInfo(
                 shortcutId = shortcutInfo.id,

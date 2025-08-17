@@ -59,7 +59,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             val gridItems = gridCacheRepository.gridCacheItems.first()
 
             val previewInferred = File(
-                fileManager.widgetsDirectory,
+                fileManager.getDirectory(FileManager.WIDGETS_DIR),
                 className,
             ).absolutePath
 

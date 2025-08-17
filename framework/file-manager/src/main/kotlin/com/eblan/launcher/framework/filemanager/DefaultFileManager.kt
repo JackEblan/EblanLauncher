@@ -16,23 +16,12 @@ import javax.inject.Inject
 internal class DefaultFileManager @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-) :
-    FileManager {
-    override val iconsDirectory: File by lazy {
-        File(context.filesDir, "icons").apply {
-            if (!exists()) mkdirs()
-        }
-    }
-
-    override val widgetsDirectory: File by lazy {
-        File(context.filesDir, "widgets").apply {
-            if (!exists()) mkdirs()
-        }
-    }
-
-    override val shortcutsDirectory: File by lazy {
-        File(context.filesDir, "shortcuts").apply {
-            if (!exists()) mkdirs()
+) : FileManager {
+    override suspend fun getDirectory(name: String): File {
+        return withContext(ioDispatcher) {
+            File(context.filesDir, name).apply {
+                if (!exists()) mkdirs()
+            }
         }
     }
 

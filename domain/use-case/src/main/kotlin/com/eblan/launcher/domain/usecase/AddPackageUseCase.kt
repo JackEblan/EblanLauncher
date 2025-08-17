@@ -29,7 +29,7 @@ class AddPackageUseCase @Inject constructor(
 
             val icon = iconByteArray?.let { currentIconByteArray ->
                 fileManager.writeFileBytes(
-                    directory = fileManager.iconsDirectory,
+                    directory = fileManager.getDirectory(FileManager.ICONS_DIR),
                     name = packageName,
                     byteArray = currentIconByteArray,
                 )
@@ -55,7 +55,7 @@ class AddPackageUseCase @Inject constructor(
                     val preview =
                         appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
                             fileManager.writeFileBytes(
-                                directory = fileManager.widgetsDirectory,
+                                directory = fileManager.getDirectory(FileManager.WIDGETS_DIR),
                                 name = appWidgetManagerAppWidgetProviderInfo.className,
                                 byteArray = currentPreview,
                             )

@@ -30,7 +30,7 @@ class ChangePackageUseCase @Inject constructor(
 
             val icon = iconByteArray?.let { currentIconByteArray ->
                 fileManager.writeFileBytes(
-                    directory = fileManager.iconsDirectory,
+                    directory = fileManager.getDirectory(FileManager.ICONS_DIR),
                     name = packageName,
                     byteArray = currentIconByteArray,
                 )
@@ -59,7 +59,7 @@ class ChangePackageUseCase @Inject constructor(
                     val preview =
                         appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
                             fileManager.writeFileBytes(
-                                directory = fileManager.widgetsDirectory,
+                                directory = fileManager.getDirectory(FileManager.WIDGETS_DIR),
                                 name = appWidgetManagerAppWidgetProviderInfo.className,
                                 byteArray = currentPreview,
                             )
@@ -98,7 +98,7 @@ class ChangePackageUseCase @Inject constructor(
 
                 eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
                     fileManager.deleteFile(
-                        directory = fileManager.widgetsDirectory,
+                        directory = fileManager.getDirectory(FileManager.WIDGETS_DIR),
                         name = eblanAppWidgetProviderInfo.className,
                     )
                 }

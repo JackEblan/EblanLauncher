@@ -25,7 +25,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.EblanLauncher.Splash">
+            android:theme="@style/Theme.EblanLauncher.Wallpaper">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,7 +39,6 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:autoRemoveFromRecents="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
@@ -56,6 +55,7 @@
             <intent-filter>
                 <action android:name="android.content.pm.action.CONFIRM_PIN_APPWIDGET" />
                 <action android:name="android.content.pm.action.CONFIRM_PIN_SHORTCUT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

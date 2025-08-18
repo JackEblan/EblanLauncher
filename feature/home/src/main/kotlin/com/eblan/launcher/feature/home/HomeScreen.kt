@@ -4,6 +4,7 @@ import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +27,9 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -221,6 +224,20 @@ fun HomeScreen(
     }
 
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
+        val density = LocalDensity.current
+
+        val horizontalPadding = with(density) {
+            paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
+                .roundToPx() + paddingValues.calculateRightPadding(LayoutDirection.Ltr)
+                .roundToPx()
+        }
+
+        val verticalPadding = with(density) {
+            paddingValues.calculateTopPadding()
+                .roundToPx() + paddingValues.calculateBottomPadding()
+                .roundToPx()
+        }
+
         BoxWithConstraints(
             modifier = modifier
                 .drawWithContent {
@@ -230,7 +247,10 @@ fun HomeScreen(
                         overlayImageBitmap?.let { image ->
                             drawImage(
                                 image = image,
-                                topLeft = overlayIntOffset.toOffset(),
+                                topLeft = overlayIntOffset.toOffset() - IntOffset(
+                                    x = horizontalPadding,
+                                    y = verticalPadding,
+                                ).toOffset(),
                             )
                         }
                     }
@@ -261,65 +281,79 @@ fun HomeScreen(
                     },
                     target = target,
                 )
-                .fillMaxSize()
-                .padding(paddingValues)
-                .consumeWindowInsets(paddingValues),
+                .fillMaxSize(),
         ) {
-            when (homeUiState) {
-                HomeUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
+            val screenWidth = constraints.maxWidth
 
-                is HomeUiState.Success -> {
-                    Success(
-                        screen = screen,
-                        gridItems = homeUiState.homeData.gridItems,
-                        gridItemsByPage = homeUiState.homeData.gridItemsByPage,
-                        userData = homeUiState.homeData.userData,
-                        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                        dockGridItems = homeUiState.homeData.dockGridItems,
-                        pageItems = pageItems,
-                        movedGridItemResult = movedGridItemResult,
-                        rootWidth = constraints.maxWidth,
-                        rootHeight = constraints.maxHeight,
-                        dragIntOffset = dragIntOffset,
-                        drag = drag,
-                        hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
-                        textColor = homeUiState.homeData.textColor,
-                        foldersDataById = foldersDataById,
-                        onMoveGridItem = onMoveGridItem,
-                        onMoveFolderGridItem = onMoveFolderGridItem,
-                        onResizeGridItem = onResizeGridItem,
-                        onShowGridCache = onShowGridCache,
-                        onResetGridCacheAfterResize = onResetGridCacheAfterResize,
-                        onResetGridCacheAfterMove = onResetGridCacheAfterMove,
-                        onCancelGridCacheAfterMove = onCancelGridCacheAfterMove,
-                        onEdit = onEdit,
-                        onSettings = onSettings,
-                        onEditPage = onEditPage,
-                        onSaveEditPage = onSaveEditPage,
-                        onUpdateScreen = onUpdateScreen,
-                        onDeleteGridItemCache = onDeleteGridItemCache,
-                        onUpdateGridItemDataCache = onUpdateGridItemDataCache,
-                        onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                        onShowFolder = onShowFolder,
-                        onRemoveLastFolder = onRemoveLastFolder,
-                        onAddFolder = onAddFolder,
-                        onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
-                        onMoveOutsideFolder = onMoveOutsideFolder,
-                        onUpdateIntOffset = { newDragIntOffset, newOverlayIntOffset ->
-                            dragIntOffset = newDragIntOffset
+            val screenHeight = constraints.maxHeight
 
-                            overlayIntOffset = newOverlayIntOffset
+            val gridWidth = screenWidth - horizontalPadding
 
-                        },
-                        onUpdateOverlayImageBitmap = { imageBitmap ->
-                            overlayImageBitmap = imageBitmap
-                        },
-                        onShowOverlay = { newShowOverlay ->
-                            showOverlay = newShowOverlay
-                        },
-                    )
+            val gridHeight = screenHeight - verticalPadding
+
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .consumeWindowInsets(paddingValues),
+            ) {
+                when (homeUiState) {
+                    HomeUiState.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+
+                    is HomeUiState.Success -> {
+                        Success(
+                            screen = screen,
+                            gridItems = homeUiState.homeData.gridItems,
+                            gridItemsByPage = homeUiState.homeData.gridItemsByPage,
+                            userData = homeUiState.homeData.userData,
+                            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                            dockGridItems = homeUiState.homeData.dockGridItems,
+                            pageItems = pageItems,
+                            movedGridItemResult = movedGridItemResult,
+                            screenWidth = screenWidth,
+                            screenHeight = screenHeight,
+                            gridWidth = gridWidth,
+                            gridHeight = gridHeight,
+                            dragIntOffset = dragIntOffset,
+                            drag = drag,
+                            hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
+                            textColor = homeUiState.homeData.textColor,
+                            foldersDataById = foldersDataById,
+                            onMoveGridItem = onMoveGridItem,
+                            onMoveFolderGridItem = onMoveFolderGridItem,
+                            onResizeGridItem = onResizeGridItem,
+                            onShowGridCache = onShowGridCache,
+                            onResetGridCacheAfterResize = onResetGridCacheAfterResize,
+                            onResetGridCacheAfterMove = onResetGridCacheAfterMove,
+                            onCancelGridCacheAfterMove = onCancelGridCacheAfterMove,
+                            onEdit = onEdit,
+                            onSettings = onSettings,
+                            onEditPage = onEditPage,
+                            onSaveEditPage = onSaveEditPage,
+                            onUpdateScreen = onUpdateScreen,
+                            onDeleteGridItemCache = onDeleteGridItemCache,
+                            onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                            onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+                            onShowFolder = onShowFolder,
+                            onRemoveLastFolder = onRemoveLastFolder,
+                            onAddFolder = onAddFolder,
+                            onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                            onMoveOutsideFolder = onMoveOutsideFolder,
+                            onUpdateIntOffset = { newDragIntOffset, newOverlayIntOffset ->
+                                dragIntOffset = newDragIntOffset
+
+                                overlayIntOffset = newOverlayIntOffset
+
+                            },
+                            onUpdateOverlayImageBitmap = { imageBitmap ->
+                                overlayImageBitmap = imageBitmap
+                            },
+                            onShowOverlay = { newShowOverlay ->
+                                showOverlay = newShowOverlay
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -337,8 +371,10 @@ private fun Success(
     dockGridItems: List<GridItem>,
     pageItems: List<PageItem>,
     movedGridItemResult: MoveGridItemResult?,
-    rootWidth: Int,
-    rootHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dragIntOffset: IntOffset,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
@@ -435,8 +471,10 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
@@ -505,8 +543,8 @@ private fun Success(
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
@@ -550,8 +588,8 @@ private fun Success(
                     dockColumns = userData.homeSettings.dockColumns,
                     gridItems = gridItemsByPage[targetPage],
                     gridItem = gridItemSource?.gridItem,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
@@ -571,7 +609,7 @@ private fun Success(
                 EditPageScreen(
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
-                    rootHeight = rootHeight,
+                    gridHeight = gridHeight,
                     pageItems = pageItems,
                     dockHeight = userData.homeSettings.dockHeight,
                     initialPage = userData.homeSettings.initialPage,
@@ -619,8 +657,8 @@ private fun Success(
                     textColor = textColor,
                     drag = drag,
                     dragIntOffset = dragIntOffset,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                     moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     folderDataById = foldersDataById.last(),

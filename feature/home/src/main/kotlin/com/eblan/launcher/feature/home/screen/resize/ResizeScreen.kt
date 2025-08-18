@@ -41,8 +41,8 @@ fun ResizeScreen(
     dockColumns: Int,
     gridItems: List<GridItem>?,
     gridItem: GridItem?,
-    rootWidth: Int,
-    rootHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
@@ -120,13 +120,13 @@ fun ResizeScreen(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val gridWidth = rootWidth - (gridPaddingPx * 2)
+            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
 
-            val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
 
-            val cellWidth = gridWidth / columns
+            val cellWidth = gridWidthWithPadding / columns
 
-            val cellHeight = gridHeight / rows
+            val cellHeight = gridHeightWithPadding / rows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -139,8 +139,8 @@ fun ResizeScreen(
             ResizeOverlay(
                 gridItem = gridItem,
                 gridPaddingPx = gridPaddingPx,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
+                gridWidth = gridWidthWithPadding,
+                gridHeight = gridHeightWithPadding,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 rows = rows,
@@ -156,13 +156,13 @@ fun ResizeScreen(
         }
 
         Associate.Dock -> {
-            val cellWidth = rootWidth / dockColumns
+            val cellWidth = gridWidth / dockColumns
 
             val cellHeight = dockHeight / dockRows
 
             val x = gridItem.startColumn * cellWidth
 
-            val dockY = (rootHeight - dockHeight) + (gridItem.startRow * cellHeight)
+            val dockY = (gridHeight - dockHeight) + (gridItem.startRow * cellHeight)
 
             val width = gridItem.columnSpan * cellWidth
 
@@ -171,7 +171,7 @@ fun ResizeScreen(
             ResizeOverlay(
                 gridItem = gridItem,
                 gridPaddingPx = 0,
-                gridWidth = rootWidth,
+                gridWidth = gridWidth,
                 gridHeight = dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,

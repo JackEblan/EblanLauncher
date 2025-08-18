@@ -5,7 +5,6 @@ androidTools = "31.7.0"
 androidxActivity = "1.10.1"
 androidxComposeBom = "2025.06.01"
 androidxCoreKtx = "1.13.1"
-androidxCoreSplashscreen = "1.0.1"
 androidxDataStore = "1.1.1"
 androidxHiltNavigationCompose = "1.2.0"
 androidxLifeCycle = "2.8.6"
@@ -37,7 +36,6 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
-androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidxCoreSplashscreen" }
 androidx-dataStore-core = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycleViewModelCompose" }

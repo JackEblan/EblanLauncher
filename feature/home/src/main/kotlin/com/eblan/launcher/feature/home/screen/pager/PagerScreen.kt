@@ -84,8 +84,10 @@ fun PagerScreen(
     dockGridItems: List<GridItem>,
     textColor: Long,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    rootWidth: Int,
-    rootHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
@@ -131,20 +133,20 @@ fun PagerScreen(
 
     var showDoubleTap by remember { mutableStateOf(false) }
 
-    val swipeUpY = remember { Animatable(rootHeight.toFloat()) }
+    val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
-    val swipeDownY = remember { Animatable(rootHeight.toFloat()) }
+    val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
 
     val scope = rememberCoroutineScope()
 
     val applicationComponentY by remember {
         derivedStateOf {
-            if (swipeUpY.value < rootHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+            if (swipeUpY.value < screenHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
                 swipeUpY.value
-            } else if (swipeDownY.value < rootHeight && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+            } else if (swipeDownY.value < screenHeight && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
                 swipeDownY.value
             } else {
-                rootHeight.toFloat()
+                screenHeight.toFloat()
             }
         }
     }
@@ -164,7 +166,7 @@ fun PagerScreen(
                         gestureSettings = gestureSettings,
                         swipeUpY = swipeUpY.value,
                         swipeDownY = swipeDownY.value,
-                        rootHeight = rootHeight,
+                        rootHeight = screenHeight,
                         onStartMainActivity = launcherApps::startMainActivity,
                     )
 
@@ -172,15 +174,15 @@ fun PagerScreen(
                         scope = scope,
                         gestureSettings = gestureSettings,
                         swipeDownY = swipeDownY,
-                        rootHeight = rootHeight,
+                        rootHeight = screenHeight,
                         swipeUpY = swipeUpY,
                     )
                 },
                 onDragCancel = {
                     scope.launch {
-                        swipeUpY.animateTo(rootHeight.toFloat())
+                        swipeUpY.animateTo(screenHeight.toFloat())
 
-                        swipeDownY.animateTo(rootHeight.toFloat())
+                        swipeDownY.animateTo(screenHeight.toFloat())
                     }
                 },
             )
@@ -194,11 +196,11 @@ fun PagerScreen(
         dockColumns = dockColumns,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
+        gridWidth = gridWidth,
+        gridHeight = gridHeight,
         dockHeight = dockHeight,
         dockGridItems = dockGridItems,
         textColor = textColor,
-        rootWidth = rootWidth,
-        rootHeight = rootHeight,
         drag = drag,
         hasShortcutHostPermission = hasShortcutHostPermission,
         wallpaperScroll = wallpaperScroll,
@@ -231,8 +233,8 @@ fun PagerScreen(
             appDrawerColumns = appDrawerColumns,
             pageCount = pageCount,
             infiniteScroll = infiniteScroll,
-            rootWidth = rootWidth,
-            rootHeight = rootHeight,
+            rootWidth = screenWidth,
+            rootHeight = screenHeight,
             dockHeight = dockHeight,
             drag = drag,
             gridItemSource = gridItemSource,
@@ -243,20 +245,20 @@ fun PagerScreen(
             onDragging = onDraggingGridItem,
             onDismiss = {
                 scope.launch {
-                    swipeUpY.snapTo(rootHeight.toFloat())
+                    swipeUpY.snapTo(screenHeight.toFloat())
 
-                    swipeDownY.snapTo(rootHeight.toFloat())
+                    swipeDownY.snapTo(screenHeight.toFloat())
                 }
             },
             onAnimateDismiss = {
                 scope.launch {
                     swipeUpY.animateTo(
-                        targetValue = rootHeight.toFloat(),
+                        targetValue = screenHeight.toFloat(),
                         animationSpec = tween(500),
                     )
 
                     swipeDownY.animateTo(
-                        targetValue = rootHeight.toFloat(),
+                        targetValue = screenHeight.toFloat(),
                         animationSpec = tween(500),
                     )
                 }
@@ -275,7 +277,7 @@ fun PagerScreen(
             }
 
             GestureAction.OpenAppDrawer -> {
-                val animatedSwipeUpY = remember { Animatable(rootHeight.toFloat()) }
+                val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
                 LaunchedEffect(key1 = animatedSwipeUpY) {
                     animatedSwipeUpY.animateTo(0f)
@@ -292,8 +294,8 @@ fun PagerScreen(
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
-                    rootWidth = rootWidth,
-                    rootHeight = rootHeight,
+                    rootWidth = screenWidth,
+                    rootHeight = screenHeight,
                     dockHeight = dockHeight,
                     drag = drag,
                     gridItemSource = gridItemSource,
@@ -308,7 +310,7 @@ fun PagerScreen(
                     onAnimateDismiss = {
                         scope.launch {
                             animatedSwipeUpY.animateTo(
-                                targetValue = rootHeight.toFloat(),
+                                targetValue = screenHeight.toFloat(),
                                 animationSpec = tween(500),
                             )
 
@@ -337,14 +339,14 @@ private fun HorizontalPagerScreen(
     dockColumns: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
     gridItemSettings: GridItemSettings,
     gridItemSource: GridItemSource?,
     onLongPressGrid: (Int) -> Unit,
-    rootWidth: Int,
-    rootHeight: Int,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     wallpaperScroll: Boolean,
@@ -475,8 +477,8 @@ private fun HorizontalPagerScreen(
                         gridItem = gridItem,
                         rows = rows,
                         columns = columns,
-                        gridWidth = rootWidth,
-                        gridHeight = rootHeight - dockHeight,
+                        gridWidth = gridWidth,
+                        gridHeight = gridHeight - dockHeight,
                         gridItemSettings = gridItemSettings,
                         textColor = textColor,
                         hasShortcutHostPermission = hasShortcutHostPermission,
@@ -510,7 +512,7 @@ private fun HorizontalPagerScreen(
                     gridItem = gridItem,
                     rows = dockRows,
                     columns = dockColumns,
-                    gridWidth = rootWidth,
+                    gridWidth = gridWidth,
                     gridHeight = dockHeight,
                     gridItemSettings = gridItemSettings,
                     textColor = textColor,
@@ -557,7 +559,7 @@ private fun HorizontalPagerScreen(
                     currentPage = currentPage,
                     gridItem = gridItem,
                     x = popupMenuIntOffset.x,
-                    y = (rootHeight - dockHeight) + popupMenuIntOffset.y,
+                    y = (gridHeight - dockHeight) + popupMenuIntOffset.y,
                     width = popupMenuIntSize.width,
                     height = popupMenuIntSize.height,
                     onEdit = onEdit,

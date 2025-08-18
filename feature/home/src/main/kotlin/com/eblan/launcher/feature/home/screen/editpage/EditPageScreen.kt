@@ -55,7 +55,7 @@ fun EditPageScreen(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    rootHeight: Int,
+    gridHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
     initialPage: Int,
@@ -83,8 +83,8 @@ fun EditPageScreen(
             currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
         }
 
-    val gridHeight = with(density) {
-        ((rootHeight - dockHeight) / 2).toDp()
+    val cardHeight = with(density) {
+        ((gridHeight - dockHeight) / 2).toDp()
     }
 
     BackHandler {
@@ -117,7 +117,7 @@ fun EditPageScreen(
                         border = BorderStroke(width = 2.dp, color = Color(textColor)),
                     ) {
                         GridLayout(
-                            modifier = Modifier.height(gridHeight),
+                            modifier = Modifier.height(cardHeight),
                             rows = rows,
                             columns = columns,
                         ) {

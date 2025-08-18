@@ -17,14 +17,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -33,7 +41,214 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Screen
+import kotlinx.coroutines.launch
+
+@Composable
+fun TestInteractiveApplicationInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.ApplicationInfo,
+    onTap: () -> Unit,
+    onLongPress: (
+        imageBitmap: ImageBitmap,
+        intOffset: IntOffset,
+    ) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    ApplicationInfoGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(Unit) {
+                detectTapGesturesUnConsume(
+                    onLongPress = { offset ->
+                        scope.launch {
+                            onLongPress(
+                                graphicsLayer.toImageBitmap(),
+                                offset.round(),
+                            )
+                        }
+                    },
+                    onTap = {
+                        onTap()
+                    },
+                )
+            },
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+    )
+}
+
+@Composable
+fun TestInteractiveWidgetGridItem(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    gridItemData: GridItemData.Widget,
+    onLongPress: (
+        imageBitmap: ImageBitmap,
+        intOffset: IntOffset,
+    ) -> Unit,
+) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = gridItemData.appWidgetId)
+
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    if (appWidgetInfo != null) {
+        AndroidView(
+            factory = {
+                appWidgetHost.createView(
+                    appWidgetId = gridItemData.appWidgetId,
+                    appWidgetProviderInfo = appWidgetInfo,
+                ).apply {
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                    )
+
+                    setAppWidget(appWidgetId, appWidgetInfo)
+                }
+            },
+            modifier = modifier
+                .gridItem(gridItem)
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(graphicsLayer)
+                }
+                .pointerInput(Unit) {
+                    detectTapGesturesUnConsume(
+                        requireUnconsumed = false,
+                        onLongPress = { offset ->
+                            scope.launch {
+                                onLongPress(
+                                    graphicsLayer.toImageBitmap(),
+                                    offset.round(),
+                                )
+                            }
+                        },
+                    )
+                },
+        )
+    }
+}
+
+@Composable
+fun TestInteractiveShortcutInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.ShortcutInfo,
+    onTap: () -> Unit,
+    onLongPress: (
+        imageBitmap: ImageBitmap,
+        intOffset: IntOffset,
+    ) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    ShortcutInfoGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(Unit) {
+                detectTapGesturesUnConsume(
+                    onLongPress = { offset ->
+                        scope.launch {
+                            onLongPress(
+                                graphicsLayer.toImageBitmap(),
+                                offset.round(),
+                            )
+                        }
+                    },
+                    onTap = {
+                        onTap()
+                    },
+                )
+            },
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+    )
+}
+
+@Composable
+fun TestInteractiveFolderGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    onTap: () -> Unit,
+    onLongPress: (
+        imageBitmap: ImageBitmap,
+        intOffset: IntOffset,
+    ) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    FolderGridItem(
+        modifier = modifier
+            .gridItem(gridItem)
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(Unit) {
+                detectTapGesturesUnConsume(
+                    onLongPress = { offset ->
+                        scope.launch {
+                            onLongPress(
+                                graphicsLayer.toImageBitmap(),
+                                offset.round(),
+                            )
+                        }
+                    },
+                    onTap = {
+                        onTap()
+                    },
+                )
+            },
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+    )
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

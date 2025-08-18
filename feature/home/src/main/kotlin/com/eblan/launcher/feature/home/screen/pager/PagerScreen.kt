@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -46,10 +47,10 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
-import com.eblan.launcher.feature.home.component.grid.InteractiveShortcutInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.InteractiveWidgetGridItem
+import com.eblan.launcher.feature.home.component.grid.TestInteractiveApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.TestInteractiveFolderGridItem
+import com.eblan.launcher.feature.home.component.grid.TestInteractiveShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.TestInteractiveWidgetGridItem
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.SettingsMenu
@@ -107,6 +108,13 @@ fun PagerScreen(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
+    onTestLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
+    ) -> Unit,
 ) {
     val launcherApps = LocalLauncherApps.current
 
@@ -208,6 +216,7 @@ fun PagerScreen(
         onDoubleTap = {
             showDoubleTap = true
         },
+        onTestLongPressGridItem = onTestLongPressGridItem,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
@@ -354,6 +363,13 @@ private fun HorizontalPagerScreen(
     onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onDoubleTap: () -> Unit,
+    onTestLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
+    ) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -475,6 +491,7 @@ private fun HorizontalPagerScreen(
                         onLongPressGridItem = onLongPressGridItem,
                         onTapShortcutInfo = launcherApps::startShortcut,
                         onTapFolderGridItem = onTapFolderGridItem,
+                        onTestLongPressGridItem = onTestLongPressGridItem,
                     )
                 }
             }
@@ -509,6 +526,7 @@ private fun HorizontalPagerScreen(
                     onLongPressGridItem = onLongPressGridItem,
                     onTapShortcutInfo = launcherApps::startShortcut,
                     onTapFolderGridItem = onTapFolderGridItem,
+                    onTestLongPressGridItem = onTestLongPressGridItem,
                 )
             }
         }
@@ -608,6 +626,13 @@ private fun GridItemContent(
         currentPage: Int,
         shortcutId: String,
     ) -> Unit,
+    onTestLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
+    ) -> Unit,
 ) {
     val cellWidth = gridWidth / columns
 
@@ -647,7 +672,7 @@ private fun GridItemContent(
 
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
-            InteractiveApplicationInfoGridItem(
+            TestInteractiveApplicationInfoGridItem(
                 textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
                 gridItem = gridItem,
@@ -655,40 +680,54 @@ private fun GridItemContent(
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
-                onLongPress = {
+                onLongPress = { imageBitmap, intOffset ->
+                    val dragX = x + intOffset.x
+
+                    val dragY = y + intOffset.y
+
                     onUpdatePopupMenu(
                         IntOffset(x = x, y = y),
                         IntSize(width = width, height = height),
                     )
 
-                    onLongPressGridItem(
+                    onTestLongPressGridItem(
                         currentPage,
                         GridItemSource.Existing(gridItem = gridItem),
+                        imageBitmap,
+                        IntOffset(x = dragX, y = dragY),
+                        IntOffset(x = x, y = y),
                     )
                 },
             )
         }
 
         is GridItemData.Widget -> {
-            InteractiveWidgetGridItem(
+            TestInteractiveWidgetGridItem(
                 gridItem = gridItem,
                 gridItemData = data,
-                onLongPress = {
+                onLongPress = { imageBitmap, intOffset ->
+                    val dragX = x + intOffset.x
+
+                    val dragY = y + intOffset.y
+
                     onUpdatePopupMenu(
                         IntOffset(x = x, y = y),
                         IntSize(width = width, height = height),
                     )
 
-                    onLongPressGridItem(
+                    onTestLongPressGridItem(
                         currentPage,
                         GridItemSource.Existing(gridItem = gridItem),
+                        imageBitmap,
+                        IntOffset(x = dragX, y = dragY),
+                        IntOffset(x = x, y = y),
                     )
                 },
             )
         }
 
         is GridItemData.ShortcutInfo -> {
-            InteractiveShortcutInfoGridItem(
+            TestInteractiveShortcutInfoGridItem(
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
                 gridItem = gridItem,
@@ -701,22 +740,29 @@ private fun GridItemContent(
                         )
                     }
                 },
-                onLongPress = {
+                onLongPress = { imageBitmap, intOffset ->
+                    val dragX = x + intOffset.x
+
+                    val dragY = y + intOffset.y
+
                     onUpdatePopupMenu(
                         IntOffset(x = x, y = y),
                         IntSize(width = width, height = height),
                     )
 
-                    onLongPressGridItem(
+                    onTestLongPressGridItem(
                         currentPage,
                         GridItemSource.Existing(gridItem = gridItem),
+                        imageBitmap,
+                        IntOffset(x = dragX, y = dragY),
+                        IntOffset(x = x, y = y),
                     )
                 },
             )
         }
 
         is GridItemData.Folder -> {
-            InteractiveFolderGridItem(
+            TestInteractiveFolderGridItem(
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
                 gridItem = gridItem,
@@ -727,15 +773,22 @@ private fun GridItemContent(
                         gridItem.id,
                     )
                 },
-                onLongPress = {
+                onLongPress = { imageBitmap, intOffset ->
+                    val dragX = x + intOffset.x
+
+                    val dragY = y + intOffset.y
+
                     onUpdatePopupMenu(
                         IntOffset(x = x, y = y),
                         IntSize(width = width, height = height),
                     )
 
-                    onLongPressGridItem(
+                    onTestLongPressGridItem(
                         currentPage,
                         GridItemSource.Existing(gridItem = gridItem),
+                        imageBitmap,
+                        IntOffset(x = dragX, y = dragY),
+                        IntOffset(x = x, y = y),
                     )
                 },
             )

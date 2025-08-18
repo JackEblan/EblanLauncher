@@ -3,6 +3,7 @@ package com.eblan.launcher.feature.home
 import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +22,13 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.FolderDataById
@@ -160,9 +166,15 @@ fun HomeScreen(
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
+    var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var overlayImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
     var drag by remember { mutableStateOf(Drag.None) }
 
     var dragStartOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var showOverlay by remember { mutableStateOf(false) }
 
     val target = remember {
         object : DragAndDropTarget {
@@ -211,6 +223,38 @@ fun HomeScreen(
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         BoxWithConstraints(
             modifier = modifier
+                .drawWithContent {
+                    drawContent()
+
+                    if (showOverlay) {
+                        overlayImageBitmap?.let { image ->
+                            drawImage(
+                                image = image,
+                                topLeft = overlayIntOffset.toOffset(),
+                            )
+                        }
+                    }
+                }
+                .pointerInput(Unit) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
+                            drag = Drag.Start
+                        },
+                        onDragEnd = {
+                            drag = Drag.End
+                        },
+                        onDragCancel = {
+                            drag = Drag.Cancel
+                        },
+                        onDrag = { _, dragAmount ->
+                            drag = Drag.Dragging
+
+                            dragIntOffset += dragAmount.round()
+
+                            overlayIntOffset += dragAmount.round()
+                        },
+                    )
+                }
                 .dragAndDropTarget(
                     shouldStartDragAndDrop = { event ->
                         event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
@@ -263,6 +307,18 @@ fun HomeScreen(
                         onAddFolder = onAddFolder,
                         onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                         onMoveOutsideFolder = onMoveOutsideFolder,
+                        onUpdateIntOffset = { newDragIntOffset, newOverlayIntOffset ->
+                            dragIntOffset = newDragIntOffset
+
+                            overlayIntOffset = newOverlayIntOffset
+
+                        },
+                        onUpdateOverlayImageBitmap = { imageBitmap ->
+                            overlayImageBitmap = imageBitmap
+                        },
+                        onShowOverlay = { newShowOverlay ->
+                            showOverlay = newShowOverlay
+                        },
                     )
                 }
             }
@@ -341,6 +397,12 @@ private fun Success(
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: () -> Unit,
+    onUpdateIntOffset: (
+        dragIntOffset: IntOffset,
+        overlayIntOffset: IntOffset,
+    ) -> Unit,
+    onUpdateOverlayImageBitmap: (ImageBitmap?) -> Unit,
+    onShowOverlay: (Boolean) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -403,6 +465,8 @@ private fun Success(
                         targetPage = newTargetPage
 
                         onShowGridCache(gridItems, Screen.Resize)
+
+                        onShowOverlay(false)
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
@@ -410,6 +474,20 @@ private fun Success(
                         gridItemSource = newGridItemSource
 
                         onShowGridCache(gridItems, Screen.Drag)
+                    },
+                    onTestLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap, newDragIntOffset, newOverlayIntOffset ->
+                        targetPage = newCurrentPage
+
+                        gridItemSource = newGridItemSource
+
+                        onUpdateIntOffset(
+                            newDragIntOffset,
+                            newOverlayIntOffset,
+                        )
+
+                        onUpdateOverlayImageBitmap(imageBitmap)
+
+                        onShowOverlay(true)
                     },
                 )
             }
@@ -437,16 +515,22 @@ private fun Success(
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = { newTargetPage ->
                         onResetGridCacheAfterResize(newTargetPage)
+
+                        onShowOverlay(false)
                     },
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
 
                         onResetGridCacheAfterMove(movingGridItem, conflictingGridItem)
+
+                        onShowOverlay(false)
                     },
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage
 
                         onCancelGridCacheAfterMove()
+
+                        onShowOverlay(false)
                     },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,

@@ -2,12 +2,14 @@ package com.eblan.launcher.feature.home
 
 import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -23,7 +25,6 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -31,7 +32,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.toOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.FolderDataById
@@ -226,35 +226,28 @@ fun HomeScreen(
     Scaffold(containerColor = Color.Transparent) { paddingValues ->
         val density = LocalDensity.current
 
-        val horizontalPadding = with(density) {
-            paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
-                .roundToPx() + paddingValues.calculateRightPadding(LayoutDirection.Ltr)
-                .roundToPx()
+        val leftPadding = with(density) {
+            paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
         }
 
-        val verticalPadding = with(density) {
-            paddingValues.calculateTopPadding()
-                .roundToPx() + paddingValues.calculateBottomPadding()
-                .roundToPx()
+        val rightPadding = with(density) {
+            paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
         }
+
+        val topPadding = with(density) {
+            paddingValues.calculateTopPadding().roundToPx()
+        }
+
+        val bottomPadding = with(density) {
+            paddingValues.calculateBottomPadding().roundToPx()
+        }
+
+        val horizontalPadding = leftPadding + rightPadding
+
+        val verticalPadding = topPadding + bottomPadding
 
         BoxWithConstraints(
             modifier = modifier
-                .drawWithContent {
-                    drawContent()
-
-                    if (showOverlay) {
-                        overlayImageBitmap?.let { image ->
-                            drawImage(
-                                image = image,
-                                topLeft = overlayIntOffset.toOffset() - IntOffset(
-                                    x = horizontalPadding,
-                                    y = verticalPadding,
-                                ).toOffset(),
-                            )
-                        }
-                    }
-                }
                 .pointerInput(Unit) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = {
@@ -293,6 +286,7 @@ fun HomeScreen(
 
             Box(
                 modifier = Modifier
+                    .matchParentSize()
                     .padding(paddingValues)
                     .consumeWindowInsets(paddingValues),
             ) {
@@ -355,6 +349,16 @@ fun HomeScreen(
                         )
                     }
                 }
+            }
+
+            if (showOverlay) {
+                OverlayImage(
+                    overlayIntOffset = overlayIntOffset + IntOffset(
+                        x = leftPadding,
+                        y = topPadding,
+                    ),
+                    overlayImageBitmap = overlayImageBitmap,
+                )
             }
         }
     }
@@ -679,4 +683,21 @@ private fun Success(
             }
         }
     }
+}
+
+@Composable
+private fun OverlayImage(
+    modifier: Modifier = Modifier,
+    overlayIntOffset: IntOffset,
+    overlayImageBitmap: ImageBitmap?,
+) {
+    requireNotNull(overlayImageBitmap)
+
+    Image(
+        modifier = modifier.offset {
+            overlayIntOffset
+        },
+        bitmap = overlayImageBitmap,
+        contentDescription = null,
+    )
 }

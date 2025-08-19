@@ -177,8 +177,6 @@ fun HomeScreen(
 
     var dragStartOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    var showOverlay by remember { mutableStateOf(false) }
-
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
@@ -347,23 +345,19 @@ fun HomeScreen(
 
                                 overlayImageBitmap = imageBitmap
                             },
-                            onShowOverlay = { newShowOverlay ->
-                                showOverlay = newShowOverlay
-                            },
                         )
                     }
                 }
             }
 
-            if (showOverlay) {
-                OverlayImage(
-                    overlayIntOffset = overlayIntOffset + IntOffset(
-                        x = leftPadding,
-                        y = topPadding,
-                    ),
-                    overlayImageBitmap = overlayImageBitmap,
-                )
-            }
+            OverlayImage(
+                drag = drag,
+                overlayIntOffset = overlayIntOffset + IntOffset(
+                    x = leftPadding,
+                    y = topPadding,
+                ),
+                overlayImageBitmap = overlayImageBitmap,
+            )
         }
     }
 }
@@ -445,7 +439,6 @@ private fun Success(
         intOffset: IntOffset,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onShowOverlay: (Boolean) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -510,8 +503,6 @@ private fun Success(
                         targetPage = newTargetPage
 
                         onShowGridCache(gridItems, Screen.Resize)
-
-                        onShowOverlay(false)
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
@@ -526,8 +517,6 @@ private fun Success(
                         gridItemSource = newGridItemSource
 
                         onUpdateOverlay(intOffset, imageBitmap)
-
-                        onShowOverlay(true)
                     },
                 )
             }
@@ -553,24 +542,16 @@ private fun Success(
                     moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     onMoveGridItem = onMoveGridItem,
-                    onDragCancel = { newTargetPage ->
-                        onResetGridCacheAfterResize(newTargetPage)
-
-                        onShowOverlay(false)
-                    },
+                    onDragCancel = onResetGridCacheAfterResize,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
 
                         onResetGridCacheAfterMove(movingGridItem, conflictingGridItem)
-
-                        onShowOverlay(false)
                     },
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage
 
                         onCancelGridCacheAfterMove()
-
-                        onShowOverlay(false)
                     },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
@@ -686,16 +667,25 @@ private fun Success(
 @Composable
 private fun OverlayImage(
     modifier: Modifier = Modifier,
+    drag: Drag,
     overlayIntOffset: IntOffset,
     overlayImageBitmap: ImageBitmap?,
 ) {
-    requireNotNull(overlayImageBitmap)
+    if (overlayImageBitmap != null) {
+        when (drag) {
+            Drag.Start, Drag.Dragging -> {
+                Image(
+                    modifier = modifier.offset {
+                        overlayIntOffset
+                    },
+                    bitmap = overlayImageBitmap,
+                    contentDescription = null,
+                )
+            }
 
-    Image(
-        modifier = modifier.offset {
-            overlayIntOffset
-        },
-        bitmap = overlayImageBitmap,
-        contentDescription = null,
-    )
+            else -> {
+
+            }
+        }
+    }
 }

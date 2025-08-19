@@ -261,6 +261,7 @@ fun PagerScreen(
                     )
                 }
             },
+            onTestLongPressGridItem = onTestLongPressGridItem,
         )
     }
 
@@ -315,6 +316,7 @@ fun PagerScreen(
                             showDoubleTap = false
                         }
                     },
+                    onTestLongPressGridItem = onTestLongPressGridItem,
                 )
             }
 
@@ -807,6 +809,12 @@ private fun ApplicationComponentScreen(
     onDragging: () -> Unit,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
+    onTestLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        intOffset: IntOffset,
+    ) -> Unit,
 ) {
     var alpha by remember { mutableFloatStateOf(1f) }
 
@@ -815,9 +823,11 @@ private fun ApplicationComponentScreen(
     }
 
     Surface(
+        onClick = {},
         modifier = modifier
             .graphicsLayer(alpha = alpha)
             .fillMaxSize(),
+        enabled = false,
     ) {
         when (eblanApplicationComponentUiState) {
             EblanApplicationComponentUiState.Loading -> {
@@ -849,7 +859,7 @@ private fun ApplicationComponentScreen(
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
                                 gridItemSource = gridItemSource,
-                                onLongPress = onLongPress,
+                                onTestLongPressGridItem = onTestLongPressGridItem,
                                 onDragging = onDragging,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha

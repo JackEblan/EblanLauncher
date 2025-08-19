@@ -1,9 +1,5 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import android.content.ClipData
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,9 +21,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -43,17 +43,19 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
@@ -66,9 +68,11 @@ fun ApplicationScreen(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     gridItemSource: GridItemSource?,
-    onLongPress: (
+    onTestLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        intOffset: IntOffset,
     ) -> Unit,
     onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
@@ -109,15 +113,6 @@ fun ApplicationScreen(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
-            showPopupApplicationMenu = false
-
-            onDragging()
-        }
-    }
-
-
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -129,6 +124,7 @@ fun ApplicationScreen(
             else -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(count = appDrawerColumns),
+                    modifier = Modifier.matchParentSize(),
                     overscrollEffect = overscrollEffect,
                 ) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
@@ -136,83 +132,112 @@ fun ApplicationScreen(
 
                         var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-                        Column(
-                            modifier = Modifier
-                                .dragAndDropSource(
-                                    block = {
-                                        detectTapGestures(
+                        val graphicsLayer = rememberGraphicsLayer()
+
+                        var show by remember { mutableStateOf(true) }
+
+                        LaunchedEffect(key1 = drag) {
+                            when (drag) {
+                                Drag.Dragging -> {
+                                    if (gridItemSource != null) {
+                                        showPopupApplicationMenu = false
+
+                                        onDragging()
+                                    }
+                                }
+
+                                Drag.Cancel, Drag.End -> {
+                                    if (!show) {
+                                        show = true
+                                    }
+                                }
+
+                                else -> Unit
+                            }
+                        }
+
+                        if (show) {
+                            Column(
+                                modifier = Modifier
+                                    .drawWithContent {
+                                        graphicsLayer.record {
+                                            this@drawWithContent.drawContent()
+                                        }
+
+                                        drawLayer(graphicsLayer)
+                                    }
+                                    .pointerInput(Unit) {
+                                        detectTapGesturesUnConsume(
                                             onLongPress = {
-                                                showPopupApplicationMenu = true
+                                                scope.launch {
+                                                    showPopupApplicationMenu = true
 
-                                                popupMenuIntOffset = intOffset
+                                                    popupMenuIntOffset = intOffset
 
-                                                popupMenuIntSize = intSize
+                                                    popupMenuIntSize = intSize
 
-                                                val data = GridItemData.ApplicationInfo(
-                                                    componentName = eblanApplicationInfo.componentName,
-                                                    packageName = eblanApplicationInfo.packageName,
-                                                    icon = eblanApplicationInfo.icon,
-                                                    label = eblanApplicationInfo.label,
-                                                )
-                                                onLongPress(
-                                                    page,
-                                                    GridItemSource.New(
-                                                        gridItem = GridItem(
-                                                            id = Uuid.random().toHexString(),
-                                                            folderId = null,
-                                                            page = page,
-                                                            startRow = 0,
-                                                            startColumn = 0,
-                                                            rowSpan = 1,
-                                                            columnSpan = 1,
-                                                            data = data,
-                                                            associate = Associate.Grid,
-                                                            override = false,
-                                                            gridItemSettings = gridItemSettings,
+                                                    val data = GridItemData.ApplicationInfo(
+                                                        componentName = eblanApplicationInfo.componentName,
+                                                        packageName = eblanApplicationInfo.packageName,
+                                                        icon = eblanApplicationInfo.icon,
+                                                        label = eblanApplicationInfo.label,
+                                                    )
+
+                                                    onTestLongPressGridItem(
+                                                        page,
+                                                        GridItemSource.New(
+                                                            gridItem = GridItem(
+                                                                id = Uuid.random().toHexString(),
+                                                                folderId = null,
+                                                                page = page,
+                                                                startRow = 0,
+                                                                startColumn = 0,
+                                                                rowSpan = 1,
+                                                                columnSpan = 1,
+                                                                data = data,
+                                                                associate = Associate.Grid,
+                                                                override = false,
+                                                                gridItemSettings = gridItemSettings,
+                                                            ),
                                                         ),
-                                                    ),
-                                                )
+                                                        graphicsLayer.toImageBitmap(),
+                                                        intOffset,
+                                                    )
 
-                                                startTransfer(
-                                                    DragAndDropTransferData(
-                                                        clipData = ClipData.newPlainText(
-                                                            "Drag",
-                                                            "Drag",
-                                                        ),
-                                                    ),
-                                                )
+                                                    show = false
+                                                }
                                             },
                                         )
-                                    },
+                                    }
+                                    .onGloballyPositioned { layoutCoordinates ->
+                                        intOffset = layoutCoordinates.positionInParent().round()
+
+                                        intSize = layoutCoordinates.size
+                                    }
+                                    .height(appDrawerRowsHeightDp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Spacer(modifier = Modifier.height(5.dp))
+
+                                AsyncImage(
+                                    model = eblanApplicationInfo.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp, 40.dp),
                                 )
-                                .onGloballyPositioned { layoutCoordinates ->
-                                    intOffset = layoutCoordinates.positionInRoot().round()
 
-                                    intSize = layoutCoordinates.size
-                                }
-                                .height(appDrawerRowsHeightDp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Spacer(modifier = Modifier.height(5.dp))
+                                Spacer(modifier = Modifier.height(10.dp))
 
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp, 40.dp),
-                            )
+                                Text(
+                                    text = eblanApplicationInfo.label.toString(),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = TextUnit(
+                                        value = 10f,
+                                        type = TextUnitType.Sp,
+                                    ),
+                                )
 
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Text(
-                                text = eblanApplicationInfo.label.toString(),
-                                textAlign = TextAlign.Center,
-                                fontSize = TextUnit(
-                                    value = 10f,
-                                    type = TextUnitType.Sp,
-                                ),
-                            )
-
-                            Spacer(modifier = Modifier.height(5.dp))
+                                Spacer(modifier = Modifier.height(5.dp))
+                            }
                         }
                     }
                 }

@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.component.grid
 
 import android.content.ClipData
 import android.widget.FrameLayout
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -66,9 +67,24 @@ fun TestInteractiveApplicationInfoGridItem(
 
     var show by remember { mutableStateOf(true) }
 
+    val scale = remember { Animatable(1f) }
+
     LaunchedEffect(key1 = drag) {
-        if (!show && (drag == Drag.Cancel || drag == Drag.End)) {
-            show = true
+        if (scale.value == 1.1f) {
+            when (drag) {
+                Drag.Dragging -> {
+                    show = false
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    scale.animateTo(targetValue = 1f)
+
+                    show = true
+                }
+
+                else -> Unit
+            }
+
         }
     }
 
@@ -81,7 +97,12 @@ fun TestInteractiveApplicationInfoGridItem(
                         this@drawWithContent.drawContent()
                     }
 
-                    drawLayer(graphicsLayer)
+                    drawLayer(
+                        graphicsLayer.apply {
+                            scaleX = scale.value
+                            scaleY = scale.value
+                        },
+                    )
                 }
                 .pointerInput(Unit) {
                     detectTapGesturesUnConsume(
@@ -89,7 +110,9 @@ fun TestInteractiveApplicationInfoGridItem(
                             scope.launch {
                                 onLongPress(graphicsLayer.toImageBitmap())
 
-                                show = false
+                                scale.animateTo(targetValue = 0.5f)
+
+                                scale.animateTo(targetValue = 1.1f)
                             }
                         },
                         onTap = {
@@ -124,9 +147,24 @@ fun TestInteractiveWidgetGridItem(
 
     var show by remember { mutableStateOf(true) }
 
+    val scale = remember { Animatable(1f) }
+
     LaunchedEffect(key1 = drag) {
-        if (!show && (drag == Drag.Cancel || drag == Drag.End)) {
-            show = true
+        if (scale.value == 1.1f) {
+            when (drag) {
+                Drag.Dragging -> {
+                    show = false
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    scale.animateTo(targetValue = 1f)
+
+                    show = true
+                }
+
+                else -> Unit
+            }
+
         }
     }
 
@@ -152,7 +190,12 @@ fun TestInteractiveWidgetGridItem(
                         this@drawWithContent.drawContent()
                     }
 
-                    drawLayer(graphicsLayer)
+                    drawLayer(
+                        graphicsLayer.apply {
+                            scaleX = scale.value
+                            scaleY = scale.value
+                        },
+                    )
                 }
                 .pointerInput(Unit) {
                     detectTapGesturesUnConsume(
@@ -161,7 +204,9 @@ fun TestInteractiveWidgetGridItem(
                             scope.launch {
                                 onLongPress(graphicsLayer.toImageBitmap())
 
-                                show = false
+                                scale.animateTo(targetValue = 0.5f)
+
+                                scale.animateTo(targetValue = 1.1f)
                             }
                         },
                     )
@@ -187,9 +232,24 @@ fun TestInteractiveShortcutInfoGridItem(
 
     var show by remember { mutableStateOf(true) }
 
+    val scale = remember { Animatable(1f) }
+
     LaunchedEffect(key1 = drag) {
-        if (!show && (drag == Drag.Cancel || drag == Drag.End)) {
-            show = true
+        if (scale.value == 1.1f) {
+            when (drag) {
+                Drag.Dragging -> {
+                    show = false
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    scale.animateTo(targetValue = 1f)
+
+                    show = true
+                }
+
+                else -> Unit
+            }
+
         }
     }
 
@@ -202,7 +262,12 @@ fun TestInteractiveShortcutInfoGridItem(
                         this@drawWithContent.drawContent()
                     }
 
-                    drawLayer(graphicsLayer)
+                    drawLayer(
+                        graphicsLayer.apply {
+                            scaleX = scale.value
+                            scaleY = scale.value
+                        },
+                    )
                 }
                 .pointerInput(Unit) {
                     detectTapGesturesUnConsume(
@@ -210,7 +275,9 @@ fun TestInteractiveShortcutInfoGridItem(
                             scope.launch {
                                 onLongPress(graphicsLayer.toImageBitmap())
 
-                                show = false
+                                scale.animateTo(targetValue = 0.5f)
+
+                                scale.animateTo(targetValue = 1.1f)
                             }
                         },
                         onTap = {
@@ -242,9 +309,24 @@ fun TestInteractiveFolderGridItem(
 
     var show by remember { mutableStateOf(true) }
 
+    val scale = remember { Animatable(1f) }
+
     LaunchedEffect(key1 = drag) {
-        if (!show && (drag == Drag.Cancel || drag == Drag.End)) {
-            show = true
+        if (scale.value == 1.1f) {
+            when (drag) {
+                Drag.Dragging -> {
+                    show = false
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    scale.animateTo(targetValue = 1f)
+
+                    show = true
+                }
+
+                else -> Unit
+            }
+
         }
     }
 
@@ -257,7 +339,12 @@ fun TestInteractiveFolderGridItem(
                         this@drawWithContent.drawContent()
                     }
 
-                    drawLayer(graphicsLayer)
+                    drawLayer(
+                        graphicsLayer.apply {
+                            scaleX = scale.value
+                            scaleY = scale.value
+                        },
+                    )
                 }
                 .pointerInput(Unit) {
                     detectTapGesturesUnConsume(
@@ -265,7 +352,9 @@ fun TestInteractiveFolderGridItem(
                             scope.launch {
                                 onLongPress(graphicsLayer.toImageBitmap())
 
-                                show = false
+                                scale.animateTo(targetValue = 0.5f)
+
+                                scale.animateTo(targetValue = 1.1f)
                             }
                         },
                         onTap = {

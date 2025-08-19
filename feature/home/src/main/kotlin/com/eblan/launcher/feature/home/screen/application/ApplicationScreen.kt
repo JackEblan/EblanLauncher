@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +28,7 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -67,14 +68,12 @@ fun ApplicationScreen(
     appDrawerRowsHeight: Int,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    gridItemSource: GridItemSource?,
-    onTestLongPressGridItem: (
+    onTestLongPressApplicationComponent: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
         intOffset: IntOffset,
     ) -> Unit,
-    onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
     onFling: () -> Unit,
     onFastFling: () -> Unit,
@@ -136,23 +135,23 @@ fun ApplicationScreen(
 
                         var show by remember { mutableStateOf(true) }
 
+                        val scale = remember { Animatable(1f) }
+
                         LaunchedEffect(key1 = drag) {
-                            when (drag) {
-                                Drag.Dragging -> {
-                                    if (gridItemSource != null) {
-                                        showPopupApplicationMenu = false
-
-                                        onDragging()
+                            if (scale.value == 1.1f) {
+                                when (drag) {
+                                    Drag.Dragging -> {
+                                        show = false
                                     }
-                                }
 
-                                Drag.Cancel, Drag.End -> {
-                                    if (!show) {
+                                    Drag.Cancel, Drag.End -> {
+                                        scale.animateTo(targetValue = 1f)
+
                                         show = true
                                     }
-                                }
 
-                                else -> Unit
+                                    else -> Unit
+                                }
                             }
                         }
 
@@ -164,7 +163,12 @@ fun ApplicationScreen(
                                             this@drawWithContent.drawContent()
                                         }
 
-                                        drawLayer(graphicsLayer)
+                                        drawLayer(
+                                            graphicsLayer.apply {
+                                                scaleX = scale.value
+                                                scaleY = scale.value
+                                            },
+                                        )
                                     }
                                     .pointerInput(Unit) {
                                         detectTapGesturesUnConsume(
@@ -183,7 +187,7 @@ fun ApplicationScreen(
                                                         label = eblanApplicationInfo.label,
                                                     )
 
-                                                    onTestLongPressGridItem(
+                                                    onTestLongPressApplicationComponent(
                                                         page,
                                                         GridItemSource.New(
                                                             gridItem = GridItem(
@@ -204,13 +208,15 @@ fun ApplicationScreen(
                                                         intOffset,
                                                     )
 
-                                                    show = false
+                                                    scale.animateTo(targetValue = 0.5f)
+
+                                                    scale.animateTo(targetValue = 1.1f)
                                                 }
                                             },
                                         )
                                     }
                                     .onGloballyPositioned { layoutCoordinates ->
-                                        intOffset = layoutCoordinates.positionInParent().round()
+                                        intOffset = layoutCoordinates.positionInRoot().round()
 
                                         intSize = layoutCoordinates.size
                                     }

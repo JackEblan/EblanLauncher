@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home
 
 import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -54,6 +53,7 @@ import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -343,7 +343,15 @@ fun HomeScreen(
                             onAddFolder = onAddFolder,
                             onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                             onMoveOutsideFolder = onMoveOutsideFolder,
-                            onUpdateOverlay = { intOffset, imageBitmap ->
+                            onUpdateGridItemOverlay = { intOffset, imageBitmap ->
+                                overlayIntOffset = intOffset + IntOffset(
+                                    x = leftPadding,
+                                    y = topPadding,
+                                )
+
+                                overlayImageBitmap = imageBitmap
+                            },
+                            onUpdateApplicationComponentOverlay = { intOffset, imageBitmap ->
                                 overlayIntOffset = intOffset
 
                                 overlayImageBitmap = imageBitmap
@@ -355,11 +363,11 @@ fun HomeScreen(
 
             OverlayImage(
                 drag = drag,
-                overlayIntOffset = overlayIntOffset + IntOffset(
-                    x = leftPadding,
-                    y = topPadding,
-                ),
+                overlayIntOffset = overlayIntOffset,
                 overlayImageBitmap = overlayImageBitmap,
+                onUpdateOverlay = {
+                    overlayImageBitmap = null
+                },
             )
         }
     }
@@ -438,7 +446,11 @@ private fun Success(
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: () -> Unit,
-    onUpdateOverlay: (
+    onUpdateGridItemOverlay: (
+        intOffset: IntOffset,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateApplicationComponentOverlay: (
         intOffset: IntOffset,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -488,11 +500,6 @@ private fun Success(
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
-                    onLongPressGridItem = { newCurrentPage, newGridItemSource ->
-                        targetPage = newCurrentPage
-
-                        gridItemSource = newGridItemSource
-                    },
                     onTapFolderGridItem = { newCurrentPage, id ->
                         targetPage = newCurrentPage
 
@@ -519,7 +526,14 @@ private fun Success(
 
                         gridItemSource = newGridItemSource
 
-                        onUpdateOverlay(intOffset, imageBitmap)
+                        onUpdateGridItemOverlay(intOffset, imageBitmap)
+                    },
+                    onTestLongPressApplicationComponent = { newCurrentPage, newGridItemSource, imageBitmap, intOffset ->
+                        targetPage = newCurrentPage
+
+                        gridItemSource = newGridItemSource
+
+                        onUpdateApplicationComponentOverlay(intOffset, imageBitmap)
                     },
                 )
             }
@@ -673,26 +687,37 @@ private fun OverlayImage(
     drag: Drag,
     overlayIntOffset: IntOffset,
     overlayImageBitmap: ImageBitmap?,
+    onUpdateOverlay: () -> Unit,
 ) {
-    if (overlayImageBitmap != null &&
-        (drag == Drag.Start || drag == Drag.Dragging)
-    ) {
-        val scale = remember { Animatable(1f) }
+    if (overlayImageBitmap != null) {
+        when (drag) {
+            Drag.Start, Drag.Dragging -> {
+                var show by remember { mutableStateOf(false) }
 
-        LaunchedEffect(key1 = scale) {
-            scale.animateTo(targetValue = 0.5f)
+                LaunchedEffect(key1 = show) {
+                    delay(200L)
 
-            scale.animateTo(targetValue = 1.1f)
-        }
-
-        Image(
-            modifier = modifier
-                .offset {
-                    overlayIntOffset
+                    show = true
                 }
-                .scale(scale.value),
-            bitmap = overlayImageBitmap,
-            contentDescription = null,
-        )
+
+                if (show) {
+                    Image(
+                        modifier = modifier
+                            .offset {
+                                overlayIntOffset
+                            }
+                            .scale(1.1f),
+                        bitmap = overlayImageBitmap,
+                        contentDescription = null,
+                    )
+                }
+            }
+
+            Drag.End, Drag.Cancel -> {
+                onUpdateOverlay()
+            }
+
+            else -> Unit
+        }
     }
 }

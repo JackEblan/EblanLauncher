@@ -96,10 +96,6 @@ fun PagerScreen(
     gridItemSettings: GridItemSettings,
     gridItemSource: GridItemSource?,
     onLongPressGrid: (Int) -> Unit,
-    onLongPressGridItem: (
-        currentPage: Int,
-        gridItemSource: GridItemSource,
-    ) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
         id: String,
@@ -111,6 +107,12 @@ fun PagerScreen(
     onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onTestLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        intOffset: IntOffset,
+    ) -> Unit,
+    onTestLongPressApplicationComponent: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -231,16 +233,13 @@ fun PagerScreen(
             appDrawerColumns = appDrawerColumns,
             pageCount = pageCount,
             infiniteScroll = infiniteScroll,
-            rootWidth = screenWidth,
-            rootHeight = screenHeight,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
             dockHeight = dockHeight,
             drag = drag,
-            gridItemSource = gridItemSource,
             appDrawerRowsHeight = appDrawerRowsHeight,
             hasShortcutHostPermission = hasShortcutHostPermission,
             gridItemSettings = gridItemSettings,
-            onLongPress = onLongPressGridItem,
-            onDragging = onDraggingGridItem,
             onDismiss = {
                 scope.launch {
                     swipeUpY.snapTo(screenHeight.toFloat())
@@ -261,7 +260,7 @@ fun PagerScreen(
                     )
                 }
             },
-            onTestLongPressGridItem = onTestLongPressGridItem,
+            onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
         )
     }
 
@@ -293,16 +292,13 @@ fun PagerScreen(
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
-                    rootWidth = screenWidth,
-                    rootHeight = screenHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                     dockHeight = dockHeight,
                     drag = drag,
-                    gridItemSource = gridItemSource,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     gridItemSettings = gridItemSettings,
-                    onLongPress = onLongPressGridItem,
-                    onDragging = onDraggingGridItem,
                     onDismiss = {
                         showDoubleTap = false
                     },
@@ -316,7 +312,7 @@ fun PagerScreen(
                             showDoubleTap = false
                         }
                     },
-                    onTestLongPressGridItem = onTestLongPressGridItem,
+                    onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
                 )
             }
 
@@ -794,22 +790,16 @@ private fun ApplicationComponentScreen(
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    rootWidth: Int,
-    rootHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
     dockHeight: Int,
     drag: Drag,
-    gridItemSource: GridItemSource?,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
     gridItemSettings: GridItemSettings,
-    onLongPress: (
-        currentPage: Int,
-        newGridItemSource: GridItemSource,
-    ) -> Unit,
-    onDragging: () -> Unit,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
-    onTestLongPressGridItem: (
+    onTestLongPressApplicationComponent: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -858,9 +848,7 @@ private fun ApplicationComponentScreen(
                                 appDrawerRowsHeight = appDrawerRowsHeight,
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
-                                gridItemSource = gridItemSource,
-                                onTestLongPressGridItem = onTestLongPressGridItem,
-                                onDragging = onDragging,
+                                onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha
                                 },
@@ -881,14 +869,12 @@ private fun ApplicationComponentScreen(
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                                rootWidth = rootWidth,
-                                rootHeight = rootHeight,
+                                screenWidth = screenWidth,
+                                screenHeight = screenHeight,
                                 dockHeight = dockHeight,
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
-                                gridItemSource = gridItemSource,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
+                                onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha
                                 },
@@ -909,9 +895,7 @@ private fun ApplicationComponentScreen(
                                 eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
-                                gridItemSource = gridItemSource,
-                                onLongPress = onLongPress,
-                                onDragging = onDragging,
+                                onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha
                                 },

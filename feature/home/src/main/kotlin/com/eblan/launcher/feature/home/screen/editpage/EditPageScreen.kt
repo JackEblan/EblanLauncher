@@ -61,6 +61,7 @@ fun EditPageScreen(
     initialPage: Int,
     textColor: Long,
     gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -98,7 +99,7 @@ fun EditPageScreen(
                 .dragContainer(state = gridDragAndDropState)
                 .weight(1f),
             state = gridState,
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -213,7 +214,9 @@ fun EditPageScreen(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(

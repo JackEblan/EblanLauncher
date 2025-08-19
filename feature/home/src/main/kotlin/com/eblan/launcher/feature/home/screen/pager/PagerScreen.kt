@@ -3,10 +3,10 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,12 +27,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.local.LocalFileManager
@@ -84,10 +86,9 @@ fun PagerScreen(
     dockGridItems: List<GridItem>,
     textColor: Long,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    screenWidth: Int,
-    screenHeight: Int,
     gridWidth: Int,
     gridHeight: Int,
+    paddingValues: PaddingValues,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
@@ -106,19 +107,15 @@ fun PagerScreen(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
-    onTestLongPressGridItem: (
-        currentPage: Int,
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
-    ) -> Unit,
-    onTestLongPressApplicationComponent: (
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
         intOffset: IntOffset,
     ) -> Unit,
 ) {
+    val density = LocalDensity.current
+
     val launcherApps = LocalLauncherApps.current
 
     val gridHorizontalPagerState = rememberPagerState(
@@ -134,11 +131,17 @@ fun PagerScreen(
 
     var showDoubleTap by remember { mutableStateOf(false) }
 
+    val scope = rememberCoroutineScope()
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val screenHeight = gridHeight + bottomPadding
+
     val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
     val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
-
-    val scope = rememberCoroutineScope()
 
     val applicationComponentY by remember {
         derivedStateOf {
@@ -153,41 +156,7 @@ fun PagerScreen(
     }
 
     HorizontalPagerScreen(
-        modifier = modifier.pointerInput(Unit) {
-            detectVerticalDragGestures(
-                onVerticalDrag = { _, dragAmount ->
-                    scope.launch {
-                        swipeUpY.snapTo(swipeUpY.value + dragAmount)
-
-                        swipeDownY.snapTo(swipeDownY.value - dragAmount)
-                    }
-                },
-                onDragEnd = {
-                    doGestureActions(
-                        gestureSettings = gestureSettings,
-                        swipeUpY = swipeUpY.value,
-                        swipeDownY = swipeDownY.value,
-                        rootHeight = screenHeight,
-                        onStartMainActivity = launcherApps::startMainActivity,
-                    )
-
-                    resetSwipeOffset(
-                        scope = scope,
-                        gestureSettings = gestureSettings,
-                        swipeDownY = swipeDownY,
-                        rootHeight = screenHeight,
-                        swipeUpY = swipeUpY,
-                    )
-                },
-                onDragCancel = {
-                    scope.launch {
-                        swipeUpY.animateTo(screenHeight.toFloat())
-
-                        swipeDownY.animateTo(screenHeight.toFloat())
-                    }
-                },
-            )
-        },
+        modifier = modifier,
         horizontalPagerState = gridHorizontalPagerState,
         rows = rows,
         columns = columns,
@@ -200,6 +169,7 @@ fun PagerScreen(
         gridWidth = gridWidth,
         gridHeight = gridHeight,
         dockHeight = dockHeight,
+        paddingValues = paddingValues,
         dockGridItems = dockGridItems,
         textColor = textColor,
         drag = drag,
@@ -218,7 +188,38 @@ fun PagerScreen(
         onDoubleTap = {
             showDoubleTap = true
         },
-        onTestLongPressGridItem = onTestLongPressGridItem,
+        onLongPressGridItem = onLongPressGridItem,
+        onVerticalDrag = { _, dragAmount ->
+            scope.launch {
+                swipeUpY.snapTo(swipeUpY.value + dragAmount)
+
+                swipeDownY.snapTo(swipeDownY.value - dragAmount)
+            }
+        },
+        onDragEnd = {
+            doGestureActions(
+                gestureSettings = gestureSettings,
+                swipeUpY = swipeUpY.value,
+                swipeDownY = swipeDownY.value,
+                rootHeight = screenHeight,
+                onStartMainActivity = launcherApps::startMainActivity,
+            )
+
+            resetSwipeOffset(
+                scope = scope,
+                gestureSettings = gestureSettings,
+                swipeDownY = swipeDownY,
+                rootHeight = screenHeight,
+                swipeUpY = swipeUpY,
+            )
+        },
+        onDragCancel = {
+            scope.launch {
+                swipeUpY.animateTo(screenHeight.toFloat())
+
+                swipeDownY.animateTo(screenHeight.toFloat())
+            }
+        },
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
@@ -233,9 +234,10 @@ fun PagerScreen(
             appDrawerColumns = appDrawerColumns,
             pageCount = pageCount,
             infiniteScroll = infiniteScroll,
-            screenWidth = screenWidth,
-            screenHeight = screenHeight,
+            gridWidth = gridWidth,
+            gridHeight = gridHeight,
             dockHeight = dockHeight,
+            paddingValues = paddingValues,
             drag = drag,
             appDrawerRowsHeight = appDrawerRowsHeight,
             hasShortcutHostPermission = hasShortcutHostPermission,
@@ -249,18 +251,12 @@ fun PagerScreen(
             },
             onAnimateDismiss = {
                 scope.launch {
-                    swipeUpY.animateTo(
-                        targetValue = screenHeight.toFloat(),
-                        animationSpec = tween(500),
-                    )
+                    swipeUpY.animateTo(screenHeight.toFloat())
 
-                    swipeDownY.animateTo(
-                        targetValue = screenHeight.toFloat(),
-                        animationSpec = tween(500),
-                    )
+                    swipeDownY.animateTo(screenHeight.toFloat())
                 }
             },
-            onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
+            onLongPressGridItem = onLongPressGridItem,
         )
     }
 
@@ -292,9 +288,10 @@ fun PagerScreen(
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
                     dockHeight = dockHeight,
+                    paddingValues = paddingValues,
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     hasShortcutHostPermission = hasShortcutHostPermission,
@@ -304,15 +301,12 @@ fun PagerScreen(
                     },
                     onAnimateDismiss = {
                         scope.launch {
-                            animatedSwipeUpY.animateTo(
-                                targetValue = screenHeight.toFloat(),
-                                animationSpec = tween(500),
-                            )
+                            animatedSwipeUpY.animateTo(screenHeight.toFloat())
 
                             showDoubleTap = false
                         }
                     },
-                    onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
+                    onLongPressGridItem = onLongPressGridItem,
                 )
             }
 
@@ -338,6 +332,7 @@ private fun HorizontalPagerScreen(
     gridWidth: Int,
     gridHeight: Int,
     dockHeight: Int,
+    paddingValues: PaddingValues,
     dockGridItems: List<GridItem>,
     textColor: Long,
     gridItemSettings: GridItemSettings,
@@ -357,11 +352,17 @@ private fun HorizontalPagerScreen(
     onEditPage: (List<GridItem>) -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onDoubleTap: () -> Unit,
-    onTestLongPressGridItem: (
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
         intOffset: IntOffset,
+    ) -> Unit,
+    onDragEnd: () -> Unit,
+    onDragCancel: () -> Unit,
+    onVerticalDrag: (
+        change: PointerInputChange,
+        dragAmount: Float,
     ) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -402,6 +403,14 @@ private fun HorizontalPagerScreen(
         }
     }
 
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemSource != null) {
             onDraggingGridItem()
@@ -432,6 +441,13 @@ private fun HorizontalPagerScreen(
     Column(
         modifier = modifier
             .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = onVerticalDrag,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragCancel,
+                )
+            }
+            .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
                         onDoubleTap()
@@ -450,6 +466,7 @@ private fun HorizontalPagerScreen(
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier.weight(1f),
+            contentPadding = paddingValues,
         ) { index ->
             val page = calculatePage(
                 index = index,
@@ -492,11 +509,14 @@ private fun HorizontalPagerScreen(
 
                             showPopupGridItemMenu = true
 
-                            onTestLongPressGridItem(
+                            onLongPressGridItem(
                                 currentPage,
                                 GridItemSource.Existing(gridItem = gridItem),
                                 imageBitmap,
-                                IntOffset(x = x, y = y),
+                                IntOffset(x = x, y = y) + IntOffset(
+                                    x = leftPadding,
+                                    y = topPadding,
+                                ),
                             )
                         },
                     )
@@ -541,11 +561,14 @@ private fun HorizontalPagerScreen(
 
                         popupMenuIntSize = IntSize(width = width, height = height)
 
-                        onTestLongPressGridItem(
+                        onLongPressGridItem(
                             currentPage,
                             GridItemSource.Existing(gridItem = gridItem),
                             imageBitmap,
-                            IntOffset(x = x, y = dockY),
+                            IntOffset(x = x, y = dockY) + IntOffset(
+                                x = leftPadding,
+                                y = topPadding,
+                            ),
                         )
                     },
                 )
@@ -790,16 +813,17 @@ private fun ApplicationComponentScreen(
     appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
-    screenWidth: Int,
-    screenHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
+    paddingValues: PaddingValues,
     drag: Drag,
     appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
     gridItemSettings: GridItemSettings,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
-    onTestLongPressApplicationComponent: (
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -848,7 +872,8 @@ private fun ApplicationComponentScreen(
                                 appDrawerRowsHeight = appDrawerRowsHeight,
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
-                                onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
+                                paddingValues = paddingValues,
+                                onLongPressGridItem = onLongPressGridItem,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha
                                 },
@@ -869,12 +894,13 @@ private fun ApplicationComponentScreen(
                                 pageCount = pageCount,
                                 infiniteScroll = infiniteScroll,
                                 eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                                screenWidth = screenWidth,
-                                screenHeight = screenHeight,
+                                gridWidth = gridWidth,
+                                gridHeight = gridHeight,
                                 dockHeight = dockHeight,
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
-                                onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
+                                paddingValues = paddingValues,
+                                onLongPressGridItem = onLongPressGridItem,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha
                                 },
@@ -895,7 +921,8 @@ private fun ApplicationComponentScreen(
                                 eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
                                 gridItemSettings = gridItemSettings,
                                 drag = drag,
-                                onTestLongPressApplicationComponent = onTestLongPressApplicationComponent,
+                                paddingValues = paddingValues,
+                                onLongPressGridItem = onLongPressGridItem,
                                 onUpdateAlpha = { newAlpha ->
                                     alpha = newAlpha
                                 },

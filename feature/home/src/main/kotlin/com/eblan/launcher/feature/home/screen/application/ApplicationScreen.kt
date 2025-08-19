@@ -3,6 +3,7 @@ package com.eblan.launcher.feature.home.screen.application
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -68,7 +69,8 @@ fun ApplicationScreen(
     appDrawerRowsHeight: Int,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    onTestLongPressApplicationComponent: (
+    paddingValues: PaddingValues,
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -124,6 +126,7 @@ fun ApplicationScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(count = appDrawerColumns),
                     modifier = Modifier.matchParentSize(),
+                    contentPadding = paddingValues,
                     overscrollEffect = overscrollEffect,
                 ) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
@@ -187,7 +190,7 @@ fun ApplicationScreen(
                                                         label = eblanApplicationInfo.label,
                                                     )
 
-                                                    onTestLongPressApplicationComponent(
+                                                    onLongPressGridItem(
                                                         page,
                                                         GridItemSource.New(
                                                             gridItem = GridItem(

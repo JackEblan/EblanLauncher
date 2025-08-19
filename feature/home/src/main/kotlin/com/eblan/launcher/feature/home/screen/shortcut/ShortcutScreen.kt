@@ -1,9 +1,9 @@
 package com.eblan.launcher.feature.home.screen.shortcut
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -48,7 +48,6 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShortcutScreen(
     modifier: Modifier = Modifier,
@@ -58,7 +57,8 @@ fun ShortcutScreen(
     eblanShortcutInfos: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    onTestLongPressApplicationComponent: (
+    paddingValues: PaddingValues,
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -97,7 +97,11 @@ fun ShortcutScreen(
             }
 
             else -> {
-                LazyColumn(overscrollEffect = overscrollEffect) {
+                LazyColumn(
+                    modifier = Modifier.matchParentSize(),
+                    contentPadding = paddingValues,
+                    overscrollEffect = overscrollEffect,
+                ) {
                     items(eblanShortcutInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -169,7 +173,7 @@ fun ShortcutScreen(
                                                             icon = eblanShortcutInfo.icon,
                                                         )
 
-                                                        onTestLongPressApplicationComponent(
+                                                        onLongPressGridItem(
                                                             page,
                                                             GridItemSource.New(
                                                                 gridItem = GridItem(

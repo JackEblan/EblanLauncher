@@ -3,6 +3,7 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -62,12 +63,13 @@ fun WidgetScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    screenWidth: Int,
-    screenHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    onTestLongPressApplicationComponent: (
+    paddingValues: PaddingValues,
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -110,6 +112,7 @@ fun WidgetScreen(
             else -> {
                 LazyColumn(
                     modifier = Modifier.matchParentSize(),
+                    contentPadding = paddingValues,
                     overscrollEffect = overscrollEffect,
                 ) {
                     items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
@@ -137,8 +140,8 @@ fun WidgetScreen(
                                     val (width, height) = getWidgetGridItemSize(
                                         rows = rows,
                                         columns = columns,
-                                        gridWidth = screenWidth,
-                                        gridHeight = screenHeight - dockHeight,
+                                        gridWidth = gridWidth,
+                                        gridHeight = gridHeight - dockHeight,
                                         minWidth = eblanAppWidgetProviderInfo.minWidth,
                                         minHeight = eblanAppWidgetProviderInfo.minHeight,
                                         targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
@@ -190,7 +193,7 @@ fun WidgetScreen(
                                             detectTapGesturesUnConsume(
                                                 onLongPress = {
                                                     scope.launch {
-                                                        onTestLongPressApplicationComponent(
+                                                        onLongPressGridItem(
                                                             page,
                                                             GridItemSource.New(
                                                                 gridItem = getWidgetGridItem(

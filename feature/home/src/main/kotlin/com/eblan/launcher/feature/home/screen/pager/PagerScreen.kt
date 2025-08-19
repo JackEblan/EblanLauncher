@@ -483,6 +483,7 @@ private fun HorizontalPagerScreen(
                         gridItemSettings = gridItemSettings,
                         textColor = textColor,
                         hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
                         onTapApplicationInfo = launcherApps::startMainActivity,
                         onTapShortcutInfo = launcherApps::startShortcut,
                         onTapFolderGridItem = onTapFolderGridItem,
@@ -531,6 +532,7 @@ private fun HorizontalPagerScreen(
                     gridItemSettings = gridItemSettings,
                     textColor = textColor,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    drag = drag,
                     onTapApplicationInfo = launcherApps::startMainActivity,
                     onTapShortcutInfo = launcherApps::startShortcut,
                     onTapFolderGridItem = onTapFolderGridItem,
@@ -626,6 +628,7 @@ private fun GridItemContent(
     gridItemSettings: GridItemSettings,
     textColor: Long,
     hasShortcutHostPermission: Boolean,
+    drag: Drag,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
@@ -668,6 +671,7 @@ private fun GridItemContent(
                 gridItemSettings = currentGridItemSettings,
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
@@ -678,7 +682,8 @@ private fun GridItemContent(
         is GridItemData.Widget -> {
             TestInteractiveWidgetGridItem(
                 gridItem = gridItem,
-                gridItemData = data,
+                data = data,
+                drag = drag,
                 onLongPress = onLongPress,
             )
         }
@@ -689,6 +694,7 @@ private fun GridItemContent(
                 textColor = currentTextColor,
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     if (hasShortcutHostPermission) {
                         onTapShortcutInfo(
@@ -707,6 +713,7 @@ private fun GridItemContent(
                 textColor = currentTextColor,
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     onTapFolderGridItem(
                         currentPage,

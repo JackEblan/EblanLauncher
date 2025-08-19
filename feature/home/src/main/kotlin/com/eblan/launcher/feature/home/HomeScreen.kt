@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home
 
 import android.content.ClipDescription
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,7 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -671,21 +674,25 @@ private fun OverlayImage(
     overlayIntOffset: IntOffset,
     overlayImageBitmap: ImageBitmap?,
 ) {
-    if (overlayImageBitmap != null) {
-        when (drag) {
-            Drag.Start, Drag.Dragging -> {
-                Image(
-                    modifier = modifier.offset {
-                        overlayIntOffset
-                    },
-                    bitmap = overlayImageBitmap,
-                    contentDescription = null,
-                )
-            }
+    if (overlayImageBitmap != null &&
+        (drag == Drag.Start || drag == Drag.Dragging)
+    ) {
+        val scale = remember { Animatable(1f) }
 
-            else -> {
+        LaunchedEffect(key1 = scale) {
+            scale.animateTo(targetValue = 0.5f)
 
-            }
+            scale.animateTo(targetValue = 1.1f)
         }
+
+        Image(
+            modifier = modifier
+                .offset {
+                    overlayIntOffset
+                }
+                .scale(scale.value),
+            bitmap = overlayImageBitmap,
+            contentDescription = null,
+        )
     }
 }

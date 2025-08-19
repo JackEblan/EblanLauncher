@@ -250,8 +250,16 @@ fun HomeScreen(
             modifier = modifier
                 .pointerInput(Unit) {
                     detectDragGesturesAfterLongPress(
-                        onDragStart = {
+                        onDragStart = { offset ->
                             drag = Drag.Start
+
+                            val intOffset = offset.round()
+
+                            val x = intOffset.x - leftPadding
+
+                            val y = intOffset.y - topPadding
+
+                            dragIntOffset = IntOffset(x = x, y = y)
                         },
                         onDragEnd = {
                             drag = Drag.End
@@ -334,13 +342,9 @@ fun HomeScreen(
                             onAddFolder = onAddFolder,
                             onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                             onMoveOutsideFolder = onMoveOutsideFolder,
-                            onUpdateIntOffset = { newDragIntOffset, newOverlayIntOffset ->
-                                dragIntOffset = newDragIntOffset
+                            onUpdateOverlay = { intOffset, imageBitmap ->
+                                overlayIntOffset = intOffset
 
-                                overlayIntOffset = newOverlayIntOffset
-
-                            },
-                            onUpdateOverlayImageBitmap = { imageBitmap ->
                                 overlayImageBitmap = imageBitmap
                             },
                             onShowOverlay = { newShowOverlay ->
@@ -437,11 +441,10 @@ private fun Success(
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: () -> Unit,
-    onUpdateIntOffset: (
-        dragIntOffset: IntOffset,
-        overlayIntOffset: IntOffset,
+    onUpdateOverlay: (
+        intOffset: IntOffset,
+        imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateOverlayImageBitmap: (ImageBitmap?) -> Unit,
     onShowOverlay: (Boolean) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
@@ -517,17 +520,12 @@ private fun Success(
 
                         onShowGridCache(gridItems, Screen.Drag)
                     },
-                    onTestLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap, newDragIntOffset, newOverlayIntOffset ->
+                    onTestLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap, intOffset ->
                         targetPage = newCurrentPage
 
                         gridItemSource = newGridItemSource
 
-                        onUpdateIntOffset(
-                            newDragIntOffset,
-                            newOverlayIntOffset,
-                        )
-
-                        onUpdateOverlayImageBitmap(imageBitmap)
+                        onUpdateOverlay(intOffset, imageBitmap)
 
                         onShowOverlay(true)
                     },

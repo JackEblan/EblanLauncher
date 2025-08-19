@@ -30,9 +30,7 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -53,10 +51,7 @@ fun TestInteractiveApplicationInfoGridItem(
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     onTap: () -> Unit,
-    onLongPress: (
-        imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -74,12 +69,9 @@ fun TestInteractiveApplicationInfoGridItem(
             }
             .pointerInput(Unit) {
                 detectTapGesturesUnConsume(
-                    onLongPress = { offset ->
+                    onLongPress = {
                         scope.launch {
-                            onLongPress(
-                                graphicsLayer.toImageBitmap(),
-                                offset.round(),
-                            )
+                            onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -98,10 +90,7 @@ fun TestInteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridItemData: GridItemData.Widget,
-    onLongPress: (
-        imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -140,12 +129,9 @@ fun TestInteractiveWidgetGridItem(
                 .pointerInput(Unit) {
                     detectTapGesturesUnConsume(
                         requireUnconsumed = false,
-                        onLongPress = { offset ->
+                        onLongPress = {
                             scope.launch {
-                                onLongPress(
-                                    graphicsLayer.toImageBitmap(),
-                                    offset.round(),
-                                )
+                                onLongPress(graphicsLayer.toImageBitmap())
                             }
                         },
                     )
@@ -162,10 +148,7 @@ fun TestInteractiveShortcutInfoGridItem(
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     onTap: () -> Unit,
-    onLongPress: (
-        imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -183,12 +166,9 @@ fun TestInteractiveShortcutInfoGridItem(
             }
             .pointerInput(Unit) {
                 detectTapGesturesUnConsume(
-                    onLongPress = { offset ->
+                    onLongPress = {
                         scope.launch {
-                            onLongPress(
-                                graphicsLayer.toImageBitmap(),
-                                offset.round(),
-                            )
+                            onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -210,10 +190,7 @@ fun TestInteractiveFolderGridItem(
     gridItem: GridItem,
     data: GridItemData.Folder,
     onTap: () -> Unit,
-    onLongPress: (
-        imageBitmap: ImageBitmap,
-        intOffset: IntOffset,
-    ) -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -231,12 +208,9 @@ fun TestInteractiveFolderGridItem(
             }
             .pointerInput(Unit) {
                 detectTapGesturesUnConsume(
-                    onLongPress = { offset ->
+                    onLongPress = {
                         scope.launch {
-                            onLongPress(
-                                graphicsLayer.toImageBitmap(),
-                                offset.round(),
-                            )
+                            onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {

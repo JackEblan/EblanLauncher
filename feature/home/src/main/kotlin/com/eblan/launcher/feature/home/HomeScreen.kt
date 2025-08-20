@@ -518,6 +518,7 @@ private fun Success(
                     textColor = textColor,
                     moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
+                    paddingValues = paddingValues,
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = onResetGridCacheAfterResize,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
@@ -554,6 +555,7 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
+                    paddingValues = paddingValues,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = {
                         onResetGridCacheAfterResize(targetPage)

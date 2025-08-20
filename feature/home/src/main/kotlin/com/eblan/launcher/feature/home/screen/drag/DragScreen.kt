@@ -11,14 +11,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -36,9 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -78,6 +75,7 @@ fun DragScreen(
     gridWidth: Int,
     gridHeight: Int,
     dockHeight: Int,
+    paddingValues: PaddingValues,
     dockGridItems: List<GridItem>,
     textColor: Long,
     moveGridItemResult: MoveGridItemResult?,
@@ -315,7 +313,7 @@ fun DragScreen(
 
         GridLayout(
             modifier = Modifier
-                .padding(WindowInsets.safeDrawing.asPaddingValues())
+                .padding(paddingValues)
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,
@@ -340,17 +338,17 @@ fun DragScreen(
         AnimatedDropGridItem(
             gridItem = moveGridItemResult.movingGridItem,
             gridPaddingPx = gridPaddingPx,
-            rootWidth = gridWidth,
-            rootHeight = gridHeight,
+            gridWidth = gridWidth,
+            gridHeight = gridHeight,
             dockHeight = dockHeight,
             rows = rows,
             columns = columns,
             dockRows = dockRows,
             dockColumns = dockColumns,
             dragIntOffset = dragIntOffset,
-            density = density,
             textColor = textColor,
             gridItemSettings = gridItemSettings,
+            paddingValues = paddingValues,
         )
     }
 }
@@ -458,18 +456,20 @@ private fun DragGridItemContent(
 private fun AnimatedDropGridItem(
     gridItem: GridItem,
     gridPaddingPx: Int,
-    rootWidth: Int,
-    rootHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     rows: Int,
     columns: Int,
     dockRows: Int,
     dockColumns: Int,
     dragIntOffset: IntOffset,
-    density: Density,
     textColor: Long,
     gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
 ) {
+    val density = LocalDensity.current
+
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
     } else {
@@ -496,13 +496,13 @@ private fun AnimatedDropGridItem(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val gridWidth = rootWidth - (gridPaddingPx * 2)
+            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
 
-            val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
 
-            val cellWidth = gridWidth / columns
+            val cellWidth = gridWidthWithPadding / columns
 
-            val cellHeight = gridHeight / rows
+            val cellHeight = gridHeightWithPadding / rows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -585,7 +585,15 @@ private fun AnimatedDropGridItem(
         }
 
         Associate.Dock -> {
-            val cellWidth = rootWidth / dockColumns
+            val leftPadding = with(density) {
+                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+            }
+
+            val topPadding = with(density) {
+                paddingValues.calculateTopPadding().roundToPx()
+            }
+
+            val cellWidth = gridWidth / dockColumns
 
             val cellHeight = dockHeight / dockRows
 
@@ -611,11 +619,11 @@ private fun AnimatedDropGridItem(
 
             LaunchedEffect(key1 = gridItem) {
                 launch {
-                    animatedX.animateTo(x.toFloat())
+                    animatedX.animateTo(x.toFloat() + leftPadding)
                 }
 
                 launch {
-                    animatedY.animateTo(y.toFloat() + (rootHeight - dockHeight))
+                    animatedY.animateTo(y.toFloat() + (gridHeight - dockHeight) + topPadding)
                 }
             }
 

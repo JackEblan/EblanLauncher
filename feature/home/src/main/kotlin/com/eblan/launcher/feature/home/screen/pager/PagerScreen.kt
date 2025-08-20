@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -41,7 +42,6 @@ import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
-import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
@@ -133,11 +133,17 @@ fun PagerScreen(
 
     val scope = rememberCoroutineScope()
 
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
     val bottomPadding = with(density) {
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
-    val screenHeight = gridHeight + bottomPadding
+    val verticalPadding = topPadding + bottomPadding
+
+    val screenHeight = gridHeight + verticalPadding
 
     val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
@@ -407,9 +413,21 @@ private fun HorizontalPagerScreen(
         paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
     }
 
+    val rightPadding = with(density) {
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemSource != null) {
@@ -480,9 +498,14 @@ private fun HorizontalPagerScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    val cellWidth = gridWidth / columns
+                    // We have to subtract the grid dimensions to the padding again because we add padding to the dock grid
+                    // layout which pushes the grid layout upward
+                    val gridWidthWithPadding = gridWidth - horizontalPadding
+                    val gridHeightWithPadding = (gridHeight - dockHeight) - verticalPadding
 
-                    val cellHeight = (gridHeight - dockHeight) / rows
+                    val cellWidth = gridWidthWithPadding / columns
+
+                    val cellHeight = gridHeightWithPadding / rows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -503,7 +526,9 @@ private fun HorizontalPagerScreen(
                         onTapShortcutInfo = launcherApps::startShortcut,
                         onTapFolderGridItem = onTapFolderGridItem,
                         onLongPress = { imageBitmap ->
-                            popupMenuIntOffset = IntOffset(x = x, y = y)
+                            val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
+
+                            popupMenuIntOffset = intOffset
 
                             popupMenuIntSize = IntSize(width = width, height = height)
 
@@ -513,10 +538,7 @@ private fun HorizontalPagerScreen(
                                 currentPage,
                                 GridItemSource.Existing(gridItem = gridItem),
                                 imageBitmap,
-                                IntOffset(x = x, y = y) + IntOffset(
-                                    x = leftPadding,
-                                    y = topPadding,
-                                ),
+                                intOffset,
                             )
                         },
                     )
@@ -526,6 +548,7 @@ private fun HorizontalPagerScreen(
 
         GridLayout(
             modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,
@@ -557,18 +580,19 @@ private fun HorizontalPagerScreen(
                     onLongPress = { imageBitmap ->
                         val dockY = y + (gridHeight - dockHeight)
 
-                        popupMenuIntOffset = IntOffset(x = x, y = y)
+                        val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
+
+                        popupMenuIntOffset = intOffset
 
                         popupMenuIntSize = IntSize(width = width, height = height)
+
+                        showPopupGridItemMenu = true
 
                         onLongPressGridItem(
                             currentPage,
                             GridItemSource.Existing(gridItem = gridItem),
                             imageBitmap,
-                            IntOffset(x = x, y = dockY) + IntOffset(
-                                x = leftPadding,
-                                y = topPadding,
-                            ),
+                            intOffset,
                         )
                     },
                 )
@@ -576,44 +600,20 @@ private fun HorizontalPagerScreen(
         }
     }
 
-    if (showPopupGridItemMenu) {
-        val gridItem = gridItemSource?.gridItem
-
-        when (gridItem?.associate) {
-            Associate.Grid -> {
-                PopupGridItemMenu(
-                    currentPage = currentPage,
-                    gridItem = gridItem,
-                    x = popupMenuIntOffset.x,
-                    y = popupMenuIntOffset.y,
-                    width = popupMenuIntSize.width,
-                    height = popupMenuIntSize.height,
-                    onEdit = onEdit,
-                    onResize = onResize,
-                    onDismissRequest = {
-                        showPopupGridItemMenu = false
-                    },
-                )
-            }
-
-            Associate.Dock -> {
-                PopupGridItemMenu(
-                    currentPage = currentPage,
-                    gridItem = gridItem,
-                    x = popupMenuIntOffset.x,
-                    y = (gridHeight - dockHeight) + popupMenuIntOffset.y,
-                    width = popupMenuIntSize.width,
-                    height = popupMenuIntSize.height,
-                    onEdit = onEdit,
-                    onResize = onResize,
-                    onDismissRequest = {
-                        showPopupGridItemMenu = false
-                    },
-                )
-            }
-
-            null -> Unit
-        }
+    if (showPopupGridItemMenu && gridItemSource?.gridItem != null) {
+        PopupGridItemMenu(
+            currentPage = currentPage,
+            gridItem = gridItemSource.gridItem,
+            x = popupMenuIntOffset.x,
+            y = popupMenuIntOffset.y,
+            width = popupMenuIntSize.width,
+            height = popupMenuIntSize.height,
+            onEdit = onEdit,
+            onResize = onResize,
+            onDismissRequest = {
+                showPopupGridItemMenu = false
+            },
+        )
     }
 
     if (showPopupSettingsMenu) {

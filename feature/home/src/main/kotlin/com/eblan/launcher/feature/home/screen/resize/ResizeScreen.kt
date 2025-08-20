@@ -6,6 +6,7 @@ import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -47,6 +49,7 @@ fun ResizeScreen(
     dockGridItems: List<GridItem>,
     textColor: Long,
     gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -74,7 +77,11 @@ fun ResizeScreen(
         onResizeEnd()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .padding(paddingValues)
+            .fillMaxSize(),
+    ) {
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
@@ -120,9 +127,17 @@ fun ResizeScreen(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
+            val leftPadding = with(density) {
+                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+            }
 
-            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
+            val topPadding = with(density) {
+                paddingValues.calculateTopPadding().roundToPx()
+            }
+
+            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2) + leftPadding
+
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2) + topPadding
 
             val cellWidth = gridWidthWithPadding / columns
 

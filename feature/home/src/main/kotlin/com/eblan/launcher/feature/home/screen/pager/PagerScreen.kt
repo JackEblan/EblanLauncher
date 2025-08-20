@@ -413,21 +413,9 @@ private fun HorizontalPagerScreen(
         paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
     }
 
-    val rightPadding = with(density) {
-        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val horizontalPadding = leftPadding + rightPadding
-
-    val verticalPadding = topPadding + bottomPadding
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemSource != null) {
@@ -484,7 +472,7 @@ private fun HorizontalPagerScreen(
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier.weight(1f),
-            contentPadding = paddingValues,
+            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding()),
         ) { index ->
             val page = calculatePage(
                 index = index,
@@ -498,14 +486,9 @@ private fun HorizontalPagerScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    // We have to subtract the grid dimensions to the padding again because we add padding to the dock grid
-                    // layout which pushes the grid layout upward
-                    val gridWidthWithPadding = gridWidth - horizontalPadding
-                    val gridHeightWithPadding = (gridHeight - dockHeight) - verticalPadding
+                    val cellWidth = gridWidth / columns
 
-                    val cellWidth = gridWidthWithPadding / columns
-
-                    val cellHeight = gridHeightWithPadding / rows
+                    val cellHeight = (gridHeight - dockHeight) / rows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -548,7 +531,7 @@ private fun HorizontalPagerScreen(
 
         GridLayout(
             modifier = Modifier
-                .padding(paddingValues)
+                .padding(bottom = paddingValues.calculateBottomPadding())
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,

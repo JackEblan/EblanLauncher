@@ -185,6 +185,7 @@ fun DragScreen(
 
     LaunchedEffect(key1 = dragIntOffset) {
         handleDragIntOffset(
+            density = density,
             targetPage = targetPage,
             drag = drag,
             gridItem = gridItemSource.gridItem,
@@ -199,6 +200,7 @@ fun DragScreen(
             dockColumns = dockColumns,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
+            paddingValues = paddingValues,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },

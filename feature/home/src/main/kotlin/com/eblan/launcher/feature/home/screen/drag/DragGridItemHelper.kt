@@ -102,9 +102,7 @@ suspend fun handleDragIntOffset(
 
         val cellHeight = dockHeight / dockRows
 
-        val dockX = dragIntOffset.x - leftPadding
-
-        val dockY = (dragIntOffset.y - topPadding) - (gridHeight - dockHeight)
+        val dockY = dragY - (gridHeight - dockHeight)
 
         val moveGridItem = getMoveGridItem(
             targetPage = targetPage,
@@ -115,7 +113,7 @@ suspend fun handleDragIntOffset(
             columns = dockColumns,
             gridWidth = gridWidth,
             gridHeight = dockHeight,
-            gridX = dockX,
+            gridX = dragX,
             gridY = dockY,
             associate = Associate.Dock,
             gridItemSource = gridItemSource,
@@ -130,7 +128,7 @@ suspend fun handleDragIntOffset(
         if (isGridItemSpanWithinBounds) {
             onMoveGridItem(
                 moveGridItem,
-                dockX,
+                dragX,
                 dockY,
                 dockRows,
                 dockColumns,

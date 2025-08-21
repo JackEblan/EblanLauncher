@@ -472,7 +472,11 @@ private fun HorizontalPagerScreen(
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding()),
+            contentPadding = PaddingValues(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+            ),
         ) { index ->
             val page = calculatePage(
                 index = index,
@@ -531,7 +535,11 @@ private fun HorizontalPagerScreen(
 
         GridLayout(
             modifier = Modifier
-                .padding(bottom = paddingValues.calculateBottomPadding())
+                .padding(
+                    start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                    bottom = paddingValues.calculateBottomPadding(),
+                )
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,

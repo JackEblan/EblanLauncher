@@ -282,7 +282,7 @@ fun DragScreen(
                 top = paddingValues.calculateTopPadding() + horizontalPagerPaddingDp,
                 start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
                 end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                bottom =horizontalPagerPaddingDp,
+                bottom = horizontalPagerPaddingDp,
             ),
         ) { index ->
             val page = calculatePage(
@@ -320,7 +320,11 @@ fun DragScreen(
 
         GridLayout(
             modifier = Modifier
-                .padding(paddingValues)
+                .padding(
+                    start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                    bottom = paddingValues.calculateBottomPadding(),
+                )
                 .fillMaxWidth()
                 .height(dockHeightDp),
             rows = dockRows,

@@ -139,7 +139,7 @@ fun DragScreen(
 
     val gridPaddingDp = 8.dp
 
-    val gridPaddingPx = with(density) {
+    val gridPadding = with(density) {
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
@@ -193,7 +193,7 @@ fun DragScreen(
             gridWidth = gridWidth,
             gridHeight = gridHeight,
             dockHeight = dockHeight,
-            gridPadding = gridPaddingPx,
+            gridPadding = gridPadding,
             rows = rows,
             columns = columns,
             dockRows = dockRows,
@@ -278,7 +278,12 @@ fun DragScreen(
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(all = horizontalPagerPaddingDp),
+            contentPadding = PaddingValues(
+                top = paddingValues.calculateTopPadding() + horizontalPagerPaddingDp,
+                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                bottom =horizontalPagerPaddingDp,
+            ),
         ) { index ->
             val page = calculatePage(
                 index = index,
@@ -339,7 +344,7 @@ fun DragScreen(
     ) {
         AnimatedDropGridItem(
             gridItem = moveGridItemResult.movingGridItem,
-            gridPaddingPx = gridPaddingPx,
+            gridPadding = gridPadding,
             gridWidth = gridWidth,
             gridHeight = gridHeight,
             dockHeight = dockHeight,
@@ -457,7 +462,7 @@ private fun DragGridItemContent(
 @Composable
 private fun AnimatedDropGridItem(
     gridItem: GridItem,
-    gridPaddingPx: Int,
+    gridPadding: Int,
     gridWidth: Int,
     gridHeight: Int,
     dockHeight: Int,
@@ -498,9 +503,25 @@ private fun AnimatedDropGridItem(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
+            val topGridPadding = with(density) {
+                paddingValues.calculateTopPadding().roundToPx() + gridPadding
+            }
 
-            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
+            val leftGridPadding = with(density) {
+                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx() + gridPadding
+            }
+
+            val rightGridPadding = with(density) {
+                paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx() + gridPadding
+            }
+
+            val horizontalPadding = leftGridPadding + rightGridPadding
+
+            val verticalPadding = topGridPadding + gridPadding
+
+            val gridWidthWithPadding = gridWidth - horizontalPadding
+
+            val gridHeightWithPadding = (gridHeight - dockHeight) - verticalPadding
 
             val cellWidth = gridWidthWithPadding / columns
 
@@ -528,11 +549,11 @@ private fun AnimatedDropGridItem(
 
             LaunchedEffect(key1 = gridItem) {
                 launch {
-                    animatedX.animateTo(x.toFloat() + gridPaddingPx)
+                    animatedX.animateTo(x.toFloat() + leftGridPadding)
                 }
 
                 launch {
-                    animatedY.animateTo(y.toFloat() + gridPaddingPx)
+                    animatedY.animateTo(y.toFloat() + topGridPadding)
                 }
             }
 

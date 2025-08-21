@@ -67,13 +67,25 @@ suspend fun handleDragIntOffset(
 
     delay(250L)
 
-    val isOnLeftGrid = dragIntOffset.x < gridPadding
+    val topGridPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx() + gridPadding
+    }
 
-    val isOnRightGrid = dragIntOffset.x > gridWidth - gridPadding
+    val leftGridPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx() + gridPadding
+    }
 
-    val isOnTopGrid = dragIntOffset.y < gridPadding
+    val rightGridPadding = with(density) {
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx() + gridPadding
+    }
 
-    val isOnBottomGrid = dragIntOffset.y > (gridHeight - dockHeight) - gridPadding
+    val isOnLeftGrid = dragIntOffset.x < leftGridPadding
+
+    val isOnRightGrid = dragIntOffset.x > gridWidth - rightGridPadding
+
+    val isOnTopGrid = dragIntOffset.y < topGridPadding
+
+    val isOnBottomGrid = dragIntOffset.y > (gridHeight - dockHeight - gridPadding)
 
     val isHorizontalBounds = !isOnLeftGrid && !isOnRightGrid
 
@@ -133,13 +145,17 @@ suspend fun handleDragIntOffset(
             )
         }
     } else if (isHorizontalBounds && isVerticalBounds) {
-        val gridWidthWithPadding = gridWidth - (gridPadding * 2)
+        val horizontalPadding = leftGridPadding + rightGridPadding
 
-        val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPadding * 2)
+        val verticalPadding = topGridPadding + gridPadding
 
-        val gridX = dragIntOffset.x - gridPadding
+        val gridWidthWithPadding = gridWidth - horizontalPadding
 
-        val gridY = dragIntOffset.y - gridPadding
+        val gridHeightWithPadding = (gridHeight - dockHeight) - verticalPadding
+
+        val gridX = dragIntOffset.x - leftGridPadding
+
+        val gridY = dragIntOffset.y - topGridPadding
 
         val cellWidth = gridWidthWithPadding / columns
 

@@ -326,7 +326,8 @@ fun DragScreen(
                     bottom = paddingValues.calculateBottomPadding(),
                 )
                 .fillMaxWidth()
-                .height(dockHeightDp),
+                .height(dockHeightDp)
+                .background(Color.Blue),
             rows = dockRows,
             columns = dockColumns,
         ) {
@@ -507,25 +508,17 @@ private fun AnimatedDropGridItem(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val topGridPadding = with(density) {
-                paddingValues.calculateTopPadding().roundToPx() + gridPadding
+            val leftPadding = with(density) {
+                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
             }
 
-            val leftGridPadding = with(density) {
-                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx() + gridPadding
+            val topPadding = with(density) {
+                paddingValues.calculateTopPadding().roundToPx()
             }
 
-            val rightGridPadding = with(density) {
-                paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx() + gridPadding
-            }
+            val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-            val horizontalPadding = leftGridPadding + rightGridPadding
-
-            val verticalPadding = topGridPadding + gridPadding
-
-            val gridWidthWithPadding = gridWidth - horizontalPadding
-
-            val gridHeightWithPadding = (gridHeight - dockHeight) - verticalPadding
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPadding * 2)
 
             val cellWidth = gridWidthWithPadding / columns
 
@@ -553,11 +546,11 @@ private fun AnimatedDropGridItem(
 
             LaunchedEffect(key1 = gridItem) {
                 launch {
-                    animatedX.animateTo(x.toFloat() + leftGridPadding)
+                    animatedX.animateTo(x.toFloat() + leftPadding + gridPadding)
                 }
 
                 launch {
-                    animatedY.animateTo(y.toFloat() + topGridPadding)
+                    animatedY.animateTo(y.toFloat() + topPadding + gridPadding)
                 }
             }
 

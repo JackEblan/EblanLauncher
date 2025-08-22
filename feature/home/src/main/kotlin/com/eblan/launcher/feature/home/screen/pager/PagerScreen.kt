@@ -419,6 +419,8 @@ private fun HorizontalPagerScreen(
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && gridItemSource != null) {
+            showPopupGridItemMenu = false
+
             onDraggingGridItem()
         }
 
@@ -506,8 +508,7 @@ private fun HorizontalPagerScreen(
 
                     val height = gridItem.rowSpan * cellHeight
 
-                    GridItemContent(
-                        currentPage = currentPage,
+                    PageGridItemContent(
                         gridItem = gridItem,
                         gridItemSettings = gridItemSettings,
                         textColor = textColor,
@@ -515,7 +516,9 @@ private fun HorizontalPagerScreen(
                         drag = drag,
                         onTapApplicationInfo = launcherApps::startMainActivity,
                         onTapShortcutInfo = launcherApps::startShortcut,
-                        onTapFolderGridItem = onTapFolderGridItem,
+                        onTapFolderGridItem = {
+                            onTapFolderGridItem(currentPage, gridItem.id)
+                        },
                         onLongPress = { imageBitmap ->
                             val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
 
@@ -561,8 +564,7 @@ private fun HorizontalPagerScreen(
 
                 val height = gridItem.rowSpan * cellHeight
 
-                GridItemContent(
-                    currentPage = currentPage,
+                PageGridItemContent(
                     gridItem = gridItem,
                     gridItemSettings = gridItemSettings,
                     textColor = textColor,
@@ -570,7 +572,9 @@ private fun HorizontalPagerScreen(
                     drag = drag,
                     onTapApplicationInfo = launcherApps::startMainActivity,
                     onTapShortcutInfo = launcherApps::startShortcut,
-                    onTapFolderGridItem = onTapFolderGridItem,
+                    onTapFolderGridItem = {
+                        onTapFolderGridItem(currentPage, gridItem.id)
+                    },
                     onLongPress = { imageBitmap ->
                         val dockY = y + (gridHeight - dockHeight)
 
@@ -637,8 +641,7 @@ private fun HorizontalPagerScreen(
 }
 
 @Composable
-private fun GridItemContent(
-    currentPage: Int,
+fun PageGridItemContent(
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,
     textColor: Long,
@@ -649,10 +652,7 @@ private fun GridItemContent(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onTapFolderGridItem: (
-        currentPage: Int,
-        shortcutId: String,
-    ) -> Unit,
+    onTapFolderGridItem: () -> Unit,
     onLongPress: (ImageBitmap?) -> Unit,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
@@ -729,12 +729,7 @@ private fun GridItemContent(
                 gridItem = gridItem,
                 data = data,
                 drag = drag,
-                onTap = {
-                    onTapFolderGridItem(
-                        currentPage,
-                        gridItem.id,
-                    )
-                },
+                onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
             )
         }

@@ -47,6 +47,7 @@ import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
+import com.eblan.launcher.feature.home.screen.folder.FolderScreen
 import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
@@ -583,30 +584,38 @@ private fun Success(
             }
 
             Screen.Folder -> {
-//                FolderScreen(
-//                    startCurrentPage = folderTargetPage,
-//                    folderRows = userData.homeSettings.folderRows,
-//                    folderColumns = userData.homeSettings.folderColumns,
-//                    foldersDataById = foldersDataById,
-//                    textColor = textColor,
-//                    gridItemSettings = userData.homeSettings.gridItemSettings,
-//                    drag = drag,
-//                    gridItemSource = gridItemSource,
-//                    onUpdateScreen = onUpdateScreen,
-//                    onRemoveLastFolder = onRemoveLastFolder,
-//                    onAddFolder = onAddFolder,
-//                    onResetTargetPage = {
-//                        folderTargetPage = 0
-//                    },
-//                    onLongPressGridItem = { newTargetPage, newGridItemSource ->
-//                        folderTargetPage = newTargetPage
-//
-//                        gridItemSource = newGridItemSource
-//                    },
-//                    onDraggingGridItem = { folderGridItems ->
-//                        onShowGridCache(folderGridItems, Screen.FolderDrag)
-//                    },
-//                )
+                FolderScreen(
+                    startCurrentPage = folderTargetPage,
+                    folderRows = userData.homeSettings.folderRows,
+                    folderColumns = userData.homeSettings.folderColumns,
+                    foldersDataById = foldersDataById,
+                    textColor = textColor,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
+                    drag = drag,
+                    gridItemSource = gridItemSource,
+                    paddingValues = paddingValues,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                    onUpdateScreen = onUpdateScreen,
+                    onRemoveLastFolder = onRemoveLastFolder,
+                    onAddFolder = onAddFolder,
+                    onResetTargetPage = {
+                        folderTargetPage = 0
+                    },
+                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap, intOffset ->
+                        folderTargetPage = newCurrentPage
+
+                        gridItemSource = newGridItemSource
+
+                        gridItemSource = newGridItemSource
+
+                        onUpdateGridItemOverlay(intOffset, imageBitmap)
+                    },
+                    onDraggingGridItem = { folderGridItems ->
+                        onShowGridCache(folderGridItems, Screen.FolderDrag)
+                    },
+                )
             }
 
             Screen.FolderDrag -> {
@@ -624,6 +633,7 @@ private fun Success(
                     moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     folderDataById = foldersDataById.last(),
+                    paddingValues = paddingValues,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
                         folderTargetPage = newTargetPage

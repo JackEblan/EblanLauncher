@@ -326,8 +326,7 @@ fun DragScreen(
                     bottom = paddingValues.calculateBottomPadding(),
                 )
                 .fillMaxWidth()
-                .height(dockHeightDp)
-                .background(Color.Blue),
+                .height(dockHeightDp),
             rows = dockRows,
             columns = dockColumns,
         ) {
@@ -516,6 +515,10 @@ private fun AnimatedDropGridItem(
                 paddingValues.calculateTopPadding().roundToPx()
             }
 
+            val gridLeft = leftPadding + gridPadding
+
+            val gridTop = topPadding + gridPadding
+
             val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
             val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPadding * 2)
@@ -546,11 +549,11 @@ private fun AnimatedDropGridItem(
 
             LaunchedEffect(key1 = gridItem) {
                 launch {
-                    animatedX.animateTo(x.toFloat() + leftPadding + gridPadding)
+                    animatedX.animateTo(x.toFloat() + gridLeft)
                 }
 
                 launch {
-                    animatedY.animateTo(y.toFloat() + topPadding + gridPadding)
+                    animatedY.animateTo(y.toFloat() + gridTop)
                 }
             }
 

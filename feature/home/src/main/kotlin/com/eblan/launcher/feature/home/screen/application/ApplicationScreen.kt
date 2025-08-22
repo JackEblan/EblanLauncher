@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -252,10 +253,22 @@ fun ApplicationScreen(
                 }
 
                 if (showPopupApplicationMenu) {
+                    val leftPadding = with(density) {
+                        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+                    }
+
+                    val topPadding = with(density) {
+                        paddingValues.calculateTopPadding().roundToPx()
+                    }
+
+                    val x = popupMenuIntOffset.x - leftPadding
+
+                    val y = popupMenuIntOffset.y - topPadding
+
                     Popup(
                         popupPositionProvider = MenuPositionProvider(
-                            x = popupMenuIntOffset.x,
-                            y = popupMenuIntOffset.y,
+                            x = x,
+                            y = y,
                             width = popupMenuIntSize.width,
                             height = popupMenuIntSize.height,
                         ),

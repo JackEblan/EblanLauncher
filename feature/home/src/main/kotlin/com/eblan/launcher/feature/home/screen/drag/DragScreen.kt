@@ -274,12 +274,19 @@ fun DragScreen(
         )
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
+            )
+            .fillMaxSize(),
+    ) {
         HorizontalPager(
             state = horizontalPagerState,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
-                top = paddingValues.calculateTopPadding() + horizontalPagerPaddingDp,
+                top = horizontalPagerPaddingDp,
                 start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
                 end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
                 bottom = horizontalPagerPaddingDp,
@@ -323,7 +330,6 @@ fun DragScreen(
                 .padding(
                     start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
-                    bottom = paddingValues.calculateBottomPadding(),
                 )
                 .fillMaxWidth()
                 .height(dockHeightDp),

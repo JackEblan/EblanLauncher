@@ -2,7 +2,9 @@ package com.eblan.launcher.feature.home.screen.folder
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
@@ -10,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -35,6 +38,7 @@ fun FolderScreen(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     gridItemSource: GridItemSource?,
+    paddingValues: PaddingValues,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -72,13 +76,25 @@ fun FolderScreen(
         )
 
         Surface(modifier = modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding(),
+                    )
+                    .fillMaxSize(),
+            ) {
 
                 Text(text = folderDataById.label)
 
                 HorizontalPager(state = horizontalPagerState) { index ->
                     GridLayout(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .padding(
+                                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+                                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                            )
+                            .fillMaxSize(),
                         rows = folderRows,
                         columns = folderColumns,
                     ) {

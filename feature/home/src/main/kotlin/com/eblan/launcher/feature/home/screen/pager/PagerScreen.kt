@@ -467,6 +467,10 @@ private fun HorizontalPagerScreen(
                     },
                 )
             }
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
+            )
             .fillMaxSize(),
     ) {
         HorizontalPager(
@@ -482,7 +486,6 @@ private fun HorizontalPagerScreen(
             GridLayout(
                 modifier = Modifier
                     .padding(
-                        top = paddingValues.calculateTopPadding(),
                         start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
                         end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
                     )
@@ -539,7 +542,6 @@ private fun HorizontalPagerScreen(
                 .padding(
                     start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
-                    bottom = paddingValues.calculateBottomPadding(),
                 )
                 .fillMaxWidth()
                 .height(dockHeightDp),

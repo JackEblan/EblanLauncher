@@ -32,7 +32,6 @@ import kotlin.math.roundToInt
 @Composable
 fun GridItemResizeOverlay(
     modifier: Modifier = Modifier,
-    gridPadding: Int,
     gridItem: GridItem,
     gridWidth: Int,
     gridHeight: Int,
@@ -233,8 +232,8 @@ fun GridItemResizeOverlay(
         modifier = modifier
             .offset {
                 IntOffset(
-                    x = borderX + gridPadding,
-                    y = borderY + gridPadding,
+                    x = borderX,
+                    y = borderY,
                 )
             }
             .size(width = borderWidth, height = borderHeight)

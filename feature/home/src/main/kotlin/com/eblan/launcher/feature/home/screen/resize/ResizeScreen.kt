@@ -63,6 +63,14 @@ fun ResizeScreen(
 
     val density = LocalDensity.current
 
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
     val dockHeightDp = with(density) {
         dockHeight.toDp()
     }
@@ -84,8 +92,8 @@ fun ResizeScreen(
     ) {
         GridLayout(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(gridPaddingDp)
+                .fillMaxWidth()
                 .weight(1f)
                 .background(
                     color = Color(textColor).copy(alpha = 0.25f),
@@ -127,17 +135,13 @@ fun ResizeScreen(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val leftPadding = with(density) {
-                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
-            }
+            val gridLeft = leftPadding + gridPaddingPx
 
-            val topPadding = with(density) {
-                paddingValues.calculateTopPadding().roundToPx()
-            }
+            val gridTop = topPadding + gridPaddingPx
 
-            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2) + leftPadding
+            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
 
-            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2) + topPadding
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
 
             val cellWidth = gridWidthWithPadding / columns
 
@@ -151,17 +155,20 @@ fun ResizeScreen(
 
             val height = gridItem.rowSpan * cellHeight
 
+            val gridX = x + gridLeft
+
+            val gridY = y + gridTop
+
             ResizeOverlay(
                 gridItem = gridItem,
-                gridPaddingPx = gridPaddingPx,
                 gridWidth = gridWidthWithPadding,
                 gridHeight = gridHeightWithPadding,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 rows = rows,
                 columns = columns,
-                x = x,
-                y = y,
+                x = gridX,
+                y = gridY,
                 width = width,
                 height = height,
                 textColor = textColor,
@@ -177,7 +184,11 @@ fun ResizeScreen(
 
             val x = gridItem.startColumn * cellWidth
 
-            val dockY = (gridHeight - dockHeight) + (gridItem.startRow * cellHeight)
+            val y = gridItem.startRow * cellHeight
+
+            val dockX = x + leftPadding
+
+            val dockY = (y + topPadding) + (gridHeight - dockHeight)
 
             val width = gridItem.columnSpan * cellWidth
 
@@ -185,14 +196,13 @@ fun ResizeScreen(
 
             ResizeOverlay(
                 gridItem = gridItem,
-                gridPaddingPx = 0,
                 gridWidth = gridWidth,
                 gridHeight = dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 rows = dockRows,
                 columns = dockColumns,
-                x = x,
+                x = dockX,
                 y = dockY,
                 width = width,
                 height = height,
@@ -207,7 +217,6 @@ fun ResizeScreen(
 @Composable
 private fun ResizeOverlay(
     gridItem: GridItem,
-    gridPaddingPx: Int,
     gridWidth: Int,
     gridHeight: Int,
     cellWidth: Int,
@@ -232,7 +241,6 @@ private fun ResizeOverlay(
         is GridItemData.Folder,
             -> {
             GridItemResizeOverlay(
-                gridPadding = gridPaddingPx,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
@@ -252,7 +260,6 @@ private fun ResizeOverlay(
 
         is GridItemData.Widget -> {
             WidgetGridItemResizeOverlay(
-                gridPadding = gridPaddingPx,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,

@@ -481,6 +481,14 @@ private fun AnimatedDropGridItem(
 ) {
     val density = LocalDensity.current
 
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
     } else {
@@ -507,14 +515,6 @@ private fun AnimatedDropGridItem(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val leftPadding = with(density) {
-                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
-            }
-
-            val topPadding = with(density) {
-                paddingValues.calculateTopPadding().roundToPx()
-            }
-
             val gridLeft = leftPadding + gridPadding
 
             val gridTop = topPadding + gridPadding
@@ -608,14 +608,6 @@ private fun AnimatedDropGridItem(
         }
 
         Associate.Dock -> {
-            val leftPadding = with(density) {
-                paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
-            }
-
-            val topPadding = with(density) {
-                paddingValues.calculateTopPadding().roundToPx()
-            }
-
             val cellWidth = gridWidth / dockColumns
 
             val cellHeight = dockHeight / dockRows

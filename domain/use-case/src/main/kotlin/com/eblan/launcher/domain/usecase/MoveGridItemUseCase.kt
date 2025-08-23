@@ -140,7 +140,7 @@ class MoveGridItemUseCase @Inject constructor(
         )
 
         when (resolveDirection) {
-            ResolveDirection.Start, ResolveDirection.End -> {
+            ResolveDirection.EndToStart, ResolveDirection.StartToEnd -> {
                 resolvedConflictsGridItems = resolveConflictsWhenMoving(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,

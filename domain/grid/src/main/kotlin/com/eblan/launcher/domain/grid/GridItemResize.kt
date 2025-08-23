@@ -92,19 +92,16 @@ private fun resizeGridItemByAnchor(
         }
 
         Anchor.TopEnd -> {
-            // Preserve the top-right corner.
             newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }
 
         Anchor.BottomStart -> {
-            // Preserve the bottom-left corner.
             newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn
         }
 
         Anchor.BottomEnd -> {
-            // Preserve the bottom-right corner.
             newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }

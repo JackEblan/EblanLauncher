@@ -40,7 +40,7 @@ fun getResolveDirectionByX(
 
     return when {
         xInGridItem < gridItemWidth / 3 -> {
-            ResolveDirection.End
+            ResolveDirection.StartToEnd
         }
 
         xInGridItem < 2 * gridItemWidth / 3 -> {
@@ -48,7 +48,7 @@ fun getResolveDirectionByX(
         }
 
         else -> {
-            ResolveDirection.Start
+            ResolveDirection.EndToStart
         }
     }
 }
@@ -67,8 +67,8 @@ fun getResolveDirectionByDiff(
     val columnDiff = newCenterColumn - oldCenterColumn
 
     return when {
-        rowDiff < 0 || columnDiff < 0 -> ResolveDirection.Start
-        rowDiff > 0 || columnDiff > 0 -> ResolveDirection.End
+        rowDiff < 0 || columnDiff < 0 -> ResolveDirection.EndToStart
+        rowDiff > 0 || columnDiff > 0 -> ResolveDirection.StartToEnd
         else -> ResolveDirection.Center
     }
 }
@@ -115,8 +115,8 @@ fun getResolveDirectionBySpan(
     val touchesRight = otherRight in (movingLeft + 1)..<movingRight
 
     return when {
-        touchesLeft -> ResolveDirection.End
-        touchesRight -> ResolveDirection.Start
+        touchesLeft -> ResolveDirection.StartToEnd
+        touchesRight -> ResolveDirection.EndToStart
         else -> ResolveDirection.Center
     }
 }

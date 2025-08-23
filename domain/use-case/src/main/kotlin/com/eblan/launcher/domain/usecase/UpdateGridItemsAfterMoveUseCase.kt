@@ -137,7 +137,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         )
 
                     val movedSecondGridItem = moveGridItem(
-                        resolveDirection = ResolveDirection.End,
+                        resolveDirection = ResolveDirection.StartToEnd,
                         moving = firstGridItem,
                         conflicting = secondGridItem,
                         rows = folderRows,

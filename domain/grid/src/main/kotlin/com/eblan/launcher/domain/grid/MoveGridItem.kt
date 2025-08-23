@@ -2,7 +2,7 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflictsWhenMoving(
@@ -12,7 +12,8 @@ suspend fun resolveConflictsWhenMoving(
     rows: Int,
     columns: Int,
 ): List<GridItem>? {
-    return if (resolveConflicts(
+    return if (
+        resolveConflictsIterative(
             gridItems = gridItems,
             resolveDirection = resolveDirection,
             moving = moving,
@@ -26,44 +27,37 @@ suspend fun resolveConflictsWhenMoving(
     }
 }
 
-private suspend fun resolveConflicts(
+private suspend fun resolveConflictsIterative(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
     moving: GridItem,
     rows: Int,
     columns: Int,
 ): Boolean {
-    for (gridItem in gridItems) {
-        coroutineContext.ensureActive()
+    val queue = ArrayDeque<GridItem>()
+    queue.add(moving)
 
-        val isOverlapping = gridItem.id != moving.id &&
-                rectanglesOverlap(
-                    moving = moving,
-                    other = gridItem,
-                )
+    while (queue.isNotEmpty() && coroutineContext.isActive) {
+        val current = queue.removeFirst()
 
-        if (isOverlapping) {
-            val movedGridItem = moveGridItem(
-                resolveDirection = resolveDirection,
-                moving = moving,
-                conflicting = gridItem,
-                rows = rows,
-                columns = columns,
-            ) ?: return false
+        for (gridItem in gridItems) {
+            val isOverlapping = gridItem.id != current.id &&
+                    rectanglesOverlap(current, gridItem)
 
-            val index = gridItems.indexOfFirst { it.id == gridItem.id }
-
-            gridItems[index] = movedGridItem
-
-            if (!resolveConflicts(
-                    gridItems = gridItems,
+            if (isOverlapping) {
+                val movedGridItem = moveGridItem(
                     resolveDirection = resolveDirection,
-                    moving = movedGridItem,
+                    moving = current,
+                    conflicting = gridItem,
                     rows = rows,
                     columns = columns,
-                )
-            ) {
-                return false
+                ) ?: return false
+
+                val index = gridItems.indexOfFirst { it.id == gridItem.id }
+
+                gridItems[index] = movedGridItem
+
+                queue.add(movedGridItem)
             }
         }
     }
@@ -79,8 +73,8 @@ fun moveGridItem(
     columns: Int,
 ): GridItem? {
     return when (resolveDirection) {
-        ResolveDirection.Start -> {
-            moveGridItemToLeft(
+        ResolveDirection.EndToStart -> {
+            moveGridItemFromEndToStart(
                 moving = moving,
                 conflicting = conflicting,
                 rows = rows,
@@ -88,8 +82,8 @@ fun moveGridItem(
             )
         }
 
-        ResolveDirection.End -> {
-            moveGridItemToRight(
+        ResolveDirection.StartToEnd -> {
+            moveGridItemFromStartToEnd(
                 moving = moving,
                 conflicting = conflicting,
                 rows = rows,
@@ -101,7 +95,7 @@ fun moveGridItem(
     }
 }
 
-fun moveGridItemToRight(
+fun moveGridItemFromStartToEnd(
     moving: GridItem,
     conflicting: GridItem,
     rows: Int,
@@ -110,21 +104,19 @@ fun moveGridItemToRight(
     var newColumn = moving.startColumn + moving.columnSpan
     var newRow = conflicting.startRow
 
-    // Wrap horizontally if necessary.
     if (newColumn + conflicting.columnSpan > columns) {
         newColumn = 0
         newRow = moving.startRow + moving.rowSpan
     }
 
-    // Check vertical bounds.
     if (newRow + conflicting.rowSpan > rows) {
-        return null // No space left.
+        return null
     }
 
     return conflicting.copy(startRow = newRow, startColumn = newColumn)
 }
 
-private fun moveGridItemToLeft(
+private fun moveGridItemFromEndToStart(
     moving: GridItem,
     conflicting: GridItem,
     rows: Int,
@@ -133,15 +125,13 @@ private fun moveGridItemToLeft(
     var newColumn = moving.startColumn - conflicting.columnSpan
     var newRow = conflicting.startRow
 
-    // Wrap horizontally if necessary
     if (newColumn < 0) {
         newColumn = columns - conflicting.columnSpan
         newRow = conflicting.startRow - 1
     }
 
-    // Check vertical bounds
     if (newRow < 0) {
-        return null // No space left
+        return null
     }
 
     if (newRow + conflicting.rowSpan > rows) {

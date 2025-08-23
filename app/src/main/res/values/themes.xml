@@ -1,22 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Theme.EblanLauncher" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <style name="Theme.EblanLauncher.Wallpaper" parent="android:Theme.Material.Wallpaper.NoTitleBar">
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
-        <item name="android:navigationBarColor" tools:targetApi="27">@android:color/transparent
-        </item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:enforceStatusBarContrast" tools:targetApi="29">false</item>
-        <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
-    </style>
-
-    <style name="Theme.EblanLauncher.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="postSplashScreenTheme">@style/Theme.EblanLauncher.Wallpaper</item>
-    </style>
+    <style name="Theme.EblanLauncher.Wallpaper" parent="android:Theme.Material.Wallpaper.NoTitleBar"/>
 
     <style name="PinActivityTheme" parent="@android:style/Theme.Translucent.NoTitleBar">
         <item name="android:windowTranslucentStatus">true</item>

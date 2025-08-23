@@ -6,6 +6,7 @@ import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -41,12 +43,13 @@ fun ResizeScreen(
     dockColumns: Int,
     gridItems: List<GridItem>?,
     gridItem: GridItem?,
-    rootWidth: Int,
-    rootHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
     gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -59,6 +62,14 @@ fun ResizeScreen(
     requireNotNull(gridItems)
 
     val density = LocalDensity.current
+
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
@@ -74,11 +85,15 @@ fun ResizeScreen(
         onResizeEnd()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .padding(paddingValues)
+            .fillMaxSize(),
+    ) {
         GridLayout(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(gridPaddingDp)
+                .fillMaxWidth()
                 .weight(1f)
                 .background(
                     color = Color(textColor).copy(alpha = 0.25f),
@@ -120,13 +135,17 @@ fun ResizeScreen(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val gridWidth = rootWidth - (gridPaddingPx * 2)
+            val gridLeft = leftPadding + gridPaddingPx
 
-            val gridHeight = (rootHeight - dockHeight) - (gridPaddingPx * 2)
+            val gridTop = topPadding + gridPaddingPx
 
-            val cellWidth = gridWidth / columns
+            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
 
-            val cellHeight = gridHeight / rows
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
+
+            val cellWidth = gridWidthWithPadding / columns
+
+            val cellHeight = gridHeightWithPadding / rows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -136,17 +155,20 @@ fun ResizeScreen(
 
             val height = gridItem.rowSpan * cellHeight
 
+            val gridX = x + gridLeft
+
+            val gridY = y + gridTop
+
             ResizeOverlay(
                 gridItem = gridItem,
-                gridPaddingPx = gridPaddingPx,
-                gridWidth = gridWidth,
-                gridHeight = gridHeight,
+                gridWidth = gridWidthWithPadding,
+                gridHeight = gridHeightWithPadding,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 rows = rows,
                 columns = columns,
-                x = x,
-                y = y,
+                x = gridX,
+                y = gridY,
                 width = width,
                 height = height,
                 textColor = textColor,
@@ -156,13 +178,17 @@ fun ResizeScreen(
         }
 
         Associate.Dock -> {
-            val cellWidth = rootWidth / dockColumns
+            val cellWidth = gridWidth / dockColumns
 
             val cellHeight = dockHeight / dockRows
 
             val x = gridItem.startColumn * cellWidth
 
-            val dockY = (rootHeight - dockHeight) + (gridItem.startRow * cellHeight)
+            val y = gridItem.startRow * cellHeight
+
+            val dockX = x + leftPadding
+
+            val dockY = (y + topPadding) + (gridHeight - dockHeight)
 
             val width = gridItem.columnSpan * cellWidth
 
@@ -170,14 +196,13 @@ fun ResizeScreen(
 
             ResizeOverlay(
                 gridItem = gridItem,
-                gridPaddingPx = 0,
-                gridWidth = rootWidth,
+                gridWidth = gridWidth,
                 gridHeight = dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 rows = dockRows,
                 columns = dockColumns,
-                x = x,
+                x = dockX,
                 y = dockY,
                 width = width,
                 height = height,
@@ -192,7 +217,6 @@ fun ResizeScreen(
 @Composable
 private fun ResizeOverlay(
     gridItem: GridItem,
-    gridPaddingPx: Int,
     gridWidth: Int,
     gridHeight: Int,
     cellWidth: Int,
@@ -217,7 +241,6 @@ private fun ResizeOverlay(
         is GridItemData.Folder,
             -> {
             GridItemResizeOverlay(
-                gridPadding = gridPaddingPx,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
@@ -237,7 +260,6 @@ private fun ResizeOverlay(
 
         is GridItemData.Widget -> {
             WidgetGridItemResizeOverlay(
-                gridPadding = gridPaddingPx,
                 gridItem = gridItem,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,

@@ -1,6 +1,9 @@
 package com.eblan.launcher.feature.home.screen.folderdrag
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -10,16 +13,18 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import kotlinx.coroutines.delay
 
 suspend fun handleFolderDragIntOffset(
+    density: Density,
     targetPage: Int,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
-    rootHeight: Int,
+    gridHeight: Int,
     gridPadding: Int,
-    rootWidth: Int,
+    gridWidth: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
+    paddingValues: PaddingValues,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -36,33 +41,52 @@ suspend fun handleFolderDragIntOffset(
         return
     }
 
-    val verticalOutOfBounds =
-        dragIntOffset.y < gridPadding || dragIntOffset.y > rootHeight - gridPadding
+    delay(250L)
 
-    if (dragIntOffset.x <= gridPadding && !verticalOutOfBounds) {
-        delay(250L)
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
 
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val dragX = dragIntOffset.x - leftPadding
+
+    val dragY = dragIntOffset.y - topPadding
+
+    val isOnLeftGrid = dragX < gridPadding
+
+    val isOnRightGrid = dragX > gridWidth - gridPadding
+
+    val isOnTopGrid = dragY < gridPadding
+
+    val isOnBottomGrid = dragY > gridHeight - gridPadding
+
+    val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
+
+    if (isOnLeftGrid && isVerticalBounds) {
         onUpdatePageDirection(PageDirection.Left)
-    } else if (dragIntOffset.x >= rootWidth - gridPadding && !verticalOutOfBounds) {
+    } else if (isOnRightGrid && isVerticalBounds) {
         delay(250L)
 
         onUpdatePageDirection(PageDirection.Right)
-    } else if (verticalOutOfBounds) {
+    } else if (!isVerticalBounds) {
         onMoveOutsideFolder(
             GridItemSource.Existing(gridItem = gridItem.copy(folderId = null)),
         )
     } else {
-        val gridWidth = rootWidth - (gridPadding * 2)
+        val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeight = rootHeight - (gridPadding * 2)
+        val gridHeightWithPadding = gridHeight - (gridPadding * 2)
 
-        val gridX = dragIntOffset.x - gridPadding
+        val gridX = dragX - gridPadding
 
-        val gridY = dragIntOffset.y - gridPadding
+        val gridY = dragY - gridPadding
 
-        val cellWidth = gridWidth / columns
+        val cellWidth = gridWidthWithPadding / columns
 
-        val cellHeight = gridHeight / rows
+        val cellHeight = gridHeightWithPadding / rows
 
         val newGridItem = gridItem.copy(
             page = targetPage,
@@ -84,8 +108,8 @@ suspend fun handleFolderDragIntOffset(
                 gridY,
                 rows,
                 columns,
-                gridWidth,
-                gridHeight,
+                gridWidthWithPadding,
+                gridHeightWithPadding,
             )
         }
     }

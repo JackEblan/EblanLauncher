@@ -1,11 +1,9 @@
 package com.eblan.launcher.feature.home.screen.application
 
-import android.content.ClipData
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -25,13 +23,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -43,17 +46,19 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
@@ -65,12 +70,13 @@ fun ApplicationScreen(
     appDrawerRowsHeight: Int,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    gridItemSource: GridItemSource?,
-    onLongPress: (
+    paddingValues: PaddingValues,
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        intOffset: IntOffset,
     ) -> Unit,
-    onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
     onFling: () -> Unit,
     onFastFling: () -> Unit,
@@ -109,15 +115,6 @@ fun ApplicationScreen(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
-            showPopupApplicationMenu = false
-
-            onDragging()
-        }
-    }
-
-
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
@@ -129,6 +126,8 @@ fun ApplicationScreen(
             else -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(count = appDrawerColumns),
+                    modifier = Modifier.matchParentSize(),
+                    contentPadding = paddingValues,
                     overscrollEffect = overscrollEffect,
                 ) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
@@ -136,92 +135,140 @@ fun ApplicationScreen(
 
                         var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-                        Column(
-                            modifier = Modifier
-                                .dragAndDropSource(
-                                    block = {
-                                        detectTapGestures(
-                                            onLongPress = {
-                                                showPopupApplicationMenu = true
+                        val graphicsLayer = rememberGraphicsLayer()
 
-                                                popupMenuIntOffset = intOffset
+                        var show by remember { mutableStateOf(true) }
 
-                                                popupMenuIntSize = intSize
+                        val scale = remember { Animatable(1f) }
 
-                                                val data = GridItemData.ApplicationInfo(
-                                                    componentName = eblanApplicationInfo.componentName,
-                                                    packageName = eblanApplicationInfo.packageName,
-                                                    icon = eblanApplicationInfo.icon,
-                                                    label = eblanApplicationInfo.label,
-                                                )
-                                                onLongPress(
-                                                    page,
-                                                    GridItemSource.New(
-                                                        gridItem = GridItem(
-                                                            id = Uuid.random().toHexString(),
-                                                            folderId = null,
-                                                            page = page,
-                                                            startRow = 0,
-                                                            startColumn = 0,
-                                                            rowSpan = 1,
-                                                            columnSpan = 1,
-                                                            data = data,
-                                                            associate = Associate.Grid,
-                                                            override = false,
-                                                            gridItemSettings = gridItemSettings,
-                                                        ),
-                                                    ),
-                                                )
+                        LaunchedEffect(key1 = drag) {
+                            if (scale.value == 1.1f) {
+                                when (drag) {
+                                    Drag.Dragging -> {
+                                        show = false
+                                    }
 
-                                                startTransfer(
-                                                    DragAndDropTransferData(
-                                                        clipData = ClipData.newPlainText(
-                                                            "Drag",
-                                                            "Drag",
-                                                        ),
-                                                    ),
-                                                )
+                                    Drag.Cancel, Drag.End -> {
+                                        scale.animateTo(targetValue = 1f)
+
+                                        show = true
+                                    }
+
+                                    else -> Unit
+                                }
+                            }
+                        }
+
+                        if (show) {
+                            Column(
+                                modifier = Modifier
+                                    .drawWithContent {
+                                        graphicsLayer.record {
+                                            this@drawWithContent.drawContent()
+                                        }
+
+                                        drawLayer(
+                                            graphicsLayer.apply {
+                                                scaleX = scale.value
+                                                scaleY = scale.value
                                             },
                                         )
-                                    },
+                                    }
+                                    .pointerInput(Unit) {
+                                        detectTapGesturesUnConsume(
+                                            onLongPress = {
+                                                scope.launch {
+                                                    showPopupApplicationMenu = true
+
+                                                    popupMenuIntOffset = intOffset
+
+                                                    popupMenuIntSize = intSize
+
+                                                    val data = GridItemData.ApplicationInfo(
+                                                        componentName = eblanApplicationInfo.componentName,
+                                                        packageName = eblanApplicationInfo.packageName,
+                                                        icon = eblanApplicationInfo.icon,
+                                                        label = eblanApplicationInfo.label,
+                                                    )
+
+                                                    onLongPressGridItem(
+                                                        page,
+                                                        GridItemSource.New(
+                                                            gridItem = GridItem(
+                                                                id = Uuid.random().toHexString(),
+                                                                folderId = null,
+                                                                page = page,
+                                                                startRow = 0,
+                                                                startColumn = 0,
+                                                                rowSpan = 1,
+                                                                columnSpan = 1,
+                                                                data = data,
+                                                                associate = Associate.Grid,
+                                                                override = false,
+                                                                gridItemSettings = gridItemSettings,
+                                                            ),
+                                                        ),
+                                                        graphicsLayer.toImageBitmap(),
+                                                        intOffset,
+                                                    )
+
+                                                    scale.animateTo(targetValue = 0.5f)
+
+                                                    scale.animateTo(targetValue = 1.1f)
+                                                }
+                                            },
+                                        )
+                                    }
+                                    .onGloballyPositioned { layoutCoordinates ->
+                                        intOffset = layoutCoordinates.positionInRoot().round()
+
+                                        intSize = layoutCoordinates.size
+                                    }
+                                    .height(appDrawerRowsHeightDp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Spacer(modifier = Modifier.height(5.dp))
+
+                                AsyncImage(
+                                    model = eblanApplicationInfo.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp, 40.dp),
                                 )
-                                .onGloballyPositioned { layoutCoordinates ->
-                                    intOffset = layoutCoordinates.positionInRoot().round()
 
-                                    intSize = layoutCoordinates.size
-                                }
-                                .height(appDrawerRowsHeightDp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Spacer(modifier = Modifier.height(5.dp))
+                                Spacer(modifier = Modifier.height(10.dp))
 
-                            AsyncImage(
-                                model = eblanApplicationInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp, 40.dp),
-                            )
+                                Text(
+                                    text = eblanApplicationInfo.label.toString(),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = TextUnit(
+                                        value = 10f,
+                                        type = TextUnitType.Sp,
+                                    ),
+                                )
 
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Text(
-                                text = eblanApplicationInfo.label.toString(),
-                                textAlign = TextAlign.Center,
-                                fontSize = TextUnit(
-                                    value = 10f,
-                                    type = TextUnitType.Sp,
-                                ),
-                            )
-
-                            Spacer(modifier = Modifier.height(5.dp))
+                                Spacer(modifier = Modifier.height(5.dp))
+                            }
                         }
                     }
                 }
 
                 if (showPopupApplicationMenu) {
+                    val leftPadding = with(density) {
+                        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+                    }
+
+                    val topPadding = with(density) {
+                        paddingValues.calculateTopPadding().roundToPx()
+                    }
+
+                    val x = popupMenuIntOffset.x - leftPadding
+
+                    val y = popupMenuIntOffset.y - topPadding
+
                     Popup(
                         popupPositionProvider = MenuPositionProvider(
-                            x = popupMenuIntOffset.x,
-                            y = popupMenuIntOffset.y,
+                            x = x,
+                            y = y,
                             width = popupMenuIntSize.width,
                             height = popupMenuIntSize.height,
                         ),

@@ -1,6 +1,9 @@
 package com.eblan.launcher.feature.home.screen.drag
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
@@ -31,20 +34,22 @@ suspend fun handlePageDirection(
 }
 
 suspend fun handleDragIntOffset(
+    density: Density,
     targetPage: Int,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
-    rootHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     gridPadding: Int,
-    rootWidth: Int,
-    dockColumns: Int,
-    dockRows: Int,
     rows: Int,
     columns: Int,
+    dockRows: Int,
+    dockColumns: Int,
     isScrollInProgress: Boolean,
     gridItemSource: GridItemSource,
+    paddingValues: PaddingValues,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -60,22 +65,44 @@ suspend fun handleDragIntOffset(
         return
     }
 
-    val isDraggingOnDock = dragIntOffset.y > (rootHeight - dockHeight) - gridPadding
+    delay(250L)
 
-    if (dragIntOffset.x <= gridPadding && !isDraggingOnDock) {
-        delay(250L)
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
 
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val dragX = dragIntOffset.x - leftPadding
+
+    val dragY = dragIntOffset.y - topPadding
+
+    val isOnLeftGrid = dragX < gridPadding
+
+    val isOnRightGrid = dragX > gridWidth - gridPadding
+
+    val isOnTopGrid = dragY < gridPadding
+
+    val isOnBottomGrid = dragY > (gridHeight - dockHeight - gridPadding)
+
+    val isHorizontalBounds = !isOnLeftGrid && !isOnRightGrid
+
+    val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
+
+    val isOnDock = dragY > (gridHeight - dockHeight)
+
+    if (isOnLeftGrid && isVerticalBounds) {
         onUpdatePageDirection(PageDirection.Left)
-    } else if (dragIntOffset.x >= rootWidth - gridPadding && !isDraggingOnDock) {
-        delay(250L)
-
+    } else if (isOnRightGrid && isVerticalBounds) {
         onUpdatePageDirection(PageDirection.Right)
-    } else if (isDraggingOnDock) {
-        val cellWidth = rootWidth / dockColumns
+    } else if (isOnDock) {
+        val cellWidth = gridWidth / dockColumns
 
         val cellHeight = dockHeight / dockRows
 
-        val dockY = dragIntOffset.y - (rootHeight - dockHeight)
+        val dockY = dragY - (gridHeight - dockHeight)
 
         val moveGridItem = getMoveGridItem(
             targetPage = targetPage,
@@ -84,9 +111,9 @@ suspend fun handleDragIntOffset(
             cellHeight = cellHeight,
             rows = dockRows,
             columns = dockColumns,
-            gridWidth = rootWidth,
+            gridWidth = gridWidth,
             gridHeight = dockHeight,
-            gridX = dragIntOffset.x,
+            gridX = dragX,
             gridY = dockY,
             associate = Associate.Dock,
             gridItemSource = gridItemSource,
@@ -101,26 +128,26 @@ suspend fun handleDragIntOffset(
         if (isGridItemSpanWithinBounds) {
             onMoveGridItem(
                 moveGridItem,
-                dragIntOffset.x,
+                dragX,
                 dockY,
                 dockRows,
                 dockColumns,
-                rootWidth,
+                gridWidth,
                 dockHeight,
             )
         }
-    } else {
-        val gridWidth = rootWidth - (gridPadding * 2)
+    } else if (isHorizontalBounds && isVerticalBounds) {
+        val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeight = (rootHeight - dockHeight) - (gridPadding * 2)
+        val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPadding * 2)
 
-        val gridX = dragIntOffset.x - gridPadding
+        val gridX = dragX - gridPadding
 
-        val gridY = dragIntOffset.y - gridPadding
+        val gridY = dragY - gridPadding
 
-        val cellWidth = gridWidth / columns
+        val cellWidth = gridWidthWithPadding / columns
 
-        val cellHeight = gridHeight / rows
+        val cellHeight = gridHeightWithPadding / rows
 
         val moveGridItem = getMoveGridItem(
             targetPage = targetPage,
@@ -129,8 +156,8 @@ suspend fun handleDragIntOffset(
             cellHeight = cellHeight,
             rows = rows,
             columns = columns,
-            gridWidth = gridWidth,
-            gridHeight = gridHeight,
+            gridWidth = gridWidthWithPadding,
+            gridHeight = gridHeightWithPadding,
             gridX = gridX,
             gridY = gridY,
             associate = Associate.Grid,
@@ -150,8 +177,8 @@ suspend fun handleDragIntOffset(
                 gridY,
                 rows,
                 columns,
-                gridWidth,
-                gridHeight,
+                gridWidthWithPadding,
+                gridHeightWithPadding,
             )
         }
     }

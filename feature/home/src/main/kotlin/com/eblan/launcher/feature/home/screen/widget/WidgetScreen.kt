@@ -1,11 +1,9 @@
 package com.eblan.launcher.feature.home.screen.widget
 
-import android.content.ClipData
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -24,7 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -41,15 +43,17 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun WidgetScreen(
     modifier: Modifier = Modifier,
@@ -59,17 +63,18 @@ fun WidgetScreen(
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    rootWidth: Int,
-    rootHeight: Int,
+    gridWidth: Int,
+    gridHeight: Int,
     dockHeight: Int,
     gridItemSettings: GridItemSettings,
     drag: Drag,
-    gridItemSource: GridItemSource?,
-    onLongPress: (
+    paddingValues: PaddingValues,
+    onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+        intOffset: IntOffset,
     ) -> Unit,
-    onDragging: () -> Unit,
     onUpdateAlpha: (Float) -> Unit,
     onFling: () -> Unit,
     onFastFling: () -> Unit,
@@ -98,12 +103,6 @@ fun WidgetScreen(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
-            onDragging()
-        }
-    }
-
     Box(modifier = modifier.fillMaxSize()) {
         when {
             eblanAppWidgetProviderInfos.isEmpty() -> {
@@ -111,7 +110,11 @@ fun WidgetScreen(
             }
 
             else -> {
-                LazyColumn(overscrollEffect = overscrollEffect) {
+                LazyColumn(
+                    modifier = Modifier.matchParentSize(),
+                    contentPadding = paddingValues,
+                    overscrollEffect = overscrollEffect,
+                ) {
                     items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -137,8 +140,8 @@ fun WidgetScreen(
                                     val (width, height) = getWidgetGridItemSize(
                                         rows = rows,
                                         columns = columns,
-                                        gridWidth = rootWidth,
-                                        gridHeight = rootHeight - dockHeight,
+                                        gridWidth = gridWidth,
+                                        gridHeight = gridHeight - dockHeight,
                                         minWidth = eblanAppWidgetProviderInfo.minWidth,
                                         minHeight = eblanAppWidgetProviderInfo.minHeight,
                                         targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
@@ -148,13 +151,49 @@ fun WidgetScreen(
                                     DpSize(width = width.toDp(), height = height.toDp())
                                 }
 
-                                AsyncImage(
+                                val graphicsLayer = rememberGraphicsLayer()
+
+                                var show by remember { mutableStateOf(true) }
+
+                                val scale = remember { Animatable(1f) }
+
+                                LaunchedEffect(key1 = drag) {
+                                    if (scale.value == 1.1f) {
+                                        when (drag) {
+                                            Drag.Dragging -> {
+                                                show = false
+                                            }
+
+                                            Drag.Cancel, Drag.End -> {
+                                                scale.animateTo(targetValue = 1f)
+
+                                                show = true
+                                            }
+
+                                            else -> Unit
+                                        }
+                                    }
+                                }
+
+                                Box(
                                     modifier = Modifier
-                                        .dragAndDropSource(
-                                            block = {
-                                                detectTapGestures(
-                                                    onLongPress = {
-                                                        onLongPress(
+                                        .drawWithContent {
+                                            graphicsLayer.record {
+                                                this@drawWithContent.drawContent()
+                                            }
+
+                                            drawLayer(
+                                                graphicsLayer.apply {
+                                                    scaleX = scale.value
+                                                    scaleY = scale.value
+                                                },
+                                            )
+                                        }
+                                        .pointerInput(Unit) {
+                                            detectTapGesturesUnConsume(
+                                                onLongPress = {
+                                                    scope.launch {
+                                                        onLongPressGridItem(
                                                             page,
                                                             GridItemSource.New(
                                                                 gridItem = getWidgetGridItem(
@@ -177,27 +216,30 @@ fun WidgetScreen(
                                                                     gridItemSettings = gridItemSettings,
                                                                 ),
                                                             ),
+                                                            graphicsLayer.toImageBitmap(),
+                                                            intOffset,
                                                         )
 
-                                                        startTransfer(
-                                                            DragAndDropTransferData(
-                                                                clipData = ClipData.newPlainText(
-                                                                    "Drag",
-                                                                    "Drag",
-                                                                ),
-                                                            ),
-                                                        )
-                                                    },
-                                                )
-                                            },
-                                        )
+                                                        scale.animateTo(targetValue = 0.5f)
+
+                                                        scale.animateTo(targetValue = 1.1f)
+                                                    }
+                                                },
+                                            )
+                                        }
                                         .size(size)
                                         .onGloballyPositioned { layoutCoordinates ->
                                             intOffset = layoutCoordinates.positionInRoot().round()
                                         },
-                                    model = preview,
-                                    contentDescription = null,
-                                )
+                                ) {
+                                    if (show) {
+                                        AsyncImage(
+                                            modifier = Modifier.matchParentSize(),
+                                            model = preview,
+                                            contentDescription = null,
+                                        )
+                                    }
+                                }
 
                                 val infoText = """
     ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}

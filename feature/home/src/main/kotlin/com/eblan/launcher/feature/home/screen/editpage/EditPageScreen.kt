@@ -55,12 +55,13 @@ fun EditPageScreen(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    rootHeight: Int,
+    gridHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
     initialPage: Int,
     textColor: Long,
     gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -83,8 +84,8 @@ fun EditPageScreen(
             currentPageItems = currentPageItems.toMutableList().apply { add(to, removeAt(from)) }
         }
 
-    val gridHeight = with(density) {
-        ((rootHeight - dockHeight) / 2).toDp()
+    val cardHeight = with(density) {
+        ((gridHeight - dockHeight) / 2).toDp()
     }
 
     BackHandler {
@@ -98,7 +99,7 @@ fun EditPageScreen(
                 .dragContainer(state = gridDragAndDropState)
                 .weight(1f),
             state = gridState,
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -117,7 +118,7 @@ fun EditPageScreen(
                         border = BorderStroke(width = 2.dp, color = Color(textColor)),
                     ) {
                         GridLayout(
-                            modifier = Modifier.height(gridHeight),
+                            modifier = Modifier.height(cardHeight),
                             rows = rows,
                             columns = columns,
                         ) {
@@ -213,7 +214,9 @@ fun EditPageScreen(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(

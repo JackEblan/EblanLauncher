@@ -3,7 +3,6 @@ package com.eblan.launcher.domain.grid
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflictsWhenMoving(

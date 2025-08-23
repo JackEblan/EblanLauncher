@@ -49,10 +49,10 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.TestInteractiveApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.TestInteractiveFolderGridItem
-import com.eblan.launcher.feature.home.component.grid.TestInteractiveShortcutInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.TestInteractiveWidgetGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveWidgetGridItem
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.SettingsMenu
@@ -681,7 +681,7 @@ fun PageGridItemContent(
 
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
-            TestInteractiveApplicationInfoGridItem(
+            InteractiveApplicationInfoGridItem(
                 textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
                 gridItem = gridItem,
@@ -695,7 +695,7 @@ fun PageGridItemContent(
         }
 
         is GridItemData.Widget -> {
-            TestInteractiveWidgetGridItem(
+            InteractiveWidgetGridItem(
                 gridItem = gridItem,
                 data = data,
                 drag = drag,
@@ -704,7 +704,7 @@ fun PageGridItemContent(
         }
 
         is GridItemData.ShortcutInfo -> {
-            TestInteractiveShortcutInfoGridItem(
+            InteractiveShortcutInfoGridItem(
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
                 gridItem = gridItem,
@@ -723,7 +723,7 @@ fun PageGridItemContent(
         }
 
         is GridItemData.Folder -> {
-            TestInteractiveFolderGridItem(
+            InteractiveFolderGridItem(
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
                 gridItem = gridItem,

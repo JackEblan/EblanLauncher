@@ -63,8 +63,6 @@ suspend fun handleFolderDragIntOffset(
 
     val isOnBottomGrid = dragY > gridHeight - gridPadding
 
-    val isHorizontalBounds = !isOnLeftGrid && !isOnRightGrid
-
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 
     if (isOnLeftGrid && isVerticalBounds) {

@@ -461,7 +461,10 @@ private fun HorizontalPagerScreen(
                         onDoubleTap()
                     },
                     onLongPress = { offset ->
-                        popupSettingsMenuIntOffset = offset.round()
+                        popupSettingsMenuIntOffset = IntOffset(
+                            x = offset.round().x + leftPadding,
+                            y = offset.round().y + topPadding,
+                        )
 
                         showPopupSettingsMenu = true
 

@@ -33,12 +33,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
+import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -55,6 +57,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -80,6 +83,7 @@ fun DragScreen(
     textColor: Long,
     moveGridItemResult: MoveGridItemResult?,
     gridItemSettings: GridItemSettings,
+    wallpaperScroll: Boolean,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -111,6 +115,10 @@ fun DragScreen(
     val appWidgetManager = LocalAppWidgetManager.current
 
     val density = LocalDensity.current
+
+    val wallpaperManagerWrapper = LocalWallpaperManager.current
+
+    val view = LocalView.current
 
     val dockHeightDp = with(density) {
         dockHeight.toDp()
@@ -271,6 +279,17 @@ fun DragScreen(
             onConfigure = configureLauncher::launch,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragEndAfterMove = onDragEndAfterMove,
+        )
+    }
+
+    LaunchedEffect(key1 = horizontalPagerState) {
+        handleWallpaperScroll(
+            horizontalPagerState = horizontalPagerState,
+            wallpaperScroll = wallpaperScroll,
+            wallpaperManagerWrapper = wallpaperManagerWrapper,
+            pageCount = pageCount,
+            infiniteScroll = infiniteScroll,
+            windowToken = view.windowToken,
         )
     }
 

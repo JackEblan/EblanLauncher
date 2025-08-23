@@ -7,8 +7,6 @@ import android.content.pm.ShortcutInfo
 import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.runtime.snapshotFlow
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GestureAction
@@ -19,14 +17,10 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
-import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
-import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.math.absoluteValue
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -178,64 +172,6 @@ suspend fun handlePinItemRequest(
             }
 
             else -> Unit
-        }
-    }
-}
-
-suspend fun handleWallpaperScroll(
-    horizontalPagerState: PagerState,
-    wallpaperScroll: Boolean,
-    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    windowToken: android.os.IBinder,
-) {
-    if (!wallpaperScroll) return
-
-    var reverseXOffset: Float
-
-    snapshotFlow { horizontalPagerState.currentPageOffsetFraction }.onStart {
-        wallpaperManagerWrapper.setWallpaperOffsetSteps(
-            xStep = 1f / (pageCount - 1),
-            yStep = 1f,
-        )
-    }.collect { offsetFraction ->
-        val page = calculatePage(
-            index = horizontalPagerState.currentPage,
-            infiniteScroll = infiniteScroll,
-            pageCount = pageCount,
-        )
-
-        val scrollProgress = page + offsetFraction
-
-        if (scrollProgress < 0f) {
-            reverseXOffset = offsetFraction.absoluteValue
-
-            wallpaperManagerWrapper.setWallpaperOffsets(
-                windowToken = windowToken,
-                xOffset = reverseXOffset,
-                yOffset = 0f,
-            )
-        } else if (scrollProgress > pageCount - 1) {
-            reverseXOffset = 1f - offsetFraction
-
-            wallpaperManagerWrapper.setWallpaperOffsets(
-                windowToken = windowToken,
-                xOffset = reverseXOffset,
-                yOffset = 0f,
-            )
-        } else {
-            val xOffset = scrollProgress / (pageCount - 1)
-
-            wallpaperManagerWrapper.setWallpaperOffsets(
-                windowToken = windowToken,
-                xOffset = xOffset,
-                yOffset = 0f,
-            )
-        }
-
-        if (offsetFraction == 0f) {
-            reverseXOffset = offsetFraction
         }
     }
 }

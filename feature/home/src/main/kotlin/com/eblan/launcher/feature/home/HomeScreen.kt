@@ -514,11 +514,12 @@ private fun Success(
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
                     dockHeight = userData.homeSettings.dockHeight,
+                    paddingValues = paddingValues,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
-                    paddingValues = paddingValues,
+                    wallpaperScroll = userData.homeSettings.wallpaperScroll,
                     onMoveGridItem = onMoveGridItem,
                     onDragCancel = onResetGridCacheAfterResize,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->

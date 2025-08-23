@@ -360,6 +360,83 @@ fun InteractiveFolderGridItem(
 }
 
 @Composable
+fun InteractiveNestedFolderGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    drag: Drag,
+    onTap: () -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    var show by remember { mutableStateOf(true) }
+
+    val scale = remember { Animatable(1f) }
+
+    LaunchedEffect(key1 = drag) {
+        if (scale.value == 1.1f) {
+            when (drag) {
+                Drag.Dragging -> {
+                    show = false
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    scale.animateTo(targetValue = 1f)
+
+                    show = true
+                }
+
+                else -> Unit
+            }
+
+        }
+    }
+
+    if (show) {
+        NestedFolderGridItem(
+            modifier = modifier
+                .gridItem(gridItem)
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(
+                        graphicsLayer.apply {
+                            scaleX = scale.value
+                            scaleY = scale.value
+                        },
+                    )
+                }
+                .pointerInput(Unit) {
+                    detectTapGesturesUnConsume(
+                        onLongPress = {
+                            scope.launch {
+                                onLongPress(graphicsLayer.toImageBitmap())
+
+                                scale.animateTo(targetValue = 0.5f)
+
+                                scale.animateTo(targetValue = 1.1f)
+                            }
+                        },
+                        onTap = {
+                            onTap()
+                        },
+                    )
+                },
+            data = data,
+            textColor = textColor,
+            gridItemSettings = gridItemSettings,
+        )
+    }
+}
+
+@Composable
 fun WidgetGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Widget,

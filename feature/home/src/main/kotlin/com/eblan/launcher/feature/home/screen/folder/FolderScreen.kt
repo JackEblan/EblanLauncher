@@ -21,12 +21,17 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveNestedFolderGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveShortcutInfoGridItem
+import com.eblan.launcher.feature.home.component.grid.InteractiveWidgetGridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.screen.pager.PageGridItemContent
 
 @Composable
 fun FolderScreen(
@@ -133,7 +138,7 @@ fun FolderScreen(
 
                             val y = gridItem.startRow * cellHeight
 
-                            PageGridItemContent(
+                            GridItemContent(
                                 gridItem = gridItem,
                                 gridItemSettings = gridItemSettings,
                                 textColor = textColor,
@@ -165,6 +170,102 @@ fun FolderScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GridItemContent(
+    gridItem: GridItem,
+    gridItemSettings: GridItemSettings,
+    textColor: Long,
+    hasShortcutHostPermission: Boolean,
+    drag: Drag,
+    onTapApplicationInfo: (String?) -> Unit,
+    onTapShortcutInfo: (
+        packageName: String,
+        shortcutId: String,
+    ) -> Unit,
+    onTapFolderGridItem: () -> Unit,
+    onLongPress: (ImageBitmap?) -> Unit,
+) {
+    val currentGridItemSettings = if (gridItem.override) {
+        gridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
+    val currentTextColor = if (gridItem.override) {
+        when (gridItem.gridItemSettings.textColor) {
+            TextColor.System -> {
+                textColor
+            }
+
+            TextColor.Light -> {
+                0xFFFFFFFF
+            }
+
+            TextColor.Dark -> {
+                0xFF000000
+            }
+        }
+    } else {
+        textColor
+    }
+
+    when (val data = gridItem.data) {
+        is GridItemData.ApplicationInfo -> {
+            InteractiveApplicationInfoGridItem(
+                textColor = currentTextColor,
+                gridItemSettings = currentGridItemSettings,
+                gridItem = gridItem,
+                data = data,
+                drag = drag,
+                onTap = {
+                    onTapApplicationInfo(data.componentName)
+                },
+                onLongPress = onLongPress,
+            )
+        }
+
+        is GridItemData.Widget -> {
+            InteractiveWidgetGridItem(
+                gridItem = gridItem,
+                data = data,
+                drag = drag,
+                onLongPress = onLongPress,
+            )
+        }
+
+        is GridItemData.ShortcutInfo -> {
+            InteractiveShortcutInfoGridItem(
+                gridItemSettings = currentGridItemSettings,
+                textColor = currentTextColor,
+                gridItem = gridItem,
+                data = data,
+                drag = drag,
+                onTap = {
+                    if (hasShortcutHostPermission) {
+                        onTapShortcutInfo(
+                            data.packageName,
+                            data.shortcutId,
+                        )
+                    }
+                },
+                onLongPress = onLongPress,
+            )
+        }
+
+        is GridItemData.Folder -> {
+            InteractiveNestedFolderGridItem(
+                gridItemSettings = currentGridItemSettings,
+                textColor = currentTextColor,
+                gridItem = gridItem,
+                data = data,
+                drag = drag,
+                onTap = onTapFolderGridItem,
+                onLongPress = onLongPress,
+            )
         }
     }
 }

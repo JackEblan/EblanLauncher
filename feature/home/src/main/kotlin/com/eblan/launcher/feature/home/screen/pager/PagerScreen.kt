@@ -512,7 +512,7 @@ private fun HorizontalPagerScreen(
 
                     val height = gridItem.rowSpan * cellHeight
 
-                    PageGridItemContent(
+                    GridItemContent(
                         gridItem = gridItem,
                         gridItemSettings = gridItemSettings,
                         textColor = textColor,
@@ -568,7 +568,7 @@ private fun HorizontalPagerScreen(
 
                 val height = gridItem.rowSpan * cellHeight
 
-                PageGridItemContent(
+                GridItemContent(
                     gridItem = gridItem,
                     gridItemSettings = gridItemSettings,
                     textColor = textColor,
@@ -645,7 +645,7 @@ private fun HorizontalPagerScreen(
 }
 
 @Composable
-fun PageGridItemContent(
+private fun GridItemContent(
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,
     textColor: Long,

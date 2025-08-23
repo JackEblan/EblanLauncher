@@ -3,7 +3,6 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
-import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -27,7 +26,7 @@ class GetFolderDataByIdUseCase @Inject constructor(
                         gridItem = gridItem,
                         rows = homeSettings.folderRows,
                         columns = homeSettings.folderColumns,
-                    ) && gridItem.associate == Associate.Grid
+                    )
                 }.groupBy { gridItem -> gridItem.page }
 
                 FolderDataById(

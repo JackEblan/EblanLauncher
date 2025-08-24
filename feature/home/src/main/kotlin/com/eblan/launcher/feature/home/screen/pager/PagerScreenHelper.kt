@@ -180,10 +180,10 @@ fun doGestureActions(
     gestureSettings: GestureSettings,
     swipeUpY: Float,
     swipeDownY: Float,
-    rootHeight: Int,
+    screenHeight: Int,
     onStartMainActivity: (String?) -> Unit,
 ) {
-    if (swipeUpY < rootHeight - SwipeThreshold) {
+    if (swipeUpY < screenHeight - SwipeThreshold) {
         when (val gestureAction = gestureSettings.swipeUp) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }
@@ -197,7 +197,7 @@ fun doGestureActions(
         }
     }
 
-    if (swipeDownY < rootHeight - SwipeThreshold) {
+    if (swipeDownY < screenHeight - SwipeThreshold) {
         when (val gestureAction = gestureSettings.swipeDown) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }
@@ -216,22 +216,22 @@ fun resetSwipeOffset(
     scope: CoroutineScope,
     gestureSettings: GestureSettings,
     swipeDownY: Animatable<Float, AnimationVector1D>,
-    rootHeight: Int,
+    screenHeight: Int,
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
-    val swipeThreshold = rootHeight - 200f
+    val swipeThreshold = screenHeight - 200f
 
     scope.launch {
         if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
             val swipeDownYTarget = if (swipeDownY.value < swipeThreshold) {
                 0f
             } else {
-                rootHeight.toFloat()
+                screenHeight.toFloat()
             }
 
             swipeDownY.animateTo(swipeDownYTarget)
         } else {
-            swipeDownY.snapTo(rootHeight.toFloat())
+            swipeDownY.snapTo(screenHeight.toFloat())
         }
     }
 
@@ -240,11 +240,11 @@ fun resetSwipeOffset(
             val swipeUpYTarget = if (swipeUpY.value < swipeThreshold) {
                 0f
             } else {
-                rootHeight.toFloat()
+                screenHeight.toFloat()
             }
             swipeUpY.animateTo(swipeUpYTarget)
         } else {
-            swipeUpY.snapTo(rootHeight.toFloat())
+            swipeUpY.snapTo(screenHeight.toFloat())
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -49,7 +49,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -69,15 +68,15 @@ fun WidgetScreen(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     paddingValues: PaddingValues,
+    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
         intOffset: IntOffset,
     ) -> Unit,
-    onUpdateAlpha: (Float) -> Unit,
-    onFling: () -> Unit,
-    onFastFling: () -> Unit,
+    onFling: suspend () -> Unit,
+    onFastFling: suspend () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -92,15 +91,10 @@ fun WidgetScreen(
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
+            overscrollAlpha = overscrollAlpha,
             onFling = onFling,
             onFastFling = onFastFling,
         )
-    }
-
-    LaunchedEffect(key1 = overscrollEffect) {
-        snapshotFlow { overscrollEffect.overscrollAlpha.value }.collect { overscrollAlpha ->
-            onUpdateAlpha(1f - (abs(overscrollAlpha) / 500f))
-        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {

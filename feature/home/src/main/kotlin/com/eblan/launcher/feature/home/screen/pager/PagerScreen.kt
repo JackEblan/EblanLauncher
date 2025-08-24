@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -15,19 +14,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -61,10 +57,6 @@ import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
-import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
-import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
-import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import kotlinx.coroutines.launch
@@ -208,7 +200,7 @@ fun PagerScreen(
                 gestureSettings = gestureSettings,
                 swipeUpY = swipeUpY.value,
                 swipeDownY = swipeDownY.value,
-                rootHeight = screenHeight,
+                screenHeight = screenHeight,
                 onStartMainActivity = launcherApps::startMainActivity,
             )
 
@@ -216,7 +208,7 @@ fun PagerScreen(
                 scope = scope,
                 gestureSettings = gestureSettings,
                 swipeDownY = swipeDownY,
-                rootHeight = screenHeight,
+                screenHeight = screenHeight,
                 swipeUpY = swipeUpY,
             )
         },
@@ -794,142 +786,4 @@ private fun PopupGridItemMenu(
             }
         },
     )
-}
-
-@Composable
-private fun ApplicationComponentScreen(
-    modifier: Modifier = Modifier,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    gridHorizontalPagerState: PagerState,
-    rows: Int,
-    columns: Int,
-    appDrawerColumns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    gridWidth: Int,
-    gridHeight: Int,
-    dockHeight: Int,
-    paddingValues: PaddingValues,
-    drag: Drag,
-    appDrawerRowsHeight: Int,
-    hasShortcutHostPermission: Boolean,
-    gridItemSettings: GridItemSettings,
-    onDismiss: () -> Unit,
-    onAnimateDismiss: () -> Unit,
-    onLongPressGridItem: (
-        currentPage: Int,
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
-    ) -> Unit,
-) {
-    var alpha by remember { mutableFloatStateOf(1f) }
-
-    BackHandler {
-        onAnimateDismiss()
-    }
-
-    Surface(
-        onClick = {},
-        modifier = modifier
-            .graphicsLayer(alpha = alpha)
-            .fillMaxSize(),
-        enabled = false,
-    ) {
-        when (eblanApplicationComponentUiState) {
-            EblanApplicationComponentUiState.Loading -> {
-                LoadingScreen()
-            }
-
-            is EblanApplicationComponentUiState.Success -> {
-                val applicationHorizontalPagerState = rememberPagerState(
-                    initialPage = 0,
-                    pageCount = {
-                        if (hasShortcutHostPermission) {
-                            3
-                        } else {
-                            2
-                        }
-                    },
-                )
-
-                HorizontalPager(state = applicationHorizontalPagerState) { page ->
-                    when (page) {
-                        0 -> {
-                            ApplicationScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                appDrawerColumns = appDrawerColumns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                                appDrawerRowsHeight = appDrawerRowsHeight,
-                                gridItemSettings = gridItemSettings,
-                                drag = drag,
-                                paddingValues = paddingValues,
-                                onLongPressGridItem = onLongPressGridItem,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onFling = {
-                                    if (alpha < 0.2f) {
-                                        onDismiss()
-                                    }
-                                },
-                                onFastFling = onAnimateDismiss,
-                            )
-                        }
-
-                        1 -> {
-                            WidgetScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                rows = rows,
-                                columns = columns,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
-                                gridWidth = gridWidth,
-                                gridHeight = gridHeight,
-                                dockHeight = dockHeight,
-                                gridItemSettings = gridItemSettings,
-                                drag = drag,
-                                paddingValues = paddingValues,
-                                onLongPressGridItem = onLongPressGridItem,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onFling = {
-                                    if (alpha < 0.2f) {
-                                        onDismiss()
-                                    }
-                                },
-                                onFastFling = onAnimateDismiss,
-                            )
-                        }
-
-                        2 -> {
-                            ShortcutScreen(
-                                currentPage = gridHorizontalPagerState.currentPage,
-                                pageCount = pageCount,
-                                infiniteScroll = infiniteScroll,
-                                eblanShortcutInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutInfos,
-                                gridItemSettings = gridItemSettings,
-                                drag = drag,
-                                paddingValues = paddingValues,
-                                onLongPressGridItem = onLongPressGridItem,
-                                onUpdateAlpha = { newAlpha ->
-                                    alpha = newAlpha
-                                },
-                                onFling = {
-                                    if (alpha < 0.2f) {
-                                        onDismiss()
-                                    }
-                                },
-                                onFastFling = onAnimateDismiss,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

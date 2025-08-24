@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.component.overscroll
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.OverscrollEffect
@@ -23,19 +24,17 @@ import kotlin.math.sign
 
 class OffsetOverscrollEffect(
     private val scope: CoroutineScope,
-    private val onFling: () -> Unit,
+    private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    private val onFling: suspend () -> Unit,
     private val onFastFling: suspend () -> Unit,
 ) : OverscrollEffect {
     private val overscrollOffset = Animatable(0f)
-
-    val overscrollAlpha = Animatable(0f)
 
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
         performScroll: (Offset) -> Offset,
     ): Offset {
-
         val sameDirection = sign(delta.y) == sign(overscrollOffset.value)
 
         val consumedByPreScroll = if (abs(overscrollOffset.value) > 0.5 && !sameDirection) {
@@ -44,18 +43,18 @@ class OffsetOverscrollEffect(
             val newOverscrollValue = overscrollOffset.value + delta.y
 
             if (sign(prevOverscrollValue) != sign(newOverscrollValue)) {
-
                 scope.launch {
                     overscrollOffset.snapTo(0f)
 
                     overscrollAlpha.snapTo(0f)
                 }
+
                 Offset(x = 0f, y = delta.y + prevOverscrollValue)
             } else {
                 scope.launch {
                     overscrollOffset.snapTo(overscrollOffset.value + delta.y)
 
-                    overscrollAlpha.snapTo(overscrollOffset.value + delta.y)
+                    overscrollAlpha.snapTo(overscrollOffset.value)
                 }
 
                 delta.copy(x = 0f)
@@ -63,6 +62,7 @@ class OffsetOverscrollEffect(
         } else {
             Offset.Zero
         }
+
         val leftForScroll = delta - consumedByPreScroll
 
         val consumedByScroll = performScroll(leftForScroll)
@@ -71,12 +71,10 @@ class OffsetOverscrollEffect(
 
         if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
             scope.launch {
-                val newOffset = overscrollOffset.value + overscrollDelta.y * 0.5f
+                overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y * 0.5f)
 
-                overscrollOffset.snapTo(newOffset)
-
-                if (newOffset > 0f) {
-                    overscrollAlpha.snapTo(newOffset)
+                if (overscrollOffset.value > 0f) {
+                    overscrollAlpha.snapTo(overscrollOffset.value)
                 } else {
                     overscrollAlpha.snapTo(0f)
                 }
@@ -94,15 +92,19 @@ class OffsetOverscrollEffect(
 
         val remaining = velocity - consumed
 
-        if (overscrollOffset.value == 0f && remaining.y > 10000F) {
-            onFastFling()
-
+        if (overscrollOffset.value <= 0f && remaining.y > 10000f) {
             overscrollAlpha.snapTo(0f)
 
             overscrollOffset.snapTo(0f)
-        } else {
-            onFling()
 
+            onFastFling()
+        } else if (overscrollOffset.value > 500f) {
+            overscrollAlpha.snapTo(0f)
+
+            overscrollOffset.snapTo(0f)
+
+            onFling()
+        } else {
             overscrollAlpha.snapTo(0f)
 
             overscrollOffset.animateTo(

@@ -4,6 +4,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.grid.moveGridItem
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.ResolveDirection
@@ -27,41 +28,29 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         conflictingGridItem: GridItem?,
     ) {
         withContext(defaultDispatcher) {
-            updateGridItems(
-                movingGridItem = movingGridItem,
-                conflictingGridItem = conflictingGridItem,
-            )
+            val homeSettings = userDataRepository.userData.first().homeSettings
+
+            val folderRows = homeSettings.folderRows
+
+            val folderColumns = homeSettings.folderColumns
+
+            val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
+
+            val movingIndex = gridItems.indexOfFirst { it.id == movingGridItem.id }
+
+            if (conflictingGridItem != null) {
+                groupConflictingGridItemsIntoFolder(
+                    gridItems = gridItems,
+                    conflictingGridItem = conflictingGridItem,
+                    movingGridItem = movingGridItem,
+                    folderRows = folderRows,
+                    folderColumns = folderColumns,
+                    movingIndex = movingIndex,
+                )
+            } else {
+                updateGridItemsUseCase(gridItems = gridItems)
+            }
         }
-    }
-
-    private suspend fun updateGridItems(
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) {
-        val homeSettings = userDataRepository.userData.first().homeSettings
-
-        val folderRows = homeSettings.folderRows
-
-        val folderColumns = homeSettings.folderColumns
-
-        val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
-
-        val movingIndex = gridItems.indexOfFirst { it.id == movingGridItem.id }
-
-        if (conflictingGridItem == null) {
-            updateGridItemsUseCase(gridItems = gridItems)
-
-            return
-        }
-
-        groupConflictingGridItemsIntoFolder(
-            gridItems = gridItems,
-            conflictingGridItem = conflictingGridItem,
-            movingGridItem = movingGridItem,
-            folderRows = folderRows,
-            folderColumns = folderColumns,
-            movingIndex = movingIndex,
-        )
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -86,7 +75,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 )
 
                 if (newGridItem != null) {
-                    gridItems[movingIndex] = newGridItem.copy(folderId = conflictingGridItem.id)
+                    gridItems[movingIndex] = newGridItem.copy(
+                        folderId = conflictingGridItem.id,
+                        associate = Associate.Grid,
+                    )
                 } else {
                     val newPageCount = data.pageCount + 1
 
@@ -97,6 +89,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         startRow = 0,
                         startColumn = 0,
                         folderId = conflictingGridItem.id,
+                        associate = Associate.Grid,
                     )
 
                     gridItems[conflictingIndex] = conflictingGridItem.copy(data = newData)
@@ -111,6 +104,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     startRow = 0,
                     startColumn = 0,
                     folderId = id,
+                    associate = Associate.Grid,
                 )
 
                 val secondGridItem = movingGridItem.copy(
@@ -118,6 +112,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     startRow = 0,
                     startColumn = 0,
                     folderId = id,
+                    associate = Associate.Grid,
                 )
 
                 val movedSecondGridItem = moveGridItem(

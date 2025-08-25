@@ -706,7 +706,11 @@ private fun PopupSettingsMenu(
 
                 onWidgets()
             },
-            onShortcuts = onShortcuts,
+            onShortcuts = {
+                onDismissRequest()
+                
+                onShortcuts()
+            },
         )
     }
 }

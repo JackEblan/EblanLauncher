@@ -57,6 +57,9 @@ import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
+import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import kotlinx.coroutines.launch
@@ -124,6 +127,10 @@ fun PagerScreen(
 
     var showDoubleTap by remember { mutableStateOf(false) }
 
+    var showWidgets by remember { mutableStateOf(false) }
+
+    var showShortcuts by remember { mutableStateOf(false) }
+
     val scope = rememberCoroutineScope()
 
     val topPadding = with(density) {
@@ -183,6 +190,12 @@ fun PagerScreen(
         onResize = onResize,
         onSettings = onSettings,
         onEditPage = onEditPage,
+        onWidgets = {
+            showWidgets = true
+        },
+        onShortcuts = {
+            showShortcuts = true
+        },
         onDragStartPinItemRequest = onDragStartPinItemRequest,
         onDoubleTap = {
             showDoubleTap = true
@@ -221,26 +234,23 @@ fun PagerScreen(
         },
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
-        ApplicationComponentScreen(
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
+        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
+    ) {
+        ApplicationScreen(
             modifier = Modifier.offset {
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
             },
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            gridHorizontalPagerState = gridHorizontalPagerState,
-            rows = rows,
-            columns = columns,
+            currentPage = gridHorizontalPagerState.currentPage,
             appDrawerColumns = appDrawerColumns,
             pageCount = pageCount,
             infiniteScroll = infiniteScroll,
-            gridWidth = gridWidth,
-            gridHeight = gridHeight,
-            dockHeight = dockHeight,
-            paddingValues = paddingValues,
-            drag = drag,
+            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             appDrawerRowsHeight = appDrawerRowsHeight,
-            hasShortcutHostPermission = hasShortcutHostPermission,
             gridItemSettings = gridItemSettings,
+            drag = drag,
+            paddingValues = paddingValues,
+            onLongPressGridItem = onLongPressGridItem,
             onDismiss = {
                 scope.launch {
                     swipeUpY.snapTo(screenHeight.toFloat())
@@ -255,7 +265,6 @@ fun PagerScreen(
                     swipeDownY.animateTo(screenHeight.toFloat())
                 }
             },
-            onLongPressGridItem = onLongPressGridItem,
         )
     }
 
@@ -276,24 +285,18 @@ fun PagerScreen(
                     animatedSwipeUpY.animateTo(0f)
                 }
 
-                ApplicationComponentScreen(
+                ApplicationScreen(
                     modifier = Modifier.offset {
                         IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
                     },
+                    currentPage = gridHorizontalPagerState.currentPage,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    gridHorizontalPagerState = gridHorizontalPagerState,
-                    rows = rows,
-                    columns = columns,
                     appDrawerColumns = appDrawerColumns,
                     pageCount = pageCount,
                     infiniteScroll = infiniteScroll,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
-                    dockHeight = dockHeight,
                     paddingValues = paddingValues,
                     drag = drag,
                     appDrawerRowsHeight = appDrawerRowsHeight,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
                     gridItemSettings = gridItemSettings,
                     onDismiss = {
                         showDoubleTap = false
@@ -313,6 +316,45 @@ fun PagerScreen(
 
             }
         }
+    }
+
+    if (showWidgets) {
+        WidgetScreen(
+            currentPage = gridHorizontalPagerState.currentPage,
+            rows = rows,
+            columns = columns,
+            pageCount = pageCount,
+            infiniteScroll = infiniteScroll,
+            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            gridWidth = gridWidth,
+            gridHeight = gridHeight,
+            dockHeight = dockHeight,
+            gridItemSettings = gridItemSettings,
+            drag = drag,
+            paddingValues = paddingValues,
+            screenHeight = screenHeight,
+            onLongPressGridItem = onLongPressGridItem,
+            onDismiss = {
+                showWidgets = false
+            },
+        )
+    }
+
+    if (showShortcuts) {
+        ShortcutScreen(
+            currentPage = gridHorizontalPagerState.currentPage,
+            pageCount = pageCount,
+            infiniteScroll = infiniteScroll,
+            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            gridItemSettings = gridItemSettings,
+            drag = drag,
+            paddingValues = paddingValues,
+            screenHeight = screenHeight,
+            onLongPressGridItem = onLongPressGridItem,
+            onDismiss = {
+                showShortcuts = false
+            },
+        )
     }
 }
 
@@ -349,6 +391,8 @@ private fun HorizontalPagerScreen(
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
+    onWidgets: () -> Unit,
+    onShortcuts: () -> Unit,
     onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onDoubleTap: () -> Unit,
     onLongPressGridItem: (
@@ -611,28 +655,59 @@ private fun HorizontalPagerScreen(
     }
 
     if (showPopupSettingsMenu) {
-        Popup(
-            popupPositionProvider = SettingsMenuPositionProvider(
-                x = popupSettingsMenuIntOffset.x,
-                y = popupSettingsMenuIntOffset.y,
-            ),
+        PopupSettingsMenu(
+            popupSettingsMenuIntOffset = popupSettingsMenuIntOffset,
+            gridItems = gridItems,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            onSettings = onSettings,
+            onEditPage = onEditPage,
+            onWidgets = onWidgets,
+            onShortcuts = onShortcuts,
             onDismissRequest = {
                 showPopupSettingsMenu = false
             },
-        ) {
-            SettingsMenu(
-                onSettings = {
-                    showPopupSettingsMenu = false
+        )
+    }
+}
 
-                    onSettings()
-                },
-                onEditPage = {
-                    showPopupSettingsMenu = false
+@Composable
+private fun PopupSettingsMenu(
+    popupSettingsMenuIntOffset: IntOffset,
+    gridItems: List<GridItem>,
+    hasShortcutHostPermission: Boolean,
+    onSettings: () -> Unit,
+    onEditPage: (List<GridItem>) -> Unit,
+    onWidgets: () -> Unit,
+    onShortcuts: () -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    Popup(
+        popupPositionProvider = SettingsMenuPositionProvider(
+            x = popupSettingsMenuIntOffset.x,
+            y = popupSettingsMenuIntOffset.y,
+        ),
+        onDismissRequest = onDismissRequest,
+    ) {
+        SettingsMenu(
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            onSettings = {
+                onDismissRequest()
 
-                    onEditPage(gridItems)
-                },
-            )
-        }
+                onSettings()
+            },
+            onEditPage = {
+                onDismissRequest()
+
+                onEditPage(gridItems)
+            },
+
+            onWidgets = {
+                onDismissRequest()
+
+                onWidgets()
+            },
+            onShortcuts = onShortcuts,
+        )
     }
 }
 

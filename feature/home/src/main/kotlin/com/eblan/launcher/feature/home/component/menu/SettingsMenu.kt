@@ -18,8 +18,11 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 @Composable
 fun SettingsMenu(
     modifier: Modifier = Modifier,
+    hasShortcutHostPermission: Boolean,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
+    onWidgets: () -> Unit,
+    onShortcuts: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -45,6 +48,30 @@ fun SettingsMenu(
                     )
 
                     Text(text = "Edit Pages")
+                }
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Row(modifier = Modifier.clickable(onClick = onWidgets)) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Widgets,
+                        contentDescription = null,
+                    )
+
+                    Text(text = "Widgets")
+                }
+
+                if (hasShortcutHostPermission) {
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    Row(modifier = Modifier.clickable(onClick = onShortcuts)) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Shortcut,
+                            contentDescription = null,
+                        )
+
+                        Text(text = "Shortcuts")
+                    }
                 }
             }
         },

@@ -2,6 +2,7 @@ package com.eblan.launcher.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -25,4 +26,5 @@ object EblanLauncherIcons {
     val Gesture = Icons.Default.Gesture
     val Folder = Icons.Default.Folder
     val Apps = Icons.Default.Apps
+    val Shortcut = Icons.AutoMirrored.Filled.Shortcut
 }

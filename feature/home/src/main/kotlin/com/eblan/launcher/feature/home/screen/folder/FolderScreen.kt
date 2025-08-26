@@ -220,7 +220,6 @@ private fun GridItemContent(
                 gridItemSettings = currentGridItemSettings,
                 gridItem = gridItem,
                 data = data,
-                drag = drag,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
@@ -232,7 +231,6 @@ private fun GridItemContent(
             InteractiveWidgetGridItem(
                 gridItem = gridItem,
                 data = data,
-                drag = drag,
                 onLongPress = onLongPress,
             )
         }
@@ -243,7 +241,6 @@ private fun GridItemContent(
                 textColor = currentTextColor,
                 gridItem = gridItem,
                 data = data,
-                drag = drag,
                 onTap = {
                     if (hasShortcutHostPermission) {
                         onTapShortcutInfo(

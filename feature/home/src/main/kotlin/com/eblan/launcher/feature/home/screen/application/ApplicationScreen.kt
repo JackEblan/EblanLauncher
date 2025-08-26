@@ -16,7 +16,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +50,6 @@ import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnCon
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
-import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
@@ -71,7 +69,6 @@ fun ApplicationScreen(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     appDrawerRowsHeight: Int,
     gridItemSettings: GridItemSettings,
-    drag: Drag,
     paddingValues: PaddingValues,
     onLongPressGridItem: (
         currentPage: Int,
@@ -114,6 +111,8 @@ fun ApplicationScreen(
     }
 
     BackHandler {
+        showPopupApplicationMenu = false
+
         onAnimateDismiss()
     }
 
@@ -128,7 +127,8 @@ fun ApplicationScreen(
             }
 
             is EblanApplicationComponentUiState.Success -> {
-                val eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos
+                val eblanApplicationInfos =
+                    eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -152,120 +152,87 @@ fun ApplicationScreen(
 
                                     val graphicsLayer = rememberGraphicsLayer()
 
-                                    var show by remember { mutableStateOf(true) }
-
-                                    val scale = remember { Animatable(1f) }
-
-                                    LaunchedEffect(key1 = drag) {
-                                        if (scale.value == 1.1f) {
-                                            when (drag) {
-                                                Drag.Dragging -> {
-                                                    show = false
+                                    Column(
+                                        modifier = Modifier
+                                            .drawWithContent {
+                                                graphicsLayer.record {
+                                                    this@drawWithContent.drawContent()
                                                 }
 
-                                                Drag.Cancel, Drag.End -> {
-                                                    scale.animateTo(targetValue = 1f)
-
-                                                    show = true
-                                                }
-
-                                                else -> Unit
+                                                drawLayer(graphicsLayer)
                                             }
-                                        }
-                                    }
+                                            .pointerInput(Unit) {
+                                                detectTapGesturesUnConsume(
+                                                    onLongPress = {
+                                                        scope.launch {
+                                                            showPopupApplicationMenu = true
 
-                                    if (show) {
-                                        Column(
-                                            modifier = Modifier
-                                                .drawWithContent {
-                                                    graphicsLayer.record {
-                                                        this@drawWithContent.drawContent()
-                                                    }
+                                                            popupMenuIntOffset = intOffset
 
-                                                    drawLayer(
-                                                        graphicsLayer.apply {
-                                                            scaleX = scale.value
-                                                            scaleY = scale.value
-                                                        },
-                                                    )
-                                                }
-                                                .pointerInput(Unit) {
-                                                    detectTapGesturesUnConsume(
-                                                        onLongPress = {
-                                                            scope.launch {
-                                                                showPopupApplicationMenu = true
+                                                            popupMenuIntSize = intSize
 
-                                                                popupMenuIntOffset = intOffset
-
-                                                                popupMenuIntSize = intSize
-
-                                                                val data =
-                                                                    GridItemData.ApplicationInfo(
-                                                                        componentName = eblanApplicationInfo.componentName,
-                                                                        packageName = eblanApplicationInfo.packageName,
-                                                                        icon = eblanApplicationInfo.icon,
-                                                                        label = eblanApplicationInfo.label,
-                                                                    )
-
-                                                                onLongPressGridItem(
-                                                                    page,
-                                                                    GridItemSource.New(
-                                                                        gridItem = GridItem(
-                                                                            id = Uuid.random()
-                                                                                .toHexString(),
-                                                                            folderId = null,
-                                                                            page = page,
-                                                                            startRow = 0,
-                                                                            startColumn = 0,
-                                                                            rowSpan = 1,
-                                                                            columnSpan = 1,
-                                                                            data = data,
-                                                                            associate = Associate.Grid,
-                                                                            override = false,
-                                                                            gridItemSettings = gridItemSettings,
-                                                                        ),
-                                                                    ),
-                                                                    graphicsLayer.toImageBitmap(),
-                                                                    intOffset,
+                                                            val data =
+                                                                GridItemData.ApplicationInfo(
+                                                                    componentName = eblanApplicationInfo.componentName,
+                                                                    packageName = eblanApplicationInfo.packageName,
+                                                                    icon = eblanApplicationInfo.icon,
+                                                                    label = eblanApplicationInfo.label,
                                                                 )
 
-                                                                scale.animateTo(targetValue = 0.5f)
+                                                            onLongPressGridItem(
+                                                                page,
+                                                                GridItemSource.New(
+                                                                    gridItem = GridItem(
+                                                                        id = Uuid.random()
+                                                                            .toHexString(),
+                                                                        folderId = null,
+                                                                        page = page,
+                                                                        startRow = 0,
+                                                                        startColumn = 0,
+                                                                        rowSpan = 1,
+                                                                        columnSpan = 1,
+                                                                        data = data,
+                                                                        associate = Associate.Grid,
+                                                                        override = false,
+                                                                        gridItemSettings = gridItemSettings,
+                                                                    ),
+                                                                ),
+                                                                graphicsLayer.toImageBitmap(),
+                                                                intOffset,
+                                                            )
+                                                        }
+                                                    },
+                                                )
+                                            }
+                                            .onGloballyPositioned { layoutCoordinates ->
+                                                intOffset =
+                                                    layoutCoordinates.positionInRoot().round()
 
-                                                                scale.animateTo(targetValue = 1.1f)
-                                                            }
-                                                        },
-                                                    )
-                                                }
-                                                .onGloballyPositioned { layoutCoordinates ->
-                                                    intOffset =
-                                                        layoutCoordinates.positionInRoot().round()
+                                                intSize = layoutCoordinates.size
+                                            }
+                                            .height(appDrawerRowsHeightDp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        Spacer(modifier = Modifier.height(5.dp))
 
-                                                    intSize = layoutCoordinates.size
-                                                }
-                                                .height(appDrawerRowsHeightDp),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                        ) {
-                                            Spacer(modifier = Modifier.height(5.dp))
+                                        AsyncImage(
+                                            model = eblanApplicationInfo.icon,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(40.dp, 40.dp),
+                                        )
 
-                                            AsyncImage(
-                                                model = eblanApplicationInfo.icon,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(40.dp, 40.dp),
-                                            )
+                                        Spacer(modifier = Modifier.height(10.dp))
 
-                                            Spacer(modifier = Modifier.height(10.dp))
+                                        Text(
+                                            text = eblanApplicationInfo.label.toString(),
+                                            textAlign = TextAlign.Center,
+                                            fontSize = TextUnit(
+                                                value = 10f,
+                                                type = TextUnitType.Sp,
+                                            ),
+                                        )
 
-                                            Text(
-                                                text = eblanApplicationInfo.label.toString(),
-                                                textAlign = TextAlign.Center,
-                                                fontSize = TextUnit(
-                                                    value = 10f,
-                                                    type = TextUnitType.Sp,
-                                                ),
-                                            )
-
-                                            Spacer(modifier = Modifier.height(5.dp))
-                                        }
+                                        Spacer(modifier = Modifier.height(5.dp))
                                     }
                                 }
                             }

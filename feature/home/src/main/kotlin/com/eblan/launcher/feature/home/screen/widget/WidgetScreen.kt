@@ -46,7 +46,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
-import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
@@ -70,7 +69,6 @@ fun WidgetScreen(
     gridHeight: Int,
     dockHeight: Int,
     gridItemSettings: GridItemSettings,
-    drag: Drag,
     paddingValues: PaddingValues,
     screenHeight: Int,
     onLongPressGridItem: (
@@ -187,28 +185,6 @@ fun WidgetScreen(
 
                                             val graphicsLayer = rememberGraphicsLayer()
 
-                                            var show by remember { mutableStateOf(true) }
-
-                                            val scale = remember { Animatable(1f) }
-
-                                            LaunchedEffect(key1 = drag) {
-                                                if (scale.value == 1.1f) {
-                                                    when (drag) {
-                                                        Drag.Dragging -> {
-                                                            show = false
-                                                        }
-
-                                                        Drag.Cancel, Drag.End -> {
-                                                            scale.animateTo(targetValue = 1f)
-
-                                                            show = true
-                                                        }
-
-                                                        else -> Unit
-                                                    }
-                                                }
-                                            }
-
                                             Box(
                                                 modifier = Modifier
                                                     .drawWithContent {
@@ -216,12 +192,7 @@ fun WidgetScreen(
                                                             this@drawWithContent.drawContent()
                                                         }
 
-                                                        drawLayer(
-                                                            graphicsLayer.apply {
-                                                                scaleX = scale.value
-                                                                scaleY = scale.value
-                                                            },
-                                                        )
+                                                        drawLayer(graphicsLayer)
                                                     }
                                                     .pointerInput(Unit) {
                                                         detectTapGesturesUnConsume(
@@ -253,10 +224,6 @@ fun WidgetScreen(
                                                                         graphicsLayer.toImageBitmap(),
                                                                         intOffset,
                                                                     )
-
-                                                                    scale.animateTo(targetValue = 0.5f)
-
-                                                                    scale.animateTo(targetValue = 1.1f)
                                                                 }
                                                             },
                                                         )
@@ -268,13 +235,11 @@ fun WidgetScreen(
                                                                 .round()
                                                     },
                                             ) {
-                                                if (show) {
-                                                    AsyncImage(
-                                                        modifier = Modifier.matchParentSize(),
-                                                        model = preview,
-                                                        contentDescription = null,
-                                                    )
-                                                }
+                                                AsyncImage(
+                                                    modifier = Modifier.matchParentSize(),
+                                                    model = preview,
+                                                    contentDescription = null,
+                                                )
                                             }
 
                                             val infoText = """

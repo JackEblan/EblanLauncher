@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +25,7 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -52,7 +51,6 @@ import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
-import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -631,7 +629,6 @@ private fun Success(
                     dragIntOffset = dragIntOffset,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
-                    moveGridItemResult = movedGridItemResult,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     folderDataById = foldersDataById.last(),
                     paddingValues = paddingValues,
@@ -664,26 +661,16 @@ private fun OverlayImage(
 ) {
     if (overlayImageBitmap != null) {
         when (drag) {
-            Drag.Start, Drag.Dragging -> {
-                var show by remember { mutableStateOf(false) }
-
-                LaunchedEffect(key1 = show) {
-                    delay(200L)
-
-                    show = true
-                }
-
-                if (show) {
-                    Image(
-                        modifier = modifier
-                            .offset {
-                                overlayIntOffset
-                            }
-                            .scale(1.1f),
-                        bitmap = overlayImageBitmap,
-                        contentDescription = null,
-                    )
-                }
+            Drag.Dragging -> {
+                Image(
+                    modifier = modifier
+                        .offset {
+                            overlayIntOffset
+                        }
+                        .alpha(0.5f),
+                    bitmap = overlayImageBitmap,
+                    contentDescription = null,
+                )
             }
 
             Drag.End, Drag.Cancel -> {

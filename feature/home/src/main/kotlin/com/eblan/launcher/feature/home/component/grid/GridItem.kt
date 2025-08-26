@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.component.grid
 
 import android.widget.FrameLayout
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -11,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,11 +62,18 @@ fun InteractiveApplicationInfoGridItem(
         gridItemSettings.textSize.toSp()
     }
 
+    val scale = remember { Animatable(1f) }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
                     this@drawWithContent.drawContent()
                 }
 
@@ -74,6 +83,10 @@ fun InteractiveApplicationInfoGridItem(
                 detectTapGesturesUnConsume(
                     onLongPress = {
                         scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
                             onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
@@ -126,6 +139,8 @@ fun InteractiveWidgetGridItem(
 
     val scope = rememberCoroutineScope()
 
+    val scale = remember { Animatable(1f) }
+
     if (appWidgetInfo != null) {
         AndroidView(
             factory = {
@@ -145,6 +160,11 @@ fun InteractiveWidgetGridItem(
                 .gridItem(gridItem)
                 .drawWithContent {
                     graphicsLayer.record {
+                        drawContext.transform.scale(
+                            scaleX = scale.value,
+                            scaleY = scale.value,
+                        )
+
                         this@drawWithContent.drawContent()
                     }
 
@@ -155,6 +175,10 @@ fun InteractiveWidgetGridItem(
                         requireUnconsumed = false,
                         onLongPress = {
                             scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
                                 onLongPress(graphicsLayer.toImageBitmap())
                             }
                         },
@@ -190,11 +214,18 @@ fun InteractiveShortcutInfoGridItem(
         gridItemSettings.textSize.toSp()
     }
 
+    val scale = remember { Animatable(1f) }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
                     this@drawWithContent.drawContent()
                 }
 
@@ -204,6 +235,10 @@ fun InteractiveShortcutInfoGridItem(
                 detectTapGesturesUnConsume(
                     onLongPress = {
                         scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
                             onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
@@ -261,11 +296,18 @@ fun InteractiveFolderGridItem(
         gridItemSettings.textSize.toSp()
     }
 
+    val scale = remember { Animatable(1f) }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
                     this@drawWithContent.drawContent()
                 }
 
@@ -275,6 +317,10 @@ fun InteractiveFolderGridItem(
                 detectTapGesturesUnConsume(
                     onLongPress = {
                         scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
                             onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
@@ -289,48 +335,45 @@ fun InteractiveFolderGridItem(
             modifier = Modifier.weight(1f),
             maxItemsInEachRow = 2,
         ) {
-            data.gridItems
-                .take(6)
-                .sortedBy { it.startRow + it.startColumn }
-                .forEach { gridItem ->
-                    Column {
-                        when (val currentData = gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                AsyncImage(
-                                    model = currentData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-
-                            is GridItemData.ShortcutInfo -> {
-                                AsyncImage(
-                                    model = currentData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-
-                            is GridItemData.Widget -> {
-                                Icon(
-                                    imageVector = EblanLauncherIcons.Widgets,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-
-                            is GridItemData.Folder -> {
-                                Icon(
-                                    imageVector = EblanLauncherIcons.Folder,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
+            data.gridItems.take(6).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                Column {
+                    when (val currentData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
                         }
 
-                        Spacer(modifier = Modifier.height(5.dp))
+                        is GridItemData.ShortcutInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.Widget -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Widgets,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.Folder -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Folder,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(5.dp))
                 }
+            }
         }
 
         if (gridItemSettings.showLabel) {
@@ -371,11 +414,18 @@ fun InteractiveNestedFolderGridItem(
         gridItemSettings.textSize.toSp()
     }
 
+    val scale = remember { Animatable(1f) }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
                     this@drawWithContent.drawContent()
                 }
 
@@ -385,6 +435,10 @@ fun InteractiveNestedFolderGridItem(
                 detectTapGesturesUnConsume(
                     onLongPress = {
                         scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
                             onLongPress(graphicsLayer.toImageBitmap())
                         }
                     },
@@ -429,8 +483,7 @@ fun WidgetGridItem(
 
     val appWidgetHost = LocalAppWidgetHost.current
 
-    val appWidgetInfo =
-        appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -563,48 +616,45 @@ fun FolderGridItem(
             modifier = Modifier.weight(1f),
             maxItemsInEachRow = 2,
         ) {
-            data.gridItems
-                .take(6)
-                .sortedBy { it.startRow + it.startColumn }
-                .forEach { gridItem ->
-                    Column {
-                        when (val currentData = gridItem.data) {
-                            is GridItemData.ApplicationInfo -> {
-                                AsyncImage(
-                                    model = currentData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-
-                            is GridItemData.ShortcutInfo -> {
-                                AsyncImage(
-                                    model = currentData.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-
-                            is GridItemData.Widget -> {
-                                Icon(
-                                    imageVector = EblanLauncherIcons.Widgets,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-
-                            is GridItemData.Folder -> {
-                                Icon(
-                                    imageVector = EblanLauncherIcons.Folder,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
+            data.gridItems.take(6).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                Column {
+                    when (val currentData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
                         }
 
-                        Spacer(modifier = Modifier.height(5.dp))
+                        is GridItemData.ShortcutInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.Widget -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Widgets,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.Folder -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Folder,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(5.dp))
                 }
+            }
         }
 
         if (gridItemSettings.showLabel) {

@@ -152,10 +152,17 @@ fun ApplicationScreen(
 
                                     val graphicsLayer = rememberGraphicsLayer()
 
+                                    val scale = remember { Animatable(1f) }
+
                                     Column(
                                         modifier = Modifier
                                             .drawWithContent {
                                                 graphicsLayer.record {
+                                                    drawContext.transform.scale(
+                                                        scaleX = scale.value,
+                                                        scaleY = scale.value,
+                                                    )
+
                                                     this@drawWithContent.drawContent()
                                                 }
 
@@ -165,6 +172,10 @@ fun ApplicationScreen(
                                                 detectTapGesturesUnConsume(
                                                     onLongPress = {
                                                         scope.launch {
+                                                            scale.animateTo(0.5f)
+
+                                                            scale.animateTo(1f)
+
                                                             showPopupApplicationMenu = true
 
                                                             popupMenuIntOffset = intOffset

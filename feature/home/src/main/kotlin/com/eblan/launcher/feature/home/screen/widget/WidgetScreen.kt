@@ -185,10 +185,17 @@ fun WidgetScreen(
 
                                             val graphicsLayer = rememberGraphicsLayer()
 
+                                            val scale = remember { Animatable(1f) }
+
                                             Box(
                                                 modifier = Modifier
                                                     .drawWithContent {
                                                         graphicsLayer.record {
+                                                            drawContext.transform.scale(
+                                                                scaleX = scale.value,
+                                                                scaleY = scale.value,
+                                                            )
+
                                                             this@drawWithContent.drawContent()
                                                         }
 
@@ -198,6 +205,10 @@ fun WidgetScreen(
                                                         detectTapGesturesUnConsume(
                                                             onLongPress = {
                                                                 scope.launch {
+                                                                    scale.animateTo(0.5f)
+
+                                                                    scale.animateTo(1f)
+
                                                                     onLongPressGridItem(
                                                                         page,
                                                                         GridItemSource.New(

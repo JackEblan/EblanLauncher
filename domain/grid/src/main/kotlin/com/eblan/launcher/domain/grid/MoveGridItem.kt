@@ -2,7 +2,7 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflictsWhenMoving(
@@ -34,30 +34,32 @@ private suspend fun resolveConflicts(
     rows: Int,
     columns: Int,
 ): Boolean {
-    val queue = ArrayDeque<GridItem>()
-    queue.add(moving)
+    for ((index, gridItem) in gridItems.withIndex()) {
+        coroutineContext.ensureActive()
 
-    while (queue.isNotEmpty() && coroutineContext.isActive) {
-        val current = queue.removeFirst()
+        val isOverlapping = gridItem.id != moving.id &&
+                rectanglesOverlap(moving, gridItem)
 
-        for (gridItem in gridItems) {
-            val isOverlapping = gridItem.id != current.id &&
-                    rectanglesOverlap(current, gridItem)
+        if (isOverlapping) {
+            val movedGridItem = moveGridItem(
+                resolveDirection = resolveDirection,
+                moving = moving,
+                conflicting = gridItem,
+                rows = rows,
+                columns = columns,
+            ) ?: return false
 
-            if (isOverlapping) {
-                val movedGridItem = moveGridItem(
+            gridItems[index] = movedGridItem
+
+            if (!resolveConflicts(
+                    gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    moving = current,
-                    conflicting = gridItem,
+                    moving = movedGridItem,
                     rows = rows,
                     columns = columns,
-                ) ?: return false
-
-                val index = gridItems.indexOfFirst { it.id == gridItem.id }
-
-                gridItems[index] = movedGridItem
-
-                queue.add(movedGridItem)
+                )
+            ) {
+                return false
             }
         }
     }
@@ -73,8 +75,8 @@ fun moveGridItem(
     columns: Int,
 ): GridItem? {
     return when (resolveDirection) {
-        ResolveDirection.EndToStart -> {
-            moveGridItemFromEndToStart(
+        ResolveDirection.Left -> {
+            moveGridItemToLeft(
                 moving = moving,
                 conflicting = conflicting,
                 rows = rows,
@@ -82,8 +84,8 @@ fun moveGridItem(
             )
         }
 
-        ResolveDirection.StartToEnd -> {
-            moveGridItemFromStartToEnd(
+        ResolveDirection.Right -> {
+            moveGridItemToRight(
                 moving = moving,
                 conflicting = conflicting,
                 rows = rows,
@@ -95,49 +97,52 @@ fun moveGridItem(
     }
 }
 
-private fun moveGridItemFromStartToEnd(
+private fun moveGridItemToRight(
     moving: GridItem,
     conflicting: GridItem,
     rows: Int,
     columns: Int,
 ): GridItem? {
-    var newColumn = moving.startColumn + moving.columnSpan
-    var newRow = conflicting.startRow
+    var newStartColumn = moving.startColumn + moving.columnSpan
+    var newStartRow = conflicting.startRow
 
-    if (newColumn + conflicting.columnSpan > columns) {
-        newColumn = 0
-        newRow = moving.startRow + moving.rowSpan
+    if (newStartColumn + conflicting.columnSpan > columns) {
+        newStartColumn = 0
+        newStartRow = moving.startRow + moving.rowSpan
     }
 
-    if (newRow + conflicting.rowSpan > rows) {
+    if (newStartRow + conflicting.rowSpan > rows) {
         return null
     }
 
-    return conflicting.copy(startRow = newRow, startColumn = newColumn)
+    return conflicting.copy(
+        startRow = newStartRow,
+        startColumn = newStartColumn,
+    )
 }
 
-private fun moveGridItemFromEndToStart(
+private fun moveGridItemToLeft(
     moving: GridItem,
     conflicting: GridItem,
     rows: Int,
     columns: Int,
 ): GridItem? {
-    var newColumn = moving.startColumn - conflicting.columnSpan
-    var newRow = conflicting.startRow
+    var newStartColumn = moving.startColumn - conflicting.columnSpan
+    var newStartRow = conflicting.startRow
 
-    if (newColumn < 0) {
-        newColumn = columns - conflicting.columnSpan
-        newRow = conflicting.startRow - 1
+    if (newStartColumn < 0) {
+        newStartColumn = columns - conflicting.columnSpan
+        newStartRow = moving.startRow - 1
     }
 
-    if (newRow < 0) {
+    if (newStartRow < 0) {
         return null
     }
 
-    if (newRow + conflicting.rowSpan > rows) {
+    if (newStartRow + conflicting.rowSpan > rows) {
         return null
     }
 
-    return conflicting.copy(startRow = newRow, startColumn = newColumn)
+    return conflicting.copy(startRow = newStartRow, startColumn = newStartColumn)
 }
 

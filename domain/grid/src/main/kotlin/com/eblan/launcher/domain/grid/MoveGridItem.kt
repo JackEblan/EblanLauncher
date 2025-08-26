@@ -13,7 +13,7 @@ suspend fun resolveConflictsWhenMoving(
     columns: Int,
 ): List<GridItem>? {
     return if (
-        resolveConflictsIterative(
+        resolveConflicts(
             gridItems = gridItems,
             resolveDirection = resolveDirection,
             moving = moving,
@@ -27,7 +27,7 @@ suspend fun resolveConflictsWhenMoving(
     }
 }
 
-private suspend fun resolveConflictsIterative(
+private suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
     moving: GridItem,
@@ -95,7 +95,7 @@ fun moveGridItem(
     }
 }
 
-fun moveGridItemFromStartToEnd(
+private fun moveGridItemFromStartToEnd(
     moving: GridItem,
     conflicting: GridItem,
     rows: Int,

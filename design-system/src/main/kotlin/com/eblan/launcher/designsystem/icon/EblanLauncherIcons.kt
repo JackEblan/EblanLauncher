@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Settings
@@ -27,4 +28,5 @@ object EblanLauncherIcons {
     val Folder = Icons.Default.Folder
     val Apps = Icons.Default.Apps
     val Shortcut = Icons.AutoMirrored.Filled.Shortcut
+    val Image = Icons.Default.Image
 }

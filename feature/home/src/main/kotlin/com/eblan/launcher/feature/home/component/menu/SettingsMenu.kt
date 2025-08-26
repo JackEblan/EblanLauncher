@@ -23,6 +23,7 @@ fun SettingsMenu(
     onEditPage: () -> Unit,
     onWidgets: () -> Unit,
     onShortcuts: () -> Unit,
+    onWallpaper: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -72,6 +73,17 @@ fun SettingsMenu(
 
                         Text(text = "Shortcuts")
                     }
+                }
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Row(modifier = Modifier.clickable(onClick = onWallpaper)) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Image,
+                        contentDescription = null,
+                    )
+
+                    Text(text = "Wallpaper")
                 }
             }
         },

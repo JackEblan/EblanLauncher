@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
+import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -657,6 +658,13 @@ private fun HorizontalPagerScreen(
             onEditPage = onEditPage,
             onWidgets = onWidgets,
             onShortcuts = onShortcuts,
+            onWallpaper = {
+                val intent = Intent(Intent.ACTION_SET_WALLPAPER)
+
+                val chooser = Intent.createChooser(intent, "Set Wallpaper")
+
+                context.startActivity(chooser)
+            },
             onDismissRequest = {
                 showPopupSettingsMenu = false
             },
@@ -673,6 +681,7 @@ private fun PopupSettingsMenu(
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
     onShortcuts: () -> Unit,
+    onWallpaper: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     Popup(
@@ -702,8 +711,13 @@ private fun PopupSettingsMenu(
             },
             onShortcuts = {
                 onDismissRequest()
-                
+
                 onShortcuts()
+            },
+            onWallpaper = {
+                onDismissRequest()
+
+                onWallpaper()
             },
         )
     }

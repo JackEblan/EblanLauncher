@@ -7,7 +7,6 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -429,25 +428,5 @@ private fun DragGridItemContent(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun DragGridItem(
-    modifier: Modifier,
-    isDragging: Boolean,
-    color: Color,
-    content: @Composable () -> Unit,
-) {
-    if (isDragging) {
-        Box(
-            modifier = modifier.border(
-                width = 1.dp,
-                color = color,
-                shape = RoundedCornerShape(8.dp),
-            ),
-        )
-    } else {
-        content()
     }
 }

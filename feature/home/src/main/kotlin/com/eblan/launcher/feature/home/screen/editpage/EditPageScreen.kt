@@ -1,6 +1,8 @@
 package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,11 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
 import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
 import com.eblan.launcher.feature.home.component.draganddrop.rememberLazyGridDragAndDropState
@@ -123,129 +129,203 @@ fun EditPageScreen(
                             columns = columns,
                         ) {
                             pageItem.gridItems.forEach { gridItem ->
-                                val gridItemModifier = Modifier.gridItem(gridItem)
-
-                                when (val data = gridItem.data) {
-                                    is GridItemData.ApplicationInfo -> {
-                                        ApplicationInfoGridItem(
-                                            modifier = gridItemModifier,
-                                            data = data,
-                                            textColor = textColor,
-                                            gridItemSettings = gridItemSettings,
-                                        )
-                                    }
-
-                                    is GridItemData.Widget -> {
-                                        WidgetGridItem(
-                                            modifier = gridItemModifier,
-                                            data = data,
-                                        )
-                                    }
-
-                                    is GridItemData.ShortcutInfo -> {
-                                        ShortcutInfoGridItem(
-                                            modifier = gridItemModifier,
-                                            data = data,
-                                            textColor = textColor,
-                                            gridItemSettings = gridItemSettings,
-                                        )
-                                    }
-
-                                    is GridItemData.Folder -> {
-                                        FolderGridItem(
-                                            modifier = gridItemModifier,
-                                            data = data,
-                                            textColor = textColor,
-                                            gridItemSettings = gridItemSettings,
-                                        )
-                                    }
-                                }
+                                GridItemContent(
+                                    gridItem = gridItem,
+                                    textColor = textColor,
+                                    gridItemSettings = gridItemSettings,
+                                )
                             }
                         }
 
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            shape = RoundedCornerShape(30.dp),
-                            tonalElevation = 10.dp,
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        currentPageItems = currentPageItems.toMutableList()
-                                            .apply {
-                                                removeIf { currentPageItem ->
-                                                    currentPageItem.id == pageItem.id
-                                                }
-                                            }
+                        PageButtons(
+                            pageItem = pageItem,
+                            currentInitialPage = currentInitialPage,
+                            onDeleteClick = {
+                                currentPageItems = currentPageItems.toMutableList()
+                                    .apply {
+                                        removeIf { currentPageItem ->
+                                            currentPageItem.id == pageItem.id
+                                        }
+                                    }
 
-                                        pageItemsToDelete.add(pageItem)
-                                    },
-                                    enabled = pageItem.id != currentInitialPage,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = null,
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        currentInitialPage = pageItem.id
-                                    },
-                                    enabled = pageItem.id != currentInitialPage,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Home,
-                                        contentDescription = null,
-                                    )
-                                }
-                            }
-                        }
+                                pageItemsToDelete.add(pageItem)
+                            },
+                            onHomeClick = {
+                                currentInitialPage = pageItem.id
+                            },
+                        )
                     }
                 }
             }
         }
 
+        EditPageButtons(
+            modifier = modifier,
+            paddingValues = paddingValues,
+            onAddClick = {
+                currentPageItems = currentPageItems.toMutableList()
+                    .apply { add(PageItem(id = size, gridItems = emptyList())) }
+            },
+            onCancelClick = {
+                onUpdateScreen(Screen.Pager)
+            },
+            onSaveClick = {
+                onSaveEditPage(
+                    currentInitialPage,
+                    currentPageItems,
+                    pageItemsToDelete,
+                )
+            },
+        )
+    }
+}
+
+@Composable
+private fun PageButtons(
+    pageItem: PageItem,
+    currentInitialPage: Int,
+    onDeleteClick: () -> Unit,
+    onHomeClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        shape = RoundedCornerShape(30.dp),
+        tonalElevation = 10.dp,
+    ) {
         Row(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(5.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            Button(
-                onClick = {
-                    currentPageItems = currentPageItems.toMutableList()
-                        .apply { add(PageItem(id = size, gridItems = emptyList())) }
-                },
+            IconButton(
+                onClick = onDeleteClick,
+                enabled = pageItem.id != currentInitialPage,
             ) {
-                Text(text = "Add")
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                )
             }
 
-            Button(
-                onClick = {
-                    onUpdateScreen(Screen.Pager)
-                },
+            IconButton(
+                onClick = onHomeClick,
+                enabled = pageItem.id != currentInitialPage,
             ) {
-                Text(text = "Cancel")
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = null,
+                )
             }
+        }
+    }
+}
 
-            Button(
-                onClick = {
-                    onSaveEditPage(
-                        currentInitialPage,
-                        currentPageItems,
-                        pageItemsToDelete,
+@Composable
+private fun EditPageButtons(
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
+    onAddClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onSaveClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .padding(paddingValues)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        Button(
+            onClick = onAddClick,
+        ) {
+            Text(text = "Add")
+        }
+
+        Button(
+            onClick = onCancelClick,
+        ) {
+            Text(text = "Cancel")
+        }
+
+        Button(
+            onClick = onSaveClick,
+        ) {
+            Text(text = "Save")
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
+private fun GridItemContent(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+) {
+    key(gridItem.id) {
+        val currentGridItemSettings = if (gridItem.override) {
+            gridItem.gridItemSettings
+        } else {
+            gridItemSettings
+        }
+
+        val currentTextColor = if (gridItem.override) {
+            when (gridItem.gridItemSettings.textColor) {
+                TextColor.System -> {
+                    textColor
+                }
+
+                TextColor.Light -> {
+                    0xFFFFFFFF
+                }
+
+                TextColor.Dark -> {
+                    0xFF000000
+                }
+            }
+        } else {
+            textColor
+        }
+
+        LookaheadScope {
+            val gridItemModifier = modifier
+                .animateBounds(this)
+                .gridItem(gridItem)
+
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
                     )
-                },
-            ) {
-                Text(text = "Save")
+                }
+
+                is GridItemData.Widget -> {
+                    WidgetGridItem(modifier = gridItemModifier, data = data)
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    ShortcutInfoGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                    )
+                }
+
+                is GridItemData.Folder -> {
+                    FolderGridItem(
+                        modifier = gridItemModifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                    )
+                }
             }
         }
     }

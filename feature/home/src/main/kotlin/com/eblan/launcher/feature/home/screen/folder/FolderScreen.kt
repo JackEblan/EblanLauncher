@@ -143,7 +143,6 @@ fun FolderScreen(
                                 gridItemSettings = gridItemSettings,
                                 textColor = textColor,
                                 hasShortcutHostPermission = hasShortcutHostPermission,
-                                drag = drag,
                                 onTapApplicationInfo = launcherApps::startMainActivity,
                                 onTapShortcutInfo = launcherApps::startShortcut,
                                 onTapFolderGridItem = {
@@ -180,7 +179,6 @@ private fun GridItemContent(
     gridItemSettings: GridItemSettings,
     textColor: Long,
     hasShortcutHostPermission: Boolean,
-    drag: Drag,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
@@ -259,7 +257,6 @@ private fun GridItemContent(
                 textColor = currentTextColor,
                 gridItem = gridItem,
                 data = data,
-                drag = drag,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
             )

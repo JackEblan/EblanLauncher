@@ -5,6 +5,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.getResolveDirectionByDiff
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,8 +28,16 @@ class ResizeGridItemUseCase @Inject constructor(
                     gridItem = gridItem,
                     rows = rows,
                     columns = columns,
-                ) && gridItem.page == resizingGridItem.page &&
+                ) && when (resizingGridItem.associate) {
+                    Associate.Grid -> {
+                        gridItem.page == resizingGridItem.page &&
+                                gridItem.associate == resizingGridItem.associate
+                    }
+
+                    Associate.Dock -> {
                         gridItem.associate == resizingGridItem.associate
+                    }
+                }
             }.toMutableList()
 
             val index =

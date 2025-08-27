@@ -55,7 +55,8 @@ fun ResizeScreen(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onResizeEnd: () -> Unit,
+    onResizeEnd: (GridItem) -> Unit,
+    onResizeCancel: () -> Unit,
 ) {
     requireNotNull(gridItem)
 
@@ -82,7 +83,7 @@ fun ResizeScreen(
     }
 
     BackHandler {
-        onResizeEnd()
+        onResizeCancel()
     }
 
     Column(
@@ -173,7 +174,9 @@ fun ResizeScreen(
                 height = height,
                 textColor = textColor,
                 onResizeGridItem = onResizeGridItem,
-                onResizeEnd = onResizeEnd,
+                onResizeEnd = {
+                    onResizeEnd(gridItem)
+                },
             )
         }
 
@@ -233,7 +236,7 @@ private fun ResizeOverlay(
         rows: Int,
         columns: Int,
     ) -> Unit,
-    onResizeEnd: () -> Unit,
+    onResizeEnd: (GridItem) -> Unit,
 ) {
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo,

@@ -17,7 +17,7 @@ import com.eblan.launcher.domain.usecase.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterMoveUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemsByPageUseCase
+import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     pageCacheRepository: PageCacheRepository,
-    private val updateGridItemsByPageUseCase: UpdateGridItemsByPageUseCase,
+    private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
@@ -227,9 +227,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCacheAfterResize(page: Int) {
+    fun resetGridCacheAfterResize(resizingGridItem: GridItem) {
         viewModelScope.launch {
-            updateGridItemsByPageUseCase(page = page)
+            updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
             gridCacheRepository.updateIsCache(isCache = false)
 
@@ -297,7 +297,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun cancelGridCacheAfterMove() {
+    fun cancelGridCache() {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
@@ -336,7 +336,7 @@ class HomeViewModel @Inject constructor(
 
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsByPageUseCase(page = gridItem.page)
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
 
             gridCacheRepository.updateIsCache(isCache = false)
 

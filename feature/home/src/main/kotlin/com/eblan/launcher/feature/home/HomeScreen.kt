@@ -88,7 +88,7 @@ fun HomeRoute(
         onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
-        onCancelGridCacheAfterMove = viewModel::cancelGridCacheAfterMove,
+        onCancelGridCache = viewModel::cancelGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
@@ -140,13 +140,13 @@ fun HomeScreen(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCacheAfterResize: (Int) -> Unit,
+    onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
-    onCancelGridCacheAfterMove: () -> Unit,
+    onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -310,7 +310,7 @@ fun HomeScreen(
                     onShowGridCache = onShowGridCache,
                     onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
-                    onCancelGridCacheAfterMove = onCancelGridCacheAfterMove,
+                    onCancelGridCache = onCancelGridCache,
                     onEdit = onEdit,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
@@ -390,13 +390,13 @@ private fun Success(
         gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
-    onResetGridCacheAfterResize: (Int) -> Unit,
+    onResetGridCacheAfterResize: (GridItem) -> Unit,
     onResetGridCacheAfterMove: (
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
-    onCancelGridCacheAfterMove: () -> Unit,
+    onCancelGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -519,7 +519,6 @@ private fun Success(
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     wallpaperScroll = userData.homeSettings.wallpaperScroll,
                     onMoveGridItem = onMoveGridItem,
-                    onDragCancel = onResetGridCacheAfterResize,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
 
@@ -528,7 +527,7 @@ private fun Success(
                     onMoveGridItemsFailed = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        onCancelGridCacheAfterMove()
+                        onCancelGridCache()
                     },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
@@ -556,9 +555,8 @@ private fun Success(
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     paddingValues = paddingValues,
                     onResizeGridItem = onResizeGridItem,
-                    onResizeEnd = {
-                        onResetGridCacheAfterResize(targetPage)
-                    },
+                    onResizeEnd = onResetGridCacheAfterResize,
+                    onResizeCancel = onCancelGridCache,
                 )
             }
 

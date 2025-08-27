@@ -85,7 +85,6 @@ fun DragScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
-    onDragCancel: (Int) -> Unit,
     onDragEndAfterMove: (
         targetPage: Int,
         movingGridItem: GridItem,
@@ -245,7 +244,7 @@ fun DragScreen(
             }
 
             Drag.Cancel -> {
-                onDragCancel(targetPage)
+                onMoveGridItemsFailed(targetPage)
             }
 
             else -> Unit

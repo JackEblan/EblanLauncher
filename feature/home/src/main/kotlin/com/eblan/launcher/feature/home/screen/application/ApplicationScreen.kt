@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnCon
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
@@ -70,6 +72,7 @@ fun ApplicationScreen(
     appDrawerRowsHeight: Int,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
+    drag: Drag,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -108,6 +111,12 @@ fun ApplicationScreen(
             onFling = onDismiss,
             onFastFling = onAnimateDismiss,
         )
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging) {
+            showPopupApplicationMenu = false
+        }
     }
 
     BackHandler {

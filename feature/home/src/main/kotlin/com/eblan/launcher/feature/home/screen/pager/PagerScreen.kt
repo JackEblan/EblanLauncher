@@ -162,6 +162,12 @@ fun PagerScreen(
         }
     }
 
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && gridItemSource != null) {
+            onDraggingGridItem()
+        }
+    }
+
     HorizontalPagerScreen(
         modifier = modifier,
         horizontalPagerState = gridHorizontalPagerState,
@@ -186,7 +192,6 @@ fun PagerScreen(
         gridItemSource = gridItemSource,
         onLongPressGrid = onLongPressGrid,
         onTapFolderGridItem = onTapFolderGridItem,
-        onDraggingGridItem = onDraggingGridItem,
         onEdit = onEdit,
         onResize = onResize,
         onSettings = onSettings,
@@ -250,6 +255,7 @@ fun PagerScreen(
             appDrawerRowsHeight = appDrawerRowsHeight,
             gridItemSettings = gridItemSettings,
             paddingValues = paddingValues,
+            drag = drag,
             onLongPressGridItem = onLongPressGridItem,
             onDismiss = {
                 scope.launch {
@@ -297,6 +303,7 @@ fun PagerScreen(
                     paddingValues = paddingValues,
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     gridItemSettings = gridItemSettings,
+                    drag = drag,
                     onDismiss = {
                         showDoubleTap = false
                     },
@@ -383,7 +390,6 @@ private fun HorizontalPagerScreen(
         currentPage: Int,
         id: String,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
@@ -452,10 +458,8 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
+        if (drag == Drag.Dragging) {
             showPopupGridItemMenu = false
-
-            onDraggingGridItem()
         }
 
         handlePinItemRequest(

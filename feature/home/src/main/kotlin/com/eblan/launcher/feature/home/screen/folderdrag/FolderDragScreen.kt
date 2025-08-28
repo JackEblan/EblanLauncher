@@ -328,7 +328,7 @@ private fun ShortcutInfoGridItem(
 }
 
 @Composable
-fun NestedFolderGridItem(
+private fun NestedFolderGridItem(
     modifier: Modifier,
     data: GridItemData.Folder,
     textColor: Long,
@@ -345,6 +345,7 @@ fun NestedFolderGridItem(
             Icon(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
+                tint = Color(textColor),
             )
         }
 

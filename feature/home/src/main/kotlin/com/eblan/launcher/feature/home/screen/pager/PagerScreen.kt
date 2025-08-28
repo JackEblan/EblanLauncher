@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -1185,19 +1186,25 @@ private fun FolderGridItem(
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         FlowRow(
             modifier = Modifier.weight(1f),
             maxItemsInEachRow = 2,
+            maxLines = 2,
         ) {
-            data.gridItems.take(6).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+            data.gridItems.take(4).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
                 Column {
+                    val gridItemModifier = Modifier
+                        .padding(2.dp)
+                        .size(20.dp)
+
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
                             AsyncImage(
                                 model = currentData.icon,
                                 contentDescription = null,
-                                modifier = Modifier.size(20.dp),
+                                modifier = gridItemModifier,
                             )
                         }
 
@@ -1205,15 +1212,15 @@ private fun FolderGridItem(
                             AsyncImage(
                                 model = currentData.icon,
                                 contentDescription = null,
-                                modifier = Modifier.size(20.dp),
+                                modifier = gridItemModifier,
                             )
                         }
 
                         is GridItemData.Widget -> {
-                            Icon(
-                                imageVector = EblanLauncherIcons.Widgets,
+                            AsyncImage(
+                                model = currentData.preview,
                                 contentDescription = null,
-                                modifier = Modifier.size(20.dp),
+                                modifier = gridItemModifier,
                             )
                         }
 
@@ -1221,12 +1228,11 @@ private fun FolderGridItem(
                             Icon(
                                 imageVector = EblanLauncherIcons.Folder,
                                 contentDescription = null,
-                                modifier = Modifier.size(20.dp),
+                                modifier = gridItemModifier,
+                                tint = Color(textColor)
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(5.dp))
                 }
             }
         }

@@ -2,19 +2,26 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
+import android.widget.FrameLayout
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -23,18 +30,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
+import coil3.compose.AsyncImage
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
+import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
@@ -45,11 +64,9 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.InteractiveApplicationInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.InteractiveFolderGridItem
-import com.eblan.launcher.feature.home.component.grid.InteractiveShortcutInfoGridItem
-import com.eblan.launcher.feature.home.component.grid.InteractiveWidgetGridItem
+import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.SettingsMenu
@@ -767,7 +784,7 @@ private fun GridItemContent(
 
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
-            InteractiveApplicationInfoGridItem(
+            ApplicationInfoGridItem(
                 textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
                 gridItem = gridItem,
@@ -780,7 +797,7 @@ private fun GridItemContent(
         }
 
         is GridItemData.Widget -> {
-            InteractiveWidgetGridItem(
+            WidgetGridItem(
                 gridItem = gridItem,
                 data = data,
                 onLongPress = onLongPress,
@@ -788,7 +805,7 @@ private fun GridItemContent(
         }
 
         is GridItemData.ShortcutInfo -> {
-            InteractiveShortcutInfoGridItem(
+            ShortcutInfoGridItem(
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
                 gridItem = gridItem,
@@ -806,7 +823,7 @@ private fun GridItemContent(
         }
 
         is GridItemData.Folder -> {
-            InteractiveFolderGridItem(
+            FolderGridItem(
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
                 gridItem = gridItem,
@@ -872,4 +889,356 @@ private fun PopupGridItemMenu(
             }
         },
     )
+}
+
+@Composable
+private fun ApplicationInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.ApplicationInfo,
+    onTap: () -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
+    val color = Color(color = textColor)
+
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
+
+    val scale = remember { Animatable(1f) }
+
+    Column(
+        modifier = modifier
+            .gridItem(gridItem)
+            .drawWithContent {
+                graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(Unit) {
+                detectTapGesturesUnConsume(
+                    onLongPress = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onLongPress(graphicsLayer.toImageBitmap())
+                        }
+                    },
+                    onTap = {
+                        onTap()
+                    },
+                )
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = data.icon,
+                contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
+            )
+        }
+
+        if (gridItemSettings.showLabel) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.label.toString(),
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun WidgetGridItem(
+    modifier: Modifier = Modifier,
+    gridItem: GridItem,
+    data: GridItemData.Widget,
+    onLongPress: (ImageBitmap) -> Unit,
+) {
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    val scale = remember { Animatable(1f) }
+
+    if (appWidgetInfo != null) {
+        AndroidView(
+            factory = {
+                appWidgetHost.createView(
+                    appWidgetId = data.appWidgetId,
+                    appWidgetProviderInfo = appWidgetInfo,
+                ).apply {
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                    )
+
+                    setAppWidget(appWidgetId, appWidgetInfo)
+                }
+            },
+            modifier = modifier
+                .gridItem(gridItem)
+                .drawWithContent {
+                    graphicsLayer.record {
+                        drawContext.transform.scale(
+                            scaleX = scale.value,
+                            scaleY = scale.value,
+                        )
+
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(graphicsLayer)
+                }
+                .pointerInput(Unit) {
+                    detectTapGesturesUnConsume(
+                        requireUnconsumed = false,
+                        onLongPress = {
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                onLongPress(graphicsLayer.toImageBitmap())
+                            }
+                        },
+                    )
+                },
+        )
+    }
+}
+
+@Composable
+private fun ShortcutInfoGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.ShortcutInfo,
+    onTap: () -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
+    val color = Color(color = textColor)
+
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
+
+    val scale = remember { Animatable(1f) }
+
+    Column(
+        modifier = modifier
+            .gridItem(gridItem)
+            .drawWithContent {
+                graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(Unit) {
+                detectTapGesturesUnConsume(
+                    onLongPress = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onLongPress(graphicsLayer.toImageBitmap())
+                        }
+                    },
+                    onTap = {
+                        onTap()
+                    },
+                )
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            AsyncImage(
+                model = data.icon,
+                contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
+            )
+        }
+
+        if (gridItemSettings.showLabel) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.shortLabel,
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FolderGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Long,
+    gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    onTap: () -> Unit,
+    onLongPress: (ImageBitmap) -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val color = Color(color = textColor)
+
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
+
+    val scale = remember { Animatable(1f) }
+
+    Column(
+        modifier = modifier
+            .gridItem(gridItem)
+            .drawWithContent {
+                graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(Unit) {
+                detectTapGesturesUnConsume(
+                    onLongPress = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onLongPress(graphicsLayer.toImageBitmap())
+                        }
+                    },
+                    onTap = {
+                        onTap()
+                    },
+                )
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        FlowRow(
+            modifier = Modifier.weight(1f),
+            maxItemsInEachRow = 2,
+        ) {
+            data.gridItems.take(6).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                Column {
+                    when (val currentData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.ShortcutInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.Widget -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Widgets,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+
+                        is GridItemData.Folder -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Folder,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(5.dp))
+                }
+            }
+        }
+
+        if (gridItemSettings.showLabel) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = data.label,
+                color = color,
+                textAlign = TextAlign.Center,
+                fontSize = textSizeSp,
+            )
+        }
+    }
 }

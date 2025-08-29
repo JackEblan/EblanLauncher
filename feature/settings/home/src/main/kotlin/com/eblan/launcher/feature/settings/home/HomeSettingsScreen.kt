@@ -59,6 +59,7 @@ fun HomeSettingsRoute(
         onUpdateTextColor = viewModel::updateTextColor,
         onUpdateTextSize = viewModel::updateTextSize,
         onUpdateShowLabel = viewModel::updateShowLabel,
+        onUpdateSingleLineLabel = viewModel::updateSingleLineLabel,
     )
 }
 
@@ -83,6 +84,7 @@ fun HomeSettingsScreen(
     onUpdateTextColor: (TextColor) -> Unit,
     onUpdateTextSize: (Int) -> Unit,
     onUpdateShowLabel: (Boolean) -> Unit,
+    onUpdateSingleLineLabel: (Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -124,6 +126,7 @@ fun HomeSettingsScreen(
                         onUpdateTextColor = onUpdateTextColor,
                         onUpdateTextSize = onUpdateTextSize,
                         onUpdateShowLabel = onUpdateShowLabel,
+                        onUpdateSingleLineLabel = onUpdateSingleLineLabel,
                     )
                 }
             }
@@ -151,6 +154,7 @@ fun Success(
     onUpdateTextColor: (TextColor) -> Unit,
     onUpdateTextSize: (Int) -> Unit,
     onUpdateShowLabel: (Boolean) -> Unit,
+    onUpdateSingleLineLabel: (Boolean) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -263,6 +267,16 @@ fun Success(
             title = "Show Label",
             subtitle = "Show the label",
             onUpdateInfiniteScroll = onUpdateShowLabel,
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SwitchRow(
+            modifier = modifier,
+            checked = homeSettings.gridItemSettings.singleLineLabel,
+            title = "Single Line Label",
+            subtitle = "Show single line label",
+            onUpdateInfiniteScroll = onUpdateSingleLineLabel,
         )
     }
 

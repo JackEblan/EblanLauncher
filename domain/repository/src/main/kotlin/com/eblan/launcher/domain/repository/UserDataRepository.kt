@@ -47,4 +47,6 @@ interface UserDataRepository {
     suspend fun updateTextSize(textSize: Int)
 
     suspend fun updateShowLabel(showLabel: Boolean)
+
+    suspend fun updateSingleLineLabel(singleLineLabel: Boolean)
 }

@@ -90,4 +90,8 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateShowLabel(showLabel: Boolean) {
         userDataStore.updateShowLabel(showLabel = showLabel)
     }
+
+    override suspend fun updateSingleLineLabel(singleLineLabel: Boolean) {
+        userDataStore.updateSingleLineLabel(singleLineLabel = singleLineLabel)
+    }
 }

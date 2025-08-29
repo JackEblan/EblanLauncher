@@ -920,6 +920,8 @@ private fun ApplicationInfoGridItem(
 
     val scale = remember { Animatable(1f) }
 
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
@@ -973,6 +975,7 @@ private fun ApplicationInfoGridItem(
                 color = color,
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
+                maxLines = maxLines,
             )
         }
     }
@@ -1072,6 +1075,8 @@ private fun ShortcutInfoGridItem(
 
     val scale = remember { Animatable(1f) }
 
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
@@ -1125,6 +1130,7 @@ private fun ShortcutInfoGridItem(
                 color = color,
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
+                maxLines = maxLines,
             )
         }
     }
@@ -1153,6 +1159,8 @@ private fun FolderGridItem(
     }
 
     val scale = remember { Animatable(1f) }
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
         modifier = modifier
@@ -1229,7 +1237,7 @@ private fun FolderGridItem(
                                 imageVector = EblanLauncherIcons.Folder,
                                 contentDescription = null,
                                 modifier = gridItemModifier,
-                                tint = Color(textColor)
+                                tint = Color(textColor),
                             )
                         }
                     }
@@ -1244,6 +1252,7 @@ private fun FolderGridItem(
                 color = color,
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
+                maxLines = maxLines,
             )
         }
     }

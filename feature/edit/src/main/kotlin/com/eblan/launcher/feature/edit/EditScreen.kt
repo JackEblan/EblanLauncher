@@ -164,9 +164,22 @@ fun Success(
         SwitchRow(
             checked = gridItem.gridItemSettings.showLabel,
             title = "Show Label",
-            subtitle = "Show the label",
+            subtitle = "Show label",
             onCheckedChange = {
                 val newGridItemSettings = gridItem.gridItemSettings.copy(showLabel = it)
+
+                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+            },
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        SwitchRow(
+            checked = gridItem.gridItemSettings.singleLineLabel,
+            title = "Show Single Line Label",
+            subtitle = "Show single line label",
+            onCheckedChange = {
+                val newGridItemSettings = gridItem.gridItemSettings.copy(singleLineLabel = it)
 
                 onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
             },

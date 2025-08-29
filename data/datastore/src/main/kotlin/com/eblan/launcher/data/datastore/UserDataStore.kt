@@ -238,4 +238,16 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             }
         }
     }
+
+    suspend fun updateSingleLineLabel(singleLineLabel: Boolean) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                homeSettingsProto = userDataProto.homeSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.singleLineLabel = singleLineLabel
+                    }
+                }
+            }
+        }
+    }
 }

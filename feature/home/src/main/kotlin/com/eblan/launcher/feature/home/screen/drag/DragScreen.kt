@@ -1,62 +1,42 @@
 package com.eblan.launcher.feature.home.screen.drag
 
 import android.appwidget.AppWidgetManager
-import android.widget.FrameLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import coil3.compose.AsyncImage
-import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
-import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.grid.GridItemCacheContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
@@ -335,7 +315,7 @@ fun DragScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    DragGridItemContent(
+                    GridItemCacheContent(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
@@ -356,271 +336,12 @@ fun DragScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                DragGridItemContent(
+                GridItemCacheContent(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,
                 )
             }
-        }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalSharedTransitionApi::class)
-private fun DragGridItemContent(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    textColor: Long,
-    gridItemSettings: GridItemSettings,
-) {
-    key(gridItem.id) {
-        val currentGridItemSettings = if (gridItem.override) {
-            gridItem.gridItemSettings
-        } else {
-            gridItemSettings
-        }
-
-        val currentTextColor = if (gridItem.override) {
-            when (gridItem.gridItemSettings.textColor) {
-                TextColor.System -> {
-                    textColor
-                }
-
-                TextColor.Light -> {
-                    0xFFFFFFFF
-                }
-
-                TextColor.Dark -> {
-                    0xFF000000
-                }
-            }
-        } else {
-            textColor
-        }
-
-        LookaheadScope {
-            val gridItemModifier = modifier
-                .animateBounds(this)
-                .gridItem(gridItem)
-
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = currentTextColor,
-                        showLabel = currentGridItemSettings.showLabel,
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    WidgetGridItem(modifier = gridItemModifier, data = data)
-                }
-
-                is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = currentTextColor,
-                        showLabel = currentGridItemSettings.showLabel,
-                    )
-                }
-
-                is GridItemData.Folder -> {
-                    FolderGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = currentTextColor,
-                        showLabel = currentGridItemSettings.showLabel,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApplicationInfoGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.ApplicationInfo,
-    textColor: Long,
-    showLabel: Boolean,
-) {
-    Column(
-        modifier = modifier
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = data.icon,
-                contentDescription = null,
-            )
-        }
-
-        if (showLabel) {
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                modifier = Modifier.weight(1f),
-                text = data.label.toString(),
-                color = Color(textColor),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
-}
-
-@Composable
-private fun WidgetGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.Widget,
-) {
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
-    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
-
-    if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = data.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
-            },
-            modifier = modifier,
-        )
-    } else {
-        AsyncImage(
-            model = data.preview,
-            contentDescription = null,
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun ShortcutInfoGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.ShortcutInfo,
-    textColor: Long,
-    showLabel: Boolean,
-) {
-    Column(
-        modifier = modifier
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = data.icon,
-                contentDescription = null,
-            )
-        }
-
-        if (showLabel) {
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                modifier = Modifier.weight(1f),
-                text = data.shortLabel,
-                color = Color(textColor),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
-}
-
-@Composable
-private fun FolderGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.Folder,
-    textColor: Long,
-    showLabel: Boolean,
-) {
-    Column(
-        modifier = modifier
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        FlowRow(
-            modifier = Modifier.weight(1f),
-            maxItemsInEachRow = 2,
-            maxLines = 2,
-        ) {
-            data.gridItems.take(4).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                Column {
-                    val gridItemModifier = Modifier
-                        .padding(2.dp)
-                        .size(10.dp)
-
-                    when (val currentData = gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            AsyncImage(
-                                model = currentData.icon,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                            )
-                        }
-
-                        is GridItemData.ShortcutInfo -> {
-                            AsyncImage(
-                                model = currentData.icon,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                            )
-                        }
-
-                        is GridItemData.Widget -> {
-                            AsyncImage(
-                                model = currentData.preview,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-
-                        is GridItemData.Folder -> {
-                            Icon(
-                                imageVector = EblanLauncherIcons.Folder,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                                tint = Color(textColor),
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(5.dp))
-                }
-            }
-        }
-
-        if (showLabel) {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = data.label,
-                color = Color(textColor),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
 }

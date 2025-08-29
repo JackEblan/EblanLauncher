@@ -80,4 +80,10 @@ class HomeSettingsViewModel @Inject constructor(private val userDataRepository: 
             userDataRepository.updateShowLabel(showLabel = showLabel)
         }
     }
+
+    fun updateSingleLineLabel(singleLineLabel: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateSingleLineLabel(singleLineLabel = singleLineLabel)
+        }
+    }
 }

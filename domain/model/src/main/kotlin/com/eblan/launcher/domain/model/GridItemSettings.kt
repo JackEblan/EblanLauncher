@@ -5,4 +5,5 @@ data class GridItemSettings(
     val textColor: TextColor,
     val textSize: Int,
     val showLabel: Boolean,
+    val singleLineLabel: Boolean,
 )

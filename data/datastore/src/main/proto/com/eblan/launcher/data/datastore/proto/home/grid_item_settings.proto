@@ -10,4 +10,5 @@ message GridItemSettingsProto {
   TextColorProto textColorProto = 2;
   int32 textSize = 3;
   bool showLabel = 4;
+  bool singleLineLabel = 5;
 }

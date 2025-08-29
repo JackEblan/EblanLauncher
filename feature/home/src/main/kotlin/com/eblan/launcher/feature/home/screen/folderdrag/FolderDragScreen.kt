@@ -5,15 +5,20 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
@@ -91,6 +97,12 @@ fun FolderDragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
+    val pageIndicator = 5.dp
+
+    val pageIndicatorPx = with(density) {
+        pageIndicator.roundToPx()
+    }
+
     val horizontalPagerState = rememberPagerState(
         initialPage = startCurrentPage,
         pageCount = {
@@ -108,6 +120,7 @@ fun FolderDragScreen(
             gridHeight = gridHeight,
             gridPadding = gridPaddingPx,
             gridWidth = gridWidth,
+            pageIndicator = pageIndicatorPx,
             columns = folderColumns,
             rows = folderRows,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
@@ -143,35 +156,64 @@ fun FolderDragScreen(
             else -> Unit
         }
     }
-    HorizontalPager(
-        state = horizontalPagerState,
-        contentPadding = PaddingValues(
-            top = paddingValues.calculateTopPadding() + horizontalPagerPaddingDp,
-            start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-            end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-            bottom = paddingValues.calculateBottomPadding() + horizontalPagerPaddingDp,
-        ),
-    ) { index ->
-        GridLayout(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(gridPaddingDp)
-                .background(
-                    color = Color(textColor).copy(alpha = 0.25f),
-                    shape = RoundedCornerShape(8.dp),
-                )
-                .border(
-                    width = 2.dp,
-                    color = Color(textColor),
-                    shape = RoundedCornerShape(8.dp),
-                ),
-            rows = folderRows,
-            columns = folderColumns,
+
+    Column(
+        modifier = Modifier
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
+            )
+            .fillMaxSize(),
+    ) {
+        HorizontalPager(
+            state = horizontalPagerState,
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(
+                top = horizontalPagerPaddingDp,
+                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                bottom = horizontalPagerPaddingDp,
+            ),
+        ) { index ->
+            GridLayout(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(gridPaddingDp)
+                    .background(
+                        color = Color(textColor).copy(alpha = 0.25f),
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    .border(
+                        width = 2.dp,
+                        color = Color(textColor),
+                        shape = RoundedCornerShape(8.dp),
+                    ),
+                rows = folderRows,
+                columns = folderColumns,
+            ) {
+                gridItemsByPage[index]?.forEach { gridItem ->
+                    FolderDragGridItemContent(
+                        gridItem = gridItem,
+                        textColor = textColor,
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
         ) {
-            gridItemsByPage[index]?.forEach { gridItem ->
-                FolderDragGridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
+            repeat(horizontalPagerState.pageCount) { index ->
+                val color =
+                    if (horizontalPagerState.currentPage == index) Color.LightGray else Color.DarkGray
+
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .size(pageIndicator),
                 )
             }
         }

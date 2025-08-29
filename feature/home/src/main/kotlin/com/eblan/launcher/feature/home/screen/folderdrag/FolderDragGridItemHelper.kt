@@ -21,6 +21,7 @@ suspend fun handleFolderDragIntOffset(
     gridHeight: Int,
     gridPadding: Int,
     gridWidth: Int,
+    pageIndicator: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
@@ -61,15 +62,13 @@ suspend fun handleFolderDragIntOffset(
 
     val isOnTopGrid = dragY < gridPadding
 
-    val isOnBottomGrid = dragY > gridHeight - gridPadding
+    val isOnBottomGrid = dragY > gridHeight - pageIndicator - gridPadding
 
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 
     if (isOnLeftGrid && isVerticalBounds) {
         onUpdatePageDirection(PageDirection.Left)
     } else if (isOnRightGrid && isVerticalBounds) {
-        delay(250L)
-
         onUpdatePageDirection(PageDirection.Right)
     } else if (!isVerticalBounds) {
         onMoveOutsideFolder(
@@ -78,7 +77,7 @@ suspend fun handleFolderDragIntOffset(
     } else {
         val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeightWithPadding = gridHeight - (gridPadding * 2)
+        val gridHeightWithPadding = (gridHeight - pageIndicator) - (gridPadding * 2)
 
         val gridX = dragX - gridPadding
 

@@ -34,7 +34,7 @@ import com.eblan.launcher.domain.model.TextColor
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
-fun GridItemCacheContent(
+fun SmallGridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: Long,

@@ -4,6 +4,7 @@ import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -112,7 +113,7 @@ fun FolderScreen(
         onRemoveLastFolder()
     }
 
-    LaunchedEffect(key1 = drag) {
+    LaunchedEffect(key1 = drag, key2 = gridItemSource) {
         if (drag == Drag.Dragging && gridItemSource != null) {
             onDraggingGridItem(foldersDataById.last().gridItems)
         }
@@ -173,6 +174,7 @@ fun FolderScreen(
                             GridItemContent(
                                 gridItem = gridItem,
                                 hasShortcutHostPermission = hasShortcutHostPermission,
+                                drag = drag,
                                 onTapApplicationInfo = launcherApps::startMainActivity,
                                 onTapShortcutInfo = launcherApps::startShortcut,
                                 onTapFolderGridItem = {
@@ -225,6 +227,7 @@ fun FolderScreen(
 private fun GridItemContent(
     gridItem: GridItem,
     hasShortcutHostPermission: Boolean,
+    drag: Drag,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
@@ -238,6 +241,7 @@ private fun GridItemContent(
             ApplicationInfoGridItem(
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
@@ -257,6 +261,7 @@ private fun GridItemContent(
             ShortcutInfoGridItem(
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     if (hasShortcutHostPermission) {
                         onTapShortcutInfo(
@@ -273,6 +278,7 @@ private fun GridItemContent(
             NestedFolderGridItem(
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
             )
@@ -285,6 +291,7 @@ private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
+    drag: Drag,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
@@ -309,8 +316,8 @@ private fun ApplicationInfoGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(Unit) {
-                detectTapGesturesUnConsume(
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -420,6 +427,7 @@ private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
+    drag: Drag,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
@@ -444,8 +452,8 @@ private fun ShortcutInfoGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(Unit) {
-                detectTapGesturesUnConsume(
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -489,6 +497,7 @@ private fun NestedFolderGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.Folder,
+    drag: Drag,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
@@ -513,8 +522,8 @@ private fun NestedFolderGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(Unit) {
-                detectTapGesturesUnConsume(
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)

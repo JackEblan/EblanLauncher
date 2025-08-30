@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.shortcut
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,8 +42,8 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
@@ -60,6 +61,7 @@ fun ShortcutScreen(
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     screenHeight: Int,
+    drag: Drag,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -173,8 +175,8 @@ fun ShortcutScreen(
 
                                                         drawLayer(graphicsLayer)
                                                     }
-                                                    .pointerInput(Unit) {
-                                                        detectTapGesturesUnConsume(
+                                                    .pointerInput(key1 = drag) {
+                                                        detectTapGestures(
                                                             onLongPress = {
                                                                 scope.launch {
                                                                     scale.animateTo(0.5f)

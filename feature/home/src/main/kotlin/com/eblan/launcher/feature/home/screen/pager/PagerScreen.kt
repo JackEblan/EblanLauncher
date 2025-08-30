@@ -184,7 +184,7 @@ fun PagerScreen(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
+    LaunchedEffect(key1 = drag, key2 = gridItemSource) {
         if (drag == Drag.Dragging && gridItemSource != null) {
             onDraggingGridItem()
         }
@@ -360,6 +360,7 @@ fun PagerScreen(
             gridItemSettings = gridItemSettings,
             paddingValues = paddingValues,
             screenHeight = screenHeight,
+            drag = drag,
             onLongPressGridItem = onLongPressGridItem,
             onDismiss = {
                 showWidgets = false
@@ -376,6 +377,7 @@ fun PagerScreen(
             gridItemSettings = gridItemSettings,
             paddingValues = paddingValues,
             screenHeight = screenHeight,
+            drag = drag,
             onLongPressGridItem = onLongPressGridItem,
             onDismiss = {
                 showShortcuts = false
@@ -582,6 +584,7 @@ private fun HorizontalPagerScreen(
                         gridItemSettings = gridItemSettings,
                         textColor = textColor,
                         hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
                         onTapApplicationInfo = launcherApps::startMainActivity,
                         onTapShortcutInfo = launcherApps::startShortcut,
                         onTapFolderGridItem = {
@@ -654,6 +657,7 @@ private fun HorizontalPagerScreen(
                     gridItemSettings = gridItemSettings,
                     textColor = textColor,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    drag = drag,
                     onTapApplicationInfo = launcherApps::startMainActivity,
                     onTapShortcutInfo = launcherApps::startShortcut,
                     onTapFolderGridItem = {
@@ -778,6 +782,7 @@ private fun GridItemContent(
     gridItemSettings: GridItemSettings,
     textColor: Long,
     hasShortcutHostPermission: Boolean,
+    drag: Drag,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
@@ -817,6 +822,7 @@ private fun GridItemContent(
                 gridItemSettings = currentGridItemSettings,
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
@@ -838,6 +844,7 @@ private fun GridItemContent(
                 textColor = currentTextColor,
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = {
                     if (hasShortcutHostPermission) {
                         onTapShortcutInfo(
@@ -856,6 +863,7 @@ private fun GridItemContent(
                 textColor = currentTextColor,
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
             )
@@ -926,6 +934,7 @@ private fun ApplicationInfoGridItem(
     gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
+    drag: Drag,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
@@ -964,8 +973,8 @@ private fun ApplicationInfoGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(Unit) {
-                detectTapGesturesUnConsume(
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -1081,6 +1090,7 @@ private fun ShortcutInfoGridItem(
     gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
+    drag: Drag,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
@@ -1119,8 +1129,8 @@ private fun ShortcutInfoGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(Unit) {
-                detectTapGesturesUnConsume(
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -1170,6 +1180,7 @@ private fun FolderGridItem(
     gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.Folder,
+    drag: Drag,
     onTap: () -> Unit,
     onLongPress: (ImageBitmap) -> Unit,
 ) {
@@ -1204,8 +1215,8 @@ private fun FolderGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(Unit) {
-                detectTapGesturesUnConsume(
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)

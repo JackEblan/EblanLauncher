@@ -41,8 +41,8 @@ import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
-import com.eblan.launcher.feature.home.component.grid.GridItemCacheContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.grid.SmallGridItemContent
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
@@ -328,7 +328,7 @@ fun DragScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    GridItemCacheContent(
+                    SmallGridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
@@ -366,7 +366,7 @@ fun DragScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                GridItemCacheContent(
+                SmallGridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,

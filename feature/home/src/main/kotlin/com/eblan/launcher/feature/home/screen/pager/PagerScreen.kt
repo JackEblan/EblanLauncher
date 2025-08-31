@@ -81,6 +81,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.application.DoubleTapApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -309,16 +310,7 @@ fun PagerScreen(
             }
 
             GestureAction.OpenAppDrawer -> {
-                val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
-
-                LaunchedEffect(key1 = animatedSwipeUpY) {
-                    animatedSwipeUpY.animateTo(0f)
-                }
-
-                ApplicationScreen(
-                    modifier = Modifier.offset {
-                        IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
-                    },
+                DoubleTapApplicationScreen(
                     currentPage = gridHorizontalPagerState.currentPage,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     appDrawerColumns = appDrawerColumns,
@@ -328,15 +320,9 @@ fun PagerScreen(
                     appDrawerRowsHeight = appDrawerRowsHeight,
                     gridItemSettings = gridItemSettings,
                     drag = drag,
+                    screenHeight = screenHeight,
                     onDismiss = {
                         showDoubleTap = false
-                    },
-                    onAnimateDismiss = {
-                        scope.launch {
-                            animatedSwipeUpY.animateTo(screenHeight.toFloat())
-
-                            showDoubleTap = false
-                        }
                     },
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,

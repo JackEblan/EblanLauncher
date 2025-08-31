@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -57,8 +58,64 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+
+@Composable
+fun DoubleTapApplicationScreen(
+    modifier: Modifier = Modifier,
+    currentPage: Int,
+    appDrawerColumns: Int,
+    pageCount: Int,
+    infiniteScroll: Boolean,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    appDrawerRowsHeight: Int,
+    gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
+    drag: Drag,
+    screenHeight: Int,
+    onLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = animatedSwipeUpY) {
+        animatedSwipeUpY.animateTo(0f)
+    }
+
+    ApplicationScreen(
+        modifier = modifier.offset {
+            IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
+        },
+        currentPage = currentPage,
+        appDrawerColumns = appDrawerColumns,
+        pageCount = pageCount,
+        infiniteScroll = infiniteScroll,
+        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+        appDrawerRowsHeight = appDrawerRowsHeight,
+        gridItemSettings = gridItemSettings,
+        paddingValues = paddingValues,
+        drag = drag,
+        onLongPressGridItem = onLongPressGridItem,
+        onUpdateGridItemOffset = onUpdateGridItemOffset,
+        onDismiss = onDismiss,
+        onAnimateDismiss = {
+            scope.launch {
+                animatedSwipeUpY.animateTo(screenHeight.toFloat())
+
+                onDismiss()
+            }
+        },
+    )
+}
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable

@@ -51,7 +51,6 @@ import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
-import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 @Composable
@@ -175,8 +174,6 @@ fun HomeScreen(
 
     var drag by remember { mutableStateOf(Drag.None) }
 
-    var dragStartOffset by remember { mutableStateOf(IntOffset.Zero) }
-
     val density = LocalDensity.current
 
     val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
@@ -215,8 +212,6 @@ fun HomeScreen(
 
             override fun onEnded(event: DragAndDropEvent) {
                 drag = Drag.End
-
-                dragStartOffset = IntOffset.Zero
             }
 
             override fun onMoved(event: DragAndDropEvent) {
@@ -224,17 +219,7 @@ fun HomeScreen(
                     IntOffset(x = x.roundToInt(), y = y.roundToInt())
                 }
 
-                if (dragStartOffset == IntOffset.Zero) {
-                    dragStartOffset = offset
-                    return
-                }
-
-                val dx = (offset.x - dragStartOffset.x).absoluteValue
-                val dy = (offset.y - dragStartOffset.y).absoluteValue
-
-                if (dx > 100f || dy > 100f) {
-                    drag = Drag.Dragging
-                }
+                drag = Drag.Dragging
 
                 dragIntOffset = offset
             }
@@ -283,10 +268,6 @@ fun HomeScreen(
             }
 
             is HomeUiState.Success -> {
-                val gridWidth = constraints.maxWidth - horizontalPadding
-
-                val gridHeight = constraints.maxHeight - verticalPadding
-
                 Success(
                     screen = screen,
                     gridItems = homeUiState.homeData.gridItems,
@@ -296,8 +277,8 @@ fun HomeScreen(
                     dockGridItems = homeUiState.homeData.dockGridItems,
                     pageItems = pageItems,
                     movedGridItemResult = movedGridItemResult,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                    gridWidth = constraints.maxWidth - horizontalPadding,
+                    gridHeight = constraints.maxHeight - verticalPadding,
                     paddingValues = paddingValues,
                     dragIntOffset = dragIntOffset,
                     drag = drag,

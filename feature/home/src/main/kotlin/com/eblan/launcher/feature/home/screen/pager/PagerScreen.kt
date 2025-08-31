@@ -106,8 +106,8 @@ fun PagerScreen(
     dockGridItems: List<GridItem>,
     textColor: Long,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    gridWidth: Int,
-    gridHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
     paddingValues: PaddingValues,
     appDrawerColumns: Int,
     appDrawerRowsHeight: Int,
@@ -157,6 +157,14 @@ fun PagerScreen(
 
     val scope = rememberCoroutineScope()
 
+    val leftPadding = with(density) {
+        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val rightPadding = with(density) {
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
@@ -165,9 +173,13 @@ fun PagerScreen(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
+    val horizontalPadding = leftPadding + rightPadding
+
     val verticalPadding = topPadding + bottomPadding
 
-    val screenHeight = gridHeight + verticalPadding
+    val gridWidth = screenWidth - horizontalPadding
+
+    val gridHeight = screenHeight - verticalPadding
 
     val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 

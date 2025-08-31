@@ -57,7 +57,7 @@ fun EditPageScreen(
     modifier: Modifier = Modifier,
     rows: Int,
     columns: Int,
-    gridHeight: Int,
+    screenHeight: Int,
     pageItems: List<PageItem>,
     dockHeight: Int,
     initialPage: Int,
@@ -71,6 +71,18 @@ fun EditPageScreen(
     onUpdateScreen: (Screen) -> Unit,
 ) {
     val density = LocalDensity.current
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val gridHeight = screenHeight - verticalPadding
 
     var currentPageItems by remember { mutableStateOf(pageItems) }
 

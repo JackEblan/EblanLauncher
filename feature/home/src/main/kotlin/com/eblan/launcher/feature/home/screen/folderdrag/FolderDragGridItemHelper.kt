@@ -18,9 +18,9 @@ suspend fun handleFolderDragIntOffset(
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
-    gridHeight: Int,
+    screenHeight: Int,
     gridPadding: Int,
-    gridWidth: Int,
+    screenWidth: Int,
     pageIndicator: Int,
     columns: Int,
     rows: Int,
@@ -48,9 +48,25 @@ suspend fun handleFolderDragIntOffset(
         paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
     }
 
+    val rightPadding = with(density) {
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val gridWidth = screenWidth - horizontalPadding
+
+    val gridHeight = screenHeight - verticalPadding
 
     val dragX = dragIntOffset.x - leftPadding
 

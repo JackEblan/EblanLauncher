@@ -102,8 +102,6 @@ class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            delay(defaultDelay)
-
             _moveGridItemResult.update {
                 moveGridItemUseCase(
                     movingGridItem = movingGridItem,
@@ -126,8 +124,6 @@ class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            delay(defaultDelay)
-
             resizeGridItemUseCase(
                 resizingGridItem = resizingGridItem,
                 rows = rows,
@@ -148,8 +144,6 @@ class HomeViewModel @Inject constructor(
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
-            delay(defaultDelay)
-
             _moveGridItemResult.update {
                 moveFolderGridItemUseCase(
                     movingGridItem = movingGridItem,

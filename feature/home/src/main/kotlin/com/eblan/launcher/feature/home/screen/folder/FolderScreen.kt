@@ -69,8 +69,8 @@ fun FolderScreen(
     gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
-    gridWidth: Int,
-    gridHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
     gridItemSettings: GridItemSettings,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
@@ -92,9 +92,25 @@ fun FolderScreen(
         paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
     }
 
+    val rightPadding = with(density) {
+        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val gridWidth = screenWidth - horizontalPadding
+
+    val gridHeight = screenHeight - verticalPadding
 
     val titleHeightDp = 30.dp
 

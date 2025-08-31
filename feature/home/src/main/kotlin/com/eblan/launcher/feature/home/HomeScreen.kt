@@ -28,9 +28,7 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -174,29 +172,7 @@ fun HomeScreen(
 
     var drag by remember { mutableStateOf(Drag.None) }
 
-    val density = LocalDensity.current
-
     val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
-
-    val leftPadding = with(density) {
-        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val rightPadding = with(density) {
-        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val horizontalPadding = leftPadding + rightPadding
-
-    val verticalPadding = topPadding + bottomPadding
 
     val target = remember {
         object : DragAndDropTarget {
@@ -277,8 +253,8 @@ fun HomeScreen(
                     dockGridItems = homeUiState.homeData.dockGridItems,
                     pageItems = pageItems,
                     movedGridItemResult = movedGridItemResult,
-                    gridWidth = constraints.maxWidth - horizontalPadding,
-                    gridHeight = constraints.maxHeight - verticalPadding,
+                    screenWidth = constraints.maxWidth,
+                    screenHeight = constraints.maxHeight,
                     paddingValues = paddingValues,
                     dragIntOffset = dragIntOffset,
                     drag = drag,
@@ -337,8 +313,8 @@ private fun Success(
     dockGridItems: List<GridItem>,
     pageItems: List<PageItem>,
     movedGridItemResult: MoveGridItemResult?,
-    gridWidth: Int,
-    gridHeight: Int,
+    screenWidth: Int,
+    screenHeight: Int,
     paddingValues: PaddingValues,
     dragIntOffset: IntOffset,
     drag: Drag,
@@ -432,8 +408,8 @@ private fun Success(
                     dockGridItems = dockGridItems,
                     textColor = textColor,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                     paddingValues = paddingValues,
                     appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
                     appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
@@ -490,8 +466,8 @@ private fun Success(
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     paddingValues = paddingValues,
                     dockGridItems = dockGridItems,
@@ -528,8 +504,8 @@ private fun Success(
                     dockColumns = userData.homeSettings.dockColumns,
                     gridItems = gridItemsByPage[targetPage],
                     gridItem = gridItemSource?.gridItem,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                     dockHeight = userData.homeSettings.dockHeight,
                     dockGridItems = dockGridItems,
                     textColor = textColor,
@@ -549,7 +525,7 @@ private fun Success(
                 EditPageScreen(
                     rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
-                    gridHeight = gridHeight,
+                    screenHeight = screenHeight,
                     pageItems = pageItems,
                     dockHeight = userData.homeSettings.dockHeight,
                     initialPage = userData.homeSettings.initialPage,
@@ -570,8 +546,8 @@ private fun Success(
                     gridItemSource = gridItemSource,
                     paddingValues = paddingValues,
                     hasShortcutHostPermission = hasShortcutHostPermission,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
@@ -603,8 +579,8 @@ private fun Success(
                     textColor = textColor,
                     drag = drag,
                     dragIntOffset = dragIntOffset,
-                    gridWidth = gridWidth,
-                    gridHeight = gridHeight,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
                     folderDataById = foldersDataById.last(),
                     paddingValues = paddingValues,
                     onMoveFolderGridItem = onMoveFolderGridItem,

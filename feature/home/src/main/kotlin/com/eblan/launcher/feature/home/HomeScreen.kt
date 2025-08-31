@@ -324,10 +324,11 @@ fun HomeScreen(
                     onAddFolder = onAddFolder,
                     onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
                     onMoveOutsideFolder = onMoveOutsideFolder,
-                    onUpdateGridItemOverlay = { intOffset, imageBitmap ->
-                        overlayIntOffset = intOffset
-
+                    onUpdateGridItemImageBitmap = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
+                    },
+                    onUpdateGridItemOffset = { intOffset ->
+                        overlayIntOffset = intOffset
                     },
                 )
             }
@@ -416,10 +417,8 @@ private fun Success(
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: () -> Unit,
-    onUpdateGridItemOverlay: (
-        intOffset: IntOffset,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
+    onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -486,13 +485,14 @@ private fun Success(
 
                         onShowGridCache(gridItems, Screen.Drag)
                     },
-                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap, intOffset ->
+                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
                         targetPage = newCurrentPage
 
                         gridItemSource = newGridItemSource
 
-                        onUpdateGridItemOverlay(intOffset, imageBitmap)
+                        onUpdateGridItemImageBitmap(imageBitmap)
                     },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
 
@@ -591,21 +591,21 @@ private fun Success(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
                     onResetTargetPage = {
                         folderTargetPage = 0
                     },
-                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap, intOffset ->
+                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
                         folderTargetPage = newCurrentPage
 
                         gridItemSource = newGridItemSource
 
-                        gridItemSource = newGridItemSource
-
-                        onUpdateGridItemOverlay(intOffset, imageBitmap)
+                        onUpdateGridItemImageBitmap(imageBitmap)
                     },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onDraggingGridItem = { folderGridItems ->
                         onShowGridCache(folderGridItems, Screen.FolderDrag)
                     },

@@ -38,7 +38,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
             val movingIndex = gridItems.indexOfFirst { it.id == movingGridItem.id }
 
-            if (conflictingGridItem != null) {
+            if (movingIndex != -1 && conflictingGridItem != null) {
                 groupConflictingGridItemsIntoFolder(
                     gridItems = gridItems,
                     conflictingGridItem = conflictingGridItem,

@@ -77,8 +77,8 @@ fun ApplicationScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
     ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
 ) {
@@ -180,6 +180,8 @@ fun ApplicationScreen(
                                             .pointerInput(key1 = drag) {
                                                 detectTapGestures(
                                                     onLongPress = {
+                                                        onUpdateGridItemOffset(intOffset)
+
                                                         scope.launch {
                                                             scale.animateTo(0.5f)
 
@@ -218,7 +220,6 @@ fun ApplicationScreen(
                                                                     ),
                                                                 ),
                                                                 graphicsLayer.toImageBitmap(),
-                                                                intOffset,
                                                             )
                                                         }
                                                     },

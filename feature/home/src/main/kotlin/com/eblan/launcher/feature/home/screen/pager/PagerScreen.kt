@@ -130,8 +130,8 @@ fun PagerScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
     ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -229,6 +229,7 @@ fun PagerScreen(
             showDoubleTap = true
         },
         onLongPressGridItem = onLongPressGridItem,
+        onUpdateGridItemOffset = onUpdateGridItemOffset,
         onVerticalDrag = { _, dragAmount ->
             scope.launch {
                 swipeUpY.snapTo(swipeUpY.value + dragAmount)
@@ -279,6 +280,7 @@ fun PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
                 scope.launch {
                     swipeUpY.snapTo(screenHeight.toFloat())
@@ -337,6 +339,7 @@ fun PagerScreen(
                         }
                     },
                     onLongPressGridItem = onLongPressGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                 )
             }
 
@@ -362,6 +365,7 @@ fun PagerScreen(
             screenHeight = screenHeight,
             drag = drag,
             onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
                 showWidgets = false
             },
@@ -379,6 +383,7 @@ fun PagerScreen(
             screenHeight = screenHeight,
             drag = drag,
             onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
                 showShortcuts = false
             },
@@ -426,8 +431,8 @@ private fun HorizontalPagerScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
     ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
     onVerticalDrag: (
@@ -590,7 +595,7 @@ private fun HorizontalPagerScreen(
                         onTapFolderGridItem = {
                             onTapFolderGridItem(currentPage, gridItem.id)
                         },
-                        onLongPress = { imageBitmap ->
+                        onLongPress = {
                             val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
 
                             popupMenuIntOffset = intOffset
@@ -599,11 +604,13 @@ private fun HorizontalPagerScreen(
 
                             showPopupGridItemMenu = true
 
+                            onUpdateGridItemOffset(intOffset)
+                        },
+                        onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
                                 currentPage,
                                 GridItemSource.Existing(gridItem = gridItem),
                                 imageBitmap,
-                                intOffset,
                             )
                         },
                     )
@@ -663,7 +670,7 @@ private fun HorizontalPagerScreen(
                     onTapFolderGridItem = {
                         onTapFolderGridItem(currentPage, gridItem.id)
                     },
-                    onLongPress = { imageBitmap ->
+                    onLongPress = {
                         val dockY = y + (gridHeight - pageIndicatorPx - dockHeight)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
@@ -674,11 +681,13 @@ private fun HorizontalPagerScreen(
 
                         showPopupGridItemMenu = true
 
+                        onUpdateGridItemOffset(intOffset)
+                    },
+                    onUpdateImageBitmap = { imageBitmap ->
                         onLongPressGridItem(
                             currentPage,
                             GridItemSource.Existing(gridItem = gridItem),
                             imageBitmap,
-                            intOffset,
                         )
                     },
                 )
@@ -789,7 +798,8 @@ private fun GridItemContent(
         shortcutId: String,
     ) -> Unit,
     onTapFolderGridItem: () -> Unit,
-    onLongPress: (ImageBitmap?) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap?) -> Unit,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -827,6 +837,7 @@ private fun GridItemContent(
                     onTapApplicationInfo(data.componentName)
                 },
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
 
@@ -835,6 +846,7 @@ private fun GridItemContent(
                 gridItem = gridItem,
                 data = data,
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
 
@@ -854,6 +866,7 @@ private fun GridItemContent(
                     }
                 },
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
 
@@ -866,6 +879,7 @@ private fun GridItemContent(
                 drag = drag,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
     }
@@ -936,7 +950,8 @@ private fun ApplicationInfoGridItem(
     data: GridItemData.ApplicationInfo,
     drag: Drag,
     onTap: () -> Unit,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -976,12 +991,14 @@ private fun ApplicationInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        onLongPress()
+
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
-                            onLongPress(graphicsLayer.toImageBitmap())
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -1022,7 +1039,8 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.Widget,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -1069,12 +1087,14 @@ private fun WidgetGridItem(
                     detectTapGesturesUnConsume(
                         requireUnconsumed = false,
                         onLongPress = {
+                            onLongPress()
+
                             scope.launch {
                                 scale.animateTo(0.5f)
 
                                 scale.animateTo(1f)
 
-                                onLongPress(graphicsLayer.toImageBitmap())
+                                onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                             }
                         },
                     )
@@ -1092,7 +1112,8 @@ private fun ShortcutInfoGridItem(
     data: GridItemData.ShortcutInfo,
     drag: Drag,
     onTap: () -> Unit,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -1132,12 +1153,14 @@ private fun ShortcutInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        onLongPress()
+
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
-                            onLongPress(graphicsLayer.toImageBitmap())
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -1182,7 +1205,8 @@ private fun FolderGridItem(
     data: GridItemData.Folder,
     drag: Drag,
     onTap: () -> Unit,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -1218,12 +1242,14 @@ private fun FolderGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        onLongPress()
+
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
-                            onLongPress(graphicsLayer.toImageBitmap())
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {

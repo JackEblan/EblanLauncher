@@ -66,8 +66,8 @@ fun ShortcutScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
     ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val page = calculatePage(
@@ -178,6 +178,8 @@ fun ShortcutScreen(
                                                     .pointerInput(key1 = drag) {
                                                         detectTapGestures(
                                                             onLongPress = {
+                                                                onUpdateGridItemOffset(intOffset)
+
                                                                 scope.launch {
                                                                     scale.animateTo(0.5f)
 
@@ -210,7 +212,6 @@ fun ShortcutScreen(
                                                                             ),
                                                                         ),
                                                                         graphicsLayer.toImageBitmap(),
-                                                                        intOffset,
                                                                     )
                                                                 }
                                                             },

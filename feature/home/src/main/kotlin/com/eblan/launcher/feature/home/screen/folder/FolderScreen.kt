@@ -20,7 +20,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +49,7 @@ import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
@@ -71,6 +71,7 @@ fun FolderScreen(
     hasShortcutHostPermission: Boolean,
     gridWidth: Int,
     gridHeight: Int,
+    gridItemSettings: GridItemSettings,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -79,8 +80,8 @@ fun FolderScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
     ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -175,6 +176,7 @@ fun FolderScreen(
                                 gridItem = gridItem,
                                 hasShortcutHostPermission = hasShortcutHostPermission,
                                 drag = drag,
+                                gridItemSettings = gridItemSettings,
                                 onTapApplicationInfo = launcherApps::startMainActivity,
                                 onTapShortcutInfo = launcherApps::startShortcut,
                                 onTapFolderGridItem = {
@@ -182,18 +184,19 @@ fun FolderScreen(
 
                                     onAddFolder(gridItem.id)
                                 },
-                                onLongPress = { imageBitmap ->
-                                    val intOffset =
+                                onLongPress = {
+                                    onUpdateGridItemOffset(
                                         IntOffset(
                                             x = x + leftPadding,
                                             y = y + (topPadding + titleHeightPx),
-                                        )
-
+                                        ),
+                                    )
+                                },
+                                onUpdateImageBitmap = { imageBitmap ->
                                     onLongPressGridItem(
                                         index,
                                         GridItemSource.Existing(gridItem = gridItem),
                                         imageBitmap,
-                                        intOffset,
                                     )
                                 },
                             )
@@ -228,13 +231,15 @@ private fun GridItemContent(
     gridItem: GridItem,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
+    gridItemSettings: GridItemSettings,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
         shortcutId: String,
     ) -> Unit,
     onTapFolderGridItem: () -> Unit,
-    onLongPress: (ImageBitmap?) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap?) -> Unit,
 ) {
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
@@ -242,10 +247,12 @@ private fun GridItemContent(
                 gridItem = gridItem,
                 data = data,
                 drag = drag,
+                gridItemSettings = gridItemSettings,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
 
@@ -254,6 +261,7 @@ private fun GridItemContent(
                 gridItem = gridItem,
                 data = data,
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
 
@@ -262,6 +270,7 @@ private fun GridItemContent(
                 gridItem = gridItem,
                 data = data,
                 drag = drag,
+                gridItemSettings = gridItemSettings,
                 onTap = {
                     if (hasShortcutHostPermission) {
                         onTapShortcutInfo(
@@ -271,6 +280,7 @@ private fun GridItemContent(
                     }
                 },
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
 
@@ -279,8 +289,10 @@ private fun GridItemContent(
                 gridItem = gridItem,
                 data = data,
                 drag = drag,
+                gridItemSettings = gridItemSettings,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
             )
         }
     }
@@ -292,12 +304,24 @@ private fun ApplicationInfoGridItem(
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
+    gridItemSettings: GridItemSettings,
     onTap: () -> Unit,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
 
     val scale = remember { Animatable(1f) }
 
@@ -319,12 +343,14 @@ private fun ApplicationInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        onLongPress()
+
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
-                            onLongPress(graphicsLayer.toImageBitmap())
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -342,6 +368,7 @@ private fun ApplicationInfoGridItem(
             AsyncImage(
                 model = data.icon,
                 contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
             )
         }
 
@@ -351,7 +378,7 @@ private fun ApplicationInfoGridItem(
             modifier = Modifier.weight(1f),
             text = data.label.toString(),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = textSizeSp,
         )
     }
 }
@@ -361,7 +388,8 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.Widget,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -408,12 +436,14 @@ private fun WidgetGridItem(
                     detectTapGesturesUnConsume(
                         requireUnconsumed = false,
                         onLongPress = {
+                            onLongPress()
+
                             scope.launch {
                                 scale.animateTo(0.5f)
 
                                 scale.animateTo(1f)
 
-                                onLongPress(graphicsLayer.toImageBitmap())
+                                onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                             }
                         },
                     )
@@ -428,12 +458,24 @@ private fun ShortcutInfoGridItem(
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     drag: Drag,
+    gridItemSettings: GridItemSettings,
     onTap: () -> Unit,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
 
     val scale = remember { Animatable(1f) }
 
@@ -455,12 +497,14 @@ private fun ShortcutInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        onLongPress()
+
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
-                            onLongPress(graphicsLayer.toImageBitmap())
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -478,6 +522,7 @@ private fun ShortcutInfoGridItem(
             AsyncImage(
                 model = data.icon,
                 contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
             )
         }
 
@@ -487,7 +532,7 @@ private fun ShortcutInfoGridItem(
             modifier = Modifier.weight(1f),
             text = data.shortLabel,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = textSizeSp,
         )
     }
 }
@@ -498,12 +543,24 @@ private fun NestedFolderGridItem(
     gridItem: GridItem,
     data: GridItemData.Folder,
     drag: Drag,
+    gridItemSettings: GridItemSettings,
     onTap: () -> Unit,
-    onLongPress: (ImageBitmap) -> Unit,
+    onLongPress: () -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
 
     val scale = remember { Animatable(1f) }
 
@@ -525,12 +582,14 @@ private fun NestedFolderGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        onLongPress()
+
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
-                            onLongPress(graphicsLayer.toImageBitmap())
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
                         }
                     },
                     onTap = {
@@ -548,6 +607,7 @@ private fun NestedFolderGridItem(
             Icon(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
             )
         }
 
@@ -557,7 +617,7 @@ private fun NestedFolderGridItem(
             modifier = Modifier.weight(1f),
             text = data.label,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = textSizeSp,
         )
     }
 }

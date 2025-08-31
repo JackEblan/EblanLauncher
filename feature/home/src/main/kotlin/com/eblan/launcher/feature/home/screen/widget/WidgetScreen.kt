@@ -77,8 +77,8 @@ fun WidgetScreen(
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
-        intOffset: IntOffset,
     ) -> Unit,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -206,6 +206,8 @@ fun WidgetScreen(
                                                     .pointerInput(key1 = drag) {
                                                         detectTapGestures(
                                                             onLongPress = {
+                                                                onUpdateGridItemOffset(intOffset)
+
                                                                 scope.launch {
                                                                     scale.animateTo(0.5f)
 
@@ -235,7 +237,6 @@ fun WidgetScreen(
                                                                             ),
                                                                         ),
                                                                         graphicsLayer.toImageBitmap(),
-                                                                        intOffset,
                                                                     )
                                                                 }
                                                             },

@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.screen.folder
 
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -118,6 +119,8 @@ fun FolderScreen(
         titleHeightDp.roundToPx()
     }
 
+    val folderDataById = foldersDataById.lastOrNull()
+
     LaunchedEffect(key1 = foldersDataById) {
         if (foldersDataById.isEmpty()) {
             onResetTargetPage()
@@ -136,105 +139,107 @@ fun FolderScreen(
         }
     }
 
-    foldersDataById.forEach { folderDataById ->
-        val horizontalPagerState = rememberPagerState(
-            initialPage = startCurrentPage,
-            pageCount = {
-                folderDataById.pageCount
-            },
-        )
+    val pageIndicator = 5.dp
 
-        val pageIndicator = 5.dp
+    val pageIndicatorPx = with(density) {
+        pageIndicator.roundToPx()
+    }
 
-        val pageIndicatorPx = with(density) {
-            pageIndicator.roundToPx()
-        }
-
+    if (folderDataById != null) {
         Surface(modifier = modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                        bottom = paddingValues.calculateBottomPadding(),
-                    )
-                    .fillMaxSize(),
-            ) {
-                Text(
-                    modifier = Modifier.height(titleHeightDp),
-                    text = folderDataById.label,
+            AnimatedContent(targetState = folderDataById) { targetState ->
+                val horizontalPagerState = rememberPagerState(
+                    initialPage = startCurrentPage,
+                    pageCount = {
+                        folderDataById.pageCount
+                    },
                 )
 
-                HorizontalPager(
-                    state = horizontalPagerState,
-                    modifier = Modifier.weight(1f),
-                ) { index ->
-                    GridLayout(
-                        modifier = Modifier
-                            .padding(
-                                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
-                            )
-                            .fillMaxSize(),
-                        rows = folderRows,
-                        columns = folderColumns,
-                    ) {
-                        folderDataById.gridItemsByPage[index]?.forEach { gridItem ->
-                            val cellWidth = gridWidth / folderColumns
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom = paddingValues.calculateBottomPadding(),
+                        )
+                        .fillMaxSize(),
+                ) {
+                    Text(
+                        modifier = Modifier.height(titleHeightDp),
+                        text = targetState.label,
+                    )
 
-                            val cellHeight =
-                                (gridHeight - pageIndicatorPx - titleHeightPx) / folderRows
+                    HorizontalPager(
+                        state = horizontalPagerState,
+                        modifier = Modifier.weight(1f),
+                    ) { index ->
+                        GridLayout(
+                            modifier = Modifier
+                                .padding(
+                                    start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+                                    end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                                )
+                                .fillMaxSize(),
+                            rows = folderRows,
+                            columns = folderColumns,
+                        ) {
+                            targetState.gridItemsByPage[index]?.forEach { gridItem ->
+                                val cellWidth = gridWidth / folderColumns
 
-                            val x = gridItem.startColumn * cellWidth
+                                val cellHeight =
+                                    (gridHeight - pageIndicatorPx - titleHeightPx) / folderRows
 
-                            val y = gridItem.startRow * cellHeight
+                                val x = gridItem.startColumn * cellWidth
 
-                            GridItemContent(
-                                gridItem = gridItem,
-                                hasShortcutHostPermission = hasShortcutHostPermission,
-                                drag = drag,
-                                gridItemSettings = gridItemSettings,
-                                onTapApplicationInfo = launcherApps::startMainActivity,
-                                onTapShortcutInfo = launcherApps::startShortcut,
-                                onTapFolderGridItem = {
-                                    onResetTargetPage()
+                                val y = gridItem.startRow * cellHeight
 
-                                    onAddFolder(gridItem.id)
-                                },
-                                onLongPress = {
-                                    onUpdateGridItemOffset(
-                                        IntOffset(
-                                            x = x + leftPadding,
-                                            y = y + (topPadding + titleHeightPx),
-                                        ),
-                                    )
-                                },
-                                onUpdateImageBitmap = { imageBitmap ->
-                                    onLongPressGridItem(
-                                        index,
-                                        GridItemSource.Existing(gridItem = gridItem),
-                                        imageBitmap,
-                                    )
-                                },
-                            )
+                                GridItemContent(
+                                    gridItem = gridItem,
+                                    hasShortcutHostPermission = hasShortcutHostPermission,
+                                    drag = drag,
+                                    gridItemSettings = gridItemSettings,
+                                    onTapApplicationInfo = launcherApps::startMainActivity,
+                                    onTapShortcutInfo = launcherApps::startShortcut,
+                                    onTapFolderGridItem = {
+                                        onResetTargetPage()
+
+                                        onAddFolder(gridItem.id)
+                                    },
+                                    onLongPress = {
+                                        onUpdateGridItemOffset(
+                                            IntOffset(
+                                                x = x + leftPadding,
+                                                y = y + (topPadding + titleHeightPx),
+                                            ),
+                                        )
+                                    },
+                                    onUpdateImageBitmap = { imageBitmap ->
+                                        onLongPressGridItem(
+                                            index,
+                                            GridItemSource.Existing(gridItem = gridItem),
+                                            imageBitmap,
+                                        )
+                                    },
+                                )
+                            }
                         }
                     }
-                }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    repeat(horizontalPagerState.pageCount) { index ->
-                        val color =
-                            if (horizontalPagerState.currentPage == index) Color.LightGray else Color.DarkGray
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        repeat(horizontalPagerState.pageCount) { index ->
+                            val color =
+                                if (horizontalPagerState.currentPage == index) Color.LightGray else Color.DarkGray
 
-                        Box(
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .size(pageIndicator),
-                        )
+                            Box(
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .clip(CircleShape)
+                                    .background(color)
+                                    .size(pageIndicator),
+                            )
+                        }
                     }
                 }
             }

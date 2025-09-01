@@ -331,7 +331,7 @@ fun DragScreen(
                     SmallGridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
-                        gridItemSettings = gridItemSettings,
+                        gridItemSettings = gridItemSettings.copy(iconSize = gridItemSettings.iconSize / 2),
                     )
                 }
             }

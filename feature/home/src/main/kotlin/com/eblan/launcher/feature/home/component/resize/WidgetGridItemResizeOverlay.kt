@@ -203,6 +203,8 @@ fun WidgetGridItemResizeOverlay(
                 columns = columns,
             )
         ) {
+            delay(250L)
+
             onResizeWidgetGridItem(
                 resizingGridItem,
                 rows,

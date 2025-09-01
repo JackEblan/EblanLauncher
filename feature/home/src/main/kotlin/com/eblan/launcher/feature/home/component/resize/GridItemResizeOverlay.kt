@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
@@ -218,6 +219,8 @@ fun GridItemResizeOverlay(
                 columns = columns,
             )
         ) {
+            delay(250L)
+
             onResizeGridItem(resizingGridItem, rows, columns)
         }
     }

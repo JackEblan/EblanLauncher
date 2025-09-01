@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -72,7 +73,7 @@ fun SmallGridItemContent(
 
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItemCache(
+                    SmallApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,
@@ -81,11 +82,11 @@ fun SmallGridItemContent(
                 }
 
                 is GridItemData.Widget -> {
-                    WidgetGridItemCache(modifier = gridItemModifier, data = data)
+                    SmallWidgetGridItem(modifier = gridItemModifier, data = data)
                 }
 
                 is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItemCache(
+                    SmallShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,
@@ -94,7 +95,7 @@ fun SmallGridItemContent(
                 }
 
                 is GridItemData.Folder -> {
-                    FolderGridItemCache(
+                    SmallFolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,
@@ -107,17 +108,22 @@ fun SmallGridItemContent(
 }
 
 @Composable
-private fun ApplicationInfoGridItemCache(
+private fun SmallApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
     textColor: Long,
     gridItemSettings: GridItemSettings,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
-        modifier = modifier
-            .padding(10.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -127,6 +133,7 @@ private fun ApplicationInfoGridItemCache(
             AsyncImage(
                 model = data.icon,
                 contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
             )
         }
 
@@ -146,7 +153,7 @@ private fun ApplicationInfoGridItemCache(
 }
 
 @Composable
-private fun WidgetGridItemCache(
+private fun SmallWidgetGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Widget,
 ) {
@@ -183,17 +190,22 @@ private fun WidgetGridItemCache(
 }
 
 @Composable
-private fun ShortcutInfoGridItemCache(
+private fun SmallShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
     textColor: Long,
     gridItemSettings: GridItemSettings,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
-        modifier = modifier
-            .padding(10.dp),
+        modifier = modifier.padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -203,6 +215,7 @@ private fun ShortcutInfoGridItemCache(
             AsyncImage(
                 model = data.icon,
                 contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
             )
         }
 
@@ -222,7 +235,7 @@ private fun ShortcutInfoGridItemCache(
 }
 
 @Composable
-private fun FolderGridItemCache(
+private fun SmallFolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
     textColor: Long,
@@ -231,8 +244,7 @@ private fun FolderGridItemCache(
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
-        modifier = modifier
-            .padding(10.dp),
+        modifier = modifier.padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {

@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.component.grid
 
-import android.widget.FrameLayout
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.layout.Arrangement
@@ -169,14 +168,9 @@ private fun SmallWidgetGridItem(
                 appWidgetHost.createView(
                     appWidgetId = data.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
+                    minWidth = data.minWidth,
+                    minHeight = data.minHeight,
+                )
             },
             modifier = modifier,
         )

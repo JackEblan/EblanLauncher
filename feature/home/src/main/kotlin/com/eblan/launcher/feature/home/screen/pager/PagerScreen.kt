@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
-import android.widget.FrameLayout
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -1058,14 +1057,9 @@ private fun WidgetGridItem(
                 appWidgetHost.createView(
                     appWidgetId = data.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
+                    minWidth = data.minWidth,
+                    minHeight = data.minHeight,
+                )
             },
             modifier = modifier
                 .gridItem(gridItem)

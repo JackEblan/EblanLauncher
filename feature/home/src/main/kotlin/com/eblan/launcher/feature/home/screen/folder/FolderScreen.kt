@@ -1,6 +1,5 @@
 package com.eblan.launcher.feature.home.screen.folder
 
-import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -430,14 +429,9 @@ private fun WidgetGridItem(
                 appWidgetHost.createView(
                     appWidgetId = data.appWidgetId,
                     appWidgetProviderInfo = appWidgetInfo,
-                ).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                    )
-
-                    setAppWidget(appWidgetId, appWidgetInfo)
-                }
+                    minWidth = data.minWidth,
+                    minHeight = data.minHeight,
+                )
             },
             modifier = modifier
                 .gridItem(gridItem)

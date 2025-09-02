@@ -13,5 +13,7 @@ interface AndroidAppWidgetHostWrapper {
     fun createView(
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
+        minWidth: Int,
+        minHeight: Int,
     ): AppWidgetHostView
 }

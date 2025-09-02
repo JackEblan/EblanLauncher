@@ -4,6 +4,9 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
+import android.os.Build
+import android.os.Bundle
+import android.util.SizeF
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -27,8 +30,27 @@ internal class DefaultAppWidgetHostWrapper @Inject constructor(@ApplicationConte
     override fun createView(
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,
+        minWidth: Int,
+        minHeight: Int,
     ): AppWidgetHostView {
-        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo)
+        return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                updateAppWidgetSize(
+                    Bundle.EMPTY,
+                    listOf(
+                        SizeF(minWidth.toFloat(), minHeight.toFloat()),
+                    ),
+                )
+            } else {
+                updateAppWidgetSize(
+                    Bundle.EMPTY,
+                    minWidth,
+                    minHeight,
+                    minWidth,
+                    minHeight,
+                )
+            }
+        }
     }
 
     override fun deleteAppWidgetId(appWidgetId: Int) {

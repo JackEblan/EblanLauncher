@@ -549,6 +549,7 @@ private fun Success(
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     gridItemSettings = userData.homeSettings.gridItemSettings,
+                    textColor = textColor,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -583,6 +584,7 @@ private fun Success(
                     screenHeight = screenHeight,
                     folderDataById = foldersDataById.last(),
                     paddingValues = paddingValues,
+                    gridItemSettings = userData.homeSettings.gridItemSettings,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
                         folderTargetPage = newTargetPage

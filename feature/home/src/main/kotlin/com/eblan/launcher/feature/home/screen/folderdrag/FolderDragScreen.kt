@@ -1,48 +1,31 @@
 package com.eblan.launcher.feature.home.screen.folderdrag
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import coil3.compose.AsyncImage
-import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.gridItem
+import com.eblan.launcher.feature.home.component.grid.SmallGridItemContent
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -65,6 +48,7 @@ fun FolderDragScreen(
     screenHeight: Int,
     paddingValues: PaddingValues,
     folderDataById: FolderDataById,
+    gridItemSettings: GridItemSettings,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -186,9 +170,10 @@ fun FolderDragScreen(
                 columns = folderColumns,
             ) {
                 gridItemsByPage[index]?.forEach { gridItem ->
-                    FolderDragGridItemContent(
+                    SmallGridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
+                        gridItemSettings = gridItemSettings.copy(iconSize = gridItemSettings.iconSize / 2),
                     )
                 }
             }
@@ -198,184 +183,6 @@ fun FolderDragScreen(
             pageCount = horizontalPagerState.pageCount,
             currentPage = horizontalPagerState.currentPage,
             pageIndicatorSize = pageIndicatorSize,
-        )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalSharedTransitionApi::class)
-private fun FolderDragGridItemContent(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    textColor: Long,
-) {
-    key(gridItem.id) {
-        LookaheadScope {
-            val gridItemModifier = modifier
-                .animateBounds(this)
-                .gridItem(gridItem)
-
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = textColor,
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    WidgetGridItem(modifier = gridItemModifier, data = data)
-                }
-
-                is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = textColor,
-                    )
-                }
-
-                is GridItemData.Folder -> {
-                    NestedFolderGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = textColor,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApplicationInfoGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.ApplicationInfo,
-    textColor: Long,
-) {
-    Column(
-        modifier = modifier
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = data.icon,
-                contentDescription = null,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.label.toString(),
-            color = Color(textColor),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
-}
-
-@Composable
-private fun WidgetGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.Widget,
-) {
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
-    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
-
-    if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = data.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                    minWidth = data.minWidth,
-                    minHeight = data.minHeight,
-                )
-            },
-            modifier = modifier,
-        )
-    } else {
-        AsyncImage(
-            model = data.preview,
-            contentDescription = null,
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun ShortcutInfoGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.ShortcutInfo,
-    textColor: Long,
-) {
-    Column(
-        modifier = modifier
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = data.icon,
-                contentDescription = null,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.shortLabel,
-            color = Color(textColor),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
-}
-
-@Composable
-private fun NestedFolderGridItem(
-    modifier: Modifier,
-    data: GridItemData.Folder,
-    textColor: Long,
-) {
-    Column(
-        modifier = modifier
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = EblanLauncherIcons.Folder,
-                contentDescription = null,
-                tint = Color(textColor),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            modifier = Modifier.weight(1f),
-            text = data.label,
-            color = Color(textColor),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
         )
     }
 }

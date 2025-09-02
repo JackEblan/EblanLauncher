@@ -3,11 +3,8 @@ package com.eblan.launcher.feature.home.component.grid
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -72,7 +69,7 @@ fun SmallGridItemContent(
 
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    SmallApplicationInfoGridItem(
+                    ApplicationInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,
@@ -81,11 +78,11 @@ fun SmallGridItemContent(
                 }
 
                 is GridItemData.Widget -> {
-                    SmallWidgetGridItem(modifier = gridItemModifier, data = data)
+                    WidgetGridItem(modifier = gridItemModifier, data = data)
                 }
 
                 is GridItemData.ShortcutInfo -> {
-                    SmallShortcutInfoGridItem(
+                    ShortcutInfoGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,
@@ -94,7 +91,7 @@ fun SmallGridItemContent(
                 }
 
                 is GridItemData.Folder -> {
-                    SmallFolderGridItem(
+                    FolderGridItem(
                         modifier = gridItemModifier,
                         data = data,
                         textColor = currentTextColor,
@@ -107,7 +104,7 @@ fun SmallGridItemContent(
 }
 
 @Composable
-private fun SmallApplicationInfoGridItem(
+private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
     textColor: Long,
@@ -124,23 +121,16 @@ private fun SmallApplicationInfoGridItem(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround,
     ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = data.icon,
-                contentDescription = null,
-                modifier = Modifier.size(iconSizeDp),
-            )
-        }
+        AsyncImage(
+            model = data.icon,
+            contentDescription = null,
+            modifier = Modifier.size(iconSizeDp),
+        )
 
         if (gridItemSettings.showLabel) {
-            Spacer(modifier = Modifier.height(10.dp))
-
             Text(
-                modifier = Modifier.weight(1f),
                 text = data.label.toString(),
                 color = Color(textColor),
                 textAlign = TextAlign.Center,
@@ -152,7 +142,7 @@ private fun SmallApplicationInfoGridItem(
 }
 
 @Composable
-private fun SmallWidgetGridItem(
+private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Widget,
 ) {
@@ -184,7 +174,7 @@ private fun SmallWidgetGridItem(
 }
 
 @Composable
-private fun SmallShortcutInfoGridItem(
+private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
     textColor: Long,
@@ -199,23 +189,17 @@ private fun SmallShortcutInfoGridItem(
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
-        modifier = modifier.padding(10.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround,
     ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            AsyncImage(
-                model = data.icon,
-                contentDescription = null,
-                modifier = Modifier.size(iconSizeDp),
-            )
-        }
+        AsyncImage(
+            model = data.icon,
+            contentDescription = null,
+            modifier = Modifier.size(iconSizeDp),
+        )
 
         if (gridItemSettings.showLabel) {
-            Spacer(modifier = Modifier.height(10.dp))
-
             Text(
                 modifier = Modifier.weight(1f),
                 text = data.shortLabel,
@@ -229,26 +213,31 @@ private fun SmallShortcutInfoGridItem(
 }
 
 @Composable
-private fun SmallFolderGridItem(
+private fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
     textColor: Long,
     gridItemSettings: GridItemSettings,
 ) {
+    val density = LocalDensity.current
+
+    val iconSizeDp = with(density) {
+        gridItemSettings.iconSize.toDp()
+    }
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
-        modifier = modifier.padding(10.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceAround,
     ) {
         FlowRow(
-            modifier = Modifier.weight(1f),
             maxItemsInEachRow = 2,
             maxLines = 2,
         ) {
-            data.gridItems.take(4).sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                Column {
+            if (data.gridItems.isNotEmpty()) {
+                data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
                     val gridItemModifier = Modifier
                         .padding(2.dp)
                         .size(10.dp)
@@ -288,12 +277,18 @@ private fun SmallFolderGridItem(
                         }
                     }
                 }
+            } else {
+                Icon(
+                    imageVector = EblanLauncherIcons.Folder,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSizeDp),
+                    tint = Color(textColor),
+                )
             }
         }
 
         if (gridItemSettings.showLabel) {
             Text(
-                modifier = Modifier.weight(1f),
                 text = data.label,
                 color = Color(textColor),
                 textAlign = TextAlign.Center,

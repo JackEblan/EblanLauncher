@@ -41,7 +41,7 @@ suspend fun handleDragIntOffset(
     dragIntOffset: IntOffset,
     screenWidth: Int,
     screenHeight: Int,
-    pageIndicator: Int,
+    pageIndicatorSize: Int,
     dockHeight: Int,
     gridPadding: Int,
     rows: Int,
@@ -156,7 +156,7 @@ suspend fun handleDragIntOffset(
     } else if (isHorizontalBounds && isVerticalBounds) {
         val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeightWithPadding = (gridHeight - pageIndicator - dockHeight) - (gridPadding * 2)
+        val gridHeightWithPadding = (gridHeight - pageIndicatorSize - dockHeight) - (gridPadding * 2)
 
         val gridX = dragX - gridPadding
 

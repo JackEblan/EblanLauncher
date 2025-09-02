@@ -21,7 +21,7 @@ suspend fun handleFolderDragIntOffset(
     screenHeight: Int,
     gridPadding: Int,
     screenWidth: Int,
-    pageIndicator: Int,
+    pageIndicatorSize: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
@@ -78,7 +78,7 @@ suspend fun handleFolderDragIntOffset(
 
     val isOnTopGrid = dragY < gridPadding
 
-    val isOnBottomGrid = dragY > gridHeight - pageIndicator - gridPadding
+    val isOnBottomGrid = dragY > gridHeight - pageIndicatorSize - gridPadding
 
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 
@@ -93,7 +93,7 @@ suspend fun handleFolderDragIntOffset(
     } else {
         val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeightWithPadding = (gridHeight - pageIndicator) - (gridPadding * 2)
+        val gridHeightWithPadding = (gridHeight - pageIndicatorSize) - (gridPadding * 2)
 
         val gridX = dragX - gridPadding
 

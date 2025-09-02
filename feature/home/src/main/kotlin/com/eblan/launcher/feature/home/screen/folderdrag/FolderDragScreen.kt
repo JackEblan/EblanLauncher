@@ -4,20 +4,15 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
@@ -49,6 +43,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
+import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
@@ -96,10 +91,10 @@ fun FolderDragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
-    val pageIndicator = 5.dp
+    val pageIndicatorSize = 5.dp
 
-    val pageIndicatorPx = with(density) {
-        pageIndicator.roundToPx()
+    val pageIndicatorSizePx = with(density) {
+        pageIndicatorSize.roundToPx()
     }
 
     val horizontalPagerState = rememberPagerState(
@@ -119,7 +114,7 @@ fun FolderDragScreen(
             screenHeight = screenHeight,
             gridPadding = gridPaddingPx,
             screenWidth = screenWidth,
-            pageIndicator = pageIndicatorPx,
+            pageIndicatorSize = pageIndicatorSizePx,
             columns = folderColumns,
             rows = folderRows,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
@@ -199,23 +194,11 @@ fun FolderDragScreen(
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            repeat(horizontalPagerState.pageCount) { index ->
-                val color =
-                    if (horizontalPagerState.currentPage == index) Color.LightGray else Color.DarkGray
-
-                Box(
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                        .size(pageIndicator),
-                )
-            }
-        }
+        PageIndicator(
+            pageCount = horizontalPagerState.pageCount,
+            currentPage = horizontalPagerState.currentPage,
+            pageIndicatorSize = pageIndicatorSize,
+        )
     }
 }
 

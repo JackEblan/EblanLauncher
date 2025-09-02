@@ -3,22 +3,17 @@ package com.eblan.launcher.feature.home.screen.folder
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,9 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -53,6 +46,7 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
+import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
@@ -138,10 +132,10 @@ fun FolderScreen(
         }
     }
 
-    val pageIndicator = 5.dp
+    val pageIndicatorSize = 5.dp
 
-    val pageIndicatorPx = with(density) {
-        pageIndicator.roundToPx()
+    val pageIndicatorSizePx = with(density) {
+        pageIndicatorSize.roundToPx()
     }
 
     if (folderDataById != null) {
@@ -185,7 +179,7 @@ fun FolderScreen(
                                 val cellWidth = gridWidth / folderColumns
 
                                 val cellHeight =
-                                    (gridHeight - pageIndicatorPx - titleHeightPx) / folderRows
+                                    (gridHeight - pageIndicatorSizePx - titleHeightPx) / folderRows
 
                                 val x = gridItem.startColumn * cellWidth
 
@@ -223,23 +217,11 @@ fun FolderScreen(
                         }
                     }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        repeat(horizontalPagerState.pageCount) { index ->
-                            val color =
-                                if (horizontalPagerState.currentPage == index) Color.LightGray else Color.DarkGray
-
-                            Box(
-                                modifier = Modifier
-                                    .padding(2.dp)
-                                    .clip(CircleShape)
-                                    .background(color)
-                                    .size(pageIndicator),
-                            )
-                        }
-                    }
+                    PageIndicator(
+                        pageCount = horizontalPagerState.pageCount,
+                        currentPage = horizontalPagerState.currentPage,
+                        pageIndicatorSize = pageIndicatorSize,
+                    )
                 }
             }
         }
@@ -280,6 +262,7 @@ private fun GridItemContent(
             WidgetGridItem(
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
             )
@@ -408,6 +391,7 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.Widget,
+    drag: Drag,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
@@ -463,6 +447,11 @@ private fun WidgetGridItem(
                         },
                     )
                 },
+            update = { appWidgetHostView ->
+                if (drag == Drag.Start) {
+                    appWidgetHostView.isPressed = false
+                }
+            },
         )
     }
 }

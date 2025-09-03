@@ -1,21 +1,17 @@
 package com.eblan.launcher.feature.home.screen.resize
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -83,12 +79,6 @@ fun ResizeScreen(
         dockHeight.toDp()
     }
 
-    val gridPaddingDp = 20.dp
-
-    val gridPaddingPx = with(density) {
-        gridPaddingDp.roundToPx()
-    }
-
     BackHandler {
         onResizeCancel()
     }
@@ -100,18 +90,8 @@ fun ResizeScreen(
     ) {
         GridLayout(
             modifier = Modifier
-                .padding(gridPaddingDp)
                 .fillMaxWidth()
-                .weight(1f)
-                .background(
-                    color = Color(textColor).copy(alpha = 0.25f),
-                    shape = RoundedCornerShape(8.dp),
-                )
-                .border(
-                    width = 2.dp,
-                    color = Color(textColor),
-                    shape = RoundedCornerShape(8.dp),
-                ),
+                .weight(1f),
             rows = rows,
             columns = columns,
         ) {
@@ -119,7 +99,7 @@ fun ResizeScreen(
                 SmallGridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings.copy(iconSize = gridItemSettings.iconSize / 2),
+                    gridItemSettings = gridItemSettings,
                 )
             }
         }
@@ -143,17 +123,9 @@ fun ResizeScreen(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val gridLeft = leftPadding + gridPaddingPx
+            val cellWidth = gridWidth / columns
 
-            val gridTop = topPadding + gridPaddingPx
-
-            val gridWidthWithPadding = gridWidth - (gridPaddingPx * 2)
-
-            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPaddingPx * 2)
-
-            val cellWidth = gridWidthWithPadding / columns
-
-            val cellHeight = gridHeightWithPadding / rows
+            val cellHeight = (gridHeight - dockHeight) / rows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -163,14 +135,14 @@ fun ResizeScreen(
 
             val height = gridItem.rowSpan * cellHeight
 
-            val gridX = x + gridLeft
+            val gridX = x + leftPadding
 
-            val gridY = y + gridTop
+            val gridY = y + topPadding
 
             ResizeOverlay(
                 gridItem = gridItem,
-                gridWidth = gridWidthWithPadding,
-                gridHeight = gridHeightWithPadding,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight - dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 rows = rows,

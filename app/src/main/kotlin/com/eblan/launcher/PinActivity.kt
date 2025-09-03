@@ -59,8 +59,8 @@ class PinActivity : ComponentActivity() {
                     LocalLauncherApps provides androidLauncherAppsWrapper,
                 ) {
                     EblanLauncherTheme(
-                        themeBrand = ThemeBrand.GREEN,
-                        darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
+                        themeBrand = ThemeBrand.Green,
+                        darkThemeConfig = DarkThemeConfig.System,
                         dynamicTheme = false,
                     ) {
                         PinScreen(

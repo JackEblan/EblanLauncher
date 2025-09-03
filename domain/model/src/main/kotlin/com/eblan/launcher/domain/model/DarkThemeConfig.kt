@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.domain.model
 
-enum class DarkThemeConfig(val title: String) {
-    FOLLOW_SYSTEM("Follow System"),
-    LIGHT("Light"),
-    DARK("Dark"),
+enum class DarkThemeConfig {
+    System, Light, Dark,
 }

@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.domain.model
 
-enum class ThemeBrand(val title: String) {
-    GREEN("Green"),
-    PURPLE("Purple"),
+enum class ThemeBrand {
+    Green, Purple,
 }

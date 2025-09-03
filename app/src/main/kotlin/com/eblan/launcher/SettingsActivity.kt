@@ -24,8 +24,8 @@ class SettingsActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             EblanLauncherTheme(
-                themeBrand = ThemeBrand.GREEN,
-                darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
+                themeBrand = ThemeBrand.Green,
+                darkThemeConfig = DarkThemeConfig.System,
                 dynamicTheme = false,
             ) {
                 Surface {

@@ -196,7 +196,7 @@ fun EblanLauncherTheme(
             darkThemeConfig = darkThemeConfig,
         )
 
-        themeBrand == ThemeBrand.PURPLE -> getPurpleColorScheme(
+        themeBrand == ThemeBrand.Purple -> getPurpleColorScheme(
             darkThemeConfig = darkThemeConfig,
         )
 
@@ -217,15 +217,15 @@ fun supportsDynamicTheming() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 @Composable
 private fun getGreenColorScheme(darkThemeConfig: DarkThemeConfig): ColorScheme {
     return when (darkThemeConfig) {
-        DarkThemeConfig.FOLLOW_SYSTEM -> {
+        DarkThemeConfig.System -> {
             if (isSystemInDarkTheme()) DarkGreenColorScheme else LightGreenColorScheme
         }
 
-        DarkThemeConfig.LIGHT -> {
+        DarkThemeConfig.Light -> {
             LightGreenColorScheme
         }
 
-        DarkThemeConfig.DARK -> {
+        DarkThemeConfig.Dark -> {
             DarkGreenColorScheme
         }
     }
@@ -234,15 +234,15 @@ private fun getGreenColorScheme(darkThemeConfig: DarkThemeConfig): ColorScheme {
 @Composable
 private fun getPurpleColorScheme(darkThemeConfig: DarkThemeConfig): ColorScheme {
     return when (darkThemeConfig) {
-        DarkThemeConfig.FOLLOW_SYSTEM -> {
+        DarkThemeConfig.System -> {
             if (isSystemInDarkTheme()) DarkPurpleColorScheme else LightPurpleColorScheme
         }
 
-        DarkThemeConfig.LIGHT -> {
+        DarkThemeConfig.Light -> {
             LightPurpleColorScheme
         }
 
-        DarkThemeConfig.DARK -> {
+        DarkThemeConfig.Dark -> {
             DarkPurpleColorScheme
         }
     }
@@ -254,7 +254,7 @@ private fun getDynamicColorScheme(darkThemeConfig: DarkThemeConfig): ColorScheme
     val context = LocalContext.current
 
     return when (darkThemeConfig) {
-        DarkThemeConfig.FOLLOW_SYSTEM -> {
+        DarkThemeConfig.System -> {
             if (isSystemInDarkTheme()) {
                 dynamicDarkColorScheme(context)
             } else {
@@ -264,13 +264,13 @@ private fun getDynamicColorScheme(darkThemeConfig: DarkThemeConfig): ColorScheme
             }
         }
 
-        DarkThemeConfig.LIGHT -> {
+        DarkThemeConfig.Light -> {
             dynamicLightColorScheme(
                 context,
             )
         }
 
-        DarkThemeConfig.DARK -> {
+        DarkThemeConfig.Dark -> {
             dynamicDarkColorScheme(context)
         }
     }

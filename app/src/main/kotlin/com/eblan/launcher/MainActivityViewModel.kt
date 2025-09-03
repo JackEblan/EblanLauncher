@@ -1,0 +1,39 @@
+package com.eblan.launcher
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
+import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.model.MainActivityUiState
+import com.eblan.launcher.model.ThemeSettings
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+
+@HiltViewModel
+class MainActivityViewModel @Inject constructor(
+    userDataRepository: UserDataRepository,
+    wallpaperManagerWrapper: WallpaperManagerWrapper,
+) : ViewModel() {
+    val uiState = combine(
+        userDataRepository.userData,
+        wallpaperManagerWrapper.getColorsChanged(),
+    ) { _, colorHints ->
+        MainActivityUiState.Success(
+            themeSettings = ThemeSettings(
+                themeBrand = ThemeBrand.Green,
+                darkThemeConfig = DarkThemeConfig.System,
+                dynamicTheme = false,
+                hintSupportsDarkTheme = (colorHints?.and(wallpaperManagerWrapper.hintSupportsDarkText)) != 0,
+            ),
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = MainActivityUiState.Loading,
+    )
+}

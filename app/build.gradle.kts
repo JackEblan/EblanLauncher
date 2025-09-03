@@ -47,6 +47,7 @@ dependencies {
     implementation(projects.designSystem)
     implementation(projects.domain.framework)
     implementation(projects.domain.model)
+    implementation(projects.domain.repository)
     implementation(projects.feature.edit)
     implementation(projects.feature.home)
     implementation(projects.feature.pin)

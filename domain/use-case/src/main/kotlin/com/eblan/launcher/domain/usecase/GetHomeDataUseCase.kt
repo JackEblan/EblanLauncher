@@ -102,10 +102,8 @@ class GetHomeDataUseCase @Inject constructor(
     }
 
     private fun getTextColorFromWallpaperColors(colorHints: Int?): Long {
-        if (colorHints == null) return LIGHT
-
         val hintSupportsDarkText =
-            (colorHints and wallpaperManagerWrapper.hintSupportsDarkText) != 0
+            (colorHints?.and(wallpaperManagerWrapper.hintSupportsDarkText)) != 0
 
         return if (hintSupportsDarkText) {
             DARK

@@ -4,4 +4,5 @@ data class UserData(
     val homeSettings: HomeSettings,
     val appDrawerSettings: AppDrawerSettings,
     val gestureSettings: GestureSettings,
+    val generalSettings: GeneralSettings,
 )

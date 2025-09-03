@@ -4,7 +4,7 @@ option java_package = "com.eblan.launcher.data.datastore.proto.home";
 option java_multiple_files = true;
 
 enum TextColorProto {
-  System = 0;
-  Light = 1;
-  Dark = 2;
+  TextColorSystem = 0;
+  TextColorLight = 1;
+  TextColorDark = 2;
 }

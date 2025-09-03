@@ -1,7 +1,9 @@
 package com.eblan.launcher.domain.repository
 
+import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
 
@@ -49,4 +51,10 @@ interface UserDataRepository {
     suspend fun updateShowLabel(showLabel: Boolean)
 
     suspend fun updateSingleLineLabel(singleLineLabel: Boolean)
+
+    suspend fun updateThemeBrand(themeBrand: ThemeBrand)
+
+    suspend fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
+
+    suspend fun updateDynamicTheme(dynamicTheme: Boolean)
 }

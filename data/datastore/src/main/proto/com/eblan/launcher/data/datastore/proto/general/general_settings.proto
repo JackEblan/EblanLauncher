@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "com/eblan/launcher/data/datastore/proto/general/dark_theme_config.proto";
+import "com/eblan/launcher/data/datastore/proto/general/theme_brand.proto";
+
+option java_package = "com.eblan.launcher.data.datastore.proto.general";
+option java_multiple_files = true;
+
+message GeneralSettingsProto {
+  ThemeBrandProto themeBrandProto = 1;
+
+  DarkThemeConfigProto darkThemeConfigProto = 2;
+
+  bool dynamicTheme = 3;
+}

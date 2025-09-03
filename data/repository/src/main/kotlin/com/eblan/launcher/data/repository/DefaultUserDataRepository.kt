@@ -1,8 +1,10 @@
 package com.eblan.launcher.data.repository
 
 import com.eblan.launcher.data.datastore.UserDataStore
+import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.repository.UserDataRepository
 import javax.inject.Inject
 
@@ -93,5 +95,17 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
 
     override suspend fun updateSingleLineLabel(singleLineLabel: Boolean) {
         userDataStore.updateSingleLineLabel(singleLineLabel = singleLineLabel)
+    }
+
+    override suspend fun updateThemeBrand(themeBrand: ThemeBrand) {
+        userDataStore.updateThemeBrand(themeBrand = themeBrand)
+    }
+
+    override suspend fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
+        userDataStore.updateDarkThemeConfig(darkThemeConfig = darkThemeConfig)
+    }
+
+    override suspend fun updateDynamicTheme(dynamicTheme: Boolean) {
+        userDataStore.updateDynamicTheme(dynamicTheme = dynamicTheme)
     }
 }

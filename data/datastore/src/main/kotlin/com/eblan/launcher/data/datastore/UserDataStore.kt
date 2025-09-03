@@ -2,17 +2,23 @@ package com.eblan.launcher.data.datastore
 
 import androidx.datastore.core.DataStore
 import com.eblan.launcher.data.datastore.mapper.toAppDrawerSettings
+import com.eblan.launcher.data.datastore.mapper.toDarkThemeConfigProto
+import com.eblan.launcher.data.datastore.mapper.toGeneralSettings
 import com.eblan.launcher.data.datastore.mapper.toGestureActionProto
 import com.eblan.launcher.data.datastore.mapper.toGestureSettings
 import com.eblan.launcher.data.datastore.mapper.toHomeSettings
 import com.eblan.launcher.data.datastore.mapper.toTextColorProto
+import com.eblan.launcher.data.datastore.mapper.toThemeBrandProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.data.datastore.proto.appdrawer.copy
 import com.eblan.launcher.data.datastore.proto.copy
+import com.eblan.launcher.data.datastore.proto.general.copy
 import com.eblan.launcher.data.datastore.proto.gesture.copy
 import com.eblan.launcher.data.datastore.proto.home.copy
+import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,6 +34,7 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
                 .appDrawerSettingsProto
                 .toAppDrawerSettings(),
             gestureSettings = userDataProto.gestureSettingsProto.toGestureSettings(),
+            generalSettings = userDataProto.generalSettingsProto.toGeneralSettings(),
         )
     }
 
@@ -246,6 +253,36 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
                     this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
                         this.singleLineLabel = singleLineLabel
                     }
+                }
+            }
+        }
+    }
+
+    suspend fun updateThemeBrand(themeBrand: ThemeBrand) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                generalSettingsProto = userDataProto.generalSettingsProto.copy {
+                    this.themeBrandProto = themeBrand.toThemeBrandProto()
+                }
+            }
+        }
+    }
+
+    suspend fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                generalSettingsProto = userDataProto.generalSettingsProto.copy {
+                    this.darkThemeConfigProto = darkThemeConfig.toDarkThemeConfigProto()
+                }
+            }
+        }
+    }
+
+    suspend fun updateDynamicTheme(dynamicTheme: Boolean) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                generalSettingsProto = userDataProto.generalSettingsProto.copy {
+                    this.dynamicTheme = dynamicTheme
                 }
             }
         }

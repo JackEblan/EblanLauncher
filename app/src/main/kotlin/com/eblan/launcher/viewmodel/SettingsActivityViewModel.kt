@@ -15,7 +15,7 @@ import javax.inject.Inject
 class SettingsActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
-    val uiState = userDataRepository.userData.map { userData ->
+    val settingsActivityUiState = userDataRepository.userData.map { userData ->
         SettingsActivityUiState.Success(
             themeSettings = ThemeSettings(
                 themeBrand = userData.generalSettings.themeBrand,

@@ -8,10 +8,7 @@ import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.model.MainActivityThemeSettings
 import com.eblan.launcher.model.ThemeSettings
 
-fun ComponentActivity.handleWallpaperEdgeToEdge(
-    mainActivityThemeSettings: MainActivityThemeSettings,
-    onUpdateThemeSettings: (MainActivityThemeSettings) -> Unit,
-) {
+fun ComponentActivity.handleWallpaperEdgeToEdge(mainActivityThemeSettings: MainActivityThemeSettings) {
     when (mainActivityThemeSettings.themeSettings.darkThemeConfig) {
         DarkThemeConfig.System -> {
             if (mainActivityThemeSettings.hintSupportsDarkTheme) {
@@ -25,40 +22,15 @@ fun ComponentActivity.handleWallpaperEdgeToEdge(
                         darkScrim = Color.TRANSPARENT,
                     ),
                 )
-
-                onUpdateThemeSettings(
-                    mainActivityThemeSettings.copy(
-                        themeSettings = mainActivityThemeSettings.themeSettings.copy(
-                            darkThemeConfig = DarkThemeConfig.Light,
-                        ),
-                    ),
-                )
             } else {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
                     navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
                 )
-
-                onUpdateThemeSettings(
-                    mainActivityThemeSettings.copy(
-                        themeSettings = mainActivityThemeSettings.themeSettings.copy(
-                            darkThemeConfig = DarkThemeConfig.Dark,
-                        ),
-                    ),
-                )
             }
         }
 
         DarkThemeConfig.Light -> {
-            enableEdgeToEdge(
-                statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-            )
-
-            onUpdateThemeSettings(mainActivityThemeSettings)
-        }
-
-        DarkThemeConfig.Dark -> {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.light(
                     scrim = Color.TRANSPARENT,
@@ -69,8 +41,13 @@ fun ComponentActivity.handleWallpaperEdgeToEdge(
                     darkScrim = Color.TRANSPARENT,
                 ),
             )
+        }
 
-            onUpdateThemeSettings(mainActivityThemeSettings)
+        DarkThemeConfig.Dark -> {
+            enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
+                navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
+            )
         }
     }
 }

@@ -9,11 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
@@ -24,7 +20,6 @@ import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
@@ -32,13 +27,11 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.MainActivityThemeSettings
 import com.eblan.launcher.model.MainActivityUiState
-import com.eblan.launcher.model.ThemeSettings
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import com.eblan.launcher.util.handleWallpaperEdgeToEdge
 import com.eblan.launcher.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,38 +61,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var mainActivityThemeSettings by mutableStateOf(
-            MainActivityThemeSettings(
-                themeSettings = ThemeSettings(
-                    themeBrand = ThemeBrand.Green,
-                    darkThemeConfig = DarkThemeConfig.System,
-                    dynamicTheme = false,
-                ),
-                hintSupportsDarkTheme = false,
-            ),
-        )
-
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
-                    when (uiState) {
-                        MainActivityUiState.Loading -> {
-                            enableEdgeToEdge()
-                        }
-
-                        is MainActivityUiState.Success -> {
-                            handleWallpaperEdgeToEdge(
-                                mainActivityThemeSettings = uiState.mainActivityThemeSettings,
-                                onUpdateThemeSettings = { newMainActivityThemeSettings ->
-                                    mainActivityThemeSettings = newMainActivityThemeSettings
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
         setContent {
             CompositionLocalProvider(
                 LocalAppWidgetHost provides androidAppWidgetHostWrapper,
@@ -111,24 +72,40 @@ class MainActivity : ComponentActivity() {
             ) {
                 val navController = rememberNavController()
 
-                EblanLauncherTheme(
-                    themeBrand = mainActivityThemeSettings.themeSettings.themeBrand,
-                    darkThemeConfig = mainActivityThemeSettings.themeSettings.darkThemeConfig,
-                    dynamicTheme = mainActivityThemeSettings.themeSettings.dynamicTheme,
-                ) {
-                    MainNavHost(
-                        navController = navController,
-                        onSettings = {
-                            startActivity(
-                                Intent(
-                                    this,
-                                    SettingsActivity::class.java,
-                                ),
-                            )
+                val mainActivityUiState by viewModel.mainActivityUiState.collectAsStateWithLifecycle()
 
-                            finish()
-                        },
-                    )
+                when (val state = mainActivityUiState) {
+                    MainActivityUiState.Loading -> {
+                        enableEdgeToEdge()
+                    }
+
+                    is MainActivityUiState.Success -> {
+                        handleWallpaperEdgeToEdge(mainActivityThemeSettings = state.mainActivityThemeSettings)
+
+                        val mainActivityThemeSettings = getMainActivityThemeSettings(
+                            mainActivityThemeSettings = state.mainActivityThemeSettings,
+                        )
+
+                        EblanLauncherTheme(
+                            themeBrand = mainActivityThemeSettings.themeSettings.themeBrand,
+                            darkThemeConfig = mainActivityThemeSettings.themeSettings.darkThemeConfig,
+                            dynamicTheme = mainActivityThemeSettings.themeSettings.dynamicTheme,
+                        ) {
+                            MainNavHost(
+                                navController = navController,
+                                onSettings = {
+                                    startActivity(
+                                        Intent(
+                                            this,
+                                            SettingsActivity::class.java,
+                                        ),
+                                    )
+
+                                    finish()
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -149,6 +126,36 @@ class MainActivity : ComponentActivity() {
         stopService(applicationInfoServiceIntent)
 
         androidAppWidgetHostWrapper.stopListening()
+    }
+
+    private fun getMainActivityThemeSettings(mainActivityThemeSettings: MainActivityThemeSettings): MainActivityThemeSettings {
+        return when (mainActivityThemeSettings.themeSettings.darkThemeConfig) {
+            DarkThemeConfig.System -> {
+                when (mainActivityThemeSettings.themeSettings.darkThemeConfig) {
+                    DarkThemeConfig.System -> {
+                        if (mainActivityThemeSettings.hintSupportsDarkTheme) {
+                            mainActivityThemeSettings.copy(
+                                themeSettings = mainActivityThemeSettings.themeSettings.copy(
+                                    darkThemeConfig = DarkThemeConfig.Light,
+                                ),
+                            )
+                        } else {
+                            mainActivityThemeSettings.copy(
+                                themeSettings = mainActivityThemeSettings.themeSettings.copy(
+                                    darkThemeConfig = DarkThemeConfig.Dark,
+                                ),
+                            )
+                        }
+                    }
+
+                    DarkThemeConfig.Light, DarkThemeConfig.Dark -> {
+                        mainActivityThemeSettings
+                    }
+                }
+            }
+
+            DarkThemeConfig.Light, DarkThemeConfig.Dark -> mainActivityThemeSettings
+        }
     }
 }
 

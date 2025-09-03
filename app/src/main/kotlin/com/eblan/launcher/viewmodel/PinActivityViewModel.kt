@@ -15,7 +15,7 @@ import javax.inject.Inject
 class PinActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
-    val uiState = userDataRepository.userData.map { userData ->
+    val pinActivityUiState = userDataRepository.userData.map { userData ->
         PinActivityUiState.Success(
             themeSettings = ThemeSettings(
                 themeBrand = userData.generalSettings.themeBrand,

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.designsystem.theme.supportsDynamicTheming
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.ThemeBrand
@@ -147,6 +148,7 @@ private fun Success(
             checked = generalSettings.dynamicTheme,
             title = "Dynamic Theme",
             subtitle = "Dynamic theme",
+            enabled = supportsDynamicTheming(),
             onCheckedChange = onUpdateDynamicTheme,
         )
     }
@@ -199,6 +201,7 @@ private fun SwitchRow(
     checked: Boolean,
     title: String,
     subtitle: String,
+    enabled: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
@@ -222,6 +225,7 @@ private fun SwitchRow(
 
         Switch(
             checked = checked,
+            enabled = enabled,
             onCheckedChange = onCheckedChange,
         )
     }

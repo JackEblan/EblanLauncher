@@ -18,7 +18,7 @@ class MainActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
     wallpaperManagerWrapper: WallpaperManagerWrapper,
 ) : ViewModel() {
-    val uiState = combine(
+    val mainActivityUiState = combine(
         userDataRepository.userData,
         wallpaperManagerWrapper.getColorsChanged(),
     ) { userData, colorHints ->

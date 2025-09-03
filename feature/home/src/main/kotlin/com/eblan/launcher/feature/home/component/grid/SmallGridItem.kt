@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
@@ -121,7 +120,6 @@ private fun ApplicationInfoGridItem(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
     ) {
         AsyncImage(
             model = data.icon,
@@ -191,7 +189,6 @@ private fun ShortcutInfoGridItem(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
     ) {
         AsyncImage(
             model = data.icon,
@@ -230,7 +227,6 @@ private fun FolderGridItem(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
     ) {
         FlowRow(
             maxItemsInEachRow = 2,

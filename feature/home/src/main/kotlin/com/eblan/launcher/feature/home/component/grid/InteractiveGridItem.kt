@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
@@ -211,7 +210,6 @@ private fun ApplicationInfoGridItem(
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
     ) {
         AsyncImage(
             model = data.icon,
@@ -373,7 +371,6 @@ private fun ShortcutInfoGridItem(
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
     ) {
         AsyncImage(
             model = data.icon,
@@ -464,7 +461,6 @@ private fun FolderGridItem(
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
     ) {
         if (data.gridItems.isNotEmpty()) {
             FlowRow(

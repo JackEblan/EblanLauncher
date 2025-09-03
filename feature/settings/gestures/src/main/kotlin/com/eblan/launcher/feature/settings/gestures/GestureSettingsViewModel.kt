@@ -24,7 +24,7 @@ class GestureSettingsViewModel @Inject constructor(
         eblanApplicationInfoRepository.eblanApplicationInfos,
     ) { userData, eblanApplicationInfos ->
         GesturesSettingsUiState.Success(
-            userData = userData,
+            gestureSettings = userData.gestureSettings,
             eblanApplicationInfos = eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
                 eblanApplicationInfo.label
             },

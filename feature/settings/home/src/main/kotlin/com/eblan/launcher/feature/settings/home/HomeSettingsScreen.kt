@@ -116,7 +116,7 @@ fun HomeSettingsScreen(
 
                 is HomeSettingsUiState.Success -> {
                     Success(
-                        homeSettings = homeSettingsUiState.userData.homeSettings,
+                        homeSettings = homeSettingsUiState.homeSettings,
                         onUpdateGrid = onUpdateGrid,
                         onUpdateInfiniteScroll = onUpdateInfiniteScroll,
                         onUpdateWallpaperScroll = onUpdateWallpaperScroll,

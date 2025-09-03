@@ -102,7 +102,7 @@ private fun GestureSettingsScreen(
                 is GesturesSettingsUiState.Success -> {
                     Success(
                         modifier = modifier,
-                        gestureSettings = gesturesSettingsUiState.userData.gestureSettings,
+                        gestureSettings = gesturesSettingsUiState.gestureSettings,
                         eblanApplicationInfos = gesturesSettingsUiState.eblanApplicationInfos,
                         onUpdateDoubleTapGestureAction = onUpdateDoubleTapGestureAction,
                         onUpdateSwipeUpGestureAction = onUpdateSwipeUpGestureAction,

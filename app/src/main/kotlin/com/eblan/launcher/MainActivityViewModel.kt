@@ -3,8 +3,6 @@ package com.eblan.launcher
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
-import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.model.MainActivityUiState
 import com.eblan.launcher.model.ThemeSettings
@@ -22,12 +20,12 @@ class MainActivityViewModel @Inject constructor(
     val uiState = combine(
         userDataRepository.userData,
         wallpaperManagerWrapper.getColorsChanged(),
-    ) { _, colorHints ->
+    ) { userData, colorHints ->
         MainActivityUiState.Success(
             themeSettings = ThemeSettings(
-                themeBrand = ThemeBrand.Green,
-                darkThemeConfig = DarkThemeConfig.System,
-                dynamicTheme = false,
+                themeBrand = userData.generalSettings.themeBrand,
+                darkThemeConfig = userData.generalSettings.darkThemeConfig,
+                dynamicTheme = userData.generalSettings.dynamicTheme,
                 hintSupportsDarkTheme = (colorHints?.and(wallpaperManagerWrapper.hintSupportsDarkText)) != 0,
             ),
         )

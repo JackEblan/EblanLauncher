@@ -14,9 +14,9 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
     ViewModel() {
-    val folderSettingsUiState = userDataRepository.userData.map(
-        FolderSettingsUiState::Success,
-    ).stateIn(
+    val folderSettingsUiState = userDataRepository.userData.map { userData ->
+        FolderSettingsUiState.Success(homeSettings = userData.homeSettings)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = FolderSettingsUiState.Loading,

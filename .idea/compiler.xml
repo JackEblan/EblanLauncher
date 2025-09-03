@@ -8,7 +8,6 @@
       <module name="EblanLauncher.buildSrc.test" target="17" />
       <module name="EblanLauncher.domain.geometry" target="21" />
       <module name="EblanLauncher.feature.applications" target="21" />
-      <module name="EblanLauncher.feature.edit" target="21" />
       <module name="EblanLauncher.feature.pin.shortcut" target="21" />
       <module name="EblanLauncher.feature.pin.widget" target="21" />
       <module name="EblanLauncher.feature.pinned-widget" target="21" />

@@ -1,9 +1,9 @@
 package com.eblan.launcher.feature.settings.folder.model
 
-import com.eblan.launcher.domain.model.UserData
+import com.eblan.launcher.domain.model.HomeSettings
 
 sealed interface FolderSettingsUiState {
     data object Loading : FolderSettingsUiState
 
-    data class Success(val userData: UserData) : FolderSettingsUiState
+    data class Success(val homeSettings: HomeSettings) : FolderSettingsUiState
 }

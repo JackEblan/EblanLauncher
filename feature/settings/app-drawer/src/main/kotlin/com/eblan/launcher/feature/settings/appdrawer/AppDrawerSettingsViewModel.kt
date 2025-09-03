@@ -14,9 +14,9 @@ import javax.inject.Inject
 @HiltViewModel
 class AppDrawerSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
     ViewModel() {
-    val appDrawerSettingsUiState = userDataRepository.userData.map(
-        AppDrawerSettingsUiState::Success,
-    ).stateIn(
+    val appDrawerSettingsUiState = userDataRepository.userData.map { userData ->
+        AppDrawerSettingsUiState.Success(appDrawerSettings = userData.appDrawerSettings)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = AppDrawerSettingsUiState.Loading,

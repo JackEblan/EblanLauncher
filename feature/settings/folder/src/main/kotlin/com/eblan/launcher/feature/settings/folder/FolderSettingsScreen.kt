@@ -87,7 +87,7 @@ fun FolderSettingsScreen(
 
                 is FolderSettingsUiState.Success -> {
                     Success(
-                        homeSettings = folderSettingsUiState.userData.homeSettings,
+                        homeSettings = folderSettingsUiState.homeSettings,
                         onUpdateFolderGrid = onUpdateFolderGrid,
                     )
                 }

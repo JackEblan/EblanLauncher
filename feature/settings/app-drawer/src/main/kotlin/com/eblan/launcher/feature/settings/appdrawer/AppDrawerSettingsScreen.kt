@@ -87,7 +87,7 @@ fun AppDrawerSettingsScreen(
 
                 is AppDrawerSettingsUiState.Success -> {
                     Success(
-                        appDrawerSettings = appDrawerSettingsUiState.userData.appDrawerSettings,
+                        appDrawerSettings = appDrawerSettingsUiState.appDrawerSettings,
                         onUpdateAppDrawerGrid = onUpdateAppDrawerGrid,
                     )
                 }

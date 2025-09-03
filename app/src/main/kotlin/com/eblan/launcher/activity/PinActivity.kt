@@ -1,4 +1,4 @@
-package com.eblan.launcher
+package com.eblan.launcher.activity
 
 import android.content.Intent
 import android.os.Build
@@ -7,7 +7,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
@@ -20,7 +27,12 @@ import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
+import com.eblan.launcher.model.PinActivityUiState
+import com.eblan.launcher.model.ThemeSettings
+import com.eblan.launcher.util.handleEdgeToEdge
+import com.eblan.launcher.viewmodel.PinActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -38,10 +50,36 @@ class PinActivity : ComponentActivity() {
     @Inject
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+    private val viewModel: PinActivityViewModel by viewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var themeSettings by mutableStateOf(
+            ThemeSettings(
+                themeBrand = ThemeBrand.Green,
+                darkThemeConfig = DarkThemeConfig.System,
+                dynamicTheme = false,
+            ),
+        )
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    when (uiState) {
+                        PinActivityUiState.Loading -> {
+                            enableEdgeToEdge()
+                        }
+
+                        is PinActivityUiState.Success -> {
+                            themeSettings = uiState.themeSettings
+
+                            handleEdgeToEdge(themeSettings = uiState.themeSettings)
+                        }
+                    }
+                }
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val homeIntent = Intent(Intent.ACTION_MAIN)

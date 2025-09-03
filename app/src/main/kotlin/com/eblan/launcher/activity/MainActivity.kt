@@ -1,11 +1,9 @@
-package com.eblan.launcher
+package com.eblan.launcher.activity
 
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -34,8 +32,10 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.MainActivityThemeSettings
 import com.eblan.launcher.model.MainActivityUiState
+import com.eblan.launcher.model.ThemeSettings
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
+import com.eblan.launcher.util.handleWallpaperEdgeToEdge
 import com.eblan.launcher.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -70,9 +70,11 @@ class MainActivity : ComponentActivity() {
 
         var mainActivityThemeSettings by mutableStateOf(
             MainActivityThemeSettings(
-                themeBrand = ThemeBrand.Green,
-                darkThemeConfig = DarkThemeConfig.System,
-                dynamicTheme = false,
+                themeSettings = ThemeSettings(
+                    themeBrand = ThemeBrand.Green,
+                    darkThemeConfig = DarkThemeConfig.System,
+                    dynamicTheme = false,
+                ),
                 hintSupportsDarkTheme = false,
             ),
         )
@@ -86,9 +88,12 @@ class MainActivity : ComponentActivity() {
                         }
 
                         is MainActivityUiState.Success -> {
-                            mainActivityThemeSettings = uiState.mainActivityThemeSettings
-
-                            handleEdgeToEdge(mainActivityThemeSettings = uiState.mainActivityThemeSettings)
+                            handleWallpaperEdgeToEdge(
+                                mainActivityThemeSettings = uiState.mainActivityThemeSettings,
+                                onUpdateThemeSettings = { newMainActivityThemeSettings ->
+                                    mainActivityThemeSettings = newMainActivityThemeSettings
+                                },
+                            )
                         }
                     }
                 }
@@ -107,9 +112,9 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 EblanLauncherTheme(
-                    themeBrand = mainActivityThemeSettings.themeBrand,
-                    darkThemeConfig = mainActivityThemeSettings.darkThemeConfig,
-                    dynamicTheme = mainActivityThemeSettings.dynamicTheme,
+                    themeBrand = mainActivityThemeSettings.themeSettings.themeBrand,
+                    darkThemeConfig = mainActivityThemeSettings.themeSettings.darkThemeConfig,
+                    dynamicTheme = mainActivityThemeSettings.themeSettings.dynamicTheme,
                 ) {
                     MainNavHost(
                         navController = navController,
@@ -125,50 +130,6 @@ class MainActivity : ComponentActivity() {
                         },
                     )
                 }
-            }
-        }
-    }
-
-    private fun handleEdgeToEdge(mainActivityThemeSettings: MainActivityThemeSettings) {
-        when (mainActivityThemeSettings.darkThemeConfig) {
-            DarkThemeConfig.System -> {
-                if (mainActivityThemeSettings.hintSupportsDarkTheme) {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.light(
-                            scrim = Color.TRANSPARENT,
-                            darkScrim = Color.TRANSPARENT,
-                        ),
-                        navigationBarStyle = SystemBarStyle.light(
-                            scrim = Color.TRANSPARENT,
-                            darkScrim = Color.TRANSPARENT,
-                        ),
-                    )
-                } else {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                        navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                    )
-                }
-            }
-
-            DarkThemeConfig.Light -> {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                    navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                )
-            }
-
-            DarkThemeConfig.Dark -> {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.light(
-                        scrim = Color.TRANSPARENT,
-                        darkScrim = Color.TRANSPARENT,
-                    ),
-                    navigationBarStyle = SystemBarStyle.light(
-                        scrim = Color.TRANSPARENT,
-                        darkScrim = Color.TRANSPARENT,
-                    ),
-                )
             }
         }
     }

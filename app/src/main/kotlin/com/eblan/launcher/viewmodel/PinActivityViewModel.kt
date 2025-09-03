@@ -3,7 +3,7 @@ package com.eblan.launcher.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.model.SettingsActivityUiState
+import com.eblan.launcher.model.PinActivityUiState
 import com.eblan.launcher.model.ThemeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsActivityViewModel @Inject constructor(
+class PinActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
     val uiState = userDataRepository.userData.map { userData ->
-        SettingsActivityUiState.Success(
+        PinActivityUiState.Success(
             themeSettings = ThemeSettings(
                 themeBrand = userData.generalSettings.themeBrand,
                 darkThemeConfig = userData.generalSettings.darkThemeConfig,
@@ -26,6 +26,6 @@ class SettingsActivityViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = SettingsActivityUiState.Loading,
+        initialValue = PinActivityUiState.Loading,
     )
 }

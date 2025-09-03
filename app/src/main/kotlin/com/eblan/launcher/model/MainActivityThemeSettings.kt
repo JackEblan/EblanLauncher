@@ -1,11 +1,6 @@
 package com.eblan.launcher.model
 
-import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.ThemeBrand
-
 data class MainActivityThemeSettings(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val dynamicTheme: Boolean,
+    val themeSettings: ThemeSettings,
     val hintSupportsDarkTheme: Boolean,
 )

@@ -6,6 +6,7 @@ import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.model.MainActivityThemeSettings
 import com.eblan.launcher.model.MainActivityUiState
+import com.eblan.launcher.model.ThemeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -23,9 +24,11 @@ class MainActivityViewModel @Inject constructor(
     ) { userData, colorHints ->
         MainActivityUiState.Success(
             mainActivityThemeSettings = MainActivityThemeSettings(
-                themeBrand = userData.generalSettings.themeBrand,
-                darkThemeConfig = userData.generalSettings.darkThemeConfig,
-                dynamicTheme = userData.generalSettings.dynamicTheme,
+                themeSettings = ThemeSettings(
+                    themeBrand = userData.generalSettings.themeBrand,
+                    darkThemeConfig = userData.generalSettings.darkThemeConfig,
+                    dynamicTheme = userData.generalSettings.dynamicTheme,
+                ),
                 hintSupportsDarkTheme = (colorHints?.and(wallpaperManagerWrapper.hintSupportsDarkText)) != 0,
             ),
         )

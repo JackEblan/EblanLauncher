@@ -1,10 +1,8 @@
-package com.eblan.launcher
+package com.eblan.launcher.activity
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -19,9 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
-import com.eblan.launcher.model.SettingsActivityThemeSettings
 import com.eblan.launcher.model.SettingsActivityUiState
+import com.eblan.launcher.model.ThemeSettings
 import com.eblan.launcher.navigation.SettingsNavHost
+import com.eblan.launcher.util.handleEdgeToEdge
 import com.eblan.launcher.viewmodel.SettingsActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,8 +32,8 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var settingsActivityThemeSettings by mutableStateOf(
-            SettingsActivityThemeSettings(
+        var themeSettings by mutableStateOf(
+            ThemeSettings(
                 themeBrand = ThemeBrand.Green,
                 darkThemeConfig = DarkThemeConfig.System,
                 dynamicTheme = false,
@@ -50,9 +49,9 @@ class SettingsActivity : ComponentActivity() {
                         }
 
                         is SettingsActivityUiState.Success -> {
-                            settingsActivityThemeSettings = uiState.settingsActivityThemeSettings
+                            themeSettings = uiState.themeSettings
 
-                            handleEdgeToEdge(settingsActivityThemeSettings = uiState.settingsActivityThemeSettings)
+                            handleEdgeToEdge(themeSettings = uiState.themeSettings)
                         }
                     }
                 }
@@ -63,9 +62,9 @@ class SettingsActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             EblanLauncherTheme(
-                themeBrand = settingsActivityThemeSettings.themeBrand,
-                darkThemeConfig = settingsActivityThemeSettings.darkThemeConfig,
-                dynamicTheme = settingsActivityThemeSettings.dynamicTheme,
+                themeBrand = themeSettings.themeBrand,
+                darkThemeConfig = themeSettings.darkThemeConfig,
+                dynamicTheme = themeSettings.dynamicTheme,
             ) {
                 Surface {
                     SettingsNavHost(
@@ -79,34 +78,6 @@ class SettingsActivity : ComponentActivity() {
                         },
                     )
                 }
-            }
-        }
-    }
-
-    private fun handleEdgeToEdge(settingsActivityThemeSettings: SettingsActivityThemeSettings) {
-        when (settingsActivityThemeSettings.darkThemeConfig) {
-            DarkThemeConfig.System -> {
-                enableEdgeToEdge()
-            }
-
-            DarkThemeConfig.Light -> {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.light(
-                        scrim = Color.TRANSPARENT,
-                        darkScrim = Color.TRANSPARENT,
-                    ),
-                    navigationBarStyle = SystemBarStyle.light(
-                        scrim = Color.TRANSPARENT,
-                        darkScrim = Color.TRANSPARENT,
-                    ),
-                )
-            }
-
-            DarkThemeConfig.Dark -> {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                    navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
-                )
             }
         }
     }

@@ -188,7 +188,7 @@ fun Success(
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
             subtitle = "Scrolling at the end returns to first page",
-            onUpdateInfiniteScroll = onUpdateInfiniteScroll,
+            onCheckedChange = onUpdateInfiniteScroll,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -198,7 +198,7 @@ fun Success(
             checked = homeSettings.wallpaperScroll,
             title = "Wallpaper Scrolling",
             subtitle = "Scroll the wallpaper as you go through pages",
-            onUpdateInfiniteScroll = onUpdateWallpaperScroll,
+            onCheckedChange = onUpdateWallpaperScroll,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -266,7 +266,7 @@ fun Success(
             checked = homeSettings.gridItemSettings.showLabel,
             title = "Show Label",
             subtitle = "Show the label",
-            onUpdateInfiniteScroll = onUpdateShowLabel,
+            onCheckedChange = onUpdateShowLabel,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -276,7 +276,7 @@ fun Success(
             checked = homeSettings.gridItemSettings.singleLineLabel,
             title = "Single Line Label",
             subtitle = "Show single line label",
-            onUpdateInfiniteScroll = onUpdateSingleLineLabel,
+            onCheckedChange = onUpdateSingleLineLabel,
         )
     }
 
@@ -349,7 +349,7 @@ private fun SwitchRow(
     checked: Boolean,
     title: String,
     subtitle: String,
-    onUpdateInfiniteScroll: (Boolean) -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -372,7 +372,7 @@ private fun SwitchRow(
 
         Switch(
             checked = checked,
-            onCheckedChange = onUpdateInfiniteScroll,
+            onCheckedChange = onCheckedChange,
         )
     }
 }

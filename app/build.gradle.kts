@@ -53,6 +53,7 @@ dependencies {
     implementation(projects.feature.pin)
     implementation(projects.feature.settings.appDrawer)
     implementation(projects.feature.settings.folder)
+    implementation(projects.feature.settings.general)
     implementation(projects.feature.settings.gestures)
     implementation(projects.feature.settings.home)
     implementation(projects.feature.settings.settings)

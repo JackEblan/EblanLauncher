@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,7 +37,9 @@ class SettingsActivity : ComponentActivity() {
 
             when (val state = settingsActivityUiState) {
                 SettingsActivityUiState.Loading -> {
-                    enableEdgeToEdge()
+                    SideEffect {
+                        enableEdgeToEdge()
+                    }
 
                     EblanLauncherTheme(
                         themeBrand = ThemeBrand.Green,
@@ -50,7 +53,9 @@ class SettingsActivity : ComponentActivity() {
                 }
 
                 is SettingsActivityUiState.Success -> {
-                    handleEdgeToEdge(themeSettings = state.themeSettings)
+                    SideEffect {
+                        handleEdgeToEdge(themeSettings = state.themeSettings)
+                    }
 
                     EblanLauncherTheme(
                         themeBrand = state.themeSettings.themeBrand,

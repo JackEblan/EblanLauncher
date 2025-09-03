@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
@@ -80,7 +81,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     is MainActivityUiState.Success -> {
-                        handleWallpaperEdgeToEdge(mainActivityThemeSettings = state.mainActivityThemeSettings)
+                        SideEffect {
+                            handleWallpaperEdgeToEdge(mainActivityThemeSettings = state.mainActivityThemeSettings)
+                        }
 
                         val mainActivityThemeSettings = getMainActivityThemeSettings(
                             mainActivityThemeSettings = state.mainActivityThemeSettings,

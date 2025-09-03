@@ -44,7 +44,7 @@ class UpdatePageItemsUseCase @Inject constructor(
 
             val newInitialPage = pageItems.indexOfFirst { pageItem -> pageItem.id == initialPage }
 
-            if (initialPage != -1) {
+            if (newInitialPage != -1) {
                 userDataRepository.updateInitialPage(initialPage = newInitialPage)
             }
 

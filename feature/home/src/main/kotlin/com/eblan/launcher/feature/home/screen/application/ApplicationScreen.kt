@@ -39,16 +39,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
+import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
@@ -66,15 +64,13 @@ import kotlin.uuid.Uuid
 fun DoubleTapApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    appDrawerRowsHeight: Int,
-    gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     drag: Drag,
     screenHeight: Int,
+    appDrawerSettings: AppDrawerSettings,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -96,14 +92,12 @@ fun DoubleTapApplicationScreen(
             IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
         },
         currentPage = currentPage,
-        appDrawerColumns = appDrawerColumns,
         pageCount = pageCount,
         infiniteScroll = infiniteScroll,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-        appDrawerRowsHeight = appDrawerRowsHeight,
-        gridItemSettings = gridItemSettings,
         paddingValues = paddingValues,
         drag = drag,
+        appDrawerSettings = appDrawerSettings,
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDismiss = onDismiss,
@@ -122,14 +116,12 @@ fun DoubleTapApplicationScreen(
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    appDrawerColumns: Int,
     pageCount: Int,
     infiniteScroll: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    appDrawerRowsHeight: Int,
-    gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -150,8 +142,18 @@ fun ApplicationScreen(
     val density = LocalDensity.current
 
     val appDrawerRowsHeightDp = with(density) {
-        appDrawerRowsHeight.toDp()
+        appDrawerSettings.appDrawerRowsHeight.toDp()
     }
+
+    val iconSizeDp = with(density) {
+        appDrawerSettings.gridItemSettings.iconSize.toDp()
+    }
+
+    val textSizeSp = with(density) {
+        appDrawerSettings.gridItemSettings.textSize.toSp()
+    }
+
+    val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -206,7 +208,7 @@ fun ApplicationScreen(
 
                         else -> {
                             LazyVerticalGrid(
-                                columns = GridCells.Fixed(count = appDrawerColumns),
+                                columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
                                 modifier = Modifier.matchParentSize(),
                                 contentPadding = paddingValues,
                                 overscrollEffect = overscrollEffect,
@@ -273,7 +275,7 @@ fun ApplicationScreen(
                                                                         data = data,
                                                                         associate = Associate.Grid,
                                                                         override = false,
-                                                                        gridItemSettings = gridItemSettings,
+                                                                        gridItemSettings = appDrawerSettings.gridItemSettings,
                                                                     ),
                                                                 ),
                                                                 graphicsLayer.toImageBitmap(),
@@ -296,21 +298,19 @@ fun ApplicationScreen(
                                         AsyncImage(
                                             model = eblanApplicationInfo.icon,
                                             contentDescription = null,
-                                            modifier = Modifier.size(40.dp, 40.dp),
+                                            modifier = Modifier.size(iconSizeDp),
                                         )
 
-                                        Spacer(modifier = Modifier.height(10.dp))
+                                        if (appDrawerSettings.gridItemSettings.showLabel) {
+                                            Spacer(modifier = Modifier.height(10.dp))
 
-                                        Text(
-                                            text = eblanApplicationInfo.label.toString(),
-                                            textAlign = TextAlign.Center,
-                                            fontSize = TextUnit(
-                                                value = 10f,
-                                                type = TextUnitType.Sp,
-                                            ),
-                                        )
-
-                                        Spacer(modifier = Modifier.height(5.dp))
+                                            Text(
+                                                text = eblanApplicationInfo.label.toString(),
+                                                textAlign = TextAlign.Center,
+                                                maxLines = maxLines,
+                                                fontSize = textSizeSp,
+                                            )
+                                        }
                                     }
                                 }
                             }

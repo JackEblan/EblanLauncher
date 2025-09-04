@@ -55,6 +55,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     private val defaultAppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().apply {
         appDrawerColumns = 5
         appDrawerRowsHeight = 300
+        gridItemSettingsProto = defaultGridItemSettingsProto
     }.build()
 
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {

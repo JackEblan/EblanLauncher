@@ -33,7 +33,7 @@ import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
 import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -48,25 +48,17 @@ import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 fun DragScreen(
     modifier: Modifier = Modifier,
     startCurrentPage: Int,
-    rows: Int,
-    columns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    dockRows: Int,
-    dockColumns: Int,
     dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
     gridItemsByPage: Map<Int, List<GridItem>>,
     drag: Drag,
     screenWidth: Int,
     screenHeight: Int,
-    dockHeight: Int,
     paddingValues: PaddingValues,
     dockGridItems: List<GridItem>,
     textColor: Long,
     moveGridItemResult: MoveGridItemResult?,
-    gridItemSettings: GridItemSettings,
-    wallpaperScroll: Boolean,
+    homeSettings: HomeSettings,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -103,7 +95,7 @@ fun DragScreen(
     val view = LocalView.current
 
     val dockHeightDp = with(density) {
-        dockHeight.toDp()
+        homeSettings.dockHeight.toDp()
     }
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
@@ -115,12 +107,12 @@ fun DragScreen(
     var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     val horizontalPagerState = rememberPagerState(
-        initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + startCurrentPage else startCurrentPage,
+        initialPage = if (homeSettings.infiniteScroll) (Int.MAX_VALUE / 2) + startCurrentPage else startCurrentPage,
         pageCount = {
-            if (infiniteScroll) {
+            if (homeSettings.infiniteScroll) {
                 Int.MAX_VALUE
             } else {
-                pageCount
+                homeSettings.pageCount
             }
         },
     )
@@ -143,8 +135,8 @@ fun DragScreen(
         derivedStateOf {
             calculatePage(
                 index = horizontalPagerState.currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
+                infiniteScroll = homeSettings.infiniteScroll,
+                pageCount = homeSettings.pageCount,
             )
         }
     }
@@ -189,12 +181,12 @@ fun DragScreen(
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             pageIndicatorSize = pageIndicatorSizePx,
-            dockHeight = dockHeight,
+            dockHeight = homeSettings.dockHeight,
             gridPadding = gridPadding,
-            rows = rows,
-            columns = columns,
-            dockRows = dockRows,
-            dockColumns = dockColumns,
+            rows = homeSettings.rows,
+            columns = homeSettings.columns,
+            dockRows = homeSettings.dockRows,
+            dockColumns = homeSettings.dockColumns,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
@@ -274,10 +266,10 @@ fun DragScreen(
     LaunchedEffect(key1 = horizontalPagerState) {
         handleWallpaperScroll(
             horizontalPagerState = horizontalPagerState,
-            wallpaperScroll = wallpaperScroll,
+            wallpaperScroll = homeSettings.wallpaperScroll,
             wallpaperManagerWrapper = wallpaperManagerWrapper,
-            pageCount = pageCount,
-            infiniteScroll = infiniteScroll,
+            pageCount = homeSettings.pageCount,
+            infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
     }
@@ -302,8 +294,8 @@ fun DragScreen(
         ) { index ->
             val page = calculatePage(
                 index = index,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
+                infiniteScroll = homeSettings.infiniteScroll,
+                pageCount = homeSettings.pageCount,
             )
 
             GridLayout(
@@ -319,16 +311,16 @@ fun DragScreen(
                         color = Color(textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
-                rows = rows,
-                columns = columns,
+                rows = homeSettings.rows,
+                columns = homeSettings.columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
-                        gridItemSettings = gridItemSettings.copy(
-                            iconSize = gridItemSettings.iconSize / 2,
-                            textSize = gridItemSettings.textSize / 2,
+                        gridItemSettings = homeSettings.gridItemSettings.copy(
+                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
+                            textSize = homeSettings.gridItemSettings.textSize / 2,
                         ),
                     )
                 }
@@ -336,7 +328,7 @@ fun DragScreen(
         }
 
         PageIndicator(
-            pageCount = pageCount,
+            pageCount = homeSettings.pageCount,
             currentPage = targetPage,
             pageIndicatorSize = pageIndicatorSize,
         )
@@ -349,14 +341,14 @@ fun DragScreen(
                 )
                 .fillMaxWidth()
                 .height(dockHeightDp),
-            rows = dockRows,
-            columns = dockColumns,
+            rows = homeSettings.dockRows,
+            columns = homeSettings.dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = homeSettings.gridItemSettings,
                 )
             }
         }

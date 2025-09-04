@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
@@ -37,8 +37,6 @@ import kotlinx.coroutines.delay
 fun FolderDragScreen(
     modifier: Modifier = Modifier,
     startCurrentPage: Int,
-    folderRows: Int,
-    folderColumns: Int,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridItemSource: GridItemSource?,
     textColor: Long,
@@ -48,7 +46,7 @@ fun FolderDragScreen(
     screenHeight: Int,
     paddingValues: PaddingValues,
     folderDataById: FolderDataById,
-    gridItemSettings: GridItemSettings,
+    homeSettings: HomeSettings,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -99,8 +97,8 @@ fun FolderDragScreen(
             gridPadding = gridPaddingPx,
             screenWidth = screenWidth,
             pageIndicatorSize = pageIndicatorSizePx,
-            columns = folderColumns,
-            rows = folderRows,
+            columns = homeSettings.folderColumns,
+            rows = homeSettings.folderRows,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
             onMoveFolderGridItem = onMoveFolderGridItem,
@@ -166,16 +164,16 @@ fun FolderDragScreen(
                         color = Color(textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
-                rows = folderRows,
-                columns = folderColumns,
+                rows = homeSettings.folderRows,
+                columns = homeSettings.folderColumns,
             ) {
                 gridItemsByPage[index]?.forEach { gridItem ->
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
-                        gridItemSettings = gridItemSettings.copy(
-                            iconSize = gridItemSettings.iconSize / 2,
-                            textSize = gridItemSettings.textSize / 2,
+                        gridItemSettings = homeSettings.gridItemSettings.copy(
+                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
+                            textSize = homeSettings.gridItemSettings.textSize / 2,
                         ),
                     )
                 }

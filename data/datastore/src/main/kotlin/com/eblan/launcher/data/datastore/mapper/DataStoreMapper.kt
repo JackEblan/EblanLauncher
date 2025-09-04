@@ -44,6 +44,7 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings {
     return AppDrawerSettings(
         appDrawerColumns = appDrawerColumns,
         appDrawerRowsHeight = appDrawerRowsHeight,
+        gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
     )
 }
 

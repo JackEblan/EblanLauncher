@@ -108,4 +108,24 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateDynamicTheme(dynamicTheme: Boolean) {
         userDataStore.updateDynamicTheme(dynamicTheme = dynamicTheme)
     }
+
+    override suspend fun updateAppDrawerTextColor(textColor: TextColor) {
+        userDataStore.updateAppDrawerTextColor(textColor = textColor)
+    }
+
+    override suspend fun updateAppDrawerIconSize(iconSize: Int) {
+        userDataStore.updateAppDrawerIconSize(iconSize = iconSize)
+    }
+
+    override suspend fun updateAppDrawerTextSize(textSize: Int) {
+        userDataStore.updateAppDrawerTextSize(textSize = textSize)
+    }
+
+    override suspend fun updateAppDrawerShowLabel(showLabel: Boolean) {
+        userDataStore.updateAppDrawerShowLabel(showLabel = showLabel)
+    }
+
+    override suspend fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean) {
+        userDataStore.updateAppDrawerSingleLineLabel(singleLineLabel = singleLineLabel)
+    }
 }

@@ -287,4 +287,64 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             }
         }
     }
+
+    suspend fun updateAppDrawerTextColor(textColor: TextColor) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.textColorProto = textColor.toTextColorProto()
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun updateAppDrawerIconSize(iconSize: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.iconSize = iconSize
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun updateAppDrawerTextSize(textSize: Int) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.textSize = textSize
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun updateAppDrawerShowLabel(showLabel: Boolean) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.showLabel = showLabel
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
+                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
+                        this.singleLineLabel = singleLineLabel
+                    }
+                }
+            }
+        }
+    }
 }

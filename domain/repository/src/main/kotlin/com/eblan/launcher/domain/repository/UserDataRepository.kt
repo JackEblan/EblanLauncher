@@ -57,4 +57,14 @@ interface UserDataRepository {
     suspend fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig)
 
     suspend fun updateDynamicTheme(dynamicTheme: Boolean)
+
+    suspend fun updateAppDrawerTextColor(textColor: TextColor)
+
+    suspend fun updateAppDrawerIconSize(iconSize: Int)
+
+    suspend fun updateAppDrawerTextSize(textSize: Int)
+
+    suspend fun updateAppDrawerShowLabel(showLabel: Boolean)
+
+    suspend fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean)
 }

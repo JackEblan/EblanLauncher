@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
@@ -35,16 +35,14 @@ fun FolderScreen(
     modifier: Modifier = Modifier,
     startCurrentPage: Int,
     foldersDataById: ArrayDeque<FolderDataById>,
-    folderRows: Int,
-    folderColumns: Int,
     drag: Drag,
     gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
     screenWidth: Int,
     screenHeight: Int,
-    gridItemSettings: GridItemSettings,
     textColor: Long,
+    homeSettings: HomeSettings,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -151,14 +149,14 @@ fun FolderScreen(
                                 end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
                             )
                             .fillMaxSize(),
-                        rows = folderRows,
-                        columns = folderColumns,
+                        rows = homeSettings.folderRows,
+                        columns = homeSettings.folderColumns,
                     ) {
                         targetState.gridItemsByPage[index]?.forEach { gridItem ->
-                            val cellWidth = gridWidth / folderColumns
+                            val cellWidth = gridWidth / homeSettings.folderColumns
 
                             val cellHeight =
-                                (gridHeight - pageIndicatorSizePx - titleHeightPx) / folderRows
+                                (gridHeight - pageIndicatorSizePx - titleHeightPx) / homeSettings.folderRows
 
                             val x = gridItem.startColumn * cellWidth
 
@@ -168,7 +166,7 @@ fun FolderScreen(
                                 gridItem = gridItem,
                                 hasShortcutHostPermission = hasShortcutHostPermission,
                                 drag = drag,
-                                gridItemSettings = gridItemSettings,
+                                gridItemSettings = homeSettings.gridItemSettings,
                                 textColor = textColor,
                                 onTapApplicationInfo = launcherApps::startMainActivity,
                                 onTapShortcutInfo = launcherApps::startShortcut,

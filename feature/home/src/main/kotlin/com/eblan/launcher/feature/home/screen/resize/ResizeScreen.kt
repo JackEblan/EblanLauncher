@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
@@ -24,19 +24,14 @@ import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOver
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
-    rows: Int,
-    columns: Int,
-    dockRows: Int,
-    dockColumns: Int,
     gridItems: List<GridItem>?,
     gridItem: GridItem?,
     screenWidth: Int,
     screenHeight: Int,
-    dockHeight: Int,
     dockGridItems: List<GridItem>,
     textColor: Long,
-    gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
+    homeSettings: HomeSettings,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -76,7 +71,7 @@ fun ResizeScreen(
     val gridHeight = screenHeight - verticalPadding
 
     val dockHeightDp = with(density) {
-        dockHeight.toDp()
+        homeSettings.dockHeight.toDp()
     }
 
     BackHandler {
@@ -92,14 +87,14 @@ fun ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            rows = rows,
-            columns = columns,
+            rows = homeSettings.rows,
+            columns = homeSettings.columns,
         ) {
             gridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = homeSettings.gridItemSettings,
                 )
             }
         }
@@ -108,14 +103,14 @@ fun ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
-            rows = dockRows,
-            columns = dockColumns,
+            rows = homeSettings.dockRows,
+            columns = homeSettings.dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = homeSettings.gridItemSettings,
                 )
             }
         }
@@ -123,9 +118,9 @@ fun ResizeScreen(
 
     when (gridItem.associate) {
         Associate.Grid -> {
-            val cellWidth = gridWidth / columns
+            val cellWidth = gridWidth / homeSettings.columns
 
-            val cellHeight = (gridHeight - dockHeight) / rows
+            val cellHeight = (gridHeight - homeSettings.dockHeight) / homeSettings.rows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -142,11 +137,11 @@ fun ResizeScreen(
             ResizeOverlay(
                 gridItem = gridItem,
                 gridWidth = gridWidth,
-                gridHeight = gridHeight - dockHeight,
+                gridHeight = gridHeight - homeSettings.dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
-                rows = rows,
-                columns = columns,
+                rows = homeSettings.rows,
+                columns = homeSettings.columns,
                 x = gridX,
                 y = gridY,
                 width = width,
@@ -160,9 +155,9 @@ fun ResizeScreen(
         }
 
         Associate.Dock -> {
-            val cellWidth = gridWidth / dockColumns
+            val cellWidth = gridWidth / homeSettings.dockColumns
 
-            val cellHeight = dockHeight / dockRows
+            val cellHeight = homeSettings.dockHeight / homeSettings.dockRows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -170,7 +165,7 @@ fun ResizeScreen(
 
             val dockX = x + leftPadding
 
-            val dockY = (y + topPadding) + (gridHeight - dockHeight)
+            val dockY = (y + topPadding) + (gridHeight - homeSettings.dockHeight)
 
             val width = gridItem.columnSpan * cellWidth
 
@@ -179,11 +174,11 @@ fun ResizeScreen(
             ResizeOverlay(
                 gridItem = gridItem,
                 gridWidth = gridWidth,
-                gridHeight = dockHeight,
+                gridHeight = homeSettings.dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
-                rows = dockRows,
-                columns = dockColumns,
+                rows = homeSettings.dockRows,
+                columns = homeSettings.dockColumns,
                 x = dockX,
                 y = dockY,
                 width = width,

@@ -34,9 +34,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -246,11 +246,8 @@ fun HomeScreen(
             is HomeUiState.Success -> {
                 Success(
                     screen = screen,
-                    gridItems = homeUiState.homeData.gridItems,
-                    gridItemsByPage = homeUiState.homeData.gridItemsByPage,
-                    userData = homeUiState.homeData.userData,
+                    homeData = homeUiState.homeData,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    dockGridItems = homeUiState.homeData.dockGridItems,
                     pageItems = pageItems,
                     movedGridItemResult = movedGridItemResult,
                     screenWidth = constraints.maxWidth,
@@ -258,8 +255,6 @@ fun HomeScreen(
                     paddingValues = paddingValues,
                     dragIntOffset = dragIntOffset,
                     drag = drag,
-                    hasShortcutHostPermission = homeUiState.homeData.hasShortcutHostPermission,
-                    textColor = homeUiState.homeData.textColor,
                     foldersDataById = foldersDataById,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
@@ -306,11 +301,8 @@ fun HomeScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     screen: Screen,
-    gridItems: List<GridItem>,
-    gridItemsByPage: Map<Int, List<GridItem>>,
-    userData: UserData,
+    homeData: HomeData,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
-    dockGridItems: List<GridItem>,
     pageItems: List<PageItem>,
     movedGridItemResult: MoveGridItemResult?,
     screenWidth: Int,
@@ -318,8 +310,6 @@ private fun Success(
     paddingValues: PaddingValues,
     dragIntOffset: IntOffset,
     drag: Drag,
-    hasShortcutHostPermission: Boolean,
-    textColor: Long,
     foldersDataById: ArrayDeque<FolderDataById>,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -381,7 +371,7 @@ private fun Success(
 
     var targetPage by remember {
         mutableIntStateOf(
-            userData.homeSettings.initialPage,
+            homeData.userData.homeSettings.initialPage,
         )
     }
 
@@ -395,29 +385,20 @@ private fun Success(
             Screen.Pager -> {
                 PagerScreen(
                     targetPage = targetPage,
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
-                    pageCount = userData.homeSettings.pageCount,
-                    infiniteScroll = userData.homeSettings.infiniteScroll,
-                    dockRows = userData.homeSettings.dockRows,
-                    dockColumns = userData.homeSettings.dockColumns,
-                    gridItems = gridItems,
-                    gridItemsByPage = gridItemsByPage,
-                    dockHeight = userData.homeSettings.dockHeight,
+                    gridItems = homeData.gridItems,
+                    gridItemsByPage = homeData.gridItemsByPage,
                     drag = drag,
-                    dockGridItems = dockGridItems,
-                    textColor = textColor,
+                    dockGridItems = homeData.dockGridItems,
+                    textColor = homeData.textColor,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     paddingValues = paddingValues,
-                    appDrawerColumns = userData.appDrawerSettings.appDrawerColumns,
-                    appDrawerRowsHeight = userData.appDrawerSettings.appDrawerRowsHeight,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                    gestureSettings = userData.gestureSettings,
-                    wallpaperScroll = userData.homeSettings.wallpaperScroll,
-                    gridItemSettings = userData.homeSettings.gridItemSettings,
+                    appDrawerSettings = homeData.userData.appDrawerSettings,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    gestureSettings = homeData.userData.gestureSettings,
                     gridItemSource = gridItemSource,
+                    homeSettings = homeData.userData.homeSettings,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -427,20 +408,20 @@ private fun Success(
                         onShowFolder(id)
                     },
                     onDraggingGridItem = {
-                        onShowGridCache(gridItems, Screen.Drag)
+                        onShowGridCache(homeData.gridItems, Screen.Drag)
                     },
                     onEdit = onEdit,
                     onResize = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        onShowGridCache(gridItems, Screen.Resize)
+                        onShowGridCache(homeData.gridItems, Screen.Resize)
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
                     onDragStartPinItemRequest = { newGridItemSource ->
                         gridItemSource = newGridItemSource
 
-                        onShowGridCache(gridItems, Screen.Drag)
+                        onShowGridCache(homeData.gridItems, Screen.Drag)
                     },
                     onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
                         targetPage = newCurrentPage
@@ -456,25 +437,17 @@ private fun Success(
             Screen.Drag -> {
                 DragScreen(
                     startCurrentPage = targetPage,
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
-                    pageCount = userData.homeSettings.pageCount,
-                    infiniteScroll = userData.homeSettings.infiniteScroll,
-                    dockRows = userData.homeSettings.dockRows,
-                    dockColumns = userData.homeSettings.dockColumns,
-                    gridItemsByPage = gridItemsByPage,
+                    gridItemsByPage = homeData.gridItemsByPage,
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    dockHeight = userData.homeSettings.dockHeight,
                     paddingValues = paddingValues,
-                    dockGridItems = dockGridItems,
-                    textColor = textColor,
+                    dockGridItems = homeData.dockGridItems,
+                    textColor = homeData.textColor,
                     moveGridItemResult = movedGridItemResult,
-                    gridItemSettings = userData.homeSettings.gridItemSettings,
-                    wallpaperScroll = userData.homeSettings.wallpaperScroll,
+                    homeSettings = homeData.userData.homeSettings,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
@@ -498,19 +471,14 @@ private fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
-                    dockRows = userData.homeSettings.dockRows,
-                    dockColumns = userData.homeSettings.dockColumns,
-                    gridItems = gridItemsByPage[targetPage],
+                    gridItems = homeData.gridItemsByPage[targetPage],
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    dockHeight = userData.homeSettings.dockHeight,
-                    dockGridItems = dockGridItems,
-                    textColor = textColor,
-                    gridItemSettings = userData.homeSettings.gridItemSettings,
+                    dockGridItems = homeData.dockGridItems,
+                    textColor = homeData.textColor,
                     paddingValues = paddingValues,
+                    homeSettings = homeData.userData.homeSettings,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -523,14 +491,11 @@ private fun Success(
 
             Screen.EditPage -> {
                 EditPageScreen(
-                    rows = userData.homeSettings.rows,
-                    columns = userData.homeSettings.columns,
                     screenHeight = screenHeight,
                     pageItems = pageItems,
-                    dockHeight = userData.homeSettings.dockHeight,
-                    initialPage = userData.homeSettings.initialPage,
-                    textColor = textColor,
+                    textColor = homeData.textColor,
                     paddingValues = paddingValues,
+                    homeSettings = homeData.userData.homeSettings,
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                 )
@@ -539,17 +504,15 @@ private fun Success(
             Screen.Folder -> {
                 FolderScreen(
                     startCurrentPage = folderTargetPage,
-                    folderRows = userData.homeSettings.folderRows,
-                    folderColumns = userData.homeSettings.folderColumns,
                     foldersDataById = foldersDataById,
                     drag = drag,
                     gridItemSource = gridItemSource,
                     paddingValues = paddingValues,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    gridItemSettings = userData.homeSettings.gridItemSettings,
-                    textColor = textColor,
+                    textColor = homeData.textColor,
+                    homeSettings = homeData.userData.homeSettings,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -573,18 +536,16 @@ private fun Success(
             Screen.FolderDrag -> {
                 FolderDragScreen(
                     startCurrentPage = folderTargetPage,
-                    folderRows = userData.homeSettings.folderRows,
-                    folderColumns = userData.homeSettings.folderColumns,
-                    gridItemsByPage = gridItemsByPage,
+                    gridItemsByPage = homeData.gridItemsByPage,
                     gridItemSource = gridItemSource,
-                    textColor = textColor,
+                    textColor = homeData.textColor,
                     drag = drag,
                     dragIntOffset = dragIntOffset,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     folderDataById = foldersDataById.last(),
                     paddingValues = paddingValues,
-                    gridItemSettings = userData.homeSettings.gridItemSettings,
+                    homeSettings = homeData.userData.homeSettings,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
                         folderTargetPage = newTargetPage

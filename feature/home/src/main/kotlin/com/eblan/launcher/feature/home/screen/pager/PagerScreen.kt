@@ -40,11 +40,12 @@ import com.eblan.launcher.designsystem.local.LocalFileManager
 import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
+import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
@@ -69,15 +70,8 @@ import kotlin.math.roundToInt
 fun PagerScreen(
     modifier: Modifier = Modifier,
     targetPage: Int,
-    rows: Int,
-    columns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    dockRows: Int,
-    dockColumns: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
-    dockHeight: Int,
     drag: Drag,
     dockGridItems: List<GridItem>,
     textColor: Long,
@@ -85,13 +79,11 @@ fun PagerScreen(
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
-    appDrawerColumns: Int,
-    appDrawerRowsHeight: Int,
     hasShortcutHostPermission: Boolean,
-    wallpaperScroll: Boolean,
     gestureSettings: GestureSettings,
-    gridItemSettings: GridItemSettings,
+    appDrawerSettings: AppDrawerSettings,
     gridItemSource: GridItemSource?,
+    homeSettings: HomeSettings,
     onLongPressGrid: (Int) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
@@ -115,12 +107,12 @@ fun PagerScreen(
     val launcherApps = LocalLauncherApps.current
 
     val gridHorizontalPagerState = rememberPagerState(
-        initialPage = if (infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
+        initialPage = if (homeSettings.infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
         pageCount = {
-            if (infiniteScroll) {
+            if (homeSettings.infiniteScroll) {
                 Int.MAX_VALUE
             } else {
-                pageCount
+                homeSettings.pageCount
             }
         },
     )
@@ -182,25 +174,17 @@ fun PagerScreen(
     HorizontalPagerScreen(
         modifier = modifier,
         horizontalPagerState = gridHorizontalPagerState,
-        rows = rows,
-        columns = columns,
-        pageCount = pageCount,
-        infiniteScroll = infiniteScroll,
-        dockRows = dockRows,
-        dockColumns = dockColumns,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
         gridWidth = gridWidth,
         gridHeight = gridHeight,
-        dockHeight = dockHeight,
         paddingValues = paddingValues,
         dockGridItems = dockGridItems,
         textColor = textColor,
         drag = drag,
         hasShortcutHostPermission = hasShortcutHostPermission,
-        wallpaperScroll = wallpaperScroll,
-        gridItemSettings = gridItemSettings,
         gridItemSource = gridItemSource,
+        homeSettings = homeSettings,
         onLongPressGrid = onLongPressGrid,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
@@ -260,14 +244,12 @@ fun PagerScreen(
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
             },
             currentPage = gridHorizontalPagerState.currentPage,
-            appDrawerColumns = appDrawerColumns,
-            pageCount = pageCount,
-            infiniteScroll = infiniteScroll,
+            pageCount = homeSettings.pageCount,
+            infiniteScroll = homeSettings.infiniteScroll,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            appDrawerRowsHeight = appDrawerRowsHeight,
-            gridItemSettings = gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
+            appDrawerSettings = appDrawerSettings,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
@@ -301,14 +283,12 @@ fun PagerScreen(
                 DoubleTapApplicationScreen(
                     currentPage = gridHorizontalPagerState.currentPage,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    appDrawerColumns = appDrawerColumns,
-                    pageCount = pageCount,
-                    infiniteScroll = infiniteScroll,
+                    pageCount = homeSettings.pageCount,
+                    infiniteScroll = homeSettings.infiniteScroll,
                     paddingValues = paddingValues,
-                    appDrawerRowsHeight = appDrawerRowsHeight,
-                    gridItemSettings = gridItemSettings,
                     drag = drag,
                     screenHeight = screenHeight,
+                    appDrawerSettings = appDrawerSettings,
                     onDismiss = {
                         showDoubleTap = false
                     },
@@ -326,15 +306,15 @@ fun PagerScreen(
     if (showWidgets) {
         WidgetScreen(
             currentPage = gridHorizontalPagerState.currentPage,
-            rows = rows,
-            columns = columns,
-            pageCount = pageCount,
-            infiniteScroll = infiniteScroll,
+            rows = homeSettings.rows,
+            columns = homeSettings.columns,
+            pageCount = homeSettings.pageCount,
+            infiniteScroll = homeSettings.infiniteScroll,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridWidth = gridWidth,
             gridHeight = gridHeight,
-            dockHeight = dockHeight,
-            gridItemSettings = gridItemSettings,
+            dockHeight = homeSettings.dockHeight,
+            gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             screenHeight = screenHeight,
             drag = drag,
@@ -349,10 +329,10 @@ fun PagerScreen(
     if (showShortcuts) {
         ShortcutScreen(
             currentPage = gridHorizontalPagerState.currentPage,
-            pageCount = pageCount,
-            infiniteScroll = infiniteScroll,
+            pageCount = homeSettings.pageCount,
+            infiniteScroll = homeSettings.infiniteScroll,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            gridItemSettings = gridItemSettings,
+            gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             screenHeight = screenHeight,
             drag = drag,
@@ -369,26 +349,18 @@ fun PagerScreen(
 private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     horizontalPagerState: PagerState,
-    rows: Int,
-    columns: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
-    dockRows: Int,
-    dockColumns: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,
     gridHeight: Int,
-    dockHeight: Int,
     paddingValues: PaddingValues,
     dockGridItems: List<GridItem>,
     textColor: Long,
-    gridItemSettings: GridItemSettings,
     gridItemSource: GridItemSource?,
     onLongPressGrid: (Int) -> Unit,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
-    wallpaperScroll: Boolean,
+    homeSettings: HomeSettings,
     onTapFolderGridItem: (
         currentPage: Int,
         id: String,
@@ -417,7 +389,7 @@ private fun HorizontalPagerScreen(
     val density = LocalDensity.current
 
     val dockHeightDp = with(density) {
-        dockHeight.toDp()
+        homeSettings.dockHeight.toDp()
     }
 
     var showPopupGridItemMenu by remember { mutableStateOf(false) }
@@ -446,8 +418,8 @@ private fun HorizontalPagerScreen(
         derivedStateOf {
             calculatePage(
                 index = horizontalPagerState.currentPage,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
+                infiniteScroll = homeSettings.infiniteScroll,
+                pageCount = homeSettings.pageCount,
             )
         }
     }
@@ -477,7 +449,7 @@ private fun HorizontalPagerScreen(
             pinItemRequestWrapper = pinItemRequestWrapper,
             context = context,
             fileManager = fileManager,
-            gridItemSettings = gridItemSettings,
+            gridItemSettings = homeSettings.gridItemSettings,
             onDragStart = onDragStartPinItemRequest,
         )
     }
@@ -485,10 +457,10 @@ private fun HorizontalPagerScreen(
     LaunchedEffect(key1 = horizontalPagerState) {
         handleWallpaperScroll(
             horizontalPagerState = horizontalPagerState,
-            wallpaperScroll = wallpaperScroll,
+            wallpaperScroll = homeSettings.wallpaperScroll,
             wallpaperManagerWrapper = wallpaperManagerWrapper,
-            pageCount = pageCount,
-            infiniteScroll = infiniteScroll,
+            pageCount = homeSettings.pageCount,
+            infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
     }
@@ -531,8 +503,8 @@ private fun HorizontalPagerScreen(
         ) { index ->
             val page = calculatePage(
                 index = index,
-                infiniteScroll = infiniteScroll,
-                pageCount = pageCount,
+                infiniteScroll = homeSettings.infiniteScroll,
+                pageCount = homeSettings.pageCount,
             )
 
             GridLayout(
@@ -542,13 +514,14 @@ private fun HorizontalPagerScreen(
                         end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
                     )
                     .fillMaxSize(),
-                rows = rows,
-                columns = columns,
+                rows = homeSettings.rows,
+                columns = homeSettings.columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    val cellWidth = gridWidth / columns
+                    val cellWidth = gridWidth / homeSettings.columns
 
-                    val cellHeight = (gridHeight - pageIndicatorSizePx - dockHeight) / rows
+                    val cellHeight =
+                        (gridHeight - pageIndicatorSizePx - homeSettings.dockHeight) / homeSettings.rows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -560,7 +533,7 @@ private fun HorizontalPagerScreen(
 
                     InteractiveGridItemContent(
                         gridItem = gridItem,
-                        gridItemSettings = gridItemSettings,
+                        gridItemSettings = homeSettings.gridItemSettings,
                         textColor = textColor,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
@@ -593,7 +566,7 @@ private fun HorizontalPagerScreen(
         }
 
         PageIndicator(
-            pageCount = pageCount,
+            pageCount = homeSettings.pageCount,
             currentPage = currentPage,
             pageIndicatorSize = pageIndicatorSize,
         )
@@ -606,13 +579,13 @@ private fun HorizontalPagerScreen(
                 )
                 .fillMaxWidth()
                 .height(dockHeightDp),
-            rows = dockRows,
-            columns = dockColumns,
+            rows = homeSettings.dockRows,
+            columns = homeSettings.dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                val cellWidth = gridWidth / dockColumns
+                val cellWidth = gridWidth / homeSettings.dockColumns
 
-                val cellHeight = dockHeight / dockRows
+                val cellHeight = homeSettings.dockHeight / homeSettings.dockRows
 
                 val x = gridItem.startColumn * cellWidth
 
@@ -624,7 +597,7 @@ private fun HorizontalPagerScreen(
 
                 InteractiveGridItemContent(
                     gridItem = gridItem,
-                    gridItemSettings = gridItemSettings,
+                    gridItemSettings = homeSettings.gridItemSettings,
                     textColor = textColor,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
@@ -634,7 +607,7 @@ private fun HorizontalPagerScreen(
                         onTapFolderGridItem(currentPage, gridItem.id)
                     },
                     onLongPress = {
-                        val dockY = y + (gridHeight - pageIndicatorSizePx - dockHeight)
+                        val dockY = y + (gridHeight - pageIndicatorSizePx - homeSettings.dockHeight)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 

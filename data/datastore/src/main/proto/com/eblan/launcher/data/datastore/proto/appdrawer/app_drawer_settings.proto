@@ -1,9 +1,12 @@
 syntax = "proto3";
 
+import "com/eblan/launcher/data/datastore/proto/home/grid_item_settings.proto";
+
 option java_package = "com.eblan.launcher.data.datastore.proto.appdrawer";
 option java_multiple_files = true;
 
 message AppDrawerSettingsProto {
   int32 appDrawerColumns = 1;
   int32 appDrawerRowsHeight = 2;
+  GridItemSettingsProto gridItemSettingsProto = 3;
 }

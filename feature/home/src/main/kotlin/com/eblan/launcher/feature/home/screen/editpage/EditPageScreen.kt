@@ -44,6 +44,7 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
 import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
@@ -55,14 +56,11 @@ import com.eblan.launcher.feature.home.model.Screen
 @Composable
 fun EditPageScreen(
     modifier: Modifier = Modifier,
-    rows: Int,
-    columns: Int,
     screenHeight: Int,
     pageItems: List<PageItem>,
-    dockHeight: Int,
-    initialPage: Int,
     textColor: Long,
     paddingValues: PaddingValues,
+    homeSettings: HomeSettings,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -88,7 +86,7 @@ fun EditPageScreen(
 
     val pageItemsToDelete = remember { mutableStateListOf<PageItem>() }
 
-    var currentInitialPage by remember { mutableIntStateOf(initialPage) }
+    var currentInitialPage by remember { mutableIntStateOf(homeSettings.initialPage) }
 
     val gridState = rememberLazyGridState()
 
@@ -98,7 +96,7 @@ fun EditPageScreen(
         }
 
     val cardHeight = with(density) {
-        ((gridHeight - dockHeight) / 2).toDp()
+        ((gridHeight - homeSettings.dockHeight) / 2).toDp()
     }
 
     BackHandler {
@@ -132,8 +130,8 @@ fun EditPageScreen(
                     ) {
                         GridLayout(
                             modifier = Modifier.height(cardHeight),
-                            rows = rows,
-                            columns = columns,
+                            rows = homeSettings.rows,
+                            columns = homeSettings.columns,
                         ) {
                             pageItem.gridItems.forEach { gridItem ->
                                 GridItemContent(

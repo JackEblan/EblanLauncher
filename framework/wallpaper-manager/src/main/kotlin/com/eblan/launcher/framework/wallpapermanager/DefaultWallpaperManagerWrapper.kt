@@ -49,7 +49,7 @@ internal class DefaultWallpaperManagerWrapper @Inject constructor(@ApplicationCo
                     wallpaperManager.removeOnColorsChangedListener(callback)
                 }
             } else {
-                trySend(0)
+                trySend(null)
             }
         }
     }

@@ -20,17 +20,15 @@ import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
-import com.eblan.launcher.model.MainActivityThemeSettings
 import com.eblan.launcher.model.MainActivityUiState
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
-import com.eblan.launcher.util.handleWallpaperEdgeToEdge
+import com.eblan.launcher.util.handleEdgeToEdge
 import com.eblan.launcher.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -82,17 +80,13 @@ class MainActivity : ComponentActivity() {
 
                     is MainActivityUiState.Success -> {
                         SideEffect {
-                            handleWallpaperEdgeToEdge(mainActivityThemeSettings = state.mainActivityThemeSettings)
+                            handleEdgeToEdge(darkThemeConfig = state.applicationTheme.darkThemeConfig)
                         }
 
-                        val mainActivityThemeSettings = getMainActivityThemeSettings(
-                            mainActivityThemeSettings = state.mainActivityThemeSettings,
-                        )
-
                         EblanLauncherTheme(
-                            themeBrand = mainActivityThemeSettings.themeSettings.themeBrand,
-                            darkThemeConfig = mainActivityThemeSettings.themeSettings.darkThemeConfig,
-                            dynamicTheme = mainActivityThemeSettings.themeSettings.dynamicTheme,
+                            themeBrand = state.applicationTheme.themeBrand,
+                            darkThemeConfig = state.applicationTheme.darkThemeConfig,
+                            dynamicTheme = state.applicationTheme.dynamicTheme,
                         ) {
                             MainNavHost(
                                 navController = navController,
@@ -129,36 +123,6 @@ class MainActivity : ComponentActivity() {
         stopService(applicationInfoServiceIntent)
 
         androidAppWidgetHostWrapper.stopListening()
-    }
-
-    private fun getMainActivityThemeSettings(mainActivityThemeSettings: MainActivityThemeSettings): MainActivityThemeSettings {
-        return when (mainActivityThemeSettings.themeSettings.darkThemeConfig) {
-            DarkThemeConfig.System -> {
-                when (mainActivityThemeSettings.themeSettings.darkThemeConfig) {
-                    DarkThemeConfig.System -> {
-                        if (mainActivityThemeSettings.hintSupportsDarkTheme) {
-                            mainActivityThemeSettings.copy(
-                                themeSettings = mainActivityThemeSettings.themeSettings.copy(
-                                    darkThemeConfig = DarkThemeConfig.Light,
-                                ),
-                            )
-                        } else {
-                            mainActivityThemeSettings.copy(
-                                themeSettings = mainActivityThemeSettings.themeSettings.copy(
-                                    darkThemeConfig = DarkThemeConfig.Dark,
-                                ),
-                            )
-                        }
-                    }
-
-                    DarkThemeConfig.Light, DarkThemeConfig.Dark -> {
-                        mainActivityThemeSettings
-                    }
-                }
-            }
-
-            DarkThemeConfig.Light, DarkThemeConfig.Dark -> mainActivityThemeSettings
-        }
     }
 }
 

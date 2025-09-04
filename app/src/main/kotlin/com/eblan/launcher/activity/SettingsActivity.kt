@@ -54,7 +54,7 @@ class SettingsActivity : ComponentActivity() {
 
                 is SettingsActivityUiState.Success -> {
                     SideEffect {
-                        handleEdgeToEdge(themeSettings = state.themeSettings)
+                        handleEdgeToEdge(darkThemeConfig = state.themeSettings.darkThemeConfig)
                     }
 
                     EblanLauncherTheme(

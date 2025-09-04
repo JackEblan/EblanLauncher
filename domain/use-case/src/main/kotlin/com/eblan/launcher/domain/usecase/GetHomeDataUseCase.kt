@@ -3,9 +3,11 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
@@ -31,6 +33,7 @@ class GetHomeDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
+    private val resourcesWrapper: ResourcesWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -78,7 +81,10 @@ class GetHomeDataUseCase @Inject constructor(
 
             val textColor = when (gridItemSettings.textColor) {
                 TextColor.System -> {
-                    getTextColorFromWallpaperColors(colorHints = colorHints)
+                    getTextColorFromWallpaperColors(
+                        darkThemeConfig = userData.generalSettings.darkThemeConfig,
+                        colorHints = colorHints,
+                    )
                 }
 
                 TextColor.Light -> {
@@ -101,14 +107,37 @@ class GetHomeDataUseCase @Inject constructor(
         }.flowOn(defaultDispatcher)
     }
 
-    private fun getTextColorFromWallpaperColors(colorHints: Int?): Long {
-        val hintSupportsDarkText =
-            (colorHints?.and(wallpaperManagerWrapper.hintSupportsDarkText)) != 0
+    private fun getTextColorFromWallpaperColors(
+        darkThemeConfig: DarkThemeConfig,
+        colorHints: Int?,
+    ): Long {
+        return if (colorHints != null) {
+            val hintSupportsDarkText =
+                colorHints.and(wallpaperManagerWrapper.hintSupportsDarkText) != 0
 
-        return if (hintSupportsDarkText) {
-            DARK
+            if (hintSupportsDarkText) {
+                DARK
+            } else {
+                LIGHT
+            }
         } else {
-            LIGHT
+            getDarkThemeConfigColor(darkThemeConfig)
+        }
+    }
+
+    private fun getDarkThemeConfigColor(darkThemeConfig: DarkThemeConfig): Long {
+        return when (darkThemeConfig) {
+            DarkThemeConfig.System -> {
+                getDarkThemeConfigColor(darkThemeConfig = resourcesWrapper.getSystemTheme())
+            }
+
+            DarkThemeConfig.Light -> {
+                DARK
+            }
+
+            DarkThemeConfig.Dark -> {
+                LIGHT
+            }
         }
     }
 }

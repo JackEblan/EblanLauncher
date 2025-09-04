@@ -1,5 +1,6 @@
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.model.ApplicationTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
@@ -12,6 +13,7 @@ import javax.inject.Inject
 class GetApplicationThemeUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
+    private val resourcesWrapper: ResourcesWrapper,
 ) {
     operator fun invoke(): Flow<ApplicationTheme> {
         return combine(
@@ -42,42 +44,29 @@ class GetApplicationThemeUseCase @Inject constructor(
                     if (hintSupportsDarkTheme) {
                         ApplicationTheme(
                             themeBrand = themeBrand,
-                            darkThemeConfig = darkThemeConfig,
-                            systemBarThemeConfig = DarkThemeConfig.Light,
+                            darkThemeConfig = DarkThemeConfig.Dark,
                             dynamicTheme = dynamicTheme,
                         )
                     } else {
                         ApplicationTheme(
                             themeBrand = themeBrand,
-                            darkThemeConfig = darkThemeConfig,
-                            systemBarThemeConfig = DarkThemeConfig.Dark,
+                            darkThemeConfig = DarkThemeConfig.Light,
                             dynamicTheme = dynamicTheme,
                         )
                     }
                 } else {
                     ApplicationTheme(
                         themeBrand = themeBrand,
-                        darkThemeConfig = darkThemeConfig,
-                        systemBarThemeConfig = DarkThemeConfig.Dark,
+                        darkThemeConfig = resourcesWrapper.getSystemTheme(),
                         dynamicTheme = dynamicTheme,
                     )
                 }
             }
 
-            DarkThemeConfig.Light -> {
+            DarkThemeConfig.Light, DarkThemeConfig.Dark -> {
                 ApplicationTheme(
                     themeBrand = themeBrand,
                     darkThemeConfig = darkThemeConfig,
-                    systemBarThemeConfig = DarkThemeConfig.Light,
-                    dynamicTheme = dynamicTheme,
-                )
-            }
-
-            DarkThemeConfig.Dark -> {
-                ApplicationTheme(
-                    themeBrand = themeBrand,
-                    darkThemeConfig = DarkThemeConfig.Dark,
-                    systemBarThemeConfig = DarkThemeConfig.Dark,
                     dynamicTheme = dynamicTheme,
                 )
             }

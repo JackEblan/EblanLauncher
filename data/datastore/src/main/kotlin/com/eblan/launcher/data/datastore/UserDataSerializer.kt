@@ -30,9 +30,9 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     }.build()
 
     private val defaultGridItemSettingsProto = GridItemSettingsProto.newBuilder().apply {
-        iconSize = 100
+        iconSize = 150
         textColorProto = TextColorProto.TextColorSystem
-        textSize = 50
+        textSize = 30
         showLabel = true
         singleLineLabel = false
     }.build()
@@ -54,7 +54,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
 
     private val defaultAppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().apply {
         appDrawerColumns = 5
-        appDrawerRowsHeight = 500
+        appDrawerRowsHeight = 300
     }.build()
 
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {

@@ -35,8 +35,8 @@ import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.SmallGridItemContent
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -323,10 +323,13 @@ fun DragScreen(
                 columns = columns,
             ) {
                 gridItemsByPage[page]?.forEach { gridItem ->
-                    SmallGridItemContent(
+                    GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
-                        gridItemSettings = gridItemSettings.copy(iconSize = gridItemSettings.iconSize / 2),
+                        gridItemSettings = gridItemSettings.copy(
+                            iconSize = gridItemSettings.iconSize / 2,
+                            textSize = gridItemSettings.textSize / 2,
+                        ),
                     )
                 }
             }
@@ -350,7 +353,7 @@ fun DragScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                SmallGridItemContent(
+                GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,

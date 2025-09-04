@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.SmallGridItemContent
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -170,10 +170,13 @@ fun FolderDragScreen(
                 columns = folderColumns,
             ) {
                 gridItemsByPage[index]?.forEach { gridItem ->
-                    SmallGridItemContent(
+                    GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
-                        gridItemSettings = gridItemSettings.copy(iconSize = gridItemSettings.iconSize / 2),
+                        gridItemSettings = gridItemSettings.copy(
+                            iconSize = gridItemSettings.iconSize / 2,
+                            textSize = gridItemSettings.textSize / 2,
+                        ),
                     )
                 }
             }

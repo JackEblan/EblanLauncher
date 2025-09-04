@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -30,7 +29,7 @@ import com.eblan.launcher.domain.model.TextColor
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
-fun SmallGridItemContent(
+fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: Long,
@@ -115,6 +114,10 @@ private fun ApplicationInfoGridItem(
         gridItemSettings.iconSize.toDp()
     }
 
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
@@ -133,7 +136,7 @@ private fun ApplicationInfoGridItem(
                 color = Color(textColor),
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
-                style = MaterialTheme.typography.bodySmall,
+                fontSize = textSizeSp,
             )
         }
     }
@@ -184,6 +187,10 @@ private fun ShortcutInfoGridItem(
         gridItemSettings.iconSize.toDp()
     }
 
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
@@ -203,7 +210,7 @@ private fun ShortcutInfoGridItem(
                 color = Color(textColor),
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
-                style = MaterialTheme.typography.bodySmall,
+                fontSize = textSizeSp,
             )
         }
     }
@@ -222,21 +229,30 @@ private fun FolderGridItem(
         gridItemSettings.iconSize.toDp()
     }
 
+    val textSizeSp = with(density) {
+        gridItemSettings.textSize.toSp()
+    }
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        FlowRow(
-            maxItemsInEachRow = 2,
-            maxLines = 2,
-        ) {
-            if (data.gridItems.isNotEmpty()) {
+        if (data.gridItems.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier.size(iconSizeDp),
+                maxItemsInEachRow = 2,
+                maxLines = 2,
+            ) {
                 data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                    val gridItemIconSizeDp = with(density) {
+                        (gridItemSettings.iconSize * 0.25).toInt().toDp()
+                    }
+
                     val gridItemModifier = Modifier
                         .padding(2.dp)
-                        .size(10.dp)
+                        .size(gridItemIconSizeDp)
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
@@ -273,14 +289,14 @@ private fun FolderGridItem(
                         }
                     }
                 }
-            } else {
-                Icon(
-                    imageVector = EblanLauncherIcons.Folder,
-                    contentDescription = null,
-                    modifier = Modifier.size(iconSizeDp),
-                    tint = Color(textColor),
-                )
             }
+        } else {
+            Icon(
+                imageVector = EblanLauncherIcons.Folder,
+                contentDescription = null,
+                modifier = Modifier.size(iconSizeDp),
+                tint = Color(textColor),
+            )
         }
 
         if (gridItemSettings.showLabel) {
@@ -289,7 +305,7 @@ private fun FolderGridItem(
                 color = Color(textColor),
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
-                style = MaterialTheme.typography.bodySmall,
+                fontSize = textSizeSp,
             )
         }
     }

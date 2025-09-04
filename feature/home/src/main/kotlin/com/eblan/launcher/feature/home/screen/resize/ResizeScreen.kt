@@ -16,8 +16,8 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.SmallGridItemContent
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
 
@@ -96,7 +96,7 @@ fun ResizeScreen(
             columns = columns,
         ) {
             gridItems.forEach { gridItem ->
-                SmallGridItemContent(
+                GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,
@@ -112,7 +112,7 @@ fun ResizeScreen(
             columns = dockColumns,
         ) {
             dockGridItems.forEach { gridItem ->
-                SmallGridItemContent(
+                GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
                     gridItemSettings = gridItemSettings,

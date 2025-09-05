@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
 
@@ -29,4 +30,5 @@ object EblanLauncherIcons {
     val Apps = Icons.Default.Apps
     val Shortcut = Icons.AutoMirrored.Filled.Shortcut
     val Image = Icons.Default.Image
+    val Search = Icons.Default.Search
 }

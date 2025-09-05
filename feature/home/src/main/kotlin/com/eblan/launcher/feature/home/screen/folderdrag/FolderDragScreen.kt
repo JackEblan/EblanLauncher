@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -146,8 +148,8 @@ fun FolderDragScreen(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
                 top = horizontalPagerPaddingDp,
-                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
                 bottom = horizontalPagerPaddingDp,
             ),
         ) { index ->

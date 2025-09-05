@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -287,8 +289,8 @@ fun DragScreen(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
                 top = horizontalPagerPaddingDp,
-                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
                 bottom = horizontalPagerPaddingDp,
             ),
         ) { index ->
@@ -336,8 +338,8 @@ fun DragScreen(
         GridLayout(
             modifier = Modifier
                 .padding(
-                    start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 )
                 .fillMaxWidth()
                 .height(dockHeightDp),

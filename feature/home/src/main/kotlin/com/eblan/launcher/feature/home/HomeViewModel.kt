@@ -11,6 +11,7 @@ import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
+import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveFolderGridItemUseCase
@@ -24,13 +25,18 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -53,6 +59,7 @@ class HomeViewModel @Inject constructor(
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
+    getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -89,6 +96,20 @@ class HomeViewModel @Inject constructor(
     private val _foldersDataById = MutableStateFlow(ArrayDeque<FolderDataById>())
 
     val foldersDataById = _foldersDataById.asStateFlow()
+
+    private val _eblanApplicationLabel = MutableStateFlow<String?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val eblanApplicationInfosByLabel =
+        _eblanApplicationLabel.filterNotNull()
+            .debounce(defaultDelay)
+            .flatMapLatest { label ->
+                getEblanApplicationInfosByLabelUseCase(label = label)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList(),
+            )
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -405,6 +426,12 @@ class HomeViewModel @Inject constructor(
                     Screen.Drag
                 }
             }
+        }
+    }
+
+    fun getEblanApplicationInfosByLabel(label: String) {
+        _eblanApplicationLabel.update {
+            label
         }
     }
 }

@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -60,11 +62,11 @@ fun FolderScreen(
     val launcherApps = LocalLauncherApps.current
 
     val leftPadding = with(density) {
-        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
 
     val rightPadding = with(density) {
-        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
     }
 
     val topPadding = with(density) {
@@ -145,8 +147,8 @@ fun FolderScreen(
                     GridLayout(
                         modifier = Modifier
                             .padding(
-                                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                             )
                             .fillMaxSize(),
                         rows = homeSettings.folderRows,

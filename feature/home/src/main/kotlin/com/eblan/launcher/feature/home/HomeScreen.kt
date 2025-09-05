@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeData
@@ -70,6 +71,8 @@ fun HomeRoute(
 
     val folders by viewModel.foldersDataById.collectAsStateWithLifecycle()
 
+    val eblanApplicationInfosByLabel by viewModel.eblanApplicationInfosByLabel.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -78,6 +81,7 @@ fun HomeRoute(
         movedGridItemResult = movedGridItemResult,
         pageItems = pageItems,
         foldersDataById = folders,
+        eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -98,6 +102,7 @@ fun HomeRoute(
         onRemoveLastFolder = viewModel::removeLastFolder,
         onAddFolder = viewModel::addFolder,
         onMoveOutsideFolder = viewModel::moveGridItemOutsideFolder,
+        onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
     )
 }
 
@@ -110,6 +115,7 @@ fun HomeScreen(
     movedGridItemResult: MoveGridItemResult?,
     pageItems: List<PageItem>,
     foldersDataById: ArrayDeque<FolderDataById>,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -163,6 +169,7 @@ fun HomeScreen(
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: () -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -256,6 +263,7 @@ fun HomeScreen(
                     dragIntOffset = dragIntOffset,
                     drag = drag,
                     foldersDataById = foldersDataById,
+                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -282,6 +290,7 @@ fun HomeScreen(
                     onUpdateGridItemOffset = { intOffset ->
                         overlayIntOffset = intOffset
                     },
+                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                 )
             }
         }
@@ -311,6 +320,7 @@ private fun Success(
     dragIntOffset: IntOffset,
     drag: Drag,
     foldersDataById: ArrayDeque<FolderDataById>,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -366,6 +376,7 @@ private fun Success(
     onMoveOutsideFolder: () -> Unit,
     onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -399,6 +410,7 @@ private fun Success(
                     gestureSettings = homeData.userData.gestureSettings,
                     gridItemSource = gridItemSource,
                     homeSettings = homeData.userData.homeSettings,
+                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -431,6 +443,7 @@ private fun Success(
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                 )
             }
 

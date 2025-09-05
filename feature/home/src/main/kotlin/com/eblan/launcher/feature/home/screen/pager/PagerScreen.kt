@@ -7,6 +7,8 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,6 +43,7 @@ import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
@@ -84,6 +87,7 @@ fun PagerScreen(
     appDrawerSettings: AppDrawerSettings,
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     onLongPressGrid: (Int) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
@@ -101,6 +105,7 @@ fun PagerScreen(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -126,11 +131,11 @@ fun PagerScreen(
     val scope = rememberCoroutineScope()
 
     val leftPadding = with(density) {
-        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
 
     val rightPadding = with(density) {
-        paddingValues.calculateRightPadding(LayoutDirection.Ltr).roundToPx()
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
     }
 
     val topPadding = with(density) {
@@ -250,8 +255,10 @@ fun PagerScreen(
             paddingValues = paddingValues,
             drag = drag,
             appDrawerSettings = appDrawerSettings,
+            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
             onDismiss = {
                 scope.launch {
                     swipeUpY.snapTo(screenHeight.toFloat())
@@ -289,11 +296,13 @@ fun PagerScreen(
                     drag = drag,
                     screenHeight = screenHeight,
                     appDrawerSettings = appDrawerSettings,
+                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     onDismiss = {
                         showDoubleTap = false
                     },
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                 )
             }
 
@@ -425,7 +434,7 @@ private fun HorizontalPagerScreen(
     }
 
     val leftPadding = with(density) {
-        paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx()
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
 
     val topPadding = with(density) {
@@ -510,8 +519,8 @@ private fun HorizontalPagerScreen(
             GridLayout(
                 modifier = Modifier
                     .padding(
-                        start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                     )
                     .fillMaxSize(),
                 rows = homeSettings.rows,
@@ -574,8 +583,8 @@ private fun HorizontalPagerScreen(
         GridLayout(
             modifier = Modifier
                 .padding(
-                    start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 )
                 .fillMaxWidth()
                 .height(dockHeightDp),

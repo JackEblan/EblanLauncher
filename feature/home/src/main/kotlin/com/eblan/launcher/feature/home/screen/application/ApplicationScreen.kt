@@ -2,19 +2,31 @@ package com.eblan.launcher.feature.home.screen.application
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,8 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
@@ -71,12 +85,14 @@ fun DoubleTapApplicationScreen(
     drag: Drag,
     screenHeight: Int,
     appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
@@ -98,8 +114,10 @@ fun DoubleTapApplicationScreen(
         paddingValues = paddingValues,
         drag = drag,
         appDrawerSettings = appDrawerSettings,
+        eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
+        onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
         onDismiss = onDismiss,
         onAnimateDismiss = {
             scope.launch {
@@ -111,7 +129,6 @@ fun DoubleTapApplicationScreen(
     )
 }
 
-@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
@@ -122,12 +139,14 @@ fun ApplicationScreen(
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
 ) {
@@ -140,20 +159,6 @@ fun ApplicationScreen(
     )
 
     val density = LocalDensity.current
-
-    val appDrawerRowsHeightDp = with(density) {
-        appDrawerSettings.appDrawerRowsHeight.toDp()
-    }
-
-    val iconSizeDp = with(density) {
-        appDrawerSettings.gridItemSettings.iconSize.toDp()
-    }
-
-    val textSizeSp = with(density) {
-        appDrawerSettings.gridItemSettings.textSize.toSp()
-    }
-
-    val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -207,117 +212,50 @@ fun ApplicationScreen(
                         }
 
                         else -> {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-                                modifier = Modifier.matchParentSize(),
-                                contentPadding = paddingValues,
-                                overscrollEffect = overscrollEffect,
-                            ) {
-                                items(eblanApplicationInfos) { eblanApplicationInfo ->
-                                    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+                            Column(modifier = Modifier.matchParentSize()) {
+                                EblanApplicationInfoDockSearchBar(
+                                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                                    onQueryChange = onGetEblanApplicationInfosByLabel,
+                                    eblanApplicationInfos = eblanApplicationInfosByLabel,
+                                    onClick = {
 
-                                    var intSize by remember { mutableStateOf(IntSize.Zero) }
+                                    },
+                                )
 
-                                    val graphicsLayer = rememberGraphicsLayer()
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(
+                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                                        bottom = paddingValues.calculateBottomPadding(),
+                                    ),
+                                    overscrollEffect = overscrollEffect,
+                                ) {
+                                    items(eblanApplicationInfos) { eblanApplicationInfo ->
+                                        EblanApplicationInfoItem(
+                                            page = page,
+                                            drag = drag,
+                                            eblanApplicationInfo = eblanApplicationInfo,
+                                            appDrawerSettings = appDrawerSettings,
+                                            onLongPress = { intOffset, intSize ->
+                                                onUpdateGridItemOffset(intOffset)
 
-                                    val scale = remember { Animatable(1f) }
+                                                showPopupApplicationMenu = true
 
-                                    Column(
-                                        modifier = Modifier
-                                            .drawWithContent {
-                                                graphicsLayer.record {
-                                                    drawContext.transform.scale(
-                                                        scaleX = scale.value,
-                                                        scaleY = scale.value,
-                                                    )
+                                                popupMenuIntOffset = intOffset
 
-                                                    this@drawWithContent.drawContent()
-                                                }
-
-                                                drawLayer(graphicsLayer)
-                                            }
-                                            .pointerInput(key1 = drag) {
-                                                detectTapGestures(
-                                                    onLongPress = {
-                                                        onUpdateGridItemOffset(intOffset)
-
-                                                        scope.launch {
-                                                            scale.animateTo(0.5f)
-
-                                                            scale.animateTo(1f)
-
-                                                            showPopupApplicationMenu = true
-
-                                                            popupMenuIntOffset = intOffset
-
-                                                            popupMenuIntSize = intSize
-
-                                                            val data =
-                                                                GridItemData.ApplicationInfo(
-                                                                    componentName = eblanApplicationInfo.componentName,
-                                                                    packageName = eblanApplicationInfo.packageName,
-                                                                    icon = eblanApplicationInfo.icon,
-                                                                    label = eblanApplicationInfo.label,
-                                                                )
-
-                                                            onLongPressGridItem(
-                                                                page,
-                                                                GridItemSource.New(
-                                                                    gridItem = GridItem(
-                                                                        id = Uuid.random()
-                                                                            .toHexString(),
-                                                                        folderId = null,
-                                                                        page = page,
-                                                                        startRow = 0,
-                                                                        startColumn = 0,
-                                                                        rowSpan = 1,
-                                                                        columnSpan = 1,
-                                                                        data = data,
-                                                                        associate = Associate.Grid,
-                                                                        override = false,
-                                                                        gridItemSettings = appDrawerSettings.gridItemSettings,
-                                                                    ),
-                                                                ),
-                                                                graphicsLayer.toImageBitmap(),
-                                                            )
-                                                        }
-                                                    },
-                                                )
-                                            }
-                                            .onGloballyPositioned { layoutCoordinates ->
-                                                intOffset =
-                                                    layoutCoordinates.positionInRoot().round()
-
-                                                intSize = layoutCoordinates.size
-                                            }
-                                            .height(appDrawerRowsHeightDp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Spacer(modifier = Modifier.height(5.dp))
-
-                                        AsyncImage(
-                                            model = eblanApplicationInfo.icon,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(iconSizeDp),
+                                                popupMenuIntSize = intSize
+                                            },
+                                            onLongPressGridItem = onLongPressGridItem,
                                         )
-
-                                        if (appDrawerSettings.gridItemSettings.showLabel) {
-                                            Spacer(modifier = Modifier.height(10.dp))
-
-                                            Text(
-                                                text = eblanApplicationInfo.label.toString(),
-                                                textAlign = TextAlign.Center,
-                                                maxLines = maxLines,
-                                                fontSize = textSizeSp,
-                                            )
-                                        }
                                     }
                                 }
                             }
 
                             if (showPopupApplicationMenu) {
                                 val leftPadding = with(density) {
-                                    paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
+                                    paddingValues.calculateStartPadding(LayoutDirection.Ltr)
                                         .roundToPx()
                                 }
 
@@ -347,6 +285,195 @@ fun ApplicationScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalUuidApi::class)
+@Composable
+private fun EblanApplicationInfoItem(
+    modifier: Modifier = Modifier,
+    page: Int,
+    drag: Drag,
+    eblanApplicationInfo: EblanApplicationInfo,
+    appDrawerSettings: AppDrawerSettings,
+    onLongPress: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+) {
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scale = remember { Animatable(1f) }
+
+    val scope = rememberCoroutineScope()
+
+    val density = LocalDensity.current
+
+    val appDrawerRowsHeightDp = with(density) {
+        appDrawerSettings.appDrawerRowsHeight.toDp()
+    }
+
+    val iconSizeDp = with(density) {
+        appDrawerSettings.gridItemSettings.iconSize.toDp()
+    }
+
+    val textSizeSp = with(density) {
+        appDrawerSettings.gridItemSettings.textSize.toSp()
+    }
+
+    val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    Column(
+        modifier = modifier
+            .drawWithContent {
+                graphicsLayer.record {
+                    drawContext.transform.scale(
+                        scaleX = scale.value,
+                        scaleY = scale.value,
+                    )
+
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
+                    onLongPress = {
+                        onLongPress(intOffset, intSize)
+
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            val data =
+                                GridItemData.ApplicationInfo(
+                                    componentName = eblanApplicationInfo.componentName,
+                                    packageName = eblanApplicationInfo.packageName,
+                                    icon = eblanApplicationInfo.icon,
+                                    label = eblanApplicationInfo.label,
+                                )
+
+                            onLongPressGridItem(
+                                page,
+                                GridItemSource.New(
+                                    gridItem = GridItem(
+                                        id = Uuid.random()
+                                            .toHexString(),
+                                        folderId = null,
+                                        page = page,
+                                        startRow = 0,
+                                        startColumn = 0,
+                                        rowSpan = 1,
+                                        columnSpan = 1,
+                                        data = data,
+                                        associate = Associate.Grid,
+                                        override = false,
+                                        gridItemSettings = appDrawerSettings.gridItemSettings,
+                                    ),
+                                ),
+                                graphicsLayer.toImageBitmap(),
+                            )
+                        }
+                    },
+                )
+            }
+            .onGloballyPositioned { layoutCoordinates ->
+                intOffset =
+                    layoutCoordinates.positionInRoot().round()
+
+                intSize = layoutCoordinates.size
+            }
+            .height(appDrawerRowsHeightDp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.height(5.dp))
+
+        AsyncImage(
+            model = eblanApplicationInfo.icon,
+            contentDescription = null,
+            modifier = Modifier.size(iconSizeDp),
+        )
+
+        if (appDrawerSettings.gridItemSettings.showLabel) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = eblanApplicationInfo.label.toString(),
+                textAlign = TextAlign.Center,
+                maxLines = maxLines,
+                fontSize = textSizeSp,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EblanApplicationInfoDockSearchBar(
+    modifier: Modifier = Modifier,
+    onQueryChange: (String) -> Unit,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    onClick: (String) -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    DockedSearchBar(
+        modifier = modifier.fillMaxWidth(),
+        inputField = {
+            SearchBarDefaults.InputField(
+                modifier = Modifier.fillMaxWidth(),
+                query = query,
+                onQueryChange = { newQuery ->
+                    query = newQuery
+
+                    onQueryChange(newQuery)
+                },
+                onSearch = { expanded = false },
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                placeholder = { Text("Search Applications") },
+                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
+            )
+        },
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        LazyColumn {
+            items(eblanApplicationInfos) { eblanApplicationInfo ->
+                ListItem(
+                    headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
+                    supportingContent = { Text(text = eblanApplicationInfo.packageName) },
+                    leadingContent = {
+                        AsyncImage(
+                            model = eblanApplicationInfo.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                        )
+                    },
+                    modifier =
+                        Modifier
+                            .clickable {
+                                onClick(eblanApplicationInfo.packageName)
+
+                                expanded = false
+                            }
+                            .fillMaxWidth(),
+                )
             }
         }
     }

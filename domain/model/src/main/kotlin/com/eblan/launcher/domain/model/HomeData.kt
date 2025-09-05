@@ -6,5 +6,5 @@ data class HomeData(
     val gridItemsByPage: Map<Int, List<GridItem>>,
     val dockGridItems: List<GridItem>,
     val hasShortcutHostPermission: Boolean,
-    val textColor: Long,
+    val textColor: TextColor,
 )

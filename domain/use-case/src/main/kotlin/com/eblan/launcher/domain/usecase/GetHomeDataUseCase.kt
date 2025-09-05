@@ -87,13 +87,7 @@ class GetHomeDataUseCase @Inject constructor(
                     )
                 }
 
-                TextColor.Light -> {
-                    LIGHT
-                }
-
-                TextColor.Dark -> {
-                    DARK
-                }
+                else -> gridItemSettings.textColor
             }
 
             HomeData(
@@ -110,37 +104,34 @@ class GetHomeDataUseCase @Inject constructor(
     private fun getTextColorFromWallpaperColors(
         darkThemeConfig: DarkThemeConfig,
         colorHints: Int?,
-    ): Long {
+    ): TextColor {
         return if (colorHints != null) {
             val hintSupportsDarkText =
                 colorHints.and(wallpaperManagerWrapper.hintSupportsDarkText) != 0
 
             if (hintSupportsDarkText) {
-                DARK
+                TextColor.Dark
             } else {
-                LIGHT
+                TextColor.Light
             }
         } else {
-            getDarkThemeConfigColor(darkThemeConfig)
+            getTextColorFromSystemTheme(darkThemeConfig)
         }
     }
 
-    private fun getDarkThemeConfigColor(darkThemeConfig: DarkThemeConfig): Long {
+    private fun getTextColorFromSystemTheme(darkThemeConfig: DarkThemeConfig): TextColor {
         return when (darkThemeConfig) {
             DarkThemeConfig.System -> {
-                getDarkThemeConfigColor(darkThemeConfig = resourcesWrapper.getSystemTheme())
+                getTextColorFromSystemTheme(darkThemeConfig = resourcesWrapper.getSystemTheme())
             }
 
             DarkThemeConfig.Light -> {
-                DARK
+                TextColor.Light
             }
 
             DarkThemeConfig.Dark -> {
-                LIGHT
+                TextColor.Dark
             }
         }
     }
 }
-
-private const val LIGHT = 0xFFFFFFFF
-private const val DARK = 0xFF000000

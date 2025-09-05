@@ -26,13 +26,14 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    textColor: Long,
+    textColor: TextColor,
     gridItemSettings: GridItemSettings,
 ) {
     key(gridItem.id) {
@@ -43,21 +44,9 @@ fun GridItemContent(
         }
 
         val currentTextColor = if (gridItem.override) {
-            when (gridItem.gridItemSettings.textColor) {
-                TextColor.System -> {
-                    textColor
-                }
-
-                TextColor.Light -> {
-                    0xFFFFFFFF
-                }
-
-                TextColor.Dark -> {
-                    0xFF000000
-                }
-            }
+            getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
         } else {
-            textColor
+            getGridItemTextColor(textColor = textColor)
         }
 
         LookaheadScope {
@@ -105,7 +94,7 @@ fun GridItemContent(
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
-    textColor: Long,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
@@ -133,7 +122,7 @@ private fun ApplicationInfoGridItem(
         if (gridItemSettings.showLabel) {
             Text(
                 text = data.label.toString(),
-                color = Color(textColor),
+                color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
@@ -178,7 +167,7 @@ private fun WidgetGridItem(
 private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
-    textColor: Long,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
@@ -207,7 +196,7 @@ private fun ShortcutInfoGridItem(
             Text(
                 modifier = Modifier.weight(1f),
                 text = data.shortLabel,
-                color = Color(textColor),
+                color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
@@ -220,7 +209,7 @@ private fun ShortcutInfoGridItem(
 private fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
-    textColor: Long,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
 ) {
     val density = LocalDensity.current
@@ -284,7 +273,7 @@ private fun FolderGridItem(
                                 imageVector = EblanLauncherIcons.Folder,
                                 contentDescription = null,
                                 modifier = gridItemModifier,
-                                tint = Color(textColor),
+                                tint = textColor,
                             )
                         }
                     }
@@ -295,14 +284,14 @@ private fun FolderGridItem(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
                 modifier = Modifier.size(iconSizeDp),
-                tint = Color(textColor),
+                tint = textColor,
             )
         }
 
         if (gridItemSettings.showLabel) {
             Text(
                 text = data.label,
-                color = Color(textColor),
+                color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,

@@ -11,17 +11,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 
 @Composable
 fun ResizeScreen(
@@ -31,7 +32,7 @@ fun ResizeScreen(
     screenWidth: Int,
     screenHeight: Int,
     dockGridItems: List<GridItem>,
-    textColor: Long,
+    textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     onResizeGridItem: (
@@ -206,7 +207,7 @@ private fun ResizeOverlay(
     y: Int,
     width: Int,
     height: Int,
-    textColor: Long,
+    textColor: TextColor,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -214,6 +215,12 @@ private fun ResizeOverlay(
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
+    val currentTextColor = if (gridItem.override) {
+        getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
+    } else {
+        getGridItemTextColor(textColor = textColor)
+    }
+
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo,
         is GridItemData.ShortcutInfo,
@@ -231,7 +238,7 @@ private fun ResizeOverlay(
                 y = y,
                 width = width,
                 height = height,
-                color = Color(textColor),
+                color = currentTextColor,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
             )
@@ -249,7 +256,7 @@ private fun ResizeOverlay(
                 y = y,
                 width = width,
                 height = height,
-                color = Color(textColor),
+                color = currentTextColor,
                 onResizeWidgetGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
             )

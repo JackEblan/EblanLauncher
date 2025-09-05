@@ -49,6 +49,7 @@ import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
@@ -77,7 +78,7 @@ fun PagerScreen(
     gridItemsByPage: Map<Int, List<GridItem>>,
     drag: Drag,
     dockGridItems: List<GridItem>,
-    textColor: Long,
+    textColor: TextColor,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     screenWidth: Int,
     screenHeight: Int,
@@ -364,7 +365,7 @@ private fun HorizontalPagerScreen(
     gridHeight: Int,
     paddingValues: PaddingValues,
     dockGridItems: List<GridItem>,
-    textColor: Long,
+    textColor: TextColor,
     gridItemSource: GridItemSource?,
     onLongPressGrid: (Int) -> Unit,
     drag: Drag,

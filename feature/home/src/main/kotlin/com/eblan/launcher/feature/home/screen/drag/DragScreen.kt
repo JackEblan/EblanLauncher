@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
@@ -37,6 +36,7 @@ import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
@@ -44,6 +44,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 
 @Composable
@@ -58,7 +59,7 @@ fun DragScreen(
     screenHeight: Int,
     paddingValues: PaddingValues,
     dockGridItems: List<GridItem>,
-    textColor: Long,
+    textColor: TextColor,
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
     onMoveGridItem: (
@@ -305,12 +306,12 @@ fun DragScreen(
                     .fillMaxSize()
                     .padding(gridPaddingDp)
                     .background(
-                        color = Color(textColor).copy(alpha = 0.25f),
+                        color = getGridItemTextColor(textColor = textColor).copy(alpha = 0.25f),
                         shape = RoundedCornerShape(8.dp),
                     )
                     .border(
                         width = 2.dp,
-                        color = Color(textColor),
+                        color = getGridItemTextColor(textColor = textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
                 rows = homeSettings.rows,

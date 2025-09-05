@@ -33,6 +33,7 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import kotlinx.coroutines.launch
 
 
@@ -40,7 +41,7 @@ import kotlinx.coroutines.launch
 fun InteractiveGridItemContent(
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,
-    textColor: Long,
+    textColor: TextColor,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
     onTapApplicationInfo: (String?) -> Unit,
@@ -59,21 +60,9 @@ fun InteractiveGridItemContent(
     }
 
     val currentTextColor = if (gridItem.override) {
-        when (gridItem.gridItemSettings.textColor) {
-            TextColor.System -> {
-                textColor
-            }
-
-            TextColor.Light -> {
-                0xFFFFFFFF
-            }
-
-            TextColor.Dark -> {
-                0xFF000000
-            }
-        }
+        getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
     } else {
-        textColor
+        getGridItemTextColor(textColor = textColor)
     }
 
     when (val data = gridItem.data) {
@@ -141,7 +130,7 @@ fun InteractiveGridItemContent(
 @Composable
 private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
-    textColor: Long,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
@@ -159,8 +148,6 @@ private fun ApplicationInfoGridItem(
     val iconSizeDp = with(density) {
         gridItemSettings.iconSize.toDp()
     }
-
-    val color = Color(color = textColor)
 
     val textSizeSp = with(density) {
         gridItemSettings.textSize.toSp()
@@ -220,7 +207,7 @@ private fun ApplicationInfoGridItem(
         if (gridItemSettings.showLabel) {
             Text(
                 text = data.label.toString(),
-                color = color,
+                color = textColor,
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
                 maxLines = maxLines,
@@ -302,7 +289,7 @@ private fun WidgetGridItem(
 @Composable
 private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
-    textColor: Long,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
@@ -320,8 +307,6 @@ private fun ShortcutInfoGridItem(
     val iconSizeDp = with(density) {
         gridItemSettings.iconSize.toDp()
     }
-
-    val color = Color(color = textColor)
 
     val textSizeSp = with(density) {
         gridItemSettings.textSize.toSp()
@@ -382,7 +367,7 @@ private fun ShortcutInfoGridItem(
             Text(
                 modifier = Modifier.weight(1f),
                 text = data.shortLabel,
-                color = color,
+                color = textColor,
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
                 maxLines = maxLines,
@@ -394,7 +379,7 @@ private fun ShortcutInfoGridItem(
 @Composable
 private fun FolderGridItem(
     modifier: Modifier = Modifier,
-    textColor: Long,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
     gridItem: GridItem,
     data: GridItemData.Folder,
@@ -505,7 +490,7 @@ private fun FolderGridItem(
                                         imageVector = EblanLauncherIcons.Folder,
                                         contentDescription = null,
                                         modifier = gridItemModifier,
-                                        tint = Color(textColor),
+                                        tint = textColor,
                                     )
                                 }
                             }
@@ -517,14 +502,14 @@ private fun FolderGridItem(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
                 modifier = Modifier.size(iconSizeDp),
-                tint = Color(color = textColor),
+                tint = textColor,
             )
         }
 
         if (gridItemSettings.showLabel) {
             Text(
                 text = data.label,
-                color = Color(color = textColor),
+                color = textColor,
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
                 maxLines = maxLines,

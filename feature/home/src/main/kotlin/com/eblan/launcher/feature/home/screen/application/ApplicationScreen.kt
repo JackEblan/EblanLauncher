@@ -26,6 +26,7 @@ import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -61,6 +63,7 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
@@ -320,6 +323,20 @@ private fun EblanApplicationInfoItem(
 
     val density = LocalDensity.current
 
+    val textColor = when (appDrawerSettings.gridItemSettings.textColor) {
+        TextColor.System -> {
+            Color.Unspecified
+        }
+
+        TextColor.Light -> {
+            Color.White
+        }
+
+        TextColor.Dark -> {
+            Color.Black
+        }
+    }
+
     val appDrawerRowsHeightDp = with(density) {
         appDrawerSettings.appDrawerRowsHeight.toDp()
     }
@@ -412,6 +429,7 @@ private fun EblanApplicationInfoItem(
 
             Text(
                 text = eblanApplicationInfo.label.toString(),
+                color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
@@ -433,7 +451,9 @@ private fun EblanApplicationInfoDockSearchBar(
     var expanded by remember { mutableStateOf(false) }
 
     DockedSearchBar(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         inputField = {
             SearchBarDefaults.InputField(
                 modifier = Modifier.fillMaxWidth(),
@@ -465,6 +485,7 @@ private fun EblanApplicationInfoDockSearchBar(
                             modifier = Modifier.size(40.dp),
                         )
                     },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                     modifier =
                         Modifier
                             .clickable {

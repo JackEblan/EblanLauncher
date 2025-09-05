@@ -36,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -46,19 +45,21 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
 import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
 import com.eblan.launcher.feature.home.component.draganddrop.rememberLazyGridDragAndDropState
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 
 @Composable
 fun EditPageScreen(
     modifier: Modifier = Modifier,
     screenHeight: Int,
     pageItems: List<PageItem>,
-    textColor: Long,
+    textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     onSaveEditPage: (
@@ -122,11 +123,14 @@ fun EditPageScreen(
                     OutlinedCard(
                         modifier = Modifier.padding(vertical = 10.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(textColor).copy(
+                            containerColor = getGridItemTextColor(textColor = textColor).copy(
                                 alpha = 0.25f,
                             ),
                         ),
-                        border = BorderStroke(width = 2.dp, color = Color(textColor)),
+                        border = BorderStroke(
+                            width = 2.dp,
+                            color = getGridItemTextColor(textColor = textColor),
+                        ),
                     ) {
                         GridLayout(
                             modifier = Modifier.height(cardHeight),
@@ -266,8 +270,14 @@ private fun EditPageButtons(
 private fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    textColor: Long,
+    textColor: TextColor,
 ) {
+    val currentTextColor = if (gridItem.override) {
+        getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
+    } else {
+        getGridItemTextColor(textColor = textColor)
+    }
+
     key(gridItem.id) {
         LookaheadScope {
             val gridItemModifier = modifier
@@ -305,7 +315,7 @@ private fun GridItemContent(
                         imageVector = EblanLauncherIcons.Folder,
                         contentDescription = null,
                         modifier = gridItemModifier,
-                        tint = Color(textColor),
+                        tint = currentTextColor,
                     )
                 }
             }

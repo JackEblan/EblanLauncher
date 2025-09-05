@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -25,12 +24,14 @@ import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 
 @Composable
 fun FolderScreen(
@@ -43,7 +44,7 @@ fun FolderScreen(
     hasShortcutHostPermission: Boolean,
     screenWidth: Int,
     screenHeight: Int,
-    textColor: Long,
+    textColor: TextColor,
     homeSettings: HomeSettings,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
@@ -137,7 +138,7 @@ fun FolderScreen(
                 Text(
                     modifier = Modifier.height(titleHeightDp),
                     text = targetState.label,
-                    color = Color(textColor),
+                    color = getGridItemTextColor(textColor = textColor),
                 )
 
                 HorizontalPager(

@@ -107,6 +107,7 @@ fun HomeRoute(
         onAddFolder = viewModel::addFolder,
         onMoveOutsideFolder = viewModel::moveGridItemOutsideFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
+        onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
     )
 }
 
@@ -175,6 +176,7 @@ fun HomeScreen(
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: () -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -297,6 +299,7 @@ fun HomeScreen(
                         overlayIntOffset = intOffset
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                 )
             }
         }
@@ -384,6 +387,7 @@ private fun Success(
     onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -452,6 +456,7 @@ private fun Success(
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                 )
             }
 

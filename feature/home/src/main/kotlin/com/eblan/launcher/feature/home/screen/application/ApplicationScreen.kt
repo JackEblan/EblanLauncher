@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.application
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,17 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,6 +44,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -225,13 +221,16 @@ fun ApplicationScreen(
                                     .matchParentSize(),
                             ) {
                                 EblanApplicationInfoDockSearchBar(
+                                    page = page,
                                     overscrollAlphaToOffset = overscrollAlpha.value,
                                     onQueryChange = onGetEblanApplicationInfosByLabel,
-                                    eblanApplicationInfos = eblanApplicationInfosByLabel,
-                                    onClick = {
+                                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                                    drag = drag,
+                                    appDrawerSettings = appDrawerSettings,
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                    onLongPressGridItem = onLongPressGridItem,
 
-                                    },
-                                )
+                                    )
 
                                 LazyVerticalGrid(
                                     columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
@@ -446,11 +445,21 @@ private fun EblanApplicationInfoItem(
 @Composable
 private fun EblanApplicationInfoDockSearchBar(
     modifier: Modifier = Modifier,
+    page: Int,
     overscrollAlphaToOffset: Float,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
     onQueryChange: (String) -> Unit,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    onClick: (String) -> Unit,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     var query by remember { mutableStateOf("") }
 
     var expanded by remember { mutableStateOf(false) }
@@ -481,27 +490,22 @@ private fun EblanApplicationInfoDockSearchBar(
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
-        LazyColumn {
-            items(eblanApplicationInfos) { eblanApplicationInfo ->
-                ListItem(
-                    headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
-                    supportingContent = { Text(text = eblanApplicationInfo.packageName) },
-                    leadingContent = {
-                        AsyncImage(
-                            model = eblanApplicationInfo.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                        )
-                    },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                    modifier =
-                        Modifier
-                            .clickable {
-                                onClick(eblanApplicationInfo.packageName)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
+                EblanApplicationInfoItem(
+                    page = page,
+                    drag = drag,
+                    eblanApplicationInfo = eblanApplicationInfo,
+                    appDrawerSettings = appDrawerSettings,
+                    onLongPress = { intOffset, _ ->
+                        focusManager.clearFocus()
 
-                                expanded = false
-                            }
-                            .fillMaxWidth(),
+                        onUpdateGridItemOffset(intOffset)
+                    },
+                    onLongPressGridItem = onLongPressGridItem,
                 )
             }
         }

@@ -8,18 +8,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,8 +46,10 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
@@ -81,6 +89,7 @@ fun WidgetScreen(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val page = calculatePage(
@@ -144,21 +153,42 @@ fun WidgetScreen(
                         }
 
                         else -> {
-                            LazyColumn(
-                                modifier = Modifier.matchParentSize(),
-                                contentPadding = paddingValues,
-                                overscrollEffect = overscrollEffect,
-                            ) {
-                                items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
-                                    EblanApplicationInfoItem(
-                                        eblanApplicationInfo = eblanApplicationInfo,
-                                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                                        drag = drag,
-                                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                        onLongPressGridItem = onLongPressGridItem,
-                                        page = page,
-                                        gridItemSettings = gridItemSettings,
+                            Column(
+                                modifier = Modifier
+                                    .padding(
+                                        top = paddingValues.calculateTopPadding(),
+                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                                     )
+                                    .matchParentSize(),
+                            ) {
+                                EblanAppWidgetProviderInfoDockSearchBar(
+                                    overscrollAlphaToOffset = overscrollAlpha.value,
+                                    onQueryChange = onGetEblanAppWidgetProviderInfosByLabel,
+                                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                                    drag = drag,
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                    onLongPressGridItem = onLongPressGridItem,
+                                    page = page,
+                                    gridItemSettings = gridItemSettings,
+                                )
+
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
+                                    overscrollEffect = overscrollEffect,
+                                ) {
+                                    items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
+                                        EblanApplicationInfoItem(
+                                            eblanApplicationInfo = eblanApplicationInfo,
+                                            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                                            drag = drag,
+                                            onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                            onLongPressGridItem = onLongPressGridItem,
+                                            page = page,
+                                            gridItemSettings = gridItemSettings,
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -385,4 +415,69 @@ fun getWidgetGridItem(
         override = false,
         gridItemSettings = gridItemSettings,
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EblanAppWidgetProviderInfoDockSearchBar(
+    modifier: Modifier = Modifier,
+    overscrollAlphaToOffset: Float,
+    onQueryChange: (String) -> Unit,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    drag: Drag,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    page: Int,
+    gridItemSettings: GridItemSettings,
+) {
+    val focusManager = LocalFocusManager.current
+
+    var query by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    DockedSearchBar(
+        modifier = modifier
+            .offset {
+                IntOffset(x = 0, y = overscrollAlphaToOffset.roundToInt())
+            }
+            .fillMaxWidth()
+            .padding(10.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                modifier = Modifier.fillMaxWidth(),
+                query = query,
+                onQueryChange = { newQuery ->
+                    query = newQuery
+
+                    onQueryChange(newQuery)
+                },
+                onSearch = { expanded = false },
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                placeholder = { Text("Search Applications") },
+                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
+            )
+        },
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        LazyColumn {
+            items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
+                EblanApplicationInfoItem(
+                    eblanApplicationInfo = eblanApplicationInfo,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
+                    drag = drag,
+                    onUpdateGridItemOffset = { intOffset ->
+                        focusManager.clearFocus()
+
+                        onUpdateGridItemOffset(intOffset)
+                    },
+                    onLongPressGridItem = onLongPressGridItem,
+                    page = page,
+                    gridItemSettings = gridItemSettings,
+                )
+            }
+        }
+    }
 }

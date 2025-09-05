@@ -450,4 +450,10 @@ class HomeViewModel @Inject constructor(
             label
         }
     }
+
+    fun getEblanAppWidgetProviderInfosByLabel(label: String) {
+        _eblanAppWidgetProviderInfoLabel.update {
+            label
+        }
+    }
 }

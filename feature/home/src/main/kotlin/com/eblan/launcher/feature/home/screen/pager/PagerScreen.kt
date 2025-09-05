@@ -109,6 +109,7 @@ fun PagerScreen(
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -328,6 +329,7 @@ fun PagerScreen(
             eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
             onDismiss = {
                 showWidgets = false
             },

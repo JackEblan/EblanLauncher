@@ -215,9 +215,16 @@ fun ApplicationScreen(
                         }
 
                         else -> {
-                            Column(modifier = Modifier.matchParentSize()) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(
+                                        top = paddingValues.calculateTopPadding(),
+                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                                    )
+                                    .matchParentSize(),
+                            ) {
                                 EblanApplicationInfoDockSearchBar(
-                                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                                     onQueryChange = onGetEblanApplicationInfosByLabel,
                                     eblanApplicationInfos = eblanApplicationInfosByLabel,
                                     onClick = {
@@ -228,11 +235,7 @@ fun ApplicationScreen(
                                 LazyVerticalGrid(
                                     columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
                                     modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(
-                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                        bottom = paddingValues.calculateBottomPadding(),
-                                    ),
+                                    contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
                                     overscrollEffect = overscrollEffect,
                                 ) {
                                     items(eblanApplicationInfos) { eblanApplicationInfo ->

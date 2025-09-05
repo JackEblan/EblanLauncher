@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
@@ -73,6 +74,8 @@ fun HomeRoute(
 
     val eblanApplicationInfosByLabel by viewModel.eblanApplicationInfosByLabel.collectAsStateWithLifecycle()
 
+    val eblanAppWidgetProviderInfosByLabel by viewModel.eblanAppWidgetProviderInfosByLabel.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -82,6 +85,7 @@ fun HomeRoute(
         pageItems = pageItems,
         foldersDataById = folders,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+        eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -116,6 +120,7 @@ fun HomeScreen(
     pageItems: List<PageItem>,
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -264,6 +269,7 @@ fun HomeScreen(
                     drag = drag,
                     foldersDataById = foldersDataById,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -321,6 +327,7 @@ private fun Success(
     drag: Drag,
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -411,6 +418,7 @@ private fun Success(
                     gridItemSource = gridItemSource,
                     homeSettings = homeData.userData.homeSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },

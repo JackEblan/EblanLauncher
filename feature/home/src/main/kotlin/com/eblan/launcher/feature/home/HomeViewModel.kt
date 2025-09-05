@@ -10,6 +10,7 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
+import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
@@ -60,6 +61,7 @@ class HomeViewModel @Inject constructor(
     private val moveFolderGridItemUseCase: MoveFolderGridItemUseCase,
     private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
     getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
+    getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -99,6 +101,8 @@ class HomeViewModel @Inject constructor(
 
     private val _eblanApplicationLabel = MutableStateFlow<String?>(null)
 
+    private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow<String?>(null)
+
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val eblanApplicationInfosByLabel =
         _eblanApplicationLabel.filterNotNull()
@@ -109,6 +113,18 @@ class HomeViewModel @Inject constructor(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = emptyList(),
+            )
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val eblanAppWidgetProviderInfosByLabel =
+        _eblanAppWidgetProviderInfoLabel.filterNotNull()
+            .debounce(defaultDelay)
+            .flatMapLatest { label ->
+                getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyMap(),
             )
 
     fun moveGridItem(

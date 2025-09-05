@@ -43,6 +43,7 @@ import com.eblan.launcher.designsystem.local.LocalLauncherApps
 import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
@@ -89,6 +90,7 @@ fun PagerScreen(
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     onLongPressGrid: (Int) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
@@ -316,18 +318,14 @@ fun PagerScreen(
     if (showWidgets) {
         WidgetScreen(
             currentPage = gridHorizontalPagerState.currentPage,
-            rows = homeSettings.rows,
-            columns = homeSettings.columns,
             pageCount = homeSettings.pageCount,
             infiniteScroll = homeSettings.infiniteScroll,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            gridWidth = gridWidth,
-            gridHeight = gridHeight,
-            dockHeight = homeSettings.dockHeight,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             screenHeight = screenHeight,
             drag = drag,
+            eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {

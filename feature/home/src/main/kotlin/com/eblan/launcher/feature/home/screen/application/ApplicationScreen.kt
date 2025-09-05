@@ -225,6 +225,7 @@ fun ApplicationScreen(
                                     .matchParentSize(),
                             ) {
                                 EblanApplicationInfoDockSearchBar(
+                                    overscrollAlphaToOffset = overscrollAlpha.value,
                                     onQueryChange = onGetEblanApplicationInfosByLabel,
                                     eblanApplicationInfos = eblanApplicationInfosByLabel,
                                     onClick = {
@@ -445,6 +446,7 @@ private fun EblanApplicationInfoItem(
 @Composable
 private fun EblanApplicationInfoDockSearchBar(
     modifier: Modifier = Modifier,
+    overscrollAlphaToOffset: Float,
     onQueryChange: (String) -> Unit,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onClick: (String) -> Unit,
@@ -455,6 +457,9 @@ private fun EblanApplicationInfoDockSearchBar(
 
     DockedSearchBar(
         modifier = modifier
+            .offset {
+                IntOffset(x = 0, y = overscrollAlphaToOffset.roundToInt())
+            }
             .fillMaxWidth()
             .padding(10.dp),
         inputField = {

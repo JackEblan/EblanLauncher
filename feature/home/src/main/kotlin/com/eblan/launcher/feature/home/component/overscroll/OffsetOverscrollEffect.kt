@@ -105,16 +105,27 @@ class OffsetOverscrollEffect(
 
             onFling()
         } else {
-            overscrollAlpha.snapTo(0f)
+            scope.launch {
+                overscrollAlpha.animateTo(
+                    targetValue = 0f,
+                    initialVelocity = remaining.y,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessLow,
+                    ),
+                )
+            }
 
-            overscrollOffset.animateTo(
-                targetValue = 0f,
-                initialVelocity = remaining.y,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow,
-                ),
-            )
+            scope.launch {
+                overscrollOffset.animateTo(
+                    targetValue = 0f,
+                    initialVelocity = remaining.y,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessLow,
+                    ),
+                )
+            }
         }
     }
 

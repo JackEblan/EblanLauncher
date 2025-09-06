@@ -47,7 +47,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -204,6 +203,68 @@ fun WidgetScreen(
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EblanAppWidgetProviderInfoDockSearchBar(
+    modifier: Modifier = Modifier,
+    onQueryChange: (String) -> Unit,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    drag: Drag,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    page: Int,
+    gridItemSettings: GridItemSettings,
+) {
+    val focusManager = LocalFocusManager.current
+
+    var query by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    DockedSearchBar(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                modifier = Modifier.fillMaxWidth(),
+                query = query,
+                onQueryChange = { newQuery ->
+                    query = newQuery
+
+                    onQueryChange(newQuery)
+                },
+                onSearch = { expanded = false },
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                placeholder = { Text("Search Widgets") },
+                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
+            )
+        },
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        LazyColumn {
+            items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
+                EblanApplicationInfoItem(
+                    eblanApplicationInfo = eblanApplicationInfo,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
+                    drag = drag,
+                    onUpdateGridItemOffset = { intOffset ->
+                        focusManager.clearFocus()
+
+                        onUpdateGridItemOffset(intOffset)
+                    },
+                    onLongPressGridItem = onLongPressGridItem,
+                    page = page,
+                    gridItemSettings = gridItemSettings,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
@@ -288,7 +349,7 @@ private fun EblanAppWidgetProviderInfoItem(
     val scale = remember { Animatable(1f) }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -348,14 +409,12 @@ private fun EblanAppWidgetProviderInfoItem(
                     intOffset =
                         layoutCoordinates.positionInRoot()
                             .round()
-                }
-                .fillMaxWidth(),
+                },
             model = preview,
             contentDescription = null,
         )
-    }
 
-    val infoText = """
+        val infoText = """
     ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}
     MinWidth = ${eblanAppWidgetProviderInfo.minWidth} MinHeight = ${eblanAppWidgetProviderInfo.minHeight}
     ResizeMode = ${eblanAppWidgetProviderInfo.resizeMode}
@@ -363,13 +422,13 @@ private fun EblanAppWidgetProviderInfoItem(
     MaxResizeWidth = ${eblanAppWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${eblanAppWidgetProviderInfo.maxResizeHeight}
     """.trimIndent()
 
-    Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-    Text(
-        text = infoText,
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.bodySmall,
-    )
+        Text(
+            text = infoText,
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
 }
 
 fun getWidgetGridItem(
@@ -420,65 +479,4 @@ fun getWidgetGridItem(
         override = false,
         gridItemSettings = gridItemSettings,
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun EblanAppWidgetProviderInfoDockSearchBar(
-    modifier: Modifier = Modifier,
-    onQueryChange: (String) -> Unit,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
-    gridItemSettings: GridItemSettings,
-) {
-    val focusManager = LocalFocusManager.current
-
-    var query by remember { mutableStateOf("") }
-
-    var expanded by remember { mutableStateOf(false) }
-
-    DockedSearchBar(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        inputField = {
-            SearchBarDefaults.InputField(
-                modifier = Modifier.fillMaxWidth(),
-                query = query,
-                onQueryChange = { newQuery ->
-                    query = newQuery
-
-                    onQueryChange(newQuery)
-                },
-                onSearch = { expanded = false },
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-                placeholder = { Text("Search Applications") },
-                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
-            )
-        },
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
-        LazyColumn {
-            items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
-                EblanApplicationInfoItem(
-                    eblanApplicationInfo = eblanApplicationInfo,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
-                    drag = drag,
-                    onUpdateGridItemOffset = { intOffset ->
-                        focusManager.clearFocus()
-
-                        onUpdateGridItemOffset(intOffset)
-                    },
-                    onLongPressGridItem = onLongPressGridItem,
-                    page = page,
-                    gridItemSettings = gridItemSettings,
-                )
-            }
-        }
-    }
 }

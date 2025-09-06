@@ -301,6 +301,73 @@ fun ApplicationScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EblanApplicationInfoDockSearchBar(
+    modifier: Modifier = Modifier,
+    page: Int,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
+    onQueryChange: (String) -> Unit,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onLongPressGridItem: (
+        currentPage: Int,
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+
+    var query by remember { mutableStateOf("") }
+
+    var expanded by remember { mutableStateOf(false) }
+
+    DockedSearchBar(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                modifier = Modifier.fillMaxWidth(),
+                query = query,
+                onQueryChange = { newQuery ->
+                    query = newQuery
+
+                    onQueryChange(newQuery)
+                },
+                onSearch = { expanded = false },
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                placeholder = { Text("Search Applications") },
+                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
+            )
+        },
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
+                EblanApplicationInfoItem(
+                    page = page,
+                    drag = drag,
+                    eblanApplicationInfo = eblanApplicationInfo,
+                    appDrawerSettings = appDrawerSettings,
+                    onLongPress = { intOffset, _ ->
+                        focusManager.clearFocus()
+
+                        onUpdateGridItemOffset(intOffset)
+                    },
+                    onLongPressGridItem = onLongPressGridItem,
+                )
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 private fun EblanApplicationInfoItem(
@@ -442,73 +509,6 @@ private fun EblanApplicationInfoItem(
                 maxLines = maxLines,
                 fontSize = textSizeSp,
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun EblanApplicationInfoDockSearchBar(
-    modifier: Modifier = Modifier,
-    page: Int,
-    drag: Drag,
-    appDrawerSettings: AppDrawerSettings,
-    onQueryChange: (String) -> Unit,
-    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (
-        currentPage: Int,
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
-) {
-    val focusManager = LocalFocusManager.current
-
-    var query by remember { mutableStateOf("") }
-
-    var expanded by remember { mutableStateOf(false) }
-
-    DockedSearchBar(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        inputField = {
-            SearchBarDefaults.InputField(
-                modifier = Modifier.fillMaxWidth(),
-                query = query,
-                onQueryChange = { newQuery ->
-                    query = newQuery
-
-                    onQueryChange(newQuery)
-                },
-                onSearch = { expanded = false },
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-                placeholder = { Text("Search Applications") },
-                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
-            )
-        },
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
-                EblanApplicationInfoItem(
-                    page = page,
-                    drag = drag,
-                    eblanApplicationInfo = eblanApplicationInfo,
-                    appDrawerSettings = appDrawerSettings,
-                    onLongPress = { intOffset, _ ->
-                        focusManager.clearFocus()
-
-                        onUpdateGridItemOffset(intOffset)
-                    },
-                    onLongPressGridItem = onLongPressGridItem,
-                )
-            }
         }
     }
 }

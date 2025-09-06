@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeData
@@ -76,6 +77,8 @@ fun HomeRoute(
 
     val eblanAppWidgetProviderInfosByLabel by viewModel.eblanAppWidgetProviderInfosByLabel.collectAsStateWithLifecycle()
 
+    val eblanShortcutInfosByLabel by viewModel.eblanShortcutInfosByLabel.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -86,6 +89,7 @@ fun HomeRoute(
         foldersDataById = folders,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+        eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -108,6 +112,7 @@ fun HomeRoute(
         onMoveOutsideFolder = viewModel::moveGridItemOutsideFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
+        onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
     )
 }
 
@@ -122,6 +127,7 @@ fun HomeScreen(
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -177,6 +183,7 @@ fun HomeScreen(
     onMoveOutsideFolder: () -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutInfosByLabel: (String) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -272,6 +279,7 @@ fun HomeScreen(
                     foldersDataById = foldersDataById,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -300,6 +308,7 @@ fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                 )
             }
         }
@@ -331,6 +340,7 @@ private fun Success(
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -388,6 +398,7 @@ private fun Success(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutInfosByLabel: (String) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -423,6 +434,7 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -457,6 +469,7 @@ private fun Success(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                 )
             }
 

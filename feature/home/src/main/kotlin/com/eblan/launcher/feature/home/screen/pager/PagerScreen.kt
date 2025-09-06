@@ -45,6 +45,7 @@ import com.eblan.launcher.designsystem.local.LocalWallpaperManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
@@ -91,6 +92,7 @@ fun PagerScreen(
     homeSettings: HomeSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     onLongPressGrid: (Int) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
@@ -110,6 +112,7 @@ fun PagerScreen(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutInfosByLabel: (String) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -346,8 +349,10 @@ fun PagerScreen(
             paddingValues = paddingValues,
             screenHeight = screenHeight,
             drag = drag,
+            eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
             onDismiss = {
                 showShortcuts = false
             },

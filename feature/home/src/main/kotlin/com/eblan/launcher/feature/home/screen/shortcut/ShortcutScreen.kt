@@ -81,10 +81,13 @@ fun ShortcutScreen(
 
     val overscrollAlpha = remember { Animatable(0f) }
 
+    val overscrollOffset = remember { Animatable(0f) }
+
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
+            overscrollOffset = overscrollOffset,
             onFling = onDismiss,
             onFastFling = {
                 animatedSwipeUpY.animateTo(screenHeight.toFloat())

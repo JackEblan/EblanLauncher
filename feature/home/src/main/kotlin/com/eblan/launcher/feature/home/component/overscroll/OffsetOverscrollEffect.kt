@@ -14,22 +14,19 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlin.math.roundToInt
 import kotlin.math.sign
 
 class OffsetOverscrollEffect(
     private val scope: CoroutineScope,
     private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    private val overscrollOffset: Animatable<Float, AnimationVector1D>,
     private val onFling: suspend () -> Unit,
     private val onFastFling: suspend () -> Unit,
 ) : OverscrollEffect {
-    private val overscrollOffset = Animatable(0f)
-
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
@@ -92,40 +89,25 @@ class OffsetOverscrollEffect(
 
         val remaining = velocity - consumed
 
-        if (overscrollOffset.value <= 0f && remaining.y > 10000f) {
-            overscrollAlpha.snapTo(0f)
+        overscrollAlpha.snapTo(0f)
 
+        if (overscrollOffset.value <= 0f && remaining.y > 10000f) {
             overscrollOffset.snapTo(0f)
 
             onFastFling()
         } else if (overscrollOffset.value > 500f) {
-            overscrollAlpha.snapTo(0f)
-
             overscrollOffset.snapTo(0f)
 
             onFling()
         } else {
-            scope.launch {
-                overscrollAlpha.animateTo(
-                    targetValue = 0f,
-                    initialVelocity = remaining.y,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                )
-            }
-
-            scope.launch {
-                overscrollOffset.animateTo(
-                    targetValue = 0f,
-                    initialVelocity = remaining.y,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                )
-            }
+            overscrollOffset.animateTo(
+                targetValue = 0f,
+                initialVelocity = remaining.y,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
         }
     }
 
@@ -140,9 +122,7 @@ class OffsetOverscrollEffect(
             val placeable = measurable.measure(constraints)
 
             return layout(placeable.width, placeable.height) {
-                val offsetValue = IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
-
-                placeable.placeRelativeWithLayer(offsetValue.x, offsetValue.y)
+                placeable.placeRelative(x = 0, y = 0)
             }
         }
     }

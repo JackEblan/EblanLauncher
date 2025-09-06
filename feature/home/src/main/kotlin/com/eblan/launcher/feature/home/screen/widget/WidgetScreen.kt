@@ -104,10 +104,13 @@ fun WidgetScreen(
 
     val overscrollAlpha = remember { Animatable(0f) }
 
+    val overscrollOffset = remember { Animatable(0f) }
+
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
+            overscrollOffset = overscrollOffset,
             onFling = onDismiss,
             onFastFling = {
                 animatedSwipeUpY.animateTo(screenHeight.toFloat())
@@ -155,6 +158,9 @@ fun WidgetScreen(
                         else -> {
                             Column(
                                 modifier = Modifier
+                                    .offset {
+                                        IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
+                                    }
                                     .padding(
                                         top = paddingValues.calculateTopPadding(),
                                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
@@ -163,7 +169,6 @@ fun WidgetScreen(
                                     .matchParentSize(),
                             ) {
                                 EblanAppWidgetProviderInfoDockSearchBar(
-                                    overscrollAlphaToOffset = overscrollAlpha.value,
                                     onQueryChange = onGetEblanAppWidgetProviderInfosByLabel,
                                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                                     drag = drag,
@@ -421,7 +426,6 @@ fun getWidgetGridItem(
 @Composable
 private fun EblanAppWidgetProviderInfoDockSearchBar(
     modifier: Modifier = Modifier,
-    overscrollAlphaToOffset: Float,
     onQueryChange: (String) -> Unit,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
@@ -438,9 +442,6 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
 
     DockedSearchBar(
         modifier = modifier
-            .offset {
-                IntOffset(x = 0, y = overscrollAlphaToOffset.roundToInt())
-            }
             .fillMaxWidth()
             .padding(10.dp),
         inputField = {

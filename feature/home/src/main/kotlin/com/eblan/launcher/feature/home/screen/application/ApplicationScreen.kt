@@ -167,10 +167,13 @@ fun ApplicationScreen(
 
     val overscrollAlpha = remember { Animatable(0f) }
 
+    val overscrollOffset = remember { Animatable(0f) }
+
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
+            overscrollOffset = overscrollOffset,
             onFling = onDismiss,
             onFastFling = onAnimateDismiss,
         )
@@ -213,6 +216,9 @@ fun ApplicationScreen(
                         else -> {
                             Column(
                                 modifier = Modifier
+                                    .offset {
+                                        IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
+                                    }
                                     .padding(
                                         top = paddingValues.calculateTopPadding(),
                                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
@@ -222,7 +228,6 @@ fun ApplicationScreen(
                             ) {
                                 EblanApplicationInfoDockSearchBar(
                                     page = page,
-                                    overscrollAlphaToOffset = overscrollAlpha.value,
                                     onQueryChange = onGetEblanApplicationInfosByLabel,
                                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                                     drag = drag,
@@ -446,7 +451,6 @@ private fun EblanApplicationInfoItem(
 private fun EblanApplicationInfoDockSearchBar(
     modifier: Modifier = Modifier,
     page: Int,
-    overscrollAlphaToOffset: Float,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
     onQueryChange: (String) -> Unit,
@@ -466,9 +470,6 @@ private fun EblanApplicationInfoDockSearchBar(
 
     DockedSearchBar(
         modifier = modifier
-            .offset {
-                IntOffset(x = 0, y = overscrollAlphaToOffset.roundToInt())
-            }
             .fillMaxWidth()
             .padding(10.dp),
         inputField = {

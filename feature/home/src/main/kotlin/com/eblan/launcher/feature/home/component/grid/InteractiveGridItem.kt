@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 import kotlinx.coroutines.launch
 
 
@@ -60,9 +62,12 @@ fun InteractiveGridItemContent(
     }
 
     val currentTextColor = if (gridItem.override) {
-        getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
+        getGridItemTextColor(
+            systemTextColor = textColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+        )
     } else {
-        getGridItemTextColor(textColor = textColor)
+        getSystemTextColor(textColor = textColor)
     }
 
     when (val data = gridItem.data) {
@@ -450,52 +455,54 @@ private fun FolderGridItem(
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
                 modifier = Modifier.size(iconSizeDp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,
                 maxLines = 2,
             ) {
-                data.gridItems.sortedBy { it.startRow + it.startColumn }
-                    .forEach { gridItem ->
-                        Column {
-                            val gridItemModifier = Modifier
-                                .padding(2.dp)
-                                .size(20.dp)
+                data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                    val gridItemIconSizeDp = with(density) {
+                        (gridItemSettings.iconSize * 0.25).toInt().toDp()
+                    }
 
-                            when (val currentData = gridItem.data) {
-                                is GridItemData.ApplicationInfo -> {
-                                    AsyncImage(
-                                        model = currentData.icon,
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
-                                    )
-                                }
+                    val gridItemModifier = Modifier
+                        .padding(2.dp)
+                        .size(gridItemIconSizeDp)
 
-                                is GridItemData.ShortcutInfo -> {
-                                    AsyncImage(
-                                        model = currentData.icon,
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
-                                    )
-                                }
+                    when (val currentData = gridItem.data) {
+                        is GridItemData.ApplicationInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = gridItemModifier,
+                            )
+                        }
 
-                                is GridItemData.Widget -> {
-                                    AsyncImage(
-                                        model = currentData.preview,
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
-                                    )
-                                }
+                        is GridItemData.ShortcutInfo -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = gridItemModifier,
+                            )
+                        }
 
-                                is GridItemData.Folder -> {
-                                    Icon(
-                                        imageVector = EblanLauncherIcons.Folder,
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
-                                        tint = textColor,
-                                    )
-                                }
-                            }
+                        is GridItemData.Widget -> {
+                            AsyncImage(
+                                model = currentData.preview,
+                                contentDescription = null,
+                                modifier = gridItemModifier,
+                            )
+                        }
+
+                        is GridItemData.Folder -> {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Folder,
+                                contentDescription = null,
+                                modifier = gridItemModifier,
+                                tint = textColor,
+                            )
                         }
                     }
+                }
             }
         } else {
             Icon(

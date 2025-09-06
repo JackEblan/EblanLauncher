@@ -2,6 +2,7 @@ package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -44,9 +46,12 @@ fun GridItemContent(
         }
 
         val currentTextColor = if (gridItem.override) {
-            getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
+            getGridItemTextColor(
+                systemTextColor = textColor,
+                gridItemTextColor = gridItem.gridItemSettings.textColor,
+            )
         } else {
-            getGridItemTextColor(textColor = textColor)
+            getSystemTextColor(textColor = textColor)
         }
 
         LookaheadScope {
@@ -231,6 +236,7 @@ private fun FolderGridItem(
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
                 modifier = Modifier.size(iconSizeDp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,
                 maxLines = 2,
             ) {

@@ -23,6 +23,7 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
 fun ResizeScreen(
@@ -216,9 +217,12 @@ private fun ResizeOverlay(
     onResizeEnd: (GridItem) -> Unit,
 ) {
     val currentTextColor = if (gridItem.override) {
-        getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
+        getGridItemTextColor(
+            systemTextColor = textColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+        )
     } else {
-        getGridItemTextColor(textColor = textColor)
+        getSystemTextColor(textColor = textColor)
     }
 
     when (val data = gridItem.data) {

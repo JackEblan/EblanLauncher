@@ -33,7 +33,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
-import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 import kotlinx.coroutines.delay
 
 @Composable
@@ -159,12 +159,12 @@ fun FolderDragScreen(
                     .fillMaxSize()
                     .padding(gridPaddingDp)
                     .background(
-                        color = getGridItemTextColor(textColor = textColor).copy(alpha = 0.25f),
+                        color = getSystemTextColor(textColor = textColor).copy(alpha = 0.25f),
                         shape = RoundedCornerShape(8.dp),
                     )
                     .border(
                         width = 2.dp,
-                        color = getGridItemTextColor(textColor = textColor),
+                        color = getSystemTextColor(textColor = textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
                 rows = homeSettings.folderRows,

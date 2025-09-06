@@ -31,7 +31,7 @@ import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
-import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
 fun FolderScreen(
@@ -138,7 +138,7 @@ fun FolderScreen(
                 Text(
                     modifier = Modifier.height(titleHeightDp),
                     text = targetState.label,
-                    color = getGridItemTextColor(textColor = textColor),
+                    color = getSystemTextColor(textColor = textColor),
                 )
 
                 HorizontalPager(

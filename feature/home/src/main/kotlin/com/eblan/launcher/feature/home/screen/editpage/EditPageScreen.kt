@@ -53,6 +53,7 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
 fun EditPageScreen(
@@ -123,13 +124,13 @@ fun EditPageScreen(
                     OutlinedCard(
                         modifier = Modifier.padding(vertical = 10.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = getGridItemTextColor(textColor = textColor).copy(
+                            containerColor = getSystemTextColor(textColor = textColor).copy(
                                 alpha = 0.25f,
                             ),
                         ),
                         border = BorderStroke(
                             width = 2.dp,
-                            color = getGridItemTextColor(textColor = textColor),
+                            color = getSystemTextColor(textColor = textColor),
                         ),
                     ) {
                         GridLayout(
@@ -273,9 +274,12 @@ private fun GridItemContent(
     textColor: TextColor,
 ) {
     val currentTextColor = if (gridItem.override) {
-        getGridItemTextColor(textColor = gridItem.gridItemSettings.textColor)
+        getGridItemTextColor(
+            systemTextColor = textColor,
+            gridItemTextColor = gridItem.gridItemSettings.textColor,
+        )
     } else {
-        getGridItemTextColor(textColor = textColor)
+        getSystemTextColor(textColor = textColor)
     }
 
     key(gridItem.id) {

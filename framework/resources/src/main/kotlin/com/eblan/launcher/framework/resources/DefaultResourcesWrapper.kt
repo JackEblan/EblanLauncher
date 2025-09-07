@@ -13,7 +13,7 @@ internal class DefaultResourcesWrapper @Inject constructor(@ApplicationContext p
         return when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
             Configuration.UI_MODE_NIGHT_YES -> DarkThemeConfig.Dark
             Configuration.UI_MODE_NIGHT_NO -> DarkThemeConfig.Light
-            else -> DarkThemeConfig.System
+            else -> DarkThemeConfig.Light
         }
     }
 }

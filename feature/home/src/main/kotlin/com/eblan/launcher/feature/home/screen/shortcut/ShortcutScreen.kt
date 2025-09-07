@@ -1,8 +1,9 @@
 package com.eblan.launcher.feature.home.screen.shortcut
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -132,7 +133,10 @@ fun ShortcutScreen(
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
+                IntOffset(
+                    x = 0,
+                    y = animatedSwipeUpY.value.roundToInt(),
+                )
             }
             .graphicsLayer(alpha = 1f - (overscrollAlpha.value / 500f))
             .fillMaxSize(),
@@ -156,7 +160,10 @@ fun ShortcutScreen(
                             Column(
                                 modifier = Modifier
                                     .offset {
-                                        IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
+                                        IntOffset(
+                                            x = 0,
+                                            y = overscrollOffset.value.roundToInt(),
+                                        )
                                     }
                                     .padding(
                                         top = paddingValues.calculateTopPadding(),
@@ -236,7 +243,12 @@ private fun EblanShortcutInfoDockSearchBar(
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
                 placeholder = { Text("Search Shortcuts") },
-                leadingIcon = { Icon(EblanLauncherIcons.Search, contentDescription = null) },
+                leadingIcon = {
+                    Icon(
+                        EblanLauncherIcons.Search,
+                        contentDescription = null,
+                    )
+                },
             )
         },
         expanded = expanded,
@@ -275,52 +287,57 @@ private fun EblanApplicationInfoItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ListItem(
-        headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
-        supportingContent = {
-            Column {
-                Text(text = eblanApplicationInfo.packageName)
-
-                if (expanded) {
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    eblanShortcutInfos[eblanApplicationInfo]?.forEach { eblanShortcutInfo ->
-                        EblanShortcutInfoItem(
-                            eblanShortcutInfo = eblanShortcutInfo,
-                            drag = drag,
-                            onUpdateGridItemOffset = onUpdateGridItemOffset,
-                            onLongPressGridItem = onLongPressGridItem,
-                            page = page,
-                            gridItemSettings = gridItemSettings,
-                        )
-                    }
-                }
-            }
-        },
-        leadingContent = {
-            AsyncImage(
-                model = eblanApplicationInfo.icon,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-            )
-        },
-        trailingContent = {
-            Icon(
-                imageVector = if (expanded) {
-                    EblanLauncherIcons.ArrowDropUp
-                } else {
-                    EblanLauncherIcons.ArrowDropDown
-                },
-                contentDescription = null,
-            )
-        },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    Column(
         modifier = modifier
-            .clickable {
-                expanded = !expanded
+            .combinedClickable(
+                onClick = {
+                    expanded = !expanded
+                },
+                onLongClick = {
+                    expanded = !expanded
+                })
+            .fillMaxWidth()
+            .animateContentSize()
+    ) {
+        ListItem(
+            headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
+            supportingContent = { Text(text = eblanApplicationInfo.packageName) },
+            leadingContent = {
+                AsyncImage(
+                    model = eblanApplicationInfo.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp),
+                )
+            },
+            trailingContent = {
+                Icon(
+                    imageVector = if (expanded) {
+                        EblanLauncherIcons.ArrowDropUp
+                    } else {
+                        EblanLauncherIcons.ArrowDropDown
+                    },
+                    contentDescription = null,
+                )
+            },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        if (expanded) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            eblanShortcutInfos[eblanApplicationInfo]?.forEach { eblanShortcutInfo ->
+                EblanShortcutInfoItem(
+                    eblanShortcutInfo = eblanShortcutInfo,
+                    drag = drag,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onLongPressGridItem = onLongPressGridItem,
+                    page = page,
+                    gridItemSettings = gridItemSettings,
+                )
             }
-            .fillMaxWidth(),
-    )
+        }
+    }
 }
 
 @Composable
@@ -337,8 +354,7 @@ private fun EblanShortcutInfoItem(
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    val preview = eblanShortcutInfo.icon
-        ?: eblanShortcutInfo.eblanApplicationInfo.icon
+    val preview = eblanShortcutInfo.icon ?: eblanShortcutInfo.eblanApplicationInfo.icon
 
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -372,14 +388,13 @@ private fun EblanShortcutInfoItem(
 
                                 scale.animateTo(1f)
 
-                                val data =
-                                    GridItemData.ShortcutInfo(
-                                        shortcutId = eblanShortcutInfo.shortcutId,
-                                        packageName = eblanShortcutInfo.packageName,
-                                        shortLabel = eblanShortcutInfo.shortLabel,
-                                        longLabel = eblanShortcutInfo.longLabel,
-                                        icon = eblanShortcutInfo.icon,
-                                    )
+                                val data = GridItemData.ShortcutInfo(
+                                    shortcutId = eblanShortcutInfo.shortcutId,
+                                    packageName = eblanShortcutInfo.packageName,
+                                    shortLabel = eblanShortcutInfo.shortLabel,
+                                    longLabel = eblanShortcutInfo.longLabel,
+                                    icon = eblanShortcutInfo.icon,
+                                )
 
                                 onLongPressGridItem(
                                     page,
@@ -405,9 +420,7 @@ private fun EblanShortcutInfoItem(
                     )
                 }
                 .onGloballyPositioned { layoutCoordinates ->
-                    intOffset =
-                        layoutCoordinates.positionInRoot()
-                            .round()
+                    intOffset = layoutCoordinates.positionInRoot().round()
                 },
             model = preview,
             contentDescription = null,

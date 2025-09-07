@@ -1,8 +1,9 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -278,52 +279,57 @@ private fun EblanApplicationInfoItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ListItem(
-        headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
-        supportingContent = {
-            Column {
-                Text(text = eblanApplicationInfo.packageName)
-
-                if (expanded) {
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    eblanAppWidgetProviderInfos[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
-                        EblanAppWidgetProviderInfoItem(
-                            eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
-                            drag = drag,
-                            onUpdateGridItemOffset = onUpdateGridItemOffset,
-                            onLongPressGridItem = onLongPressGridItem,
-                            page = page,
-                            gridItemSettings = gridItemSettings,
-                        )
-                    }
-                }
-            }
-        },
-        leadingContent = {
-            AsyncImage(
-                model = eblanApplicationInfo.icon,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-            )
-        },
-        trailingContent = {
-            Icon(
-                imageVector = if (expanded) {
-                    EblanLauncherIcons.ArrowDropUp
-                } else {
-                    EblanLauncherIcons.ArrowDropDown
-                },
-                contentDescription = null,
-            )
-        },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    Column(
         modifier = modifier
-            .clickable {
-                expanded = !expanded
+            .combinedClickable(
+                onClick = {
+                    expanded = !expanded
+                },
+                onLongClick = {
+                    expanded = !expanded
+                })
+            .fillMaxWidth()
+            .animateContentSize()
+    ) {
+        ListItem(
+            headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
+            supportingContent = { Text(text = eblanApplicationInfo.packageName) },
+            leadingContent = {
+                AsyncImage(
+                    model = eblanApplicationInfo.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp),
+                )
+            },
+            trailingContent = {
+                Icon(
+                    imageVector = if (expanded) {
+                        EblanLauncherIcons.ArrowDropUp
+                    } else {
+                        EblanLauncherIcons.ArrowDropDown
+                    },
+                    contentDescription = null,
+                )
+            },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        if (expanded) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            eblanAppWidgetProviderInfos[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
+                EblanAppWidgetProviderInfoItem(
+                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
+                    drag = drag,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onLongPressGridItem = onLongPressGridItem,
+                    page = page,
+                    gridItemSettings = gridItemSettings,
+                )
             }
-            .fillMaxWidth(),
-    )
+        }
+    }
 }
 
 @OptIn(ExperimentalUuidApi::class)

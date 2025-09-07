@@ -339,15 +339,15 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
+                delay(defaultDelay)
+
                 _screen.update {
                     Screen.Folder
                 }
-            }
 
-            delay(defaultDelay)
-
-            _moveGridItemResult.update {
-                null
+                _moveGridItemResult.update {
+                    null
+                }
             }
         }
     }

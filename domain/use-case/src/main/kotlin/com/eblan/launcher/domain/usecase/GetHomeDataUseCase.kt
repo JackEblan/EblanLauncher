@@ -104,7 +104,7 @@ class GetHomeDataUseCase @Inject constructor(
                 TextColor.Light
             }
         } else {
-            getTextColorFromSystemTheme(darkThemeConfig)
+            getTextColorFromSystemTheme(darkThemeConfig = darkThemeConfig)
         }
     }
 

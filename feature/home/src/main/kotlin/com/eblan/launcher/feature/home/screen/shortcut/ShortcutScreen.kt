@@ -48,6 +48,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -430,6 +431,7 @@ private fun EblanShortcutInfoItem(
 
         Text(
             text = eblanShortcutInfo.shortLabel,
+            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,
         )
     }

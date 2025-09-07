@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -15,6 +17,7 @@ import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
+import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
@@ -47,7 +50,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getHomeDataUseCase: GetHomeDataUseCase,
+    getHomeDataUseCase: GetHomeDataUseCase,
     private val gridCacheRepository: GridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
@@ -64,6 +67,7 @@ class HomeViewModel @Inject constructor(
     getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
     getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
     getEblanShortcutInfosByLabelUseCase: GetEblanShortcutInfosByLabelUseCase,
+    getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -133,7 +137,7 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val eblanShortcutInfosByLabel =
-        _eblanAppWidgetProviderInfoLabel.filterNotNull()
+        _eblanShortcutInfoLabel.filterNotNull()
             .debounce(defaultDelay)
             .flatMapLatest { label ->
                 getEblanShortcutInfosByLabelUseCase(label = label)
@@ -142,6 +146,15 @@ class HomeViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = emptyMap(),
             )
+
+    val gridItemsCache = getGridItemsCacheUseCase().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = GridItemCache(
+            gridItemsCacheByPage = emptyMap(),
+            dockGridItemsCache = emptyList(),
+        ),
+    )
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -213,12 +226,13 @@ class HomeViewModel @Inject constructor(
 
     fun showGridCache(
         gridItems: List<GridItem>,
+        gridItemCacheType: GridItemCacheType,
         screen: Screen,
     ) {
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridItems)
 
-            gridCacheRepository.updateIsCache(isCache = true)
+            gridCacheRepository.updateGridItemCacheType(gridItemCacheType = gridItemCacheType)
 
             delay(defaultDelay)
 
@@ -278,8 +292,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             updateGridItemsAfterResizeUseCase(resizingGridItem = resizingGridItem)
 
-            gridCacheRepository.updateIsCache(isCache = false)
-
             delay(defaultDelay)
 
             _screen.update {
@@ -300,8 +312,6 @@ class HomeViewModel @Inject constructor(
                 conflictingGridItem = conflictingGridItem,
             )
 
-            gridCacheRepository.updateIsCache(isCache = false)
-
             delay(defaultDelay)
 
             _screen.update {
@@ -318,7 +328,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val lastId = _foldersDataById.value.last().id
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
 
             getFolderDataByIdUseCase(id = lastId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
@@ -336,8 +346,6 @@ class HomeViewModel @Inject constructor(
 
             delay(defaultDelay)
 
-            gridCacheRepository.updateIsCache(isCache = false)
-
             _moveGridItemResult.update {
                 null
             }
@@ -347,8 +355,6 @@ class HomeViewModel @Inject constructor(
     fun cancelGridCache() {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
-
-            gridCacheRepository.updateIsCache(isCache = false)
 
             delay(defaultDelay)
 
@@ -383,9 +389,7 @@ class HomeViewModel @Inject constructor(
 
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
-
-            gridCacheRepository.updateIsCache(isCache = false)
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
 
             delay(defaultDelay)
 
@@ -431,33 +435,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun moveGridItemOutsideFolder() {
+    fun moveGridItemOutsideFolder(gridItems: List<GridItem>) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            moveGridItemJob = launch {
-                _screen.update {
-                    Screen.Loading
-                }
-
-                delay(defaultDelay)
-
-                _foldersDataById.update {
-                    ArrayDeque()
-                }
-
-                updateGridItemsUseCase(gridItems = gridCacheRepository.gridCacheItems.first())
-
-                gridCacheRepository.updateIsCache(isCache = false)
-
-                gridCacheRepository.insertGridItems(gridItems = getHomeDataUseCase().first().gridItems)
-
-                gridCacheRepository.updateIsCache(isCache = true)
-
-                _screen.update {
-                    Screen.Drag
-                }
+            _foldersDataById.update {
+                ArrayDeque()
             }
+
+            showGridCache(
+                gridItems = gridItems,
+                gridItemCacheType = GridItemCacheType.Grid,
+                screen = Screen.Drag,
+            )
         }
     }
 
@@ -474,7 +464,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getEblanShortcutInfosByLabel(label: String) {
-        _eblanAppWidgetProviderInfoLabel.update {
+        _eblanShortcutInfoLabel.update {
             label
         }
     }

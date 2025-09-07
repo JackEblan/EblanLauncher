@@ -53,12 +53,12 @@ fun DragScreen(
     startCurrentPage: Int,
     dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
-    gridItemsByPage: Map<Int, List<GridItem>>,
+    gridItemsCacheByPage: Map<Int, List<GridItem>>,
     drag: Drag,
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
-    dockGridItems: List<GridItem>,
+    dockGridItemsCache: List<GridItem>,
     textColor: TextColor,
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
@@ -317,7 +317,7 @@ fun DragScreen(
                 rows = homeSettings.rows,
                 columns = homeSettings.columns,
             ) {
-                gridItemsByPage[page]?.forEach { gridItem ->
+                gridItemsCacheByPage[page]?.forEach { gridItem ->
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
@@ -347,7 +347,7 @@ fun DragScreen(
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
         ) {
-            dockGridItems.forEach { gridItem ->
+            dockGridItemsCache.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,

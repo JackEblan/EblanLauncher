@@ -34,7 +34,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
             val folderColumns = homeSettings.folderColumns
 
-            val gridItems = gridCacheRepository.gridCacheItems.first().toMutableList()
+            val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
 
             val movingIndex = gridItems.indexOfFirst { it.id == movingGridItem.id }
 

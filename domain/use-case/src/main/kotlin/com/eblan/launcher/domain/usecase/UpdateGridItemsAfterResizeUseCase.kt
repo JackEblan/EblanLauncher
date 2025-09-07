@@ -17,7 +17,7 @@ class UpdateGridItemsAfterResizeUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(resizingGridItem: GridItem) {
         withContext(defaultDispatcher) {
-            val gridItems = gridCacheRepository.gridCacheItems.first()
+            val gridItems = gridCacheRepository.gridItemsCache.first()
 
             when (resizingGridItem.associate) {
                 Associate.Grid -> {

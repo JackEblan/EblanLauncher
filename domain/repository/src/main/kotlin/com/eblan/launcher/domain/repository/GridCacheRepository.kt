@@ -1,13 +1,14 @@
 package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.flow.Flow
 
 interface GridCacheRepository {
-    val gridCacheItems: Flow<List<GridItem>>
+    val gridItemsCache: Flow<List<GridItem>>
 
-    val isCache: Flow<Boolean>
+    val gridItemCacheType: Flow<GridItemCacheType>
 
     fun insertGridItems(gridItems: List<GridItem>)
 
@@ -21,5 +22,5 @@ interface GridCacheRepository {
 
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 
-    fun updateIsCache(isCache: Boolean)
+    fun updateGridItemCacheType(gridItemCacheType: GridItemCacheType)
 }

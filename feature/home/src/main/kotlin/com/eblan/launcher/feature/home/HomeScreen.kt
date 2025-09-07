@@ -37,6 +37,8 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
@@ -79,6 +81,8 @@ fun HomeRoute(
 
     val eblanShortcutInfosByLabel by viewModel.eblanShortcutInfosByLabel.collectAsStateWithLifecycle()
 
+    val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -90,6 +94,7 @@ fun HomeRoute(
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
         eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
+        gridItemsCache = gridItemsCache,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -128,6 +133,7 @@ fun HomeScreen(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
+    gridItemsCache: GridItemCache,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -153,6 +159,7 @@ fun HomeScreen(
     ) -> Unit,
     onShowGridCache: (
         gridItems: List<GridItem>,
+        gridItemCacheType: GridItemCacheType,
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
@@ -180,7 +187,7 @@ fun HomeScreen(
     onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
-    onMoveOutsideFolder: () -> Unit,
+    onMoveOutsideFolder: (List<GridItem>) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
@@ -280,6 +287,7 @@ fun HomeScreen(
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
+                    gridItemsCache = gridItemsCache,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -341,6 +349,7 @@ private fun Success(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
+    gridItemsCache: GridItemCache,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -366,6 +375,7 @@ private fun Success(
     ) -> Unit,
     onShowGridCache: (
         gridItems: List<GridItem>,
+        gridItemCacheType: GridItemCacheType,
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
@@ -393,7 +403,7 @@ private fun Success(
     onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
-    onMoveOutsideFolder: () -> Unit,
+    onMoveOutsideFolder: (List<GridItem>) -> Unit,
     onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
@@ -444,20 +454,32 @@ private fun Success(
                         onShowFolder(id)
                     },
                     onDraggingGridItem = {
-                        onShowGridCache(homeData.gridItems, Screen.Drag)
+                        onShowGridCache(
+                            homeData.gridItems,
+                            GridItemCacheType.Grid,
+                            Screen.Drag,
+                        )
                     },
                     onEdit = onEdit,
                     onResize = { newTargetPage ->
                         targetPage = newTargetPage
 
-                        onShowGridCache(homeData.gridItems, Screen.Resize)
+                        onShowGridCache(
+                            homeData.gridItems,
+                            GridItemCacheType.Grid,
+                            Screen.Resize,
+                        )
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
                     onDragStartPinItemRequest = { newGridItemSource ->
                         gridItemSource = newGridItemSource
 
-                        onShowGridCache(homeData.gridItems, Screen.Drag)
+                        onShowGridCache(
+                            homeData.gridItems,
+                            GridItemCacheType.Grid,
+                            Screen.Drag,
+                        )
                     },
                     onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
                         targetPage = newCurrentPage
@@ -476,14 +498,14 @@ private fun Success(
             Screen.Drag -> {
                 DragScreen(
                     startCurrentPage = targetPage,
-                    gridItemsByPage = homeData.gridItemsByPage,
+                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     paddingValues = paddingValues,
-                    dockGridItems = homeData.dockGridItems,
+                    dockGridItemsCache = gridItemsCache.dockGridItemsCache,
                     textColor = homeData.textColor,
                     moveGridItemResult = movedGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
@@ -510,11 +532,11 @@ private fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    gridItems = homeData.gridItemsByPage[targetPage],
+                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage[targetPage],
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    dockGridItems = homeData.dockGridItems,
+                    dockGridItemsCache = gridItemsCache.dockGridItemsCache,
                     textColor = homeData.textColor,
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
@@ -567,7 +589,11 @@ private fun Success(
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onDraggingGridItem = { folderGridItems ->
-                        onShowGridCache(folderGridItems, Screen.FolderDrag)
+                        onShowGridCache(
+                            folderGridItems,
+                            GridItemCacheType.Folder,
+                            Screen.FolderDrag,
+                        )
                     },
                 )
             }
@@ -575,14 +601,14 @@ private fun Success(
             Screen.FolderDrag -> {
                 FolderDragScreen(
                     startCurrentPage = folderTargetPage,
-                    gridItemsByPage = homeData.gridItemsByPage,
+                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
                     gridItemSource = gridItemSource,
                     textColor = homeData.textColor,
                     drag = drag,
                     dragIntOffset = dragIntOffset,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    folderDataById = foldersDataById.last(),
+                    folderDataById = foldersDataById.lastOrNull(),
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
                     onMoveFolderGridItem = onMoveFolderGridItem,
@@ -596,7 +622,7 @@ private fun Success(
 
                         gridItemSource = newGridItemSource
 
-                        onMoveOutsideFolder()
+                        onMoveOutsideFolder(homeData.gridItems)
                     },
                 )
             }

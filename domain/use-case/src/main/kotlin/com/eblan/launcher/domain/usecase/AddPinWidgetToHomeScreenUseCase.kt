@@ -56,7 +56,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val dockHeight = homeSettings.dockHeight
 
-            val gridItems = gridCacheRepository.gridCacheItems.first()
+            val gridItems = gridCacheRepository.gridItemsCache.first()
 
             val previewInferred = File(
                 fileManager.getDirectory(FileManager.WIDGETS_DIR),

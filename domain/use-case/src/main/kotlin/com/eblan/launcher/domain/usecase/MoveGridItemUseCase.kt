@@ -53,7 +53,7 @@ class MoveGridItemUseCase @Inject constructor(
         gridWidth: Int,
         gridHeight: Int,
     ): MoveGridItemResult {
-        val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+        val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
             isGridItemSpanWithinBounds(
                 gridItem = gridItem,
                 rows = rows,

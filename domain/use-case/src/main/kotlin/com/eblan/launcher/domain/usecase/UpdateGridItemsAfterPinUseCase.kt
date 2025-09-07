@@ -19,7 +19,7 @@ class UpdateGridItemsAfterPinUseCase @Inject constructor(
         withContext(defaultDispatcher) {
             val initialPage = userDataRepository.userData.first().homeSettings.initialPage
 
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 gridItem.page == initialPage
             }
 

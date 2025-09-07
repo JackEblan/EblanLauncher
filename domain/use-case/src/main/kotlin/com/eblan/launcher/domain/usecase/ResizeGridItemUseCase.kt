@@ -23,7 +23,7 @@ class ResizeGridItemUseCase @Inject constructor(
         columns: Int,
     ): List<GridItem>? {
         return withContext(defaultDispatcher) {
-            val gridItems = gridCacheRepository.gridCacheItems.first().filter { gridItem ->
+            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = rows,

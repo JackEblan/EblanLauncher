@@ -40,7 +40,7 @@ import kotlinx.coroutines.delay
 fun FolderDragScreen(
     modifier: Modifier = Modifier,
     startCurrentPage: Int,
-    gridItemsByPage: Map<Int, List<GridItem>>,
+    gridItemsCacheByPage: Map<Int, List<GridItem>>,
     gridItemSource: GridItemSource?,
     textColor: TextColor,
     drag: Drag,
@@ -48,7 +48,7 @@ fun FolderDragScreen(
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
-    folderDataById: FolderDataById,
+    folderDataById: FolderDataById?,
     homeSettings: HomeSettings,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -85,7 +85,7 @@ fun FolderDragScreen(
     val horizontalPagerState = rememberPagerState(
         initialPage = startCurrentPage,
         pageCount = {
-            folderDataById.pageCount
+            folderDataById?.pageCount ?: 0
         },
     )
 
@@ -170,7 +170,7 @@ fun FolderDragScreen(
                 rows = homeSettings.folderRows,
                 columns = homeSettings.folderColumns,
             ) {
-                gridItemsByPage[index]?.forEach { gridItem ->
+                gridItemsCacheByPage[index]?.forEach { gridItem ->
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,

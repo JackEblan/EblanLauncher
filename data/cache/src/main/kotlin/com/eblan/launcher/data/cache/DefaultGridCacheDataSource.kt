@@ -3,6 +3,7 @@ package com.eblan.launcher.data.cache
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,34 +14,34 @@ import javax.inject.Inject
 
 internal class DefaultGridCacheDataSource @Inject constructor(@Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher) :
     GridCacheDataSource {
-    private val _gridCacheItems = MutableStateFlow(emptyList<GridItem>())
+    private val _gridItemsCache = MutableStateFlow(emptyList<GridItem>())
 
-    override val gridCacheItems = _gridCacheItems.asStateFlow()
+    override val gridItemsCache = _gridItemsCache.asStateFlow()
 
-    private val _isCache = MutableStateFlow(false)
+    private val _gridItemCacheType = MutableStateFlow(GridItemCacheType.Grid)
 
-    override val isCache = _isCache.asStateFlow()
+    override val gridItemCacheType = _gridItemCacheType.asStateFlow()
 
     override fun insertGridItems(gridItems: List<GridItem>) {
-        _gridCacheItems.update {
+        _gridItemsCache.update {
             gridItems
         }
     }
 
     override fun insertGridItem(gridItem: GridItem) {
-        _gridCacheItems.update { currentGridCacheItems ->
+        _gridItemsCache.update { currentGridCacheItems ->
             currentGridCacheItems + gridItem
         }
     }
 
     override suspend fun deleteGridItems(gridItems: List<GridItem>) {
-        _gridCacheItems.update { currentGridCacheItems ->
+        _gridItemsCache.update { currentGridCacheItems ->
             currentGridCacheItems - gridItems.toSet()
         }
     }
 
     override fun deleteGridItem(gridItem: GridItem) {
-        _gridCacheItems.update { currentGridCacheItems ->
+        _gridItemsCache.update { currentGridCacheItems ->
             currentGridCacheItems.toMutableList().apply {
                 removeIf { it.id == gridItem.id }
             }
@@ -49,7 +50,7 @@ internal class DefaultGridCacheDataSource @Inject constructor(@Dispatcher(EblanD
 
     override suspend fun updateGridItemData(id: String, data: GridItemData) {
         withContext(defaultDispatcher) {
-            _gridCacheItems.update { currentGridCacheItems ->
+            _gridItemsCache.update { currentGridCacheItems ->
                 currentGridCacheItems.toMutableList().apply {
                     val index = indexOfFirst { it.id == id }
 
@@ -63,7 +64,7 @@ internal class DefaultGridCacheDataSource @Inject constructor(@Dispatcher(EblanD
 
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
         withContext(defaultDispatcher) {
-            _gridCacheItems.update { currentGridCacheItems ->
+            _gridItemsCache.update { currentGridCacheItems ->
                 currentGridCacheItems.toMutableList().apply {
                     gridItems.forEach { gridItem ->
                         val index = indexOfFirst { it.id == gridItem.id }
@@ -81,9 +82,9 @@ internal class DefaultGridCacheDataSource @Inject constructor(@Dispatcher(EblanD
         }
     }
 
-    override fun updateIsCache(isCache: Boolean) {
-        _isCache.update {
-            isCache
+    override fun updateGridItemCacheType(gridItemCacheType: GridItemCacheType) {
+        _gridItemCacheType.update {
+            gridItemCacheType
         }
     }
 }

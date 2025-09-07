@@ -28,11 +28,11 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
-    gridItems: List<GridItem>?,
+    gridItemsCacheByPage: List<GridItem>?,
     gridItem: GridItem?,
     screenWidth: Int,
     screenHeight: Int,
-    dockGridItems: List<GridItem>,
+    dockGridItemsCache: List<GridItem>,
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
@@ -46,7 +46,7 @@ fun ResizeScreen(
 ) {
     requireNotNull(gridItem)
 
-    requireNotNull(gridItems)
+    requireNotNull(gridItemsCacheByPage)
 
     val density = LocalDensity.current
 
@@ -94,7 +94,7 @@ fun ResizeScreen(
             rows = homeSettings.rows,
             columns = homeSettings.columns,
         ) {
-            gridItems.forEach { gridItem ->
+            gridItemsCacheByPage.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
@@ -110,7 +110,7 @@ fun ResizeScreen(
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
         ) {
-            dockGridItems.forEach { gridItem ->
+            dockGridItemsCache.forEach { gridItem ->
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,

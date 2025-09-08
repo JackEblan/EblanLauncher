@@ -162,12 +162,12 @@ fun WidgetScreen(
                                     .offset {
                                         IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
                                     }
+                                    .matchParentSize()
                                     .padding(
                                         top = paddingValues.calculateTopPadding(),
                                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                                         end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                    )
-                                    .matchParentSize(),
+                                    ),
                             ) {
                                 EblanAppWidgetProviderInfoDockSearchBar(
                                     onQueryChange = onGetEblanAppWidgetProviderInfosByLabel,

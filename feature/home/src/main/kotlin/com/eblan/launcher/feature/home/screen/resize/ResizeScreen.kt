@@ -84,8 +84,8 @@ fun ResizeScreen(
 
     Column(
         modifier = modifier
-            .padding(paddingValues)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(paddingValues),
     ) {
         GridLayout(
             modifier = Modifier

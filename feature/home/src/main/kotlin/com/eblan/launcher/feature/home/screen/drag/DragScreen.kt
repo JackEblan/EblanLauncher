@@ -279,11 +279,11 @@ fun DragScreen(
 
     Column(
         modifier = modifier
+            .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
                 bottom = paddingValues.calculateBottomPadding(),
-            )
-            .fillMaxSize(),
+            ),
     ) {
         HorizontalPager(
             state = horizontalPagerState,
@@ -340,12 +340,12 @@ fun DragScreen(
 
         GridLayout(
             modifier = Modifier
+                .fillMaxWidth()
+                .height(dockHeightDp)
                 .padding(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                )
-                .fillMaxWidth()
-                .height(dockHeightDp),
+                ),
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
         ) {

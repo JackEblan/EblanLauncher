@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -105,14 +108,24 @@ fun EditPageScreen(
         onUpdateScreen(Screen.Pager)
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
+            )
+    ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .dragContainer(state = gridDragAndDropState)
                 .weight(1f),
             state = gridState,
-            contentPadding = paddingValues,
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+            ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -169,8 +182,12 @@ fun EditPageScreen(
         }
 
         EditPageButtons(
-            modifier = modifier,
-            paddingValues = paddingValues,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                ),
             onAddClick = {
                 currentPageItems = currentPageItems.toMutableList()
                     .apply { add(PageItem(id = size, gridItems = emptyList())) }
@@ -235,15 +252,12 @@ private fun PageButtons(
 @Composable
 private fun EditPageButtons(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
     onAddClick: () -> Unit,
     onCancelClick: () -> Unit,
     onSaveClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier
-            .padding(paddingValues)
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         Button(

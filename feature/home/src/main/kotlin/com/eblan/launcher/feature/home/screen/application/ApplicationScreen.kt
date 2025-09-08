@@ -218,12 +218,12 @@ fun ApplicationScreen(
                                     .offset {
                                         IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
                                     }
+                                    .matchParentSize()
                                     .padding(
                                         top = paddingValues.calculateTopPadding(),
                                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                                         end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                    )
-                                    .matchParentSize(),
+                                    ),
                             ) {
                                 EblanApplicationInfoDockSearchBar(
                                     page = page,
@@ -233,7 +233,6 @@ fun ApplicationScreen(
                                     appDrawerSettings = appDrawerSettings,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
-
                                     )
 
                                 LazyVerticalGrid(

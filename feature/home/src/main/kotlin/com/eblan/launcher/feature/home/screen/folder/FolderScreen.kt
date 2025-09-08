@@ -131,11 +131,11 @@ fun FolderScreen(
 
             Column(
                 modifier = modifier
+                    .fillMaxSize()
                     .padding(
                         top = paddingValues.calculateTopPadding(),
                         bottom = paddingValues.calculateBottomPadding(),
-                    )
-                    .fillMaxSize(),
+                    ),
             ) {
                 Text(
                     text = targetState.label,
@@ -152,11 +152,11 @@ fun FolderScreen(
                 ) { index ->
                     GridLayout(
                         modifier = Modifier
+                            .fillMaxSize()
                             .padding(
                                 start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                            )
-                            .fillMaxSize(),
+                            ),
                         rows = homeSettings.folderRows,
                         columns = homeSettings.folderColumns,
                     ) {

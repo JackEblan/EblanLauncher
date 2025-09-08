@@ -140,11 +140,11 @@ fun FolderDragScreen(
 
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
                 bottom = paddingValues.calculateBottomPadding(),
-            )
-            .fillMaxSize(),
+            ),
     ) {
         HorizontalPager(
             state = horizontalPagerState,

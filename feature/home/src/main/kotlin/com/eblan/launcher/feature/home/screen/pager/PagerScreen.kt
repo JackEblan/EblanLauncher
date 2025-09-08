@@ -506,11 +506,11 @@ private fun HorizontalPagerScreen(
                     },
                 )
             }
+            .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
                 bottom = paddingValues.calculateBottomPadding(),
-            )
-            .fillMaxSize(),
+            ),
     ) {
         HorizontalPager(
             state = horizontalPagerState,
@@ -524,11 +524,11 @@ private fun HorizontalPagerScreen(
 
             GridLayout(
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                         end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    )
-                    .fillMaxSize(),
+                    ),
                 rows = homeSettings.rows,
                 columns = homeSettings.columns,
             ) {
@@ -624,7 +624,8 @@ private fun HorizontalPagerScreen(
                         onTapFolderGridItem(currentPage, gridItem.id)
                     },
                     onLongPress = {
-                        val dockY = y + (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight)
+                        val dockY =
+                            y + (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 

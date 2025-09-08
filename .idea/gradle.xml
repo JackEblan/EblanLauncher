@@ -58,6 +58,7 @@
             <option value="$PROJECT_DIR$/framework/wallpaper-manager" />
             <option value="$PROJECT_DIR$/framework/widget-manager" />
             <option value="$PROJECT_DIR$/service" />
+            <option value="$PROJECT_DIR$/ui" />
           </set>
         </option>
       </GradleProjectSettings>

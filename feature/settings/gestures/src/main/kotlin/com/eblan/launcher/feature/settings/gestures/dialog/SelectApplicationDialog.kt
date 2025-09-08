@@ -36,7 +36,6 @@ fun SelectApplicationDialog(
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(10.dp)
             ) {
                 Text(text = "Select Application", style = MaterialTheme.typography.titleLarge)
 
@@ -65,6 +64,7 @@ fun SelectApplicationDialog(
                                     onDismissRequest()
                                 }
                                 .fillMaxWidth()
+                                .padding(10.dp)
                         )
                     }
                 }

@@ -1,12 +1,10 @@
 package com.eblan.launcher.feature.settings.folder
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,8 +25,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
-import com.eblan.launcher.feature.settings.folder.dialog.GridDialog
 import com.eblan.launcher.feature.settings.folder.model.FolderSettingsUiState
+import com.eblan.launcher.ui.dialog.TwoNumberTextFieldsDialog
+import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
 fun FolderSettingsRoute(
@@ -98,7 +97,7 @@ fun FolderSettingsScreen(
 }
 
 @Composable
-fun Success(
+private fun Success(
     modifier: Modifier = Modifier,
     homeSettings: HomeSettings,
     onUpdateFolderGrid: (
@@ -109,12 +108,15 @@ fun Success(
     var showGridDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Text(text = "Grid", style = MaterialTheme.typography.bodySmall)
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = "Folder Grid", style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 
         SettingsColumn(
-            title = "Grid",
+            title = "Folder Grid",
             subtitle = "Number of rows and columns",
             onClick = {
                 showGridDialog = true
@@ -123,34 +125,16 @@ fun Success(
     }
 
     if (showGridDialog) {
-        GridDialog(
-            rows = homeSettings.folderRows,
-            columns = homeSettings.folderColumns,
+        TwoNumberTextFieldsDialog(
+            title = "Folder Grid",
+            firstTextFieldTitle = "Folder Rows",
+            secondTextFieldTitle = "Folder Columns",
+            firstTextFieldValue = homeSettings.folderRows,
+            secondTextFieldValue = homeSettings.folderColumns,
             onDismissRequest = {
                 showGridDialog = false
             },
             onUpdateClick = onUpdateFolderGrid,
-        )
-    }
-}
-
-@Composable
-private fun SettingsColumn(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-    ) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
         )
     }
 }

@@ -1,13 +1,10 @@
 package com.eblan.launcher.feature.settings.general
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -23,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,9 +28,10 @@ import com.eblan.launcher.designsystem.theme.supportsDynamicTheming
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.ThemeBrand
-import com.eblan.launcher.feature.settings.general.dialog.DarkThemeConfigDialog
-import com.eblan.launcher.feature.settings.general.dialog.ThemeBrandDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
+import com.eblan.launcher.ui.dialog.RadioOptionsDialog
+import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 fun GeneralSettingsRoute(
@@ -126,7 +122,7 @@ private fun Success(
 
         SettingsColumn(
             title = "Theme Brand",
-            subtitle = generalSettings.themeBrand.getThemeBrandSubtitle(),
+            subtitle = generalSettings.themeBrand.name,
             onClick = {
                 showThemeBrandDialog = true
             },
@@ -136,7 +132,7 @@ private fun Success(
 
         SettingsColumn(
             title = "Dark Theme Config",
-            subtitle = generalSettings.darkThemeConfig.getDarkThemeConfigSubtitle(),
+            subtitle = generalSettings.darkThemeConfig.name,
             onClick = {
                 showDarkThemeConfigDialog = true
             },
@@ -144,7 +140,7 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = generalSettings.dynamicTheme,
             title = "Dynamic Theme",
             subtitle = "Dynamic theme",
@@ -154,8 +150,16 @@ private fun Success(
     }
 
     if (showThemeBrandDialog) {
-        ThemeBrandDialog(
-            themeBrand = generalSettings.themeBrand,
+        RadioOptionsDialog(
+            title = "Text Color",
+            options = listOf(
+                ThemeBrand.Green,
+                ThemeBrand.Purple,
+            ),
+            selected = generalSettings.themeBrand,
+            label = {
+                it.name
+            },
             onDismissRequest = {
                 showThemeBrandDialog = false
             },
@@ -164,86 +168,21 @@ private fun Success(
     }
 
     if (showDarkThemeConfigDialog) {
-        DarkThemeConfigDialog(
-            darkThemeConfig = generalSettings.darkThemeConfig,
+        RadioOptionsDialog(
+            title = "Text Color",
+            options = listOf(
+                DarkThemeConfig.System,
+                DarkThemeConfig.Light,
+                DarkThemeConfig.Dark,
+            ),
+            selected = generalSettings.darkThemeConfig,
+            label = {
+                it.name
+            },
             onDismissRequest = {
                 showDarkThemeConfigDialog = false
             },
             onUpdateClick = onUpdateDarkThemeConfig,
         )
-    }
-}
-
-@Composable
-private fun SettingsColumn(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-    ) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
-}
-
-@Composable
-private fun SwitchRow(
-    modifier: Modifier = Modifier,
-    checked: Boolean,
-    title: String,
-    subtitle: String,
-    enabled: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        Switch(
-            checked = checked,
-            enabled = enabled,
-            onCheckedChange = onCheckedChange,
-        )
-    }
-}
-
-@Composable
-private fun ThemeBrand.getThemeBrandSubtitle(): String {
-    return when (this) {
-        ThemeBrand.Green -> "Green"
-        ThemeBrand.Purple -> "Purple"
-    }
-}
-
-@Composable
-private fun DarkThemeConfig.getDarkThemeConfigSubtitle(): String {
-    return when (this) {
-        DarkThemeConfig.System -> "System"
-        DarkThemeConfig.Light -> "Light"
-        DarkThemeConfig.Dark -> "Dark"
     }
 }

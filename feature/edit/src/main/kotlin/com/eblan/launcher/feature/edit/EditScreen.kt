@@ -1,13 +1,10 @@
 package com.eblan.launcher.feature.edit
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -23,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,10 +26,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.edit.dialog.IconSizeDialog
-import com.eblan.launcher.feature.edit.dialog.TextColorDialog
-import com.eblan.launcher.feature.edit.dialog.TextSizeDialog
 import com.eblan.launcher.feature.edit.model.EditUiState
+import com.eblan.launcher.ui.dialog.RadioOptionsDialog
+import com.eblan.launcher.ui.dialog.SingleNumberTextFieldDialog
+import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 fun EditRoute(
@@ -104,7 +100,7 @@ fun EditScreen(
 }
 
 @Composable
-fun Success(
+private fun Success(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     onUpdateGridItem: (GridItem) -> Unit,
@@ -120,7 +116,7 @@ fun Success(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = gridItem.override,
             title = "Override",
             subtitle = "Override the Grid Item Settings",
@@ -143,7 +139,7 @@ fun Success(
 
         SettingsColumn(
             title = "Text Color",
-            subtitle = gridItem.gridItemSettings.textColor.getTextColorSubtitle(),
+            subtitle = gridItem.gridItemSettings.textColor.name,
             onClick = {
                 showTextColorDialog = true
             },
@@ -161,7 +157,7 @@ fun Success(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = gridItem.gridItemSettings.showLabel,
             title = "Show Label",
             subtitle = "Show label",
@@ -174,7 +170,7 @@ fun Success(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = gridItem.gridItemSettings.singleLineLabel,
             title = "Show Single Line Label",
             subtitle = "Show single line label",
@@ -187,8 +183,9 @@ fun Success(
     }
 
     if (showIconSizeDialog) {
-        IconSizeDialog(
-            iconSize = gridItem.gridItemSettings.iconSize,
+        SingleNumberTextFieldDialog(
+            title = "Icon Size",
+            value = gridItem.gridItemSettings.iconSize,
             onDismissRequest = {
                 showIconSizeDialog = false
             },
@@ -201,8 +198,17 @@ fun Success(
     }
 
     if (showTextColorDialog) {
-        TextColorDialog(
-            textColor = gridItem.gridItemSettings.textColor,
+        RadioOptionsDialog(
+            title = "Text Color",
+            options = listOf(
+                TextColor.System,
+                TextColor.Light,
+                TextColor.Dark
+            ),
+            selected = gridItem.gridItemSettings.textColor,
+            label = {
+                it.name
+            },
             onDismissRequest = {
                 showTextColorDialog = false
             },
@@ -215,8 +221,9 @@ fun Success(
     }
 
     if (showTextSizeDialog) {
-        TextSizeDialog(
-            textSize = gridItem.gridItemSettings.textSize,
+        SingleNumberTextFieldDialog(
+            title = "Text Size",
+            value = gridItem.gridItemSettings.textSize,
             onDismissRequest = {
                 showTextSizeDialog = false
             },
@@ -226,69 +233,5 @@ fun Success(
                 onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
             },
         )
-    }
-}
-
-@Composable
-private fun SwitchRow(
-    modifier: Modifier = Modifier,
-    checked: Boolean,
-    title: String,
-    subtitle: String,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
-    }
-}
-
-@Composable
-private fun SettingsColumn(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-    ) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
-}
-
-@Composable
-private fun TextColor.getTextColorSubtitle(): String {
-    return when (this) {
-        TextColor.System -> "System"
-        TextColor.Light -> "Light"
-        TextColor.Dark -> "Dark"
     }
 }

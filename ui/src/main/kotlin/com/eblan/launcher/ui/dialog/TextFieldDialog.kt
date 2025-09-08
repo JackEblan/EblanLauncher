@@ -1,4 +1,4 @@
-package com.eblan.launcher.feature.settings.home.dialog
+package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,20 +26,85 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun GridDialog(
+fun SingleNumberTextFieldDialog(
     modifier: Modifier = Modifier,
     title: String,
-    rows: Int,
-    columns: Int,
+    value: Int,
+    onDismissRequest: () -> Unit,
+    onUpdateClick: (Int) -> Unit,
+) {
+    var currentValue by remember { mutableStateOf("$value") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(shape = RoundedCornerShape(size = 20.dp)) {
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                Text(text = title, style = MaterialTheme.typography.titleLarge)
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TextField(
+                    value = currentValue,
+                    onValueChange = {
+                        currentValue = it
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = title)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    TextButton(
+                        onClick = onDismissRequest,
+                    ) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            try {
+                                onUpdateClick(currentValue.toInt().coerceAtLeast(10))
+                            } catch (_: NumberFormatException) {
+
+                            } finally {
+                                onDismissRequest()
+                            }
+                        },
+                    ) {
+                        Text(text = "Update")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TwoNumberTextFieldsDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    firstTextFieldTitle: String,
+    secondTextFieldTitle: String,
+    firstTextFieldValue: Int,
+    secondTextFieldValue: Int,
     onDismissRequest: () -> Unit,
     onUpdateClick: (
-        rows: Int,
-        columns: Int,
+        firstTextFieldValue: Int,
+        secondTextFieldValue: Int,
     ) -> Unit,
 ) {
-    var currentRows by remember { mutableStateOf("$rows") }
+    var currentFirstTextFieldValue by remember { mutableStateOf("$firstTextFieldValue") }
 
-    var currentColumns by remember { mutableStateOf("$columns") }
+    var currentSecondTextFieldValue by remember { mutableStateOf("$secondTextFieldValue") }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(shape = RoundedCornerShape(size = 20.dp)) {
@@ -54,13 +119,13 @@ fun GridDialog(
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     TextField(
-                        value = currentRows,
+                        value = currentFirstTextFieldValue,
                         onValueChange = {
-                            currentRows = it
+                            currentFirstTextFieldValue = it
                         },
                         modifier = Modifier.weight(1f),
                         label = {
-                            Text(text = "Rows")
+                            Text(text = firstTextFieldTitle)
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     )
@@ -68,13 +133,13 @@ fun GridDialog(
                     Spacer(modifier = Modifier.width(5.dp))
 
                     TextField(
-                        value = currentColumns,
+                        value = currentSecondTextFieldValue,
                         onValueChange = {
-                            currentColumns = it
+                            currentSecondTextFieldValue = it
                         },
                         modifier = Modifier.weight(1f),
                         label = {
-                            Text(text = "Columns")
+                            Text(text = secondTextFieldTitle)
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     )
@@ -95,8 +160,8 @@ fun GridDialog(
                         onClick = {
                             try {
                                 onUpdateClick(
-                                    currentRows.toInt().coerceAtLeast(1),
-                                    currentColumns.toInt().coerceAtLeast(1),
+                                    currentFirstTextFieldValue.toInt().coerceAtLeast(1),
+                                    currentSecondTextFieldValue.toInt().coerceAtLeast(1),
                                 )
                             } catch (_: NumberFormatException) {
 

@@ -1,13 +1,15 @@
-package com.eblan.launcher.feature.settings.appdrawer.dialog
-
+package com.eblan.launcher.ui.dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -23,76 +25,60 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.eblan.launcher.domain.model.TextColor
 
 @Composable
-fun TextColorDialog(
+fun <T> RadioOptionsDialog(
+    title: String,
     modifier: Modifier = Modifier,
-    textColor: TextColor,
+    options: List<T>,
+    selected: T,
+    label: (T) -> String,
     onDismissRequest: () -> Unit,
-    onUpdateClick: (TextColor) -> Unit,
+    onUpdateClick: (T) -> Unit,
 ) {
-    var selectedTextColor by remember { mutableStateOf(textColor) }
+    var selectedOption by remember { mutableStateOf(selected) }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface{
+        Surface(shape = RoundedCornerShape(size = 10.dp)) {
             Column(
                 modifier = modifier
                     .selectableGroup()
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(10.dp),
             ) {
-                RadioButtonContent(
-                    text = "System",
-                    selected = selectedTextColor == TextColor.System,
-                    onClick = {
-                        selectedTextColor = TextColor.System
-                    },
-                )
+                Text(text = title, style = MaterialTheme.typography.titleLarge)
 
-                RadioButtonContent(
-                    text = "Light",
-                    selected = selectedTextColor == TextColor.Light,
-                    onClick = {
-                        selectedTextColor = TextColor.Light
-                    },
-                )
-
-                RadioButtonContent(
-                    text = "Dark",
-                    selected = selectedTextColor == TextColor.Dark,
-                    onClick = {
-                        selectedTextColor = TextColor.Dark
-                    },
-                )
+                options.forEach { option ->
+                    RadioButtonRow(
+                        text = label(option),
+                        selected = selectedOption == option,
+                        onClick = { selectedOption = option }
+                    )
+                }
 
                 Row(
-                    modifier = modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(
-                        onClick = onDismissRequest,
-                    ) {
+                    TextButton(onClick = onDismissRequest) {
                         Text(text = "Cancel")
                     }
                     TextButton(
                         onClick = {
-                            onUpdateClick(selectedTextColor)
-
+                            onUpdateClick(selectedOption)
                             onDismissRequest()
                         },
                     ) {
                         Text(text = "Update")
                     }
                 }
-
             }
         }
     }
 }
 
 @Composable
-private fun RadioButtonContent(
+private fun RadioButtonRow(
     modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
@@ -114,10 +100,12 @@ private fun RadioButtonContent(
             selected = selected,
             onClick = null,
         )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp),
         )
     }
 }

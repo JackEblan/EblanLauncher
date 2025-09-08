@@ -1,13 +1,10 @@
 package com.eblan.launcher.feature.settings.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -17,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -25,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,12 +28,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.settings.home.dialog.DockHeightDialog
-import com.eblan.launcher.feature.settings.home.dialog.GridDialog
-import com.eblan.launcher.feature.settings.home.dialog.IconSizeDialog
-import com.eblan.launcher.feature.settings.home.dialog.TextColorDialog
-import com.eblan.launcher.feature.settings.home.dialog.TextSizeDialog
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
+import com.eblan.launcher.ui.dialog.RadioOptionsDialog
+import com.eblan.launcher.ui.dialog.SingleNumberTextFieldDialog
+import com.eblan.launcher.ui.dialog.TwoNumberTextFieldsDialog
+import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 fun HomeSettingsRoute(
@@ -192,7 +187,7 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
             subtitle = "Seamless loop from last page back to first",
@@ -201,7 +196,7 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = homeSettings.wallpaperScroll,
             title = "Wallpaper Scrolling",
             subtitle = "Scroll wallpaper across pages",
@@ -256,7 +251,7 @@ private fun Success(
 
         SettingsColumn(
             title = "Text Color",
-            subtitle = homeSettings.gridItemSettings.textColor.getTextColorSubtitle(),
+            subtitle = homeSettings.gridItemSettings.textColor.name,
             onClick = {
                 showTextColorDialog = true
             },
@@ -274,7 +269,7 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = homeSettings.gridItemSettings.showLabel,
             title = "Show Label",
             subtitle = "Show label",
@@ -283,7 +278,7 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SwitchRow(
+        SettingsSwitch(
             checked = homeSettings.gridItemSettings.singleLineLabel,
             title = "Single Line Label",
             subtitle = "Show single line label",
@@ -292,10 +287,12 @@ private fun Success(
     }
 
     if (showGridDialog) {
-        GridDialog(
+        TwoNumberTextFieldsDialog(
             title = "Grid",
-            rows = homeSettings.rows,
-            columns = homeSettings.columns,
+            firstTextFieldTitle = "Rows",
+            secondTextFieldTitle = "Columns",
+            firstTextFieldValue = homeSettings.rows,
+            secondTextFieldValue = homeSettings.columns,
             onDismissRequest = {
                 showGridDialog = false
             },
@@ -304,10 +301,12 @@ private fun Success(
     }
 
     if (showDockGridDialog) {
-        GridDialog(
+        TwoNumberTextFieldsDialog(
             title = "Dock Grid",
-            rows = homeSettings.dockRows,
-            columns = homeSettings.dockColumns,
+            firstTextFieldTitle = "Dock Rows",
+            secondTextFieldTitle = "Dock Columns",
+            firstTextFieldValue = homeSettings.dockRows,
+            secondTextFieldValue = homeSettings.dockColumns,
             onDismissRequest = {
                 showDockGridDialog = false
             },
@@ -316,8 +315,9 @@ private fun Success(
     }
 
     if (showDockHeightDialog) {
-        DockHeightDialog(
-            dockHeight = homeSettings.dockHeight,
+        SingleNumberTextFieldDialog(
+            title = "Dock Height",
+            value = homeSettings.dockHeight,
             onDismissRequest = {
                 showDockHeightDialog = false
             },
@@ -326,8 +326,9 @@ private fun Success(
     }
 
     if (showIconSizeDialog) {
-        IconSizeDialog(
-            iconSize = homeSettings.gridItemSettings.iconSize,
+        SingleNumberTextFieldDialog(
+            title = "Icon Size",
+            value = homeSettings.gridItemSettings.iconSize,
             onDismissRequest = {
                 showIconSizeDialog = false
             },
@@ -336,8 +337,17 @@ private fun Success(
     }
 
     if (showTextColorDialog) {
-        TextColorDialog(
-            textColor = homeSettings.gridItemSettings.textColor,
+        RadioOptionsDialog(
+            title = "Text Color",
+            options = listOf(
+                TextColor.System,
+                TextColor.Light,
+                TextColor.Dark
+            ),
+            selected = homeSettings.gridItemSettings.textColor,
+            label = {
+                it.name
+            },
             onDismissRequest = {
                 showTextColorDialog = false
             },
@@ -346,83 +356,13 @@ private fun Success(
     }
 
     if (showTextSizeDialog) {
-        TextSizeDialog(
-            textSize = homeSettings.gridItemSettings.textSize,
+        SingleNumberTextFieldDialog(
+            title = "Text Size",
+            value = homeSettings.gridItemSettings.textSize,
             onDismissRequest = {
                 showTextSizeDialog = false
             },
             onUpdateClick = onUpdateTextSize,
         )
-    }
-}
-
-@Composable
-private fun SwitchRow(
-    modifier: Modifier = Modifier,
-    checked: Boolean,
-    title: String,
-    subtitle: String,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .clickable(onClick = {
-                onCheckedChange(!checked)
-            })
-            .fillMaxWidth()
-            .padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
-    }
-}
-
-@Composable
-private fun SettingsColumn(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .fillMaxWidth()
-            .padding(5.dp),
-    ) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodySmall,
-        )
-    }
-}
-
-@Composable
-private fun TextColor.getTextColorSubtitle(): String {
-    return when (this) {
-        TextColor.System -> "System"
-        TextColor.Light -> "Light"
-        TextColor.Dark -> "Dark"
     }
 }

@@ -346,7 +346,7 @@ private fun EblanApplicationInfoDockSearchBar(
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
                 EblanApplicationInfoItem(

@@ -128,10 +128,10 @@ fun DragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
-    val pageIndicatorSize = 5.dp
+    val pageIndicatorHeight = 20.dp
 
-    val pageIndicatorSizePx = with(density) {
-        pageIndicatorSize.roundToPx()
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
     }
 
     val targetPage by remember {
@@ -183,7 +183,7 @@ fun DragScreen(
             dragIntOffset = dragIntOffset,
             screenWidth = screenWidth,
             screenHeight = screenHeight,
-            pageIndicatorSize = pageIndicatorSizePx,
+            pageIndicatorHeight = pageIndicatorHeightPx,
             dockHeight = homeSettings.dockHeight,
             gridPadding = gridPadding,
             rows = homeSettings.rows,
@@ -331,9 +331,11 @@ fun DragScreen(
         }
 
         PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
             pageCount = homeSettings.pageCount,
             currentPage = targetPage,
-            pageIndicatorSize = pageIndicatorSize,
         )
 
         GridLayout(

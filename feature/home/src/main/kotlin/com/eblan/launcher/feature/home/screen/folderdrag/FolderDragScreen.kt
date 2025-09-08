@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -76,10 +78,10 @@ fun FolderDragScreen(
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
-    val pageIndicatorSize = 5.dp
+    val pageIndicatorHeight = 20.dp
 
-    val pageIndicatorSizePx = with(density) {
-        pageIndicatorSize.roundToPx()
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
     }
 
     val horizontalPagerState = rememberPagerState(
@@ -99,7 +101,7 @@ fun FolderDragScreen(
             screenHeight = screenHeight,
             gridPadding = gridPaddingPx,
             screenWidth = screenWidth,
-            pageIndicatorSize = pageIndicatorSizePx,
+            pageIndicatorHeight = pageIndicatorHeightPx,
             columns = homeSettings.folderColumns,
             rows = homeSettings.folderRows,
             isScrollInProgress = horizontalPagerState.isScrollInProgress,
@@ -184,9 +186,11 @@ fun FolderDragScreen(
         }
 
         PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
             pageCount = horizontalPagerState.pageCount,
             currentPage = horizontalPagerState.currentPage,
-            pageIndicatorSize = pageIndicatorSize,
         )
     }
 }

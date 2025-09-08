@@ -447,10 +447,10 @@ private fun HorizontalPagerScreen(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
-    val pageIndicatorSize = 5.dp
+    val pageIndicatorHeight = 30.dp
 
-    val pageIndicatorSizePx = with(density) {
-        pageIndicatorSize.roundToPx()
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
     }
 
     LaunchedEffect(key1 = drag) {
@@ -536,7 +536,7 @@ private fun HorizontalPagerScreen(
                     val cellWidth = gridWidth / homeSettings.columns
 
                     val cellHeight =
-                        (gridHeight - pageIndicatorSizePx - homeSettings.dockHeight) / homeSettings.rows
+                        (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight) / homeSettings.rows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -581,9 +581,11 @@ private fun HorizontalPagerScreen(
         }
 
         PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
-            pageIndicatorSize = pageIndicatorSize,
         )
 
         GridLayout(
@@ -622,7 +624,7 @@ private fun HorizontalPagerScreen(
                         onTapFolderGridItem(currentPage, gridItem.id)
                     },
                     onLongPress = {
-                        val dockY = y + (gridHeight - pageIndicatorSizePx - homeSettings.dockHeight)
+                        val dockY = y + (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 

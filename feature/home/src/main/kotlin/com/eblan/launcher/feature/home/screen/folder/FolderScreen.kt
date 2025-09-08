@@ -7,13 +7,19 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
@@ -86,11 +92,7 @@ fun FolderScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    val titleHeightDp = 30.dp
-
-    val titleHeightPx = with(density) {
-        titleHeightDp.roundToPx()
-    }
+    var titleHeight by remember { mutableIntStateOf(0) }
 
     val folderDataById = foldersDataById.lastOrNull()
 
@@ -112,10 +114,10 @@ fun FolderScreen(
         }
     }
 
-    val pageIndicatorSize = 5.dp
+    val pageIndicatorHeight = 30.dp
 
-    val pageIndicatorSizePx = with(density) {
-        pageIndicatorSize.roundToPx()
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
     }
 
     if (folderDataById != null) {
@@ -136,9 +138,12 @@ fun FolderScreen(
                     .fillMaxSize(),
             ) {
                 Text(
-                    modifier = Modifier.height(titleHeightDp),
                     text = targetState.label,
                     color = getSystemTextColor(textColor = textColor),
+                    style = MaterialTheme.typography.titleLarge,
+                    onTextLayout = { textLayoutResult ->
+                        titleHeight = textLayoutResult.size.height
+                    }
                 )
 
                 HorizontalPager(
@@ -159,7 +164,7 @@ fun FolderScreen(
                             val cellWidth = gridWidth / homeSettings.folderColumns
 
                             val cellHeight =
-                                (gridHeight - pageIndicatorSizePx - titleHeightPx) / homeSettings.folderRows
+                                (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
 
                             val x = gridItem.startColumn * cellWidth
 
@@ -182,7 +187,7 @@ fun FolderScreen(
                                     onUpdateGridItemOffset(
                                         IntOffset(
                                             x = x + leftPadding,
-                                            y = y + (topPadding + titleHeightPx),
+                                            y = y + (topPadding + titleHeight),
                                         ),
                                     )
                                 },
@@ -199,9 +204,11 @@ fun FolderScreen(
                 }
 
                 PageIndicator(
+                    modifier = Modifier
+                        .height(pageIndicatorHeight)
+                        .fillMaxWidth(),
                     pageCount = horizontalPagerState.pageCount,
                     currentPage = horizontalPagerState.currentPage,
-                    pageIndicatorSize = pageIndicatorSize,
                 )
             }
         }

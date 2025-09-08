@@ -78,7 +78,7 @@ fun AppDrawerSettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "AppDrawer")
+                    Text(text = "App Drawer")
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {

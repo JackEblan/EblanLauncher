@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 
@@ -30,62 +33,71 @@ fun SettingsMenu(
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 2.dp,
         content = {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Row(modifier = Modifier.clickable(onClick = onSettings)) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Settings,
-                        contentDescription = null,
-                    )
-
-                    Text(text = "Settings")
-                }
+            Column {
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Settings,
+                    title = "Settings",
+                    onClick = onSettings
+                )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Row(modifier = Modifier.clickable(onClick = onEditPage)) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Pages,
-                        contentDescription = null,
-                    )
-
-                    Text(text = "Edit Pages")
-                }
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Pages,
+                    title = "Edit Pages",
+                    onClick = onEditPage
+                )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Row(modifier = Modifier.clickable(onClick = onWidgets)) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Widgets,
-                        contentDescription = null,
-                    )
-
-                    Text(text = "Widgets")
-                }
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Widgets,
+                    title = "Widgets",
+                    onClick = onWidgets
+                )
 
                 if (hasShortcutHostPermission) {
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    Row(modifier = Modifier.clickable(onClick = onShortcuts)) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Shortcut,
-                            contentDescription = null,
-                        )
-
-                        Text(text = "Shortcuts")
-                    }
+                    PopupMenuRow(
+                        imageVector = EblanLauncherIcons.Shortcut,
+                        title = "Shortcuts",
+                        onClick = onShortcuts
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Row(modifier = Modifier.clickable(onClick = onWallpaper)) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Image,
-                        contentDescription = null,
-                    )
-
-                    Text(text = "Wallpaper")
-                }
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Image,
+                    title = "Wallpaper",
+                    onClick = onWallpaper
+                )
             }
         },
     )
+}
+
+@Composable
+private fun PopupMenuRow(
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector,
+    title: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = null,
+        )
+
+        Spacer(modifier = Modifier.width(2.dp))
+
+        Text(text = title)
+    }
 }

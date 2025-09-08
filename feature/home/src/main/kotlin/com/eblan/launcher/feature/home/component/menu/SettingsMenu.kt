@@ -88,6 +88,7 @@ private fun PopupMenuRow(
     Row(
         modifier = modifier
             .clickable(onClick = onClick)
+            .width(150.dp)
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -96,7 +97,7 @@ private fun PopupMenuRow(
             contentDescription = null,
         )
 
-        Spacer(modifier = Modifier.width(2.dp))
+        Spacer(modifier = Modifier.width(10.dp))
 
         Text(text = title)
     }

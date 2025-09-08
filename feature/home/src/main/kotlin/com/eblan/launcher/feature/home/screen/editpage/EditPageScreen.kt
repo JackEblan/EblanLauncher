@@ -108,14 +108,7 @@ fun EditPageScreen(
         onUpdateScreen(Screen.Pager)
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(
-                top = paddingValues.calculateTopPadding(),
-                bottom = paddingValues.calculateBottomPadding(),
-            )
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
@@ -123,6 +116,7 @@ fun EditPageScreen(
                 .weight(1f),
             state = gridState,
             contentPadding = PaddingValues(
+                top = paddingValues.calculateTopPadding(),
                 start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
@@ -187,6 +181,7 @@ fun EditPageScreen(
                 .padding(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = paddingValues.calculateBottomPadding(),
                 ),
             onAddClick = {
                 currentPageItems = currentPageItems.toMutableList()

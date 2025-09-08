@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -59,7 +58,6 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
@@ -68,6 +66,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -398,19 +397,7 @@ private fun EblanApplicationInfoItem(
 
     val density = LocalDensity.current
 
-    val textColor = when (appDrawerSettings.gridItemSettings.textColor) {
-        TextColor.System -> {
-            Color.Unspecified
-        }
-
-        TextColor.Light -> {
-            Color.White
-        }
-
-        TextColor.Dark -> {
-            Color.Black
-        }
-    }
+    val textColor = getSystemTextColor(textColor = appDrawerSettings.gridItemSettings.textColor)
 
     val appDrawerRowsHeightDp = with(density) {
         appDrawerSettings.appDrawerRowsHeight.toDp()

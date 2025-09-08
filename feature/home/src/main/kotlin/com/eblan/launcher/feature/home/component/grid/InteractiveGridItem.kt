@@ -5,7 +5,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -456,6 +454,7 @@ private fun FolderGridItem(
             FlowRow(
                 modifier = Modifier.size(iconSizeDp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,
                 maxLines = 2,
             ) {
@@ -464,9 +463,7 @@ private fun FolderGridItem(
                         (gridItemSettings.iconSize * 0.25).toInt().toDp()
                     }
 
-                    val gridItemModifier = Modifier
-                        .padding(2.dp)
-                        .size(gridItemIconSizeDp)
+                    val gridItemModifier = Modifier.size(gridItemIconSizeDp)
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {

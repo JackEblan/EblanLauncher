@@ -34,7 +34,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         textColorProto = TextColorProto.TextColorSystem
         textSize = 30
         showLabel = true
-        singleLineLabel = false
+        singleLineLabel = true
     }.build()
 
     private val defaultHomeSettingsProto = HomeSettingsProto.newBuilder().apply {
@@ -54,7 +54,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
 
     private val defaultAppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().apply {
         appDrawerColumns = 5
-        appDrawerRowsHeight = 300
+        appDrawerRowsHeight = 400
         gridItemSettingsProto = defaultGridItemSettingsProto
     }.build()
 

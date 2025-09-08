@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
@@ -132,7 +133,7 @@ private fun Success(
     Column(modifier = modifier.fillMaxSize()) {
         GestureColumn(
             title = "Double tap",
-            subtitle = gestureSettings.doubleTap.getSubtitle(),
+            subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
             onClick = {
                 showDoubleTapBottomSheet = true
             },
@@ -142,7 +143,7 @@ private fun Success(
 
         GestureColumn(
             title = "Swipe up",
-            subtitle = gestureSettings.swipeUp.getSubtitle(),
+            subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
             onClick = {
                 showSwipeUpBottomSheet = true
             },
@@ -152,7 +153,7 @@ private fun Success(
 
         GestureColumn(
             title = "Swipe down",
-            subtitle = gestureSettings.swipeDown.getSubtitle(),
+            subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
             onClick = {
                 showSwipeDownBottomSheet = true
             },
@@ -161,6 +162,7 @@ private fun Success(
 
     if (showDoubleTapBottomSheet) {
         BottomSheetContent(
+            title = "Double Tap",
             gestureAction = gestureSettings.doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = onUpdateDoubleTapGestureAction,
@@ -172,6 +174,7 @@ private fun Success(
 
     if (showSwipeUpBottomSheet) {
         BottomSheetContent(
+            title = "Swipe Up",
             gestureAction = gestureSettings.swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = onUpdateSwipeUpGestureAction,
@@ -183,6 +186,7 @@ private fun Success(
 
     if (showSwipeDownBottomSheet) {
         BottomSheetContent(
+            title = "Swipe Down",
             gestureAction = gestureSettings.swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = onUpdateSwipeDownGestureAction,
@@ -197,6 +201,7 @@ private fun Success(
 @Composable
 private fun BottomSheetContent(
     modifier: Modifier = Modifier,
+    title: String,
     gestureAction: GestureAction,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onUpdateGestureAction: (GestureAction) -> Unit,
@@ -217,6 +222,10 @@ private fun BottomSheetContent(
         onDismissRequest = onDismiss,
     ) {
         Column(modifier = modifier.fillMaxWidth()) {
+            Text(text = title)
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             Column(
                 modifier = Modifier
                     .selectableGroup()
@@ -256,34 +265,42 @@ private fun BottomSheetContent(
             }
         }
 
-        Button(
-            onClick = {
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            onDismiss()
-                        }
-                    }
-            },
+        Row(
+            modifier = Modifier
+                .align(Alignment.End)
+                .fillMaxWidth()
         ) {
-            Text("Cancel")
-        }
-
-        Button(
-            onClick = {
-                onUpdateGestureAction(selectedGestureAction)
-
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            onDismiss()
+            Button(
+                onClick = {
+                    scope
+                        .launch { sheetState.hide() }
+                        .invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onDismiss()
+                            }
                         }
-                    }
-            },
-        ) {
-            Text("Save")
+                },
+            ) {
+                Text("Cancel")
+            }
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Button(
+                onClick = {
+                    onUpdateGestureAction(selectedGestureAction)
+
+                    scope
+                        .launch { sheetState.hide() }
+                        .invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onDismiss()
+                            }
+                        }
+                },
+            ) {
+                Text("Save")
+            }
         }
     }
 
@@ -325,6 +342,7 @@ private fun RadioButtonContent(
             selected = selected,
             onClick = null,
         )
+
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
@@ -342,10 +360,13 @@ private fun GestureColumn(
 ) {
     Column(
         modifier = modifier
+            .clickable(onClick = onClick)
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .padding(5.dp),
     ) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
+
+        Spacer(modifier = Modifier.height(5.dp))
 
         Text(
             text = subtitle,
@@ -355,7 +376,7 @@ private fun GestureColumn(
 }
 
 @Composable
-private fun GestureAction.getSubtitle(): String {
+private fun GestureAction.getGestureActionSubtitle(): String {
     return when (this) {
         GestureAction.None -> "None"
         is GestureAction.OpenApp -> "Open $componentName"

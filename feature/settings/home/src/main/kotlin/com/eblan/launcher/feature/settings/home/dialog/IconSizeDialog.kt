@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,13 +34,13 @@ fun IconSizeDialog(
     var currentValue by remember { mutableStateOf("$iconSize") }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = RoundedCornerShape(size = 10.dp)) {
+        Surface(shape = RoundedCornerShape(size = 20.dp)) {
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(5.dp)
+                    .padding(10.dp)
             ) {
-                Text(text = "Icon Size")
+                Text(text = "Icon Size", style = MaterialTheme.typography.titleLarge)
 
                 Spacer(modifier = Modifier.height(10.dp))
 

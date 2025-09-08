@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,15 +38,14 @@ fun TextColorDialog(
     var selectedTextColor by remember { mutableStateOf(textColor) }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = RoundedCornerShape(size = 10.dp)){
+        Surface(shape = RoundedCornerShape(size = 10.dp)) {
             Column(
                 modifier = modifier
                     .selectableGroup()
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(10.dp),
             ) {
-                Text(text = "Text Color")
-
-                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = "Text Color", style = MaterialTheme.typography.titleLarge)
 
                 RadioButtonContent(
                     text = "System",
@@ -119,10 +119,12 @@ private fun RadioButtonContent(
             selected = selected,
             onClick = null,
         )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp),
         )
     }
 }

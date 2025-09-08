@@ -2,12 +2,14 @@ package com.eblan.launcher.feature.settings.gestures.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,15 +30,24 @@ fun SelectApplicationDialog(
     onUpdateGestureAction: (GestureAction.OpenApp) -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = modifier.fillMaxWidth(),
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
+        Surface(shape = RoundedCornerShape(size = 10.dp)) {
+            Column(modifier = modifier.fillMaxWidth()) {
                 Text(text = "Select Application")
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(eblanApplicationInfos) { eblanApplicationInfo ->
-                        Row(
+                        ListItem(
+                            headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
+                            supportingContent = { Text(text = eblanApplicationInfo.componentName.toString()) },
+                            leadingContent = {
+                                AsyncImage(
+                                    model = eblanApplicationInfo.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp),
+                                )
+                            },
                             modifier = Modifier
                                 .clickable {
                                     val componentName = eblanApplicationInfo.componentName
@@ -47,24 +58,12 @@ fun SelectApplicationDialog(
 
                                     onDismissRequest()
                                 }
-                                .fillMaxWidth(),
-                        ) {
-                            AsyncImage(
-                                modifier = Modifier.size(40.dp),
-                                model = eblanApplicationInfo.icon, contentDescription = null,
-                            )
-
-                            Column {
-                                Text(text = eblanApplicationInfo.label.toString())
-
-                                Text(
-                                    text = eblanApplicationInfo.componentName.toString(),
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                        }
+                                .fillMaxWidth()
+                        )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 TextButton(
                     modifier = Modifier.align(Alignment.End),

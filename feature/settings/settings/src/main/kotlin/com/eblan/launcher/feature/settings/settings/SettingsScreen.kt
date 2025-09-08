@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -115,7 +116,7 @@ fun SettingsScreen(
 }
 
 @Composable
-fun Success(
+private fun Success(
     modifier: Modifier = Modifier,
     onGeneral: () -> Unit,
     onHome: () -> Unit,
@@ -131,7 +132,7 @@ fun Success(
         SettingsRow(
             imageVector = EblanLauncherIcons.Settings,
             title = "General",
-            subtitle = "Colors, icon packs",
+            subtitle = "Themes, icon packs",
             onClick = onGeneral,
         )
 
@@ -167,7 +168,7 @@ fun Success(
         SettingsRow(
             imageVector = EblanLauncherIcons.Gesture,
             title = "Gestures",
-            subtitle = "Grid, icon, dock, and more",
+            subtitle = "Swipe gesture actions",
             onClick = onGestures,
         )
     }
@@ -183,8 +184,9 @@ private fun SettingsRow(
 ) {
     Row(
         modifier = modifier
+            .clickable(onClick = onClick)
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -193,11 +195,12 @@ private fun SettingsRow(
             modifier = Modifier.size(40.dp),
         )
 
-        Column(
-            modifier = Modifier
-                .weight(1f),
-        ) {
+        Spacer(modifier = Modifier.width(5.dp))
+
+        Column {
             Text(text = title)
+
+            Spacer(modifier = Modifier.height(5.dp))
 
             Text(text = subtitle)
         }

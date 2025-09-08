@@ -175,7 +175,10 @@ private fun Success(
             .verticalScroll(rememberScrollState())
             .fillMaxSize()
     ) {
-        Text(text = "Grid", style = MaterialTheme.typography.bodySmall)
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = "Grid", style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -192,7 +195,7 @@ private fun Success(
         SwitchRow(
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
-            subtitle = "Scrolling at the end returns to first page",
+            subtitle = "Seamless loop from last page back to first",
             onCheckedChange = onUpdateInfiniteScroll,
         )
 
@@ -201,13 +204,16 @@ private fun Success(
         SwitchRow(
             checked = homeSettings.wallpaperScroll,
             title = "Wallpaper Scrolling",
-            subtitle = "Scroll the wallpaper as you go through pages",
+            subtitle = "Scroll wallpaper across pages",
             onCheckedChange = onUpdateWallpaperScroll,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(text = "Dock", style = MaterialTheme.typography.bodySmall)
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = "Dock", style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -231,7 +237,10 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(text = "Grid Item", style = MaterialTheme.typography.bodySmall)
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = "Grid Item", style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -284,6 +293,7 @@ private fun Success(
 
     if (showGridDialog) {
         GridDialog(
+            title = "Grid",
             rows = homeSettings.rows,
             columns = homeSettings.columns,
             onDismissRequest = {
@@ -295,6 +305,7 @@ private fun Success(
 
     if (showDockGridDialog) {
         GridDialog(
+            title = "Dock Grid",
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
             onDismissRequest = {

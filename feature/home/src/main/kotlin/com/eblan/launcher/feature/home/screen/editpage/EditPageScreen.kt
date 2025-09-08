@@ -256,15 +256,15 @@ private fun EditPageButtons(
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         Button(
-            onClick = onAddClick,
-        ) {
-            Text(text = "Add")
-        }
-
-        Button(
             onClick = onCancelClick,
         ) {
             Text(text = "Cancel")
+        }
+
+        Button(
+            onClick = onAddClick,
+        ) {
+            Text(text = "Add")
         }
 
         Button(

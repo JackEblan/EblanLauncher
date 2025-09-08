@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +28,7 @@ import androidx.compose.ui.window.Dialog
 @Composable
 fun GridDialog(
     modifier: Modifier = Modifier,
+    title: String,
     rows: Int,
     columns: Int,
     onDismissRequest: () -> Unit,
@@ -40,13 +42,13 @@ fun GridDialog(
     var currentColumns by remember { mutableStateOf("$columns") }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = RoundedCornerShape(size = 10.dp)) {
+        Surface(shape = RoundedCornerShape(size = 20.dp)) {
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(5.dp)
+                    .padding(10.dp)
             ) {
-                Text(text = "Grid")
+                Text(text = title, style = MaterialTheme.typography.titleLarge)
 
                 Spacer(modifier = Modifier.height(10.dp))
 

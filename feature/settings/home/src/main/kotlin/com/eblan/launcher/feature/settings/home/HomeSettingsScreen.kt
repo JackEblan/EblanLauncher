@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -136,7 +138,7 @@ fun HomeSettingsScreen(
 }
 
 @Composable
-fun Success(
+private fun Success(
     modifier: Modifier = Modifier,
     homeSettings: HomeSettings,
     onUpdateGrid: (
@@ -168,7 +170,11 @@ fun Success(
 
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxSize()
+    ) {
         Text(text = "Grid", style = MaterialTheme.typography.bodySmall)
 
         Spacer(modifier = Modifier.height(5.dp))
@@ -184,7 +190,6 @@ fun Success(
         Spacer(modifier = Modifier.height(10.dp))
 
         SwitchRow(
-            modifier = modifier,
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
             subtitle = "Scrolling at the end returns to first page",
@@ -194,7 +199,6 @@ fun Success(
         Spacer(modifier = Modifier.height(10.dp))
 
         SwitchRow(
-            modifier = modifier,
             checked = homeSettings.wallpaperScroll,
             title = "Wallpaper Scrolling",
             subtitle = "Scroll the wallpaper as you go through pages",
@@ -262,17 +266,15 @@ fun Success(
         Spacer(modifier = Modifier.height(10.dp))
 
         SwitchRow(
-            modifier = modifier,
             checked = homeSettings.gridItemSettings.showLabel,
             title = "Show Label",
-            subtitle = "Show the label",
+            subtitle = "Show label",
             onCheckedChange = onUpdateShowLabel,
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         SwitchRow(
-            modifier = modifier,
             checked = homeSettings.gridItemSettings.singleLineLabel,
             title = "Single Line Label",
             subtitle = "Show single line label",
@@ -353,7 +355,11 @@ private fun SwitchRow(
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth(),
+            .clickable(onClick = {
+                onCheckedChange(!checked)
+            })
+            .fillMaxWidth()
+            .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -386,10 +392,13 @@ private fun SettingsColumn(
 ) {
     Column(
         modifier = modifier
+            .clickable(onClick = onClick)
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .padding(5.dp),
     ) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
+
+        Spacer(modifier = Modifier.height(5.dp))
 
         Text(
             text = subtitle,

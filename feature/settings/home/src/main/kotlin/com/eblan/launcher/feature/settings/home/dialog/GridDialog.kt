@@ -3,7 +3,12 @@ package com.eblan.launcher.feature.settings.home.dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
@@ -34,9 +40,15 @@ fun GridDialog(
     var currentColumns by remember { mutableStateOf("$columns") }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface {
-            Column(modifier = modifier.fillMaxWidth()) {
+        Surface(shape = RoundedCornerShape(size = 10.dp)) {
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            ) {
                 Text(text = "Grid")
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     TextField(
@@ -51,6 +63,8 @@ fun GridDialog(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     )
 
+                    Spacer(modifier = Modifier.width(5.dp))
+
                     TextField(
                         value = currentColumns,
                         onValueChange = {
@@ -64,9 +78,10 @@ fun GridDialog(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(10.dp))
+
                 Row(
-                    modifier = modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     TextButton(
@@ -76,12 +91,16 @@ fun GridDialog(
                     }
                     TextButton(
                         onClick = {
-                            onUpdateClick(
-                                currentRows.toInt().coerceAtLeast(1),
-                                currentColumns.toInt().coerceAtLeast(1),
-                            )
+                            try {
+                                onUpdateClick(
+                                    currentRows.toInt().coerceAtLeast(1),
+                                    currentColumns.toInt().coerceAtLeast(1),
+                                )
+                            } catch (_: NumberFormatException) {
 
-                            onDismissRequest()
+                            } finally {
+                                onDismissRequest()
+                            }
                         },
                     ) {
                         Text(text = "Update")

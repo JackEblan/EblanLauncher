@@ -3,11 +3,13 @@ package com.eblan.launcher.feature.settings.home.dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -35,12 +37,16 @@ fun TextColorDialog(
     var selectedTextColor by remember { mutableStateOf(textColor) }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface{
+        Surface(shape = RoundedCornerShape(size = 10.dp)){
             Column(
                 modifier = modifier
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
+                Text(text = "Text Color")
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 RadioButtonContent(
                     text = "System",
                     selected = selectedTextColor == TextColor.System,
@@ -66,8 +72,7 @@ fun TextColorDialog(
                 )
 
                 Row(
-                    modifier = modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     TextButton(

@@ -148,7 +148,10 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(text = "Grid Item", style = MaterialTheme.typography.bodySmall)
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = "Grid Item", style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 

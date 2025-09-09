@@ -112,7 +112,19 @@ private fun Success(
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Text(text = "Grid Item", style = MaterialTheme.typography.bodySmall)
+        SettingsColumn(
+            title = "Edit Label",
+            subtitle = "Edit label",
+            onClick = {
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            modifier = Modifier.padding(5.dp),
+            text = "Grid Item", style = MaterialTheme.typography.bodySmall
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 

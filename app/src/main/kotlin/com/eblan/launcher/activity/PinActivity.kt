@@ -11,10 +11,6 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eblan.launcher.designsystem.local.LocalAppWidgetHost
-import com.eblan.launcher.designsystem.local.LocalAppWidgetManager
-import com.eblan.launcher.designsystem.local.LocalLauncherApps
-import com.eblan.launcher.designsystem.local.LocalPinItemRequest
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.feature.pin.PinScreen
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -22,6 +18,10 @@ import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.PinActivityUiState
+import com.eblan.launcher.ui.local.LocalAppWidgetHost
+import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.viewmodel.PinActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

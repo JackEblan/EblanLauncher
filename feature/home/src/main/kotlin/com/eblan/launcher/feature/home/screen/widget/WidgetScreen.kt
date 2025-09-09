@@ -247,7 +247,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
-        LazyColumn(modifier = Modifier.fillMaxWidth(),) {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
                 EblanApplicationInfoItem(
                     eblanApplicationInfo = eblanApplicationInfo,

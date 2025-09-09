@@ -26,6 +26,11 @@ android {
 }
 
 dependencies {
+    api(projects.framework.launcherApps)
+    api(projects.framework.wallpaperManager)
+    api(projects.framework.widgetManager)
+
     implementation(projects.designSystem)
+    implementation(projects.domain.framework)
     implementation(projects.domain.model)
 }

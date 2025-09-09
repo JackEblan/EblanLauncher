@@ -1,4 +1,4 @@
-package com.eblan.launcher.designsystem.local
+package com.eblan.launcher.ui.local
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.eblan.launcher.domain.framework.FileManager

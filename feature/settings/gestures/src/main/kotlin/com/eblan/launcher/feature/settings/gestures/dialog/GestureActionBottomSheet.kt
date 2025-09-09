@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,10 +50,10 @@ fun GestureActionBottomSheet(
     var selectedComponentName by remember { mutableStateOf("app") }
 
     val options = listOf(
-        GestureAction.None to "None",
-        GestureAction.OpenAppDrawer to "Open App Drawer",
-        GestureAction.OpenNotificationPanel to "Open Notification Panel",
-        GestureAction.OpenApp(componentName = selectedComponentName) to "Open App",
+        GestureAction.None,
+        GestureAction.OpenAppDrawer,
+        GestureAction.OpenNotificationPanel,
+        GestureAction.OpenApp(componentName = selectedComponentName),
     )
 
     ModalBottomSheet(
@@ -75,11 +76,26 @@ fun GestureActionBottomSheet(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                options.forEach { (gestureActionClass, label) ->
+                options.forEach { gestureActionClass ->
+                    val label by remember {
+                        derivedStateOf {
+                            when (gestureActionClass) {
+                                GestureAction.None -> "None"
+                                is GestureAction.OpenApp -> "Open $selectedComponentName"
+                                GestureAction.OpenAppDrawer -> "Open App Drawer"
+                                GestureAction.OpenNotificationPanel -> "Open Notification Panel"
+                            }
+                        }
+                    }
+
                     EblanRadioButton(
                         text = label,
                         selected = selectedGestureAction == gestureActionClass,
                         onClick = {
+                            if (gestureActionClass is GestureAction.OpenApp) {
+                                showSelectApplicationDialog = true
+                            }
+
                             selectedGestureAction = gestureActionClass
                         },
                     )

@@ -65,6 +65,7 @@ dependencies {
     implementation(projects.framework.wallpaperManager)
     implementation(projects.framework.widgetManager)
     implementation(projects.service)
+    implementation(projects.ui)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.ktx)

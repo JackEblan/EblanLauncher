@@ -567,7 +567,6 @@ private fun Success(
                     startCurrentPage = folderTargetPage,
                     foldersDataById = foldersDataById,
                     drag = drag,
-                    gridItemSource = gridItemSource,
                     paddingValues = paddingValues,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     screenWidth = screenWidth,

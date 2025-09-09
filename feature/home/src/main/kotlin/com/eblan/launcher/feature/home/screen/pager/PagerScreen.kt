@@ -47,7 +47,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectVerticalDragGestures
+import com.eblan.launcher.feature.home.component.gestures.detectHomeVerticalDragGestures
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
@@ -177,12 +177,6 @@ fun PagerScreen(
         }
     }
 
-    LaunchedEffect(key1 = drag, key2 = gridItemSource) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
-            onDraggingGridItem()
-        }
-    }
-
     HorizontalPagerScreen(
         modifier = modifier,
         horizontalPagerState = gridHorizontalPagerState,
@@ -246,6 +240,7 @@ fun PagerScreen(
                 swipeDownY.animateTo(screenHeight.toFloat())
             }
         },
+        onDraggingGridItem = onDraggingGridItem,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
@@ -280,6 +275,7 @@ fun PagerScreen(
                     swipeDownY.animateTo(screenHeight.toFloat())
                 }
             },
+            onDraggingGridItem = onDraggingGridItem,
         )
     }
 
@@ -310,6 +306,7 @@ fun PagerScreen(
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
 
@@ -336,6 +333,7 @@ fun PagerScreen(
             onDismiss = {
                 showWidgets = false
             },
+            onDraggingGridItem = onDraggingGridItem,
         )
     }
 
@@ -356,6 +354,7 @@ fun PagerScreen(
             onDismiss = {
                 showShortcuts = false
             },
+            onDraggingGridItem = onDraggingGridItem,
         )
     }
 }
@@ -400,6 +399,7 @@ private fun HorizontalPagerScreen(
         change: PointerInputChange,
         dragAmount: Float,
     ) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -497,7 +497,7 @@ private fun HorizontalPagerScreen(
                 )
             }
             .pointerInput(Unit) {
-                detectVerticalDragGestures(
+                detectHomeVerticalDragGestures(
                     requireUnconsumed = true,
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
@@ -573,6 +573,7 @@ private fun HorizontalPagerScreen(
 
                             showPopupGridItemMenu = true
                         },
+                        onDraggingGridItem = onDraggingGridItem,
                     )
                 }
             }
@@ -642,6 +643,7 @@ private fun HorizontalPagerScreen(
 
                         showPopupGridItemMenu = true
                     },
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }

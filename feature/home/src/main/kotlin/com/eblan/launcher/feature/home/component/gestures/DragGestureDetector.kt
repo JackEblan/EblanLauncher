@@ -21,7 +21,7 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-suspend fun PointerInputScope.detectVerticalDragGestures(
+suspend fun PointerInputScope.detectHomeVerticalDragGestures(
     requireUnconsumed: Boolean = true,
     onDragStart: (Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},

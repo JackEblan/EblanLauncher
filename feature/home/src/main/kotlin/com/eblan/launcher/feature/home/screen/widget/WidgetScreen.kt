@@ -92,6 +92,7 @@ fun WidgetScreen(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val page = calculatePage(
         index = currentPage,
@@ -177,6 +178,7 @@ fun WidgetScreen(
                                     onLongPressGridItem = onLongPressGridItem,
                                     page = page,
                                     gridItemSettings = gridItemSettings,
+                                    onDraggingGridItem = onDraggingGridItem,
                                 )
 
                                 LazyColumn(
@@ -193,6 +195,7 @@ fun WidgetScreen(
                                             onLongPressGridItem = onLongPressGridItem,
                                             page = page,
                                             gridItemSettings = gridItemSettings,
+                                            onDraggingGridItem = onDraggingGridItem,
                                         )
                                     }
                                 }
@@ -217,6 +220,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
+    onDraggingGridItem: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -261,6 +265,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
                     onLongPressGridItem = onLongPressGridItem,
                     page = page,
                     gridItemSettings = gridItemSettings,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -277,6 +282,7 @@ private fun EblanApplicationInfoItem(
     onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
+    onDraggingGridItem: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -327,6 +333,7 @@ private fun EblanApplicationInfoItem(
                     onLongPressGridItem = onLongPressGridItem,
                     page = page,
                     gridItemSettings = gridItemSettings,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -343,6 +350,7 @@ private fun EblanAppWidgetProviderInfoItem(
     onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
+    onDraggingGridItem: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -354,6 +362,14 @@ private fun EblanAppWidgetProviderInfoItem(
     val graphicsLayer = rememberGraphicsLayer()
 
     val scale = remember { Animatable(1f) }
+
+    var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDraggingGridItem()
+        }
+    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -376,6 +392,8 @@ private fun EblanAppWidgetProviderInfoItem(
                 .pointerInput(key1 = drag) {
                     detectTapGestures(
                         onLongPress = {
+                            isLongPressed = true
+
                             onUpdateGridItemOffset(intOffset)
 
                             scope.launch {
@@ -410,6 +428,11 @@ private fun EblanAppWidgetProviderInfoItem(
                                 )
                             }
                         },
+                        onPress = {
+                            awaitRelease()
+
+                            isLongPressed = false
+                        }
                     )
                 }
                 .onGloballyPositioned { layoutCoordinates ->

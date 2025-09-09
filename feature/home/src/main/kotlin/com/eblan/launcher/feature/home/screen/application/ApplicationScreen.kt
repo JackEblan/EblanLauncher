@@ -92,6 +92,7 @@ fun DoubleTapApplicationScreen(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
@@ -124,6 +125,7 @@ fun DoubleTapApplicationScreen(
                 onDismiss()
             }
         },
+        onDraggingGridItem = onDraggingGridItem,
     )
 }
 
@@ -147,6 +149,7 @@ fun ApplicationScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
@@ -233,6 +236,7 @@ fun ApplicationScreen(
                                     appDrawerSettings = appDrawerSettings,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
+                                    onDraggingGridItem = onDraggingGridItem,
                                     )
 
                                 LazyVerticalGrid(
@@ -257,6 +261,7 @@ fun ApplicationScreen(
                                                 popupMenuIntSize = intSize
                                             },
                                             onLongPressGridItem = onLongPressGridItem,
+                                            onDraggingGridItem = onDraggingGridItem,
                                         )
                                     }
                                 }
@@ -314,6 +319,7 @@ private fun EblanApplicationInfoDockSearchBar(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -360,6 +366,7 @@ private fun EblanApplicationInfoDockSearchBar(
                         onUpdateGridItemOffset(intOffset)
                     },
                     onLongPressGridItem = onLongPressGridItem,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -383,6 +390,7 @@ private fun EblanApplicationInfoItem(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -412,6 +420,14 @@ private fun EblanApplicationInfoItem(
 
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDraggingGridItem()
+        }
+    }
+
     Column(
         modifier = modifier
             .drawWithContent {
@@ -429,6 +445,8 @@ private fun EblanApplicationInfoItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        isLongPressed = true
+
                         onLongPress(intOffset, intSize)
 
                         scope.launch {
@@ -466,6 +484,11 @@ private fun EblanApplicationInfoItem(
                             )
                         }
                     },
+                    onPress = {
+                        awaitRelease()
+
+                        isLongPressed = false
+                    }
                 )
             }
             .onGloballyPositioned { layoutCoordinates ->

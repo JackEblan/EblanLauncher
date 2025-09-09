@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetHostView
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +35,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectTapGestures
+import com.eblan.launcher.feature.home.component.gestures.detectWidgetTapGestures
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -57,6 +59,7 @@ fun InteractiveGridItemContent(
     onTapFolderGridItem: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -86,6 +89,7 @@ fun InteractiveGridItemContent(
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
 
@@ -93,8 +97,10 @@ fun InteractiveGridItemContent(
             WidgetGridItem(
                 gridItem = gridItem,
                 data = data,
+                drag = drag,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
 
@@ -115,6 +121,7 @@ fun InteractiveGridItemContent(
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
 
@@ -128,6 +135,7 @@ fun InteractiveGridItemContent(
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
     }
@@ -145,6 +153,7 @@ private fun ApplicationInfoGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -164,6 +173,14 @@ private fun ApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDraggingGridItem()
+        }
+    }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
@@ -182,6 +199,8 @@ private fun ApplicationInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        isLongPressed = true
+
                         onLongPress()
 
                         scope.launch {
@@ -200,6 +219,11 @@ private fun ApplicationInfoGridItem(
 
                             onTap()
                         }
+                    },
+                    onPress = {
+                        awaitRelease()
+
+                        isLongPressed = false
                     },
                 )
             },
@@ -228,8 +252,10 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.Widget,
+    drag: Drag,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -244,6 +270,12 @@ private fun WidgetGridItem(
     val scale = remember { Animatable(1f) }
 
     var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDraggingGridItem()
+        }
+    }
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -270,7 +302,7 @@ private fun WidgetGridItem(
                     drawLayer(graphicsLayer)
                 }
                 .pointerInput(Unit) {
-                    detectTapGestures(
+                    detectWidgetTapGestures(
                         requireUnconsumed = false,
                         onLongPress = {
                             isLongPressed = true
@@ -309,6 +341,7 @@ private fun ShortcutInfoGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -328,6 +361,14 @@ private fun ShortcutInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDraggingGridItem()
+        }
+    }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
@@ -346,6 +387,8 @@ private fun ShortcutInfoGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        isLongPressed = true
+
                         onLongPress()
 
                         scope.launch {
@@ -365,6 +408,11 @@ private fun ShortcutInfoGridItem(
                             onTap()
                         }
                     },
+                    onPress = {
+                        awaitRelease()
+
+                        isLongPressed = false
+                    }
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -399,6 +447,7 @@ private fun FolderGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -418,6 +467,14 @@ private fun FolderGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    var isLongPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging && isLongPressed) {
+            onDraggingGridItem()
+        }
+    }
+
     Column(
         modifier = modifier
             .gridItem(gridItem)
@@ -436,6 +493,8 @@ private fun FolderGridItem(
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
+                        isLongPressed = true
+
                         onLongPress()
 
                         scope.launch {
@@ -455,6 +514,11 @@ private fun FolderGridItem(
                             onTap()
                         }
                     },
+                    onPress = {
+                        awaitRelease()
+
+                        isLongPressed = false
+                    }
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,

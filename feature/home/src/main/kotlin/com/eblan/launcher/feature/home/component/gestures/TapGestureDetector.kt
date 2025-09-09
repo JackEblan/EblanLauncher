@@ -21,7 +21,7 @@ import kotlinx.coroutines.coroutineScope
 /**
  * We don't consume the long press so touch events propagate to the parent
  */
-suspend fun PointerInputScope.detectTapGestures(
+suspend fun PointerInputScope.detectWidgetTapGestures(
     requireUnconsumed: Boolean = true,
     onLongPress: ((Offset) -> Unit)? = null,
     onTap: ((Offset) -> Unit)? = null,

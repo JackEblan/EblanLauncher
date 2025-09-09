@@ -45,7 +45,6 @@ fun FolderScreen(
     startCurrentPage: Int,
     foldersDataById: ArrayDeque<FolderDataById>,
     drag: Drag,
-    gridItemSource: GridItemSource?,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
     screenWidth: Int,
@@ -106,12 +105,6 @@ fun FolderScreen(
 
     BackHandler(foldersDataById.isNotEmpty()) {
         onRemoveLastFolder()
-    }
-
-    LaunchedEffect(key1 = drag, key2 = gridItemSource) {
-        if (drag == Drag.Dragging && gridItemSource != null) {
-            onDraggingGridItem(foldersDataById.last().gridItems)
-        }
     }
 
     val pageIndicatorHeight = 30.dp
@@ -198,6 +191,9 @@ fun FolderScreen(
                                         imageBitmap,
                                     )
                                 },
+                                onDraggingGridItem = {
+                                    onDraggingGridItem(foldersDataById.last().gridItems)
+                                }
                             )
                         }
                     }

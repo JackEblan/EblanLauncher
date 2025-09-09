@@ -14,15 +14,14 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.util.fastForEach
 import com.eblan.launcher.feature.home.component.gestures.LongPressResult.Canceled
 import kotlinx.coroutines.coroutineScope
 
 /**
  * We don't consume the long press so touch events propagate to the parent
  */
-suspend fun PointerInputScope.detectWidgetTapGestures(
-    requireUnconsumed: Boolean = true,
+suspend fun PointerInputScope.detectTapGestures(
+    requireUnconsumed: Boolean,
     onLongPress: ((Offset) -> Unit)? = null,
     onTap: ((Offset) -> Unit)? = null,
 ) = coroutineScope {
@@ -36,7 +35,6 @@ suspend fun PointerInputScope.detectWidgetTapGestures(
             when (val longPressResult = waitForLongPress()) {
                 LongPressResult.Success -> {
                     onLongPress.invoke(down.position)
-                    consumeUntilUp()
                     return@awaitEachGesture
                 }
 
@@ -51,13 +49,6 @@ suspend fun PointerInputScope.detectWidgetTapGestures(
             onTap?.invoke(upOrCancel.position)
         }
     }
-}
-
-private suspend fun AwaitPointerEventScope.consumeUntilUp() {
-    do {
-        val event = awaitPointerEvent()
-        event.changes.fastForEach { it.consume() }
-    } while (event.changes.fastAny { it.pressed })
 }
 
 private suspend fun AwaitPointerEventScope.waitForLongPress(

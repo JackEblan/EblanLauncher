@@ -47,7 +47,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectHomeVerticalDragGestures
+import com.eblan.launcher.feature.home.component.gestures.detectVerticalDragGestures
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
@@ -497,7 +497,7 @@ private fun HorizontalPagerScreen(
                 )
             }
             .pointerInput(Unit) {
-                detectHomeVerticalDragGestures(
+                detectVerticalDragGestures(
                     requireUnconsumed = true,
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,

@@ -35,7 +35,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectWidgetTapGestures
+import com.eblan.launcher.feature.home.component.gestures.detectTapGestures
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -195,44 +195,45 @@ private fun ApplicationInfoGridItem(
                 }
 
                 drawLayer(graphicsLayer)
-            }
-            .pointerInput(key1 = drag) {
-                detectTapGestures(
-                    onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress()
-
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-                        }
-                    },
-                    onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onTap()
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    },
-                )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
             model = data.icon,
             contentDescription = null,
-            modifier = Modifier.size(iconSizeDp),
+            modifier = Modifier
+                .pointerInput(key1 = drag) {
+                    detectTapGestures(
+                        onLongPress = {
+                            isLongPressed = true
+
+                            onLongPress()
+
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+                            }
+                        },
+                        onTap = {
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                onTap()
+                            }
+                        },
+                        onPress = {
+                            awaitRelease()
+
+                            isLongPressed = false
+                        },
+                    )
+                }
+                .size(iconSizeDp),
         )
 
         if (gridItemSettings.showLabel) {
@@ -271,6 +272,8 @@ private fun WidgetGridItem(
 
     var isLongPressed by remember { mutableStateOf(false) }
 
+    var isClearPressed by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isLongPressed) {
             onDraggingGridItem()
@@ -302,10 +305,12 @@ private fun WidgetGridItem(
                     drawLayer(graphicsLayer)
                 }
                 .pointerInput(Unit) {
-                    detectWidgetTapGestures(
+                    detectTapGestures(
                         requireUnconsumed = false,
                         onLongPress = {
                             isLongPressed = true
+
+                            isClearPressed = true
 
                             onLongPress()
 
@@ -320,10 +325,10 @@ private fun WidgetGridItem(
                     )
                 },
             update = { appWidgetHostView ->
-                if (isLongPressed) {
+                if (isClearPressed) {
                     appWidgetHostView.clearPressed(view = appWidgetHostView)
 
-                    isLongPressed = false
+                    isClearPressed = false
                 }
             },
         )
@@ -383,44 +388,45 @@ private fun ShortcutInfoGridItem(
                 }
 
                 drawLayer(graphicsLayer)
-            }
-            .pointerInput(key1 = drag) {
-                detectTapGestures(
-                    onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress()
-
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-                        }
-                    },
-                    onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onTap()
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    }
-                )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
             model = data.icon,
             contentDescription = null,
-            modifier = Modifier.size(iconSizeDp),
+            modifier = Modifier
+                .pointerInput(key1 = drag) {
+                    detectTapGestures(
+                        onLongPress = {
+                            isLongPressed = true
+
+                            onLongPress()
+
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+                            }
+                        },
+                        onTap = {
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                onTap()
+                            }
+                        },
+                        onPress = {
+                            awaitRelease()
+
+                            isLongPressed = false
+                        },
+                    )
+                }
+                .size(iconSizeDp),
         )
 
         if (gridItemSettings.showLabel) {
@@ -489,43 +495,44 @@ private fun FolderGridItem(
                 }
 
                 drawLayer(graphicsLayer)
-            }
-            .pointerInput(key1 = drag) {
-                detectTapGestures(
-                    onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress()
-
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-                        }
-                    },
-                    onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            onTap()
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    }
-                )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
-                modifier = Modifier.size(iconSizeDp),
+                modifier = Modifier
+                    .pointerInput(key1 = drag) {
+                        detectTapGestures(
+                            onLongPress = {
+                                isLongPressed = true
+
+                                onLongPress()
+
+                                scope.launch {
+                                    scale.animateTo(0.5f)
+
+                                    scale.animateTo(1f)
+
+                                    onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+                                }
+                            },
+                            onTap = {
+                                scope.launch {
+                                    scale.animateTo(0.5f)
+
+                                    scale.animateTo(1f)
+
+                                    onTap()
+                                }
+                            },
+                            onPress = {
+                                awaitRelease()
+
+                                isLongPressed = false
+                            },
+                        )
+                    }
+                    .size(iconSizeDp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,

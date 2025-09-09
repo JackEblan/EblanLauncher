@@ -1,7 +1,9 @@
 package com.eblan.launcher.feature.home.component.grid
 
+import android.appwidget.AppWidgetHostView
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -9,8 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -28,7 +33,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectTapGesturesUnConsume
+import com.eblan.launcher.feature.home.component.gestures.detectTapGestures
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -88,7 +93,6 @@ fun InteractiveGridItemContent(
             WidgetGridItem(
                 gridItem = gridItem,
                 data = data,
-                drag = drag,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
             )
@@ -224,7 +228,6 @@ private fun WidgetGridItem(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     data: GridItemData.Widget,
-    drag: Drag,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
 ) {
@@ -239,6 +242,8 @@ private fun WidgetGridItem(
     val scope = rememberCoroutineScope()
 
     val scale = remember { Animatable(1f) }
+
+    var isLongPressed by remember { mutableStateOf(false) }
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -265,9 +270,11 @@ private fun WidgetGridItem(
                     drawLayer(graphicsLayer)
                 }
                 .pointerInput(Unit) {
-                    detectTapGesturesUnConsume(
+                    detectTapGestures(
                         requireUnconsumed = false,
                         onLongPress = {
+                            isLongPressed = true
+
                             onLongPress()
 
                             scope.launch {
@@ -281,8 +288,10 @@ private fun WidgetGridItem(
                     )
                 },
             update = { appWidgetHostView ->
-                if (drag == Drag.Start) {
-                    appWidgetHostView.isPressed = false
+                if (isLongPressed) {
+                    appWidgetHostView.clearPressed(view = appWidgetHostView)
+
+                    isLongPressed = false
                 }
             },
         )
@@ -520,4 +529,21 @@ private fun FolderGridItem(
             )
         }
     }
+}
+
+private fun AppWidgetHostView.clearPressed(view: View): Boolean {
+    if (view.isPressed) {
+        view.isPressed = false
+        return true
+    }
+
+    if (view is ViewGroup) {
+        for (i in 0 until view.childCount) {
+            if (clearPressed(view.getChildAt(i))) {
+                return true
+            }
+        }
+    }
+
+    return false
 }

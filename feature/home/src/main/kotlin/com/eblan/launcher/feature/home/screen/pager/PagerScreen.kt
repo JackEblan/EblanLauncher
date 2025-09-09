@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -48,6 +47,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.gestures.detectVerticalDragGestures
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
@@ -483,13 +483,6 @@ private fun HorizontalPagerScreen(
     Column(
         modifier = modifier
             .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = onVerticalDrag,
-                    onDragEnd = onDragEnd,
-                    onDragCancel = onDragCancel,
-                )
-            }
-            .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
                         onDoubleTap()
@@ -501,6 +494,14 @@ private fun HorizontalPagerScreen(
 
                         onLongPressGrid(currentPage)
                     },
+                )
+            }
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    requireUnconsumed = true,
+                    onVerticalDrag = onVerticalDrag,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragCancel,
                 )
             }
             .fillMaxSize()

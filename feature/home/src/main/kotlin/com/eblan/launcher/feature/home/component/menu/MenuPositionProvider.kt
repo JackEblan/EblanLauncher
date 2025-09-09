@@ -39,16 +39,13 @@ class MenuPositionProvider(
         windowSize: IntSize,
         popupContentSize: IntSize,
     ): Pair<Int, Int> {
-        // Center the menu horizontally relative to the parent element.
         val parentCenterX = x + width / 2
         val childXInitial = parentCenterX - popupContentSize.width / 2
         val childX = childXInitial.coerceIn(0, windowSize.width - popupContentSize.width)
 
-        // Calculate possible vertical positions.
         val topPositionY = y - popupContentSize.height
-        val bottomPositionY = y + height + popupContentSize.height
+        val bottomPositionY = y + height
 
-        // Choose the vertical position that keeps the menu on-screen.
         val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
         val childY = childYInitial.coerceIn(0, windowSize.height - popupContentSize.height)
 

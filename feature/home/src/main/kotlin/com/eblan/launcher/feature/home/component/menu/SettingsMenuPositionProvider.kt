@@ -17,34 +17,10 @@ class SettingsMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize,
     ): IntOffset {
-        val (x, y) = calculateSettingsMenuCoordinates(
-            x = x,
-            y = y,
-            windowSize = windowSize,
-            popupContentSize = popupContentSize,
-        )
+        val x = x.coerceIn(0, windowSize.width)
+
+        val y = y.coerceIn(0, windowSize.height)
 
         return IntOffset(x = x, y = y)
-    }
-
-    private fun calculateSettingsMenuCoordinates(
-        x: Int,
-        y: Int,
-        windowSize: IntSize,
-        popupContentSize: IntSize,
-    ): Pair<Int, Int> {
-        // Center the menu horizontally relative to the parent element.
-        val childXInitial = x - popupContentSize.width / 2
-        val childX = childXInitial.coerceIn(0, windowSize.width - popupContentSize.width)
-
-        // Calculate possible vertical positions.
-        val topPositionY = y - popupContentSize.height
-        val bottomPositionY = y + popupContentSize.height
-
-        // Choose the vertical position that keeps the menu on-screen.
-        val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
-        val childY = childYInitial.coerceIn(0, windowSize.height - popupContentSize.height)
-
-        return childX to childY
     }
 }

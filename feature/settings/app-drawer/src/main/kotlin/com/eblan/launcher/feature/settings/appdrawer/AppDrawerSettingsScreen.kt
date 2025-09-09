@@ -138,13 +138,6 @@ private fun Success(
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            modifier = Modifier.padding(5.dp),
-            text = "App Drawer Grid", style = MaterialTheme.typography.bodySmall
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
         SettingsColumn(
             title = "App Drawer Grid",
             subtitle = "Number of columns and rows height",

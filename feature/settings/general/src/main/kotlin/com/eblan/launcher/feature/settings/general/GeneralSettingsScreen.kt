@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -116,10 +115,6 @@ private fun Success(
     var showDarkThemeConfigDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Text(text = "Theme", style = MaterialTheme.typography.bodySmall)
-
-        Spacer(modifier = Modifier.height(5.dp))
-
         SettingsColumn(
             title = "Theme Brand",
             subtitle = generalSettings.themeBrand.name,

@@ -170,13 +170,6 @@ private fun Success(
             .verticalScroll(rememberScrollState())
             .fillMaxSize()
     ) {
-        Text(
-            modifier = Modifier.padding(5.dp),
-            text = "Grid", style = MaterialTheme.typography.bodySmall
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
         SettingsColumn(
             title = "Grid",
             subtitle = "Number of rows and columns",

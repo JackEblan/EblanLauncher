@@ -255,7 +255,7 @@ private fun EblanShortcutInfoDockSearchBar(
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(eblanShortcutInfosByLabel.keys.toList()) { eblanApplicationInfo ->
                 EblanApplicationInfoItem(
                     eblanApplicationInfo = eblanApplicationInfo,

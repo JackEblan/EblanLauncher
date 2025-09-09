@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -23,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
 @Composable
 fun SingleNumberTextFieldDialog(
@@ -35,53 +33,51 @@ fun SingleNumberTextFieldDialog(
 ) {
     var currentValue by remember { mutableStateOf("$value") }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = RoundedCornerShape(size = 20.dp)) {
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
+    EblanDialogContainer(onDismissRequest = onDismissRequest) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleLarge)
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            TextField(
+                value = currentValue,
+                onValueChange = {
+                    currentValue = it
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = {
+                    Text(text = title)
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(text = title, style = MaterialTheme.typography.titleLarge)
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                TextField(
-                    value = currentValue,
-                    onValueChange = {
-                        currentValue = it
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = title)
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                TextButton(
+                    onClick = onDismissRequest,
                 ) {
-                    TextButton(
-                        onClick = onDismissRequest,
-                    ) {
-                        Text(text = "Cancel")
-                    }
-                    TextButton(
-                        onClick = {
-                            try {
-                                onUpdateClick(currentValue.toInt().coerceAtLeast(10))
-                            } catch (_: NumberFormatException) {
+                    Text(text = "Cancel")
+                }
+                TextButton(
+                    onClick = {
+                        try {
+                            onUpdateClick(currentValue.toInt().coerceAtLeast(10))
+                        } catch (_: NumberFormatException) {
 
-                            } finally {
-                                onDismissRequest()
-                            }
-                        },
-                    ) {
-                        Text(text = "Update")
-                    }
+                        } finally {
+                            onDismissRequest()
+                        }
+                    },
+                ) {
+                    Text(text = "Update")
                 }
             }
         }
@@ -106,72 +102,70 @@ fun TwoNumberTextFieldsDialog(
 
     var currentSecondTextFieldValue by remember { mutableStateOf("$secondTextFieldValue") }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = RoundedCornerShape(size = 20.dp)) {
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
+    EblanDialogContainer(onDismissRequest = onDismissRequest) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleLarge)
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TextField(
+                    value = currentFirstTextFieldValue,
+                    onValueChange = {
+                        currentFirstTextFieldValue = it
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = {
+                        Text(text = firstTextFieldTitle)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+
+                Spacer(modifier = Modifier.width(5.dp))
+
+                TextField(
+                    value = currentSecondTextFieldValue,
+                    onValueChange = {
+                        currentSecondTextFieldValue = it
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = {
+                        Text(text = secondTextFieldTitle)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(text = title, style = MaterialTheme.typography.titleLarge)
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    TextField(
-                        value = currentFirstTextFieldValue,
-                        onValueChange = {
-                            currentFirstTextFieldValue = it
-                        },
-                        modifier = Modifier.weight(1f),
-                        label = {
-                            Text(text = firstTextFieldTitle)
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    )
-
-                    Spacer(modifier = Modifier.width(5.dp))
-
-                    TextField(
-                        value = currentSecondTextFieldValue,
-                        onValueChange = {
-                            currentSecondTextFieldValue = it
-                        },
-                        modifier = Modifier.weight(1f),
-                        label = {
-                            Text(text = secondTextFieldTitle)
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                TextButton(
+                    onClick = onDismissRequest,
                 ) {
-                    TextButton(
-                        onClick = onDismissRequest,
-                    ) {
-                        Text(text = "Cancel")
-                    }
-                    TextButton(
-                        onClick = {
-                            try {
-                                onUpdateClick(
-                                    currentFirstTextFieldValue.toInt().coerceAtLeast(1),
-                                    currentSecondTextFieldValue.toInt().coerceAtLeast(1),
-                                )
-                            } catch (_: NumberFormatException) {
+                    Text(text = "Cancel")
+                }
+                TextButton(
+                    onClick = {
+                        try {
+                            onUpdateClick(
+                                currentFirstTextFieldValue.toInt().coerceAtLeast(1),
+                                currentSecondTextFieldValue.toInt().coerceAtLeast(1),
+                            )
+                        } catch (_: NumberFormatException) {
 
-                            } finally {
-                                onDismissRequest()
-                            }
-                        },
-                    ) {
-                        Text(text = "Update")
-                    }
+                        } finally {
+                            onDismissRequest()
+                        }
+                    },
+                ) {
+                    Text(text = "Update")
                 }
             }
         }

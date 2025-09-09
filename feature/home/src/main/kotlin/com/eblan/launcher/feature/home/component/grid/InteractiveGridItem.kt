@@ -29,7 +29,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.ViewCompat
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
@@ -289,9 +288,7 @@ private fun WidgetGridItem(
                     appWidgetProviderInfo = appWidgetInfo,
                     minWidth = data.minWidth,
                     minHeight = data.minHeight,
-                ).also {
-                    ViewCompat.setNestedScrollingEnabled(it, true)
-                }
+                )
             },
             modifier = modifier
                 .gridItem(gridItem)

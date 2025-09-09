@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -26,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -47,7 +47,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectVerticalDragGestures
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
@@ -178,7 +177,42 @@ fun PagerScreen(
     }
 
     HorizontalPagerScreen(
-        modifier = modifier,
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = { _, dragAmount ->
+                        scope.launch {
+                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+
+                            swipeDownY.snapTo(swipeDownY.value - dragAmount)
+                        }
+                    },
+                    onDragEnd = {
+                        doGestureActions(
+                            gestureSettings = gestureSettings,
+                            swipeUpY = swipeUpY.value,
+                            swipeDownY = swipeDownY.value,
+                            screenHeight = screenHeight,
+                            onStartMainActivity = launcherApps::startMainActivity,
+                        )
+
+                        resetSwipeOffset(
+                            scope = scope,
+                            gestureSettings = gestureSettings,
+                            swipeDownY = swipeDownY,
+                            screenHeight = screenHeight,
+                            swipeUpY = swipeUpY,
+                        )
+                    },
+                    onDragCancel = {
+                        scope.launch {
+                            swipeUpY.animateTo(screenHeight.toFloat())
+
+                            swipeDownY.animateTo(screenHeight.toFloat())
+                        }
+                    },
+                )
+            },
         horizontalPagerState = gridHorizontalPagerState,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
@@ -209,37 +243,6 @@ fun PagerScreen(
         },
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
-        onVerticalDrag = { _, dragAmount ->
-            scope.launch {
-                swipeUpY.snapTo(swipeUpY.value + dragAmount)
-
-                swipeDownY.snapTo(swipeDownY.value - dragAmount)
-            }
-        },
-        onDragEnd = {
-            doGestureActions(
-                gestureSettings = gestureSettings,
-                swipeUpY = swipeUpY.value,
-                swipeDownY = swipeDownY.value,
-                screenHeight = screenHeight,
-                onStartMainActivity = launcherApps::startMainActivity,
-            )
-
-            resetSwipeOffset(
-                scope = scope,
-                gestureSettings = gestureSettings,
-                swipeDownY = swipeDownY,
-                screenHeight = screenHeight,
-                swipeUpY = swipeUpY,
-            )
-        },
-        onDragCancel = {
-            scope.launch {
-                swipeUpY.animateTo(screenHeight.toFloat())
-
-                swipeDownY.animateTo(screenHeight.toFloat())
-            }
-        },
         onDraggingGridItem = onDraggingGridItem,
     )
 
@@ -393,12 +396,6 @@ private fun HorizontalPagerScreen(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onDragEnd: () -> Unit,
-    onDragCancel: () -> Unit,
-    onVerticalDrag: (
-        change: PointerInputChange,
-        dragAmount: Float,
-    ) -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -494,14 +491,6 @@ private fun HorizontalPagerScreen(
 
                         onLongPressGrid(currentPage)
                     },
-                )
-            }
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    requireUnconsumed = true,
-                    onVerticalDrag = onVerticalDrag,
-                    onDragEnd = onDragEnd,
-                    onDragCancel = onDragCancel,
                 )
             }
             .fillMaxSize()

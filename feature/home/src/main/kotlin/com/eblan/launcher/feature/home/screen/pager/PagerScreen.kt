@@ -613,7 +613,7 @@ private fun HorizontalPagerScreen(
                     },
                     onLongPress = {
                         val dockY =
-                            y + (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight)
+                            y + (gridHeight - homeSettings.dockHeight)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 

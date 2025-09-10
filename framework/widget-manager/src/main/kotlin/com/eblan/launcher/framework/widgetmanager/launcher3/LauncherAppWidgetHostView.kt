@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.AdapterView
-import androidx.core.view.size
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
@@ -41,7 +40,7 @@ internal class LauncherAppWidgetHostView(context: Context) : AppWidgetHostView(c
                 val angle = abs(Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())))
 
                 if (distance > slop) {
-                    if(mIsScrollable){
+                    if (mIsScrollable) {
                         if (angle < 45 || angle > 135) {
                             // Horizontal swipe → let pager do the swipe
                             parent?.requestDisallowInterceptTouchEvent(false)
@@ -72,9 +71,10 @@ internal class LauncherAppWidgetHostView(context: Context) : AppWidgetHostView(c
     override fun onLongClick(view: View): Boolean {
         if (mIsScrollable) {
             parent?.requestDisallowInterceptTouchEvent(false)
-
-            clearPressedStateRecursively(viewGroup = this)
         }
+
+        // Trigger CheckLongPress ACTION_CANCEL thus cancelling the long press callback
+        cancelMotionEvent(view = view)
 
         return view.performLongClick()
     }
@@ -94,7 +94,7 @@ internal class LauncherAppWidgetHostView(context: Context) : AppWidgetHostView(c
         if (viewGroup is AdapterView<*>) {
             return true
         } else {
-            for (i in 0..<viewGroup.size) {
+            for (i in 0 until viewGroup.childCount) {
                 val child = viewGroup.getChildAt(i)
                 if (child is ViewGroup) {
                     if (checkScrollableRecursively(child)) {
@@ -106,15 +106,19 @@ internal class LauncherAppWidgetHostView(context: Context) : AppWidgetHostView(c
         return false
     }
 
-    private fun clearPressedStateRecursively(viewGroup: ViewGroup) {
-        viewGroup.isPressed = false
+    private fun cancelMotionEvent(view: View) {
+        val cancel = MotionEvent.obtain(
+            0,
+            0,
+            MotionEvent.ACTION_CANCEL,
+            0f,
+            0f,
+            0
+        )
 
-        for (i in 0 until viewGroup.childCount) {
-            val child = viewGroup.getChildAt(i)
-            child.isPressed = false
-            if (child is ViewGroup) {
-                clearPressedStateRecursively(child)
-            }
-        }
+        view.dispatchTouchEvent(cancel)
+
+        cancel.recycle()
     }
+
 }

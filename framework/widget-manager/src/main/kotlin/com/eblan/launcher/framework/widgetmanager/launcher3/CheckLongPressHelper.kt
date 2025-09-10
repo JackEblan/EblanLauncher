@@ -70,12 +70,7 @@ internal class CheckLongPressHelper(
             !view.isPressed &&
             !hasPerformedLongPress
         ) {
-            if (listener.onLongClick(view)) {
-                view.isPressed = false
-                hasPerformedLongPress = true
-            }
-
-            clearCallbacks()
+            listener.onLongClick(view)
         }
     }
 

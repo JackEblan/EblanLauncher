@@ -1,8 +1,5 @@
 package com.eblan.launcher.feature.home.component.grid
 
-import android.appwidget.AppWidgetHostView
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +32,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.gestures.detectTapGestures
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -272,8 +268,6 @@ private fun WidgetGridItem(
 
     var isLongPressed by remember { mutableStateOf(false) }
 
-    var isClearPressed by remember { mutableStateOf(false) }
-
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Dragging && isLongPressed) {
             onDraggingGridItem()
@@ -288,7 +282,23 @@ private fun WidgetGridItem(
                     appWidgetProviderInfo = appWidgetInfo,
                     minWidth = data.minWidth,
                     minHeight = data.minHeight,
-                )
+                ).apply {
+                    setOnLongClickListener {
+                        isLongPressed = true
+
+                        onLongPress()
+
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+                        }
+
+                        true
+                    }
+                }
             },
             modifier = modifier
                 .gridItem(gridItem)
@@ -303,34 +313,7 @@ private fun WidgetGridItem(
                     }
 
                     drawLayer(graphicsLayer)
-                }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        requireUnconsumed = false,
-                        onLongPress = {
-                            isLongPressed = true
-
-                            isClearPressed = true
-
-                            onLongPress()
-
-                            scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
-                                onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-                            }
-                        },
-                    )
                 },
-            update = { appWidgetHostView ->
-                if (isClearPressed) {
-                    appWidgetHostView.clearPressed(view = appWidgetHostView)
-
-                    isClearPressed = false
-                }
-            },
         )
     }
 }
@@ -600,21 +583,4 @@ private fun FolderGridItem(
             )
         }
     }
-}
-
-private fun AppWidgetHostView.clearPressed(view: View): Boolean {
-    if (view.isPressed) {
-        view.isPressed = false
-        return true
-    }
-
-    if (view is ViewGroup) {
-        for (i in 0 until view.childCount) {
-            if (clearPressed(view.getChildAt(i))) {
-                return true
-            }
-        }
-    }
-
-    return false
 }

@@ -18,5 +18,6 @@
 package com.eblan.launcher.domain.model
 
 enum class ThemeBrand {
-    Green, Purple,
+    Green,
+    Purple,
 }

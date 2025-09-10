@@ -40,12 +40,10 @@ internal object DaoModule {
     fun applicationInfoGridItemDao(eblanDatabase: EblanDatabase): ApplicationInfoGridItemDao =
         eblanDatabase.applicationInfoGridItemDao()
 
-
     @Provides
     @Singleton
     fun widgetGridItemDao(eblanDatabase: EblanDatabase): WidgetGridItemDao =
         eblanDatabase.widgetGridItemDao()
-
 
     @Provides
     @Singleton

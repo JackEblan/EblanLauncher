@@ -18,5 +18,7 @@
 package com.eblan.launcher.domain.model
 
 enum class DarkThemeConfig {
-    System, Light, Dark,
+    System,
+    Light,
+    Dark,
 }

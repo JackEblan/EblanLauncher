@@ -50,7 +50,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                     packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
                 packageManager.getApplicationLabel(applicationInfo).toString()
-
             } catch (e: PackageManager.NameNotFoundException) {
                 null
             }

@@ -1,6 +1,5 @@
 package com.eblan.launcher.framework.widgetmanager
 
-import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
@@ -8,12 +7,13 @@ import android.os.Build
 import android.os.Bundle
 import android.util.SizeF
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.framework.widgetmanager.launcher3.LauncherAppWidgetHost
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetHostWrapper @Inject constructor(@ApplicationContext private val context: Context) :
     AppWidgetHostWrapper, AndroidAppWidgetHostWrapper {
-    private val appWidgetHost = AppWidgetHost(context, 2814)
+    private val appWidgetHost = LauncherAppWidgetHost(context, 2814)
 
     override fun startListening() {
         appWidgetHost.startListening()

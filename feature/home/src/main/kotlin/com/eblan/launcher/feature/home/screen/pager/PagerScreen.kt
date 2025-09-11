@@ -569,20 +569,20 @@ private fun HorizontalPagerScreen(
 
         PageIndicator(
             modifier = Modifier
-                .height(pageIndicatorHeight)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(pageIndicatorHeight),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
         )
 
         GridLayout(
             modifier = Modifier
+                .fillMaxWidth()
+                .height(dockHeightDp)
                 .padding(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                )
-                .fillMaxWidth()
-                .height(dockHeightDp),
+                ),
             gridItems = dockGridItems,
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
@@ -769,9 +769,6 @@ private fun PopupGridItemMenu(
 
                     WidgetGridItemMenu(
                         showResize = showResize,
-                        onEdit = {
-                            onEdit(gridItem.id)
-                        },
                         onResize = {
                             onResize(currentPage)
                         },

@@ -14,7 +14,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 fun WidgetGridItemMenu(
     modifier: Modifier = Modifier,
     showResize: Boolean,
-    onEdit: () -> Unit,
     onResize: () -> Unit,
 ) {
     Surface(
@@ -23,12 +22,6 @@ fun WidgetGridItemMenu(
         shadowElevation = 2.dp,
         content = {
             Row {
-                IconButton(
-                    onClick = onEdit,
-                ) {
-                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
-                }
-
                 if (showResize) {
                     IconButton(
                         onClick = onResize,

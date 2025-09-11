@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -221,7 +222,7 @@ private fun ApplicationInfoGridItem(
                         isLongPressed = false
                     },
                 )
-            },
+            }.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -310,7 +311,7 @@ private fun WidgetGridItem(
                     }
 
                     drawLayer(graphicsLayer)
-                },
+                }.fillMaxSize(),
         )
     }
 }
@@ -397,7 +398,7 @@ private fun ShortcutInfoGridItem(
                         isLongPressed = false
                     },
                 )
-            },
+            }.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -502,7 +503,7 @@ private fun FolderGridItem(
                         isLongPressed = false
                     },
                 )
-            },
+            }.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (data.gridItems.isNotEmpty()) {

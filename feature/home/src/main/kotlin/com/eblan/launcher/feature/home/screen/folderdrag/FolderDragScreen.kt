@@ -169,19 +169,18 @@ fun FolderDragScreen(
                         color = getSystemTextColor(textColor = textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
+                gridItems = gridItemsCacheByPage[index],
                 rows = homeSettings.folderRows,
                 columns = homeSettings.folderColumns,
-            ) {
-                gridItemsCacheByPage[index]?.forEach { gridItem ->
-                    GridItemContent(
-                        gridItem = gridItem,
-                        textColor = textColor,
-                        gridItemSettings = homeSettings.gridItemSettings.copy(
-                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
-                            textSize = homeSettings.gridItemSettings.textSize / 2,
-                        ),
-                    )
-                }
+            ) { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    textColor = textColor,
+                    gridItemSettings = homeSettings.gridItemSettings.copy(
+                        iconSize = homeSettings.gridItemSettings.iconSize / 2,
+                        textSize = homeSettings.gridItemSettings.textSize / 2,
+                    ),
+                )
             }
         }
 

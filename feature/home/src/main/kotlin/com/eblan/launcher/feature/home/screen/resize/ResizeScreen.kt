@@ -91,32 +91,30 @@ fun ResizeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
+            gridItems = gridItemsCacheByPage,
             rows = homeSettings.rows,
             columns = homeSettings.columns,
-        ) {
-            gridItemsCacheByPage.forEach { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
-                )
-            }
+        ) { gridItem ->
+            GridItemContent(
+                gridItem = gridItem,
+                textColor = textColor,
+                gridItemSettings = homeSettings.gridItemSettings,
+            )
         }
 
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
+            gridItems = dockGridItemsCache,
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
-        ) {
-            dockGridItemsCache.forEach { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
-                )
-            }
+        ) { gridItem ->
+            GridItemContent(
+                gridItem = gridItem,
+                textColor = textColor,
+                gridItemSettings = homeSettings.gridItemSettings,
+            )
         }
     }
 

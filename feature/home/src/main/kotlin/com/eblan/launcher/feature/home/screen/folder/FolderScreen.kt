@@ -150,52 +150,51 @@ fun FolderScreen(
                                 start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                             ),
+                        gridItems = targetState.gridItemsByPage[index],
                         rows = homeSettings.folderRows,
                         columns = homeSettings.folderColumns,
-                    ) {
-                        targetState.gridItemsByPage[index]?.forEach { gridItem ->
-                            val cellWidth = gridWidth / homeSettings.folderColumns
+                    ) { gridItem ->
+                        val cellWidth = gridWidth / homeSettings.folderColumns
 
-                            val cellHeight =
-                                (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
+                        val cellHeight =
+                            (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
 
-                            val x = gridItem.startColumn * cellWidth
+                        val x = gridItem.startColumn * cellWidth
 
-                            val y = gridItem.startRow * cellHeight
+                        val y = gridItem.startRow * cellHeight
 
-                            InteractiveGridItemContent(
-                                gridItem = gridItem,
-                                hasShortcutHostPermission = hasShortcutHostPermission,
-                                drag = drag,
-                                gridItemSettings = homeSettings.gridItemSettings,
-                                textColor = textColor,
-                                onTapApplicationInfo = launcherApps::startMainActivity,
-                                onTapShortcutInfo = launcherApps::startShortcut,
-                                onTapFolderGridItem = {
-                                    onResetTargetPage()
+                        InteractiveGridItemContent(
+                            gridItem = gridItem,
+                            hasShortcutHostPermission = hasShortcutHostPermission,
+                            drag = drag,
+                            gridItemSettings = homeSettings.gridItemSettings,
+                            textColor = textColor,
+                            onTapApplicationInfo = launcherApps::startMainActivity,
+                            onTapShortcutInfo = launcherApps::startShortcut,
+                            onTapFolderGridItem = {
+                                onResetTargetPage()
 
-                                    onAddFolder(gridItem.id)
-                                },
-                                onLongPress = {
-                                    onUpdateGridItemOffset(
-                                        IntOffset(
-                                            x = x + leftPadding,
-                                            y = y + (topPadding + titleHeight),
-                                        ),
-                                    )
-                                },
-                                onUpdateImageBitmap = { imageBitmap ->
-                                    onLongPressGridItem(
-                                        index,
-                                        GridItemSource.Existing(gridItem = gridItem),
-                                        imageBitmap,
-                                    )
-                                },
-                                onDraggingGridItem = {
-                                    onDraggingGridItem(foldersDataById.last().gridItems)
-                                }
-                            )
-                        }
+                                onAddFolder(gridItem.id)
+                            },
+                            onLongPress = {
+                                onUpdateGridItemOffset(
+                                    IntOffset(
+                                        x = x + leftPadding,
+                                        y = y + (topPadding + titleHeight),
+                                    ),
+                                )
+                            },
+                            onUpdateImageBitmap = { imageBitmap ->
+                                onLongPressGridItem(
+                                    index,
+                                    GridItemSource.Existing(gridItem = gridItem),
+                                    imageBitmap,
+                                )
+                            },
+                            onDraggingGridItem = {
+                                onDraggingGridItem(foldersDataById.last().gridItems)
+                            }
+                        )
                     }
                 }
 

@@ -2,7 +2,6 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -53,7 +51,6 @@ import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
 import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
 import com.eblan.launcher.feature.home.component.draganddrop.rememberLazyGridDragAndDropState
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.grid.gridItem
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -142,15 +139,14 @@ fun EditPageScreen(
                     ) {
                         GridLayout(
                             modifier = Modifier.height(cardHeight),
+                            gridItems = pageItem.gridItems,
                             rows = homeSettings.rows,
                             columns = homeSettings.columns,
-                        ) {
-                            pageItem.gridItems.forEach { gridItem ->
-                                GridItemContent(
-                                    gridItem = gridItem,
-                                    textColor = textColor,
-                                )
-                            }
+                        ) { gridItem ->
+                            GridItemContent(
+                                gridItem = gridItem,
+                                textColor = textColor,
+                            )
                         }
 
                         PageButtons(
@@ -292,45 +288,38 @@ private fun GridItemContent(
     }
 
     key(gridItem.id) {
-        LookaheadScope {
-            val gridItemModifier = modifier
-                .animateBounds(this)
-                .gridItem(gridItem)
-                .padding(5.dp)
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                AsyncImage(
+                    model = data.icon,
+                    contentDescription = null,
+                    modifier = modifier,
+                )
+            }
 
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    AsyncImage(
-                        model = data.icon,
-                        contentDescription = null,
-                        modifier = gridItemModifier,
-                    )
-                }
+            is GridItemData.Widget -> {
+                AsyncImage(
+                    model = data.preview,
+                    contentDescription = null,
+                    modifier = modifier,
+                )
+            }
 
-                is GridItemData.Widget -> {
-                    AsyncImage(
-                        model = data.preview,
-                        contentDescription = null,
-                        modifier = gridItemModifier,
-                    )
-                }
+            is GridItemData.ShortcutInfo -> {
+                AsyncImage(
+                    model = data.icon,
+                    contentDescription = null,
+                    modifier = modifier,
+                )
+            }
 
-                is GridItemData.ShortcutInfo -> {
-                    AsyncImage(
-                        model = data.icon,
-                        contentDescription = null,
-                        modifier = gridItemModifier,
-                    )
-                }
-
-                is GridItemData.Folder -> {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Folder,
-                        contentDescription = null,
-                        modifier = gridItemModifier,
-                        tint = currentTextColor,
-                    )
-                }
+            is GridItemData.Folder -> {
+                Icon(
+                    imageVector = EblanLauncherIcons.Folder,
+                    contentDescription = null,
+                    modifier = modifier,
+                    tint = currentTextColor,
+                )
             }
         }
     }

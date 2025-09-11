@@ -1,7 +1,6 @@
 package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -13,7 +12,6 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
@@ -52,42 +50,39 @@ fun GridItemContent(
             getSystemTextColor(textColor = textColor)
         }
 
-        LookaheadScope {
-            val gridItemModifier = modifier
-                .animateBounds(this)
-                .gridItem(gridItem)
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                ApplicationInfoGridItem(
+                    modifier = modifier,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                )
+            }
 
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                    )
-                }
+            is GridItemData.Widget -> {
+                WidgetGridItem(
+                    modifier = modifier,
+                    data = data
+                )
+            }
 
-                is GridItemData.Widget -> {
-                    WidgetGridItem(modifier = gridItemModifier, data = data)
-                }
+            is GridItemData.ShortcutInfo -> {
+                ShortcutInfoGridItem(
+                    modifier = modifier,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                )
+            }
 
-                is GridItemData.ShortcutInfo -> {
-                    ShortcutInfoGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                    )
-                }
-
-                is GridItemData.Folder -> {
-                    FolderGridItem(
-                        modifier = gridItemModifier,
-                        data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
-                    )
-                }
+            is GridItemData.Folder -> {
+                FolderGridItem(
+                    modifier = modifier,
+                    data = data,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                )
             }
         }
     }

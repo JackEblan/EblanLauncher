@@ -314,19 +314,18 @@ fun DragScreen(
                         color = getSystemTextColor(textColor = textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
+                gridItems = gridItemsCacheByPage[page],
                 rows = homeSettings.rows,
                 columns = homeSettings.columns,
-            ) {
-                gridItemsCacheByPage[page]?.forEach { gridItem ->
-                    GridItemContent(
-                        gridItem = gridItem,
-                        textColor = textColor,
-                        gridItemSettings = homeSettings.gridItemSettings.copy(
-                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
-                            textSize = homeSettings.gridItemSettings.textSize / 2,
-                        ),
-                    )
-                }
+            ) { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    textColor = textColor,
+                    gridItemSettings = homeSettings.gridItemSettings.copy(
+                        iconSize = homeSettings.gridItemSettings.iconSize / 2,
+                        textSize = homeSettings.gridItemSettings.textSize / 2,
+                    ),
+                )
             }
         }
 
@@ -346,16 +345,15 @@ fun DragScreen(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 ),
+            gridItems = dockGridItemsCache,
             rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
-        ) {
-            dockGridItemsCache.forEach { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
-                )
-            }
+        ) { gridItem ->
+            GridItemContent(
+                gridItem = gridItem,
+                textColor = textColor,
+                gridItemSettings = homeSettings.gridItemSettings,
+            )
         }
     }
 }

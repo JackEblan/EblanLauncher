@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun InteractiveGridItemContent(
+    modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,
     textColor: TextColor,
@@ -75,9 +76,9 @@ fun InteractiveGridItemContent(
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
             ApplicationInfoGridItem(
+                modifier = modifier,
                 textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
-                gridItem = gridItem,
                 data = data,
                 drag = drag,
                 onTap = {
@@ -91,7 +92,7 @@ fun InteractiveGridItemContent(
 
         is GridItemData.Widget -> {
             WidgetGridItem(
-                gridItem = gridItem,
+                modifier = modifier,
                 data = data,
                 drag = drag,
                 onLongPress = onLongPress,
@@ -102,9 +103,9 @@ fun InteractiveGridItemContent(
 
         is GridItemData.ShortcutInfo -> {
             ShortcutInfoGridItem(
+                modifier = modifier,
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
-                gridItem = gridItem,
                 data = data,
                 drag = drag,
                 onTap = {
@@ -123,9 +124,9 @@ fun InteractiveGridItemContent(
 
         is GridItemData.Folder -> {
             FolderGridItem(
+                modifier = modifier,
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
-                gridItem = gridItem,
                 data = data,
                 drag = drag,
                 onTap = onTapFolderGridItem,
@@ -143,7 +144,6 @@ private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
     onTap: () -> Unit,
@@ -179,7 +179,6 @@ private fun ApplicationInfoGridItem(
 
     Column(
         modifier = modifier
-            .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
                     drawContext.transform.scale(
@@ -247,7 +246,6 @@ private fun ApplicationInfoGridItem(
 @Composable
 private fun WidgetGridItem(
     modifier: Modifier = Modifier,
-    gridItem: GridItem,
     data: GridItemData.Widget,
     drag: Drag,
     onLongPress: () -> Unit,
@@ -301,7 +299,6 @@ private fun WidgetGridItem(
                 }
             },
             modifier = modifier
-                .gridItem(gridItem)
                 .drawWithContent {
                     graphicsLayer.record {
                         drawContext.transform.scale(
@@ -323,7 +320,6 @@ private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     drag: Drag,
     onTap: () -> Unit,
@@ -359,7 +355,6 @@ private fun ShortcutInfoGridItem(
 
     Column(
         modifier = modifier
-            .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
                     drawContext.transform.scale(
@@ -430,7 +425,6 @@ private fun FolderGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    gridItem: GridItem,
     data: GridItemData.Folder,
     drag: Drag,
     onTap: () -> Unit,
@@ -466,7 +460,6 @@ private fun FolderGridItem(
 
     Column(
         modifier = modifier
-            .gridItem(gridItem)
             .drawWithContent {
                 graphicsLayer.record {
                     drawContext.transform.scale(

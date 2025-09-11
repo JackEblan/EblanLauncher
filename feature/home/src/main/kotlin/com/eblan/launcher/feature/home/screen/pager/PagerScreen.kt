@@ -516,81 +516,14 @@ private fun HorizontalPagerScreen(
                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                         end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                     ),
+                gridItems = gridItemsByPage[page],
                 rows = homeSettings.rows,
                 columns = homeSettings.columns,
-            ) {
-                gridItemsByPage[page]?.forEach { gridItem ->
-                    val cellWidth = gridWidth / homeSettings.columns
+            ) { gridItem ->
+                val cellWidth = gridWidth / homeSettings.columns
 
-                    val cellHeight =
-                        (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight) / homeSettings.rows
-
-                    val x = gridItem.startColumn * cellWidth
-
-                    val y = gridItem.startRow * cellHeight
-
-                    val width = gridItem.columnSpan * cellWidth
-
-                    val height = gridItem.rowSpan * cellHeight
-
-                    InteractiveGridItemContent(
-                        gridItem = gridItem,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                        textColor = textColor,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
-                        drag = drag,
-                        onTapApplicationInfo = launcherApps::startMainActivity,
-                        onTapShortcutInfo = launcherApps::startShortcut,
-                        onTapFolderGridItem = {
-                            onTapFolderGridItem(currentPage, gridItem.id)
-                        },
-                        onLongPress = {
-                            val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
-
-                            popupMenuIntOffset = IntOffset(x = x, y = y)
-
-                            popupGridItemMenuIntSize = IntSize(width = width, height = height)
-
-                            onUpdateGridItemOffset(intOffset)
-                        },
-                        onUpdateImageBitmap = { imageBitmap ->
-                            onLongPressGridItem(
-                                currentPage,
-                                GridItemSource.Existing(gridItem = gridItem),
-                                imageBitmap,
-                            )
-
-                            showPopupGridItemMenu = true
-                        },
-                        onDraggingGridItem = onDraggingGridItem,
-                    )
-                }
-            }
-        }
-
-        PageIndicator(
-            modifier = Modifier
-                .height(pageIndicatorHeight)
-                .fillMaxWidth(),
-            pageCount = homeSettings.pageCount,
-            currentPage = currentPage,
-        )
-
-        GridLayout(
-            modifier = Modifier
-                .padding(
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                )
-                .fillMaxWidth()
-                .height(dockHeightDp),
-            rows = homeSettings.dockRows,
-            columns = homeSettings.dockColumns,
-        ) {
-            dockGridItems.forEach { gridItem ->
-                val cellWidth = gridWidth / homeSettings.dockColumns
-
-                val cellHeight = homeSettings.dockHeight / homeSettings.dockRows
+                val cellHeight =
+                    (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight) / homeSettings.rows
 
                 val x = gridItem.startColumn * cellWidth
 
@@ -612,12 +545,9 @@ private fun HorizontalPagerScreen(
                         onTapFolderGridItem(currentPage, gridItem.id)
                     },
                     onLongPress = {
-                        val dockY =
-                            y + (gridHeight - homeSettings.dockHeight)
+                        val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
 
-                        val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
-
-                        popupMenuIntOffset = intOffset
+                        popupMenuIntOffset = IntOffset(x = x, y = y)
 
                         popupGridItemMenuIntSize = IntSize(width = width, height = height)
 
@@ -635,6 +565,74 @@ private fun HorizontalPagerScreen(
                     onDraggingGridItem = onDraggingGridItem,
                 )
             }
+        }
+
+        PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
+            pageCount = homeSettings.pageCount,
+            currentPage = currentPage,
+        )
+
+        GridLayout(
+            modifier = Modifier
+                .padding(
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                )
+                .fillMaxWidth()
+                .height(dockHeightDp),
+            gridItems = dockGridItems,
+            rows = homeSettings.dockRows,
+            columns = homeSettings.dockColumns,
+        ) { gridItem ->
+            val cellWidth = gridWidth / homeSettings.dockColumns
+
+            val cellHeight = homeSettings.dockHeight / homeSettings.dockRows
+
+            val x = gridItem.startColumn * cellWidth
+
+            val y = gridItem.startRow * cellHeight
+
+            val width = gridItem.columnSpan * cellWidth
+
+            val height = gridItem.rowSpan * cellHeight
+
+            InteractiveGridItemContent(
+                gridItem = gridItem,
+                gridItemSettings = homeSettings.gridItemSettings,
+                textColor = textColor,
+                hasShortcutHostPermission = hasShortcutHostPermission,
+                drag = drag,
+                onTapApplicationInfo = launcherApps::startMainActivity,
+                onTapShortcutInfo = launcherApps::startShortcut,
+                onTapFolderGridItem = {
+                    onTapFolderGridItem(currentPage, gridItem.id)
+                },
+                onLongPress = {
+                    val dockY =
+                        y + (gridHeight - homeSettings.dockHeight)
+
+                    val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
+
+                    popupMenuIntOffset = intOffset
+
+                    popupGridItemMenuIntSize = IntSize(width = width, height = height)
+
+                    onUpdateGridItemOffset(intOffset)
+                },
+                onUpdateImageBitmap = { imageBitmap ->
+                    onLongPressGridItem(
+                        currentPage,
+                        GridItemSource.Existing(gridItem = gridItem),
+                        imageBitmap,
+                    )
+
+                    showPopupGridItemMenu = true
+                },
+                onDraggingGridItem = onDraggingGridItem,
+            )
         }
     }
 

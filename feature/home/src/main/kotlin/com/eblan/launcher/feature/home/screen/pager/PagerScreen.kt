@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
@@ -113,6 +115,8 @@ fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
 ) {
+    val context = LocalContext.current
+
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
@@ -194,6 +198,13 @@ fun PagerScreen(
                             swipeDownY = swipeDownY.value,
                             screenHeight = screenHeight,
                             onStartMainActivity = launcherApps::startMainActivity,
+                            onOpenNotificationPanel = {
+                                val intent = Intent(GlobalAction.ACTION).apply {
+                                    putExtra(GlobalAction.ACTION, GlobalAction.Notifications.name)
+                                }
+
+                                context.sendBroadcast(intent)
+                            },
                         )
 
                         resetSwipeOffset(
@@ -289,7 +300,9 @@ fun PagerScreen(
             }
 
             is GestureAction.OpenApp -> {
-                launcherApps.startMainActivity(gestureAction.componentName)
+                SideEffect {
+                    launcherApps.startMainActivity(gestureAction.componentName)
+                }
             }
 
             GestureAction.OpenAppDrawer -> {
@@ -314,7 +327,15 @@ fun PagerScreen(
             }
 
             GestureAction.OpenNotificationPanel -> {
+                SideEffect {
+                    val intent = Intent(GlobalAction.ACTION).apply {
+                        putExtra(GlobalAction.ACTION, GlobalAction.Notifications.name)
+                    }
 
+                    context.sendBroadcast(intent)
+
+                    showDoubleTap = false
+                }
             }
         }
     }

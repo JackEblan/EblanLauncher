@@ -180,34 +180,35 @@ fun doGestureActions(
     swipeDownY: Float,
     screenHeight: Int,
     onStartMainActivity: (String?) -> Unit,
+    onOpenNotificationPanel: () -> Unit,
 ) {
     val swipeThreshold = 100f
 
     if (swipeUpY < screenHeight - swipeThreshold) {
         when (val gestureAction = gestureSettings.swipeUp) {
-            GestureAction.None, GestureAction.OpenAppDrawer -> {
-            }
-
             is GestureAction.OpenApp -> {
                 onStartMainActivity(gestureAction.componentName)
             }
 
             GestureAction.OpenNotificationPanel -> {
+                onOpenNotificationPanel()
             }
+
+            else -> Unit
         }
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
         when (val gestureAction = gestureSettings.swipeDown) {
-            GestureAction.None, GestureAction.OpenAppDrawer -> {
-            }
-
             is GestureAction.OpenApp -> {
                 onStartMainActivity(gestureAction.componentName)
             }
 
             GestureAction.OpenNotificationPanel -> {
+                onOpenNotificationPanel()
             }
+
+            else -> Unit
         }
     }
 }

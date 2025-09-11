@@ -24,8 +24,6 @@ import java.io.File
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-private const val SwipeThreshold = 100f
-
 @OptIn(ExperimentalUuidApi::class)
 suspend fun handlePinItemRequest(
     currentPage: Int,
@@ -183,7 +181,9 @@ fun doGestureActions(
     screenHeight: Int,
     onStartMainActivity: (String?) -> Unit,
 ) {
-    if (swipeUpY < screenHeight - SwipeThreshold) {
+    val swipeThreshold = 100f
+
+    if (swipeUpY < screenHeight - swipeThreshold) {
         when (val gestureAction = gestureSettings.swipeUp) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }
@@ -197,7 +197,7 @@ fun doGestureActions(
         }
     }
 
-    if (swipeDownY < screenHeight - SwipeThreshold) {
+    if (swipeDownY < screenHeight - swipeThreshold) {
         when (val gestureAction = gestureSettings.swipeDown) {
             GestureAction.None, GestureAction.OpenAppDrawer -> {
             }

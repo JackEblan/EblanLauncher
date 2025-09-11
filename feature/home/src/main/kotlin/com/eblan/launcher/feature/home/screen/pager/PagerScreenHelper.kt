@@ -11,6 +11,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -180,7 +181,7 @@ fun doGestureActions(
     swipeDownY: Float,
     screenHeight: Int,
     onStartMainActivity: (String?) -> Unit,
-    onOpenNotificationPanel: () -> Unit,
+    onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
     val swipeThreshold = 100f
 
@@ -191,7 +192,7 @@ fun doGestureActions(
             }
 
             GestureAction.OpenNotificationPanel -> {
-                onOpenNotificationPanel()
+                onPerformGlobalAction(GlobalAction.Notifications)
             }
 
             else -> Unit
@@ -205,7 +206,7 @@ fun doGestureActions(
             }
 
             GestureAction.OpenNotificationPanel -> {
-                onOpenNotificationPanel()
+                onPerformGlobalAction(GlobalAction.Notifications)
             }
 
             else -> Unit

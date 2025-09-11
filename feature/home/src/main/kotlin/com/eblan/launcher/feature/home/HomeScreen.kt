@@ -36,6 +36,7 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
+import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemCacheType
@@ -118,6 +119,7 @@ fun HomeRoute(
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
         onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
+        onPerformGlobalAction = viewModel::performGlobalAction,
     )
 }
 
@@ -191,6 +193,7 @@ fun HomeScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
+    onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -317,6 +320,7 @@ fun HomeScreen(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
+                    onPerformGlobalAction = onPerformGlobalAction,
                 )
             }
         }
@@ -409,6 +413,7 @@ private fun Success(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
+    onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -492,6 +497,7 @@ private fun Success(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
+                    onPerformGlobalAction = onPerformGlobalAction,
                 )
             }
 

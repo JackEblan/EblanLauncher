@@ -3,7 +3,9 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.framework.PerformGlobalAction
 import com.eblan.launcher.domain.model.FolderDataById
+import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemCacheType
@@ -68,6 +70,7 @@ class HomeViewModel @Inject constructor(
     getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
     getEblanShortcutInfosByLabelUseCase: GetEblanShortcutInfosByLabelUseCase,
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
+    private val performGlobalAction: PerformGlobalAction,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -466,6 +469,12 @@ class HomeViewModel @Inject constructor(
     fun getEblanShortcutInfosByLabel(label: String) {
         _eblanShortcutInfoLabel.update {
             label
+        }
+    }
+
+    fun performGlobalAction(globalAction: GlobalAction) {
+        viewModelScope.launch {
+            performGlobalAction.performGlobalAction(globalAction = globalAction)
         }
     }
 }

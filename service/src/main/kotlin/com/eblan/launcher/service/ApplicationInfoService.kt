@@ -34,7 +34,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -69,7 +68,7 @@ class ApplicationInfoService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         serviceScope.launch {
             launch {
-                launcherAppsWrapper.launcherAppsEvent.collectLatest { launcherAppsEvent ->
+                launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
                     when (launcherAppsEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
                             addPackageUseCase(packageName = launcherAppsEvent.packageName)

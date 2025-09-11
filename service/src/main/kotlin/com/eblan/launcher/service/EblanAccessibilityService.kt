@@ -1,36 +1,23 @@
 package com.eblan.launcher.service
 
 import android.accessibilityservice.AccessibilityService
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.view.accessibility.AccessibilityEvent
-import androidx.core.content.ContextCompat
+import com.eblan.launcher.domain.framework.PerformGlobalAction
 import com.eblan.launcher.domain.model.GlobalAction
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-internal class EblanAccessibilityService @Inject constructor() : AccessibilityService(){
-    private val commandReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action != GlobalAction.ACTION) return
+@AndroidEntryPoint
+internal class EblanAccessibilityService : AccessibilityService() {
+    @Inject
+    lateinit var performGlobalAction: PerformGlobalAction
 
-            val globalAction = intent.getStringExtra(GlobalAction.ACTION) ?: return
-
-            when(GlobalAction.valueOf(globalAction)){
-                GlobalAction.Notifications -> {
-                    performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
-                }
-
-                GlobalAction.QuickSettings -> {
-
-                }
-                GlobalAction.LockScreen -> {
-
-                }
-            }
-        }
-    }
+    private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
@@ -41,19 +28,26 @@ internal class EblanAccessibilityService @Inject constructor() : AccessibilitySe
     }
 
     override fun onServiceConnected() {
-        val filter = IntentFilter().apply {
-            addAction(GlobalAction.ACTION)
-        }
+        serviceScope.launch {
+            performGlobalAction.globalAction.collect { globalAction ->
+                when (globalAction) {
+                    GlobalAction.Notifications -> {
+                        performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+                    }
 
-        ContextCompat.registerReceiver(
-            applicationContext,
-            commandReceiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
+                    GlobalAction.QuickSettings -> {
+
+                    }
+
+                    GlobalAction.LockScreen -> {
+
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
-        unregisterReceiver(commandReceiver)
+        serviceScope.cancel()
     }
 }

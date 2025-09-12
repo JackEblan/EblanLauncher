@@ -36,7 +36,6 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.getSystemTextColor
-import kotlinx.coroutines.delay
 
 @Composable
 fun FolderDragScreen(
@@ -62,6 +61,7 @@ fun FolderDragScreen(
         gridHeight: Int,
     ) -> Unit,
     onDragEnd: (Int) -> Unit,
+    onDragCancel: () -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
     requireNotNull(gridItemSource)
@@ -129,9 +129,17 @@ fun FolderDragScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.End, Drag.Cancel -> {
-                delay(200L)
-
-                onDragEnd(horizontalPagerState.currentPage)
+                handleFolderGridItemOnDragEnd(
+                    density = density,
+                    currentPage = horizontalPagerState.currentPage,
+                    dragIntOffset = dragIntOffset,
+                    screenHeight = screenHeight,
+                    gridPadding = gridPaddingPx,
+                    pageIndicatorHeight = pageIndicatorHeightPx,
+                    paddingValues = paddingValues,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragCancel
+                )
             }
 
             else -> Unit

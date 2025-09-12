@@ -622,9 +622,8 @@ private fun Success(
 
                         onResetGridCacheAfterMoveFolder()
                     },
+                    onDragCancel = onCancelGridCache,
                     onMoveOutsideFolder = { newGridItemSource ->
-                        folderTargetPage = 0
-
                         gridItemSource = newGridItemSource
 
                         onMoveOutsideFolder(homeData.gridItems)

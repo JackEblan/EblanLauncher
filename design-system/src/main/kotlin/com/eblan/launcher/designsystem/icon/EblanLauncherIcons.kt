@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Search
@@ -52,4 +53,5 @@ object EblanLauncherIcons {
     val Search = Icons.Default.Search
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
+    val Info = Icons.Default.Info
 }

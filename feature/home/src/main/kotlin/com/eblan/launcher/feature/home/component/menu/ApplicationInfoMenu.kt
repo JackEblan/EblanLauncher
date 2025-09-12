@@ -14,7 +14,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     onApplicationInfo: () -> Unit,
-    onWidgets: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -25,13 +25,13 @@ fun ApplicationInfoMenu(
                 IconButton(
                     onClick = onApplicationInfo,
                 ) {
-                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Info, contentDescription = null)
                 }
 
                 IconButton(
-                    onClick = onWidgets,
+                    onClick = onDelete,
                 ) {
-                    Icon(imageVector = EblanLauncherIcons.Widgets, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
                 }
 
             }

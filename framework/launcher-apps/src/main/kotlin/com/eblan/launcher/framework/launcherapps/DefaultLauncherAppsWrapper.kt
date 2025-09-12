@@ -152,8 +152,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                 setQueryFlags(
                     LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                 )
             }
 
@@ -178,6 +178,17 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     override fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo, density: Int): Drawable {
         return launcherApps.getShortcutIconDrawable(shortcutInfo, density)
+    }
+
+    override fun startAppDetailsActivity(componentName: String?) {
+        if (componentName != null) {
+            launcherApps.startAppDetailsActivity(
+                ComponentName.unflattenFromString(componentName),
+                userHandle,
+                Rect(),
+                Bundle.EMPTY,
+            )
+        }
     }
 
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): EblanLauncherActivityInfo {

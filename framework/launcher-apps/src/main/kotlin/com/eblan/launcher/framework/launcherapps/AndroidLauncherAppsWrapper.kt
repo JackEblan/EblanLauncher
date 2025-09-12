@@ -34,4 +34,6 @@ interface AndroidLauncherAppsWrapper {
     fun startShortcut(packageName: String, id: String)
 
     fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo, density: Int): Drawable
+
+    fun startAppDetailsActivity(componentName: String?)
 }

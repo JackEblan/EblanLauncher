@@ -1,5 +1,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +53,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
@@ -67,6 +70,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -84,6 +88,7 @@ fun DoubleTapApplicationScreen(
     screenHeight: Int,
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    gridItemSource: GridItemSource?,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -114,6 +119,7 @@ fun DoubleTapApplicationScreen(
         drag = drag,
         appDrawerSettings = appDrawerSettings,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+        gridItemSource = gridItemSource,
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -140,6 +146,7 @@ fun ApplicationScreen(
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    gridItemSource: GridItemSource?,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -158,8 +165,6 @@ fun ApplicationScreen(
         infiniteScroll = infiniteScroll,
         pageCount = pageCount,
     )
-
-    val density = LocalDensity.current
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -237,7 +242,7 @@ fun ApplicationScreen(
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
                                     onDraggingGridItem = onDraggingGridItem,
-                                    )
+                                )
 
                                 LazyVerticalGrid(
                                     columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
@@ -254,11 +259,11 @@ fun ApplicationScreen(
                                             onLongPress = { intOffset, intSize ->
                                                 onUpdateGridItemOffset(intOffset)
 
-                                                showPopupApplicationMenu = true
-
                                                 popupMenuIntOffset = intOffset
 
                                                 popupMenuIntSize = intSize
+
+                                                showPopupApplicationMenu = true
                                             },
                                             onLongPressGridItem = onLongPressGridItem,
                                             onDraggingGridItem = onDraggingGridItem,
@@ -267,33 +272,16 @@ fun ApplicationScreen(
                                 }
                             }
 
-                            if (showPopupApplicationMenu) {
-                                val leftPadding = with(density) {
-                                    paddingValues.calculateStartPadding(LayoutDirection.Ltr)
-                                        .roundToPx()
-                                }
 
-                                val topPadding = with(density) {
-                                    paddingValues.calculateTopPadding().roundToPx()
-                                }
-
-                                val x = popupMenuIntOffset.x - leftPadding
-
-                                val y = popupMenuIntOffset.y - topPadding
-
-                                Popup(
-                                    popupPositionProvider = MenuPositionProvider(
-                                        x = x,
-                                        y = y,
-                                        width = popupMenuIntSize.width,
-                                        height = popupMenuIntSize.height,
-                                    ),
+                            if (showPopupApplicationMenu && gridItemSource?.gridItem != null) {
+                                PopupApplicationInfoMenu(
+                                    paddingValues = paddingValues,
+                                    popupMenuIntOffset = popupMenuIntOffset,
+                                    gridItem = gridItemSource.gridItem,
+                                    popupMenuIntSize = popupMenuIntSize,
                                     onDismissRequest = {
                                         showPopupApplicationMenu = false
-                                    },
-                                    content = {
-                                        ApplicationInfoMenu(onApplicationInfo = {}, onWidgets = {})
-                                    },
+                                    }
                                 )
                             }
                         }
@@ -447,7 +435,10 @@ private fun EblanApplicationInfoItem(
                     onLongPress = {
                         isLongPressed = true
 
-                        onLongPress(intOffset, intSize)
+                        onLongPress(
+                            intOffset,
+                            intSize
+                        )
 
                         scope.launch {
                             scale.animateTo(0.5f)
@@ -520,4 +511,64 @@ private fun EblanApplicationInfoItem(
             )
         }
     }
+}
+
+@Composable
+private fun PopupApplicationInfoMenu(
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
+    popupMenuIntOffset: IntOffset,
+    gridItem: GridItem?,
+    popupMenuIntSize: IntSize,
+    onDismissRequest: () -> Unit,
+) {
+    val applicationInfo = (gridItem?.data as? GridItemData.ApplicationInfo)
+        ?: error("Expected GridItemData as ApplicationInfo")
+
+    val density = LocalDensity.current
+
+    val launcherApps = LocalLauncherApps.current
+
+    val context = LocalContext.current
+
+
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr)
+            .roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val x = popupMenuIntOffset.x - leftPadding
+
+    val y = popupMenuIntOffset.y - topPadding
+
+    Popup(
+        popupPositionProvider = MenuPositionProvider(
+            x = x,
+            y = y,
+            width = popupMenuIntSize.width,
+            height = popupMenuIntSize.height,
+        ),
+        onDismissRequest = onDismissRequest,
+        content = {
+            ApplicationInfoMenu(
+                modifier = modifier,
+                onApplicationInfo = {
+                    launcherApps.startAppDetailsActivity(componentName = applicationInfo.componentName)
+
+                    onDismissRequest()
+                }, onDelete = {
+                    val intent = Intent(Intent.ACTION_DELETE).apply {
+                        data = "package:${applicationInfo.packageName}".toUri()
+                    }
+
+                    context.startActivity(intent)
+
+                    onDismissRequest()
+                })
+        },
+    )
 }

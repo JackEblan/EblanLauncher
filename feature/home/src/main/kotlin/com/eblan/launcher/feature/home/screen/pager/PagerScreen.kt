@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
+import androidx.core.net.toUri
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -52,6 +53,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
+import com.eblan.launcher.feature.home.component.menu.GridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.SettingsMenu
 import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvider
@@ -271,6 +273,7 @@ fun PagerScreen(
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+            gridItemSource = gridItemSource,
             onDismiss = {
                 scope.launch {
                     swipeUpY.snapTo(screenHeight.toFloat())
@@ -312,6 +315,7 @@ fun PagerScreen(
                     screenHeight = screenHeight,
                     appDrawerSettings = appDrawerSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                    gridItemSource = gridItemSource,
                     onDismiss = {
                         showDoubleTap = false
                     },
@@ -337,6 +341,7 @@ fun PagerScreen(
                     showDoubleTap = false
                 }
             }
+
             GestureAction.OpenQuickSettings -> {
                 SideEffect {
                     onPerformGlobalAction(GlobalAction.QuickSettings)
@@ -344,6 +349,7 @@ fun PagerScreen(
                     showDoubleTap = false
                 }
             }
+
             GestureAction.OpenRecents -> {
                 SideEffect {
                     onPerformGlobalAction(GlobalAction.Recents)
@@ -687,6 +693,22 @@ private fun HorizontalPagerScreen(
             height = popupGridItemMenuIntSize.height,
             onEdit = onEdit,
             onResize = onResize,
+            onUninstallApplicationInfo = {
+                val intent = Intent(Intent.ACTION_DELETE).apply {
+                    data = "package:$it".toUri()
+                }
+
+                context.startActivity(intent)
+            },
+            onDeleteShortcut = {
+
+            },
+            onDeleteFolder = {
+
+            },
+            onInfo = {
+                launcherApps.startAppDetailsActivity(it)
+            },
             onDismissRequest = {
                 showPopupGridItemMenu = false
             },
@@ -738,30 +760,30 @@ private fun PopupSettingsMenu(
         SettingsMenu(
             hasShortcutHostPermission = hasShortcutHostPermission,
             onSettings = {
-                onDismissRequest()
-
                 onSettings()
+
+                onDismissRequest()
             },
             onEditPage = {
-                onDismissRequest()
-
                 onEditPage(gridItems)
+
+                onDismissRequest()
             },
 
             onWidgets = {
-                onDismissRequest()
-
                 onWidgets()
+
+                onDismissRequest()
             },
             onShortcuts = {
-                onDismissRequest()
-
                 onShortcuts()
+
+                onDismissRequest()
             },
             onWallpaper = {
-                onDismissRequest()
-
                 onWallpaper()
+
+                onDismissRequest()
             },
         )
     }
@@ -777,6 +799,10 @@ private fun PopupGridItemMenu(
     height: Int,
     onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
+    onUninstallApplicationInfo: (String) -> Unit,
+    onDeleteShortcut: (GridItem) -> Unit,
+    onDeleteFolder: (String) -> Unit,
+    onInfo: (String?) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     Popup(
@@ -789,19 +815,64 @@ private fun PopupGridItemMenu(
         onDismissRequest = onDismissRequest,
         content = {
             when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo,
-                is GridItemData.ShortcutInfo,
-                is GridItemData.Folder,
-                    -> {
+                is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItemMenu(
                         onEdit = {
-                            onDismissRequest()
-
                             onEdit(gridItem.id)
+
+                            onDismissRequest()
                         },
                         onResize = {
                             onResize(currentPage)
+
+                            onDismissRequest()
                         },
+                        onDelete = {
+                            onUninstallApplicationInfo(data.packageName)
+
+                            onDismissRequest()
+                        },
+                        onInfo = {
+                            onInfo(data.componentName)
+
+                            onDismissRequest()
+                        }
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    GridItemMenu(
+                        onEdit = {
+                            onEdit(gridItem.id)
+
+                            onDismissRequest()
+                        },
+                        onResize = {
+                            onResize(currentPage)
+
+                            onDismissRequest()
+                        },
+                        onDelete = {
+
+                        }
+                    )
+                }
+
+                is GridItemData.Folder -> {
+                    GridItemMenu(
+                        onEdit = {
+                            onEdit(gridItem.id)
+
+                            onDismissRequest()
+                        },
+                        onResize = {
+                            onResize(currentPage)
+
+                            onDismissRequest()
+                        },
+                        onDelete = {
+
+                        }
                     )
                 }
 

@@ -34,12 +34,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.feature.settings.folder.model.FolderSettingsUiState
-import com.eblan.launcher.ui.dialog.TwoNumberTextFieldsDialog
+import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
@@ -129,16 +130,33 @@ private fun Success(
     }
 
     if (showGridDialog) {
-        TwoNumberTextFieldsDialog(
+        var folderRows by remember { mutableStateOf("${homeSettings.folderRows}") }
+
+        var folderColumns by remember { mutableStateOf("${homeSettings.folderColumns}") }
+
+        TwoTextFieldsDialog(
             title = "Folder Grid",
             firstTextFieldTitle = "Folder Rows",
             secondTextFieldTitle = "Folder Columns",
-            firstTextFieldValue = homeSettings.folderRows,
-            secondTextFieldValue = homeSettings.folderColumns,
+            firstTextFieldValue = folderRows,
+            secondTextFieldValue = folderColumns,
+            keyboardType = KeyboardType.Number,
+            onFirstValueChange = {
+                folderRows = it
+            },
+            onSecondValueChange = {
+                folderColumns = it
+            },
             onDismissRequest = {
                 showGridDialog = false
             },
-            onUpdateClick = onUpdateFolderGrid,
+            onUpdateClick = {
+                try {
+                    onUpdateFolderGrid(folderRows.toInt(), folderColumns.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show Error")
+                }
+            },
         )
     }
 }

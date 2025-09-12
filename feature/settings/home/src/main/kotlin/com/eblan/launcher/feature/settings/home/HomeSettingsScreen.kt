@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,8 +48,8 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
-import com.eblan.launcher.ui.dialog.SingleNumberTextFieldDialog
-import com.eblan.launcher.ui.dialog.TwoNumberTextFieldsDialog
+import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
+import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
@@ -297,52 +298,120 @@ private fun Success(
     }
 
     if (showGridDialog) {
-        TwoNumberTextFieldsDialog(
+        var rows by remember { mutableStateOf("${homeSettings.rows}") }
+
+        var columns by remember { mutableStateOf("${homeSettings.columns}") }
+
+        TwoTextFieldsDialog(
             title = "Grid",
             firstTextFieldTitle = "Rows",
             secondTextFieldTitle = "Columns",
-            firstTextFieldValue = homeSettings.rows,
-            secondTextFieldValue = homeSettings.columns,
+            firstTextFieldValue = rows,
+            secondTextFieldValue = columns,
+            keyboardType = KeyboardType.Number,
+            onFirstValueChange = {
+                rows = it
+            },
+            onSecondValueChange = {
+                columns = it
+            },
             onDismissRequest = {
                 showGridDialog = false
             },
-            onUpdateClick = onUpdateGrid,
+            onUpdateClick = {
+                try {
+                    onUpdateGrid(rows.toInt(), columns.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show Error")
+                }
+
+                showGridDialog = false
+            },
         )
     }
 
     if (showDockGridDialog) {
-        TwoNumberTextFieldsDialog(
+        var dockRows by remember { mutableStateOf("${homeSettings.dockRows}") }
+
+        var dockColumns by remember { mutableStateOf("${homeSettings.dockColumns}") }
+
+        TwoTextFieldsDialog(
             title = "Dock Grid",
             firstTextFieldTitle = "Dock Rows",
             secondTextFieldTitle = "Dock Columns",
-            firstTextFieldValue = homeSettings.dockRows,
-            secondTextFieldValue = homeSettings.dockColumns,
+            firstTextFieldValue = dockRows,
+            secondTextFieldValue = dockColumns,
+            keyboardType = KeyboardType.Number,
+            onFirstValueChange = {
+                dockRows = it
+            },
+            onSecondValueChange = {
+                dockColumns = it
+            },
             onDismissRequest = {
                 showDockGridDialog = false
             },
-            onUpdateClick = onUpdateDockGrid,
+            onUpdateClick = {
+                try {
+                    onUpdateDockGrid(dockRows.toInt(), dockColumns.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show Error")
+                }
+
+                showDockGridDialog = false
+            },
         )
     }
 
     if (showDockHeightDialog) {
-        SingleNumberTextFieldDialog(
+        var value by remember { mutableStateOf("${homeSettings.dockHeight}") }
+
+        SingleTextFieldDialog(
             title = "Dock Height",
-            value = homeSettings.dockHeight,
+            textFieldTitle = "Dock Height",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showDockHeightDialog = false
             },
-            onUpdateClick = onUpdateDockHeight,
+            onUpdateClick = {
+                try {
+                    onUpdateDockHeight(value.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showDockHeightDialog = false
+            },
         )
     }
 
     if (showIconSizeDialog) {
-        SingleNumberTextFieldDialog(
-            title = "Icon Size",
-            value = homeSettings.gridItemSettings.iconSize,
+        var value by remember { mutableStateOf("${homeSettings.gridItemSettings.iconSize}") }
+
+        SingleTextFieldDialog(
+            title = "Text Size",
+            textFieldTitle = "Text Size",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showIconSizeDialog = false
             },
-            onUpdateClick = onUpdateIconSize,
+            onUpdateClick = {
+                try {
+                    onUpdateIconSize(value.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showIconSizeDialog = false
+            },
         )
     }
 
@@ -361,18 +430,37 @@ private fun Success(
             onDismissRequest = {
                 showTextColorDialog = false
             },
-            onUpdateClick = onUpdateTextColor,
+            onUpdateClick = {
+                onUpdateTextColor(it)
+
+                showTextColorDialog = false
+            },
         )
     }
 
     if (showTextSizeDialog) {
-        SingleNumberTextFieldDialog(
+        var value by remember { mutableStateOf("${homeSettings.gridItemSettings.textSize}") }
+
+        SingleTextFieldDialog(
             title = "Text Size",
-            value = homeSettings.gridItemSettings.textSize,
+            textFieldTitle = "Text Size",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showTextSizeDialog = false
             },
-            onUpdateClick = onUpdateTextSize,
+            onUpdateClick = {
+                try {
+                    onUpdateTextSize(value.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showTextSizeDialog = false
+            },
         )
     }
 }

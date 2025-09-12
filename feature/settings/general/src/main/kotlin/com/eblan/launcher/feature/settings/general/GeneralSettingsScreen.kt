@@ -174,7 +174,11 @@ private fun Success(
             onDismissRequest = {
                 showThemeBrandDialog = false
             },
-            onUpdateClick = onUpdateThemeBrand,
+            onUpdateClick = {
+                onUpdateThemeBrand(it)
+
+                showThemeBrandDialog = false
+            },
         )
     }
 
@@ -193,7 +197,11 @@ private fun Success(
             onDismissRequest = {
                 showDarkThemeConfigDialog = false
             },
-            onUpdateClick = onUpdateDarkThemeConfig,
+            onUpdateClick = {
+                onUpdateDarkThemeConfig(it)
+
+                showDarkThemeConfigDialog = false
+            },
         )
     }
 }

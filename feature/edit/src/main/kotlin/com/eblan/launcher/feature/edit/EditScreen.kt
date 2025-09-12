@@ -37,15 +37,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.edit.model.EditUiState
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
-import com.eblan.launcher.ui.dialog.SingleNumberTextFieldDialog
+import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
@@ -120,17 +122,27 @@ private fun Success(
     gridItem: GridItem,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
+    var showEditLabelDialog by remember { mutableStateOf(false) }
+
     var showIconSizeDialog by remember { mutableStateOf(false) }
 
     var showTextColorDialog by remember { mutableStateOf(false) }
 
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
+    val subtitle = when(val data = gridItem.data){
+        is GridItemData.ApplicationInfo -> data.label.toString()
+        is GridItemData.Folder -> data.label
+        is GridItemData.ShortcutInfo -> data.shortLabel
+        is GridItemData.Widget -> ""
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
             title = "Edit Label",
-            subtitle = "Edit label",
+            subtitle = subtitle,
             onClick = {
+                showEditLabelDialog = true
             },
         )
 
@@ -210,17 +222,109 @@ private fun Success(
         )
     }
 
+    if (showEditLabelDialog) {
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                var value by remember { mutableStateOf(data.label.toString()) }
+
+                SingleTextFieldDialog(
+                    title = "Label",
+                    textFieldTitle = "Label",
+                    value = value,
+                    keyboardType = KeyboardType.Text,
+                    onValueChange = {
+                        value = it
+                    },
+                    onDismissRequest = {
+                        showEditLabelDialog = false
+                    },
+                    onUpdateClick = {
+                        val newData = data.copy(label = value)
+
+                        onUpdateGridItem(gridItem.copy(data = newData))
+
+                        showEditLabelDialog = false
+                    },
+                )
+            }
+
+            is GridItemData.Folder -> {
+                var value by remember { mutableStateOf(data.label) }
+
+                SingleTextFieldDialog(
+                    title = "Label",
+                    textFieldTitle = "Label",
+                    value = value,
+                    keyboardType = KeyboardType.Text,
+                    onValueChange = {
+                        value = it
+                    },
+                    onDismissRequest = {
+                        showEditLabelDialog = false
+                    },
+                    onUpdateClick = {
+                        val newData = data.copy(label = value)
+
+                        onUpdateGridItem(gridItem.copy(data = newData))
+
+                        showEditLabelDialog = false
+                    },
+                )
+            }
+
+            is GridItemData.ShortcutInfo -> {
+                var value by remember { mutableStateOf(data.shortLabel) }
+
+                SingleTextFieldDialog(
+                    title = "Label",
+                    textFieldTitle = "Label",
+                    value = value,
+                    keyboardType = KeyboardType.Text,
+                    onValueChange = {
+                        value = it
+                    },
+                    onDismissRequest = {
+                        showEditLabelDialog = false
+                    },
+                    onUpdateClick = {
+                        val newData = data.copy(shortLabel = value)
+
+                        onUpdateGridItem(gridItem.copy(data = newData))
+
+                        showEditLabelDialog = false
+                    },
+                )
+            }
+
+            else -> Unit
+        }
+    }
+
     if (showIconSizeDialog) {
-        SingleNumberTextFieldDialog(
+        var value by remember { mutableStateOf("${gridItem.gridItemSettings.iconSize}") }
+
+        SingleTextFieldDialog(
             title = "Icon Size",
-            value = gridItem.gridItemSettings.iconSize,
+            textFieldTitle = "Icon Size",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showIconSizeDialog = false
             },
-            onUpdateClick = { newIconSize ->
-                val newGridItemSettings = gridItem.gridItemSettings.copy(iconSize = newIconSize)
+            onUpdateClick = {
+                try {
+                    val newGridItemSettings =
+                        gridItem.gridItemSettings.copy(iconSize = value.toInt())
 
-                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showIconSizeDialog = false
             },
         )
     }
@@ -244,21 +348,37 @@ private fun Success(
                 val newGridItemSettings = gridItem.gridItemSettings.copy(textColor = newTextColor)
 
                 onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+
+                showTextColorDialog = false
             },
         )
     }
 
     if (showTextSizeDialog) {
-        SingleNumberTextFieldDialog(
+        var value by remember { mutableStateOf("${gridItem.gridItemSettings.textSize}") }
+
+        SingleTextFieldDialog(
             title = "Text Size",
-            value = gridItem.gridItemSettings.textSize,
+            textFieldTitle = "Text Size",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showTextSizeDialog = false
             },
-            onUpdateClick = { newTextSize ->
-                val newGridItemSettings = gridItem.gridItemSettings.copy(textSize = newTextSize)
+            onUpdateClick = {
+                try {
+                    val newGridItemSettings =
+                        gridItem.gridItemSettings.copy(textSize = value.toInt())
 
-                onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+                    onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showTextSizeDialog = false
             },
         )
     }

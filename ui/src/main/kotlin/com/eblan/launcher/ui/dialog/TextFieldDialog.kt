@@ -31,25 +31,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
 @Composable
-fun SingleNumberTextFieldDialog(
+fun SingleTextFieldDialog(
     modifier: Modifier = Modifier,
     title: String,
-    value: Int,
+    textFieldTitle: String,
+    value: String,
+    keyboardType: KeyboardType,
+    onValueChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    onUpdateClick: (Int) -> Unit,
+    onUpdateClick: () -> Unit,
 ) {
-    var currentValue by remember { mutableStateOf("$value") }
-
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -61,15 +58,13 @@ fun SingleNumberTextFieldDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             TextField(
-                value = currentValue,
-                onValueChange = {
-                    currentValue = it
-                },
+                value = value,
+                onValueChange = onValueChange,
                 modifier = Modifier.fillMaxWidth(),
                 label = {
-                    Text(text = title)
+                    Text(text = textFieldTitle)
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -84,14 +79,7 @@ fun SingleNumberTextFieldDialog(
                     Text(text = "Cancel")
                 }
                 TextButton(
-                    onClick = {
-                        try {
-                            onUpdateClick(currentValue.toInt().coerceAtLeast(10))
-                        } catch (_: NumberFormatException) {
-                        } finally {
-                            onDismissRequest()
-                        }
-                    },
+                    onClick = onUpdateClick,
                 ) {
                     Text(text = "Update")
                 }
@@ -101,23 +89,19 @@ fun SingleNumberTextFieldDialog(
 }
 
 @Composable
-fun TwoNumberTextFieldsDialog(
+fun TwoTextFieldsDialog(
     modifier: Modifier = Modifier,
     title: String,
     firstTextFieldTitle: String,
     secondTextFieldTitle: String,
-    firstTextFieldValue: Int,
-    secondTextFieldValue: Int,
+    firstTextFieldValue: String,
+    secondTextFieldValue: String,
+    keyboardType: KeyboardType,
+    onFirstValueChange: (String) -> Unit,
+    onSecondValueChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    onUpdateClick: (
-        firstTextFieldValue: Int,
-        secondTextFieldValue: Int,
-    ) -> Unit,
+    onUpdateClick: () -> Unit,
 ) {
-    var currentFirstTextFieldValue by remember { mutableStateOf("$firstTextFieldValue") }
-
-    var currentSecondTextFieldValue by remember { mutableStateOf("$secondTextFieldValue") }
-
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -130,24 +114,20 @@ fun TwoNumberTextFieldsDialog(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 TextField(
-                    value = currentFirstTextFieldValue,
-                    onValueChange = {
-                        currentFirstTextFieldValue = it
-                    },
+                    value = firstTextFieldValue,
+                    onValueChange = onFirstValueChange,
                     modifier = Modifier.weight(1f),
                     label = {
                         Text(text = firstTextFieldTitle)
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                 )
 
                 Spacer(modifier = Modifier.width(5.dp))
 
                 TextField(
-                    value = currentSecondTextFieldValue,
-                    onValueChange = {
-                        currentSecondTextFieldValue = it
-                    },
+                    value = secondTextFieldValue,
+                    onValueChange = onSecondValueChange,
                     modifier = Modifier.weight(1f),
                     label = {
                         Text(text = secondTextFieldTitle)
@@ -168,17 +148,7 @@ fun TwoNumberTextFieldsDialog(
                     Text(text = "Cancel")
                 }
                 TextButton(
-                    onClick = {
-                        try {
-                            onUpdateClick(
-                                currentFirstTextFieldValue.toInt().coerceAtLeast(1),
-                                currentSecondTextFieldValue.toInt().coerceAtLeast(1),
-                            )
-                        } catch (_: NumberFormatException) {
-                        } finally {
-                            onDismissRequest()
-                        }
-                    },
+                    onClick = onUpdateClick,
                 ) {
                     Text(text = "Update")
                 }

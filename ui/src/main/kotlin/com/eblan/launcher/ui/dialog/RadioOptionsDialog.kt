@@ -78,7 +78,6 @@ fun <T> RadioOptionsDialog(
                 TextButton(
                     onClick = {
                         onUpdateClick(selectedOption)
-                        onDismissRequest()
                     },
                 ) {
                     Text(text = "Update")

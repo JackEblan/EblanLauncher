@@ -37,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,8 +46,8 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiState
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
-import com.eblan.launcher.ui.dialog.SingleNumberTextFieldDialog
-import com.eblan.launcher.ui.dialog.TwoNumberTextFieldsDialog
+import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
+import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
@@ -221,27 +222,59 @@ private fun Success(
     }
 
     if (showGridDialog) {
-        TwoNumberTextFieldsDialog(
+        var appDrawerColumns by remember { mutableStateOf("${appDrawerSettings.appDrawerColumns}") }
+
+        var appDrawerRowsHeight by remember { mutableStateOf("${appDrawerSettings.appDrawerRowsHeight}") }
+
+        TwoTextFieldsDialog(
             title = "App Drawer Grid",
             firstTextFieldTitle = "Columns",
             secondTextFieldTitle = "Rows Height",
-            firstTextFieldValue = appDrawerSettings.appDrawerColumns,
-            secondTextFieldValue = appDrawerSettings.appDrawerRowsHeight,
+            firstTextFieldValue = appDrawerColumns,
+            secondTextFieldValue = appDrawerRowsHeight,
+            keyboardType = KeyboardType.Number,
+            onFirstValueChange = {
+                appDrawerColumns = it
+            },
+            onSecondValueChange = {
+                appDrawerRowsHeight = it
+            },
             onDismissRequest = {
                 showGridDialog = false
             },
-            onUpdateClick = onUpdateAppDrawerGrid,
+            onUpdateClick = {
+                try {
+                    onUpdateAppDrawerGrid(appDrawerColumns.toInt(), appDrawerRowsHeight.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show Error")
+                }
+            },
         )
     }
 
     if (showIconSizeDialog) {
-        SingleNumberTextFieldDialog(
+        var value by remember { mutableStateOf("${appDrawerSettings.gridItemSettings.iconSize}") }
+
+        SingleTextFieldDialog(
             title = "Icon Size",
-            value = appDrawerSettings.gridItemSettings.iconSize,
+            textFieldTitle = "Icon Size",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showIconSizeDialog = false
             },
-            onUpdateClick = onUpdateAppDrawerIconSize,
+            onUpdateClick = {
+                try {
+                    onUpdateAppDrawerIconSize(value.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showIconSizeDialog = false
+            },
         )
     }
 
@@ -265,13 +298,28 @@ private fun Success(
     }
 
     if (showTextSizeDialog) {
-        SingleNumberTextFieldDialog(
+        var value by remember { mutableStateOf("${appDrawerSettings.gridItemSettings.textSize}") }
+
+        SingleTextFieldDialog(
             title = "Text Size",
-            value = appDrawerSettings.gridItemSettings.textSize,
+            textFieldTitle = "Text Size",
+            value = value,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
             onDismissRequest = {
                 showTextSizeDialog = false
             },
-            onUpdateClick = onUpdateAppDrawerTextSize,
+            onUpdateClick = {
+                try {
+                    onUpdateAppDrawerTextSize(value.toInt())
+                } catch (e: NumberFormatException) {
+                    TODO("Show error")
+                }
+
+                showTextSizeDialog = false
+            },
         )
     }
 }

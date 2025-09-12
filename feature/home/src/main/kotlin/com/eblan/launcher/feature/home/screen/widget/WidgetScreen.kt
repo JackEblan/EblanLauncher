@@ -459,6 +459,8 @@ private fun EblanAppWidgetProviderInfoItem(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,
         )
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 

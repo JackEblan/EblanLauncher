@@ -392,6 +392,8 @@ private fun EblanApplicationInfoItem(
 
     val density = LocalDensity.current
 
+    val launcherApps = LocalLauncherApps.current
+
     val textColor = getSystemTextColor(textColor = appDrawerSettings.gridItemSettings.textColor)
 
     val appDrawerRowsHeightDp = with(density) {
@@ -432,6 +434,15 @@ private fun EblanApplicationInfoItem(
             }
             .pointerInput(key1 = drag) {
                 detectTapGestures(
+                    onTap = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            launcherApps.startMainActivity(eblanApplicationInfo.componentName)
+                        }
+                    },
                     onLongPress = {
                         isLongPressed = true
 

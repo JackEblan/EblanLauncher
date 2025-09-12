@@ -242,6 +242,9 @@ fun ApplicationScreen(
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
                                     onDraggingGridItem = onDraggingGridItem,
+                                    onUpdatePopupMenu = {
+                                        showPopupApplicationMenu = true
+                                    }
                                 )
 
                                 LazyVerticalGrid(
@@ -262,11 +265,18 @@ fun ApplicationScreen(
                                                 popupMenuIntOffset = intOffset
 
                                                 popupMenuIntSize = intSize
-
-                                                showPopupApplicationMenu = true
                                             },
-                                            onLongPressGridItem = onLongPressGridItem,
+                                            onLongPressGridItem = { currentPage, gridItemSource, imageBitmap ->
+                                                onLongPressGridItem(
+                                                    currentPage,
+                                                    gridItemSource,
+                                                    imageBitmap
+                                                )
+                                            },
                                             onDraggingGridItem = onDraggingGridItem,
+                                            onUpdatePopupMenu = {
+                                                showPopupApplicationMenu = true
+                                            }
                                         )
                                     }
                                 }
@@ -308,6 +318,7 @@ private fun EblanApplicationInfoDockSearchBar(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdatePopupMenu: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -355,6 +366,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     },
                     onLongPressGridItem = onLongPressGridItem,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdatePopupMenu = onUpdatePopupMenu,
                 )
             }
         }
@@ -378,6 +390,7 @@ private fun EblanApplicationInfoItem(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
+    onUpdatePopupMenu: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -484,6 +497,8 @@ private fun EblanApplicationInfoItem(
                                 ),
                                 graphicsLayer.toImageBitmap(),
                             )
+
+                            onUpdatePopupMenu()
                         }
                     },
                     onPress = {
@@ -533,8 +548,7 @@ private fun PopupApplicationInfoMenu(
     popupMenuIntSize: IntSize,
     onDismissRequest: () -> Unit,
 ) {
-    val applicationInfo = (gridItem?.data as? GridItemData.ApplicationInfo)
-        ?: error("Expected GridItemData as ApplicationInfo")
+    val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
     val density = LocalDensity.current
 
@@ -544,8 +558,7 @@ private fun PopupApplicationInfoMenu(
 
 
     val leftPadding = with(density) {
-        paddingValues.calculateStartPadding(LayoutDirection.Ltr)
-            .roundToPx()
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
 
     val topPadding = with(density) {

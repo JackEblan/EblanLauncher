@@ -129,7 +129,7 @@ fun FolderDragScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.End, Drag.Cancel -> {
-                handleFolderGridItemOnDragEnd(
+                handleOnDragEnd(
                     density = density,
                     currentPage = horizontalPagerState.currentPage,
                     dragIntOffset = dragIntOffset,

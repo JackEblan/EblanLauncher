@@ -2,8 +2,10 @@ package com.eblan.launcher.feature.home.screen.folder
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -114,7 +117,16 @@ fun FolderScreen(
     }
 
     if (folderDataById != null) {
-        AnimatedContent(targetState = folderDataById) { targetState ->
+        AnimatedContent(
+            modifier = modifier
+                .background(color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+                .fillMaxSize()
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding(),
+                ),
+            targetState = folderDataById
+        ) { targetState ->
             val horizontalPagerState = rememberPagerState(
                 initialPage = startCurrentPage,
                 pageCount = {
@@ -122,22 +134,24 @@ fun FolderScreen(
                 },
             )
 
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                        bottom = paddingValues.calculateBottomPadding(),
-                    ),
-            ) {
-                Text(
-                    text = targetState.label,
-                    color = getSystemTextColor(textColor = textColor),
-                    style = MaterialTheme.typography.titleLarge,
-                    onTextLayout = { textLayoutResult ->
-                        titleHeight = textLayoutResult.size.height
-                    }
-                )
+            Column(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .onSizeChanged {
+                            titleHeight = it.height
+                        }) {
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = targetState.label,
+                        color = getSystemTextColor(textColor = textColor),
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
 
                 HorizontalPager(
                     state = horizontalPagerState,

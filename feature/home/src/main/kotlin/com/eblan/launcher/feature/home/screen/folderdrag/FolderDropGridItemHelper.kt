@@ -3,9 +3,8 @@ package com.eblan.launcher.feature.home.screen.folderdrag
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import kotlinx.coroutines.delay
 
-suspend fun handleFolderGridItemOnDragEnd(
+fun handleOnDragEnd(
     density: Density,
     currentPage: Int,
     dragIntOffset: IntOffset,
@@ -16,8 +15,6 @@ suspend fun handleFolderGridItemOnDragEnd(
     onDragEnd: (Int) -> Unit,
     onDragCancel: () -> Unit,
 ) {
-    delay(200L)
-
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }

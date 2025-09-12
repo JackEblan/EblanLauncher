@@ -156,6 +156,8 @@ private fun Success(
                 } catch (e: NumberFormatException) {
                     TODO("Show Error")
                 }
+
+                showGridDialog = false
             },
         )
     }

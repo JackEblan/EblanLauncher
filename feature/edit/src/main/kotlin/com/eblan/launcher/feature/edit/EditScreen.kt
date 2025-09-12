@@ -130,7 +130,7 @@ private fun Success(
 
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
-    val subtitle = when(val data = gridItem.data){
+    val subtitle = when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> data.label.toString()
         is GridItemData.Folder -> data.label
         is GridItemData.ShortcutInfo -> data.shortLabel
@@ -332,11 +332,7 @@ private fun Success(
     if (showTextColorDialog) {
         RadioOptionsDialog(
             title = "Text Color",
-            options = listOf(
-                TextColor.System,
-                TextColor.Light,
-                TextColor.Dark,
-            ),
+            options = TextColor.entries,
             selected = gridItem.gridItemSettings.textColor,
             label = {
                 it.name

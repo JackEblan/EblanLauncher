@@ -205,8 +205,8 @@ fun GestureAction.getGestureActionSubtitle(): String {
         is GestureAction.OpenApp -> "Open $componentName"
         GestureAction.OpenAppDrawer -> "Open app drawer"
         GestureAction.OpenNotificationPanel -> "Open notification panel"
-        GestureAction.LockScreen -> "Lock Screen"
+        GestureAction.LockScreen -> "Lock screen"
         GestureAction.OpenQuickSettings -> "Open quick settings"
-        GestureAction.OpenRecents -> "Open Recents"
+        GestureAction.OpenRecents -> "Open recents"
     }
 }

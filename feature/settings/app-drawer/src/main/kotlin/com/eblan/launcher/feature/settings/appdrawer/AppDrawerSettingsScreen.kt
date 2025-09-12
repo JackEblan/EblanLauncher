@@ -248,6 +248,8 @@ private fun Success(
                 } catch (e: NumberFormatException) {
                     TODO("Show Error")
                 }
+
+                showGridDialog = false
             },
         )
     }
@@ -281,11 +283,7 @@ private fun Success(
     if (showTextColorDialog) {
         RadioOptionsDialog(
             title = "Text Color",
-            options = listOf(
-                TextColor.System,
-                TextColor.Light,
-                TextColor.Dark,
-            ),
+            options = TextColor.entries,
             selected = appDrawerSettings.gridItemSettings.textColor,
             label = {
                 it.name
@@ -293,7 +291,11 @@ private fun Success(
             onDismissRequest = {
                 showTextColorDialog = false
             },
-            onUpdateClick = onUpdateAppDrawerTextColor,
+            onUpdateClick = {
+                onUpdateAppDrawerTextColor(it)
+
+                showTextColorDialog = false
+            },
         )
     }
 

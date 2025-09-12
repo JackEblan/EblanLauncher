@@ -162,11 +162,8 @@ private fun Success(
 
     if (showThemeBrandDialog) {
         RadioOptionsDialog(
-            title = "Text Color",
-            options = listOf(
-                ThemeBrand.Green,
-                ThemeBrand.Purple,
-            ),
+            title = "Theme Brand",
+            options = ThemeBrand.entries,
             selected = generalSettings.themeBrand,
             label = {
                 it.name
@@ -184,12 +181,8 @@ private fun Success(
 
     if (showDarkThemeConfigDialog) {
         RadioOptionsDialog(
-            title = "Text Color",
-            options = listOf(
-                DarkThemeConfig.System,
-                DarkThemeConfig.Light,
-                DarkThemeConfig.Dark,
-            ),
+            title = "Dark Theme Config",
+            options = DarkThemeConfig.entries,
             selected = generalSettings.darkThemeConfig,
             label = {
                 it.name

@@ -70,7 +70,7 @@ fun GestureActionBottomSheet(
             GestureAction.None,
             GestureAction.OpenAppDrawer,
             GestureAction.OpenNotificationPanel,
-            GestureAction.OpenApp(componentName = "App"),
+            GestureAction.OpenApp(componentName = "app"),
             GestureAction.LockScreen,
             GestureAction.OpenQuickSettings,
             GestureAction.OpenRecents,

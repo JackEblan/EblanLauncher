@@ -418,11 +418,7 @@ private fun Success(
     if (showTextColorDialog) {
         RadioOptionsDialog(
             title = "Text Color",
-            options = listOf(
-                TextColor.System,
-                TextColor.Light,
-                TextColor.Dark,
-            ),
+            options = TextColor.entries,
             selected = homeSettings.gridItemSettings.textColor,
             label = {
                 it.name

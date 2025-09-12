@@ -195,7 +195,19 @@ fun doGestureActions(
                 onPerformGlobalAction(GlobalAction.Notifications)
             }
 
-            else -> Unit
+            GestureAction.LockScreen -> {
+                onPerformGlobalAction(GlobalAction.LockScreen)
+            }
+
+            GestureAction.OpenQuickSettings -> {
+                onPerformGlobalAction(GlobalAction.QuickSettings)
+            }
+
+            GestureAction.OpenRecents -> {
+                onPerformGlobalAction(GlobalAction.Recents)
+            }
+
+            GestureAction.None, GestureAction.OpenAppDrawer -> Unit
         }
     }
 
@@ -209,7 +221,19 @@ fun doGestureActions(
                 onPerformGlobalAction(GlobalAction.Notifications)
             }
 
-            else -> Unit
+            GestureAction.LockScreen -> {
+                onPerformGlobalAction(GlobalAction.LockScreen)
+            }
+
+            GestureAction.OpenQuickSettings -> {
+                onPerformGlobalAction(GlobalAction.QuickSettings)
+            }
+
+            GestureAction.OpenRecents -> {
+                onPerformGlobalAction(GlobalAction.Recents)
+            }
+
+            GestureAction.None, GestureAction.OpenAppDrawer -> Unit
         }
     }
 }

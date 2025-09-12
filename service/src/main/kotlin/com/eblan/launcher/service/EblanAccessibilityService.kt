@@ -1,6 +1,7 @@
 package com.eblan.launcher.service
 
 import android.accessibilityservice.AccessibilityService
+import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 import com.eblan.launcher.domain.framework.PerformGlobalAction
 import com.eblan.launcher.domain.model.GlobalAction
@@ -36,11 +37,17 @@ internal class EblanAccessibilityService : AccessibilityService() {
                     }
 
                     GlobalAction.QuickSettings -> {
-
+                        performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
                     }
 
                     GlobalAction.LockScreen -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+                        }
+                    }
 
+                    GlobalAction.Recents -> {
+                        performGlobalAction(GLOBAL_ACTION_RECENTS)
                     }
                 }
             }

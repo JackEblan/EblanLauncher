@@ -12,6 +12,12 @@ message GestureActionProto {
     OpenNotificationPanelProto openNotificationPanelProto = 3;
 
     OpenAppProto openAppProto = 4;
+
+    LockScreenProto lockScreenProto = 5;
+
+    OpenQuickSettingsProto openQuickSettingsProto = 6;
+
+    OpenRecentsProto openRecentsProto = 7;
   }
 }
 
@@ -24,3 +30,9 @@ message OpenNotificationPanelProto {}
 message OpenAppProto {
   string componentName = 1;
 }
+
+message LockScreenProto {}
+
+message OpenQuickSettingsProto {}
+
+message OpenRecentsProto {}

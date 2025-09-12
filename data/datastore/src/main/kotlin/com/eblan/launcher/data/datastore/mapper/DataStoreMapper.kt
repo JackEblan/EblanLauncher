@@ -23,10 +23,13 @@ import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.ThemeBrandProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureActionProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureSettingsProto
+import com.eblan.launcher.data.datastore.proto.gesture.LockScreenProto
 import com.eblan.launcher.data.datastore.proto.gesture.NoneProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenAppDrawerProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenAppProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenNotificationPanelProto
+import com.eblan.launcher.data.datastore.proto.gesture.OpenQuickSettingsProto
+import com.eblan.launcher.data.datastore.proto.gesture.OpenRecentsProto
 import com.eblan.launcher.data.datastore.proto.home.GridItemSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
@@ -34,6 +37,13 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureAction.LockScreen
+import com.eblan.launcher.domain.model.GestureAction.None
+import com.eblan.launcher.domain.model.GestureAction.OpenApp
+import com.eblan.launcher.domain.model.GestureAction.OpenAppDrawer
+import com.eblan.launcher.domain.model.GestureAction.OpenNotificationPanel
+import com.eblan.launcher.domain.model.GestureAction.OpenQuickSettings
+import com.eblan.launcher.domain.model.GestureAction.OpenRecents
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
@@ -101,20 +111,32 @@ internal fun TextColorProto.toTextColor(): TextColor {
 
 internal fun GestureAction.toGestureActionProto(): GestureActionProto {
     return when (this) {
-        GestureAction.None -> GestureActionProto.newBuilder()
+        None -> GestureActionProto.newBuilder()
             .setNoneProto(NoneProto.getDefaultInstance())
             .build()
 
-        is GestureAction.OpenAppDrawer -> GestureActionProto.newBuilder()
+        is OpenAppDrawer -> GestureActionProto.newBuilder()
             .setOpenAppDrawerProto(OpenAppDrawerProto.getDefaultInstance())
             .build()
 
-        is GestureAction.OpenNotificationPanel -> GestureActionProto.newBuilder()
+        is OpenNotificationPanel -> GestureActionProto.newBuilder()
             .setOpenNotificationPanelProto(OpenNotificationPanelProto.getDefaultInstance())
             .build()
 
-        is GestureAction.OpenApp -> GestureActionProto.newBuilder()
+        is OpenApp -> GestureActionProto.newBuilder()
             .setOpenAppProto(OpenAppProto.newBuilder().setComponentName(componentName))
+            .build()
+
+        LockScreen -> GestureActionProto.newBuilder()
+            .setLockScreenProto(LockScreenProto.getDefaultInstance())
+            .build()
+
+        OpenQuickSettings -> GestureActionProto.newBuilder()
+            .setOpenQuickSettingsProto(OpenQuickSettingsProto.getDefaultInstance())
+            .build()
+
+        OpenRecents -> GestureActionProto.newBuilder()
+            .setOpenRecentsProto(OpenRecentsProto.getDefaultInstance())
             .build()
     }
 }
@@ -129,16 +151,18 @@ internal fun GestureSettingsProto.toGestureSettings(): GestureSettings {
 
 internal fun GestureActionProto.toGestureAction(): GestureAction {
     return when (typeCase) {
-        GestureActionProto.TypeCase.NONEPROTO -> GestureAction.None
+        GestureActionProto.TypeCase.NONEPROTO -> None
 
-        GestureActionProto.TypeCase.OPENAPPDRAWERPROTO ->
-            GestureAction.OpenAppDrawer
+        GestureActionProto.TypeCase.OPENAPPDRAWERPROTO -> OpenAppDrawer
 
-        GestureActionProto.TypeCase.OPENNOTIFICATIONPANELPROTO ->
-            GestureAction.OpenNotificationPanel
+        GestureActionProto.TypeCase.OPENNOTIFICATIONPANELPROTO -> OpenNotificationPanel
 
         GestureActionProto.TypeCase.OPENAPPPROTO ->
-            GestureAction.OpenApp(openAppProto.componentName)
+            OpenApp(openAppProto.componentName)
+
+        GestureActionProto.TypeCase.LOCKSCREENPROTO -> LockScreen
+        GestureActionProto.TypeCase.OPENQUICKSETTINGSPROTO -> OpenQuickSettings
+        GestureActionProto.TypeCase.OPENRECENTSPROTO -> OpenRecents
 
         GestureActionProto.TypeCase.TYPE_NOT_SET, null ->
             error("GestureActionProto type not set")

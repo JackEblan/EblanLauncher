@@ -329,6 +329,28 @@ fun PagerScreen(
                     showDoubleTap = false
                 }
             }
+
+            GestureAction.LockScreen -> {
+                SideEffect {
+                    onPerformGlobalAction(GlobalAction.LockScreen)
+
+                    showDoubleTap = false
+                }
+            }
+            GestureAction.OpenQuickSettings -> {
+                SideEffect {
+                    onPerformGlobalAction(GlobalAction.QuickSettings)
+
+                    showDoubleTap = false
+                }
+            }
+            GestureAction.OpenRecents -> {
+                SideEffect {
+                    onPerformGlobalAction(GlobalAction.Recents)
+
+                    showDoubleTap = false
+                }
+            }
         }
     }
 

@@ -199,12 +199,14 @@ private fun Success(
     }
 }
 
-@Composable
-private fun GestureAction.getGestureActionSubtitle(): String {
+fun GestureAction.getGestureActionSubtitle(): String {
     return when (this) {
         GestureAction.None -> "None"
         is GestureAction.OpenApp -> "Open $componentName"
         GestureAction.OpenAppDrawer -> "Open app drawer"
         GestureAction.OpenNotificationPanel -> "Open notification panel"
+        GestureAction.LockScreen -> "Lock Screen"
+        GestureAction.OpenQuickSettings -> "Open quick settings"
+        GestureAction.OpenRecents -> "Open Recents"
     }
 }

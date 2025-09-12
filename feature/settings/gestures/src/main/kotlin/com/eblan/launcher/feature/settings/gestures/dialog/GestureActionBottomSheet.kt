@@ -33,8 +33,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.feature.settings.gestures.getGestureActionSubtitle
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,14 +65,17 @@ fun GestureActionBottomSheet(
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
-    var selectedComponentName by remember { mutableStateOf("app") }
-
-    val options = listOf(
-        GestureAction.None,
-        GestureAction.OpenAppDrawer,
-        GestureAction.OpenNotificationPanel,
-        GestureAction.OpenApp(componentName = selectedComponentName),
-    )
+    val options = remember {
+        mutableStateListOf(
+            GestureAction.None,
+            GestureAction.OpenAppDrawer,
+            GestureAction.OpenNotificationPanel,
+            GestureAction.OpenApp(componentName = "App"),
+            GestureAction.LockScreen,
+            GestureAction.OpenQuickSettings,
+            GestureAction.OpenRecents,
+        )
+    }
 
     ModalBottomSheet(
         sheetState = sheetState,
@@ -94,27 +98,16 @@ fun GestureActionBottomSheet(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                options.forEach { gestureActionClass ->
-                    val label by remember {
-                        derivedStateOf {
-                            when (gestureActionClass) {
-                                GestureAction.None -> "None"
-                                is GestureAction.OpenApp -> "Open $selectedComponentName"
-                                GestureAction.OpenAppDrawer -> "Open App Drawer"
-                                GestureAction.OpenNotificationPanel -> "Open Notification Panel"
-                            }
-                        }
-                    }
-
+                options.forEach { currentGestureAction ->
                     EblanRadioButton(
-                        text = label,
-                        selected = selectedGestureAction == gestureActionClass,
+                        text = currentGestureAction.getGestureActionSubtitle(),
+                        selected = selectedGestureAction == currentGestureAction,
                         onClick = {
-                            if (gestureActionClass is GestureAction.OpenApp) {
+                            if (currentGestureAction is GestureAction.OpenApp) {
                                 showSelectApplicationDialog = true
                             }
 
-                            selectedGestureAction = gestureActionClass
+                            selectedGestureAction = currentGestureAction
                         },
                     )
                 }
@@ -168,7 +161,10 @@ fun GestureActionBottomSheet(
             onUpdateGestureAction = { openAppGestureAction ->
                 selectedGestureAction = openAppGestureAction
 
-                selectedComponentName = openAppGestureAction.componentName
+                val index =
+                    options.indexOfFirst { it is GestureAction.OpenApp }
+
+                options[index] = openAppGestureAction
             },
         )
     }

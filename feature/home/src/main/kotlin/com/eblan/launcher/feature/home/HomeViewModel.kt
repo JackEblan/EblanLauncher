@@ -14,6 +14,7 @@ import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
+import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
@@ -71,6 +72,7 @@ class HomeViewModel @Inject constructor(
     getEblanShortcutInfosByLabelUseCase: GetEblanShortcutInfosByLabelUseCase,
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val performGlobalAction: PerformGlobalAction,
+    private val deleteGridItemUseCase: DeleteGridItemUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -475,6 +477,12 @@ class HomeViewModel @Inject constructor(
     fun performGlobalAction(globalAction: GlobalAction) {
         viewModelScope.launch {
             performGlobalAction.performGlobalAction(globalAction = globalAction)
+        }
+    }
+
+    fun deleteGridItem(gridItem: GridItem) {
+        viewModelScope.launch {
+            deleteGridItemUseCase(gridItem = gridItem)
         }
     }
 }

@@ -46,4 +46,7 @@ interface FolderGridItemDao {
 
     @Delete
     suspend fun deleteFolderGridItemEntity(entity: FolderGridItemEntity)
+
+    @Delete
+    suspend fun deleteFolderGridItemEntities(entities: List<FolderGridItemEntity>)
 }

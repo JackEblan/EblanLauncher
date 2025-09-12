@@ -88,7 +88,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     gridItem = movingGridItem,
                     rows = folderRows,
                     columns = folderColumns,
-                    pageCount = data.pageCount - 1,
+                    pageCount = data.pageCount,
                 )
 
                 if (newGridItem != null) {

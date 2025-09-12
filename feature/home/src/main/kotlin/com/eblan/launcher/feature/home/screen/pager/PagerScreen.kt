@@ -118,6 +118,7 @@ fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -253,6 +254,7 @@ fun PagerScreen(
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDraggingGridItem = onDraggingGridItem,
+        onDeleteGridItem = onDeleteGridItem,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
@@ -444,6 +446,7 @@ private fun HorizontalPagerScreen(
     ) -> Unit,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -700,12 +703,7 @@ private fun HorizontalPagerScreen(
 
                 context.startActivity(intent)
             },
-            onDeleteShortcut = {
-
-            },
-            onDeleteFolder = {
-
-            },
+            onDeleteGridItem = onDeleteGridItem,
             onInfo = {
                 launcherApps.startAppDetailsActivity(it)
             },
@@ -800,8 +798,7 @@ private fun PopupGridItemMenu(
     onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
     onUninstallApplicationInfo: (String) -> Unit,
-    onDeleteShortcut: (GridItem) -> Unit,
-    onDeleteFolder: (String) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (String?) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -853,7 +850,9 @@ private fun PopupGridItemMenu(
                             onDismissRequest()
                         },
                         onDelete = {
+                            onDeleteGridItem(gridItem)
 
+                            onDismissRequest()
                         }
                     )
                 }
@@ -871,7 +870,9 @@ private fun PopupGridItemMenu(
                             onDismissRequest()
                         },
                         onDelete = {
+                            onDeleteGridItem(gridItem)
 
+                            onDismissRequest()
                         }
                     )
                 }

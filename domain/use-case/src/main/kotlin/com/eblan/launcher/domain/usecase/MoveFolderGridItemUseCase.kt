@@ -48,87 +48,67 @@ class MoveFolderGridItemUseCase @Inject constructor(
         gridHeight: Int,
     ): MoveGridItemResult {
         return withContext(defaultDispatcher) {
-            moveGridItems(
-                movingGridItem = movingGridItem,
-                x = x,
-                y = y,
+            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    rows = rows,
+                    columns = columns,
+                ) && gridItem.page == movingGridItem.page
+            }.toMutableList()
+
+            val index =
+                gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+
+            gridItems[index] = movingGridItem
+
+            val gridItemByCoordinates = getGridItemByCoordinates(
+                id = movingGridItem.id,
+                gridItems = gridItems,
                 rows = rows,
                 columns = columns,
+                x = x,
+                y = y,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
             )
-        }
-    }
 
-    private suspend fun moveGridItems(
-        movingGridItem: GridItem,
-        x: Int,
-        y: Int,
-        rows: Int,
-        columns: Int,
-        gridWidth: Int,
-        gridHeight: Int,
-    ): MoveGridItemResult {
-        val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
-            isGridItemSpanWithinBounds(
-                gridItem = gridItem,
-                rows = rows,
-                columns = columns,
-            ) && gridItem.page == movingGridItem.page
-        }.toMutableList()
+            val gridItemBySpan = gridItems.find { gridItem ->
+                gridItem.id != movingGridItem.id && rectanglesOverlap(
+                    moving = movingGridItem,
+                    other = gridItem,
+                )
+            }
 
-        val index =
-            gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
+            if (gridItemByCoordinates != null) {
+                return@withContext handleConflictsOfGridItemCoordinates(
+                    gridItems = gridItems,
+                    movingGridItem = movingGridItem,
+                    gridItemByCoordinates = gridItemByCoordinates,
+                    x = x,
+                    rows = rows,
+                    columns = columns,
+                    gridWidth = gridWidth,
+                )
+            }
 
-        gridItems[index] = movingGridItem
+            if (gridItemBySpan != null) {
+                return@withContext handleConflictsOfGridItemSpan(
+                    movingGridItem = movingGridItem,
+                    gridItemBySpan = gridItemBySpan,
+                    gridItems = gridItems,
+                    rows = rows,
+                    columns = columns,
+                )
+            }
 
-        val gridItemByCoordinates = getGridItemByCoordinates(
-            id = movingGridItem.id,
-            gridItems = gridItems,
-            rows = rows,
-            columns = columns,
-            x = x,
-            y = y,
-            gridWidth = gridWidth,
-            gridHeight = gridHeight,
-        )
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
 
-        val gridItemBySpan = gridItems.find { gridItem ->
-            gridItem.id != movingGridItem.id && rectanglesOverlap(
-                moving = movingGridItem,
-                other = gridItem,
-            )
-        }
-
-        if (gridItemByCoordinates != null) {
-            return handleConflictsOfGridItemCoordinates(
-                gridItems = gridItems,
+            return@withContext MoveGridItemResult(
+                isSuccess = true,
                 movingGridItem = movingGridItem,
-                gridItemByCoordinates = gridItemByCoordinates,
-                x = x,
-                rows = rows,
-                columns = columns,
-                gridWidth = gridWidth,
+                conflictingGridItem = null,
             )
         }
-
-        if (gridItemBySpan != null) {
-            return handleConflictsOfGridItemSpan(
-                movingGridItem = movingGridItem,
-                gridItemBySpan = gridItemBySpan,
-                gridItems = gridItems,
-                rows = rows,
-                columns = columns,
-            )
-        }
-
-        gridCacheRepository.upsertGridItems(gridItems = gridItems)
-
-        return MoveGridItemResult(
-            isSuccess = true,
-            movingGridItem = movingGridItem,
-            conflictingGridItem = null,
-        )
     }
 
     private suspend fun handleConflictsOfGridItemCoordinates(

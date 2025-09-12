@@ -120,6 +120,7 @@ fun HomeRoute(
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
         onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
         onPerformGlobalAction = viewModel::performGlobalAction,
+        onDeleteGridItem = viewModel::deleteGridItem,
     )
 }
 
@@ -194,6 +195,7 @@ fun HomeScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -321,6 +323,7 @@ fun HomeScreen(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onPerformGlobalAction = onPerformGlobalAction,
+                    onDeleteGridItem = onDeleteGridItem,
                 )
             }
         }
@@ -414,6 +417,7 @@ private fun Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
+    onDeleteGridItem: (GridItem) -> Unit,
 ) {
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
@@ -498,6 +502,7 @@ private fun Success(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onPerformGlobalAction = onPerformGlobalAction,
+                    onDeleteGridItem = onDeleteGridItem,
                 )
             }
 

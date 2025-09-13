@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -48,8 +47,8 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.edit.model.EditUiState
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
+import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
-import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 fun EditRoute(
@@ -148,77 +147,27 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.padding(5.dp),
-            text = "Grid Item",
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        SettingsSwitch(
-            checked = gridItem.override,
-            title = "Override",
-            subtitle = "Override the Grid Item Settings",
-            onCheckedChange = {
-                onUpdateGridItem(gridItem.copy(override = it))
-            },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Icon Size",
-            subtitle = "${gridItem.gridItemSettings.iconSize}",
-            onClick = {
+        GridItemSettings(
+            gridItemSettings = gridItem.gridItemSettings,
+            onIconSizeClick = {
                 showIconSizeDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Text Color",
-            subtitle = gridItem.gridItemSettings.textColor.name,
-            onClick = {
+            onTextColorClick = {
                 showTextColorDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Text Size",
-            subtitle = "${gridItem.gridItemSettings.textSize}",
-            onClick = {
+            onTextSizeClick = {
                 showTextSizeDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        SettingsSwitch(
-            checked = gridItem.gridItemSettings.showLabel,
-            title = "Show Label",
-            subtitle = "Show label",
-            onCheckedChange = {
+            onUpdateShowLabel = {
                 val newGridItemSettings = gridItem.gridItemSettings.copy(showLabel = it)
 
                 onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
             },
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        SettingsSwitch(
-            checked = gridItem.gridItemSettings.singleLineLabel,
-            title = "Show Single Line Label",
-            subtitle = "Show single line label",
-            onCheckedChange = {
+            onUpdateSingleLineLabel = {
                 val newGridItemSettings = gridItem.gridItemSettings.copy(singleLineLabel = it)
 
                 onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-            },
+            }
         )
     }
 

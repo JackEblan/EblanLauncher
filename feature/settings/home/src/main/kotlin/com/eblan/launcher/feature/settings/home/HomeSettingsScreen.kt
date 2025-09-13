@@ -50,6 +50,7 @@ import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
+import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
@@ -242,58 +243,19 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.padding(5.dp),
-            text = "Grid Item",
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        SettingsColumn(
-            title = "Icon Size",
-            subtitle = "${homeSettings.gridItemSettings.iconSize}",
-            onClick = {
+        GridItemSettings(
+            gridItemSettings = homeSettings.gridItemSettings,
+            onIconSizeClick = {
                 showIconSizeDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Text Color",
-            subtitle = homeSettings.gridItemSettings.textColor.name,
-            onClick = {
+            onTextColorClick = {
                 showTextColorDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Text Size",
-            subtitle = "${homeSettings.gridItemSettings.textSize}",
-            onClick = {
+            onTextSizeClick = {
                 showTextSizeDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsSwitch(
-            checked = homeSettings.gridItemSettings.showLabel,
-            title = "Show Label",
-            subtitle = "Show label",
-            onCheckedChange = onUpdateShowLabel,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsSwitch(
-            checked = homeSettings.gridItemSettings.singleLineLabel,
-            title = "Single Line Label",
-            subtitle = "Show single line label",
-            onCheckedChange = onUpdateSingleLineLabel,
+            onUpdateShowLabel = onUpdateShowLabel,
+            onUpdateSingleLineLabel = onUpdateSingleLineLabel
         )
     }
 

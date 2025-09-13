@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -48,8 +47,8 @@ import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiSt
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
+import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
-import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 fun AppDrawerSettingsRoute(
@@ -164,60 +163,19 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.padding(5.dp),
-            text = "Grid Item",
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        SettingsColumn(
-            title = "Icon Size",
-            subtitle = "${appDrawerSettings.gridItemSettings.iconSize}",
-            onClick = {
+        GridItemSettings(
+            gridItemSettings = appDrawerSettings.gridItemSettings,
+            onIconSizeClick = {
                 showIconSizeDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Text Color",
-            subtitle = appDrawerSettings.gridItemSettings.textColor.name,
-            onClick = {
+            onTextColorClick = {
                 showTextColorDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Text Size",
-            subtitle = "${appDrawerSettings.gridItemSettings.textSize}",
-            onClick = {
+            onTextSizeClick = {
                 showTextSizeDialog = true
             },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsSwitch(
-            modifier = modifier,
-            checked = appDrawerSettings.gridItemSettings.showLabel,
-            title = "Show Label",
-            subtitle = "Show the label",
-            onCheckedChange = onUpdateAppDrawerShowLabel,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsSwitch(
-            modifier = modifier,
-            checked = appDrawerSettings.gridItemSettings.singleLineLabel,
-            title = "Single Line Label",
-            subtitle = "Show single line label",
-            onCheckedChange = onUpdateAppDrawerSingleLineLabel,
+            onUpdateShowLabel = onUpdateAppDrawerShowLabel,
+            onUpdateSingleLineLabel = onUpdateAppDrawerSingleLineLabel
         )
     }
 

@@ -33,13 +33,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -186,7 +190,7 @@ private fun PinShortcutScreen(
                     .consumeWindowInsets(paddingValues),
             ) {
                 PinBottomSheet(
-                    modifier = modifier,
+                    label = shortcutInfo.shortLabel.toString(),
                     icon = icon,
                     onAdd = {
                         onAddPinShortcutToHomeScreen(
@@ -323,6 +327,7 @@ private fun PinWidgetScreen(
                     .consumeWindowInsets(paddingValues),
             ) {
                 PinBottomSheet(
+                    label = appWidgetProviderInfo.loadLabel(context.packageManager),
                     icon = icon,
                     onAdd = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -340,8 +345,8 @@ private fun PinWidgetScreen(
                                 appWidgetProviderInfo.minResizeHeight,
                                 appWidgetProviderInfo.maxResizeWidth,
                                 appWidgetProviderInfo.maxResizeHeight,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
+                                this@BoxWithConstraints.constraints.maxWidth,
+                                this@BoxWithConstraints.constraints.maxHeight,
                             )
                         } else {
                             onAddWidgetToHomeScreen(
@@ -382,6 +387,7 @@ private fun PinWidgetScreen(
 @Composable
 private fun PinBottomSheet(
     modifier: Modifier = Modifier,
+    label: String,
     icon: Any,
     onAdd: suspend () -> Unit,
     onFinish: () -> Unit,
@@ -395,7 +401,6 @@ private fun PinBottomSheet(
 
     if (showBottomSheet) {
         ModalBottomSheet(
-            modifier = modifier,
             onDismissRequest = {
                 showBottomSheet = false
                 onFinish()
@@ -403,9 +408,21 @@ private fun PinBottomSheet(
             sheetState = sheetState,
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Text(text = label, style = MaterialTheme.typography.bodyLarge)
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Touch and hold the widget to move it around the home screen",
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 AsyncImage(
                     modifier = Modifier
                         .dragAndDropSource(
@@ -431,6 +448,8 @@ private fun PinBottomSheet(
                     model = icon,
                     contentDescription = null,
                 )
+
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -104,26 +104,7 @@ class DeleteGridItemUseCase @Inject constructor(
                     )
                 }
 
-                is GridItemData.ApplicationInfo -> {
-                    applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
-                        applicationInfoGridItem = ApplicationInfoGridItem(
-                            id = gridItem.id,
-                            folderId = gridItem.folderId,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            componentName = data.componentName,
-                            packageName = data.packageName,
-                            icon = data.icon,
-                            label = data.label,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                        )
-                    )
-                }
+                is GridItemData.ApplicationInfo -> Unit
             }
         }
     }

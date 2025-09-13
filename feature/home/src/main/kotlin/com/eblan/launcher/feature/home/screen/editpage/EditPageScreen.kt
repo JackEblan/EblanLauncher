@@ -144,6 +144,7 @@ fun EditPageScreen(
                             columns = homeSettings.columns,
                         ) { gridItem ->
                             GridItemContent(
+                                modifier = Modifier.padding(2.dp),
                                 gridItem = gridItem,
                                 textColor = textColor,
                             )

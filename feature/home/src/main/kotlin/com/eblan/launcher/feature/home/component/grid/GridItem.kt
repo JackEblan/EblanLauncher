@@ -154,10 +154,12 @@ private fun WidgetGridItem(
             modifier = modifier.fillMaxSize(),
         )
     } else {
+        val icon = data.preview ?: data.eblanApplicationInfo.icon
+
         AsyncImage(
-            model = data.preview,
+            model = icon,
             contentDescription = null,
-            modifier = modifier,
+            modifier = modifier.fillMaxSize(),
         )
     }
 }
@@ -181,12 +183,14 @@ private fun ShortcutInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    val icon = data.icon ?: data.eblanApplicationInfo.icon
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
-            model = data.icon,
+            model = icon,
             contentDescription = null,
             modifier = Modifier.size(iconSizeDp),
         )

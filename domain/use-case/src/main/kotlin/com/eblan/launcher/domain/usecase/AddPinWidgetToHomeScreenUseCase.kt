@@ -26,6 +26,7 @@ import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,6 +41,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
@@ -75,81 +77,89 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val gridItems = gridCacheRepository.gridItemsCache.first()
 
-            val previewInferred = File(
-                fileManager.getDirectory(FileManager.WIDGETS_DIR),
-                className,
-            ).absolutePath
+            val eblanApplicationInfo =
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
 
-            val gridHeight = rootHeight - dockHeight
+            if (eblanApplicationInfo != null) {
+                val previewInferred = File(
+                    fileManager.getDirectory(FileManager.WIDGETS_DIR),
+                    className,
+                ).absolutePath
 
-            val cellWidth = rootWidth / columns
+                val gridHeight = rootHeight - dockHeight
 
-            val cellHeight = gridHeight / rows
+                val cellWidth = rootWidth / columns
 
-            val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
-                cellHeight = cellHeight,
-                cellWidth = cellWidth,
-                minHeight = minHeight,
-                minWidth = minWidth,
-                targetCellHeight = targetCellHeight,
-                targetCellWidth = targetCellWidth,
-            )
+                val cellHeight = gridHeight / rows
 
-            val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-                rows = rows,
-                columns = columns,
-                gridWidth = rootWidth,
-                gridHeight = gridHeight,
-                minWidth = minWidth,
-                minHeight = minHeight,
-                targetCellWidth = targetCellWidth,
-                targetCellHeight = targetCellHeight,
-            )
+                val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
+                    cellHeight = cellHeight,
+                    cellWidth = cellWidth,
+                    minHeight = minHeight,
+                    minWidth = minWidth,
+                    targetCellHeight = targetCellHeight,
+                    targetCellWidth = targetCellWidth,
+                )
 
-            val data = GridItemData.Widget(
-                appWidgetId = 0,
-                componentName = componentName,
-                packageName = packageName,
-                configure = configure,
-                minWidth = checkedMinWidth,
-                minHeight = checkedMinHeight,
-                resizeMode = resizeMode,
-                minResizeWidth = minResizeWidth,
-                minResizeHeight = minResizeHeight,
-                maxResizeWidth = maxResizeWidth,
-                maxResizeHeight = maxResizeHeight,
-                targetCellHeight = targetCellHeight,
-                targetCellWidth = targetCellWidth,
-                preview = previewInferred,
-            )
+                val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
+                    rows = rows,
+                    columns = columns,
+                    gridWidth = rootWidth,
+                    gridHeight = gridHeight,
+                    minWidth = minWidth,
+                    minHeight = minHeight,
+                    targetCellWidth = targetCellWidth,
+                    targetCellHeight = targetCellHeight,
+                )
 
-            val gridItem = GridItem(
-                id = Uuid.random().toHexString(),
-                folderId = null,
-                page = initialPage,
-                startRow = 0,
-                startColumn = 0,
-                rowSpan = checkedRowSpan,
-                columnSpan = checkedColumnSpan,
-                data = data,
-                associate = Associate.Grid,
-                override = false,
-                gridItemSettings = homeSettings.gridItemSettings,
-            )
+                val data = GridItemData.Widget(
+                    appWidgetId = 0,
+                    componentName = componentName,
+                    packageName = packageName,
+                    configure = configure,
+                    minWidth = checkedMinWidth,
+                    minHeight = checkedMinHeight,
+                    resizeMode = resizeMode,
+                    minResizeWidth = minResizeWidth,
+                    minResizeHeight = minResizeHeight,
+                    maxResizeWidth = maxResizeWidth,
+                    maxResizeHeight = maxResizeHeight,
+                    targetCellHeight = targetCellHeight,
+                    targetCellWidth = targetCellWidth,
+                    preview = previewInferred,
+                    eblanApplicationInfo = eblanApplicationInfo,
+                )
 
-            val newGridItem = findAvailableRegionByPage(
-                gridItems = gridItems,
-                gridItem = gridItem,
-                pageCount = pageCount,
-                rows = rows,
-                columns = columns,
-            )
+                val gridItem = GridItem(
+                    id = Uuid.random().toHexString(),
+                    folderId = null,
+                    page = initialPage,
+                    startRow = 0,
+                    startColumn = 0,
+                    rowSpan = checkedRowSpan,
+                    columnSpan = checkedColumnSpan,
+                    data = data,
+                    associate = Associate.Grid,
+                    override = false,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                )
 
-            if (newGridItem != null) {
-                gridCacheRepository.insertGridItem(gridItem = newGridItem)
+                val newGridItem = findAvailableRegionByPage(
+                    gridItems = gridItems,
+                    gridItem = gridItem,
+                    pageCount = pageCount,
+                    rows = rows,
+                    columns = columns,
+                )
+
+                if (newGridItem != null) {
+                    gridCacheRepository.insertGridItem(gridItem = newGridItem)
+                }
+
+                newGridItem
+            } else {
+                null
             }
-
-            newGridItem
         }
     }
 }

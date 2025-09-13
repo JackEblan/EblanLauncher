@@ -69,9 +69,7 @@ import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
-import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
-import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -107,7 +105,6 @@ fun PagerScreen(
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
-    onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -247,7 +244,6 @@ fun PagerScreen(
         onShortcuts = {
             showShortcuts = true
         },
-        onDragStartPinItemRequest = onDragStartPinItemRequest,
         onDoubleTap = {
             showDoubleTap = true
         },
@@ -439,7 +435,6 @@ private fun HorizontalPagerScreen(
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
     onShortcuts: () -> Unit,
-    onDragStartPinItemRequest: (GridItemSource) -> Unit,
     onDoubleTap: () -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -464,9 +459,6 @@ private fun HorizontalPagerScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val pinItemRequestWrapper = LocalPinItemRequest.current
-
-    val fileManager = LocalFileManager.current
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
 
@@ -506,16 +498,6 @@ private fun HorizontalPagerScreen(
         if (drag == Drag.Dragging) {
             showPopupGridItemMenu = false
         }
-
-        handlePinItemRequest(
-            currentPage = currentPage,
-            drag = drag,
-            pinItemRequestWrapper = pinItemRequestWrapper,
-            context = context,
-            fileManager = fileManager,
-            gridItemSettings = homeSettings.gridItemSettings,
-            onDragStart = onDragStartPinItemRequest,
-        )
     }
 
     LaunchedEffect(key1 = horizontalPagerState) {

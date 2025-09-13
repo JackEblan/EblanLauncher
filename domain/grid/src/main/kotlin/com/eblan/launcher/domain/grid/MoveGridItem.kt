@@ -84,7 +84,7 @@ private suspend fun resolveConflicts(
     return true
 }
 
-fun moveGridItem(
+private fun moveGridItem(
     resolveDirection: ResolveDirection,
     moving: GridItem,
     conflicting: GridItem,

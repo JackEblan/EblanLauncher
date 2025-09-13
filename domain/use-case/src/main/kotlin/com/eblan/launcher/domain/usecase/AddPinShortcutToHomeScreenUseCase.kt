@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,6 +36,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -57,47 +59,54 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
             val gridItems = gridCacheRepository.gridItemsCache.first()
 
-            val icon = fileManager.writeFileBytes(
-                directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
-                name = shortcutId,
-                byteArray = byteArray,
-            )
+            val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
 
-            val data = GridItemData.ShortcutInfo(
-                shortcutId = shortcutId,
-                packageName = packageName,
-                shortLabel = shortLabel,
-                longLabel = longLabel,
-                icon = icon,
-            )
+            if(eblanApplicationInfo != null){
+                val icon = fileManager.writeFileBytes(
+                    directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
+                    name = shortcutId,
+                    byteArray = byteArray,
+                )
 
-            val gridItem = GridItem(
-                id = shortcutId,
-                folderId = null,
-                page = initialPage,
-                startRow = 0,
-                startColumn = 0,
-                rowSpan = 1,
-                columnSpan = 1,
-                data = data,
-                associate = Associate.Grid,
-                override = false,
-                gridItemSettings = homeSettings.gridItemSettings,
-            )
+                val data = GridItemData.ShortcutInfo(
+                    shortcutId = shortcutId,
+                    packageName = packageName,
+                    shortLabel = shortLabel,
+                    longLabel = longLabel,
+                    icon = icon,
+                    eblanApplicationInfo = eblanApplicationInfo,
+                )
 
-            val newGridItem = findAvailableRegionByPage(
-                gridItems = gridItems,
-                gridItem = gridItem,
-                pageCount = pageCount,
-                rows = rows,
-                columns = columns,
-            )
+                val gridItem = GridItem(
+                    id = shortcutId,
+                    folderId = null,
+                    page = initialPage,
+                    startRow = 0,
+                    startColumn = 0,
+                    rowSpan = 1,
+                    columnSpan = 1,
+                    data = data,
+                    associate = Associate.Grid,
+                    override = false,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                )
 
-            if (newGridItem != null) {
-                gridCacheRepository.insertGridItem(gridItem = newGridItem)
+                val newGridItem = findAvailableRegionByPage(
+                    gridItems = gridItems,
+                    gridItem = gridItem,
+                    pageCount = pageCount,
+                    rows = rows,
+                    columns = columns,
+                )
+
+                if (newGridItem != null) {
+                    gridCacheRepository.insertGridItem(gridItem = newGridItem)
+                }
+
+                newGridItem
+            }else {
+                null
             }
-
-            newGridItem
         }
     }
 }

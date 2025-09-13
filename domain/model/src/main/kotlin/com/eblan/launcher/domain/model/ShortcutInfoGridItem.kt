@@ -33,4 +33,5 @@ data class ShortcutInfoGridItem(
     val icon: String?,
     val override: Boolean,
     val gridItemSettings: GridItemSettings,
+    val eblanApplicationInfo: EblanApplicationInfo,
 )

@@ -37,6 +37,7 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
+            eblanApplicationInfo = eblanApplicationInfo,
         ),
         associate = associate,
         override = override,
@@ -61,6 +62,7 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         icon = icon,
         override = override,
         gridItemSettings = gridItemSettings,
+        eblanApplicationInfo = eblanApplicationInfo,
     )
 }
 
@@ -81,5 +83,6 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         icon = icon,
         override = override,
         gridItemSettings = gridItemSettings,
+        eblanApplicationInfo = eblanApplicationInfo,
     )
 }

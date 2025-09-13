@@ -11,6 +11,7 @@ import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
@@ -22,6 +23,7 @@ import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
+import com.eblan.launcher.domain.usecase.GetPinGridItemUseCase
 import com.eblan.launcher.domain.usecase.MoveFolderGridItemUseCase
 import com.eblan.launcher.domain.usecase.MoveGridItemUseCase
 import com.eblan.launcher.domain.usecase.ResizeGridItemUseCase
@@ -73,6 +75,7 @@ class HomeViewModel @Inject constructor(
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val performGlobalAction: PerformGlobalAction,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
+    private val getPinGridItemUseCase: GetPinGridItemUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -160,6 +163,10 @@ class HomeViewModel @Inject constructor(
             dockGridItemsCache = emptyList(),
         ),
     )
+
+    private val _pinGridItem = MutableStateFlow<GridItem?>(null)
+
+    val pinGridItem = _pinGridItem.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -483,6 +490,20 @@ class HomeViewModel @Inject constructor(
     fun deleteGridItem(gridItem: GridItem) {
         viewModelScope.launch {
             deleteGridItemUseCase(gridItem = gridItem)
+        }
+    }
+
+    fun getPinGridItem(pinItemRequestType: PinItemRequestType) {
+        viewModelScope.launch {
+            _pinGridItem.update {
+                getPinGridItemUseCase(pinItemRequestType = pinItemRequestType)
+            }
+        }
+    }
+
+    fun resetPinGridItem(){
+        _pinGridItem.update {
+            null
         }
     }
 }

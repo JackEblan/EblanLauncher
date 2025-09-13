@@ -1,6 +1,9 @@
 package com.eblan.launcher.feature.home
 
 import android.content.ClipDescription
+import android.content.Context
+import android.content.pm.LauncherApps.PinItemRequest
+import android.os.Build
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +32,7 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +48,7 @@ import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
+import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -55,6 +61,7 @@ import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import com.eblan.launcher.ui.local.LocalPinItemRequest
 import kotlin.math.roundToInt
 
 @Composable
@@ -84,6 +91,8 @@ fun HomeRoute(
 
     val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
 
+    val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -96,6 +105,7 @@ fun HomeRoute(
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
         eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
         gridItemsCache = gridItemsCache,
+        pinGridItem = pinGridItem,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -121,6 +131,8 @@ fun HomeRoute(
         onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
         onPerformGlobalAction = viewModel::performGlobalAction,
         onDeleteGridItem = viewModel::deleteGridItem,
+        onGetPinGridItem = viewModel::getPinGridItem,
+        onResetPinGridItem = viewModel::resetPinGridItem,
     )
 }
 
@@ -137,6 +149,7 @@ fun HomeScreen(
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemsCache: GridItemCache,
+    pinGridItem: GridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -196,7 +209,13 @@ fun HomeScreen(
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onGetPinGridItem: (PinItemRequestType) -> Unit,
+    onResetPinGridItem: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
     var dragIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -217,10 +236,26 @@ fun HomeScreen(
                 drag = Drag.Start
 
                 dragIntOffset = offset
+
+                val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+                handlePinItemRequest(
+                    pinItemRequest = pinItemRequest,
+                    context = context,
+                    onGetPinGridItem = onGetPinGridItem
+                )
             }
 
             override fun onEnded(event: DragAndDropEvent) {
                 drag = Drag.End
+
+                val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+                if (pinItemRequest != null) {
+                    onResetPinGridItem()
+
+                    pinItemRequestWrapper.updatePinItemRequest(null)
+                }
             }
 
             override fun onMoved(event: DragAndDropEvent) {
@@ -293,6 +328,7 @@ fun HomeScreen(
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     gridItemsCache = gridItemsCache,
+                    pinGridItem = pinGridItem,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -357,6 +393,7 @@ private fun Success(
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemsCache: GridItemCache,
+    pinGridItem: GridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -419,6 +456,8 @@ private fun Success(
     onPerformGlobalAction: (GlobalAction) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
+    val pinItemRequestWrapper = LocalPinItemRequest.current
+
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     var targetPage by remember {
@@ -428,6 +467,23 @@ private fun Success(
     }
 
     var folderTargetPage by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(key1 = pinGridItem) {
+        val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
+
+        if (pinGridItem != null && pinItemRequest != null) {
+            gridItemSource = GridItemSource.Pin(
+                gridItem = pinGridItem,
+                pinItemRequest = pinItemRequest,
+            )
+
+            onShowGridCache(
+                homeData.gridItems,
+                GridItemCacheType.Grid,
+                Screen.Drag,
+            )
+        }
+    }
 
     AnimatedContent(
         modifier = modifier,
@@ -481,15 +537,6 @@ private fun Success(
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
-                    onDragStartPinItemRequest = { newGridItemSource ->
-                        gridItemSource = newGridItemSource
-
-                        onShowGridCache(
-                            homeData.gridItems,
-                            GridItemCacheType.Grid,
-                            Screen.Drag,
-                        )
-                    },
                     onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
                         targetPage = newCurrentPage
 
@@ -666,6 +713,40 @@ private fun OverlayImage(
             }
 
             else -> Unit
+        }
+    }
+}
+
+private fun handlePinItemRequest(
+    pinItemRequest: PinItemRequest?,
+    context: Context,
+    onGetPinGridItem: (PinItemRequestType) -> Unit
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
+        when (pinItemRequest.requestType) {
+            PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
+                val appWidgetProviderInfo =
+                    pinItemRequest.getAppWidgetProviderInfo(context)
+
+                if (appWidgetProviderInfo != null) {
+                    onGetPinGridItem(PinItemRequestType.Widget(className = appWidgetProviderInfo.provider.className))
+                }
+            }
+
+            PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
+                val shortcutInfo = pinItemRequest.shortcutInfo
+
+                if (shortcutInfo != null) {
+                    onGetPinGridItem(
+                        PinItemRequestType.ShortcutInfo(
+                            shortcutId = shortcutInfo.id,
+                            packageName = shortcutInfo.`package`,
+                            shortLabel = shortcutInfo.shortLabel.toString(),
+                            longLabel = shortcutInfo.longLabel.toString(),
+                        )
+                    )
+                }
+            }
         }
     }
 }

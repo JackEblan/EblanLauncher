@@ -42,4 +42,5 @@ data class WidgetGridItem(
     val preview: String?,
     val override: Boolean,
     val gridItemSettings: GridItemSettings,
+    val eblanApplicationInfo: EblanApplicationInfo,
 )

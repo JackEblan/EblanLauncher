@@ -101,6 +101,7 @@ class UpdateGridItemUseCase @Inject constructor(
                             icon = data.icon,
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
+                            eblanApplicationInfo = data.eblanApplicationInfo,
                         ),
                     )
                 }
@@ -132,6 +133,7 @@ class UpdateGridItemUseCase @Inject constructor(
                             preview = data.preview,
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
+                            eblanApplicationInfo = data.eblanApplicationInfo,
                         ),
                     )
                 }

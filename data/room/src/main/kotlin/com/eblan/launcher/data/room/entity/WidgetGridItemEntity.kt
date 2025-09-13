@@ -23,6 +23,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity(
@@ -62,4 +63,5 @@ data class WidgetGridItemEntity(
     val preview: String?,
     val override: Boolean,
     @Embedded val gridItemSettings: GridItemSettings,
+    @Embedded(prefix = "applicationInfo_") val eblanApplicationInfo: EblanApplicationInfo,
 )

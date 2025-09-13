@@ -41,6 +41,7 @@ sealed interface GridItemData {
         val targetCellHeight: Int,
         val targetCellWidth: Int,
         val preview: String?,
+        val eblanApplicationInfo: EblanApplicationInfo,
     ) : GridItemData
 
     data class ShortcutInfo(
@@ -49,6 +50,7 @@ sealed interface GridItemData {
         val shortLabel: String,
         val longLabel: String,
         val icon: String?,
+        val eblanApplicationInfo: EblanApplicationInfo,
     ) : GridItemData
 
     data class Folder(

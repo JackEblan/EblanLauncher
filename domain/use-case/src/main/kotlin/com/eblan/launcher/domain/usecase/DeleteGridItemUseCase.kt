@@ -67,6 +67,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             icon = data.icon,
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
+                            eblanApplicationInfo = data.eblanApplicationInfo,
                         )
                     )
                 }
@@ -100,6 +101,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             preview = data.preview,
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
+                            eblanApplicationInfo = data.eblanApplicationInfo,
                         )
                     )
                 }
@@ -200,6 +202,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             preview = data.preview,
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
+                            eblanApplicationInfo = data.eblanApplicationInfo,
                         ),
                     )
                 }
@@ -222,6 +225,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             icon = data.icon,
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
+                            eblanApplicationInfo = data.eblanApplicationInfo,
                         ),
                     )
                 }

@@ -422,6 +422,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                             maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                                             preview = eblanAppWidgetProviderInfo.preview,
                                             gridItemSettings = gridItemSettings,
+                                            eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
                                         ),
                                     ),
                                     graphicsLayer.toImageBitmap(),
@@ -481,6 +482,7 @@ fun getWidgetGridItem(
     maxResizeHeight: Int,
     preview: String?,
     gridItemSettings: GridItemSettings,
+    eblanApplicationInfo: EblanApplicationInfo,
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
@@ -497,6 +499,7 @@ fun getWidgetGridItem(
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        eblanApplicationInfo = eblanApplicationInfo,
     )
 
     return GridItem(

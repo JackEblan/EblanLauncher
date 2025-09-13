@@ -86,13 +86,6 @@ class MoveGridItemUseCase @Inject constructor(
                 gridHeight = gridHeight,
             )
 
-            val gridItemBySpan = gridItems.find { gridItem ->
-                gridItem.id != movingGridItem.id && rectanglesOverlap(
-                    moving = movingGridItem,
-                    other = gridItem,
-                )
-            }
-
             if (gridItemByCoordinates != null) {
                 return@withContext handleConflictsOfGridItemCoordinates(
                     gridItems = gridItems,
@@ -102,6 +95,13 @@ class MoveGridItemUseCase @Inject constructor(
                     rows = rows,
                     columns = columns,
                     gridWidth = gridWidth,
+                )
+            }
+
+            val gridItemBySpan = gridItems.find { gridItem ->
+                gridItem.id != movingGridItem.id && rectanglesOverlap(
+                    moving = movingGridItem,
+                    other = gridItem,
                 )
             }
 

@@ -413,6 +413,7 @@ private fun EblanShortcutInfoItem(
                                     shortLabel = eblanShortcutInfo.shortLabel,
                                     longLabel = eblanShortcutInfo.longLabel,
                                     icon = eblanShortcutInfo.icon,
+                                    eblanApplicationInfo = eblanShortcutInfo.eblanApplicationInfo,
                                 )
 
                                 onLongPressGridItem(

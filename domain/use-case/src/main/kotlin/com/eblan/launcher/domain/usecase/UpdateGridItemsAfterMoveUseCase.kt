@@ -20,11 +20,9 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.findAvailableRegionByPage
-import com.eblan.launcher.domain.grid.moveGridItem
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.ResolveDirection
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -116,6 +114,8 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
             else -> {
                 val id = Uuid.random().toHexString()
 
+                val pageCount = 1
+
                 val firstGridItem = conflictingGridItem.copy(
                     page = 0,
                     startRow = 0,
@@ -132,12 +132,12 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     associate = Associate.Grid,
                 )
 
-                val movedSecondGridItem = moveGridItem(
-                    resolveDirection = ResolveDirection.Right,
-                    moving = firstGridItem,
-                    conflicting = secondGridItem,
+                val movedSecondGridItem = findAvailableRegionByPage(
+                    gridItems = listOf(firstGridItem),
+                    gridItem = secondGridItem,
                     rows = folderRows,
                     columns = folderColumns,
+                    pageCount = pageCount,
                 )
 
                 if (movedSecondGridItem != null) {
@@ -145,12 +145,38 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         id = id,
                         label = "Unknown",
                         gridItems = emptyList(),
-                        pageCount = 1,
+                        pageCount = pageCount,
                     )
 
                     gridItems[conflictingIndex] = firstGridItem
 
                     gridItems[movingIndex] = movedSecondGridItem
+
+                    gridItems.add(
+                        conflictingGridItem.copy(
+                            id = id,
+                            data = newData,
+                        ),
+                    )
+                }else {
+                    val newPageCount = pageCount + 1
+
+                    val newData = GridItemData.Folder(
+                        id = id,
+                        label = "Unknown",
+                        gridItems = emptyList(),
+                        pageCount = newPageCount,
+                    )
+
+                    gridItems[conflictingIndex] = firstGridItem
+
+                    gridItems[movingIndex] = secondGridItem.copy(
+                        page = newPageCount - 1,
+                        startRow = 0,
+                        startColumn = 0,
+                        folderId = id,
+                        associate = Associate.Grid,
+                    )
 
                     gridItems.add(
                         conflictingGridItem.copy(

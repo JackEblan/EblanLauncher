@@ -145,7 +145,7 @@ fun findAvailableRegionByPage(
     rows: Int,
     columns: Int,
 ): GridItem? {
-    for (page in 0..pageCount) {
+    for (page in 0 until pageCount) {
         for (row in 0..(rows - gridItem.rowSpan)) {
             for (column in 0..(columns - gridItem.columnSpan)) {
                 val candidateGridItem = gridItem.copy(

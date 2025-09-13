@@ -303,6 +303,8 @@ fun PagerScreen(
             is GestureAction.OpenApp -> {
                 SideEffect {
                     launcherApps.startMainActivity(gestureAction.componentName)
+
+                    showDoubleTap = false
                 }
             }
 

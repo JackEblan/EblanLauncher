@@ -49,6 +49,7 @@ import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
+import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
 fun EditRoute(
@@ -146,6 +147,18 @@ private fun Success(
         )
 
         Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsSwitch(
+            checked = gridItem.override,
+            title = "Override",
+            subtitle = "Override the Grid Item Settings",
+            onCheckedChange = {
+                onUpdateGridItem(gridItem.copy(override = it))
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
 
         GridItemSettings(
             gridItemSettings = gridItem.gridItemSettings,

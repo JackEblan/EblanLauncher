@@ -122,18 +122,9 @@ fun getResolveDirectionBySpan(
     moving: GridItem,
     other: GridItem,
 ): ResolveDirection {
-    val movingLeft = moving.startColumn
-    val movingRight = moving.startColumn + moving.columnSpan
-
-    val otherLeft = other.startColumn
-    val otherRight = other.startColumn + other.columnSpan
-
-    val touchesLeft = otherLeft in (movingLeft + 1)..<movingRight
-    val touchesRight = otherRight in (movingLeft + 1)..<movingRight
-
     return when {
-        touchesLeft -> ResolveDirection.Right
-        touchesRight -> ResolveDirection.Left
+        moving.startColumn < other.startColumn -> ResolveDirection.Right
+        moving.startColumn > other.startColumn -> ResolveDirection.Left
         else -> ResolveDirection.Center
     }
 }

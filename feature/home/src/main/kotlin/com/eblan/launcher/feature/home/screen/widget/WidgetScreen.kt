@@ -3,7 +3,6 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -288,13 +287,15 @@ private fun EblanApplicationInfoItem(
 
     Column(
         modifier = modifier
-            .combinedClickable(
-                onClick = {
-                    expanded = !expanded
-                },
-                onLongClick = {
-                    expanded = !expanded
-                })
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        expanded = !expanded
+                    },
+                    onLongPress = {
+                        expanded = !expanded
+                    })
+            }
             .fillMaxWidth()
             .animateContentSize()
     ) {
@@ -445,18 +446,10 @@ private fun EblanAppWidgetProviderInfoItem(
             contentDescription = null,
         )
 
-        val infoText = """
-    ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}
-    MinWidth = ${eblanAppWidgetProviderInfo.minWidth} MinHeight = ${eblanAppWidgetProviderInfo.minHeight}
-    ResizeMode = ${eblanAppWidgetProviderInfo.resizeMode}
-    MinResizeWidth = ${eblanAppWidgetProviderInfo.minResizeWidth} MinResizeHeight = ${eblanAppWidgetProviderInfo.minResizeHeight}
-    MaxResizeWidth = ${eblanAppWidgetProviderInfo.maxResizeWidth} MaxResizeHeight = ${eblanAppWidgetProviderInfo.maxResizeHeight}
-    """.trimIndent()
-
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = infoText,
+            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,
         )

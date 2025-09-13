@@ -19,8 +19,9 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.grid.getResolveDirectionByDiff
+import com.eblan.launcher.domain.grid.getRelativeResolveDirection
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
+import com.eblan.launcher.domain.grid.rectanglesOverlap
 import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -48,7 +49,7 @@ class ResizeGridItemUseCase @Inject constructor(
                 ) && when (resizingGridItem.associate) {
                     Associate.Grid -> {
                         gridItem.page == resizingGridItem.page &&
-                            gridItem.associate == resizingGridItem.associate
+                                gridItem.associate == resizingGridItem.associate
                     }
 
                     Associate.Dock -> {
@@ -64,18 +65,29 @@ class ResizeGridItemUseCase @Inject constructor(
 
             gridItems[index] = resizingGridItem
 
-            val resolveDirection = getResolveDirectionByDiff(
-                old = oldGridItem,
-                new = resizingGridItem,
-            )
+            val gridItemBySpan = gridItems.find { gridItem ->
+                gridItem.id != resizingGridItem.id && rectanglesOverlap(
+                    moving = resizingGridItem,
+                    other = gridItem,
+                )
+            }
 
-            val resolvedConflictsGridItems = resolveConflictsWhenMoving(
-                gridItems = gridItems,
-                resolveDirection = resolveDirection,
-                moving = resizingGridItem,
-                rows = rows,
-                columns = columns,
-            )
+            val resolvedConflictsGridItems = if (gridItemBySpan != null) {
+                val resolveDirection = getRelativeResolveDirection(
+                    moving = oldGridItem,
+                    other = gridItemBySpan,
+                )
+
+                resolveConflictsWhenMoving(
+                    gridItems = gridItems,
+                    resolveDirection = resolveDirection,
+                    moving = resizingGridItem,
+                    rows = rows,
+                    columns = columns,
+                )
+            } else {
+                gridItems
+            }
 
             if (resolvedConflictsGridItems != null) {
                 gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)

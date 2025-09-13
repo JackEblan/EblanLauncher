@@ -20,7 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.getGridItemByCoordinates
-import com.eblan.launcher.domain.grid.getResolveDirectionBySpan
+import com.eblan.launcher.domain.grid.getRelativeResolveDirection
 import com.eblan.launcher.domain.grid.getResolveDirectionByX
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
@@ -171,7 +171,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
     ): MoveGridItemResult {
         val resolvedConflictsGridItems: List<GridItem>?
 
-        val resolveDirection = getResolveDirectionBySpan(
+        val resolveDirection = getRelativeResolveDirection(
             moving = movingGridItem,
             other = gridItemBySpan,
         )

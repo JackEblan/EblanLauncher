@@ -70,26 +70,6 @@ fun getResolveDirectionByX(
     }
 }
 
-fun getResolveDirectionByDiff(
-    old: GridItem,
-    new: GridItem,
-): ResolveDirection {
-    val oldCenterRow = old.startRow + old.rowSpan / 2.0
-    val oldCenterColumn = old.startColumn + old.columnSpan / 2.0
-
-    val newCenterRow = new.startRow + new.rowSpan / 2.0
-    val newCenterColumn = new.startColumn + new.columnSpan / 2.0
-
-    val rowDiff = newCenterRow - oldCenterRow
-    val columnDiff = newCenterColumn - oldCenterColumn
-
-    return when {
-        rowDiff < 0 || columnDiff < 0 -> ResolveDirection.Left
-        rowDiff > 0 || columnDiff > 0 -> ResolveDirection.Right
-        else -> ResolveDirection.Center
-    }
-}
-
 fun getGridItemByCoordinates(
     id: String,
     gridItems: List<GridItem>,
@@ -118,13 +98,19 @@ fun getGridItemByCoordinates(
     }
 }
 
-fun getResolveDirectionBySpan(
+fun getRelativeResolveDirection(
     moving: GridItem,
     other: GridItem,
 ): ResolveDirection {
     return when {
         moving.startColumn < other.startColumn -> ResolveDirection.Right
+
         moving.startColumn > other.startColumn -> ResolveDirection.Left
+
+        moving.startRow > other.startRow -> ResolveDirection.Left
+
+        moving.startRow < other.startRow -> ResolveDirection.Right
+
         else -> ResolveDirection.Center
     }
 }

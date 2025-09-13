@@ -15,6 +15,7 @@ fun WidgetGridItemMenu(
     modifier: Modifier = Modifier,
     showResize: Boolean,
     onResize: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -31,9 +32,7 @@ fun WidgetGridItemMenu(
                 }
 
                 IconButton(
-                    onClick = {
-
-                    },
+                    onClick = onDelete,
                 ) {
                     Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
                 }

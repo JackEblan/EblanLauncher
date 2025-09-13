@@ -817,7 +817,7 @@ private fun PopupGridItemMenu(
                             onInfo(data.componentName)
 
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -837,7 +837,7 @@ private fun PopupGridItemMenu(
                             onDeleteGridItem(gridItem)
 
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -857,7 +857,7 @@ private fun PopupGridItemMenu(
                             onDeleteGridItem(gridItem)
 
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -868,6 +868,11 @@ private fun PopupGridItemMenu(
                         showResize = showResize,
                         onResize = {
                             onResize(currentPage)
+                        },
+                        onDelete = {
+                            onDeleteGridItem(gridItem)
+
+                            onDismissRequest()
                         },
                     )
                 }

@@ -110,7 +110,7 @@ private fun moveGridItem(
             )
         }
 
-        ResolveDirection.Center -> throw IllegalStateException()
+        ResolveDirection.Center -> null
     }
 }
 

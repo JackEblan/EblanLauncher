@@ -19,20 +19,16 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdatePageItemsUseCase @Inject constructor(
-    private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
-    private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -42,15 +38,7 @@ class UpdatePageItemsUseCase @Inject constructor(
     ) {
         withContext(defaultDispatcher) {
             pageItemsToDelete.forEach { pageItem ->
-                gridCacheRepository.deleteGridItems(gridItems = pageItem.gridItems)
-
-                pageItem.gridItems.forEach { gridItem ->
-                    val data = gridItem.data
-
-                    if (data is GridItemData.Widget) {
-                        appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
-                    }
-                }
+                deleteGridItemsUseCase(gridItems = pageItem.gridItems)
             }
 
             val gridItems = pageItems.mapIndexed { index, pageItem ->

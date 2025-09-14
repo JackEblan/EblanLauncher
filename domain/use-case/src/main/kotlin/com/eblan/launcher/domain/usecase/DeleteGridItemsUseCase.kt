@@ -33,7 +33,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdateGridItemsUseCase @Inject constructor(
+class DeleteGridItemsUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
@@ -74,6 +74,11 @@ class UpdateGridItemsUseCase @Inject constructor(
                     }
 
                     is GridItemData.Folder -> {
+                        folderGridItemRepository.getFolderGridItemData(id = data.id)
+                            ?.let { folderGridItemData ->
+                                this@DeleteGridItemsUseCase(gridItems = folderGridItemData.gridItems)
+                            }
+
                         folderGridItems.add(
                             FolderGridItem(
                                 id = gridItem.id,
@@ -149,15 +154,15 @@ class UpdateGridItemsUseCase @Inject constructor(
                 }
             }
 
-            applicationInfoGridItemRepository.upsertApplicationInfoGridItems(
+            applicationInfoGridItemRepository.deleteApplicationInfoGridItems(
                 applicationInfoGridItems = applicationInfoGridItems,
             )
 
-            widgetGridItemRepository.upsertWidgetGridItems(widgetGridItems = widgetGridItems)
+            widgetGridItemRepository.deleteWidgetGridItems(widgetGridItems = widgetGridItems)
 
-            shortcutInfoGridItemRepository.upsertShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
+            shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
 
-            folderGridItemRepository.upsertFolderGridItems(folderGridItems = folderGridItems)
+            folderGridItemRepository.deleteFolderGridItems(folderGridItems = folderGridItems)
         }
     }
 }

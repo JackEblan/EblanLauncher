@@ -38,15 +38,57 @@ class DeleteGridItemUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val folderGridItemRepository: FolderGridItemRepository,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
+    private val folderGridItemRepository: FolderGridItemRepository,
+    private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem) {
         withContext(defaultDispatcher) {
             when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
+                        applicationInfoGridItem = ApplicationInfoGridItem(
+                            id = gridItem.id,
+                            folderId = gridItem.folderId,
+                            page = gridItem.page,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
+                            associate = gridItem.associate,
+                            componentName = data.componentName,
+                            packageName = data.packageName,
+                            icon = data.icon,
+                            label = data.label,
+                            override = gridItem.override,
+                            gridItemSettings = gridItem.gridItemSettings,
+                        ),
+                    )
+                }
+
                 is GridItemData.Folder -> {
-                    deleteFolderGridItems(gridItem = gridItem)
+                    folderGridItemRepository.getFolderGridItemData(id = data.id)
+                        ?.let { folderGridItemData ->
+                            deleteGridItemsUseCase(gridItems = folderGridItemData.gridItems)
+                        }
+
+                    folderGridItemRepository.deleteFolderGridItem(
+                        folderGridItem = FolderGridItem(
+                            id = gridItem.id,
+                            folderId = gridItem.folderId,
+                            page = gridItem.page,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
+                            associate = gridItem.associate,
+                            label = data.label,
+                            override = gridItem.override,
+                            gridItemSettings = gridItem.gridItemSettings,
+                            pageCount = data.pageCount,
+                        )
+                    )
                 }
 
                 is GridItemData.ShortcutInfo -> {
@@ -105,158 +147,7 @@ class DeleteGridItemUseCase @Inject constructor(
                         ),
                     )
                 }
-
-                is GridItemData.ApplicationInfo -> {
-                    applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
-                        applicationInfoGridItem = ApplicationInfoGridItem(
-                            id = gridItem.id,
-                            folderId = gridItem.folderId,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            componentName = data.componentName,
-                            packageName = data.packageName,
-                            icon = data.icon,
-                            label = data.label,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                        ),
-                    )
-                }
             }
         }
-    }
-
-    private fun collectFolderGridItems(gridItem: GridItem): List<GridItem> {
-        return when (val data = gridItem.data) {
-            is GridItemData.Folder -> {
-                val children = data.gridItems.flatMap { collectFolderGridItems(it) }
-                children + gridItem
-            }
-
-            else -> listOf(gridItem)
-        }
-    }
-
-    private suspend fun deleteFolderGridItems(gridItem: GridItem) {
-        val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
-
-        val widgetGridItems = mutableListOf<WidgetGridItem>()
-
-        val shortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
-
-        val folderGridItems = mutableListOf<FolderGridItem>()
-
-        collectFolderGridItems(gridItem = gridItem).forEach { gridItem ->
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    applicationInfoGridItems.add(
-                        ApplicationInfoGridItem(
-                            id = gridItem.id,
-                            folderId = gridItem.folderId,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            componentName = data.componentName,
-                            packageName = data.packageName,
-                            icon = data.icon,
-                            label = data.label,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                        ),
-                    )
-                }
-
-                is GridItemData.Folder -> {
-                    folderGridItems.add(
-                        FolderGridItem(
-                            id = gridItem.id,
-                            folderId = gridItem.folderId,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            label = data.label,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                            pageCount = data.pageCount,
-                        ),
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    appWidgetHostWrapper.deleteAppWidgetId(appWidgetId = data.appWidgetId)
-
-                    widgetGridItems.add(
-                        WidgetGridItem(
-                            id = gridItem.id,
-                            folderId = gridItem.folderId,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            appWidgetId = data.appWidgetId,
-                            packageName = data.packageName,
-                            componentName = data.componentName,
-                            configure = data.configure,
-                            minWidth = data.minWidth,
-                            minHeight = data.minHeight,
-                            resizeMode = data.resizeMode,
-                            minResizeWidth = data.minResizeWidth,
-                            minResizeHeight = data.minResizeHeight,
-                            maxResizeWidth = data.maxResizeWidth,
-                            maxResizeHeight = data.maxResizeHeight,
-                            targetCellHeight = data.targetCellHeight,
-                            targetCellWidth = data.targetCellWidth,
-                            preview = data.preview,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                            eblanApplicationInfo = data.eblanApplicationInfo,
-                        ),
-                    )
-                }
-
-                is GridItemData.ShortcutInfo -> {
-                    shortcutInfoGridItems.add(
-                        ShortcutInfoGridItem(
-                            id = gridItem.id,
-                            folderId = gridItem.folderId,
-                            page = gridItem.page,
-                            startRow = gridItem.startRow,
-                            startColumn = gridItem.startColumn,
-                            rowSpan = gridItem.rowSpan,
-                            columnSpan = gridItem.columnSpan,
-                            associate = gridItem.associate,
-                            shortcutId = data.shortcutId,
-                            packageName = data.packageName,
-                            shortLabel = data.shortLabel,
-                            longLabel = data.longLabel,
-                            icon = data.icon,
-                            override = gridItem.override,
-                            gridItemSettings = gridItem.gridItemSettings,
-                            eblanApplicationInfo = data.eblanApplicationInfo,
-                        ),
-                    )
-                }
-            }
-        }
-
-        applicationInfoGridItemRepository.deleteApplicationInfoGridItems(applicationInfoGridItems = applicationInfoGridItems)
-
-        widgetGridItemRepository.deleteWidgetGridItems(widgetGridItems = widgetGridItems)
-
-        shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
-
-        folderGridItemRepository.deleteFolderGridItems(folderGridItems = folderGridItems)
     }
 }

@@ -203,12 +203,6 @@ fun ApplicationScreen(
         )
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging) {
-            showPopupApplicationMenu = false
-        }
-    }
-
     BackHandler {
         showPopupApplicationMenu = false
 
@@ -258,7 +252,11 @@ fun ApplicationScreen(
                                     appDrawerSettings = appDrawerSettings,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
-                                    onDraggingGridItem = onDraggingGridItem,
+                                    onDraggingGridItem = {
+                                        onDraggingGridItem()
+
+                                        showPopupApplicationMenu = false
+                                    },
                                     onUpdatePopupMenu = {
                                         showPopupApplicationMenu = true
                                     },
@@ -290,7 +288,11 @@ fun ApplicationScreen(
                                                     imageBitmap,
                                                 )
                                             },
-                                            onDraggingGridItem = onDraggingGridItem,
+                                            onDraggingGridItem = {
+                                                onDraggingGridItem()
+
+                                                showPopupApplicationMenu = false
+                                            },
                                             onUpdatePopupMenu = {
                                                 showPopupApplicationMenu = true
                                             },
@@ -442,8 +444,18 @@ private fun EblanApplicationInfoItem(
     var isLongPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDraggingGridItem()
+        if (isLongPressed) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    isLongPressed = false
+                }
+
+                else -> Unit
+            }
         }
     }
 

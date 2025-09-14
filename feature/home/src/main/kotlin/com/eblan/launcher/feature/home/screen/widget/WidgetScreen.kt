@@ -384,8 +384,18 @@ private fun EblanAppWidgetProviderInfoItem(
     var isLongPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDraggingGridItem()
+        if (isLongPressed) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    isLongPressed = false
+                }
+
+                else -> Unit
+            }
         }
     }
 
@@ -446,11 +456,6 @@ private fun EblanAppWidgetProviderInfoItem(
                                     graphicsLayer.toImageBitmap(),
                                 )
                             }
-                        },
-                        onPress = {
-                            awaitRelease()
-
-                            isLongPressed = false
                         },
                     )
                 }

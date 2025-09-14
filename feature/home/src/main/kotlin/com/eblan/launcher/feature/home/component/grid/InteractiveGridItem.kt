@@ -188,8 +188,18 @@ private fun ApplicationInfoGridItem(
     var isLongPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDraggingGridItem()
+        if (isLongPressed) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    isLongPressed = false
+                }
+
+                else -> Unit
+            }
         }
     }
 
@@ -231,13 +241,9 @@ private fun ApplicationInfoGridItem(
                             onTap()
                         }
                     },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    },
                 )
-            }.fillMaxSize(),
+            }
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -283,8 +289,18 @@ private fun WidgetGridItem(
     var isLongPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDraggingGridItem()
+        if (isLongPressed) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    isLongPressed = false
+                }
+
+                else -> Unit
+            }
         }
     }
 
@@ -326,7 +342,8 @@ private fun WidgetGridItem(
                     }
 
                     drawLayer(graphicsLayer)
-                }.fillMaxSize(),
+                }
+                .fillMaxSize(),
         )
     }
 }
@@ -364,8 +381,18 @@ private fun ShortcutInfoGridItem(
     var isLongPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDraggingGridItem()
+        if (isLongPressed) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    isLongPressed = false
+                }
+
+                else -> Unit
+            }
         }
     }
 
@@ -407,13 +434,9 @@ private fun ShortcutInfoGridItem(
                             onTap()
                         }
                     },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    },
                 )
-            }.fillMaxSize(),
+            }
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -469,8 +492,18 @@ private fun FolderGridItem(
     var isLongPressed by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging && isLongPressed) {
-            onDraggingGridItem()
+        if (isLongPressed) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    isLongPressed = false
+                }
+
+                else -> Unit
+            }
         }
     }
 
@@ -512,13 +545,9 @@ private fun FolderGridItem(
                             onTap()
                         }
                     },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    },
                 )
-            }.fillMaxSize(),
+            }
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (data.gridItems.isNotEmpty()) {

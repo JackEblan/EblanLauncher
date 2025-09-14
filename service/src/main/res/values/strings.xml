@@ -16,5 +16,6 @@
   ~
   -->
 <resources>
-    <string name="accessibility_service_label">Eblan Launcher Gesture Actions</string>
+    <string name="accessibility_service_label">Eblan Launcher</string>
+    <string name="accessibility_service_description">Eblan Launcher gesture actions</string>
 </resources>

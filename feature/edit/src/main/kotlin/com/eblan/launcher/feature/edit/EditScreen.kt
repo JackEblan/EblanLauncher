@@ -188,10 +188,13 @@ private fun Success(
             is GridItemData.ApplicationInfo -> {
                 var value by remember { mutableStateOf(data.label.toString()) }
 
+                var isError by remember { mutableStateOf(false)}
+
                 SingleTextFieldDialog(
                     title = "Label",
                     textFieldTitle = "Label",
                     value = value,
+                    isError = isError,
                     keyboardType = KeyboardType.Text,
                     onValueChange = {
                         value = it
@@ -200,11 +203,15 @@ private fun Success(
                         showEditLabelDialog = false
                     },
                     onUpdateClick = {
-                        val newData = data.copy(label = value)
+                        if (value.isNotBlank()) {
+                            val newData = data.copy(label = value)
 
-                        onUpdateGridItem(gridItem.copy(data = newData))
+                            onUpdateGridItem(gridItem.copy(data = newData))
 
-                        showEditLabelDialog = false
+                            showEditLabelDialog = false
+                        } else {
+                            isError = true
+                        }
                     },
                 )
             }
@@ -212,10 +219,13 @@ private fun Success(
             is GridItemData.Folder -> {
                 var value by remember { mutableStateOf(data.label) }
 
+                var isError by remember { mutableStateOf(false)}
+
                 SingleTextFieldDialog(
                     title = "Label",
                     textFieldTitle = "Label",
                     value = value,
+                    isError = isError,
                     keyboardType = KeyboardType.Text,
                     onValueChange = {
                         value = it
@@ -224,11 +234,15 @@ private fun Success(
                         showEditLabelDialog = false
                     },
                     onUpdateClick = {
-                        val newData = data.copy(label = value)
+                        if (value.isNotBlank()) {
+                            val newData = data.copy(label = value)
 
-                        onUpdateGridItem(gridItem.copy(data = newData))
+                            onUpdateGridItem(gridItem.copy(data = newData))
 
-                        showEditLabelDialog = false
+                            showEditLabelDialog = false
+                        } else {
+                            isError = true
+                        }
                     },
                 )
             }
@@ -236,10 +250,13 @@ private fun Success(
             is GridItemData.ShortcutInfo -> {
                 var value by remember { mutableStateOf(data.shortLabel) }
 
+                var isError by remember { mutableStateOf(false)}
+
                 SingleTextFieldDialog(
                     title = "Label",
                     textFieldTitle = "Label",
                     value = value,
+                    isError = isError,
                     keyboardType = KeyboardType.Text,
                     onValueChange = {
                         value = it
@@ -248,11 +265,15 @@ private fun Success(
                         showEditLabelDialog = false
                     },
                     onUpdateClick = {
-                        val newData = data.copy(shortLabel = value)
+                        if (value.isNotBlank()) {
+                            val newData = data.copy(shortLabel = value)
 
-                        onUpdateGridItem(gridItem.copy(data = newData))
+                            onUpdateGridItem(gridItem.copy(data = newData))
 
-                        showEditLabelDialog = false
+                            showEditLabelDialog = false
+                        } else {
+                            isError = true
+                        }
                     },
                 )
             }
@@ -264,10 +285,13 @@ private fun Success(
     if (showIconSizeDialog) {
         var value by remember { mutableStateOf("${gridItem.gridItemSettings.iconSize}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Icon Size",
             textFieldTitle = "Icon Size",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -281,11 +305,11 @@ private fun Success(
                         gridItem.gridItemSettings.copy(iconSize = value.toInt())
 
                     onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showIconSizeDialog = false
+                    showIconSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }
@@ -314,10 +338,13 @@ private fun Success(
     if (showTextSizeDialog) {
         var value by remember { mutableStateOf("${gridItem.gridItemSettings.textSize}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Text Size",
             textFieldTitle = "Text Size",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -331,11 +358,11 @@ private fun Success(
                         gridItem.gridItemSettings.copy(textSize = value.toInt())
 
                     onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showTextSizeDialog = false
+                    showTextSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }

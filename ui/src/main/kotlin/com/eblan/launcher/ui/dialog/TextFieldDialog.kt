@@ -42,7 +42,9 @@ fun SingleTextFieldDialog(
     title: String,
     textFieldTitle: String,
     value: String,
+    isError: Boolean,
     keyboardType: KeyboardType,
+    singleLine: Boolean = true,
     onValueChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onUpdateClick: () -> Unit,
@@ -64,7 +66,14 @@ fun SingleTextFieldDialog(
                 label = {
                     Text(text = textFieldTitle)
                 },
+                supportingText = {
+                    if (isError) {
+                        Text(text = "$textFieldTitle is not valid")
+                    }
+                },
+                isError = isError,
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                singleLine = singleLine,
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -96,7 +105,10 @@ fun TwoTextFieldsDialog(
     secondTextFieldTitle: String,
     firstTextFieldValue: String,
     secondTextFieldValue: String,
+    firstTextFieldIsError: Boolean,
+    secondTextFieldIsError: Boolean,
     keyboardType: KeyboardType,
+    singleLine: Boolean = true,
     onFirstValueChange: (String) -> Unit,
     onSecondValueChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -120,7 +132,14 @@ fun TwoTextFieldsDialog(
                     label = {
                         Text(text = firstTextFieldTitle)
                     },
+                    supportingText = {
+                        if (firstTextFieldIsError) {
+                            Text(text = "$firstTextFieldTitle is not valid")
+                        }
+                    },
+                    isError = firstTextFieldIsError,
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    singleLine = singleLine,
                 )
 
                 Spacer(modifier = Modifier.width(5.dp))
@@ -132,7 +151,14 @@ fun TwoTextFieldsDialog(
                     label = {
                         Text(text = secondTextFieldTitle)
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText = {
+                        if (secondTextFieldIsError) {
+                            Text(text = "$secondTextFieldTitle is not valid")
+                        }
+                    },
+                    isError = secondTextFieldIsError,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    singleLine = singleLine,
                 )
             }
 

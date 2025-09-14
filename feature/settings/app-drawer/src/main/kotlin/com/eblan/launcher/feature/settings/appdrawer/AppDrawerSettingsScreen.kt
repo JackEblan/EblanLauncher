@@ -184,12 +184,18 @@ private fun Success(
 
         var appDrawerRowsHeight by remember { mutableStateOf("${appDrawerSettings.appDrawerRowsHeight}") }
 
+        var firstTextFieldIsError by remember { mutableStateOf(false)}
+
+        var secondTextFieldIsError by remember { mutableStateOf(false)}
+
         TwoTextFieldsDialog(
             title = "App Drawer Grid",
             firstTextFieldTitle = "Columns",
             secondTextFieldTitle = "Rows Height",
             firstTextFieldValue = appDrawerColumns,
             secondTextFieldValue = appDrawerRowsHeight,
+            firstTextFieldIsError = firstTextFieldIsError,
+            secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
                 appDrawerColumns = it
@@ -201,13 +207,25 @@ private fun Success(
                 showGridDialog = false
             },
             onUpdateClick = {
-                try {
-                    onUpdateAppDrawerGrid(appDrawerColumns.toInt(), appDrawerRowsHeight.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show Error")
+                val appDrawerColumns = try {
+                    appDrawerColumns.toInt()
+                } catch (_: NumberFormatException) {
+                    firstTextFieldIsError = true
+                    0
                 }
 
-                showGridDialog = false
+                val appDrawerRowsHeight = try {
+                    appDrawerRowsHeight.toInt()
+                } catch (_: NumberFormatException) {
+                    secondTextFieldIsError = true
+                    0
+                }
+
+                if(appDrawerColumns > 0 && appDrawerRowsHeight > 0){
+                    onUpdateAppDrawerGrid(appDrawerColumns, appDrawerRowsHeight)
+
+                    showGridDialog = false
+                }
             },
         )
     }
@@ -215,10 +233,13 @@ private fun Success(
     if (showIconSizeDialog) {
         var value by remember { mutableStateOf("${appDrawerSettings.gridItemSettings.iconSize}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Icon Size",
             textFieldTitle = "Icon Size",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -229,11 +250,11 @@ private fun Success(
             onUpdateClick = {
                 try {
                     onUpdateAppDrawerIconSize(value.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showIconSizeDialog = false
+                    showIconSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }
@@ -260,10 +281,13 @@ private fun Success(
     if (showTextSizeDialog) {
         var value by remember { mutableStateOf("${appDrawerSettings.gridItemSettings.textSize}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Text Size",
             textFieldTitle = "Text Size",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -274,11 +298,11 @@ private fun Success(
             onUpdateClick = {
                 try {
                     onUpdateAppDrawerTextSize(value.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showTextSizeDialog = false
+                    showTextSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }

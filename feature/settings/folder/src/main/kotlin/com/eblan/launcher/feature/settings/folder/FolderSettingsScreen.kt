@@ -134,12 +134,18 @@ private fun Success(
 
         var folderColumns by remember { mutableStateOf("${homeSettings.folderColumns}") }
 
+        var firstTextFieldIsError by remember { mutableStateOf(false) }
+
+        var secondTextFieldIsError by remember { mutableStateOf(false) }
+
         TwoTextFieldsDialog(
             title = "Folder Grid",
             firstTextFieldTitle = "Folder Rows",
             secondTextFieldTitle = "Folder Columns",
             firstTextFieldValue = folderRows,
             secondTextFieldValue = folderColumns,
+            firstTextFieldIsError = firstTextFieldIsError,
+            secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
                 folderRows = it
@@ -151,13 +157,25 @@ private fun Success(
                 showGridDialog = false
             },
             onUpdateClick = {
-                try {
-                    onUpdateFolderGrid(folderRows.toInt(), folderColumns.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show Error")
+                val folderRows = try {
+                    folderRows.toInt()
+                } catch (_: NumberFormatException) {
+                    firstTextFieldIsError = true
+                    0
                 }
 
-                showGridDialog = false
+                val folderColumns = try {
+                    folderColumns.toInt()
+                } catch (_: NumberFormatException) {
+                    secondTextFieldIsError = true
+                    0
+                }
+
+                if (folderRows > 0 && folderColumns > 0) {
+                    onUpdateFolderGrid(folderRows, folderColumns)
+
+                    showGridDialog = false
+                }
             },
         )
     }

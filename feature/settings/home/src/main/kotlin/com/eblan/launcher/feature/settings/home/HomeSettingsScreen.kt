@@ -264,12 +264,18 @@ private fun Success(
 
         var columns by remember { mutableStateOf("${homeSettings.columns}") }
 
+        var firstTextFieldIsError by remember { mutableStateOf(false)}
+
+        var secondTextFieldIsError by remember { mutableStateOf(false)}
+
         TwoTextFieldsDialog(
             title = "Grid",
             firstTextFieldTitle = "Rows",
             secondTextFieldTitle = "Columns",
             firstTextFieldValue = rows,
             secondTextFieldValue = columns,
+            firstTextFieldIsError = firstTextFieldIsError,
+            secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
                 rows = it
@@ -281,13 +287,25 @@ private fun Success(
                 showGridDialog = false
             },
             onUpdateClick = {
-                try {
-                    onUpdateGrid(rows.toInt(), columns.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show Error")
+                val rows = try {
+                    rows.toInt()
+                } catch (_: NumberFormatException) {
+                    firstTextFieldIsError = true
+                    0
                 }
 
-                showGridDialog = false
+                val columns = try {
+                    columns.toInt()
+                } catch (_: NumberFormatException) {
+                    secondTextFieldIsError = true
+                    0
+                }
+
+                if(rows > 0 && columns > 0){
+                    onUpdateGrid(rows, columns)
+
+                    showGridDialog = false
+                }
             },
         )
     }
@@ -297,12 +315,18 @@ private fun Success(
 
         var dockColumns by remember { mutableStateOf("${homeSettings.dockColumns}") }
 
+        var firstTextFieldIsError by remember { mutableStateOf(false)}
+
+        var secondTextFieldIsError by remember { mutableStateOf(false)}
+
         TwoTextFieldsDialog(
             title = "Dock Grid",
             firstTextFieldTitle = "Dock Rows",
             secondTextFieldTitle = "Dock Columns",
             firstTextFieldValue = dockRows,
             secondTextFieldValue = dockColumns,
+            firstTextFieldIsError = firstTextFieldIsError,
+            secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
                 dockRows = it
@@ -314,13 +338,25 @@ private fun Success(
                 showDockGridDialog = false
             },
             onUpdateClick = {
-                try {
-                    onUpdateDockGrid(dockRows.toInt(), dockColumns.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show Error")
+                val dockRows = try {
+                    dockRows.toInt()
+                } catch (_: NumberFormatException) {
+                    firstTextFieldIsError = true
+                    0
                 }
 
-                showDockGridDialog = false
+                val dockColumns = try {
+                    dockColumns.toInt()
+                } catch (_: NumberFormatException) {
+                    secondTextFieldIsError = true
+                    0
+                }
+
+                if(dockRows > 0 && dockColumns > 0){
+                    onUpdateDockGrid(dockRows, dockColumns)
+
+                    showDockGridDialog = false
+                }
             },
         )
     }
@@ -328,10 +364,13 @@ private fun Success(
     if (showDockHeightDialog) {
         var value by remember { mutableStateOf("${homeSettings.dockHeight}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Dock Height",
             textFieldTitle = "Dock Height",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -342,11 +381,11 @@ private fun Success(
             onUpdateClick = {
                 try {
                     onUpdateDockHeight(value.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showDockHeightDialog = false
+                    showDockHeightDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }
@@ -354,10 +393,13 @@ private fun Success(
     if (showIconSizeDialog) {
         var value by remember { mutableStateOf("${homeSettings.gridItemSettings.iconSize}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Icon Size",
             textFieldTitle = "Icon Size",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -368,11 +410,11 @@ private fun Success(
             onUpdateClick = {
                 try {
                     onUpdateIconSize(value.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showIconSizeDialog = false
+                    showIconSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }
@@ -399,10 +441,13 @@ private fun Success(
     if (showTextSizeDialog) {
         var value by remember { mutableStateOf("${homeSettings.gridItemSettings.textSize}") }
 
+        var isError by remember { mutableStateOf(false)}
+
         SingleTextFieldDialog(
             title = "Text Size",
             textFieldTitle = "Text Size",
             value = value,
+            isError = isError,
             keyboardType = KeyboardType.Number,
             onValueChange = {
                 value = it
@@ -413,11 +458,11 @@ private fun Success(
             onUpdateClick = {
                 try {
                     onUpdateTextSize(value.toInt())
-                } catch (e: NumberFormatException) {
-                    TODO("Show error")
-                }
 
-                showTextSizeDialog = false
+                    showTextSizeDialog = false
+                } catch (_: NumberFormatException) {
+                    isError = true
+                }
             },
         )
     }

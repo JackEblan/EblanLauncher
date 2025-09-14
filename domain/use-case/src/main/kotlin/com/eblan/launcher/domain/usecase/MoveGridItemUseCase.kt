@@ -57,7 +57,7 @@ class MoveGridItemUseCase @Inject constructor(
                 ) && when (movingGridItem.associate) {
                     Associate.Grid -> {
                         gridItem.page == movingGridItem.page &&
-                                gridItem.associate == movingGridItem.associate
+                            gridItem.associate == movingGridItem.associate
                     }
 
                     Associate.Dock -> {

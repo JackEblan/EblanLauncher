@@ -175,7 +175,7 @@ private fun Success(
                 showTextSizeDialog = true
             },
             onUpdateShowLabel = onUpdateAppDrawerShowLabel,
-            onUpdateSingleLineLabel = onUpdateAppDrawerSingleLineLabel
+            onUpdateSingleLineLabel = onUpdateAppDrawerSingleLineLabel,
         )
     }
 

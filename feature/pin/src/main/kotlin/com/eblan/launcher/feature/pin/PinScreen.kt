@@ -418,7 +418,7 @@ private fun PinBottomSheet(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = "Touch and hold the widget to move it around the home screen",
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))

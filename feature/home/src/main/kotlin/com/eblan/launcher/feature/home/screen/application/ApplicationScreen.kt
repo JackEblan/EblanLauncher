@@ -1,3 +1,20 @@
+/*
+ *
+ *   Copyright 2023 Einstein Blanco
+ *
+ *   Licensed under the GNU General Public License v3.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/gpl-3.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package com.eblan.launcher.feature.home.screen.application
 
 import android.content.Intent
@@ -244,7 +261,7 @@ fun ApplicationScreen(
                                     onDraggingGridItem = onDraggingGridItem,
                                     onUpdatePopupMenu = {
                                         showPopupApplicationMenu = true
-                                    }
+                                    },
                                 )
 
                                 LazyVerticalGrid(
@@ -270,18 +287,17 @@ fun ApplicationScreen(
                                                 onLongPressGridItem(
                                                     currentPage,
                                                     gridItemSource,
-                                                    imageBitmap
+                                                    imageBitmap,
                                                 )
                                             },
                                             onDraggingGridItem = onDraggingGridItem,
                                             onUpdatePopupMenu = {
                                                 showPopupApplicationMenu = true
-                                            }
+                                            },
                                         )
                                     }
                                 }
                             }
-
 
                             if (showPopupApplicationMenu && gridItemSource?.gridItem != null) {
                                 PopupApplicationInfoMenu(
@@ -291,7 +307,7 @@ fun ApplicationScreen(
                                     popupMenuIntSize = popupMenuIntSize,
                                     onDismissRequest = {
                                         showPopupApplicationMenu = false
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -461,7 +477,7 @@ private fun EblanApplicationInfoItem(
 
                         onLongPress(
                             intOffset,
-                            intSize
+                            intSize,
                         )
 
                         scope.launch {
@@ -505,7 +521,7 @@ private fun EblanApplicationInfoItem(
                         awaitRelease()
 
                         isLongPressed = false
-                    }
+                    },
                 )
             }
             .onGloballyPositioned { layoutCoordinates ->
@@ -556,7 +572,6 @@ private fun PopupApplicationInfoMenu(
 
     val context = LocalContext.current
 
-
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -584,7 +599,8 @@ private fun PopupApplicationInfoMenu(
                     launcherApps.startAppDetailsActivity(componentName = applicationInfo.componentName)
 
                     onDismissRequest()
-                }, onDelete = {
+                },
+                onDelete = {
                     val intent = Intent(Intent.ACTION_DELETE).apply {
                         data = "package:${applicationInfo.packageName}".toUri()
                     }
@@ -592,7 +608,8 @@ private fun PopupApplicationInfoMenu(
                     context.startActivity(intent)
 
                     onDismissRequest()
-                })
+                },
+            )
         },
     )
 }

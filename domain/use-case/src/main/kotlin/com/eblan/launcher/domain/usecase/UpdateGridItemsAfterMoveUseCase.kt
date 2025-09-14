@@ -158,7 +158,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                             data = newData,
                         ),
                     )
-                }else {
+                } else {
                     val newPageCount = pageCount + 1
 
                     val newData = GridItemData.Folder(

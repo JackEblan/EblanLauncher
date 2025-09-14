@@ -68,7 +68,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
                             eblanApplicationInfo = data.eblanApplicationInfo,
-                        )
+                        ),
                     )
                 }
 
@@ -102,11 +102,30 @@ class DeleteGridItemUseCase @Inject constructor(
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
                             eblanApplicationInfo = data.eblanApplicationInfo,
-                        )
+                        ),
                     )
                 }
 
-                is GridItemData.ApplicationInfo -> Unit
+                is GridItemData.ApplicationInfo -> {
+                    applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
+                        applicationInfoGridItem = ApplicationInfoGridItem(
+                            id = gridItem.id,
+                            folderId = gridItem.folderId,
+                            page = gridItem.page,
+                            startRow = gridItem.startRow,
+                            startColumn = gridItem.startColumn,
+                            rowSpan = gridItem.rowSpan,
+                            columnSpan = gridItem.columnSpan,
+                            associate = gridItem.associate,
+                            componentName = data.componentName,
+                            packageName = data.packageName,
+                            icon = data.icon,
+                            label = data.label,
+                            override = gridItem.override,
+                            gridItemSettings = gridItem.gridItemSettings,
+                        ),
+                    )
+                }
             }
         }
     }
@@ -122,7 +141,7 @@ class DeleteGridItemUseCase @Inject constructor(
         }
     }
 
-    private suspend fun deleteFolderGridItems(gridItem: GridItem){
+    private suspend fun deleteFolderGridItems(gridItem: GridItem) {
         val applicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
         val widgetGridItems = mutableListOf<WidgetGridItem>()

@@ -61,7 +61,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
             val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
 
-            if(eblanApplicationInfo != null){
+            if (eblanApplicationInfo != null) {
                 val icon = fileManager.writeFileBytes(
                     directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
                     name = shortcutId,
@@ -104,7 +104,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 }
 
                 newGridItem
-            }else {
+            } else {
                 null
             }
         }

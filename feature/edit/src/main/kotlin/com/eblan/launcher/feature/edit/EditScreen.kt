@@ -159,7 +159,6 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-
         GridItemSettings(
             gridItemSettings = gridItem.gridItemSettings,
             onIconSizeClick = {
@@ -180,7 +179,7 @@ private fun Success(
                 val newGridItemSettings = gridItem.gridItemSettings.copy(singleLineLabel = it)
 
                 onUpdateGridItem(gridItem.copy(gridItemSettings = newGridItemSettings))
-            }
+            },
         )
     }
 

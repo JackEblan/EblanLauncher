@@ -26,6 +26,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,62 +35,72 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.model.SettingsActivityUiState
 import com.eblan.launcher.navigation.SettingsNavHost
+import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.util.handleEdgeToEdge
 import com.eblan.launcher.viewmodel.SettingsActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingsActivity : ComponentActivity() {
     private val viewModel: SettingsActivityViewModel by viewModels()
 
+    @Inject
+    lateinit var androidPackageManagerWrapper: AndroidPackageManagerWrapper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val navController = rememberNavController()
+            CompositionLocalProvider(
+                LocalPackageManager provides androidPackageManagerWrapper,
+            ) {
+                val navController = rememberNavController()
 
-            val settingsActivityUiState by viewModel.settingsActivityUiState.collectAsStateWithLifecycle()
+                val settingsActivityUiState by viewModel.settingsActivityUiState.collectAsStateWithLifecycle()
 
-            when (val state = settingsActivityUiState) {
-                SettingsActivityUiState.Loading -> {
-                    SideEffect {
-                        enableEdgeToEdge()
-                    }
+                when (val state = settingsActivityUiState) {
+                    SettingsActivityUiState.Loading -> {
+                        SideEffect {
+                            enableEdgeToEdge()
+                        }
 
-                    EblanLauncherTheme(
-                        themeBrand = ThemeBrand.Green,
-                        darkThemeConfig = DarkThemeConfig.System,
-                        dynamicTheme = false,
-                    ) {
-                        Surface(modifier = Modifier.fillMaxSize()) {
-                            Box(modifier = Modifier.fillMaxSize())
+                        EblanLauncherTheme(
+                            themeBrand = ThemeBrand.Green,
+                            darkThemeConfig = DarkThemeConfig.System,
+                            dynamicTheme = false,
+                        ) {
+                            Surface(modifier = Modifier.fillMaxSize()) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
-                }
 
-                is SettingsActivityUiState.Success -> {
-                    SideEffect {
-                        handleEdgeToEdge(darkThemeConfig = state.themeSettings.darkThemeConfig)
-                    }
+                    is SettingsActivityUiState.Success -> {
+                        SideEffect {
+                            handleEdgeToEdge(darkThemeConfig = state.themeSettings.darkThemeConfig)
+                        }
 
-                    EblanLauncherTheme(
-                        themeBrand = state.themeSettings.themeBrand,
-                        darkThemeConfig = state.themeSettings.darkThemeConfig,
-                        dynamicTheme = state.themeSettings.dynamicTheme,
-                    ) {
-                        Surface {
-                            SettingsNavHost(
-                                navController = navController,
-                                onFinish = {
-                                    val intent = Intent(this, MainActivity::class.java)
+                        EblanLauncherTheme(
+                            themeBrand = state.themeSettings.themeBrand,
+                            darkThemeConfig = state.themeSettings.darkThemeConfig,
+                            dynamicTheme = state.themeSettings.dynamicTheme,
+                        ) {
+                            Surface {
+                                SettingsNavHost(
+                                    navController = navController,
+                                    onFinish = {
+                                        val intent = Intent(this, MainActivity::class.java)
 
-                                    startActivity(intent)
+                                        startActivity(intent)
 
-                                    finish()
-                                },
-                            )
+                                        finish()
+                                    },
+                                )
+                            }
                         }
                     }
                 }

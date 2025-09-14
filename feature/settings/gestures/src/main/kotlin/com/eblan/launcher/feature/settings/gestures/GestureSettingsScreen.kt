@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.feature.settings.gestures
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,6 +48,7 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionBottomSheet
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
+import com.eblan.launcher.ui.settings.HintRow
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
@@ -126,6 +130,8 @@ private fun Success(
     onUpdateSwipeUpGestureAction: (GestureAction) -> Unit,
     onUpdateSwipeDownGestureAction: (GestureAction) -> Unit,
 ) {
+    val context = LocalContext.current
+
     var showDoubleTapBottomSheet by remember { mutableStateOf(false) }
 
     var showSwipeUpBottomSheet by remember { mutableStateOf(false) }
@@ -133,6 +139,16 @@ private fun Success(
     var showSwipeDownBottomSheet by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
+        HintRow(
+            hint = "Grant Eblan Launcher to use Accessibility services",
+            onClick = {
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                context.startActivity(intent)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         SettingsColumn(
             title = "Double tap",
             subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),

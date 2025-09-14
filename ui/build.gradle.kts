@@ -27,6 +27,7 @@ android {
 
 dependencies {
     api(projects.framework.launcherApps)
+    api(projects.framework.packageManager)
     api(projects.framework.wallpaperManager)
     api(projects.framework.widgetManager)
 

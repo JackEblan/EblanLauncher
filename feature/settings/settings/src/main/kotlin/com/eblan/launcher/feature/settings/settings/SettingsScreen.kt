@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.feature.settings.settings
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -43,11 +45,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
+import com.eblan.launcher.ui.local.LocalPackageManager
+import com.eblan.launcher.ui.settings.HintRow
 
 @Composable
 fun SettingsRoute(
@@ -140,11 +145,27 @@ private fun Success(
     onGestures: () -> Unit,
     onFolder: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val packageManager = LocalPackageManager.current
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
+        if (!packageManager.isDefaultLauncher()) {
+            HintRow(
+                hint = "Set Eblan Launcher as your default launcher",
+                onClick = {
+                    val intent = Intent(Settings.ACTION_HOME_SETTINGS)
+                    context.startActivity(intent)
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         SettingsRow(
             imageVector = EblanLauncherIcons.Settings,
             title = "General",

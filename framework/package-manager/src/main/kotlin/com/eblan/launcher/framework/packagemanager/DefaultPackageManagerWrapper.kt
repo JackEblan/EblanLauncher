@@ -18,6 +18,7 @@
 package com.eblan.launcher.framework.packagemanager
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
@@ -31,14 +32,14 @@ import javax.inject.Inject
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-) : PackageManagerWrapper {
+) : PackageManagerWrapper, AndroidPackageManagerWrapper {
 
     private val packageManager = context.packageManager
 
     override suspend fun getApplicationIcon(packageName: String): ByteArray? {
         return try {
             packageManager.getApplicationIcon(packageName).toByteArray()
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             null
         }
     }
@@ -50,7 +51,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                     packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
 
                 packageManager.getApplicationLabel(applicationInfo).toString()
-            } catch (e: PackageManager.NameNotFoundException) {
+            } catch (_: PackageManager.NameNotFoundException) {
                 null
             }
         }
@@ -60,5 +61,17 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
 
         return launchIntent?.component?.flattenToString()
+    }
+
+    override fun isDefaultLauncher(): Boolean {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+        }
+
+        val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+
+        val defaultLauncherPackage = resolveInfo?.activityInfo?.packageName
+
+        return defaultLauncherPackage == context.packageName
     }
 }

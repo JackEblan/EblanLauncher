@@ -76,7 +76,6 @@ import com.eblan.launcher.feature.home.component.menu.SettingsMenu
 import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
-import com.eblan.launcher.feature.home.dialog.AccessibilityServiceHintDialog
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -196,8 +195,6 @@ fun PagerScreen(
             }
         }
     }
-
-    var showAccessibilityServiceHintDialog by remember { mutableStateOf(false) }
 
     HorizontalPagerScreen(
         modifier = modifier
@@ -416,12 +413,6 @@ fun PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
         )
-    }
-
-    if (showAccessibilityServiceHintDialog) {
-        AccessibilityServiceHintDialog(onDismissRequest = {
-            showAccessibilityServiceHintDialog = false
-        })
     }
 }
 

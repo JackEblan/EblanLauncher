@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -29,5 +30,9 @@ internal interface PackageManagerModule {
 
     @Binds
     @Singleton
-    fun packageManagerWrapper(impl: DefaultPackageManagerWrapper): com.eblan.launcher.domain.framework.PackageManagerWrapper
+    fun packageManagerWrapper(impl: DefaultPackageManagerWrapper): PackageManagerWrapper
+
+    @Binds
+    @Singleton
+    fun androidPackageManagerWrapper(impl: DefaultPackageManagerWrapper): AndroidPackageManagerWrapper
 }

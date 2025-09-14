@@ -355,8 +355,8 @@ private fun Success(
         var value by remember { mutableStateOf("${homeSettings.gridItemSettings.iconSize}") }
 
         SingleTextFieldDialog(
-            title = "Text Size",
-            textFieldTitle = "Text Size",
+            title = "Icon Size",
+            textFieldTitle = "Icon Size",
             value = value,
             keyboardType = KeyboardType.Number,
             onValueChange = {

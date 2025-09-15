@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
@@ -40,7 +39,6 @@ import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.service.ApplicationInfoService
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalFileManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -66,9 +64,6 @@ class MainActivity : ComponentActivity() {
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
     @Inject
-    lateinit var fileManager: FileManager
-
-    @Inject
     lateinit var androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper
 
     private val viewModel: MainActivityViewModel by viewModels()
@@ -82,7 +77,6 @@ class MainActivity : ComponentActivity() {
                 LocalAppWidgetManager provides androidAppWidgetManagerWrapper,
                 LocalLauncherApps provides androidLauncherAppsWrapper,
                 LocalPinItemRequest provides pinItemRequestWrapper,
-                LocalFileManager provides fileManager,
                 LocalWallpaperManager provides androidWallpaperManagerWrapper,
             ) {
                 val navController = rememberNavController()

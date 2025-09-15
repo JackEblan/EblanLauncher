@@ -19,15 +19,12 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
@@ -39,7 +36,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import java.io.File
 import javax.inject.Inject
 
 class GetHomeDataUseCase @Inject constructor(
@@ -51,7 +47,6 @@ class GetHomeDataUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
     private val resourcesWrapper: ResourcesWrapper,
-    private val fileManager: FileManager,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<HomeData> {
@@ -72,19 +67,7 @@ class GetHomeDataUseCase @Inject constructor(
             gridItemsFlow,
             wallpaperManagerWrapper.getColorsChanged(),
         ) { userData, gridItems, colorHints ->
-            val gridItemsWithIconPack = gridItems.map { gridItem ->
-                val data = gridItem.data
-
-                val iconPackPackageName = userData.generalSettings.iconPackPackageName
-
-                getIconPackFromApplicationInfo(
-                    iconPackPackageName = iconPackPackageName,
-                    data = data,
-                    gridItem = gridItem
-                )
-            }
-
-            val gridItemsSpanWithinBounds = gridItemsWithIconPack.filter { gridItem ->
+            val gridItemsSpanWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.homeSettings.rows,
@@ -92,7 +75,7 @@ class GetHomeDataUseCase @Inject constructor(
                 ) && gridItem.associate == Associate.Grid
             }.groupBy { gridItem -> gridItem.page }
 
-            val dockGridItemsWithinBounds = gridItemsWithIconPack.filter { gridItem ->
+            val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     rows = userData.homeSettings.dockRows,
@@ -122,32 +105,6 @@ class GetHomeDataUseCase @Inject constructor(
                 textColor = textColor,
             )
         }.flowOn(defaultDispatcher)
-    }
-
-    private suspend fun getIconPackFromApplicationInfo(
-        iconPackPackageName: String,
-        data: GridItemData,
-        gridItem: GridItem
-    ): GridItem {
-        return if (iconPackPackageName.isNotEmpty() && data is GridItemData.ApplicationInfo) {
-            val iconPacksDirectory =
-                fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR)
-
-            val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
-
-            val iconFile = File(iconPackDirectory, data.packageName)
-
-            if (iconFile.exists()) {
-                gridItem.copy(
-                    data = data.copy(icon = iconFile.absolutePath)
-                )
-            } else {
-                gridItem
-            }
-
-        } else {
-            gridItem
-        }
     }
 
     private fun getTextColorFromWallpaperColors(

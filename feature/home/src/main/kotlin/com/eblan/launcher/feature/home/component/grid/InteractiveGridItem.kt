@@ -41,11 +41,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -56,6 +58,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun InteractiveGridItemContent(
@@ -65,6 +68,7 @@ fun InteractiveGridItemContent(
     textColor: TextColor,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
+    iconPackPackageName: String,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
@@ -98,6 +102,7 @@ fun InteractiveGridItemContent(
                 gridItemSettings = currentGridItemSettings,
                 data = data,
                 drag = drag,
+                iconPackPackageName = iconPackPackageName,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
@@ -146,6 +151,7 @@ fun InteractiveGridItemContent(
                 textColor = currentTextColor,
                 data = data,
                 drag = drag,
+                iconPackPackageName = iconPackPackageName,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -162,11 +168,14 @@ private fun ApplicationInfoGridItem(
     gridItemSettings: GridItemSettings,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
+    iconPackPackageName: String,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
@@ -186,6 +195,18 @@ private fun ApplicationInfoGridItem(
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     var isLongPressed by remember { mutableStateOf(false) }
+
+    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+    val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+
+    val iconFile = File(iconPackDirectory, data.packageName)
+
+    val icon = if (iconFile.exists()) {
+        iconFile.absolutePath
+    } else {
+        data.icon
+    }
 
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
@@ -247,7 +268,7 @@ private fun ApplicationInfoGridItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
-            model = data.icon,
+            model = icon,
             contentDescription = null,
             modifier = Modifier
                 .size(iconSizeDp),
@@ -466,11 +487,14 @@ private fun FolderGridItem(
     gridItemSettings: GridItemSettings,
     data: GridItemData.Folder,
     drag: Drag,
+    iconPackPackageName: String,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
@@ -568,8 +592,20 @@ private fun FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
+                            val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+                            val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+
+                            val iconFile = File(iconPackDirectory, currentData.packageName)
+
+                            val icon = if (iconFile.exists()) {
+                                iconFile.absolutePath
+                            } else {
+                                currentData.icon
+                            }
+
                             AsyncImage(
-                                model = currentData.icon,
+                                model = icon,
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )

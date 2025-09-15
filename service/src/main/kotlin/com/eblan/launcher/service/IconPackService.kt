@@ -3,6 +3,7 @@ package com.eblan.launcher.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.usecase.UpdateIconPackUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -24,10 +25,10 @@ class IconPackService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val iconPackPackageName = intent?.getStringExtra("iconPackPackageName")
+        val iconPackPackageName = intent?.getStringExtra(IconPackManager.ICON_PACK_PACKAGE_NAME)
 
         serviceScope.launch {
-            if(iconPackPackageName != null){
+            if (iconPackPackageName != null) {
                 updateIconPackUseCase(iconPackPackageName = iconPackPackageName)
             }
         }

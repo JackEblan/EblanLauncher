@@ -53,6 +53,7 @@ fun ResizeScreen(
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
+    iconPackPackageName: String,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -116,6 +117,7 @@ fun ResizeScreen(
                 gridItem = gridItem,
                 textColor = textColor,
                 gridItemSettings = homeSettings.gridItemSettings,
+                iconPackPackageName = iconPackPackageName,
             )
         }
 
@@ -131,6 +133,7 @@ fun ResizeScreen(
                 gridItem = gridItem,
                 textColor = textColor,
                 gridItemSettings = homeSettings.gridItemSettings,
+                iconPackPackageName = iconPackPackageName,
             )
         }
     }

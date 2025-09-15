@@ -11,7 +11,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserException
 import javax.inject.Inject
 
 internal class DefaultIconPackManager @Inject constructor(
@@ -44,11 +43,7 @@ internal class DefaultIconPackManager @Inject constructor(
                         }
                     }
 
-                    try {
-                        eventType = parser.next()
-                    } catch (e: XmlPullParserException) {
-                        e.printStackTrace()
-                    }
+                    eventType = parser.next()
                 }
             }
 

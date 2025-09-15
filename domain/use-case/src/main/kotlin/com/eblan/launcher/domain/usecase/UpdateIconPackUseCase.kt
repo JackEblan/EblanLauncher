@@ -21,7 +21,8 @@ class UpdateIconPackUseCase @Inject constructor(
     suspend operator fun invoke(iconPackPackageName: String) {
         withContext(defaultDispatcher) {
             launcherAppsWrapper.getActivityList().forEach { eblanLauncherActivityInfo ->
-                val appFilter = iconPackManager.parseAppFilter(iconPackPackageName = iconPackPackageName)
+                val appFilter =
+                    iconPackManager.parseAppFilter(iconPackPackageName = iconPackPackageName)
 
                 val entry = appFilter.entries.find { (component, _) ->
                     component.contains(eblanLauncherActivityInfo.packageName)
@@ -42,7 +43,8 @@ class UpdateIconPackUseCase @Inject constructor(
                     name = eblanLauncherActivityInfo.packageName,
                     byteArray = byteArray
                 )
-            } }
+            }
+        }
 
         userDataRepository.updateIconPackPackageName(iconPackPackageName = iconPackPackageName)
     }

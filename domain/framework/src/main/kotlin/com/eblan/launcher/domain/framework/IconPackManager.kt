@@ -7,4 +7,8 @@ interface IconPackManager {
         packageName: String,
         drawableName: String
     ): ByteArray?
+
+    companion object {
+        const val ICON_PACK_PACKAGE_NAME = "iconPackPackageName"
+    }
 }

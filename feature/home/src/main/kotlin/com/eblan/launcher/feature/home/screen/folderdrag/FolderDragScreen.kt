@@ -68,6 +68,7 @@ fun FolderDragScreen(
     paddingValues: PaddingValues,
     folderDataById: FolderDataById?,
     homeSettings: HomeSettings,
+    iconPackPackageName: String,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -205,6 +206,7 @@ fun FolderDragScreen(
                         iconSize = homeSettings.gridItemSettings.iconSize / 2,
                         textSize = homeSettings.gridItemSettings.textSize / 2,
                     ),
+                    iconPackPackageName = iconPackPackageName,
                 )
             }
         }

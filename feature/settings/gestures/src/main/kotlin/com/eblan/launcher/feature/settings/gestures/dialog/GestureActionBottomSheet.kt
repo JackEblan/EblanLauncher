@@ -47,7 +47,6 @@ import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.feature.settings.gestures.getGestureActionSubtitle
-import com.eblan.launcher.ui.dialog.ListItemDialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,12 +67,20 @@ fun GestureActionBottomSheet(
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
-    val options = remember {
+    val options = remember(key1 = selectedGestureAction) {
+        val currentGestureAction = selectedGestureAction
+
+        val openApp = if(currentGestureAction is GestureAction.OpenApp){
+            GestureAction.OpenApp(componentName = currentGestureAction.componentName)
+        }else {
+            GestureAction.OpenApp(componentName = "app")
+        }
+
         mutableStateListOf(
             GestureAction.None,
             GestureAction.OpenAppDrawer,
             GestureAction.OpenNotificationPanel,
-            GestureAction.OpenApp(componentName = "app"),
+            openApp,
             GestureAction.LockScreen,
             GestureAction.OpenQuickSettings,
             GestureAction.OpenRecents,
@@ -157,27 +164,19 @@ fun GestureActionBottomSheet(
     }
 
     if (showSelectApplicationDialog) {
-        ListItemDialog(
-            modifier = modifier,
-            items = eblanApplicationInfos,
-            title = "Select Application",
+        SelectApplicationDialog(
+            eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
                 showSelectApplicationDialog = false
             },
-            onItemSelected = { info ->
-                info.componentName?.let {
-                    selectedGestureAction = GestureAction.OpenApp(it)
+            onUpdateGestureAction = { openAppGestureAction ->
+                selectedGestureAction = openAppGestureAction
 
-                    val index =
-                        options.indexOfFirst { option -> option is GestureAction.OpenApp }
+                val index =
+                    options.indexOfFirst { it is GestureAction.OpenApp }
 
-                    options[index] = GestureAction.OpenApp(it)
-
-                    onUpdateGestureAction(GestureAction.OpenApp(it)) }
+                options[index] = openAppGestureAction
             },
-            label = { it.label.toString() },
-            subtitle = { it.componentName },
-            icon = { it.icon }
         )
     }
 }

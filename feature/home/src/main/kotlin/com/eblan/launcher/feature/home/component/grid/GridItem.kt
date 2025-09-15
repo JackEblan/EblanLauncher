@@ -30,11 +30,13 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -43,6 +45,7 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import java.io.File
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -51,6 +54,7 @@ fun GridItemContent(
     gridItem: GridItem,
     textColor: TextColor,
     gridItemSettings: GridItemSettings,
+    iconPackPackageName: String,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -75,6 +79,7 @@ fun GridItemContent(
                     data = data,
                     textColor = currentTextColor,
                     gridItemSettings = currentGridItemSettings,
+                    iconPackPackageName = iconPackPackageName,
                 )
             }
 
@@ -100,6 +105,7 @@ fun GridItemContent(
                     data = data,
                     textColor = currentTextColor,
                     gridItemSettings = currentGridItemSettings,
+                    iconPackPackageName = iconPackPackageName,
                 )
             }
         }
@@ -112,7 +118,10 @@ private fun ApplicationInfoGridItem(
     data: GridItemData.ApplicationInfo,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    iconPackPackageName: String,
 ) {
+    val context = LocalContext.current
+
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
@@ -125,12 +134,24 @@ private fun ApplicationInfoGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+    val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+
+    val iconFile = File(iconPackDirectory, data.packageName)
+
+    val icon = if (iconFile.exists()) {
+        iconFile.absolutePath
+    } else {
+        data.icon
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
-            model = data.icon,
+            model = icon,
             contentDescription = null,
             modifier = Modifier.size(iconSizeDp),
         )
@@ -231,7 +252,10 @@ private fun FolderGridItem(
     data: GridItemData.Folder,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-) {
+    iconPackPackageName: String,
+    ) {
+    val context = LocalContext.current
+
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
@@ -265,8 +289,20 @@ private fun FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
+                            val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+                            val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+
+                            val iconFile = File(iconPackDirectory, currentData.packageName)
+
+                            val icon = if (iconFile.exists()) {
+                                iconFile.absolutePath
+                            } else {
+                                currentData.icon
+                            }
+
                             AsyncImage(
-                                model = currentData.icon,
+                                model = icon,
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )

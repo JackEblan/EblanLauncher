@@ -1,7 +1,6 @@
 package com.eblan.launcher.ui.local
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
@@ -15,10 +14,6 @@ val LocalAppWidgetHost = staticCompositionLocalOf<AndroidAppWidgetHostWrapper> {
 
 val LocalAppWidgetManager = staticCompositionLocalOf<AndroidAppWidgetManagerWrapper> {
     error("No AppWidgetManager provided")
-}
-
-val LocalFileManager = staticCompositionLocalOf<FileManager> {
-    error("No FileManager provided")
 }
 
 val LocalLauncherApps = staticCompositionLocalOf<AndroidLauncherAppsWrapper> {

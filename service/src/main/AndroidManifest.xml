@@ -21,6 +21,11 @@
             android:name=".ApplicationInfoService"
             android:exported="false"/>
 
+        <service
+            android:name=".IconPackService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false"/>
+
         <service android:name=".EblanAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:label="@string/accessibility_service_label"

@@ -73,6 +73,7 @@ import androidx.compose.ui.window.Popup
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -89,6 +90,7 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
+import java.io.File
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -106,6 +108,7 @@ fun DoubleTapApplicationScreen(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
+    iconPackPackageName: String,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -137,6 +140,7 @@ fun DoubleTapApplicationScreen(
         appDrawerSettings = appDrawerSettings,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         gridItemSource = gridItemSource,
+        iconPackPackageName = iconPackPackageName,
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -164,6 +168,7 @@ fun ApplicationScreen(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
+    iconPackPackageName: String,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -250,6 +255,7 @@ fun ApplicationScreen(
                                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                                     drag = drag,
                                     appDrawerSettings = appDrawerSettings,
+                                    iconPackPackageName = iconPackPackageName,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
                                     onDraggingGridItem = {
@@ -274,6 +280,7 @@ fun ApplicationScreen(
                                             drag = drag,
                                             eblanApplicationInfo = eblanApplicationInfo,
                                             appDrawerSettings = appDrawerSettings,
+                                            iconPackPackageName = iconPackPackageName,
                                             onLongPress = { intOffset, intSize ->
                                                 onUpdateGridItemOffset(intOffset)
 
@@ -329,6 +336,7 @@ private fun EblanApplicationInfoDockSearchBar(
     appDrawerSettings: AppDrawerSettings,
     onQueryChange: (String) -> Unit,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    iconPackPackageName: String,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -377,6 +385,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     drag = drag,
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
+                    iconPackPackageName = iconPackPackageName,
                     onLongPress = { intOffset, _ ->
                         focusManager.clearFocus()
 
@@ -399,6 +408,7 @@ private fun EblanApplicationInfoItem(
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
+    iconPackPackageName: String,
     onLongPress: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -421,6 +431,8 @@ private fun EblanApplicationInfoItem(
 
     val scope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
@@ -442,6 +454,18 @@ private fun EblanApplicationInfoItem(
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     var isLongPressed by remember { mutableStateOf(false) }
+
+    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+    val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+
+    val iconFile = File(iconPackDirectory, eblanApplicationInfo.packageName)
+
+    val icon = if (iconFile.exists()) {
+        iconFile.absolutePath
+    } else {
+        eblanApplicationInfo.icon
+    }
 
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
@@ -548,7 +572,7 @@ private fun EblanApplicationInfoItem(
         Spacer(modifier = Modifier.height(5.dp))
 
         AsyncImage(
-            model = eblanApplicationInfo.icon,
+            model = icon,
             contentDescription = null,
             modifier = Modifier.size(iconSizeDp),
         )

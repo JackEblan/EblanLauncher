@@ -79,6 +79,7 @@ fun DragScreen(
     textColor: TextColor,
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
+    iconPackPackageName: String,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -342,6 +343,7 @@ fun DragScreen(
                         iconSize = homeSettings.gridItemSettings.iconSize / 2,
                         textSize = homeSettings.gridItemSettings.textSize / 2,
                     ),
+                    iconPackPackageName = iconPackPackageName,
                 )
             }
         }
@@ -370,6 +372,7 @@ fun DragScreen(
                 gridItem = gridItem,
                 textColor = textColor,
                 gridItemSettings = homeSettings.gridItemSettings,
+                iconPackPackageName = iconPackPackageName,
             )
         }
     }

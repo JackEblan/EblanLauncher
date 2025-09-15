@@ -19,19 +19,29 @@ package com.eblan.launcher.feature.settings.general
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.IconPack
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.UpdateIconPackUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GeneralSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
+class GeneralSettingsViewModel @Inject constructor(
+    private val userDataRepository: UserDataRepository,
+    packageManagerWrapper: PackageManagerWrapper,
+    private val updateIconPackUseCase: UpdateIconPackUseCase,
+) :
     ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
         GeneralSettingsUiState.Success(generalSettings = userData.generalSettings)
@@ -39,6 +49,18 @@ class GeneralSettingsViewModel @Inject constructor(private val userDataRepositor
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = GeneralSettingsUiState.Loading,
+    )
+
+    private val _iconPacks = MutableStateFlow(emptyList<IconPack>())
+
+    val iconPacks = _iconPacks.onStart {
+        _iconPacks.update {
+            packageManagerWrapper.getInstalledIconPacks()
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
     )
 
     fun updateThemeBrand(themeBrand: ThemeBrand) {
@@ -56,6 +78,12 @@ class GeneralSettingsViewModel @Inject constructor(private val userDataRepositor
     fun updateDynamicTheme(dynamicTheme: Boolean) {
         viewModelScope.launch {
             userDataRepository.updateDynamicTheme(dynamicTheme = dynamicTheme)
+        }
+    }
+
+    fun updateIconPack(iconPackPackageName: String) {
+        viewModelScope.launch {
+            updateIconPackUseCase(iconPackPackageName = iconPackPackageName)
         }
     }
 }

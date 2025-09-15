@@ -47,6 +47,7 @@ import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.feature.settings.gestures.getGestureActionSubtitle
+import com.eblan.launcher.ui.dialog.ListItemDialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,19 +157,27 @@ fun GestureActionBottomSheet(
     }
 
     if (showSelectApplicationDialog) {
-        SelectApplicationDialog(
-            eblanApplicationInfos = eblanApplicationInfos,
+        ListItemDialog(
+            modifier = modifier,
+            items = eblanApplicationInfos,
+            title = "Select Application",
             onDismissRequest = {
                 showSelectApplicationDialog = false
             },
-            onUpdateGestureAction = { openAppGestureAction ->
-                selectedGestureAction = openAppGestureAction
+            onItemSelected = { info ->
+                info.componentName?.let {
+                    selectedGestureAction = GestureAction.OpenApp(it)
 
-                val index =
-                    options.indexOfFirst { it is GestureAction.OpenApp }
+                    val index =
+                        options.indexOfFirst { option -> option is GestureAction.OpenApp }
 
-                options[index] = openAppGestureAction
+                    options[index] = GestureAction.OpenApp(it)
+
+                    onUpdateGestureAction(GestureAction.OpenApp(it)) }
             },
+            label = { it.label.toString() },
+            subtitle = { it.componentName },
+            icon = { it.icon }
         )
     }
 }

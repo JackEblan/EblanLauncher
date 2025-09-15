@@ -43,8 +43,10 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.designsystem.theme.supportsDynamicTheming
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GeneralSettings
+import com.eblan.launcher.domain.model.IconPack
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
+import com.eblan.launcher.ui.dialog.ListItemDialog
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
@@ -57,13 +59,17 @@ fun GeneralSettingsRoute(
 ) {
     val generalSettingsUiState by viewModel.generalSettingsUiState.collectAsStateWithLifecycle()
 
+    val iconPacks by viewModel.iconPacks.collectAsStateWithLifecycle()
+
     GeneralSettingsScreen(
         modifier = modifier,
         generalSettingsUiState = generalSettingsUiState,
+        iconPacks = iconPacks,
         onUpdateThemeBrand = viewModel::updateThemeBrand,
         onUpdateDarkThemeConfig = viewModel::updateDarkThemeConfig,
         onUpdateDynamicTheme = viewModel::updateDynamicTheme,
         onNavigateUp = onNavigateUp,
+        onUpdateIconPack = viewModel::updateIconPack,
     )
 }
 
@@ -72,10 +78,12 @@ fun GeneralSettingsRoute(
 fun GeneralSettingsScreen(
     modifier: Modifier = Modifier,
     generalSettingsUiState: GeneralSettingsUiState,
+    iconPacks: List<IconPack>,
     onUpdateThemeBrand: (ThemeBrand) -> Unit,
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
+    onUpdateIconPack: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -108,9 +116,11 @@ fun GeneralSettingsScreen(
                     Success(
                         modifier = modifier,
                         generalSettings = generalSettingsUiState.generalSettings,
+                        iconPacks = iconPacks,
                         onUpdateThemeBrand = onUpdateThemeBrand,
                         onUpdateDarkThemeConfig = onUpdateDarkThemeConfig,
                         onUpdateDynamicTheme = onUpdateDynamicTheme,
+                        onUpdateIconPack = onUpdateIconPack,
                     )
                 }
             }
@@ -122,13 +132,17 @@ fun GeneralSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     generalSettings: GeneralSettings,
+    iconPacks: List<IconPack>,
     onUpdateThemeBrand: (ThemeBrand) -> Unit,
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
+    onUpdateIconPack: (String) -> Unit,
 ) {
     var showThemeBrandDialog by remember { mutableStateOf(false) }
 
     var showDarkThemeConfigDialog by remember { mutableStateOf(false) }
+
+    var showIconPacksDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
@@ -195,6 +209,21 @@ private fun Success(
 
                 showDarkThemeConfigDialog = false
             },
+        )
+    }
+
+    if (showIconPacksDialog) {
+        ListItemDialog(
+            modifier = modifier,
+            items = iconPacks,
+            title = "Icon Packs",
+            onDismissRequest = {
+                showIconPacksDialog = false
+            },
+            onItemSelected = { onUpdateIconPack(it.packageName) },
+            label = { it.label },
+            subtitle = { it.packageName },
+            icon = { it.icon }
         )
     }
 }

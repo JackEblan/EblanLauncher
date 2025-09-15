@@ -76,6 +76,7 @@ dependencies {
     implementation(projects.feature.settings.home)
     implementation(projects.feature.settings.settings)
     implementation(projects.framework.fileManager)
+    implementation(projects.framework.iconPackManager)
     implementation(projects.framework.launcherApps)
     implementation(projects.framework.resources)
     implementation(projects.framework.packageManager)

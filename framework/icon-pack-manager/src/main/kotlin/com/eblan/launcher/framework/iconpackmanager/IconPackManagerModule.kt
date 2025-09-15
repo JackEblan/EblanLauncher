@@ -15,17 +15,20 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.common.util
+package com.eblan.launcher.framework.iconpackmanager
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import androidx.core.graphics.drawable.toBitmap
-import java.io.ByteArrayOutputStream
+import com.eblan.launcher.domain.framework.IconPackManager
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-fun Drawable.toByteArray(): ByteArray {
-    val stream = ByteArrayOutputStream()
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface IconPackManagerModule {
 
-    toBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream)
-
-    return stream.toByteArray()
+    @Binds
+    @Singleton
+    fun fileManager(impl: DefaultIconPackManager): IconPackManager
 }

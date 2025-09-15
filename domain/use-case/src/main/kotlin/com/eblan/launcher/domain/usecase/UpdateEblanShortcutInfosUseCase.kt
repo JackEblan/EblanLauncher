@@ -55,7 +55,7 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
                         }
 
                     if (eblanApplicationInfo != null) {
-                        val icon = fileManager.writeFileBytes(
+                        val icon = fileManager.getAndUpdateFilePath(
                             directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
                             name = launcherAppsShortcutInfo.shortcutId,
                             byteArray = launcherAppsShortcutInfo.icon,

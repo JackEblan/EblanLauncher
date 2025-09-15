@@ -42,7 +42,7 @@ internal class DefaultFileManager @Inject constructor(
         }
     }
 
-    override suspend fun writeFileBytes(
+    override suspend fun getAndUpdateFilePath(
         directory: File,
         name: String,
         byteArray: ByteArray,
@@ -64,6 +64,24 @@ internal class DefaultFileManager @Inject constructor(
                 } catch (_: IOException) {
                     null
                 }
+            }
+        }
+    }
+
+    override suspend fun getFilePath(
+        directory: File,
+        name: String,
+        byteArray: ByteArray,
+    ): String? {
+        return withContext(ioDispatcher) {
+            val file = File(directory, name)
+
+            val oldFile = readFileBytes(file = file)
+
+            if (oldFile.contentEquals(byteArray)) {
+                file.absolutePath
+            } else {
+                null
             }
         }
     }

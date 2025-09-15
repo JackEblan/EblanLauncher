@@ -84,4 +84,6 @@ interface UserDataRepository {
     suspend fun updateAppDrawerShowLabel(showLabel: Boolean)
 
     suspend fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean)
+
+    suspend fun updateIconPackPackageName(iconPackPackageName: String)
 }

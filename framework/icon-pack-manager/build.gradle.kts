@@ -15,17 +15,20 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.common.util
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import androidx.core.graphics.drawable.toBitmap
-import java.io.ByteArrayOutputStream
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
 
-fun Drawable.toByteArray(): ByteArray {
-    val stream = ByteArrayOutputStream()
+android {
+    namespace = "com.eblan.launcher.framework.iconpackmanager"
+}
 
-    toBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream)
-
-    return stream.toByteArray()
+dependencies {
+    implementation(projects.common)
+    implementation(projects.domain.common)
+    implementation(projects.domain.framework)
+    implementation(projects.domain.model)
+    implementation(projects.framework.fileManager)
 }

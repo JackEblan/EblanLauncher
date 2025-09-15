@@ -364,4 +364,14 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
             }
         }
     }
+
+    suspend fun updateIconPackPackageName(iconPackPackageName: String) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                generalSettingsProto = userDataProto.generalSettingsProto.copy {
+                    this.iconPackPackageName = iconPackPackageName
+                }
+            }
+        }
+    }
 }

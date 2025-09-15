@@ -44,6 +44,8 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         darkThemeConfigProto = DarkThemeConfig.System.toDarkThemeConfigProto()
 
         dynamicTheme = false
+
+        iconPackPackageName = ""
     }.build()
 
     private val defaultGridItemSettingsProto = GridItemSettingsProto.newBuilder().apply {

@@ -12,4 +12,6 @@ message GeneralSettingsProto {
   DarkThemeConfigProto darkThemeConfigProto = 2;
 
   bool dynamicTheme = 3;
+
+  string iconPackPackageName = 4;
 }

@@ -45,7 +45,7 @@ class AddPackageUseCase @Inject constructor(
             val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)
 
             val icon = iconByteArray?.let { currentIconByteArray ->
-                fileManager.writeFileBytes(
+                fileManager.getAndUpdateFilePath(
                     directory = fileManager.getDirectory(FileManager.ICONS_DIR),
                     name = packageName,
                     byteArray = currentIconByteArray,
@@ -71,7 +71,7 @@ class AddPackageUseCase @Inject constructor(
                 }.map { appWidgetManagerAppWidgetProviderInfo ->
                     val preview =
                         appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
-                            fileManager.writeFileBytes(
+                            fileManager.getAndUpdateFilePath(
                                 directory = fileManager.getDirectory(FileManager.WIDGETS_DIR),
                                 name = appWidgetManagerAppWidgetProviderInfo.className,
                                 byteArray = currentPreview,

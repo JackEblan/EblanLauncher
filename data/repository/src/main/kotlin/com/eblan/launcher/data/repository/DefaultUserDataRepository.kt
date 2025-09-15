@@ -144,4 +144,8 @@ internal class DefaultUserDataRepository @Inject constructor(private val userDat
     override suspend fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean) {
         userDataStore.updateAppDrawerSingleLineLabel(singleLineLabel = singleLineLabel)
     }
+
+    override suspend fun updateIconPackPackageName(iconPackPackageName: String) {
+        userDataStore.updateIconPackPackageName(iconPackPackageName = iconPackPackageName)
+    }
 }

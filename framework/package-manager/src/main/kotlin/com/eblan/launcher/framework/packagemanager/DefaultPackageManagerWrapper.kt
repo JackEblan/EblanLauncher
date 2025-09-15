@@ -20,10 +20,12 @@ package com.eblan.launcher.framework.packagemanager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.IconPack
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -73,5 +75,34 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         val defaultLauncherPackage = resolveInfo?.activityInfo?.packageName
 
         return defaultLauncherPackage == context.packageName
+    }
+
+    override suspend fun getInstalledIconPacks(): List<IconPack> {
+        val intentActions = listOf(
+            Intent("com.anddoes.launcher.THEME"),
+            Intent("com.novalauncher.THEME"),
+            Intent("com.gau.go.launcherex.theme"),
+            Intent("org.adw.launcher.THEMES"),
+            Intent("org.adw.launcher.icons.ACTION_PICK_ICON"),
+            Intent("com.teslacoilsw.launcher.THEME")
+        )
+
+        val results = mutableSetOf<ResolveInfo>()
+
+        return withContext(defaultDispatcher) {
+            intentActions.forEach { intent ->
+                val resolveInfos =
+                    packageManager.queryIntentActivities(intent, PackageManager.GET_META_DATA)
+                results.addAll(resolveInfos)
+            }
+
+            results.map { resolveInfo ->
+                IconPack(
+                    packageName = resolveInfo.activityInfo.packageName,
+                    label = resolveInfo.loadLabel(packageManager).toString(),
+                    icon = resolveInfo.loadIcon(packageManager).toByteArray(),
+                )
+            }
+        }
     }
 }

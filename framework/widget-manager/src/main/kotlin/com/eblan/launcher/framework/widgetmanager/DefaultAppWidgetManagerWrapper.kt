@@ -57,7 +57,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
         appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
     }
 
-    private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
+    private fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
         val preview = loadPreviewImage(context, 0)?.toByteArray()
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

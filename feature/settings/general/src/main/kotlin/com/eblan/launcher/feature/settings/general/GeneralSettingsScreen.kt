@@ -146,6 +146,16 @@ private fun Success(
 
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
+            title = "Icon Packs",
+            subtitle = generalSettings.iconPackPackageName.ifEmpty { "None" },
+            onClick = {
+                showIconPacksDialog = true
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsColumn(
             title = "Theme Brand",
             subtitle = generalSettings.themeBrand.name,
             onClick = {

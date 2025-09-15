@@ -43,7 +43,7 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                 launcherAppsWrapper.getActivityList().map { eblanLauncherActivityInfo ->
                     val icon = eblanLauncherActivityInfo.icon?.let { currentIcon ->
                         fileManager.getAndUpdateFilePath(
-                            directory = fileManager.getDirectory(FileManager.ICONS_DIR),
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = eblanLauncherActivityInfo.packageName,
                             byteArray = currentIcon,
                         )
@@ -67,7 +67,7 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
                 eblanApplicationInfosToDelete.forEach { eblanApplicationInfo ->
                     fileManager.deleteFile(
-                        directory = fileManager.getDirectory(FileManager.ICONS_DIR),
+                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                         name = eblanApplicationInfo.packageName,
                     )
                 }

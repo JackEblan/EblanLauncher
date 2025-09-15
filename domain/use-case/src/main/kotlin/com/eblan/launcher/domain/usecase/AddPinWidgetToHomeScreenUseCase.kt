@@ -82,7 +82,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             if (eblanApplicationInfo != null) {
                 val previewInferred = File(
-                    fileManager.getDirectory(FileManager.WIDGETS_DIR),
+                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
                     className,
                 ).absolutePath
 

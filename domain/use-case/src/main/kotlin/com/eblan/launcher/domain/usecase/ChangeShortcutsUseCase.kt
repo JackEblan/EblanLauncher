@@ -57,7 +57,7 @@ class ChangeShortcutsUseCase @Inject constructor(
 
                     if (eblanApplicationInfo != null) {
                         val icon = fileManager.getAndUpdateFilePath(
-                            directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
+                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                             name = launcherAppsShortcutInfo.shortcutId,
                             byteArray = launcherAppsShortcutInfo.icon,
                         )
@@ -89,7 +89,7 @@ class ChangeShortcutsUseCase @Inject constructor(
 
                 eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
                     fileManager.deleteFile(
-                        directory = fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
+                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                         name = eblanShortcutInfo.shortcutId,
                     )
                 }

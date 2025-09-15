@@ -91,7 +91,7 @@ class GetPinGridItemUseCase @Inject constructor(
 
                 if (eblanApplicationInfo != null) {
                     val iconInferred = File(
-                        fileManager.getDirectory(FileManager.SHORTCUTS_DIR),
+                        fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                         pinItemRequestType.shortcutId,
                     ).absolutePath
 

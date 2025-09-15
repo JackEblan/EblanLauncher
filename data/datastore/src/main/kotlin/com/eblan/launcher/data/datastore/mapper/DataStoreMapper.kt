@@ -90,6 +90,7 @@ internal fun GeneralSettingsProto.toGeneralSettings(): GeneralSettings {
         themeBrand = themeBrandProto.toThemeBrand(),
         darkThemeConfig = darkThemeConfigProto.toDarkThemeConfig(),
         dynamicTheme = dynamicTheme,
+        iconPackPackageName = iconPackPackageName,
     )
 }
 

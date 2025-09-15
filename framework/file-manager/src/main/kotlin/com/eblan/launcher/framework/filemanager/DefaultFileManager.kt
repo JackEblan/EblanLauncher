@@ -34,7 +34,7 @@ internal class DefaultFileManager @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : FileManager {
-    override suspend fun getDirectory(name: String): File {
+    override suspend fun getFilesDirectory(name: String): File {
         return withContext(ioDispatcher) {
             File(context.filesDir, name).apply {
                 if (!exists()) mkdirs()

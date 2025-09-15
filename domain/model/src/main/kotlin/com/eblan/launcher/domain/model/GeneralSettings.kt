@@ -21,4 +21,5 @@ data class GeneralSettings(
     val themeBrand: ThemeBrand,
     val darkThemeConfig: DarkThemeConfig,
     val dynamicTheme: Boolean,
+    val iconPackPackageName: String,
 )

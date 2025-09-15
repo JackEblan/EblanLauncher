@@ -20,7 +20,7 @@ package com.eblan.launcher.domain.framework
 import java.io.File
 
 interface FileManager {
-    suspend fun getDirectory(name: String): File
+    suspend fun getFilesDirectory(name: String): File
 
     suspend fun getAndUpdateFilePath(
         directory: File,

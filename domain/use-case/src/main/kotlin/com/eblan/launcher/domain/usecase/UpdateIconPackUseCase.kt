@@ -19,31 +19,30 @@ class UpdateIconPackUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(iconPackPackageName: String) {
-        launcherAppsWrapper.getActivityList().forEach { eblanLauncherActivityInfo ->
-            withContext(defaultDispatcher) {
+        withContext(defaultDispatcher) {
+            launcherAppsWrapper.getActivityList().forEach { eblanLauncherActivityInfo ->
                 val appFilter = iconPackManager.parseAppFilter(iconPackPackageName = iconPackPackageName)
 
                 val entry = appFilter.entries.find { (component, _) ->
-                    component.contains(other = eblanLauncherActivityInfo.packageName)
-                } ?: return@withContext
+                    component.contains(eblanLauncherActivityInfo.packageName)
+                } ?: return@forEach
 
                 val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                    packageName = eblanLauncherActivityInfo.packageName,
+                    packageName = iconPackPackageName,
                     drawableName = entry.value,
-                ) ?: return@withContext
+                ) ?: return@forEach
 
                 val iconPackDirectory = File(
-                    fileManager.getDirectory(name = FileManager.ICON_PACKS_DIR),
-                    iconPackPackageName,
-                )
+                    fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+                    iconPackPackageName
+                ).apply { if (!exists()) mkdirs() }
 
                 fileManager.getAndUpdateFilePath(
                     directory = iconPackDirectory,
                     name = eblanLauncherActivityInfo.packageName,
-                    byteArray = byteArray,
+                    byteArray = byteArray
                 )
-            }
-        }
+            } }
 
         userDataRepository.updateIconPackPackageName(iconPackPackageName = iconPackPackageName)
     }

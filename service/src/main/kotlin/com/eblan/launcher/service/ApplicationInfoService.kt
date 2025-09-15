@@ -65,6 +65,10 @@ class ApplicationInfoService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         serviceScope.launch {
             launch {
@@ -102,10 +106,6 @@ class ApplicationInfoService : Service() {
         }
 
         return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
     }
 
     override fun onDestroy() {

@@ -176,6 +176,8 @@ fun GestureActionBottomSheet(
                     options.indexOfFirst { it is GestureAction.OpenApp }
 
                 options[index] = openAppGestureAction
+
+                showSelectApplicationDialog = false
             },
         )
     }

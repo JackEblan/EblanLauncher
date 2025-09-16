@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.IconPack
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.UpdateIconPackUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +39,6 @@ import javax.inject.Inject
 class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     packageManagerWrapper: PackageManagerWrapper,
-    private val updateIconPackUseCase: UpdateIconPackUseCase,
 ) :
     ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
@@ -78,12 +76,6 @@ class GeneralSettingsViewModel @Inject constructor(
     fun updateDynamicTheme(dynamicTheme: Boolean) {
         viewModelScope.launch {
             userDataRepository.updateDynamicTheme(dynamicTheme = dynamicTheme)
-        }
-    }
-
-    fun updateIconPack(iconPackPackageName: String) {
-        viewModelScope.launch {
-            updateIconPackUseCase(iconPackPackageName = iconPackPackageName)
         }
     }
 }

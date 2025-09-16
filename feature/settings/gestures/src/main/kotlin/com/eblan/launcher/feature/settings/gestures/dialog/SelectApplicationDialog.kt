@@ -71,8 +71,6 @@ fun SelectApplicationDialog(
                                 if (componentName != null) {
                                     onUpdateGestureAction(GestureAction.OpenApp(componentName = componentName))
                                 }
-
-                                onDismissRequest()
                             }
                             .fillMaxWidth()
                             .padding(10.dp),

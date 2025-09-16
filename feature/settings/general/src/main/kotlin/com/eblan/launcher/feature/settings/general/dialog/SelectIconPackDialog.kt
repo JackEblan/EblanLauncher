@@ -1,4 +1,21 @@
-package com.eblan.launcher.ui.dialog
+/*
+ *
+ *   Copyright 2023 Einstein Blanco
+ *
+ *   Licensed under the GNU General Public License v3.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/gpl-3.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package com.eblan.launcher.feature.settings.general.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,46 +36,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
+import com.eblan.launcher.domain.model.IconPack
 
 @Composable
-fun <T> ListItemDialog(
+fun SelectIconPackDialog(
     modifier: Modifier = Modifier,
-    items: List<T>,
-    title: String,
+    iconPacks: List<IconPack>,
     onDismissRequest: () -> Unit,
-    onItemSelected: (T) -> Unit,
-    label: (T) -> String,
-    subtitle: (T) -> String? = { null },
-    icon: (T) -> Any? = { null },
+    onUpdateIconPack: (String) -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(modifier = modifier.fillMaxWidth()) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
+            Text(text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge)
 
             Spacer(modifier = Modifier.height(10.dp))
 
             LazyColumn(modifier = Modifier.weight(1f)) {
-                items(items) { item ->
+                items(iconPacks) { iconPack ->
                     ListItem(
-                        headlineContent = { Text(text = label(item)) },
-                        supportingContent = {
-                            subtitle(item)?.let { Text(text = it) }
-                        },
+                        headlineContent = { Text(text = iconPack.label) },
+                        supportingContent = { Text(text = iconPack.packageName) },
                         leadingContent = {
-                            val iconModel = icon(item)
-
-                            if (iconModel != null) {
-                                AsyncImage(
-                                    model = iconModel,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                )
-                            }
+                            AsyncImage(
+                                model = iconPack.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                            )
                         },
                         modifier = Modifier
                             .clickable {
-                                onItemSelected(item)
-                                onDismissRequest()
+                                onUpdateIconPack(iconPack.packageName)
                             }
                             .fillMaxWidth()
                             .padding(10.dp),

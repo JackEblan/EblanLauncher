@@ -102,7 +102,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                     label = resolveInfo.loadLabel(packageManager).toString(),
                     icon = resolveInfo.loadIcon(packageManager).toByteArray(),
                 )
-            }
+            }.distinct()
         }
     }
 }

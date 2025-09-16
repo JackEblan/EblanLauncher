@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.feature.settings.general
 
+import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,25 +33,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.designsystem.theme.supportsDynamicTheming
+import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.IconPack
 import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
-import com.eblan.launcher.ui.dialog.ListItemDialog
+import com.eblan.launcher.service.IconPackService
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 
 @Composable
 fun GeneralSettingsRoute(
@@ -69,7 +78,6 @@ fun GeneralSettingsRoute(
         onUpdateDarkThemeConfig = viewModel::updateDarkThemeConfig,
         onUpdateDynamicTheme = viewModel::updateDynamicTheme,
         onNavigateUp = onNavigateUp,
-        onUpdateIconPack = viewModel::updateIconPack,
     )
 }
 
@@ -83,7 +91,6 @@ fun GeneralSettingsScreen(
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
-    onUpdateIconPack: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -120,7 +127,6 @@ fun GeneralSettingsScreen(
                         onUpdateThemeBrand = onUpdateThemeBrand,
                         onUpdateDarkThemeConfig = onUpdateDarkThemeConfig,
                         onUpdateDynamicTheme = onUpdateDynamicTheme,
-                        onUpdateIconPack = onUpdateIconPack,
                     )
                 }
             }
@@ -128,6 +134,7 @@ fun GeneralSettingsScreen(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
@@ -136,24 +143,33 @@ private fun Success(
     onUpdateThemeBrand: (ThemeBrand) -> Unit,
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
-    onUpdateIconPack: (String) -> Unit,
 ) {
+    val context = LocalContext.current
+
     var showThemeBrandDialog by remember { mutableStateOf(false) }
 
     var showDarkThemeConfigDialog by remember { mutableStateOf(false) }
 
     var showIconPacksDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        SettingsColumn(
-            title = "Icon Packs",
-            subtitle = generalSettings.iconPackPackageName.ifEmpty { "None" },
-            onClick = {
-                showIconPacksDialog = true
-            },
-        )
+    var grantNotificationPermission by remember { mutableStateOf(false) }
 
-        Spacer(modifier = Modifier.height(10.dp))
+    NotificationPermissionEffect(onGrantPermission = {
+        grantNotificationPermission = it
+    })
+
+    Column(modifier = modifier.fillMaxSize()) {
+        if (grantNotificationPermission) {
+            SettingsColumn(
+                title = "Icon Packs",
+                subtitle = generalSettings.iconPackPackageName.ifEmpty { "None" },
+                onClick = {
+                    showIconPacksDialog = true
+                },
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
         SettingsColumn(
             title = "Theme Brand",
@@ -223,17 +239,52 @@ private fun Success(
     }
 
     if (showIconPacksDialog) {
-        ListItemDialog(
-            modifier = modifier,
-            items = iconPacks,
-            title = "Icon Packs",
+        SelectIconPackDialog(
+            iconPacks = iconPacks,
             onDismissRequest = {
                 showIconPacksDialog = false
             },
-            onItemSelected = { onUpdateIconPack(it.packageName) },
-            label = { it.label },
-            subtitle = { it.packageName },
-            icon = { it.icon }
+            onUpdateIconPack = {
+                val intent = Intent(context, IconPackService::class.java).apply {
+                    putExtra(IconPackManager.ICON_PACK_PACKAGE_NAME, it)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent)
+                } else {
+                    context.startService(intent)
+                }
+
+                showIconPacksDialog = false
+            }
         )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalPermissionsApi::class)
+private fun NotificationPermissionEffect(onGrantPermission: (Boolean) -> Unit) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        onGrantPermission(true)
+    } else {
+        val notificationsPermissionState = rememberPermissionState(
+            android.Manifest.permission.POST_NOTIFICATIONS,
+        )
+
+        LaunchedEffect(key1 = notificationsPermissionState.status) {
+            when (val status = notificationsPermissionState.status) {
+                is PermissionStatus.Granted -> {
+                    onGrantPermission(true)
+                }
+
+                is PermissionStatus.Denied -> {
+                    onGrantPermission(false)
+
+                    if (!status.shouldShowRationale) {
+                        notificationsPermissionState.launchPermissionRequest()
+                    }
+                }
+            }
+        }
     }
 }

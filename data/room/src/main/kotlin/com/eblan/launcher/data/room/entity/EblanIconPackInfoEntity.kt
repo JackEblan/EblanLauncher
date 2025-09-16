@@ -15,11 +15,14 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.entity
 
-data class GeneralSettings(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val dynamicTheme: Boolean,
-    val iconPackInfoPackageName: String,
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+data class EblanIconPackInfoEntity(
+    @PrimaryKey val packageName: String,
+    val icon: String?,
+    val label: String?,
 )

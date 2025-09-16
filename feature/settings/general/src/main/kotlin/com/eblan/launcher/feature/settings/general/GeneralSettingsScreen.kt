@@ -30,6 +30,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -37,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,9 +50,11 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.designsystem.theme.supportsDynamicTheming
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.GeneralSettings
-import com.eblan.launcher.domain.model.IconPack
+import com.eblan.launcher.domain.model.IconPackServiceRequestType
 import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.feature.settings.general.dialog.ImportIconPackDialog
 import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import com.eblan.launcher.service.IconPackService
@@ -59,6 +64,7 @@ import com.eblan.launcher.ui.settings.SettingsSwitch
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.launch
 
 @Composable
 fun GeneralSettingsRoute(
@@ -68,15 +74,20 @@ fun GeneralSettingsRoute(
 ) {
     val generalSettingsUiState by viewModel.generalSettingsUiState.collectAsStateWithLifecycle()
 
-    val iconPacks by viewModel.iconPacks.collectAsStateWithLifecycle()
+    val packageManagerEblanIconPackInfos by viewModel.packageManagerEblanIconPackInfos.collectAsStateWithLifecycle()
+
+    val eblanIconPackInfos by viewModel.eblanIconPackInfos.collectAsStateWithLifecycle()
 
     GeneralSettingsScreen(
         modifier = modifier,
         generalSettingsUiState = generalSettingsUiState,
-        iconPacks = iconPacks,
+        packageManagerIconPackInfos = packageManagerEblanIconPackInfos,
+        eblanIconPackInfos = eblanIconPackInfos,
         onUpdateThemeBrand = viewModel::updateThemeBrand,
         onUpdateDarkThemeConfig = viewModel::updateDarkThemeConfig,
         onUpdateDynamicTheme = viewModel::updateDynamicTheme,
+        onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
+        onDeleteEblanIconPackInfo = viewModel::deleteEblanIconPackInfo,
         onNavigateUp = onNavigateUp,
     )
 }
@@ -86,12 +97,19 @@ fun GeneralSettingsRoute(
 fun GeneralSettingsScreen(
     modifier: Modifier = Modifier,
     generalSettingsUiState: GeneralSettingsUiState,
-    iconPacks: List<IconPack>,
+    packageManagerIconPackInfos: List<EblanIconPackInfo>,
+    eblanIconPackInfos: List<EblanIconPackInfo>,
     onUpdateThemeBrand: (ThemeBrand) -> Unit,
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    onDeleteEblanIconPackInfo: (EblanIconPackInfo) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -108,6 +126,7 @@ fun GeneralSettingsScreen(
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Box(
             modifier = modifier
@@ -123,10 +142,18 @@ fun GeneralSettingsScreen(
                     Success(
                         modifier = modifier,
                         generalSettings = generalSettingsUiState.generalSettings,
-                        iconPacks = iconPacks,
+                        packageManagerEblanIconPackInfos = packageManagerIconPackInfos,
+                        eblanIconPackInfos = eblanIconPackInfos,
                         onUpdateThemeBrand = onUpdateThemeBrand,
                         onUpdateDarkThemeConfig = onUpdateDarkThemeConfig,
                         onUpdateDynamicTheme = onUpdateDynamicTheme,
+                        onShowSnackbar = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = it)
+                            }
+                        },
+                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
+                        onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
                     )
                 }
             }
@@ -139,10 +166,14 @@ fun GeneralSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     generalSettings: GeneralSettings,
-    iconPacks: List<IconPack>,
+    packageManagerEblanIconPackInfos: List<EblanIconPackInfo>,
+    eblanIconPackInfos: List<EblanIconPackInfo>,
     onUpdateThemeBrand: (ThemeBrand) -> Unit,
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
+    onUpdateIconPackInfoPackageName: (String) -> Unit,
+    onDeleteEblanIconPackInfo: (EblanIconPackInfo) -> Unit,
+    onShowSnackbar: (String) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -150,7 +181,9 @@ private fun Success(
 
     var showDarkThemeConfigDialog by remember { mutableStateOf(false) }
 
-    var showIconPacksDialog by remember { mutableStateOf(false) }
+    var showImportIconPackDialog by remember { mutableStateOf(false) }
+
+    var selectIconPackDialog by remember { mutableStateOf(false) }
 
     var grantNotificationPermission by remember { mutableStateOf(false) }
 
@@ -159,17 +192,25 @@ private fun Success(
     })
 
     Column(modifier = modifier.fillMaxSize()) {
-        if (grantNotificationPermission) {
-            SettingsColumn(
-                title = "Icon Packs",
-                subtitle = generalSettings.iconPackPackageName.ifEmpty { "None" },
-                onClick = {
-                    showIconPacksDialog = true
-                },
-            )
+        SettingsColumn(
+            title = "Import Icon Pack",
+            subtitle = "Import icon pack",
+            onClick = {
+                showImportIconPackDialog = true
+            },
+        )
 
-            Spacer(modifier = Modifier.height(10.dp))
-        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsColumn(
+            title = "Select Icon Pack",
+            subtitle = generalSettings.iconPackInfoPackageName.ifEmpty { "Default" },
+            onClick = {
+                selectIconPackDialog = true
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         SettingsColumn(
             title = "Theme Brand",
@@ -238,24 +279,76 @@ private fun Success(
         )
     }
 
-    if (showIconPacksDialog) {
-        SelectIconPackDialog(
-            iconPacks = iconPacks,
+    if (showImportIconPackDialog) {
+        ImportIconPackDialog(
+            packageManagerIconPackInfos = packageManagerEblanIconPackInfos,
             onDismissRequest = {
-                showIconPacksDialog = false
+                showImportIconPackDialog = false
             },
-            onUpdateIconPack = {
-                val intent = Intent(context, IconPackService::class.java).apply {
-                    putExtra(IconPackManager.ICON_PACK_PACKAGE_NAME, it)
-                }
+            onUpdateIconPack = { packageName, label ->
+                if (grantNotificationPermission) {
+                    val intent = Intent(context, IconPackService::class.java).apply {
+                        putExtra(
+                            IconPackManager.ICON_PACK_SERVICE_REQUEST_TYPE,
+                            IconPackServiceRequestType.Update.name
+                        )
+                        putExtra(IconPackManager.ICON_PACK_PACKAGE_NAME, packageName)
+                        putExtra(IconPackManager.ICON_PACK_LABEL, label)
+                    }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(intent)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(intent)
+                    } else {
+                        context.startService(intent)
+                    }
+
+                    showImportIconPackDialog = false
                 } else {
-                    context.startService(intent)
+                    onShowSnackbar("Notification permission is not granted")
                 }
+            }
+        )
+    }
 
-                showIconPacksDialog = false
+    if (selectIconPackDialog) {
+        SelectIconPackDialog(
+            eblanIconPackInfos = eblanIconPackInfos,
+            iconPackInfoPackageName = generalSettings.iconPackInfoPackageName,
+            onDismissRequest = {
+                selectIconPackDialog = false
+            },
+            onUpdateIconPackInfoPackageName = { eblanIconPackInfo ->
+                onUpdateIconPackInfoPackageName(eblanIconPackInfo)
+
+                selectIconPackDialog = false
+            },
+            onDeleteEblanIconPackInfo = { eblanIconPackInfo ->
+                if (grantNotificationPermission) {
+                    val intent = Intent(context, IconPackService::class.java).apply {
+                        putExtra(
+                            IconPackManager.ICON_PACK_SERVICE_REQUEST_TYPE,
+                            IconPackServiceRequestType.Delete.name
+                        )
+                        putExtra(
+                            IconPackManager.ICON_PACK_PACKAGE_NAME,
+                            eblanIconPackInfo.packageName
+                        )
+                        putExtra(IconPackManager.ICON_PACK_LABEL, eblanIconPackInfo.label)
+                    }
+
+                    context.startService(intent)
+
+                    onDeleteEblanIconPackInfo(eblanIconPackInfo)
+
+                    selectIconPackDialog = false
+                } else {
+                    onShowSnackbar("Notification permission is not granted")
+                }
+            },
+            onReset = {
+                onUpdateIconPackInfoPackageName("")
+
+                selectIconPackDialog = false
             }
         )
     }

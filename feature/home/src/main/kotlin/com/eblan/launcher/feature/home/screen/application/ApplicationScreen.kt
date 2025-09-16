@@ -461,7 +461,7 @@ private fun EblanApplicationInfoItem(
 
     val iconFile = File(iconPackDirectory, eblanApplicationInfo.packageName)
 
-    val icon = if (iconFile.exists()) {
+    val icon = if (iconPackPackageName.isNotEmpty() && iconFile.exists()) {
         iconFile.absolutePath
     } else {
         eblanApplicationInfo.icon

@@ -19,11 +19,12 @@ package com.eblan.launcher.feature.settings.general
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.IconPack
+import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.GetPackageManagerEblanIconPackInfosUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    packageManagerWrapper: PackageManagerWrapper,
+    private val eblanIconPackInfoRepository: EblanIconPackInfoRepository,
+    getPackageManagerEblanIconPackInfosUseCase: GetPackageManagerEblanIconPackInfosUseCase,
 ) :
     ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
@@ -49,16 +51,22 @@ class GeneralSettingsViewModel @Inject constructor(
         initialValue = GeneralSettingsUiState.Loading,
     )
 
-    private val _iconPacks = MutableStateFlow(emptyList<IconPack>())
+    private val _packageManagerEblanIconPackInfos = MutableStateFlow(emptyList<EblanIconPackInfo>())
 
-    val iconPacks = _iconPacks.onStart {
-        _iconPacks.update {
-            packageManagerWrapper.getInstalledIconPacks()
+    val packageManagerEblanIconPackInfos = _packageManagerEblanIconPackInfos.onStart {
+        _packageManagerEblanIconPackInfos.update {
+            getPackageManagerEblanIconPackInfosUseCase()
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList()
+    )
+
+    val eblanIconPackInfos = eblanIconPackInfoRepository.eblanIconPackInfos.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
     )
 
     fun updateThemeBrand(themeBrand: ThemeBrand) {
@@ -76,6 +84,18 @@ class GeneralSettingsViewModel @Inject constructor(
     fun updateDynamicTheme(dynamicTheme: Boolean) {
         viewModelScope.launch {
             userDataRepository.updateDynamicTheme(dynamicTheme = dynamicTheme)
+        }
+    }
+
+    fun updateIconPackInfoPackageName(iconPackInfoPackageName: String) {
+        viewModelScope.launch {
+            userDataRepository.updateIconPackInfoPackageName(iconPackInfoPackageName = iconPackInfoPackageName)
+        }
+    }
+
+    fun deleteEblanIconPackInfo(eblanIconPackInfo: EblanIconPackInfo) {
+        viewModelScope.launch {
+            eblanIconPackInfoRepository.deleteEblanIconPackInfo(eblanIconPackInfo = eblanIconPackInfo)
         }
     }
 }

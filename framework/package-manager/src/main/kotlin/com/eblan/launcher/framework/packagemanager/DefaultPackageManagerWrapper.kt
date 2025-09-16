@@ -25,7 +25,6 @@ import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.IconPack
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -77,7 +76,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         return defaultLauncherPackage == context.packageName
     }
 
-    override suspend fun getInstalledIconPacks(): List<IconPack> {
+    override suspend fun getIconPackInfoByPackageNames(): List<String> {
         val intentActions = listOf(
             Intent("com.anddoes.launcher.THEME"),
             Intent("com.novalauncher.THEME"),
@@ -87,21 +86,20 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
             Intent("com.teslacoilsw.launcher.THEME")
         )
 
-        val results = mutableSetOf<ResolveInfo>()
+        val resolveInfos = mutableSetOf<ResolveInfo>()
 
         return withContext(defaultDispatcher) {
             intentActions.forEach { intent ->
-                val resolveInfos =
-                    packageManager.queryIntentActivities(intent, PackageManager.GET_META_DATA)
-                results.addAll(resolveInfos)
+                resolveInfos.addAll(
+                    packageManager.queryIntentActivities(
+                        intent,
+                        PackageManager.GET_META_DATA
+                    )
+                )
             }
 
-            results.map { resolveInfo ->
-                IconPack(
-                    packageName = resolveInfo.activityInfo.packageName,
-                    label = resolveInfo.loadLabel(packageManager).toString(),
-                    icon = resolveInfo.loadIcon(packageManager).toByteArray(),
-                )
+            resolveInfos.map { resolveInfo ->
+                resolveInfo.activityInfo.packageName
             }.distinct()
         }
     }

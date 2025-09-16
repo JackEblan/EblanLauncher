@@ -20,6 +20,7 @@ package com.eblan.launcher.data.repository.di
 import com.eblan.launcher.data.repository.DefaultApplicationInfoGridItemRepository
 import com.eblan.launcher.data.repository.DefaultEblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
+import com.eblan.launcher.data.repository.DefaultEblanIconPackInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridItemRepository
 import com.eblan.launcher.data.repository.DefaultGridCacheRepository
@@ -30,6 +31,7 @@ import com.eblan.launcher.data.repository.DefaultWidgetGridItemRepository
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -85,4 +87,8 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun folderGridItemRepository(impl: DefaultFolderGridItemRepository): FolderGridItemRepository
+
+    @Binds
+    @Singleton
+    fun iconPackRepository(impl: DefaultEblanIconPackInfoRepository): EblanIconPackInfoRepository
 }

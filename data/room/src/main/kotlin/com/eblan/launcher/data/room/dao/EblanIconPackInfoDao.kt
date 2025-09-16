@@ -15,11 +15,23 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.dao
 
-data class GeneralSettings(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val dynamicTheme: Boolean,
-    val iconPackInfoPackageName: String,
-)
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import androidx.room.Upsert
+import com.eblan.launcher.data.room.entity.EblanIconPackInfoEntity
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface EblanIconPackInfoDao {
+    @Query("SELECT * FROM EblanIconPackInfoEntity")
+    fun getEblanIconPackInfoEntities(): Flow<List<EblanIconPackInfoEntity>>
+
+    @Upsert
+    suspend fun upsertEblanIconPackInfoEntity(entity: EblanIconPackInfoEntity): Long
+
+    @Delete
+    suspend fun deleteEblanIconPackInfoEntity(entity: EblanIconPackInfoEntity)
+}

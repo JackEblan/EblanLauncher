@@ -17,9 +17,8 @@
  */
 package com.eblan.launcher.domain.model
 
-data class GeneralSettings(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val dynamicTheme: Boolean,
-    val iconPackInfoPackageName: String,
+data class EblanIconPackInfo(
+    val packageName: String,
+    val icon: String?,
+    val label: String?,
 )

@@ -45,7 +45,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
 
         dynamicTheme = false
 
-        iconPackPackageName = ""
+        iconPackInfoPackageName = ""
     }.build()
 
     private val defaultGridItemSettingsProto = GridItemSettingsProto.newBuilder().apply {

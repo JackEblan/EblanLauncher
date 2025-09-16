@@ -9,6 +9,10 @@ interface IconPackManager {
     ): ByteArray?
 
     companion object {
+        const val ICON_PACK_SERVICE_REQUEST_TYPE = "iconPackServiceRequestType"
+
         const val ICON_PACK_PACKAGE_NAME = "iconPackPackageName"
+
+        const val ICON_PACK_LABEL = "label"
     }
 }

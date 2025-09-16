@@ -17,8 +17,9 @@
  */
 package com.eblan.launcher.data.repository
 
+import com.eblan.launcher.data.repository.mapper.asEntity
+import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
-import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.flow.map
@@ -60,23 +61,5 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         }
 
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntities(entities = entities)
-    }
-
-    private fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
-        return EblanApplicationInfoEntity(
-            packageName = packageName,
-            componentName = componentName,
-            icon = icon,
-            label = label,
-        )
-    }
-
-    private fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
-        return EblanApplicationInfo(
-            packageName = packageName,
-            componentName = componentName,
-            icon = icon,
-            label = label,
-        )
     }
 }

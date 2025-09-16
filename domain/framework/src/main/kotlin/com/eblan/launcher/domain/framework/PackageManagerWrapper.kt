@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.domain.framework
 
-import com.eblan.launcher.domain.model.IconPack
-
 interface PackageManagerWrapper {
     suspend fun getApplicationIcon(packageName: String): ByteArray?
 
@@ -26,5 +24,5 @@ interface PackageManagerWrapper {
 
     fun getComponentName(packageName: String): String?
 
-    suspend fun getInstalledIconPacks(): List<IconPack>
+    suspend fun getIconPackInfoByPackageNames(): List<String>
 }

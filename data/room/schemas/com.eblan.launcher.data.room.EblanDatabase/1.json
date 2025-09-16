@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "256e0372b63120b32431e5947377f1ec",
+    "identityHash": "6b1e04ce830d7fba92478043174861ad",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -899,11 +899,39 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "EblanIconPackInfoEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`))",
+        "fields": [
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "packageName"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '256e0372b63120b32431e5947377f1ec')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6b1e04ce830d7fba92478043174861ad')"
     ]
   }
 }

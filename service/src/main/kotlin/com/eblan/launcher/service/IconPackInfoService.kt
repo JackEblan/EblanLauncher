@@ -10,9 +10,9 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackServiceRequestType
+import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
 import com.eblan.launcher.domain.usecase.UpdateIconPackInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,9 +28,12 @@ class IconPackInfoService : Service() {
     @Inject
     lateinit var updateIconPackInfosUseCase: UpdateIconPackInfosUseCase
 
+    @Inject
+    lateinit var deleteIconPackInfosUseCase: DeleteIconPackInfoUseCase
+
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-    private var iconPackJob: Job? = null
+    private var iconPackInfoJob: Job? = null
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -60,10 +62,10 @@ class IconPackInfoService : Service() {
                         },
                     )
 
-                    iconPackJob?.cancel()
+                    iconPackInfoJob?.cancel()
 
                     serviceScope.launch {
-                        iconPackJob = launch {
+                        iconPackInfoJob = launch {
                             updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
 
                             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -74,23 +76,23 @@ class IconPackInfoService : Service() {
                 }
 
                 IconPackServiceRequestType.Delete -> {
-                    iconPackJob?.cancel()
+                    ServiceCompat.startForeground(
+                        this,
+                        1,
+                        createNotification(contentText = "Deleting $iconPackInfoLabel, this may take a few seconds"),
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                        } else {
+                            0
+                        },
+                    )
+
+                    iconPackInfoJob?.cancel()
 
                     serviceScope.launch {
-                        iconPackJob = launch {
-                            val iconPacksDirectory = File(
-                                applicationContext.filesDir,
-                                FileManager.ICON_PACKS_DIR
-                            )
-
-                            val iconPackDirectory = File(
-                                iconPacksDirectory,
-                                iconPackInfoPackageName
-                            )
-
-                            if (iconPackDirectory.exists()) {
-                                iconPackDirectory.deleteRecursively()
-                            }
+                        iconPackInfoJob = launch {
+                            deleteIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
 
                             stopSelf()
                         }

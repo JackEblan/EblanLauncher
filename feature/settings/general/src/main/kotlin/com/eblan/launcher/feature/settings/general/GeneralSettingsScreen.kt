@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.settings.general
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.layout.Box
@@ -87,7 +88,6 @@ fun GeneralSettingsRoute(
         onUpdateDarkThemeConfig = viewModel::updateDarkThemeConfig,
         onUpdateDynamicTheme = viewModel::updateDynamicTheme,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
-        onDeleteEblanIconPackInfo = viewModel::deleteEblanIconPackInfo,
         onNavigateUp = onNavigateUp,
     )
 }
@@ -103,7 +103,6 @@ fun GeneralSettingsScreen(
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
-    onDeleteEblanIconPackInfo: (EblanIconPackInfo) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -153,7 +152,6 @@ fun GeneralSettingsScreen(
                             }
                         },
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
-                        onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
                     )
                 }
             }
@@ -172,7 +170,6 @@ private fun Success(
     onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
     onUpdateDynamicTheme: (Boolean) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
-    onDeleteEblanIconPackInfo: (EblanIconPackInfo) -> Unit,
     onShowSnackbar: (String) -> Unit,
 ) {
     val context = LocalContext.current
@@ -286,28 +283,21 @@ private fun Success(
                 showImportIconPackDialog = false
             },
             onUpdateIconPack = { packageName, label ->
-                if (grantNotificationPermission) {
-                    val intent = Intent(context, IconPackInfoService::class.java).apply {
-                        putExtra(
-                            IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE,
-                            IconPackServiceRequestType.Update.name
-                        )
-                        putExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME, packageName)
-                        putExtra(IconPackManager.ICON_PACK_INFO_LABEL, label)
+                startIconPackInfoService(
+                    grantNotificationPermission = grantNotificationPermission,
+                    context = context,
+                    packageName = packageName,
+                    label = label,
+                    iconPackServiceRequestType = IconPackServiceRequestType.Update,
+                    onSuccess = {
+                        onShowSnackbar("Importing $label cache")
+                    },
+                    onFailed = {
+                        onShowSnackbar("Notification permission is not granted")
                     }
+                )
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(intent)
-                    } else {
-                        context.startService(intent)
-                    }
-
-                    showImportIconPackDialog = false
-
-                    onShowSnackbar("Importing $label cache, check notification for the status")
-                } else {
-                    onShowSnackbar("Notification permission is not granted")
-                }
+                showImportIconPackDialog = false
             }
         )
     }
@@ -325,29 +315,21 @@ private fun Success(
                 selectIconPackDialog = false
             },
             onDeleteEblanIconPackInfo = { eblanIconPackInfo ->
-                if (grantNotificationPermission) {
-                    val intent = Intent(context, IconPackInfoService::class.java).apply {
-                        putExtra(
-                            IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE,
-                            IconPackServiceRequestType.Delete.name
-                        )
-                        putExtra(
-                            IconPackManager.ICON_PACK_INFO_PACKAGE_NAME,
-                            eblanIconPackInfo.packageName
-                        )
-                        putExtra(IconPackManager.ICON_PACK_INFO_LABEL, eblanIconPackInfo.label)
+                startIconPackInfoService(
+                    grantNotificationPermission = grantNotificationPermission,
+                    context = context,
+                    packageName = eblanIconPackInfo.packageName,
+                    label = eblanIconPackInfo.label.toString(),
+                    iconPackServiceRequestType = IconPackServiceRequestType.Delete,
+                    onSuccess = {
+                        onShowSnackbar("Deleting ${eblanIconPackInfo.label} cache")
+                    },
+                    onFailed = {
+                        onShowSnackbar("Notification permission is not granted")
                     }
+                )
 
-                    context.startService(intent)
-
-                    onDeleteEblanIconPackInfo(eblanIconPackInfo)
-
-                    selectIconPackDialog = false
-
-                    onShowSnackbar("Deleting ${eblanIconPackInfo.label} cache")
-                } else {
-                    onShowSnackbar("Notification permission is not granted")
-                }
+                selectIconPackDialog = false
             },
             onReset = {
                 onUpdateIconPackInfoPackageName("")
@@ -383,5 +365,36 @@ private fun NotificationPermissionEffect(onGrantPermission: (Boolean) -> Unit) {
                 }
             }
         }
+    }
+}
+
+private fun startIconPackInfoService(
+    grantNotificationPermission: Boolean,
+    context: Context,
+    packageName: String,
+    label: String,
+    iconPackServiceRequestType: IconPackServiceRequestType,
+    onSuccess: () -> Unit,
+    onFailed: () -> Unit,
+) {
+    if (grantNotificationPermission) {
+        val intent = Intent(context, IconPackInfoService::class.java).apply {
+            putExtra(
+                IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE,
+                iconPackServiceRequestType.name
+            )
+            putExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME, packageName)
+            putExtra(IconPackManager.ICON_PACK_INFO_LABEL, label)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+
+        onSuccess()
+    } else {
+        onFailed()
     }
 }

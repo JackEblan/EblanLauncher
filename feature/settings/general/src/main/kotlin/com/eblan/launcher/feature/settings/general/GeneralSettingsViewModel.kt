@@ -39,7 +39,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val eblanIconPackInfoRepository: EblanIconPackInfoRepository,
+    eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     getPackageManagerEblanIconPackInfosUseCase: GetPackageManagerEblanIconPackInfosUseCase,
 ) :
     ViewModel() {
@@ -90,12 +90,6 @@ class GeneralSettingsViewModel @Inject constructor(
     fun updateIconPackInfoPackageName(iconPackInfoPackageName: String) {
         viewModelScope.launch {
             userDataRepository.updateIconPackInfoPackageName(iconPackInfoPackageName = iconPackInfoPackageName)
-        }
-    }
-
-    fun deleteEblanIconPackInfo(eblanIconPackInfo: EblanIconPackInfo) {
-        viewModelScope.launch {
-            eblanIconPackInfoRepository.deleteEblanIconPackInfo(eblanIconPackInfo = eblanIconPackInfo)
         }
     }
 }

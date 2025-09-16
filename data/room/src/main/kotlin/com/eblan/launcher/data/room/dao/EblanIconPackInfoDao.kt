@@ -34,4 +34,7 @@ interface EblanIconPackInfoDao {
 
     @Delete
     suspend fun deleteEblanIconPackInfoEntity(entity: EblanIconPackInfoEntity)
+
+    @Query("SELECT * FROM EblanIconPackInfoEntity WHERE packageName = :packageName")
+    suspend fun getEblanIconPackInfoEntity(packageName: String): EblanIconPackInfoEntity?
 }

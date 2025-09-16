@@ -24,4 +24,8 @@ internal class DefaultEblanIconPackInfoRepository @Inject constructor(private va
     override suspend fun deleteEblanIconPackInfo(eblanIconPackInfo: EblanIconPackInfo) {
         eblanIconPackInfoDao.deleteEblanIconPackInfoEntity(entity = eblanIconPackInfo.asEntity())
     }
+
+    override suspend fun getEblanIconPackInfo(packageName: String): EblanIconPackInfo? {
+        return eblanIconPackInfoDao.getEblanIconPackInfoEntity(packageName = packageName)?.asModel()
+    }
 }

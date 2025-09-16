@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -33,6 +34,8 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
+    private val userDataRepository: UserDataRepository,
+    private val updateIconPackInfosUseCase: UpdateIconPackInfosUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
@@ -76,6 +79,11 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                         icon.delete()
                     }
                 }
+
+                val iconPackInfoPackageName =
+                    userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
+
+                updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
             }
         }
     }

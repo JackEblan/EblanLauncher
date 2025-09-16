@@ -18,12 +18,12 @@ internal class DefaultIconPackManager @Inject constructor(
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : IconPackManager {
     @SuppressLint("DiscouragedApi")
-    override suspend fun parseAppFilter(iconPackPackageName: String): Map<String, String> {
+    override suspend fun parseAppFilter(iconPackInfoPackageName: String): Map<String, String> {
         return withContext(ioDispatcher) {
             val result = mutableMapOf<String, String>()
 
             val packageContext =
-                context.createPackageContext(iconPackPackageName, Context.CONTEXT_IGNORE_SECURITY)
+                context.createPackageContext(iconPackInfoPackageName, Context.CONTEXT_IGNORE_SECURITY)
 
             packageContext.assets.open("appfilter.xml").use { stream ->
                 val parser = Xml.newPullParser()

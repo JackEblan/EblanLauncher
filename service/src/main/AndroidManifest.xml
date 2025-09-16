@@ -24,7 +24,7 @@
             android:exported="false"/>
 
         <service
-            android:name=".IconPackService"
+            android:name=".IconPackInfoService"
             android:foregroundServiceType="dataSync"
             android:exported="false"/>
 

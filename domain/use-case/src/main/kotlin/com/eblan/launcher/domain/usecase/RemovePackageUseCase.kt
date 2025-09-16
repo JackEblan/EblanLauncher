@@ -22,36 +22,62 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class RemovePackageUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
+    private val userDataRepository: UserDataRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
         withContext(defaultDispatcher) {
+            val iconPackInfoPackageName =
+                userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
+
             eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
                 packageName = packageName,
             )
 
-            fileManager.deleteFile(
-                directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                name = packageName,
+            val iconFile = File(
+                fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                packageName
             )
+
+            if (iconFile.exists()) {
+                iconFile.delete()
+            }
 
             appWidgetManagerWrapper.getInstalledProviders()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.forEach { appWidgetManagerAppWidgetProviderInfo ->
-                    fileManager.deleteFile(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = appWidgetManagerAppWidgetProviderInfo.className,
+                    val widgetFile = File(
+                        fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                        appWidgetManagerAppWidgetProviderInfo.className
                     )
+
+                    if (widgetFile.exists()) {
+                        widgetFile.delete()
+                    }
                 }
+
+            val iconPacksDirectory = File(
+                fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
+                iconPackInfoPackageName
+            )
+
+            val iconPackFile = File(iconPacksDirectory, packageName)
+
+            if (iconPackFile.exists()) {
+                iconPacksDirectory.delete()
+            }
         }
     }
 }

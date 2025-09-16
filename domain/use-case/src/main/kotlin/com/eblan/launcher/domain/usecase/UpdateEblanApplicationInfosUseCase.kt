@@ -26,6 +26,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class UpdateEblanApplicationInfosUseCase @Inject constructor(
@@ -66,10 +67,14 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                 eblanApplicationInfoRepository.deleteEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfosToDelete)
 
                 eblanApplicationInfosToDelete.forEach { eblanApplicationInfo ->
-                    fileManager.deleteFile(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = eblanApplicationInfo.packageName,
+                    val icon = File(
+                        fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                        eblanApplicationInfo.packageName
                     )
+
+                    if (icon.exists()) {
+                        icon.delete()
+                    }
                 }
             }
         }

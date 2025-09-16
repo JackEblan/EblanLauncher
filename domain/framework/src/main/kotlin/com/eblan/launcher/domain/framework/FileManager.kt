@@ -34,11 +34,6 @@ interface FileManager {
         byteArray: ByteArray,
     ): String?
 
-    suspend fun deleteFile(
-        directory: File,
-        name: String,
-    )
-
     companion object {
         const val ICONS_DIR = "icons"
 

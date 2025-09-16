@@ -86,20 +86,6 @@ internal class DefaultFileManager @Inject constructor(
         }
     }
 
-    override suspend fun deleteFile(directory: File, name: String) {
-        withContext(ioDispatcher) {
-            val file = File(directory, name)
-
-            try {
-                if (file.exists()) {
-                    file.delete()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     private fun readFileBytes(file: File): ByteArray? {
         return if (file.exists()) {
             try {

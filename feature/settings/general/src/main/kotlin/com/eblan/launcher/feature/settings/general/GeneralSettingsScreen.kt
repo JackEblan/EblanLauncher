@@ -57,7 +57,7 @@ import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.feature.settings.general.dialog.ImportIconPackDialog
 import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
-import com.eblan.launcher.service.IconPackService
+import com.eblan.launcher.service.IconPackInfoService
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
@@ -287,13 +287,13 @@ private fun Success(
             },
             onUpdateIconPack = { packageName, label ->
                 if (grantNotificationPermission) {
-                    val intent = Intent(context, IconPackService::class.java).apply {
+                    val intent = Intent(context, IconPackInfoService::class.java).apply {
                         putExtra(
-                            IconPackManager.ICON_PACK_SERVICE_REQUEST_TYPE,
+                            IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE,
                             IconPackServiceRequestType.Update.name
                         )
-                        putExtra(IconPackManager.ICON_PACK_PACKAGE_NAME, packageName)
-                        putExtra(IconPackManager.ICON_PACK_LABEL, label)
+                        putExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME, packageName)
+                        putExtra(IconPackManager.ICON_PACK_INFO_LABEL, label)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -326,16 +326,16 @@ private fun Success(
             },
             onDeleteEblanIconPackInfo = { eblanIconPackInfo ->
                 if (grantNotificationPermission) {
-                    val intent = Intent(context, IconPackService::class.java).apply {
+                    val intent = Intent(context, IconPackInfoService::class.java).apply {
                         putExtra(
-                            IconPackManager.ICON_PACK_SERVICE_REQUEST_TYPE,
+                            IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE,
                             IconPackServiceRequestType.Delete.name
                         )
                         putExtra(
-                            IconPackManager.ICON_PACK_PACKAGE_NAME,
+                            IconPackManager.ICON_PACK_INFO_PACKAGE_NAME,
                             eblanIconPackInfo.packageName
                         )
-                        putExtra(IconPackManager.ICON_PACK_LABEL, eblanIconPackInfo.label)
+                        putExtra(IconPackManager.ICON_PACK_INFO_LABEL, eblanIconPackInfo.label)
                     }
 
                     context.startService(intent)

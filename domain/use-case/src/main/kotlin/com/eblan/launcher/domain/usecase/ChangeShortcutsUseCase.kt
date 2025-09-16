@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class ChangeShortcutsUseCase @Inject constructor(
@@ -88,10 +89,14 @@ class ChangeShortcutsUseCase @Inject constructor(
                 )
 
                 eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
-                    fileManager.deleteFile(
-                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        name = eblanShortcutInfo.shortcutId,
+                    val icon = File(
+                        fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                        eblanShortcutInfo.shortcutId
                     )
+
+                    if (icon.exists()) {
+                        icon.delete()
+                    }
                 }
             }
         }

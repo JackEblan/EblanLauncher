@@ -29,6 +29,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class ChangePackageUseCase @Inject constructor(
@@ -37,6 +38,7 @@ class ChangePackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
+    private val updateIconPackInfoUseCase: UpdateIconPackInfoUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
@@ -114,11 +116,17 @@ class ChangePackageUseCase @Inject constructor(
                 )
 
                 eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
-                    fileManager.deleteFile(
-                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        name = eblanAppWidgetProviderInfo.className,
+                    val widgetFile = File(
+                        fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                        eblanAppWidgetProviderInfo.className
                     )
+
+                    if (widgetFile.exists()) {
+                        widgetFile.delete()
+                    }
                 }
+
+                updateIconPackInfoUseCase(packageName = packageName)
             }
         }
     }

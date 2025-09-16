@@ -13,7 +13,7 @@ import androidx.core.app.ServiceCompat
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackServiceRequestType
-import com.eblan.launcher.domain.usecase.UpdateIconPackUseCase
+import com.eblan.launcher.domain.usecase.UpdateIconPackInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,9 +25,9 @@ import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class IconPackService : Service() {
+class IconPackInfoService : Service() {
     @Inject
-    lateinit var updateIconPackUseCase: UpdateIconPackUseCase
+    lateinit var updateIconPackInfosUseCase: UpdateIconPackInfosUseCase
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -39,19 +39,19 @@ class IconPackService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val iconPackRequestType =
-            intent?.getStringExtra(IconPackManager.ICON_PACK_SERVICE_REQUEST_TYPE)
+            intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE)
 
-        val iconPackPackageName = intent?.getStringExtra(IconPackManager.ICON_PACK_PACKAGE_NAME)
+        val iconPackInfoPackageName = intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME)
 
-        val iconPackLabel = intent?.getStringExtra(IconPackManager.ICON_PACK_LABEL)
+        val iconPackInfoLabel = intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_LABEL)
 
-        if (iconPackRequestType != null && iconPackPackageName != null && iconPackLabel != null) {
+        if (iconPackRequestType != null && iconPackInfoPackageName != null && iconPackInfoLabel != null) {
             when (IconPackServiceRequestType.valueOf(iconPackRequestType)) {
                 IconPackServiceRequestType.Update -> {
                     ServiceCompat.startForeground(
                         this,
                         1,
-                        createNotification(contentText = "Importing $iconPackLabel icon pack to cache, this may take a few seconds"),
+                        createNotification(contentText = "Importing $iconPackInfoLabel to cache, this may take a few seconds"),
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
@@ -64,7 +64,7 @@ class IconPackService : Service() {
 
                     serviceScope.launch {
                         iconPackJob = launch {
-                            updateIconPackUseCase(iconPackPackageName = iconPackPackageName)
+                            updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
 
                             stopForeground(STOP_FOREGROUND_REMOVE)
 
@@ -85,7 +85,7 @@ class IconPackService : Service() {
 
                             val iconPackDirectory = File(
                                 iconPacksDirectory,
-                                iconPackPackageName
+                                iconPackInfoPackageName
                             )
 
                             if (iconPackDirectory.exists()) {

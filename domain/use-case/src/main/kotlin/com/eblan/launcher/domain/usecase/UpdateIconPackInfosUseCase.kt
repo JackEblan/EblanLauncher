@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-class UpdateIconPackUseCase @Inject constructor(
+class UpdateIconPackInfosUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val iconPackManager: IconPackManager,
     private val fileManager: FileManager,
@@ -21,18 +21,18 @@ class UpdateIconPackUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(iconPackPackageName: String) {
+    suspend operator fun invoke(iconPackInfoPackageName: String) {
         withContext(defaultDispatcher) {
             val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = iconPackPackageName)
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = iconPackInfoPackageName)
 
             if (eblanApplicationInfo != null) {
                 val appFilter =
-                    iconPackManager.parseAppFilter(iconPackPackageName = iconPackPackageName)
+                    iconPackManager.parseAppFilter(iconPackInfoPackageName = iconPackInfoPackageName)
 
                 val iconPackDirectory = File(
                     fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-                    iconPackPackageName
+                    iconPackInfoPackageName
                 ).apply { if (!exists()) mkdirs() }
 
                 val installedPackageNames = launcherAppsWrapper.getActivityList()
@@ -42,7 +42,7 @@ class UpdateIconPackUseCase @Inject constructor(
                         } ?: return@mapNotNull null
 
                         val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                            packageName = iconPackPackageName,
+                            packageName = iconPackInfoPackageName,
                             drawableName = entry.value,
                         ) ?: return@mapNotNull null
 

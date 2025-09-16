@@ -51,7 +51,7 @@ class IconPackService : Service() {
                     ServiceCompat.startForeground(
                         this,
                         1,
-                        createNotification(contentText = "Importing $iconPackLabel icon pack to cache, This may take some time"),
+                        createNotification(contentText = "Importing $iconPackLabel icon pack to cache, this may take a few seconds"),
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC

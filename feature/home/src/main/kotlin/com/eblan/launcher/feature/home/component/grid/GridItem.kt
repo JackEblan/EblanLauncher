@@ -140,7 +140,7 @@ private fun ApplicationInfoGridItem(
 
     val iconFile = File(iconPackDirectory, data.packageName)
 
-    val icon = if (iconFile.exists()) {
+    val icon = if (iconPackPackageName.isNotEmpty() && iconFile.exists()) {
         iconFile.absolutePath
     } else {
         data.icon
@@ -295,7 +295,7 @@ private fun FolderGridItem(
 
                             val iconFile = File(iconPackDirectory, currentData.packageName)
 
-                            val icon = if (iconFile.exists()) {
+                            val icon = if (iconPackPackageName.isNotEmpty() && iconFile.exists()) {
                                 iconFile.absolutePath
                             } else {
                                 currentData.icon

@@ -303,6 +303,8 @@ private fun Success(
                     }
 
                     showImportIconPackDialog = false
+
+                    onShowSnackbar("Importing $label cache, check notification for the status")
                 } else {
                     onShowSnackbar("Notification permission is not granted")
                 }
@@ -341,6 +343,8 @@ private fun Success(
                     onDeleteEblanIconPackInfo(eblanIconPackInfo)
 
                     selectIconPackDialog = false
+
+                    onShowSnackbar("Deleting ${eblanIconPackInfo.label} cache")
                 } else {
                     onShowSnackbar("Notification permission is not granted")
                 }

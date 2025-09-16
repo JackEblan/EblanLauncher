@@ -27,30 +27,34 @@ class UpdateIconPackUseCase @Inject constructor(
                 eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = iconPackPackageName)
 
             if (eblanApplicationInfo != null) {
-                launcherAppsWrapper.getActivityList().forEach { eblanLauncherActivityInfo ->
-                    val appFilter =
-                        iconPackManager.parseAppFilter(iconPackPackageName = iconPackPackageName)
+                val appFilter =
+                    iconPackManager.parseAppFilter(iconPackPackageName = iconPackPackageName)
 
-                    val entry = appFilter.entries.find { (component, _) ->
-                        component.contains(eblanLauncherActivityInfo.packageName)
-                    } ?: return@forEach
+                val iconPackDirectory = File(
+                    fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+                    iconPackPackageName
+                ).apply { if (!exists()) mkdirs() }
 
-                    val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                        packageName = iconPackPackageName,
-                        drawableName = entry.value,
-                    ) ?: return@forEach
+                val installedPackageNames = launcherAppsWrapper.getActivityList()
+                    .mapNotNull { eblanLauncherActivityInfo ->
+                        val entry = appFilter.entries.find { (component, _) ->
+                            component.contains(eblanLauncherActivityInfo.packageName)
+                        } ?: return@mapNotNull null
 
-                    val iconPackDirectory = File(
-                        fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-                        iconPackPackageName
-                    ).apply { if (!exists()) mkdirs() }
+                        val byteArray = iconPackManager.loadByteArrayFromIconPack(
+                            packageName = iconPackPackageName,
+                            drawableName = entry.value,
+                        ) ?: return@mapNotNull null
 
-                    fileManager.getAndUpdateFilePath(
-                        directory = iconPackDirectory,
-                        name = eblanLauncherActivityInfo.packageName,
-                        byteArray = byteArray
-                    )
-                }
+                        fileManager.getAndUpdateFilePath(
+                            directory = iconPackDirectory,
+                            name = eblanLauncherActivityInfo.packageName,
+                            byteArray = byteArray
+                        )
+
+                        eblanLauncherActivityInfo.packageName
+                    }
+                    .toSet()
 
                 eblanIconPackInfoRepository.upsertEblanIconPackInfo(
                     eblanIconPackInfo = EblanIconPackInfo(
@@ -59,6 +63,10 @@ class UpdateIconPackUseCase @Inject constructor(
                         label = eblanApplicationInfo.label
                     )
                 )
+
+                iconPackDirectory.listFiles()
+                    ?.filter { it.isFile && it.name !in installedPackageNames }
+                    ?.forEach { it.delete() }
             }
         }
     }

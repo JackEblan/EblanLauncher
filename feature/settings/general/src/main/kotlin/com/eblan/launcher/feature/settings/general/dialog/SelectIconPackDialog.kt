@@ -80,15 +80,16 @@ fun SelectIconPackDialog(
                                         )
                                     },
                                     trailingContent = {
-                                        if (iconPackInfoPackageName != eblanIconPackInfo.packageName) {
-                                            IconButton(onClick = {
+                                        IconButton(
+                                            onClick = {
                                                 onDeleteEblanIconPackInfo(eblanIconPackInfo)
-                                            }) {
-                                                Icon(
-                                                    imageVector = EblanLauncherIcons.Delete,
-                                                    contentDescription = null
-                                                )
-                                            }
+                                            },
+                                            enabled = iconPackInfoPackageName != eblanIconPackInfo.packageName
+                                        ) {
+                                            Icon(
+                                                imageVector = EblanLauncherIcons.Delete,
+                                                contentDescription = null
+                                            )
                                         }
                                     },
                                     modifier = Modifier

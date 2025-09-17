@@ -36,6 +36,7 @@ fun EblanRadioButton(
     modifier: Modifier = Modifier,
     text: String,
     selected: Boolean,
+    singleLine: Boolean = true,
     onClick: () -> Unit,
 ) {
     Row(
@@ -59,6 +60,7 @@ fun EblanRadioButton(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 16.dp),
+            maxLines = if (singleLine) 1 else Int.MAX_VALUE,
         )
     }
 }

@@ -48,6 +48,8 @@ class IconPackInfoService : Service() {
         val iconPackInfoLabel = intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_LABEL)
 
         if (iconPackRequestType != null && iconPackInfoPackageName != null && iconPackInfoLabel != null) {
+            iconPackInfoJob?.cancel()
+
             when (IconPackServiceRequestType.valueOf(iconPackRequestType)) {
                 IconPackServiceRequestType.Update -> {
                     ServiceCompat.startForeground(
@@ -61,8 +63,6 @@ class IconPackInfoService : Service() {
                             0
                         },
                     )
-
-                    iconPackInfoJob?.cancel()
 
                     serviceScope.launch {
                         iconPackInfoJob = launch {
@@ -87,8 +87,6 @@ class IconPackInfoService : Service() {
                             0
                         },
                     )
-
-                    iconPackInfoJob?.cancel()
 
                     serviceScope.launch {
                         iconPackInfoJob = launch {
@@ -119,7 +117,9 @@ class IconPackInfoService : Service() {
                 "Eblan Launcher Service",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
+
             val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
             manager.createNotificationChannel(channel)
         }
 

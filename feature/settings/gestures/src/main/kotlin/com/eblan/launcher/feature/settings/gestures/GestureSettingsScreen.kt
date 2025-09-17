@@ -218,7 +218,7 @@ private fun Success(
 fun GestureAction.getGestureActionSubtitle(): String {
     return when (this) {
         GestureAction.None -> "None"
-        is GestureAction.OpenApp -> "Open ${componentName.take(10)}"
+        is GestureAction.OpenApp -> "Open $componentName"
         GestureAction.OpenAppDrawer -> "Open app drawer"
         GestureAction.OpenNotificationPanel -> "Open notification panel"
         GestureAction.LockScreen -> "Lock screen"

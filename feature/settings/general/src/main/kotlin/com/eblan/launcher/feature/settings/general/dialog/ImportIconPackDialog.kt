@@ -49,9 +49,7 @@ fun ImportIconPackDialog(
     ) -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp)
+        Column(modifier = modifier.fillMaxWidth()
         ) {
             Text(text = "Import Icon Pack", style = MaterialTheme.typography.titleLarge)
 

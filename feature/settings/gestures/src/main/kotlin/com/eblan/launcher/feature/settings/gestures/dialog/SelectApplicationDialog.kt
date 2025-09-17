@@ -48,9 +48,10 @@ fun SelectApplicationDialog(
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(modifier = modifier.fillMaxWidth()) {
-            Text(text = "Select Application", style = MaterialTheme.typography.titleLarge)
-
-            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                modifier = Modifier.padding(10.dp),
+                text = "Select Application", style = MaterialTheme.typography.titleLarge
+            )
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(eblanApplicationInfos) { eblanApplicationInfo ->

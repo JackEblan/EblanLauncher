@@ -55,17 +55,15 @@ fun SelectIconPackDialog(
     onReset: () -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
+        Box(modifier = modifier.fillMaxWidth()) {
             when {
                 eblanIconPackInfos.isEmpty() -> {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge)
-
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            modifier = Modifier.padding(10.dp),
+                            text = "Select Icon Pack",
+                            style = MaterialTheme.typography.titleLarge
+                        )
 
                         Text(text = "Please import an icon pack first")
 
@@ -86,9 +84,10 @@ fun SelectIconPackDialog(
 
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        Text(text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge)
-
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            modifier = Modifier.padding(10.dp),
+                            text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge
+                        )
 
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(eblanIconPackInfos) { eblanIconPackInfo ->

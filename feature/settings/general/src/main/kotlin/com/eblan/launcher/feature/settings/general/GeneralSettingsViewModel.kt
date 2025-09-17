@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
 import com.eblan.launcher.domain.usecase.GetPackageManagerEblanIconPackInfosUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,6 +42,7 @@ class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     getPackageManagerEblanIconPackInfosUseCase: GetPackageManagerEblanIconPackInfosUseCase,
+    private val deleteIconPackInfosUseCase: DeleteIconPackInfoUseCase,
 ) :
     ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
@@ -90,6 +92,12 @@ class GeneralSettingsViewModel @Inject constructor(
     fun updateIconPackInfoPackageName(iconPackInfoPackageName: String) {
         viewModelScope.launch {
             userDataRepository.updateIconPackInfoPackageName(iconPackInfoPackageName = iconPackInfoPackageName)
+        }
+    }
+
+    fun deleteIconPackInfo(iconPackInfoPackageName: String){
+        viewModelScope.launch {
+            deleteIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
         }
     }
 }

@@ -49,11 +49,13 @@ fun ImportIconPackDialog(
     ) -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Column(modifier = modifier.fillMaxWidth()
+        Column(
+            modifier = modifier.fillMaxWidth()
         ) {
-            Text(text = "Import Icon Pack", style = MaterialTheme.typography.titleLarge)
-
-            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                modifier = Modifier.padding(10.dp),
+                text = "Import Icon Pack", style = MaterialTheme.typography.titleLarge
+            )
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(packageManagerIconPackInfos) { eblanIconPackInfo ->
@@ -83,7 +85,9 @@ fun ImportIconPackDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             TextButton(
-                modifier = Modifier.align(Alignment.End),
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(10.dp),
                 onClick = onDismissRequest,
             ) {
                 Text(text = "Cancel")

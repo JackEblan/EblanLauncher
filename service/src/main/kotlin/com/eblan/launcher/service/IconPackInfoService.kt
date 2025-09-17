@@ -11,8 +11,6 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.eblan.launcher.domain.framework.IconPackManager
-import com.eblan.launcher.domain.model.IconPackServiceRequestType
-import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
 import com.eblan.launcher.domain.usecase.UpdateIconPackInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -28,9 +26,6 @@ class IconPackInfoService : Service() {
     @Inject
     lateinit var updateIconPackInfosUseCase: UpdateIconPackInfosUseCase
 
-    @Inject
-    lateinit var deleteIconPackInfosUseCase: DeleteIconPackInfoUseCase
-
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private var iconPackInfoJob: Job? = null
@@ -40,61 +35,33 @@ class IconPackInfoService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val iconPackRequestType =
-            intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_SERVICE_REQUEST_TYPE)
-
-        val iconPackInfoPackageName = intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME)
+        val iconPackInfoPackageName =
+            intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME)
 
         val iconPackInfoLabel = intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_LABEL)
 
-        if (iconPackRequestType != null && iconPackInfoPackageName != null && iconPackInfoLabel != null) {
+        if (iconPackInfoPackageName != null && iconPackInfoLabel != null) {
             iconPackInfoJob?.cancel()
 
-            when (IconPackServiceRequestType.valueOf(iconPackRequestType)) {
-                IconPackServiceRequestType.Update -> {
-                    ServiceCompat.startForeground(
-                        this,
-                        1,
-                        createNotification(contentText = "Importing $iconPackInfoLabel to cache, this may take a few seconds"),
+            ServiceCompat.startForeground(
+                this,
+                1,
+                createNotification(contentText = "Importing $iconPackInfoLabel to cache, this may take a few seconds"),
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-                        } else {
-                            0
-                        },
-                    )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                } else {
+                    0
+                },
+            )
 
-                    serviceScope.launch {
-                        iconPackInfoJob = launch {
-                            updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
+            serviceScope.launch {
+                iconPackInfoJob = launch {
+                    updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
 
-                            stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopForeground(STOP_FOREGROUND_REMOVE)
 
-                            stopSelf()
-                        }
-                    }
-                }
-
-                IconPackServiceRequestType.Delete -> {
-                    ServiceCompat.startForeground(
-                        this,
-                        1,
-                        createNotification(contentText = "Deleting $iconPackInfoLabel, this may take a few seconds"),
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-                        } else {
-                            0
-                        },
-                    )
-
-                    serviceScope.launch {
-                        iconPackInfoJob = launch {
-                            deleteIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
-
-                            stopSelf()
-                        }
-                    }
+                    stopSelf()
                 }
             }
         }

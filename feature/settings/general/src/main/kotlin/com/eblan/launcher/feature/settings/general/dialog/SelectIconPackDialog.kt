@@ -127,7 +127,9 @@ fun SelectIconPackDialog(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
                             horizontalArrangement = Arrangement.End,
                         ) {
                             TextButton(

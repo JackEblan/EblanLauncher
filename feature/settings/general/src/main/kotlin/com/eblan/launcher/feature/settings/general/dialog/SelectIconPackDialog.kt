@@ -19,11 +19,9 @@ package com.eblan.launcher.feature.settings.general.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,94 +53,102 @@ fun SelectIconPackDialog(
     onReset: () -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
-        Box(modifier = modifier.fillMaxWidth()) {
-            when {
-                eblanIconPackInfos.isEmpty() -> {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            modifier = Modifier.padding(10.dp),
-                            text = "Select Icon Pack",
-                            style = MaterialTheme.typography.titleLarge
-                        )
+        when {
+            eblanIconPackInfos.isEmpty() -> {
+                Column(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = "Select Icon Pack",
+                        style = MaterialTheme.typography.titleLarge
+                    )
 
-                        Text(text = "Please import an icon pack first")
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                    Text(text = "Please import an icon pack first")
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(
+                            onClick = onDismissRequest,
                         ) {
-                            TextButton(
-                                onClick = onDismissRequest,
-                            ) {
-                                Text(text = "Okay")
-                            }
+                            Text(text = "Okay")
                         }
                     }
                 }
+            }
 
-                else -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Text(
-                            modifier = Modifier.padding(10.dp),
-                            text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge
+            else -> {
+                Column(modifier = modifier.fillMaxWidth()) {
+                    Text(
+                        modifier = Modifier.padding(10.dp),
+                        text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.weight(
+                            weight = 1f,
+                            fill = false,
                         )
-
-                        LazyColumn(modifier = Modifier.weight(1f)) {
-                            items(eblanIconPackInfos) { eblanIconPackInfo ->
-                                ListItem(
-                                    headlineContent = { Text(text = eblanIconPackInfo.label.toString()) },
-                                    supportingContent = { Text(text = eblanIconPackInfo.packageName) },
-                                    leadingContent = {
-                                        AsyncImage(
-                                            model = eblanIconPackInfo.icon,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(40.dp),
+                    ) {
+                        items(eblanIconPackInfos) { eblanIconPackInfo ->
+                            ListItem(
+                                headlineContent = { Text(text = eblanIconPackInfo.label.toString()) },
+                                supportingContent = { Text(text = eblanIconPackInfo.packageName) },
+                                leadingContent = {
+                                    AsyncImage(
+                                        model = eblanIconPackInfo.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                    )
+                                },
+                                trailingContent = {
+                                    IconButton(
+                                        onClick = {
+                                            onDeleteEblanIconPackInfo(eblanIconPackInfo)
+                                        },
+                                        enabled = iconPackInfoPackageName != eblanIconPackInfo.packageName
+                                    ) {
+                                        Icon(
+                                            imageVector = EblanLauncherIcons.Delete,
+                                            contentDescription = null
                                         )
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = {
-                                                onDeleteEblanIconPackInfo(eblanIconPackInfo)
-                                            },
-                                            enabled = iconPackInfoPackageName != eblanIconPackInfo.packageName
-                                        ) {
-                                            Icon(
-                                                imageVector = EblanLauncherIcons.Delete,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .clickable {
-                                            onUpdateIconPackInfoPackageName(eblanIconPackInfo.packageName)
-                                        }
-                                        .fillMaxWidth()
-                                        .padding(10.dp),
-                                )
-                            }
+                                    }
+                                },
+                                modifier = Modifier
+                                    .clickable {
+                                        onUpdateIconPackInfoPackageName(eblanIconPackInfo.packageName)
+                                    }
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(
+                            onClick = onDismissRequest,
+                        ) {
+                            Text(text = "Cancel")
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            horizontalArrangement = Arrangement.End,
+                        TextButton(
+                            onClick = onReset,
                         ) {
-                            TextButton(
-                                onClick = onDismissRequest,
-                            ) {
-                                Text(text = "Cancel")
-                            }
-
-                            TextButton(
-                                onClick = onReset,
-                            ) {
-                                Text(text = "Reset")
-                            }
+                            Text(text = "Reset")
                         }
                     }
                 }

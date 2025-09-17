@@ -57,7 +57,12 @@ fun ImportIconPackDialog(
                 text = "Import Icon Pack", style = MaterialTheme.typography.titleLarge
             )
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier.weight(
+                    weight = 1f,
+                    fill = false
+                )
+            ) {
                 items(packageManagerIconPackInfos) { eblanIconPackInfo ->
                     ListItem(
                         headlineContent = { Text(text = eblanIconPackInfo.label.toString()) },

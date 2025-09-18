@@ -18,24 +18,45 @@
 package com.eblan.launcher.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.view.accessibility.AccessibilityEvent
-import com.eblan.launcher.domain.framework.PerformGlobalAction
+import androidx.core.content.ContextCompat
 import com.eblan.launcher.domain.model.GlobalAction
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 internal class EblanAccessibilityService : AccessibilityService() {
-    @Inject
-    lateinit var performGlobalAction: PerformGlobalAction
+    private val globalActionBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                GlobalAction.NAME -> {
+                    when (intent.getStringExtra(GlobalAction.GLOBAL_ACTION_TYPE)) {
+                        GlobalAction.Notifications.name -> {
+                            performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+                        }
 
-    private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+                        GlobalAction.QuickSettings.name -> {
+                            performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+                        }
+
+                        GlobalAction.LockScreen.name -> {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+                            }
+                        }
+
+                        GlobalAction.Recents.name -> {
+                            performGlobalAction(GLOBAL_ACTION_RECENTS)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
     }
@@ -44,32 +65,17 @@ internal class EblanAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-        serviceScope.launch {
-            performGlobalAction.globalAction.collect { globalAction ->
-                when (globalAction) {
-                    GlobalAction.Notifications -> {
-                        performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
-                    }
+        val intentFilter = IntentFilter(GlobalAction.NAME)
 
-                    GlobalAction.QuickSettings -> {
-                        performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
-                    }
-
-                    GlobalAction.LockScreen -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
-                        }
-                    }
-
-                    GlobalAction.Recents -> {
-                        performGlobalAction(GLOBAL_ACTION_RECENTS)
-                    }
-                }
-            }
-        }
+        ContextCompat.registerReceiver(
+            applicationContext,
+            globalActionBroadcastReceiver,
+            intentFilter,
+            RECEIVER_NOT_EXPORTED,
+        )
     }
 
     override fun onDestroy() {
-        serviceScope.cancel()
+        unregisterReceiver(globalActionBroadcastReceiver)
     }
 }

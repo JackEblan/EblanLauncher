@@ -58,7 +58,6 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
-import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemCacheType
@@ -146,7 +145,6 @@ fun HomeRoute(
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
         onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
-        onPerformGlobalAction = viewModel::performGlobalAction,
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
@@ -224,7 +222,6 @@ fun HomeScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
-    onPerformGlobalAction: (GlobalAction) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
@@ -375,7 +372,6 @@ fun HomeScreen(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
-                    onPerformGlobalAction = onPerformGlobalAction,
                     onDeleteGridItem = onDeleteGridItem,
                 )
             }
@@ -470,7 +466,6 @@ private fun Success(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
-    onPerformGlobalAction: (GlobalAction) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
@@ -566,7 +561,6 @@ private fun Success(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
-                    onPerformGlobalAction = onPerformGlobalAction,
                     onDeleteGridItem = onDeleteGridItem,
                 )
             }

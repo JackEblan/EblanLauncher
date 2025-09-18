@@ -131,9 +131,10 @@ fun PagerScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
-    onPerformGlobalAction: (GlobalAction) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
+    val context = LocalContext.current
+
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
@@ -215,7 +216,15 @@ fun PagerScreen(
                             swipeDownY = swipeDownY.value,
                             screenHeight = screenHeight,
                             onStartMainActivity = launcherApps::startMainActivity,
-                            onPerformGlobalAction = onPerformGlobalAction,
+                            onPerformGlobalAction = { globalAction ->
+                                val intent = Intent(GlobalAction.NAME)
+                                    .putExtra(
+                                        GlobalAction.GLOBAL_ACTION_TYPE,
+                                        globalAction.name
+                                    )
+
+                                context.sendBroadcast(intent)
+                            },
                         )
 
                         resetSwipeOffset(
@@ -345,7 +354,13 @@ fun PagerScreen(
 
             GestureAction.OpenNotificationPanel -> {
                 SideEffect {
-                    onPerformGlobalAction(GlobalAction.Notifications)
+                    val intent = Intent(GlobalAction.NAME)
+                        .putExtra(
+                            GlobalAction.GLOBAL_ACTION_TYPE,
+                            GlobalAction.Notifications.name
+                        )
+
+                    context.sendBroadcast(intent)
 
                     showDoubleTap = false
                 }
@@ -353,7 +368,13 @@ fun PagerScreen(
 
             GestureAction.LockScreen -> {
                 SideEffect {
-                    onPerformGlobalAction(GlobalAction.LockScreen)
+                    val intent = Intent(GlobalAction.NAME)
+                        .putExtra(
+                            GlobalAction.GLOBAL_ACTION_TYPE,
+                            GlobalAction.LockScreen.name
+                        )
+
+                    context.sendBroadcast(intent)
 
                     showDoubleTap = false
                 }
@@ -361,7 +382,13 @@ fun PagerScreen(
 
             GestureAction.OpenQuickSettings -> {
                 SideEffect {
-                    onPerformGlobalAction(GlobalAction.QuickSettings)
+                    val intent = Intent(GlobalAction.NAME)
+                        .putExtra(
+                            GlobalAction.GLOBAL_ACTION_TYPE,
+                            GlobalAction.QuickSettings.name
+                        )
+
+                    context.sendBroadcast(intent)
 
                     showDoubleTap = false
                 }
@@ -369,7 +396,13 @@ fun PagerScreen(
 
             GestureAction.OpenRecents -> {
                 SideEffect {
-                    onPerformGlobalAction(GlobalAction.Recents)
+                    val intent = Intent(GlobalAction.NAME)
+                        .putExtra(
+                            GlobalAction.GLOBAL_ACTION_TYPE,
+                            GlobalAction.Recents.name
+                        )
+
+                    context.sendBroadcast(intent)
 
                     showDoubleTap = false
                 }

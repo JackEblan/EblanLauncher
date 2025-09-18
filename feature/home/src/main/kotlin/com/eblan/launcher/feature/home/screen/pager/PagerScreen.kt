@@ -111,7 +111,7 @@ fun PagerScreen(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onLongPressGrid: (Int) -> Unit,
     onTapFolderGridItem: (
         currentPage: Int,
@@ -247,7 +247,7 @@ fun PagerScreen(
         hasShortcutHostPermission = hasShortcutHostPermission,
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
-        iconPackPackageName = iconPackPackageName,
+        iconPackInfoPackageName = iconPackInfoPackageName,
         onLongPressGrid = onLongPressGrid,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
@@ -284,7 +284,7 @@ fun PagerScreen(
             drag = drag,
             appDrawerSettings = appDrawerSettings,
             eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-            iconPackPackageName = iconPackPackageName,
+            iconPackInfoPackageName = iconPackInfoPackageName,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -332,7 +332,7 @@ fun PagerScreen(
                     appDrawerSettings = appDrawerSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     gridItemSource = gridItemSource,
-                    iconPackPackageName = iconPackPackageName,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
                     onDismiss = {
                         showDoubleTap = false
                     },
@@ -436,7 +436,7 @@ private fun HorizontalPagerScreen(
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     homeSettings: HomeSettings,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onTapFolderGridItem: (
         currentPage: Int,
         id: String,
@@ -584,7 +584,7 @@ private fun HorizontalPagerScreen(
                     textColor = textColor,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
-                    iconPackPackageName = iconPackPackageName,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
                     onTapApplicationInfo = launcherApps::startMainActivity,
                     onTapShortcutInfo = launcherApps::startShortcut,
                     onTapFolderGridItem = {
@@ -651,7 +651,7 @@ private fun HorizontalPagerScreen(
                 textColor = textColor,
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 drag = drag,
-                iconPackPackageName = iconPackPackageName,
+                iconPackInfoPackageName = iconPackInfoPackageName,
                 onTapApplicationInfo = launcherApps::startMainActivity,
                 onTapShortcutInfo = launcherApps::startShortcut,
                 onTapFolderGridItem = {

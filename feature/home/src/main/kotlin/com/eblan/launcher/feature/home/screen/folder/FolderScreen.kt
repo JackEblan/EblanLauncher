@@ -71,7 +71,7 @@ fun FolderScreen(
     screenHeight: Int,
     textColor: TextColor,
     homeSettings: HomeSettings,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -201,7 +201,7 @@ fun FolderScreen(
                             drag = drag,
                             gridItemSettings = homeSettings.gridItemSettings,
                             textColor = textColor,
-                            iconPackPackageName = iconPackPackageName,
+                            iconPackInfoPackageName = iconPackInfoPackageName,
                             onTapApplicationInfo = launcherApps::startMainActivity,
                             onTapShortcutInfo = launcherApps::startShortcut,
                             onTapFolderGridItem = {

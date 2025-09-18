@@ -527,7 +527,7 @@ private fun Success(
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
-                    iconPackPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     onLongPressGrid = { newCurrentPage ->
                         targetPage = newCurrentPage
                     },
@@ -585,7 +585,7 @@ private fun Success(
                     textColor = homeData.textColor,
                     moveGridItemResult = movedGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
-                    iconPackPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
@@ -617,7 +617,7 @@ private fun Success(
                     textColor = homeData.textColor,
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
-                    iconPackPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -635,6 +635,7 @@ private fun Success(
                     textColor = homeData.textColor,
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     onSaveEditPage = onSaveEditPage,
                     onUpdateScreen = onUpdateScreen,
                 )
@@ -651,7 +652,7 @@ private fun Success(
                     screenHeight = screenHeight,
                     textColor = homeData.textColor,
                     homeSettings = homeData.userData.homeSettings,
-                    iconPackPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -689,7 +690,7 @@ private fun Success(
                     folderDataById = foldersDataById.lastOrNull(),
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
-                    iconPackPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
                         folderTargetPage = newTargetPage

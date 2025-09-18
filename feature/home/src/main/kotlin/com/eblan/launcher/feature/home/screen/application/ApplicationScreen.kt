@@ -108,7 +108,7 @@ fun DoubleTapApplicationScreen(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -140,7 +140,7 @@ fun DoubleTapApplicationScreen(
         appDrawerSettings = appDrawerSettings,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         gridItemSource = gridItemSource,
-        iconPackPackageName = iconPackPackageName,
+        iconPackInfoPackageName = iconPackInfoPackageName,
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -168,7 +168,7 @@ fun ApplicationScreen(
     appDrawerSettings: AppDrawerSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -255,7 +255,7 @@ fun ApplicationScreen(
                                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                                     drag = drag,
                                     appDrawerSettings = appDrawerSettings,
-                                    iconPackPackageName = iconPackPackageName,
+                                    iconPackInfoPackageName = iconPackInfoPackageName,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
                                     onDraggingGridItem = {
@@ -280,7 +280,7 @@ fun ApplicationScreen(
                                             drag = drag,
                                             eblanApplicationInfo = eblanApplicationInfo,
                                             appDrawerSettings = appDrawerSettings,
-                                            iconPackPackageName = iconPackPackageName,
+                                            iconPackInfoPackageName = iconPackInfoPackageName,
                                             onLongPress = { intOffset, intSize ->
                                                 onUpdateGridItemOffset(intOffset)
 
@@ -336,7 +336,7 @@ private fun EblanApplicationInfoDockSearchBar(
     appDrawerSettings: AppDrawerSettings,
     onQueryChange: (String) -> Unit,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
@@ -385,7 +385,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     drag = drag,
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
-                    iconPackPackageName = iconPackPackageName,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
                     onLongPress = { intOffset, _ ->
                         focusManager.clearFocus()
 
@@ -408,7 +408,7 @@ private fun EblanApplicationInfoItem(
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onLongPress: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -457,11 +457,11 @@ private fun EblanApplicationInfoItem(
 
     val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
-    val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
 
     val iconFile = File(iconPackDirectory, eblanApplicationInfo.packageName)
 
-    val icon = if (iconPackPackageName.isNotEmpty() && iconFile.exists()) {
+    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
         iconFile.absolutePath
     } else {
         eblanApplicationInfo.icon

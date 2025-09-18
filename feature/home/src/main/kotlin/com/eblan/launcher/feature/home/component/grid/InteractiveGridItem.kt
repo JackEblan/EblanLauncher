@@ -68,7 +68,7 @@ fun InteractiveGridItemContent(
     textColor: TextColor,
     hasShortcutHostPermission: Boolean,
     drag: Drag,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onTapApplicationInfo: (String?) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
@@ -102,7 +102,7 @@ fun InteractiveGridItemContent(
                 gridItemSettings = currentGridItemSettings,
                 data = data,
                 drag = drag,
-                iconPackPackageName = iconPackPackageName,
+                iconPackInfoPackageName = iconPackInfoPackageName,
                 onTap = {
                     onTapApplicationInfo(data.componentName)
                 },
@@ -151,7 +151,7 @@ fun InteractiveGridItemContent(
                 textColor = currentTextColor,
                 data = data,
                 drag = drag,
-                iconPackPackageName = iconPackPackageName,
+                iconPackInfoPackageName = iconPackInfoPackageName,
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -168,7 +168,7 @@ private fun ApplicationInfoGridItem(
     gridItemSettings: GridItemSettings,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -198,11 +198,11 @@ private fun ApplicationInfoGridItem(
 
     val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
-    val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
 
     val iconFile = File(iconPackDirectory, data.packageName)
 
-    val icon = if (iconPackPackageName.isNotEmpty() && iconFile.exists()) {
+    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
         iconFile.absolutePath
     } else {
         data.icon
@@ -487,7 +487,7 @@ private fun FolderGridItem(
     gridItemSettings: GridItemSettings,
     data: GridItemData.Folder,
     drag: Drag,
-    iconPackPackageName: String,
+    iconPackInfoPackageName: String,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -594,11 +594,11 @@ private fun FolderGridItem(
                         is GridItemData.ApplicationInfo -> {
                             val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
-                            val iconPackDirectory = File(iconPacksDirectory, iconPackPackageName)
+                            val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
 
                             val iconFile = File(iconPackDirectory, currentData.packageName)
 
-                            val icon = if (iconPackPackageName.isNotEmpty() && iconFile.exists()) {
+                            val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
                                 iconFile.absolutePath
                             } else {
                                 currentData.icon

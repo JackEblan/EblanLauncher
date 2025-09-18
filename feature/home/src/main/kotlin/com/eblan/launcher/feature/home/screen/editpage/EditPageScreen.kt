@@ -54,11 +54,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
@@ -71,6 +73,7 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import java.io.File
 
 @Composable
 fun EditPageScreen(
@@ -80,6 +83,7 @@ fun EditPageScreen(
     textColor: TextColor,
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
+    iconPackInfoPackageName: String,
     onSaveEditPage: (
         initialPage: Int,
         pageItems: List<PageItem>,
@@ -162,6 +166,7 @@ fun EditPageScreen(
                                 modifier = Modifier.padding(2.dp),
                                 gridItem = gridItem,
                                 textColor = textColor,
+                                iconPackInfoPackageName = iconPackInfoPackageName,
                             )
                         }
 
@@ -293,7 +298,10 @@ private fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: TextColor,
+    iconPackInfoPackageName: String,
 ) {
+    val context = LocalContext.current
+
     val currentTextColor = if (gridItem.override) {
         getGridItemTextColor(
             systemTextColor = textColor,
@@ -306,8 +314,20 @@ private fun GridItemContent(
     key(gridItem.id) {
         when (val data = gridItem.data) {
             is GridItemData.ApplicationInfo -> {
+                val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+                val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+
+                val iconFile = File(iconPackDirectory, data.packageName)
+
+                val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
+                    iconFile.absolutePath
+                } else {
+                    data.icon
+                }
+
                 AsyncImage(
-                    model = data.icon,
+                    model = icon,
                     contentDescription = null,
                     modifier = modifier,
                 )

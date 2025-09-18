@@ -73,6 +73,8 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
@@ -588,7 +590,10 @@ private fun EblanApplicationInfoItem(
         Spacer(modifier = Modifier.height(5.dp))
 
         AsyncImage(
-            model = icon,
+            model = ImageRequest.Builder(context)
+                .data(icon)
+                .addLastModifiedToFileCacheKey(true)
+                .build(),
             contentDescription = null,
             modifier = Modifier.size(iconSizeDp),
         )

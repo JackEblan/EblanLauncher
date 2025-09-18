@@ -35,6 +35,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
@@ -166,7 +168,10 @@ private fun ApplicationInfoGridItem(
         verticalArrangement = verticalArrangement,
     ) {
         AsyncImage(
-            model = icon,
+            model = ImageRequest.Builder(context)
+                .data(icon)
+                .addLastModifiedToFileCacheKey(true)
+                .build(),
             contentDescription = null,
             modifier = Modifier.size(iconSizeDp),
         )
@@ -346,7 +351,10 @@ private fun FolderGridItem(
                                 }
 
                             AsyncImage(
-                                model = icon,
+                                model = ImageRequest.Builder(context)
+                                    .data(icon)
+                                    .addLastModifiedToFileCacheKey(true)
+                                    .build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )

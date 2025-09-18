@@ -46,6 +46,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
@@ -283,7 +285,10 @@ private fun ApplicationInfoGridItem(
         verticalArrangement = verticalArrangement,
     ) {
         AsyncImage(
-            model = icon,
+            model = ImageRequest.Builder(context)
+                .data(icon)
+                .addLastModifiedToFileCacheKey(true)
+                .build(),
             contentDescription = null,
             modifier = Modifier.size(iconSizeDp),
         )
@@ -632,20 +637,26 @@ private fun FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+                            val iconPacksDirectory =
+                                File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
-                            val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+                            val iconPackDirectory =
+                                File(iconPacksDirectory, iconPackInfoPackageName)
 
                             val iconFile = File(iconPackDirectory, currentData.packageName)
 
-                            val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-                                iconFile.absolutePath
-                            } else {
-                                currentData.icon
-                            }
+                            val icon =
+                                if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
+                                    iconFile.absolutePath
+                                } else {
+                                    currentData.icon
+                                }
 
                             AsyncImage(
-                                model = icon,
+                                model = ImageRequest.Builder(context)
+                                    .data(icon)
+                                    .addLastModifiedToFileCacheKey(true)
+                                    .build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )

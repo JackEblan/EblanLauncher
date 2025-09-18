@@ -19,9 +19,8 @@ package com.eblan.launcher.feature.settings.general
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.EblanIconPackInfo
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
@@ -71,33 +70,16 @@ class GeneralSettingsViewModel @Inject constructor(
         initialValue = emptyList(),
     )
 
-    fun updateThemeBrand(themeBrand: ThemeBrand) {
-        viewModelScope.launch {
-            userDataRepository.updateThemeBrand(themeBrand = themeBrand)
-        }
-    }
-
-    fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
-        viewModelScope.launch {
-            userDataRepository.updateDarkThemeConfig(darkThemeConfig = darkThemeConfig)
-        }
-    }
-
-    fun updateDynamicTheme(dynamicTheme: Boolean) {
-        viewModelScope.launch {
-            userDataRepository.updateDynamicTheme(dynamicTheme = dynamicTheme)
-        }
-    }
-
-    fun updateIconPackInfoPackageName(iconPackInfoPackageName: String) {
-        viewModelScope.launch {
-            userDataRepository.updateIconPackInfoPackageName(iconPackInfoPackageName = iconPackInfoPackageName)
-        }
-    }
-
-    fun deleteIconPackInfo(iconPackInfoPackageName: String){
+    fun deleteIconPackInfo(iconPackInfoPackageName: String) {
         viewModelScope.launch {
             deleteIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
         }
     }
+
+    fun updateGeneralSettings(generalSettings: GeneralSettings) {
+        viewModelScope.launch {
+            userDataRepository.updateGeneralSettings(generalSettings = generalSettings)
+        }
+    }
+
 }

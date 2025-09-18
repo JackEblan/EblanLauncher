@@ -32,7 +32,9 @@ import com.eblan.launcher.data.datastore.proto.gesture.OpenQuickSettingsProto
 import com.eblan.launcher.data.datastore.proto.gesture.OpenRecentsProto
 import com.eblan.launcher.data.datastore.proto.home.GridItemSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
+import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
+import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GeneralSettings
@@ -47,8 +49,10 @@ import com.eblan.launcher.domain.model.GestureAction.OpenRecents
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.VerticalArrangement
 
 internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
     return HomeSettings(
@@ -82,6 +86,8 @@ internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings {
         textSize = textSize,
         showLabel = showLabel,
         singleLineLabel = singleLineLabel,
+        horizontalAlignment = horizontalAlignmentProto.toHorizontalAlignment(),
+        verticalArrangement = verticalArrangementProto.toVerticalArrangement(),
     )
 }
 
@@ -107,6 +113,38 @@ internal fun TextColorProto.toTextColor(): TextColor {
         TextColorProto.TextColorSystem, TextColorProto.UNRECOGNIZED -> TextColor.System
         TextColorProto.TextColorLight -> TextColor.Light
         TextColorProto.TextColorDark -> TextColor.Dark
+    }
+}
+
+internal fun HorizontalAlignment.toHorizontalAlignmentProto(): HorizontalAlignmentProto {
+    return when (this) {
+        HorizontalAlignment.Start -> HorizontalAlignmentProto.Start
+        HorizontalAlignment.CenterHorizontally -> HorizontalAlignmentProto.CenterHorizontally
+        HorizontalAlignment.End -> HorizontalAlignmentProto.End
+    }
+}
+
+internal fun HorizontalAlignmentProto.toHorizontalAlignment(): HorizontalAlignment {
+    return when (this) {
+        HorizontalAlignmentProto.Start -> HorizontalAlignment.Start
+        HorizontalAlignmentProto.CenterHorizontally, HorizontalAlignmentProto.UNRECOGNIZED -> HorizontalAlignment.CenterHorizontally
+        HorizontalAlignmentProto.End -> HorizontalAlignment.End
+    }
+}
+
+internal fun VerticalArrangement.toVerticalArrangementProto(): VerticalArrangementProto {
+    return when (this) {
+        VerticalArrangement.Top -> VerticalArrangementProto.Top
+        VerticalArrangement.Center -> VerticalArrangementProto.Center
+        VerticalArrangement.Bottom -> VerticalArrangementProto.Bottom
+    }
+}
+
+internal fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangement {
+    return when (this) {
+        VerticalArrangementProto.Top -> VerticalArrangement.Top
+        VerticalArrangementProto.Center, VerticalArrangementProto.UNRECOGNIZED -> VerticalArrangement.Center
+        VerticalArrangementProto.Bottom -> VerticalArrangement.Bottom
     }
 }
 
@@ -198,4 +236,68 @@ internal fun DarkThemeConfigProto.toDarkThemeConfig(): DarkThemeConfig {
         DarkThemeConfigProto.DarkThemeConfigLight -> DarkThemeConfig.Light
         DarkThemeConfigProto.DarkThemeConfigDark -> DarkThemeConfig.Dark
     }
+}
+
+internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto {
+    return GridItemSettingsProto.newBuilder()
+        .setIconSize(iconSize)
+        .setTextColorProto(textColor.toTextColorProto())
+        .setTextSize(textSize)
+        .setShowLabel(showLabel)
+        .setSingleLineLabel(singleLineLabel)
+        .setHorizontalAlignmentProto(horizontalAlignment.toHorizontalAlignmentProto())
+        .setVerticalArrangementProto(verticalArrangement.toVerticalArrangementProto())
+        .build()
+}
+
+internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto {
+    return HomeSettingsProto.newBuilder()
+        .setRows(rows)
+        .setColumns(columns)
+        .setPageCount(pageCount)
+        .setInfiniteScroll(infiniteScroll)
+        .setDockRows(dockRows)
+        .setDockColumns(dockColumns)
+        .setDockHeight(dockHeight)
+        .setInitialPage(initialPage)
+        .setWallpaperScroll(wallpaperScroll)
+        .setFolderRows(folderRows)
+        .setFolderColumns(folderColumns)
+        .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+        .build()
+}
+
+internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProto {
+    val gridItemSettingsProto = GridItemSettingsProto.newBuilder()
+        .setIconSize(gridItemSettings.iconSize)
+        .setTextColorProto(gridItemSettings.textColor.toTextColorProto())
+        .setTextSize(gridItemSettings.textSize)
+        .setShowLabel(gridItemSettings.showLabel)
+        .setSingleLineLabel(gridItemSettings.singleLineLabel)
+        .setHorizontalAlignmentProto(gridItemSettings.horizontalAlignment.toHorizontalAlignmentProto())
+        .setVerticalArrangementProto(gridItemSettings.verticalArrangement.toVerticalArrangementProto())
+        .build()
+
+    return AppDrawerSettingsProto.newBuilder()
+        .setAppDrawerColumns(appDrawerColumns)
+        .setAppDrawerRowsHeight(appDrawerRowsHeight)
+        .setGridItemSettingsProto(gridItemSettingsProto)
+        .build()
+}
+
+internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto {
+    return GeneralSettingsProto.newBuilder()
+        .setThemeBrandProto(themeBrand.toThemeBrandProto())
+        .setDarkThemeConfigProto(darkThemeConfig.toDarkThemeConfigProto())
+        .setDynamicTheme(dynamicTheme)
+        .setIconPackInfoPackageName(iconPackInfoPackageName)
+        .build()
+}
+
+internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto {
+    return GestureSettingsProto.newBuilder()
+        .setDoubleTapProto(doubleTap.toGestureActionProto())
+        .setSwipeUpProto(swipeUp.toGestureActionProto())
+        .setSwipeDownProto(swipeDown.toGestureActionProto())
+        .build()
 }

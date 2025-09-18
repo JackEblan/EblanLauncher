@@ -19,7 +19,7 @@ package com.eblan.launcher.feature.settings.gestures
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
@@ -52,21 +52,9 @@ class GestureSettingsViewModel @Inject constructor(
         initialValue = GesturesSettingsUiState.Loading,
     )
 
-    fun updateDoubleTap(gestureAction: GestureAction) {
+    fun updateGestureSettings(gestureSettings: GestureSettings) {
         viewModelScope.launch {
-            userDataRepository.updateDoubleTap(gestureAction = gestureAction)
-        }
-    }
-
-    fun updateSwipeUp(gestureAction: GestureAction) {
-        viewModelScope.launch {
-            userDataRepository.updateSwipeUp(gestureAction = gestureAction)
-        }
-    }
-
-    fun updateSwipeDown(gestureAction: GestureAction) {
-        viewModelScope.launch {
-            userDataRepository.updateSwipeDown(gestureAction = gestureAction)
+            userDataRepository.updateGestureSettings(gestureSettings = gestureSettings)
         }
     }
 }

@@ -19,23 +19,19 @@ package com.eblan.launcher.data.datastore
 
 import androidx.datastore.core.DataStore
 import com.eblan.launcher.data.datastore.mapper.toAppDrawerSettings
-import com.eblan.launcher.data.datastore.mapper.toDarkThemeConfigProto
+import com.eblan.launcher.data.datastore.mapper.toAppDrawerSettingsProto
 import com.eblan.launcher.data.datastore.mapper.toGeneralSettings
-import com.eblan.launcher.data.datastore.mapper.toGestureActionProto
+import com.eblan.launcher.data.datastore.mapper.toGeneralSettingsProto
 import com.eblan.launcher.data.datastore.mapper.toGestureSettings
+import com.eblan.launcher.data.datastore.mapper.toGestureSettingsProto
 import com.eblan.launcher.data.datastore.mapper.toHomeSettings
-import com.eblan.launcher.data.datastore.mapper.toTextColorProto
-import com.eblan.launcher.data.datastore.mapper.toThemeBrandProto
+import com.eblan.launcher.data.datastore.mapper.toHomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
-import com.eblan.launcher.data.datastore.proto.appdrawer.copy
 import com.eblan.launcher.data.datastore.proto.copy
-import com.eblan.launcher.data.datastore.proto.general.copy
-import com.eblan.launcher.data.datastore.proto.gesture.copy
-import com.eblan.launcher.data.datastore.proto.home.copy
-import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.GestureAction
-import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.GeneralSettings
+import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.UserData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -55,322 +51,34 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
         )
     }
 
-    suspend fun updateRows(rows: Int) {
+    suspend fun updateGeneralSettings(generalSettings: GeneralSettings) {
         dataStore.updateData { userDataProto ->
             userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.rows = rows
-                }
+                generalSettingsProto = generalSettings.toGeneralSettingsProto()
             }
         }
     }
 
-    suspend fun updateColumns(columns: Int) {
+    suspend fun updateHomeSettings(homeSettings: HomeSettings) {
         dataStore.updateData { userDataProto ->
             userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.columns = columns
-                }
+                homeSettingsProto = homeSettings.toHomeSettingsProto()
             }
         }
     }
 
-    suspend fun updatePageCount(pageCount: Int) {
+    suspend fun updateAppDrawerSettings(appDrawerSettings: AppDrawerSettings) {
         dataStore.updateData { userDataProto ->
             userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.pageCount = pageCount
-                }
+                appDrawerSettingsProto = appDrawerSettings.toAppDrawerSettingsProto()
             }
         }
     }
 
-    suspend fun updateInfiniteScroll(infiniteScroll: Boolean) {
+    suspend fun updateGestureSettings(gestureSettings: GestureSettings) {
         dataStore.updateData { userDataProto ->
             userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.infiniteScroll = infiniteScroll
-                }
-            }
-        }
-    }
-
-    suspend fun updateDockRows(dockRows: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.dockRows = dockRows
-                }
-            }
-        }
-    }
-
-    suspend fun updateDockColumns(dockColumns: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.dockColumns = dockColumns
-                }
-            }
-        }
-    }
-
-    suspend fun updateDockHeight(dockHeight: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.dockHeight = dockHeight
-                }
-            }
-        }
-    }
-
-    suspend fun updateInitialPage(initialPage: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.initialPage = initialPage
-                }
-            }
-        }
-    }
-
-    suspend fun updateDoubleTap(gestureAction: GestureAction) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                gestureSettingsProto = userDataProto.gestureSettingsProto.copy {
-                    this.doubleTapProto = gestureAction.toGestureActionProto()
-                }
-            }
-        }
-    }
-
-    suspend fun updateSwipeUp(gestureAction: GestureAction) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                gestureSettingsProto = userDataProto.gestureSettingsProto.copy {
-                    this.swipeUpProto = gestureAction.toGestureActionProto()
-                }
-            }
-        }
-    }
-
-    suspend fun updateSwipeDown(gestureAction: GestureAction) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                gestureSettingsProto = userDataProto.gestureSettingsProto.copy {
-                    this.swipeDownProto = gestureAction.toGestureActionProto()
-                }
-            }
-        }
-    }
-
-    suspend fun updateTextColor(textColor: TextColor) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.textColorProto = textColor.toTextColorProto()
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateWallpaperScroll(wallpaperScroll: Boolean) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.wallpaperScroll = wallpaperScroll
-                }
-            }
-        }
-    }
-
-    suspend fun updateFolderRows(folderRows: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.folderRows = folderRows
-                }
-            }
-        }
-    }
-
-    suspend fun updateFolderColumns(folderColumns: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.folderColumns = folderColumns
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerColumns(appDrawerColumns: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.appDrawerColumns = appDrawerColumns
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerRowsHeight(appDrawerRowsHeight: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.appDrawerRowsHeight = appDrawerRowsHeight
-                }
-            }
-        }
-    }
-
-    suspend fun updateIconSize(iconSize: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.iconSize = iconSize
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateTextSize(textSize: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.textSize = textSize
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateShowLabel(showLabel: Boolean) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.showLabel = showLabel
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateSingleLineLabel(singleLineLabel: Boolean) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                homeSettingsProto = userDataProto.homeSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.singleLineLabel = singleLineLabel
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateThemeBrand(themeBrand: ThemeBrand) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                generalSettingsProto = userDataProto.generalSettingsProto.copy {
-                    this.themeBrandProto = themeBrand.toThemeBrandProto()
-                }
-            }
-        }
-    }
-
-    suspend fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                generalSettingsProto = userDataProto.generalSettingsProto.copy {
-                    this.darkThemeConfigProto = darkThemeConfig.toDarkThemeConfigProto()
-                }
-            }
-        }
-    }
-
-    suspend fun updateDynamicTheme(dynamicTheme: Boolean) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                generalSettingsProto = userDataProto.generalSettingsProto.copy {
-                    this.dynamicTheme = dynamicTheme
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerTextColor(textColor: TextColor) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.textColorProto = textColor.toTextColorProto()
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerIconSize(iconSize: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.iconSize = iconSize
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerTextSize(textSize: Int) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.textSize = textSize
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerShowLabel(showLabel: Boolean) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.showLabel = showLabel
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                appDrawerSettingsProto = userDataProto.appDrawerSettingsProto.copy {
-                    this.gridItemSettingsProto = this.gridItemSettingsProto.copy {
-                        this.singleLineLabel = singleLineLabel
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun updateIconPackInfoPackageName(iconPackInfoPackageName: String) {
-        dataStore.updateData { userDataProto ->
-            userDataProto.copy {
-                generalSettingsProto = userDataProto.generalSettingsProto.copy {
-                    this.iconPackInfoPackageName = iconPackInfoPackageName
-                }
+                gestureSettingsProto = gestureSettings.toGestureSettingsProto()
             }
         }
     }

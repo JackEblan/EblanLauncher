@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -37,6 +38,8 @@ class UpdatePageItemsUseCase @Inject constructor(
         pageItemsToDelete: List<PageItem>,
     ) {
         withContext(defaultDispatcher) {
+            val homeSettings = userDataRepository.userData.first().homeSettings
+
             pageItemsToDelete.forEach { pageItem ->
                 deleteGridItemsUseCase(gridItems = pageItem.gridItems)
             }
@@ -50,10 +53,10 @@ class UpdatePageItemsUseCase @Inject constructor(
             val newInitialPage = pageItems.indexOfFirst { pageItem -> pageItem.id == initialPage }
 
             if (newInitialPage != -1) {
-                userDataRepository.updateInitialPage(initialPage = newInitialPage)
+                userDataRepository.updateHomeSettings(homeSettings = homeSettings.copy(initialPage = newInitialPage))
             }
 
-            userDataRepository.updatePageCount(pageCount = pageItems.size)
+            userDataRepository.updateHomeSettings(homeSettings = homeSettings.copy(pageCount = pageItems.size))
 
             updateGridItemsUseCase(gridItems = gridItems)
         }

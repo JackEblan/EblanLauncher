@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "com/eblan/launcher/data/datastore/proto/home/text_color.proto";
-
 option java_package = "com.eblan.launcher.data.datastore.proto.home";
 option java_multiple_files = true;
 
@@ -11,4 +9,24 @@ message GridItemSettingsProto {
   int32 textSize = 3;
   bool showLabel = 4;
   bool singleLineLabel = 5;
+  HorizontalAlignmentProto horizontalAlignmentProto = 6;
+  VerticalArrangementProto verticalArrangementProto = 7;
+}
+
+enum TextColorProto {
+  TextColorSystem = 0;
+  TextColorLight = 1;
+  TextColorDark = 2;
+}
+
+enum HorizontalAlignmentProto {
+  Start = 0;
+  CenterHorizontally = 1;
+  End = 2;
+}
+
+enum VerticalArrangementProto {
+  Top = 0;
+  Center = 1;
+  Bottom = 2;
 }

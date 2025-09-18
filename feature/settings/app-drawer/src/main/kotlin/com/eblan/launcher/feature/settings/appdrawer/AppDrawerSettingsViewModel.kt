@@ -19,7 +19,7 @@ package com.eblan.launcher.feature.settings.appdrawer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.feature.settings.appdrawer.model.AppDrawerSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,44 +40,9 @@ class AppDrawerSettingsViewModel @Inject constructor(private val userDataReposit
         initialValue = AppDrawerSettingsUiState.Loading,
     )
 
-    fun updateAppDrawerGrid(
-        appDrawerColumns: Int,
-        appDrawerRowsHeight: Int,
-    ) {
+    fun updateAppDrawerSettings(appDrawerSettings: AppDrawerSettings) {
         viewModelScope.launch {
-            userDataRepository.updateAppDrawerColumns(appDrawerColumns = appDrawerColumns)
-
-            userDataRepository.updateAppDrawerRowsHeight(appDrawerRowsHeight = appDrawerRowsHeight)
-        }
-    }
-
-    fun updateAppDrawerTextColor(textColor: TextColor) {
-        viewModelScope.launch {
-            userDataRepository.updateAppDrawerTextColor(textColor = textColor)
-        }
-    }
-
-    fun updateAppDrawerIconSize(iconSize: Int) {
-        viewModelScope.launch {
-            userDataRepository.updateAppDrawerIconSize(iconSize = iconSize)
-        }
-    }
-
-    fun updateAppDrawerTextSize(textSize: Int) {
-        viewModelScope.launch {
-            userDataRepository.updateAppDrawerTextSize(textSize = textSize)
-        }
-    }
-
-    fun updateAppDrawerShowLabel(showLabel: Boolean) {
-        viewModelScope.launch {
-            userDataRepository.updateAppDrawerShowLabel(showLabel = showLabel)
-        }
-    }
-
-    fun updateAppDrawerSingleLineLabel(singleLineLabel: Boolean) {
-        viewModelScope.launch {
-            userDataRepository.updateAppDrawerSingleLineLabel(singleLineLabel = singleLineLabel)
+            userDataRepository.updateAppDrawerSettings(appDrawerSettings = appDrawerSettings)
         }
     }
 }

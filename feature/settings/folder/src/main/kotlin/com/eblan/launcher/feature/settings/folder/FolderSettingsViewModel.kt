@@ -19,6 +19,7 @@ package com.eblan.launcher.feature.settings.folder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.feature.settings.folder.model.FolderSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,11 +40,9 @@ class FolderSettingsViewModel @Inject constructor(private val userDataRepository
         initialValue = FolderSettingsUiState.Loading,
     )
 
-    fun updateFolderGrid(folderRows: Int, folderColumns: Int) {
+    fun updateHomeSettings(homeSettings: HomeSettings) {
         viewModelScope.launch {
-            userDataRepository.updateFolderRows(folderRows = folderRows)
-
-            userDataRepository.updateFolderColumns(folderColumns = folderColumns)
+            userDataRepository.updateHomeSettings(homeSettings = homeSettings)
         }
     }
 }

@@ -66,16 +66,7 @@ fun HomeSettingsRoute(
         modifier = modifier,
         homeSettingsUiState = homeSettingsUiState,
         onNavigateUp = onNavigateUp,
-        onUpdateGrid = viewModel::updateGrid,
-        onUpdateInfiniteScroll = viewModel::updateInfiniteScroll,
-        onUpdateWallpaperScroll = viewModel::updateWallpaperScroll,
-        onUpdateDockGrid = viewModel::updateDockGrid,
-        onUpdateDockHeight = viewModel::updateDockHeight,
-        onUpdateIconSize = viewModel::updateIconSize,
-        onUpdateTextColor = viewModel::updateTextColor,
-        onUpdateTextSize = viewModel::updateTextSize,
-        onUpdateShowLabel = viewModel::updateShowLabel,
-        onUpdateSingleLineLabel = viewModel::updateSingleLineLabel,
+        onUpdateHomeSettings = viewModel::updateHomeSettings,
     )
 }
 
@@ -85,22 +76,7 @@ fun HomeSettingsScreen(
     modifier: Modifier = Modifier,
     homeSettingsUiState: HomeSettingsUiState,
     onNavigateUp: () -> Unit,
-    onUpdateGrid: (
-        rows: Int,
-        columns: Int,
-    ) -> Unit,
-    onUpdateInfiniteScroll: (Boolean) -> Unit,
-    onUpdateWallpaperScroll: (Boolean) -> Unit,
-    onUpdateDockGrid: (
-        dockRows: Int,
-        dockColumns: Int,
-    ) -> Unit,
-    onUpdateDockHeight: (Int) -> Unit,
-    onUpdateIconSize: (Int) -> Unit,
-    onUpdateTextColor: (TextColor) -> Unit,
-    onUpdateTextSize: (Int) -> Unit,
-    onUpdateShowLabel: (Boolean) -> Unit,
-    onUpdateSingleLineLabel: (Boolean) -> Unit,
+    onUpdateHomeSettings: (HomeSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -132,16 +108,7 @@ fun HomeSettingsScreen(
                 is HomeSettingsUiState.Success -> {
                     Success(
                         homeSettings = homeSettingsUiState.homeSettings,
-                        onUpdateGrid = onUpdateGrid,
-                        onUpdateInfiniteScroll = onUpdateInfiniteScroll,
-                        onUpdateWallpaperScroll = onUpdateWallpaperScroll,
-                        onUpdateDockGrid = onUpdateDockGrid,
-                        onUpdateDockHeight = onUpdateDockHeight,
-                        onUpdateIconSize = onUpdateIconSize,
-                        onUpdateTextColor = onUpdateTextColor,
-                        onUpdateTextSize = onUpdateTextSize,
-                        onUpdateShowLabel = onUpdateShowLabel,
-                        onUpdateSingleLineLabel = onUpdateSingleLineLabel,
+                        onUpdateHomeSettings = onUpdateHomeSettings,
                     )
                 }
             }
@@ -153,22 +120,7 @@ fun HomeSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     homeSettings: HomeSettings,
-    onUpdateGrid: (
-        rows: Int,
-        columns: Int,
-    ) -> Unit,
-    onUpdateInfiniteScroll: (Boolean) -> Unit,
-    onUpdateWallpaperScroll: (Boolean) -> Unit,
-    onUpdateDockGrid: (
-        dockRows: Int,
-        dockColumns: Int,
-    ) -> Unit,
-    onUpdateDockHeight: (Int) -> Unit,
-    onUpdateIconSize: (Int) -> Unit,
-    onUpdateTextColor: (TextColor) -> Unit,
-    onUpdateTextSize: (Int) -> Unit,
-    onUpdateShowLabel: (Boolean) -> Unit,
-    onUpdateSingleLineLabel: (Boolean) -> Unit,
+    onUpdateHomeSettings: (HomeSettings) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -201,7 +153,9 @@ private fun Success(
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
             subtitle = "Seamless loop from last page back to first",
-            onCheckedChange = onUpdateInfiniteScroll,
+            onCheckedChange = { infiniteScroll ->
+                onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
+            },
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -210,7 +164,9 @@ private fun Success(
             checked = homeSettings.wallpaperScroll,
             title = "Wallpaper Scrolling",
             subtitle = "Scroll wallpaper across pages",
-            onCheckedChange = onUpdateWallpaperScroll,
+            onCheckedChange = { wallpaperScroll ->
+                onUpdateHomeSettings(homeSettings.copy(infiniteScroll = wallpaperScroll))
+            },
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -254,8 +210,17 @@ private fun Success(
             onTextSizeClick = {
                 showTextSizeDialog = true
             },
-            onUpdateShowLabel = onUpdateShowLabel,
-            onUpdateSingleLineLabel = onUpdateSingleLineLabel,
+            onUpdateShowLabel = { showLabel ->
+                val gridItemSettings = homeSettings.gridItemSettings.copy(showLabel = showLabel)
+
+                onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
+            },
+            onUpdateSingleLineLabel = { singleLineLabel ->
+                val gridItemSettings =
+                    homeSettings.gridItemSettings.copy(singleLineLabel = singleLineLabel)
+
+                onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
+            },
         )
     }
 
@@ -264,9 +229,9 @@ private fun Success(
 
         var columns by remember { mutableStateOf("${homeSettings.columns}") }
 
-        var firstTextFieldIsError by remember { mutableStateOf(false)}
+        var firstTextFieldIsError by remember { mutableStateOf(false) }
 
-        var secondTextFieldIsError by remember { mutableStateOf(false)}
+        var secondTextFieldIsError by remember { mutableStateOf(false) }
 
         TwoTextFieldsDialog(
             title = "Grid",
@@ -301,8 +266,13 @@ private fun Success(
                     0
                 }
 
-                if(rows > 0 && columns > 0){
-                    onUpdateGrid(rows, columns)
+                if (rows > 0 && columns > 0) {
+                    onUpdateHomeSettings(
+                        homeSettings.copy(
+                            rows = rows,
+                            columns = columns
+                        )
+                    )
 
                     showGridDialog = false
                 }
@@ -315,9 +285,9 @@ private fun Success(
 
         var dockColumns by remember { mutableStateOf("${homeSettings.dockColumns}") }
 
-        var firstTextFieldIsError by remember { mutableStateOf(false)}
+        var firstTextFieldIsError by remember { mutableStateOf(false) }
 
-        var secondTextFieldIsError by remember { mutableStateOf(false)}
+        var secondTextFieldIsError by remember { mutableStateOf(false) }
 
         TwoTextFieldsDialog(
             title = "Dock Grid",
@@ -352,8 +322,13 @@ private fun Success(
                     0
                 }
 
-                if(dockRows > 0 && dockColumns > 0){
-                    onUpdateDockGrid(dockRows, dockColumns)
+                if (dockRows > 0 && dockColumns > 0) {
+                    onUpdateHomeSettings(
+                        homeSettings.copy(
+                            dockRows = dockRows,
+                            dockColumns = dockColumns
+                        )
+                    )
 
                     showDockGridDialog = false
                 }
@@ -364,7 +339,7 @@ private fun Success(
     if (showDockHeightDialog) {
         var value by remember { mutableStateOf("${homeSettings.dockHeight}") }
 
-        var isError by remember { mutableStateOf(false)}
+        var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
             title = "Dock Height",
@@ -380,7 +355,11 @@ private fun Success(
             },
             onUpdateClick = {
                 try {
-                    onUpdateDockHeight(value.toInt())
+                    onUpdateHomeSettings(
+                        homeSettings.copy(
+                            dockHeight = value.toInt(),
+                        )
+                    )
 
                     showDockHeightDialog = false
                 } catch (_: NumberFormatException) {
@@ -393,7 +372,7 @@ private fun Success(
     if (showIconSizeDialog) {
         var value by remember { mutableStateOf("${homeSettings.gridItemSettings.iconSize}") }
 
-        var isError by remember { mutableStateOf(false)}
+        var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
             title = "Icon Size",
@@ -409,7 +388,10 @@ private fun Success(
             },
             onUpdateClick = {
                 try {
-                    onUpdateIconSize(value.toInt())
+                    val gridItemSettings =
+                        homeSettings.gridItemSettings.copy(iconSize = value.toInt())
+
+                    onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
 
                     showIconSizeDialog = false
                 } catch (_: NumberFormatException) {
@@ -430,8 +412,11 @@ private fun Success(
             onDismissRequest = {
                 showTextColorDialog = false
             },
-            onUpdateClick = {
-                onUpdateTextColor(it)
+            onUpdateClick = { textColor ->
+                val gridItemSettings =
+                    homeSettings.gridItemSettings.copy(textColor = textColor)
+
+                onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
 
                 showTextColorDialog = false
             },
@@ -441,7 +426,7 @@ private fun Success(
     if (showTextSizeDialog) {
         var value by remember { mutableStateOf("${homeSettings.gridItemSettings.textSize}") }
 
-        var isError by remember { mutableStateOf(false)}
+        var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
             title = "Text Size",
@@ -457,7 +442,11 @@ private fun Success(
             },
             onUpdateClick = {
                 try {
-                    onUpdateTextSize(value.toInt())
+                    val gridItemSettings =
+                        homeSettings.gridItemSettings.copy(textSize = value.toInt())
+
+                    onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
+
 
                     showTextSizeDialog = false
                 } catch (_: NumberFormatException) {

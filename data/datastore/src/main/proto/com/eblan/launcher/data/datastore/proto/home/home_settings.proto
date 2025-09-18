@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-import "com/eblan/launcher/data/datastore/proto/home/text_color.proto";
 import "com/eblan/launcher/data/datastore/proto/home/grid_item_settings.proto";
 
 option java_package = "com.eblan.launcher.data.datastore.proto.home";

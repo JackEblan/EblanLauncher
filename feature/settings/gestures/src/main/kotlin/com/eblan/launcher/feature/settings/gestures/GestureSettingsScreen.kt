@@ -63,9 +63,7 @@ fun GestureSettingsRoute(
         modifier = modifier,
         gesturesSettingsUiState = gesturesSettingsUiState,
         onNavigateUp = onNavigateUp,
-        onUpdateDoubleTapGestureAction = viewModel::updateDoubleTap,
-        onUpdateSwipeUpGestureAction = viewModel::updateSwipeUp,
-        onUpdateSwipeDownGestureAction = viewModel::updateSwipeDown,
+        onUpdateGestureSettings = viewModel::updateGestureSettings,
     )
 }
 
@@ -75,9 +73,7 @@ private fun GestureSettingsScreen(
     modifier: Modifier = Modifier,
     gesturesSettingsUiState: GesturesSettingsUiState,
     onNavigateUp: () -> Unit,
-    onUpdateDoubleTapGestureAction: (GestureAction) -> Unit,
-    onUpdateSwipeUpGestureAction: (GestureAction) -> Unit,
-    onUpdateSwipeDownGestureAction: (GestureAction) -> Unit,
+    onUpdateGestureSettings: (GestureSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -111,9 +107,7 @@ private fun GestureSettingsScreen(
                         modifier = modifier,
                         gestureSettings = gesturesSettingsUiState.gestureSettings,
                         eblanApplicationInfos = gesturesSettingsUiState.eblanApplicationInfos,
-                        onUpdateDoubleTapGestureAction = onUpdateDoubleTapGestureAction,
-                        onUpdateSwipeUpGestureAction = onUpdateSwipeUpGestureAction,
-                        onUpdateSwipeDownGestureAction = onUpdateSwipeDownGestureAction,
+                        onUpdateGestureSettings = onUpdateGestureSettings,
                     )
                 }
             }
@@ -126,9 +120,7 @@ private fun Success(
     modifier: Modifier = Modifier,
     gestureSettings: GestureSettings,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onUpdateDoubleTapGestureAction: (GestureAction) -> Unit,
-    onUpdateSwipeUpGestureAction: (GestureAction) -> Unit,
-    onUpdateSwipeDownGestureAction: (GestureAction) -> Unit,
+    onUpdateGestureSettings: (GestureSettings) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -183,7 +175,9 @@ private fun Success(
             title = "Double Tap",
             gestureAction = gestureSettings.doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = onUpdateDoubleTapGestureAction,
+            onUpdateGestureAction = { doubleTap ->
+                onUpdateGestureSettings(gestureSettings.copy(doubleTap = doubleTap))
+            },
             onDismiss = {
                 showDoubleTapBottomSheet = false
             },
@@ -195,7 +189,9 @@ private fun Success(
             title = "Swipe Up",
             gestureAction = gestureSettings.swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = onUpdateSwipeUpGestureAction,
+            onUpdateGestureAction = { swipeUp ->
+                onUpdateGestureSettings(gestureSettings.copy(swipeUp = swipeUp))
+            },
             onDismiss = {
                 showSwipeUpBottomSheet = false
             },
@@ -207,7 +203,9 @@ private fun Success(
             title = "Swipe Down",
             gestureAction = gestureSettings.swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = onUpdateSwipeDownGestureAction,
+            onUpdateGestureAction = { swipeDown ->
+                onUpdateGestureSettings(gestureSettings.copy(swipeDown = swipeDown))
+            },
             onDismiss = {
                 showSwipeDownBottomSheet = false
             },

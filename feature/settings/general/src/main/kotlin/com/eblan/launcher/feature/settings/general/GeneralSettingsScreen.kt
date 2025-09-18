@@ -82,11 +82,8 @@ fun GeneralSettingsRoute(
         generalSettingsUiState = generalSettingsUiState,
         packageManagerIconPackInfos = packageManagerEblanIconPackInfos,
         eblanIconPackInfos = eblanIconPackInfos,
-        onUpdateThemeBrand = viewModel::updateThemeBrand,
-        onUpdateDarkThemeConfig = viewModel::updateDarkThemeConfig,
-        onUpdateDynamicTheme = viewModel::updateDynamicTheme,
-        onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
         onDeleteEblanIconPackInfo = viewModel::deleteIconPackInfo,
+        onUpdateGeneralSettings = viewModel::updateGeneralSettings,
         onNavigateUp = onNavigateUp,
     )
 }
@@ -98,11 +95,8 @@ fun GeneralSettingsScreen(
     generalSettingsUiState: GeneralSettingsUiState,
     packageManagerIconPackInfos: List<EblanIconPackInfo>,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    onUpdateThemeBrand: (ThemeBrand) -> Unit,
-    onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
-    onUpdateDynamicTheme: (Boolean) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
     onDeleteEblanIconPackInfo: (String) -> Unit,
+    onUpdateGeneralSettings: (GeneralSettings) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -143,16 +137,13 @@ fun GeneralSettingsScreen(
                         generalSettings = generalSettingsUiState.generalSettings,
                         packageManagerEblanIconPackInfos = packageManagerIconPackInfos,
                         eblanIconPackInfos = eblanIconPackInfos,
-                        onUpdateThemeBrand = onUpdateThemeBrand,
-                        onUpdateDarkThemeConfig = onUpdateDarkThemeConfig,
-                        onUpdateDynamicTheme = onUpdateDynamicTheme,
-                        onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
                         onShowSnackbar = {
                             scope.launch {
                                 snackbarHostState.showSnackbar(message = it)
                             }
-                        }
+                        },
+                        onUpdateGeneralSettings = onUpdateGeneralSettings,
                     )
                 }
             }
@@ -167,12 +158,9 @@ private fun Success(
     generalSettings: GeneralSettings,
     packageManagerEblanIconPackInfos: List<EblanIconPackInfo>,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    onUpdateThemeBrand: (ThemeBrand) -> Unit,
-    onUpdateDarkThemeConfig: (DarkThemeConfig) -> Unit,
-    onUpdateDynamicTheme: (Boolean) -> Unit,
-    onUpdateIconPackInfoPackageName: (String) -> Unit,
     onDeleteEblanIconPackInfo: (String) -> Unit,
     onShowSnackbar: (String) -> Unit,
+    onUpdateGeneralSettings: (GeneralSettings) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -236,7 +224,9 @@ private fun Success(
             title = "Dynamic Theme",
             subtitle = "Dynamic theme",
             enabled = supportsDynamicTheming(),
-            onCheckedChange = onUpdateDynamicTheme,
+            onCheckedChange = { dynamicTheme ->
+                onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
+            },
         )
     }
 
@@ -251,8 +241,8 @@ private fun Success(
             onDismissRequest = {
                 showThemeBrandDialog = false
             },
-            onUpdateClick = {
-                onUpdateThemeBrand(it)
+            onUpdateClick = { themeBrand ->
+                onUpdateGeneralSettings(generalSettings.copy(themeBrand = themeBrand))
 
                 showThemeBrandDialog = false
             },
@@ -270,8 +260,8 @@ private fun Success(
             onDismissRequest = {
                 showDarkThemeConfigDialog = false
             },
-            onUpdateClick = {
-                onUpdateDarkThemeConfig(it)
+            onUpdateClick = { darkThemeConfig ->
+                onUpdateGeneralSettings(generalSettings.copy(darkThemeConfig = darkThemeConfig))
 
                 showDarkThemeConfigDialog = false
             },
@@ -314,8 +304,8 @@ private fun Success(
             onDismissRequest = {
                 selectIconPackDialog = false
             },
-            onUpdateIconPackInfoPackageName = { eblanIconPackInfo ->
-                onUpdateIconPackInfoPackageName(eblanIconPackInfo)
+            onUpdateIconPackInfoPackageName = { iconPackInfoPackageName ->
+                onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = iconPackInfoPackageName))
 
                 selectIconPackDialog = false
             },
@@ -325,7 +315,7 @@ private fun Success(
                 selectIconPackDialog = false
             },
             onReset = {
-                onUpdateIconPackInfoPackageName("")
+                onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
 
                 selectIconPackDialog = false
             }

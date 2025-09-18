@@ -62,12 +62,7 @@ fun AppDrawerSettingsRoute(
         modifier = modifier,
         appDrawerSettingsUiState = appDrawerSettingsUiState,
         onNavigateUp = onNavigateUp,
-        onUpdateAppDrawerGrid = viewModel::updateAppDrawerGrid,
-        onUpdateAppDrawerIconSize = viewModel::updateAppDrawerIconSize,
-        onUpdateAppDrawerTextColor = viewModel::updateAppDrawerTextColor,
-        onUpdateAppDrawerTextSize = viewModel::updateAppDrawerTextSize,
-        onUpdateAppDrawerShowLabel = viewModel::updateAppDrawerShowLabel,
-        onUpdateAppDrawerSingleLineLabel = viewModel::updateAppDrawerSingleLineLabel,
+        onUpdateAppDrawerSettings = viewModel::updateAppDrawerSettings,
     )
 }
 
@@ -77,15 +72,7 @@ fun AppDrawerSettingsScreen(
     modifier: Modifier = Modifier,
     appDrawerSettingsUiState: AppDrawerSettingsUiState,
     onNavigateUp: () -> Unit,
-    onUpdateAppDrawerGrid: (
-        columns: Int,
-        rowsHeight: Int,
-    ) -> Unit,
-    onUpdateAppDrawerIconSize: (Int) -> Unit,
-    onUpdateAppDrawerTextColor: (TextColor) -> Unit,
-    onUpdateAppDrawerTextSize: (Int) -> Unit,
-    onUpdateAppDrawerShowLabel: (Boolean) -> Unit,
-    onUpdateAppDrawerSingleLineLabel: (Boolean) -> Unit,
+    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -117,12 +104,7 @@ fun AppDrawerSettingsScreen(
                 is AppDrawerSettingsUiState.Success -> {
                     Success(
                         appDrawerSettings = appDrawerSettingsUiState.appDrawerSettings,
-                        onUpdateAppDrawerGrid = onUpdateAppDrawerGrid,
-                        onUpdateAppDrawerIconSize = onUpdateAppDrawerIconSize,
-                        onUpdateAppDrawerTextColor = onUpdateAppDrawerTextColor,
-                        onUpdateAppDrawerTextSize = onUpdateAppDrawerTextSize,
-                        onUpdateAppDrawerShowLabel = onUpdateAppDrawerShowLabel,
-                        onUpdateAppDrawerSingleLineLabel = onUpdateAppDrawerSingleLineLabel,
+                        onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
                     )
                 }
             }
@@ -134,15 +116,7 @@ fun AppDrawerSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     appDrawerSettings: AppDrawerSettings,
-    onUpdateAppDrawerGrid: (
-        columns: Int,
-        rowsHeight: Int,
-    ) -> Unit,
-    onUpdateAppDrawerIconSize: (Int) -> Unit,
-    onUpdateAppDrawerTextColor: (TextColor) -> Unit,
-    onUpdateAppDrawerTextSize: (Int) -> Unit,
-    onUpdateAppDrawerShowLabel: (Boolean) -> Unit,
-    onUpdateAppDrawerSingleLineLabel: (Boolean) -> Unit,
+    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -174,8 +148,18 @@ private fun Success(
             onTextSizeClick = {
                 showTextSizeDialog = true
             },
-            onUpdateShowLabel = onUpdateAppDrawerShowLabel,
-            onUpdateSingleLineLabel = onUpdateAppDrawerSingleLineLabel,
+            onUpdateShowLabel = { showLabel ->
+                val gridItemSettings =
+                    appDrawerSettings.gridItemSettings.copy(showLabel = showLabel)
+
+                onUpdateAppDrawerSettings(appDrawerSettings.copy(gridItemSettings = gridItemSettings))
+            },
+            onUpdateSingleLineLabel = { singleLineLabel ->
+                val gridItemSettings =
+                    appDrawerSettings.gridItemSettings.copy(singleLineLabel = singleLineLabel)
+
+                onUpdateAppDrawerSettings(appDrawerSettings.copy(gridItemSettings = gridItemSettings))
+            },
         )
     }
 
@@ -184,9 +168,9 @@ private fun Success(
 
         var appDrawerRowsHeight by remember { mutableStateOf("${appDrawerSettings.appDrawerRowsHeight}") }
 
-        var firstTextFieldIsError by remember { mutableStateOf(false)}
+        var firstTextFieldIsError by remember { mutableStateOf(false) }
 
-        var secondTextFieldIsError by remember { mutableStateOf(false)}
+        var secondTextFieldIsError by remember { mutableStateOf(false) }
 
         TwoTextFieldsDialog(
             title = "App Drawer Grid",
@@ -221,8 +205,13 @@ private fun Success(
                     0
                 }
 
-                if(appDrawerColumns > 0 && appDrawerRowsHeight > 0){
-                    onUpdateAppDrawerGrid(appDrawerColumns, appDrawerRowsHeight)
+                if (appDrawerColumns > 0 && appDrawerRowsHeight > 0) {
+                    onUpdateAppDrawerSettings(
+                        appDrawerSettings.copy(
+                            appDrawerColumns = appDrawerColumns,
+                            appDrawerRowsHeight = appDrawerRowsHeight
+                        )
+                    )
 
                     showGridDialog = false
                 }
@@ -233,7 +222,7 @@ private fun Success(
     if (showIconSizeDialog) {
         var value by remember { mutableStateOf("${appDrawerSettings.gridItemSettings.iconSize}") }
 
-        var isError by remember { mutableStateOf(false)}
+        var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
             title = "Icon Size",
@@ -249,7 +238,10 @@ private fun Success(
             },
             onUpdateClick = {
                 try {
-                    onUpdateAppDrawerIconSize(value.toInt())
+                    val gridItemSettings =
+                        appDrawerSettings.gridItemSettings.copy(iconSize = value.toInt())
+
+                    onUpdateAppDrawerSettings(appDrawerSettings.copy(gridItemSettings = gridItemSettings))
 
                     showIconSizeDialog = false
                 } catch (_: NumberFormatException) {
@@ -271,7 +263,10 @@ private fun Success(
                 showTextColorDialog = false
             },
             onUpdateClick = {
-                onUpdateAppDrawerTextColor(it)
+                val gridItemSettings =
+                    appDrawerSettings.gridItemSettings.copy(textColor = it)
+
+                onUpdateAppDrawerSettings(appDrawerSettings.copy(gridItemSettings = gridItemSettings))
 
                 showTextColorDialog = false
             },
@@ -281,7 +276,7 @@ private fun Success(
     if (showTextSizeDialog) {
         var value by remember { mutableStateOf("${appDrawerSettings.gridItemSettings.textSize}") }
 
-        var isError by remember { mutableStateOf(false)}
+        var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
             title = "Text Size",
@@ -297,7 +292,10 @@ private fun Success(
             },
             onUpdateClick = {
                 try {
-                    onUpdateAppDrawerTextSize(value.toInt())
+                    val gridItemSettings =
+                        appDrawerSettings.gridItemSettings.copy(textSize = value.toInt())
+
+                    onUpdateAppDrawerSettings(appDrawerSettings.copy(gridItemSettings = gridItemSettings))
 
                     showTextSizeDialog = false
                 } catch (_: NumberFormatException) {

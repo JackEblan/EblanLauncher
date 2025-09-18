@@ -55,7 +55,7 @@ fun FolderSettingsRoute(
         modifier = modifier,
         folderSettingsUiState = folderSettingsUiState,
         onNavigateUp = onNavigateUp,
-        onUpdateFolderGrid = viewModel::updateFolderGrid,
+        onUpdateHomeSettings = viewModel::updateHomeSettings,
     )
 }
 
@@ -65,10 +65,7 @@ fun FolderSettingsScreen(
     modifier: Modifier = Modifier,
     folderSettingsUiState: FolderSettingsUiState,
     onNavigateUp: () -> Unit,
-    onUpdateFolderGrid: (
-        rows: Int,
-        columns: Int,
-    ) -> Unit,
+    onUpdateHomeSettings: (HomeSettings) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -100,7 +97,7 @@ fun FolderSettingsScreen(
                 is FolderSettingsUiState.Success -> {
                     Success(
                         homeSettings = folderSettingsUiState.homeSettings,
-                        onUpdateFolderGrid = onUpdateFolderGrid,
+                        onUpdateHomeSettings = onUpdateHomeSettings,
                     )
                 }
             }
@@ -112,10 +109,7 @@ fun FolderSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     homeSettings: HomeSettings,
-    onUpdateFolderGrid: (
-        rows: Int,
-        columns: Int,
-    ) -> Unit,
+    onUpdateHomeSettings: (HomeSettings) -> Unit,
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
@@ -172,7 +166,12 @@ private fun Success(
                 }
 
                 if (folderRows > 0 && folderColumns > 0) {
-                    onUpdateFolderGrid(folderRows, folderColumns)
+                    onUpdateHomeSettings(
+                        homeSettings.copy(
+                            folderRows = folderRows,
+                            folderColumns = folderColumns
+                        )
+                    )
 
                     showGridDialog = false
                 }

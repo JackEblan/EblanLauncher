@@ -28,7 +28,9 @@ import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.GridItemSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
+import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
+import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.ThemeBrand
@@ -54,6 +56,8 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         textSize = 30
         showLabel = true
         singleLineLabel = true
+        horizontalAlignmentProto = HorizontalAlignmentProto.CenterHorizontally
+        verticalArrangementProto = VerticalArrangementProto.Top
     }.build()
 
     private val defaultHomeSettingsProto = HomeSettingsProto.newBuilder().apply {

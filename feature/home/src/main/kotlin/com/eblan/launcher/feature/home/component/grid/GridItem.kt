@@ -40,7 +40,9 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
@@ -146,9 +148,22 @@ private fun ApplicationInfoGridItem(
         data.icon
     }
 
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         AsyncImage(
             model = icon,
@@ -223,9 +238,22 @@ private fun ShortcutInfoGridItem(
 
     val icon = data.icon ?: data.eblanApplicationInfo.icon
 
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         AsyncImage(
             model = icon,
@@ -253,7 +281,7 @@ private fun FolderGridItem(
     textColor: Color,
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
-    ) {
+) {
     val context = LocalContext.current
 
     val density = LocalDensity.current
@@ -268,9 +296,22 @@ private fun FolderGridItem(
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
@@ -289,17 +330,20 @@ private fun FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+                            val iconPacksDirectory =
+                                File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
-                            val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+                            val iconPackDirectory =
+                                File(iconPacksDirectory, iconPackInfoPackageName)
 
                             val iconFile = File(iconPackDirectory, currentData.packageName)
 
-                            val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-                                iconFile.absolutePath
-                            } else {
-                                currentData.icon
-                            }
+                            val icon =
+                                if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
+                                    iconFile.absolutePath
+                                } else {
+                                    currentData.icon
+                                }
 
                             AsyncImage(
                                 model = icon,

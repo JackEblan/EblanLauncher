@@ -45,9 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.settings.home.model.HomeSettingsUiState
-import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
@@ -128,12 +126,6 @@ private fun Success(
 
     var showDockHeightDialog by remember { mutableStateOf(false) }
 
-    var showIconSizeDialog by remember { mutableStateOf(false) }
-
-    var showTextColorDialog by remember { mutableStateOf(false) }
-
-    var showTextSizeDialog by remember { mutableStateOf(false) }
-
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -201,24 +193,7 @@ private fun Success(
 
         GridItemSettings(
             gridItemSettings = homeSettings.gridItemSettings,
-            onIconSizeClick = {
-                showIconSizeDialog = true
-            },
-            onTextColorClick = {
-                showTextColorDialog = true
-            },
-            onTextSizeClick = {
-                showTextSizeDialog = true
-            },
-            onUpdateShowLabel = { showLabel ->
-                val gridItemSettings = homeSettings.gridItemSettings.copy(showLabel = showLabel)
-
-                onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
-            },
-            onUpdateSingleLineLabel = { singleLineLabel ->
-                val gridItemSettings =
-                    homeSettings.gridItemSettings.copy(singleLineLabel = singleLineLabel)
-
+            onUpdateGridItemSettings = { gridItemSettings ->
                 onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
             },
         )
@@ -362,93 +337,6 @@ private fun Success(
                     )
 
                     showDockHeightDialog = false
-                } catch (_: NumberFormatException) {
-                    isError = true
-                }
-            },
-        )
-    }
-
-    if (showIconSizeDialog) {
-        var value by remember { mutableStateOf("${homeSettings.gridItemSettings.iconSize}") }
-
-        var isError by remember { mutableStateOf(false) }
-
-        SingleTextFieldDialog(
-            title = "Icon Size",
-            textFieldTitle = "Icon Size",
-            value = value,
-            isError = isError,
-            keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
-            onDismissRequest = {
-                showIconSizeDialog = false
-            },
-            onUpdateClick = {
-                try {
-                    val gridItemSettings =
-                        homeSettings.gridItemSettings.copy(iconSize = value.toInt())
-
-                    onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
-
-                    showIconSizeDialog = false
-                } catch (_: NumberFormatException) {
-                    isError = true
-                }
-            },
-        )
-    }
-
-    if (showTextColorDialog) {
-        RadioOptionsDialog(
-            title = "Text Color",
-            options = TextColor.entries,
-            selected = homeSettings.gridItemSettings.textColor,
-            label = {
-                it.name
-            },
-            onDismissRequest = {
-                showTextColorDialog = false
-            },
-            onUpdateClick = { textColor ->
-                val gridItemSettings =
-                    homeSettings.gridItemSettings.copy(textColor = textColor)
-
-                onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
-
-                showTextColorDialog = false
-            },
-        )
-    }
-
-    if (showTextSizeDialog) {
-        var value by remember { mutableStateOf("${homeSettings.gridItemSettings.textSize}") }
-
-        var isError by remember { mutableStateOf(false) }
-
-        SingleTextFieldDialog(
-            title = "Text Size",
-            textFieldTitle = "Text Size",
-            value = value,
-            isError = isError,
-            keyboardType = KeyboardType.Number,
-            onValueChange = {
-                value = it
-            },
-            onDismissRequest = {
-                showTextSizeDialog = false
-            },
-            onUpdateClick = {
-                try {
-                    val gridItemSettings =
-                        homeSettings.gridItemSettings.copy(textSize = value.toInt())
-
-                    onUpdateHomeSettings(homeSettings.copy(gridItemSettings = gridItemSettings))
-
-
-                    showTextSizeDialog = false
                 } catch (_: NumberFormatException) {
                     isError = true
                 }

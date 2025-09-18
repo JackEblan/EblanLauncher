@@ -51,7 +51,9 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -208,6 +210,18 @@ private fun ApplicationInfoGridItem(
         data.icon
     }
 
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
             when (drag) {
@@ -265,7 +279,8 @@ private fun ApplicationInfoGridItem(
                 )
             }
             .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         AsyncImage(
             model = icon,
@@ -401,6 +416,18 @@ private fun ShortcutInfoGridItem(
 
     var isLongPressed by remember { mutableStateOf(false) }
 
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
             when (drag) {
@@ -458,7 +485,8 @@ private fun ShortcutInfoGridItem(
                 )
             }
             .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         AsyncImage(
             model = data.icon,
@@ -515,6 +543,18 @@ private fun FolderGridItem(
 
     var isLongPressed by remember { mutableStateOf(false) }
 
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
             when (drag) {
@@ -572,7 +612,8 @@ private fun FolderGridItem(
                 )
             }
             .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         if (data.gridItems.isNotEmpty()) {
             FlowRow(

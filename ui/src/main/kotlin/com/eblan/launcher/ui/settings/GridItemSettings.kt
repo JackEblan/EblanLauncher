@@ -112,6 +112,29 @@ fun GridItemSettings(
                 onUpdateGridItemSettings(gridItemSettings.copy(singleLineLabel = singleLineLabel))
             },
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsColumn(
+            title = "Horizontal Alignment",
+            subtitle = gridItemSettings.horizontalAlignment.name.replace(
+                regex = Regex(pattern = "([a-z])([A-Z])"),
+                replacement = "$1 $2"
+            ),
+            onClick = {
+                showHorizontalAlignment = true
+            },
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsColumn(
+            title = "Vertical Arrangement",
+            subtitle = gridItemSettings.verticalArrangement.name,
+            onClick = {
+                showVerticalArrangement = true
+            },
+        )
     }
 
     if (showIconSizeDialog) {
@@ -197,7 +220,10 @@ fun GridItemSettings(
             options = HorizontalAlignment.entries,
             selected = gridItemSettings.horizontalAlignment,
             label = {
-                it.name
+                it.name.replace(
+                    regex = Regex(pattern = "([a-z])([A-Z])"),
+                    replacement = "$1 $2"
+                )
             },
             onDismissRequest = {
                 showHorizontalAlignment = false

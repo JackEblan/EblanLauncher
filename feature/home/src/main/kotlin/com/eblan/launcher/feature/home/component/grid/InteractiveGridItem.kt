@@ -285,8 +285,7 @@ private fun ApplicationInfoGridItem(
         AsyncImage(
             model = icon,
             contentDescription = null,
-            modifier = Modifier
-                .size(iconSizeDp),
+            modifier = Modifier.size(iconSizeDp),
         )
 
         if (gridItemSettings.showLabel) {

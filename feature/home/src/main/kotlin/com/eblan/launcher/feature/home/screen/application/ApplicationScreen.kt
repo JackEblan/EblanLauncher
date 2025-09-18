@@ -21,6 +21,7 @@ import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -79,6 +80,8 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.HorizontalAlignment
+import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
@@ -467,6 +470,18 @@ private fun EblanApplicationInfoItem(
         eblanApplicationInfo.icon
     }
 
+    val horizontalAlignment = when (appDrawerSettings.gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (appDrawerSettings.gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
             when (drag) {
@@ -567,7 +582,8 @@ private fun EblanApplicationInfoItem(
                 intSize = layoutCoordinates.size
             }
             .height(appDrawerRowsHeightDp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
     ) {
         Spacer(modifier = Modifier.height(5.dp))
 

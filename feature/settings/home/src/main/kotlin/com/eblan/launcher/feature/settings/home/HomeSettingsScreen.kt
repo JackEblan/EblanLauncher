@@ -165,7 +165,7 @@ private fun Success(
             title = "Wallpaper Scrolling",
             subtitle = "Scroll wallpaper across pages",
             onCheckedChange = { wallpaperScroll ->
-                onUpdateHomeSettings(homeSettings.copy(infiniteScroll = wallpaperScroll))
+                onUpdateHomeSettings(homeSettings.copy(wallpaperScroll = wallpaperScroll))
             },
         )
 

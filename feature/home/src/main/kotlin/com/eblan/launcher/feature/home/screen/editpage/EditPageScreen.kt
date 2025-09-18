@@ -134,8 +134,6 @@ fun EditPageScreen(
                 start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             itemsIndexed(
                 currentPageItems,
@@ -143,7 +141,7 @@ fun EditPageScreen(
             ) { index, pageItem ->
                 DraggableItem(state = gridDragAndDropState, index = index) {
                     OutlinedCard(
-                        modifier = Modifier.padding(10.dp),
+                        modifier = Modifier.padding(5.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = getSystemTextColor(textColor = textColor).copy(
                                 alpha = 0.25f,

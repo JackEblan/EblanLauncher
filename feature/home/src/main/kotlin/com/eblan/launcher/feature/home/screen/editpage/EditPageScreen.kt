@@ -184,7 +184,7 @@ fun EditPageScreen(
                                 pageItemsToDelete.add(pageItem)
                             },
                             onHomeClick = {
-                                currentInitialPage = pageItem.id
+                                currentInitialPage = index
                             },
                         )
                     }

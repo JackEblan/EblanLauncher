@@ -50,13 +50,12 @@ class UpdatePageItemsUseCase @Inject constructor(
                 }
             }.flatten()
 
-            val newInitialPage = pageItems.indexOfFirst { pageItem -> pageItem.id == initialPage }
-
-            if (newInitialPage != -1) {
-                userDataRepository.updateHomeSettings(homeSettings = homeSettings.copy(initialPage = newInitialPage))
-            }
-
-            userDataRepository.updateHomeSettings(homeSettings = homeSettings.copy(pageCount = pageItems.size))
+            userDataRepository.updateHomeSettings(
+                homeSettings = homeSettings.copy(
+                    pageCount = pageItems.size,
+                    initialPage = initialPage,
+                )
+            )
 
             updateGridItemsUseCase(gridItems = gridItems)
         }

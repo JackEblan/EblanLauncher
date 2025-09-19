@@ -185,6 +185,8 @@ fun ApplicationScreen(
     onAnimateDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
     val page = calculatePage(
@@ -261,7 +263,15 @@ fun ApplicationScreen(
                                     drag = drag,
                                     appDrawerSettings = appDrawerSettings,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                    onLongPress = { intOffset, intSize ->
+                                        onUpdateGridItemOffset(intOffset)
+
+                                        popupMenuIntOffset = intOffset
+
+                                        popupMenuIntSize = intSize
+
+                                        focusManager.clearFocus()
+                                    },
                                     onLongPressGridItem = onLongPressGridItem,
                                     onDraggingGridItem = {
                                         onDraggingGridItem()
@@ -293,13 +303,7 @@ fun ApplicationScreen(
 
                                                 popupMenuIntSize = intSize
                                             },
-                                            onLongPressGridItem = { currentPage, gridItemSource, imageBitmap ->
-                                                onLongPressGridItem(
-                                                    currentPage,
-                                                    gridItemSource,
-                                                    imageBitmap,
-                                                )
-                                            },
+                                            onLongPressGridItem = onLongPressGridItem,
                                             onDraggingGridItem = {
                                                 onDraggingGridItem()
 
@@ -342,7 +346,10 @@ private fun EblanApplicationInfoDockSearchBar(
     onQueryChange: (String) -> Unit,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     iconPackInfoPackageName: String,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onLongPress: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         currentPage: Int,
         gridItemSource: GridItemSource,
@@ -351,8 +358,6 @@ private fun EblanApplicationInfoDockSearchBar(
     onDraggingGridItem: () -> Unit,
     onUpdatePopupMenu: () -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
     var query by remember { mutableStateOf("") }
 
     var expanded by remember { mutableStateOf(false) }
@@ -391,11 +396,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
-                    onLongPress = { intOffset, _ ->
-                        focusManager.clearFocus()
-
-                        onUpdateGridItemOffset(intOffset)
-                    },
+                    onLongPress = onLongPress,
                     onLongPressGridItem = onLongPressGridItem,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,

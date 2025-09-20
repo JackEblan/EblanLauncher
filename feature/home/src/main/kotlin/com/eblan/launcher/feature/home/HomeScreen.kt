@@ -204,7 +204,7 @@ fun HomeScreen(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
-        initialPage: Int,
+        id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
@@ -446,7 +446,7 @@ private fun Success(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
-        initialPage: Int,
+        id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,

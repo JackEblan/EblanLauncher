@@ -81,7 +81,6 @@ room = { id = "androidx.room", version.ref = "room" }
 
 # Plugins defined by this project
 com-eblan-launcher-application = { id = "com.eblan.launcher.application" }
-com-eblan-launcher-applicationCompose = { id = "com.eblan.launcher.applicationCompose" }
 com-eblan-launcher-jvmLibrary = { id = "com.eblan.launcher.jvmLibrary" }
 com-eblan-launcher-library = { id = "com.eblan.launcher.library" }
 com-eblan-launcher-libraryCompose = { id = "com.eblan.launcher.libraryCompose" }

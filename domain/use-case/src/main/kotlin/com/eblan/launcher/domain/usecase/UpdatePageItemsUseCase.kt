@@ -33,7 +33,7 @@ class UpdatePageItemsUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
-        initialPage: Int,
+        id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) {
@@ -50,10 +50,12 @@ class UpdatePageItemsUseCase @Inject constructor(
                 }
             }.flatten()
 
+            val newInitialPage = pageItems.indexOfFirst { it.id == id }
+
             userDataRepository.updateHomeSettings(
                 homeSettings = homeSettings.copy(
                     pageCount = pageItems.size,
-                    initialPage = initialPage,
+                    initialPage = newInitialPage,
                 )
             )
 

@@ -85,7 +85,7 @@ fun EditPageScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     onSaveEditPage: (
-        initialPage: Int,
+        id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) -> Unit,
@@ -109,7 +109,7 @@ fun EditPageScreen(
 
     val pageItemsToDelete = remember { mutableStateListOf<PageItem>() }
 
-    var currentInitialPage by remember { mutableIntStateOf(homeSettings.initialPage) }
+    var selectedId by remember { mutableIntStateOf(homeSettings.initialPage) }
 
     val gridState = rememberLazyGridState()
 
@@ -140,7 +140,7 @@ fun EditPageScreen(
             ),
         ) {
             itemsIndexed(
-                currentPageItems,
+                items = currentPageItems,
                 key = { _, pageItem -> pageItem.id },
             ) { index, pageItem ->
                 DraggableItem(state = gridDragAndDropState, index = index) {
@@ -172,7 +172,7 @@ fun EditPageScreen(
 
                         PageButtons(
                             pageItem = pageItem,
-                            currentInitialPage = currentInitialPage,
+                            selectedId = selectedId,
                             onDeleteClick = {
                                 currentPageItems = currentPageItems.toMutableList()
                                     .apply {
@@ -184,7 +184,7 @@ fun EditPageScreen(
                                 pageItemsToDelete.add(pageItem)
                             },
                             onHomeClick = {
-                                currentInitialPage = index
+                                selectedId = pageItem.id
                             },
                         )
                     }
@@ -209,7 +209,7 @@ fun EditPageScreen(
             },
             onSaveClick = {
                 onSaveEditPage(
-                    currentInitialPage,
+                    selectedId,
                     currentPageItems,
                     pageItemsToDelete,
                 )
@@ -221,7 +221,7 @@ fun EditPageScreen(
 @Composable
 private fun PageButtons(
     pageItem: PageItem,
-    currentInitialPage: Int,
+    selectedId: Int,
     onDeleteClick: () -> Unit,
     onHomeClick: () -> Unit,
 ) {
@@ -240,7 +240,7 @@ private fun PageButtons(
         ) {
             IconButton(
                 onClick = onDeleteClick,
-                enabled = pageItem.id != currentInitialPage,
+                enabled = pageItem.id != selectedId,
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -250,7 +250,7 @@ private fun PageButtons(
 
             IconButton(
                 onClick = onHomeClick,
-                enabled = pageItem.id != currentInitialPage,
+                enabled = pageItem.id != selectedId,
             ) {
                 Icon(
                     imageVector = Icons.Default.Home,

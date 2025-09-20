@@ -62,11 +62,6 @@ gradlePlugin {
             implementationClass = "AndroidApplicationConventionPlugin"
         }
 
-        register("androidApplicationCompose") {
-            id = "com.eblan.launcher.applicationCompose"
-            implementationClass = "AndroidApplicationComposeConventionPlugin"
-        }
-
         register("androidLibrary") {
             id = "com.eblan.launcher.library"
             implementationClass = "AndroidLibraryConventionPlugin"

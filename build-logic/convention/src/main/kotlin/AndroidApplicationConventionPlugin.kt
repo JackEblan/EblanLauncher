@@ -17,6 +17,7 @@
  */
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.eblan.launcher.configureAndroidCompose
 import com.eblan.launcher.configureKotlinAndroid
 import com.eblan.launcher.libs
 import org.gradle.api.Plugin
@@ -28,11 +29,15 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply(libs.plugins.android.application.get().pluginId)
+                apply(libs.plugins.compose.get().pluginId)
                 apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
             extensions.configure<ApplicationExtension> {
                 configureKotlinAndroid(this)
+
+                configureAndroidCompose(this)
+
                 defaultConfig.targetSdk = 34
                 testOptions.animationsDisabled = true
             }

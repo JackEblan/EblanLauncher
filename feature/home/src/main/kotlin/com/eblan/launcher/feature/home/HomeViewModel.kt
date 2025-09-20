@@ -285,7 +285,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun saveEditPage(
-        initialPage: Int,
+        id: Int,
         pageItems: List<PageItem>,
         pageItemsToDelete: List<PageItem>,
     ) {
@@ -295,7 +295,7 @@ class HomeViewModel @Inject constructor(
             }
 
             updatePageItemsUseCase(
-                initialPage = initialPage,
+                id = id,
                 pageItems = pageItems,
                 pageItemsToDelete = pageItemsToDelete,
             )

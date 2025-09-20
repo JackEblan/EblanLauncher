@@ -17,7 +17,6 @@
  */
 plugins {
     alias(libs.plugins.com.eblan.launcher.application)
-    alias(libs.plugins.com.eblan.launcher.applicationCompose)
     alias(libs.plugins.com.eblan.launcher.hilt)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -30,8 +29,8 @@ android {
         applicationId = "com.eblan.launcher"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.1.0-alpha2"
+        versionCode = 3
+        versionName = "0.1.0-alpha3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

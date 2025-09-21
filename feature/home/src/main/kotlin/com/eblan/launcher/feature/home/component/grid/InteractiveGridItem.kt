@@ -18,13 +18,16 @@
 package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +47,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -622,6 +626,10 @@ private fun FolderGridItem(
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
                 modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(5.dp)
+                    )
                     .size(iconSizeDp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.SpaceEvenly,

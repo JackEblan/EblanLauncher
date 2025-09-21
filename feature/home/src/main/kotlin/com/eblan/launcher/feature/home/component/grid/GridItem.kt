@@ -18,7 +18,9 @@
 package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
@@ -61,6 +64,7 @@ fun GridItemContent(
     textColor: TextColor,
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
+    isDragging: Boolean,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -78,41 +82,53 @@ fun GridItemContent(
             getSystemTextColor(textColor = textColor)
         }
 
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                ApplicationInfoGridItem(
-                    modifier = modifier,
-                    data = data,
-                    textColor = currentTextColor,
-                    gridItemSettings = currentGridItemSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                )
-            }
+        if (isDragging) {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .border(
+                        width = Dp.Hairline,
+                        color = currentTextColor,
+                        shape = RoundedCornerShape(5.dp)
+                    )
+            )
+        } else {
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    ApplicationInfoGridItem(
+                        modifier = modifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                    )
+                }
 
-            is GridItemData.Widget -> {
-                WidgetGridItem(
-                    modifier = modifier,
-                    data = data,
-                )
-            }
+                is GridItemData.Widget -> {
+                    WidgetGridItem(
+                        modifier = modifier,
+                        data = data,
+                    )
+                }
 
-            is GridItemData.ShortcutInfo -> {
-                ShortcutInfoGridItem(
-                    modifier = modifier,
-                    data = data,
-                    textColor = currentTextColor,
-                    gridItemSettings = currentGridItemSettings,
-                )
-            }
+                is GridItemData.ShortcutInfo -> {
+                    ShortcutInfoGridItem(
+                        modifier = modifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                    )
+                }
 
-            is GridItemData.Folder -> {
-                FolderGridItem(
-                    modifier = modifier,
-                    data = data,
-                    textColor = currentTextColor,
-                    gridItemSettings = currentGridItemSettings,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                )
+                is GridItemData.Folder -> {
+                    FolderGridItem(
+                        modifier = modifier,
+                        data = data,
+                        textColor = currentTextColor,
+                        gridItemSettings = currentGridItemSettings,
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                    )
+                }
             }
         }
     }

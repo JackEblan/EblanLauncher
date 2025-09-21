@@ -118,6 +118,7 @@ fun ResizeScreen(
                 textColor = textColor,
                 gridItemSettings = homeSettings.gridItemSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
+                isDragging = false,
             )
         }
 
@@ -134,6 +135,7 @@ fun ResizeScreen(
                 textColor = textColor,
                 gridItemSettings = homeSettings.gridItemSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
+                isDragging = false,
             )
         }
     }

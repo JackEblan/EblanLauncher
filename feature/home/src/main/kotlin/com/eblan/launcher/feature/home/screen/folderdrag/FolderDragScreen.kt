@@ -207,6 +207,7 @@ fun FolderDragScreen(
                         textSize = homeSettings.gridItemSettings.textSize / 2,
                     ),
                     iconPackInfoPackageName = iconPackInfoPackageName,
+                    isDragging = gridItem.id == gridItemSource.gridItem.id,
                 )
             }
         }

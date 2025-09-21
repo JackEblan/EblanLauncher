@@ -344,6 +344,7 @@ fun DragScreen(
                         textSize = homeSettings.gridItemSettings.textSize / 2,
                     ),
                     iconPackInfoPackageName = iconPackInfoPackageName,
+                    isDragging = gridItem.id == gridItemSource.gridItem.id,
                 )
             }
         }
@@ -373,6 +374,7 @@ fun DragScreen(
                 textColor = textColor,
                 gridItemSettings = homeSettings.gridItemSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
+                isDragging = gridItem.id == gridItemSource.gridItem.id,
             )
         }
     }

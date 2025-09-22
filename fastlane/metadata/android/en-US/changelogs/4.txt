@@ -1,0 +1,2 @@
+What's new
+- Initial release to F-Droid

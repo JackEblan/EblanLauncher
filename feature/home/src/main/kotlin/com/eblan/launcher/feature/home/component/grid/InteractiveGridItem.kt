@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -138,13 +139,12 @@ fun InteractiveGridItemContent(
                 textColor = currentTextColor,
                 data = data,
                 drag = drag,
+                hasShortcutHostPermission = hasShortcutHostPermission,
                 onTap = {
-                    if (hasShortcutHostPermission) {
-                        onTapShortcutInfo(
-                            data.packageName,
-                            data.shortcutId,
-                        )
-                    }
+                    onTapShortcutInfo(
+                        data.packageName,
+                        data.shortcutId,
+                    )
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -399,6 +399,7 @@ private fun ShortcutInfoGridItem(
     gridItemSettings: GridItemSettings,
     data: GridItemData.ShortcutInfo,
     drag: Drag,
+    hasShortcutHostPermission: Boolean,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -435,6 +436,8 @@ private fun ShortcutInfoGridItem(
         VerticalArrangement.Center -> Arrangement.Center
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
+
+    val colorFilter = if (hasShortcutHostPermission) null else ColorFilter.tint(color = Color.Gray)
 
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
@@ -482,12 +485,14 @@ private fun ShortcutInfoGridItem(
                         }
                     },
                     onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
+                        if (hasShortcutHostPermission) {
+                            scope.launch {
+                                scale.animateTo(0.5f)
 
-                            scale.animateTo(1f)
+                                scale.animateTo(1f)
 
-                            onTap()
+                                onTap()
+                            }
                         }
                     },
                 )
@@ -501,6 +506,7 @@ private fun ShortcutInfoGridItem(
             contentDescription = null,
             modifier = Modifier
                 .size(iconSizeDp),
+            colorFilter = colorFilter,
         )
 
         if (gridItemSettings.showLabel) {

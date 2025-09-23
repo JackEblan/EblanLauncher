@@ -80,6 +80,7 @@ fun DragScreen(
     moveGridItemResult: MoveGridItemResult?,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -345,6 +346,7 @@ fun DragScreen(
                     ),
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = gridItem.id == gridItemSource.gridItem.id,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             }
         }
@@ -375,6 +377,7 @@ fun DragScreen(
                 gridItemSettings = homeSettings.gridItemSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 isDragging = gridItem.id == gridItemSource.gridItem.id,
+                hasShortcutHostPermission = hasShortcutHostPermission,
             )
         }
     }

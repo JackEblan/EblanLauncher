@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.home.screen.folder
 
+import android.graphics.Rect
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -195,6 +196,10 @@ fun FolderScreen(
 
                         val y = gridItem.startRow * cellHeight
 
+                        val width = gridItem.columnSpan * cellWidth
+
+                        val height = gridItem.rowSpan * cellHeight
+
                         InteractiveGridItemContent(
                             gridItem = gridItem,
                             hasShortcutHostPermission = hasShortcutHostPermission,
@@ -202,8 +207,27 @@ fun FolderScreen(
                             gridItemSettings = homeSettings.gridItemSettings,
                             textColor = textColor,
                             iconPackInfoPackageName = iconPackInfoPackageName,
-                            onTapApplicationInfo = launcherApps::startMainActivity,
-                            onTapShortcutInfo = launcherApps::startShortcut,
+                            onTapApplicationInfo = { componentName ->
+                                launcherApps.startMainActivity(
+                                    componentName = componentName,
+                                    sourceBounds = Rect(
+                                        x,
+                                        y,
+                                        x + width,
+                                        y + height
+                                    )
+                                )
+                            },
+                            onTapShortcutInfo = { packageName, shortcutId ->
+                                launcherApps.startShortcut(
+                                    packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                                        x,
+                                        y,
+                                        x + width,
+                                        y + height
+                                    )
+                                )
+                            },
                             onTapFolderGridItem = {
                                 onResetTargetPage()
 

@@ -69,6 +69,7 @@ fun FolderDragScreen(
     folderDataById: FolderDataById?,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -208,6 +209,7 @@ fun FolderDragScreen(
                     ),
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = gridItem.id == gridItemSource.gridItem.id,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             }
         }

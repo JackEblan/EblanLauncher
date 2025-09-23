@@ -136,12 +136,12 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override fun startMainActivity(componentName: String?) {
+    override fun startMainActivity(componentName: String?, sourceBounds: Rect) {
         if (componentName != null) {
             launcherApps.startMainActivity(
                 ComponentName.unflattenFromString(componentName),
                 userHandle,
-                Rect(),
+                sourceBounds,
                 Bundle.EMPTY,
             )
         }
@@ -152,8 +152,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                 setQueryFlags(
                     LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                 )
             }
 
@@ -171,8 +171,18 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
-    override fun startShortcut(packageName: String, id: String) {
-        launcherApps.startShortcut(packageName, id, null, null, userHandle)
+    override fun startShortcut(
+        packageName: String,
+        id: String,
+        sourceBounds: Rect
+    ) {
+        launcherApps.startShortcut(
+            packageName,
+            id,
+            sourceBounds,
+            null,
+            userHandle
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
@@ -180,12 +190,15 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         return launcherApps.getShortcutIconDrawable(shortcutInfo, density)
     }
 
-    override fun startAppDetailsActivity(componentName: String?) {
+    override fun startAppDetailsActivity(
+        componentName: String?,
+        sourceBounds: Rect
+    ) {
         if (componentName != null) {
             launcherApps.startAppDetailsActivity(
                 ComponentName.unflattenFromString(componentName),
                 userHandle,
-                Rect(),
+                sourceBounds,
                 Bundle.EMPTY,
             )
         }
@@ -205,7 +218,9 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun toLauncherAppsShortcutInfo(shortcutInfo: ShortcutInfo): LauncherAppsShortcutInfo {
-        val icon = getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
+        val icon = withContext(defaultDispatcher) {
+            getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
+        }
 
         return LauncherAppsShortcutInfo(
             shortcutId = shortcutInfo.id,

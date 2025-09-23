@@ -18,6 +18,7 @@
 package com.eblan.launcher.feature.home.screen.application
 
 import android.content.Intent
+import android.graphics.Rect
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -523,7 +524,15 @@ private fun EblanApplicationInfoItem(
 
                             scale.animateTo(1f)
 
-                            launcherApps.startMainActivity(eblanApplicationInfo.componentName)
+                            launcherApps.startMainActivity(
+                                componentName = eblanApplicationInfo.componentName,
+                                sourceBounds = Rect(
+                                    intOffset.x,
+                                    intOffset.y,
+                                    intOffset.x + intSize.width,
+                                    intOffset.y + intSize.height
+                                )
+                            )
                         }
                     },
                     onLongPress = {
@@ -654,7 +663,15 @@ private fun PopupApplicationInfoMenu(
             ApplicationInfoMenu(
                 modifier = modifier,
                 onApplicationInfo = {
-                    launcherApps.startAppDetailsActivity(componentName = applicationInfo.componentName)
+                    launcherApps.startAppDetailsActivity(
+                        componentName = applicationInfo.componentName,
+                        sourceBounds = Rect(
+                            x,
+                            y,
+                            x + popupMenuIntSize.width,
+                            y + popupMenuIntSize.height
+                        )
+                    )
 
                     onDismissRequest()
                 },

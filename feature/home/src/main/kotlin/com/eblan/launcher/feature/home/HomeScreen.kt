@@ -580,6 +580,7 @@ private fun Success(
                     moveGridItemResult = movedGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
                         targetPage = newTargetPage
@@ -612,6 +613,7 @@ private fun Success(
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -685,6 +687,7 @@ private fun Success(
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
                         folderTargetPage = newTargetPage

@@ -54,6 +54,7 @@ fun ResizeScreen(
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
     onResizeGridItem: (
         gridItem: GridItem,
         rows: Int,
@@ -119,6 +120,7 @@ fun ResizeScreen(
                 gridItemSettings = homeSettings.gridItemSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 isDragging = false,
+                hasShortcutHostPermission = hasShortcutHostPermission,
             )
         }
 
@@ -136,6 +138,7 @@ fun ResizeScreen(
                 gridItemSettings = homeSettings.gridItemSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 isDragging = false,
+                hasShortcutHostPermission = hasShortcutHostPermission,
             )
         }
     }

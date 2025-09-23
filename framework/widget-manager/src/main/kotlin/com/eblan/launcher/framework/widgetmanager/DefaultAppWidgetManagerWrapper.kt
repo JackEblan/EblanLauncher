@@ -25,12 +25,19 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import com.eblan.launcher.common.util.toByteArray
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class DefaultAppWidgetManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
+internal class DefaultAppWidgetManagerWrapper @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
@@ -57,8 +64,10 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(@ApplicationCo
         appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
     }
 
-    private fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
-        val preview = loadPreviewImage(context, 0)?.toByteArray()
+    private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
+        val preview = withContext(defaultDispatcher) {
+            loadPreviewImage(context, 0)?.toByteArray()
+        }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AppWidgetManagerAppWidgetProviderInfo(

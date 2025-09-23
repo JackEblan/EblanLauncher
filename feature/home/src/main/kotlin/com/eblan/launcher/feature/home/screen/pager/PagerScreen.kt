@@ -19,6 +19,7 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
+import android.graphics.Rect
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -215,7 +216,12 @@ fun PagerScreen(
                             swipeUpY = swipeUpY.value,
                             swipeDownY = swipeDownY.value,
                             screenHeight = screenHeight,
-                            onStartMainActivity = launcherApps::startMainActivity,
+                            onStartMainActivity = { componentName ->
+                                launcherApps.startMainActivity(
+                                    componentName = componentName,
+                                    sourceBounds = Rect()
+                                )
+                            },
                             onPerformGlobalAction = { globalAction ->
                                 val intent = Intent(GlobalAction.NAME)
                                     .putExtra(
@@ -323,7 +329,10 @@ fun PagerScreen(
 
             is GestureAction.OpenApp -> {
                 SideEffect {
-                    launcherApps.startMainActivity(gestureAction.componentName)
+                    launcherApps.startMainActivity(
+                        componentName = gestureAction.componentName,
+                        sourceBounds = Rect()
+                    )
 
                     showDoubleTap = false
                 }
@@ -618,8 +627,27 @@ private fun HorizontalPagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
                     iconPackInfoPackageName = iconPackInfoPackageName,
-                    onTapApplicationInfo = launcherApps::startMainActivity,
-                    onTapShortcutInfo = launcherApps::startShortcut,
+                    onTapApplicationInfo = { componentName ->
+                        launcherApps.startMainActivity(
+                            componentName = componentName,
+                            sourceBounds = Rect(
+                                x,
+                                y,
+                                x + width,
+                                y + height
+                            )
+                        )
+                    },
+                    onTapShortcutInfo = { packageName, shortcutId ->
+                        launcherApps.startShortcut(
+                            packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                                x,
+                                y,
+                                x + width,
+                                y + height
+                            )
+                        )
+                    },
                     onTapFolderGridItem = {
                         onTapFolderGridItem(currentPage, gridItem.id)
                     },
@@ -685,8 +713,27 @@ private fun HorizontalPagerScreen(
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 drag = drag,
                 iconPackInfoPackageName = iconPackInfoPackageName,
-                onTapApplicationInfo = launcherApps::startMainActivity,
-                onTapShortcutInfo = launcherApps::startShortcut,
+                onTapApplicationInfo = { componentName ->
+                    launcherApps.startMainActivity(
+                        componentName = componentName,
+                        sourceBounds = Rect(
+                            x,
+                            y,
+                            x + width,
+                            y + height
+                        )
+                    )
+                },
+                onTapShortcutInfo = { packageName, shortcutId ->
+                    launcherApps.startShortcut(
+                        packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                            x,
+                            y,
+                            x + width,
+                            y + height
+                        )
+                    )
+                },
                 onTapFolderGridItem = {
                     onTapFolderGridItem(currentPage, gridItem.id)
                 },
@@ -734,8 +781,15 @@ private fun HorizontalPagerScreen(
                 context.startActivity(intent)
             },
             onDeleteGridItem = onDeleteGridItem,
-            onInfo = {
-                launcherApps.startAppDetailsActivity(it)
+            onInfo = { componentName ->
+                launcherApps.startAppDetailsActivity(
+                    componentName = componentName,
+                    sourceBounds = Rect(
+                        popupMenuIntOffset.x, popupMenuIntOffset.y,
+                        popupMenuIntOffset.x + popupGridItemMenuIntSize.width,
+                        popupMenuIntOffset.y + popupGridItemMenuIntSize.height,
+                    )
+                )
             },
             onDismissRequest = {
                 showPopupGridItemMenu = false

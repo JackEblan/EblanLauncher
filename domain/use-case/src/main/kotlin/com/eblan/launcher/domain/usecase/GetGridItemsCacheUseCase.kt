@@ -42,16 +42,16 @@ class GetGridItemsCacheUseCase @Inject constructor(
                     val gridItemsWithinBounds = gridItems.filter { gridItem ->
                         isGridItemSpanWithinBounds(
                             gridItem = gridItem,
-                            rows = userData.homeSettings.rows,
                             columns = userData.homeSettings.columns,
+                            rows = userData.homeSettings.rows,
                         ) && gridItem.associate == Associate.Grid
                     }.groupBy { gridItem -> gridItem.page }
 
                     val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
                         isGridItemSpanWithinBounds(
                             gridItem = gridItem,
-                            rows = userData.homeSettings.dockRows,
                             columns = userData.homeSettings.dockColumns,
+                            rows = userData.homeSettings.dockRows,
                         ) && gridItem.associate == Associate.Dock
                     }
 
@@ -65,8 +65,8 @@ class GetGridItemsCacheUseCase @Inject constructor(
                     val gridItemsWithinBounds = gridItems.filter { gridItem ->
                         isGridItemSpanWithinBounds(
                             gridItem = gridItem,
-                            rows = userData.homeSettings.folderRows,
                             columns = userData.homeSettings.folderColumns,
+                            rows = userData.homeSettings.folderRows,
                         ) && gridItem.associate == Associate.Grid
                     }.groupBy { gridItem -> gridItem.page }
 

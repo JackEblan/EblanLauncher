@@ -57,8 +57,8 @@ fun ResizeScreen(
     hasShortcutHostPermission: Boolean,
     onResizeGridItem: (
         gridItem: GridItem,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
     onResizeCancel: () -> Unit,
@@ -111,36 +111,38 @@ fun ResizeScreen(
                 .fillMaxWidth()
                 .weight(1f),
             gridItems = gridItemsCacheByPage,
-            rows = homeSettings.rows,
             columns = homeSettings.columns,
-        ) { gridItem ->
-            GridItemContent(
-                gridItem = gridItem,
-                textColor = textColor,
-                gridItemSettings = homeSettings.gridItemSettings,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                isDragging = false,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-            )
-        }
+            rows = homeSettings.rows,
+            { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    textColor = textColor,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    isDragging = false,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                )
+            },
+        )
 
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeightDp),
             gridItems = dockGridItemsCache,
-            rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
-        ) { gridItem ->
-            GridItemContent(
-                gridItem = gridItem,
-                textColor = textColor,
-                gridItemSettings = homeSettings.gridItemSettings,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                isDragging = false,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-            )
-        }
+            rows = homeSettings.dockRows,
+            { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    textColor = textColor,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    isDragging = false,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                )
+            },
+        )
     }
 
     when (gridItem.associate) {
@@ -167,17 +169,15 @@ fun ResizeScreen(
                 gridHeight = gridHeight - homeSettings.dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
-                rows = homeSettings.rows,
                 columns = homeSettings.columns,
+                rows = homeSettings.rows,
                 x = gridX,
                 y = gridY,
                 width = width,
                 height = height,
                 textColor = textColor,
                 onResizeGridItem = onResizeGridItem,
-                onResizeEnd = {
-                    onResizeEnd(gridItem)
-                },
+                onResizeEnd = onResizeEnd,
             )
         }
 
@@ -204,8 +204,8 @@ fun ResizeScreen(
                 gridHeight = homeSettings.dockHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
-                rows = homeSettings.dockRows,
                 columns = homeSettings.dockColumns,
+                rows = homeSettings.dockRows,
                 x = dockX,
                 y = dockY,
                 width = width,
@@ -225,8 +225,8 @@ private fun ResizeOverlay(
     gridHeight: Int,
     cellWidth: Int,
     cellHeight: Int,
-    rows: Int,
     columns: Int,
+    rows: Int,
     x: Int,
     y: Int,
     width: Int,
@@ -234,8 +234,8 @@ private fun ResizeOverlay(
     textColor: TextColor,
     onResizeGridItem: (
         gridItem: GridItem,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
@@ -259,8 +259,8 @@ private fun ResizeOverlay(
                 gridHeight = gridHeight,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
-                rows = rows,
                 columns = columns,
+                rows = rows,
                 x = x,
                 y = y,
                 width = width,

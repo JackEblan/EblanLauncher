@@ -42,8 +42,8 @@ class CachePageItemsUseCase @Inject constructor(
             val gridItemsByPage = gridItems.filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = userData.homeSettings.rows,
                     columns = userData.homeSettings.columns,
+                    rows = userData.homeSettings.rows,
                 ) && gridItem.associate == Associate.Grid
             }.groupBy { gridItem -> gridItem.page }
 

@@ -49,9 +49,9 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val rows = homeSettings.rows
-
             val columns = homeSettings.columns
+
+            val rows = homeSettings.rows
 
             val pageCount = homeSettings.pageCount
 
@@ -81,10 +81,10 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                     id = shortcutId,
                     folderId = null,
                     page = initialPage,
-                    startRow = 0,
                     startColumn = 0,
-                    rowSpan = 1,
+                    startRow = 0,
                     columnSpan = 1,
+                    rowSpan = 1,
                     data = data,
                     associate = Associate.Grid,
                     override = false,
@@ -95,8 +95,8 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                     gridItems = gridItems,
                     gridItem = gridItem,
                     pageCount = pageCount,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 )
 
                 if (newGridItem != null) {

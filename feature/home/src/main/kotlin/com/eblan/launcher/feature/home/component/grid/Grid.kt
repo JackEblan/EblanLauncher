@@ -33,8 +33,8 @@ import com.eblan.launcher.domain.model.GridItem
 fun GridLayout(
     modifier: Modifier = Modifier,
     gridItems: List<GridItem>?,
-    rows: Int,
     columns: Int,
+    rows: Int,
     content: @Composable BoxScope.(GridItem) -> Unit,
 ) {
     SubcomposeLayout(modifier = modifier) { constraints ->

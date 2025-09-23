@@ -37,15 +37,15 @@ class ResizeGridItemUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         resizingGridItem: GridItem,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ) {
         withContext(defaultDispatcher) {
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 ) && when (resizingGridItem.associate) {
                     Associate.Grid -> {
                         gridItem.page == resizingGridItem.page &&
@@ -82,8 +82,8 @@ class ResizeGridItemUseCase @Inject constructor(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     movingGridItem = resizingGridItem,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 )
             }
 

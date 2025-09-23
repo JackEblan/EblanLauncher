@@ -50,8 +50,8 @@ suspend fun handleFolderDragIntOffset(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
@@ -124,15 +124,15 @@ suspend fun handleFolderDragIntOffset(
 
         val newGridItem = gridItem.copy(
             page = targetPage,
-            startRow = gridY / cellHeight,
             startColumn = gridX / cellWidth,
+            startRow = gridY / cellHeight,
             associate = Associate.Grid,
         )
 
         val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
             gridItem = newGridItem,
-            rows = rows,
             columns = columns,
+            rows = rows,
         )
 
         if (isGridItemSpanWithinBounds) {
@@ -140,8 +140,8 @@ suspend fun handleFolderDragIntOffset(
                 newGridItem,
                 gridX,
                 gridY,
-                rows,
                 columns,
+                rows,
                 gridWidthWithPadding,
                 gridHeightWithPadding,
             )

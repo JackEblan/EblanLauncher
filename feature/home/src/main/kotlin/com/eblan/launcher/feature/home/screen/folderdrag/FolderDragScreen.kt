@@ -74,8 +74,8 @@ fun FolderDragScreen(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
@@ -197,21 +197,22 @@ fun FolderDragScreen(
                         shape = RoundedCornerShape(8.dp),
                     ),
                 gridItems = gridItemsCacheByPage[index],
-                rows = homeSettings.folderRows,
                 columns = homeSettings.folderColumns,
-            ) { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings.copy(
-                        iconSize = homeSettings.gridItemSettings.iconSize / 2,
-                        textSize = homeSettings.gridItemSettings.textSize / 2,
-                    ),
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                    isDragging = gridItem.id == gridItemSource.gridItem.id,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                )
-            }
+                rows = homeSettings.folderRows,
+                { gridItem ->
+                    GridItemContent(
+                        gridItem = gridItem,
+                        textColor = textColor,
+                        gridItemSettings = homeSettings.gridItemSettings.copy(
+                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
+                            textSize = homeSettings.gridItemSettings.textSize / 2,
+                        ),
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                        isDragging = gridItem.id == gridItemSource.gridItem.id,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                    )
+                },
+            )
         }
 
         PageIndicator(

@@ -159,16 +159,17 @@ fun EditPageScreen(
                         GridLayout(
                             modifier = Modifier.height(cardHeight),
                             gridItems = pageItem.gridItems,
-                            rows = homeSettings.rows,
                             columns = homeSettings.columns,
-                        ) { gridItem ->
-                            GridItemContent(
-                                modifier = Modifier.padding(2.dp),
-                                gridItem = gridItem,
-                                textColor = textColor,
-                                iconPackInfoPackageName = iconPackInfoPackageName,
-                            )
-                        }
+                            rows = homeSettings.rows,
+                            { gridItem ->
+                                GridItemContent(
+                                    modifier = Modifier.padding(2.dp),
+                                    gridItem = gridItem,
+                                    textColor = textColor,
+                                    iconPackInfoPackageName = iconPackInfoPackageName,
+                                )
+                            },
+                        )
 
                         PageButtons(
                             pageItem = pageItem,

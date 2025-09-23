@@ -35,18 +35,25 @@ fun resizeGridItemWithPixels(
 
     val cellHeight = gridHeight / rows
 
-    val (newWidth, newHeight) = pixelDimensionsToGridSpan(
+    val (newColumnSpan, newRowSpan) = pixelDimensionsToGridSpan(
         width = width,
         height = height,
         gridCellWidth = cellWidth,
         gridCellHeight = cellHeight,
     )
 
-    return resizeGridItemByAnchor(
+    val (newStartColumn, newStartRow) = resizeGridItemByAnchor(
         gridItem = gridItem,
-        newWidth = newWidth,
-        newHeight = newHeight,
+        columnSpan = newColumnSpan,
+        rowSpan = newRowSpan,
         anchor = anchor,
+    )
+
+    return gridItem.copy(
+        startRow = newStartRow,
+        startColumn = newStartColumn,
+        rowSpan = newRowSpan,
+        columnSpan = newColumnSpan,
     )
 }
 
@@ -64,18 +71,25 @@ fun resizeWidgetGridItemWithPixels(
 
     val cellHeight = gridHeight / rows
 
-    val (newWidth, newHeight) = pixelDimensionsToGridSpan(
+    val (newColumnSpan, newRowSpan) = pixelDimensionsToGridSpan(
         width = width,
         height = height,
         gridCellWidth = cellWidth,
         gridCellHeight = cellHeight,
     )
 
-    return resizeGridItemBySideAnchor(
+    val (newStartColumn, newStartRow) = resizeGridItemBySideAnchor(
         gridItem = gridItem,
-        newWidth = newWidth,
-        newHeight = newHeight,
+        columnSpan = newColumnSpan,
+        rowSpan = newRowSpan,
         anchor = anchor,
+    )
+
+    return gridItem.copy(
+        startRow = newStartRow,
+        startColumn = newStartColumn,
+        rowSpan = newRowSpan,
+        columnSpan = newColumnSpan,
     )
 }
 
@@ -85,89 +99,87 @@ private fun pixelDimensionsToGridSpan(
     gridCellWidth: Int,
     gridCellHeight: Int,
 ): Pair<Int, Int> {
-    val spanWidth = ((width + gridCellWidth - 1) / gridCellWidth).coerceAtLeast(1)
+    val columnSpan = ((width + gridCellWidth - 1) / gridCellWidth).coerceAtLeast(1)
 
-    val spanHeight = ((height + gridCellHeight - 1) / gridCellHeight).coerceAtLeast(1)
+    val rowSpan = ((height + gridCellHeight - 1) / gridCellHeight).coerceAtLeast(1)
 
-    return spanWidth to spanHeight
+    return columnSpan to rowSpan
 }
 
 private fun resizeGridItemByAnchor(
     gridItem: GridItem,
-    newWidth: Int,
-    newHeight: Int,
+    columnSpan: Int,
+    rowSpan: Int,
     anchor: Anchor,
-): GridItem {
-    val newStartRow: Int
-
+): Pair<Int, Int> {
     val newStartColumn: Int
+
+    val newStartRow: Int
 
     when (anchor) {
         Anchor.TopStart -> {
-            newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn
+
+            newStartRow = gridItem.startRow
         }
 
         Anchor.TopEnd -> {
+            newStartColumn = gridItem.startColumn + gridItem.columnSpan - columnSpan
+
             newStartRow = gridItem.startRow
-            newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }
 
         Anchor.BottomStart -> {
-            newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn
+
+            newStartRow = gridItem.startRow + gridItem.rowSpan - rowSpan
         }
 
         Anchor.BottomEnd -> {
-            newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
-            newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
+            newStartColumn = gridItem.startColumn + gridItem.columnSpan - columnSpan
+
+            newStartRow = gridItem.startRow + gridItem.rowSpan - rowSpan
         }
     }
 
-    return gridItem.copy(
-        startRow = newStartRow,
-        startColumn = newStartColumn,
-        rowSpan = newHeight,
-        columnSpan = newWidth,
-    )
+    return newStartColumn to newStartRow
 }
 
 private fun resizeGridItemBySideAnchor(
     gridItem: GridItem,
-    newWidth: Int,
-    newHeight: Int,
+    columnSpan: Int,
+    rowSpan: Int,
     anchor: SideAnchor,
-): GridItem {
-    val newStartRow: Int
-
+): Pair<Int, Int> {
     val newStartColumn: Int
+
+    val newStartRow: Int
 
     when (anchor) {
         SideAnchor.Top -> {
-            newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn
+
+            newStartRow = gridItem.startRow
         }
 
         SideAnchor.Bottom -> {
-            newStartRow = gridItem.startRow + gridItem.rowSpan - newHeight
             newStartColumn = gridItem.startColumn
+
+            newStartRow = gridItem.startRow + gridItem.rowSpan - rowSpan
         }
 
         SideAnchor.Left -> {
-            newStartRow = gridItem.startRow
             newStartColumn = gridItem.startColumn
+
+            newStartRow = gridItem.startRow
         }
 
         SideAnchor.Right -> {
+            newStartColumn = gridItem.startColumn + gridItem.columnSpan - columnSpan
+
             newStartRow = gridItem.startRow
-            newStartColumn = gridItem.startColumn + gridItem.columnSpan - newWidth
         }
     }
 
-    return gridItem.copy(
-        startRow = newStartRow,
-        startColumn = newStartColumn,
-        rowSpan = newHeight,
-        columnSpan = newWidth,
-    )
+    return newStartColumn to newStartRow
 }

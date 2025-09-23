@@ -110,7 +110,7 @@ fun HintRow(
         modifier = modifier
             .fillMaxWidth()
             .padding(10.dp),
-        onClick = onClick
+        onClick = onClick,
     ) {
         Row(
             modifier = modifier

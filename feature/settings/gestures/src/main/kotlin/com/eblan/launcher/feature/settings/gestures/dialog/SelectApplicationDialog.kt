@@ -50,7 +50,8 @@ fun SelectApplicationDialog(
         Column(modifier = modifier.fillMaxWidth()) {
             Text(
                 modifier = Modifier.padding(10.dp),
-                text = "Select Application", style = MaterialTheme.typography.titleLarge
+                text = "Select Application",
+                style = MaterialTheme.typography.titleLarge,
             )
 
             LazyColumn(modifier = Modifier.weight(1f)) {

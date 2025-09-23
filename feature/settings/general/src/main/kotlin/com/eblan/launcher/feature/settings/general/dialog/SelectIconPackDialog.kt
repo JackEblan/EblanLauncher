@@ -58,11 +58,11 @@ fun SelectIconPackDialog(
                 Column(
                     modifier = modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
+                        .padding(10.dp),
                 ) {
                     Text(
                         text = "Select Icon Pack",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -88,14 +88,15 @@ fun SelectIconPackDialog(
                 Column(modifier = modifier.fillMaxWidth()) {
                     Text(
                         modifier = Modifier.padding(10.dp),
-                        text = "Select Icon Pack", style = MaterialTheme.typography.titleLarge
+                        text = "Select Icon Pack",
+                        style = MaterialTheme.typography.titleLarge,
                     )
 
                     LazyColumn(
                         modifier = Modifier.weight(
                             weight = 1f,
                             fill = false,
-                        )
+                        ),
                     ) {
                         items(eblanIconPackInfos) { eblanIconPackInfo ->
                             ListItem(
@@ -113,11 +114,11 @@ fun SelectIconPackDialog(
                                         onClick = {
                                             onDeleteEblanIconPackInfo(eblanIconPackInfo)
                                         },
-                                        enabled = iconPackInfoPackageName != eblanIconPackInfo.packageName
+                                        enabled = iconPackInfoPackageName != eblanIconPackInfo.packageName,
                                     ) {
                                         Icon(
                                             imageVector = EblanLauncherIcons.Delete,
-                                            contentDescription = null
+                                            contentDescription = null,
                                         )
                                     }
                                 },

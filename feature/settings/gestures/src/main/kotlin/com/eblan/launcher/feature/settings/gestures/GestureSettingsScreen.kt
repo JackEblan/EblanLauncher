@@ -136,7 +136,7 @@ private fun Success(
             onClick = {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 context.startActivity(intent)
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(10.dp))

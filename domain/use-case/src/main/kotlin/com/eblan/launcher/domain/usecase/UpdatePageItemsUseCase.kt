@@ -56,7 +56,7 @@ class UpdatePageItemsUseCase @Inject constructor(
                 homeSettings = homeSettings.copy(
                     pageCount = pageItems.size,
                     initialPage = newInitialPage,
-                )
+                ),
             )
 
             updateGridItemsUseCase(gridItems = gridItems)

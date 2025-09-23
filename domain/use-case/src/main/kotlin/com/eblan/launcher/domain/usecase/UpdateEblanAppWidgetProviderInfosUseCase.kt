@@ -104,7 +104,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                 eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
                     val widgetFile = File(
                         fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        eblanAppWidgetProviderInfo.className
+                        eblanAppWidgetProviderInfo.className,
                     )
 
                     if (widgetFile.exists()) {

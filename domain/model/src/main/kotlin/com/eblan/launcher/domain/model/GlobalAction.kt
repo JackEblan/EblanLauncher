@@ -21,7 +21,8 @@ enum class GlobalAction {
     Notifications,
     QuickSettings,
     LockScreen,
-    Recents;
+    Recents,
+    ;
 
     companion object {
         const val NAME = "GlobalAction"

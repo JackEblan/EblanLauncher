@@ -119,7 +119,7 @@ fun GridItemSettings(
             title = "Horizontal Alignment",
             subtitle = gridItemSettings.horizontalAlignment.name.replace(
                 regex = Regex(pattern = "([a-z])([A-Z])"),
-                replacement = "$1 $2"
+                replacement = "$1 $2",
             ),
             onClick = {
                 showHorizontalAlignment = true
@@ -222,7 +222,7 @@ fun GridItemSettings(
             label = {
                 it.name.replace(
                     regex = Regex(pattern = "([a-z])([A-Z])"),
-                    replacement = "$1 $2"
+                    replacement = "$1 $2",
                 )
             },
             onDismissRequest = {

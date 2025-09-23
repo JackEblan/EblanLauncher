@@ -160,7 +160,7 @@ private fun Success(
                 onClick = {
                     val intent = Intent(Settings.ACTION_HOME_SETTINGS)
                     context.startActivity(intent)
-                }
+                },
             )
         }
 

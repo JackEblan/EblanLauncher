@@ -47,7 +47,7 @@ class RemovePackageUseCase @Inject constructor(
 
             val iconFile = File(
                 fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                packageName
+                packageName,
             )
 
             if (iconFile.exists()) {
@@ -60,7 +60,7 @@ class RemovePackageUseCase @Inject constructor(
                 }.forEach { appWidgetManagerAppWidgetProviderInfo ->
                     val widgetFile = File(
                         fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        appWidgetManagerAppWidgetProviderInfo.className
+                        appWidgetManagerAppWidgetProviderInfo.className,
                     )
 
                     if (widgetFile.exists()) {
@@ -70,7 +70,7 @@ class RemovePackageUseCase @Inject constructor(
 
             val iconPacksDirectory = File(
                 fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                iconPackInfoPackageName
+                iconPackInfoPackageName,
             )
 
             val iconPackFile = File(iconPacksDirectory, packageName)

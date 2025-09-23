@@ -45,23 +45,24 @@ fun ImportIconPackDialog(
     onDismissRequest: () -> Unit,
     onUpdateIconPack: (
         packageName: String,
-        label: String
+        label: String,
     ) -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth(),
         ) {
             Text(
                 modifier = Modifier.padding(10.dp),
-                text = "Import Icon Pack", style = MaterialTheme.typography.titleLarge
+                text = "Import Icon Pack",
+                style = MaterialTheme.typography.titleLarge,
             )
 
             LazyColumn(
                 modifier = Modifier.weight(
                     weight = 1f,
-                    fill = false
-                )
+                    fill = false,
+                ),
             ) {
                 items(packageManagerIconPackInfos) { eblanIconPackInfo ->
                     ListItem(

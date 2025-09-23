@@ -91,7 +91,7 @@ class ChangeShortcutsUseCase @Inject constructor(
                 eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
                     val icon = File(
                         fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        eblanShortcutInfo.shortcutId
+                        eblanShortcutInfo.shortcutId,
                     )
 
                     if (icon.exists()) {

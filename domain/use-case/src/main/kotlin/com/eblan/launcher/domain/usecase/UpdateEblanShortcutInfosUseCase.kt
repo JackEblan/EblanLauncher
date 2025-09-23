@@ -90,7 +90,7 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
                 eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
                     val shortcutFile = File(
                         fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        eblanShortcutInfo.shortcutId
+                        eblanShortcutInfo.shortcutId,
                     )
 
                     if (shortcutFile.exists()) {

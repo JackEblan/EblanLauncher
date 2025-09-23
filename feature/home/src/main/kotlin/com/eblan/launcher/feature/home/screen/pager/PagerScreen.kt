@@ -220,7 +220,7 @@ fun PagerScreen(
                                 val intent = Intent(GlobalAction.NAME)
                                     .putExtra(
                                         GlobalAction.GLOBAL_ACTION_TYPE,
-                                        globalAction.name
+                                        globalAction.name,
                                     )
 
                                 context.sendBroadcast(intent)
@@ -357,7 +357,7 @@ fun PagerScreen(
                     val intent = Intent(GlobalAction.NAME)
                         .putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.Notifications.name
+                            GlobalAction.Notifications.name,
                         )
 
                     context.sendBroadcast(intent)
@@ -371,7 +371,7 @@ fun PagerScreen(
                     val intent = Intent(GlobalAction.NAME)
                         .putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.LockScreen.name
+                            GlobalAction.LockScreen.name,
                         )
 
                     context.sendBroadcast(intent)
@@ -385,7 +385,7 @@ fun PagerScreen(
                     val intent = Intent(GlobalAction.NAME)
                         .putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.QuickSettings.name
+                            GlobalAction.QuickSettings.name,
                         )
 
                     context.sendBroadcast(intent)
@@ -399,7 +399,7 @@ fun PagerScreen(
                     val intent = Intent(GlobalAction.NAME)
                         .putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.Recents.name
+                            GlobalAction.Recents.name,
                         )
 
                     context.sendBroadcast(intent)

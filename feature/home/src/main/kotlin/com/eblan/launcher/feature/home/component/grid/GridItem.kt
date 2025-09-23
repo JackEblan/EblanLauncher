@@ -89,8 +89,8 @@ fun GridItemContent(
                     .border(
                         width = Dp.Hairline,
                         color = currentTextColor,
-                        shape = RoundedCornerShape(5.dp)
-                    )
+                        shape = RoundedCornerShape(5.dp),
+                    ),
             )
         } else {
             when (val data = gridItem.data) {
@@ -341,7 +341,7 @@ private fun FolderGridItem(
                 modifier = Modifier
                     .background(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(5.dp)
+                        shape = RoundedCornerShape(5.dp),
                     )
                     .size(iconSizeDp),
                 horizontalArrangement = Arrangement.SpaceEvenly,

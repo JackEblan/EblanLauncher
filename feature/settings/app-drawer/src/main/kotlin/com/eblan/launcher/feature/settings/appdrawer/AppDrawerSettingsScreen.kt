@@ -182,8 +182,8 @@ private fun Success(
                     onUpdateAppDrawerSettings(
                         appDrawerSettings.copy(
                             appDrawerColumns = appDrawerColumns,
-                            appDrawerRowsHeight = appDrawerRowsHeight
-                        )
+                            appDrawerRowsHeight = appDrawerRowsHeight,
+                        ),
                     )
 
                     showGridDialog = false

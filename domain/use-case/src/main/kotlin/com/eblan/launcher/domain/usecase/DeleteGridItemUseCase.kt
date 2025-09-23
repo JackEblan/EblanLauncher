@@ -87,7 +87,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             override = gridItem.override,
                             gridItemSettings = gridItem.gridItemSettings,
                             pageCount = data.pageCount,
-                        )
+                        ),
                     )
                 }
 

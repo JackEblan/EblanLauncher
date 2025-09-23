@@ -169,8 +169,8 @@ private fun Success(
                     onUpdateHomeSettings(
                         homeSettings.copy(
                             folderRows = folderRows,
-                            folderColumns = folderColumns
-                        )
+                            folderColumns = folderColumns,
+                        ),
                     )
 
                     showGridDialog = false

@@ -70,9 +70,9 @@ fun GestureActionBottomSheet(
     val options = remember(key1 = selectedGestureAction) {
         val currentGestureAction = selectedGestureAction
 
-        val openApp = if(currentGestureAction is GestureAction.OpenApp){
+        val openApp = if (currentGestureAction is GestureAction.OpenApp) {
             GestureAction.OpenApp(componentName = currentGestureAction.componentName)
-        }else {
+        } else {
             GestureAction.OpenApp(componentName = "app")
         }
 

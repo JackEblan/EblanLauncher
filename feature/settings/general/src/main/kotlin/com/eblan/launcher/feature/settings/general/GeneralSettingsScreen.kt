@@ -293,7 +293,7 @@ private fun Success(
                 }
 
                 showImportIconPackDialog = false
-            }
+            },
         )
     }
 
@@ -318,7 +318,7 @@ private fun Success(
                 onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
 
                 selectIconPackDialog = false
-            }
+            },
         )
     }
 }

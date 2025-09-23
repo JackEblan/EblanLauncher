@@ -61,7 +61,7 @@ class GeneralSettingsViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
+        initialValue = emptyList(),
     )
 
     val eblanIconPackInfos = eblanIconPackInfoRepository.eblanIconPackInfos.stateIn(
@@ -81,5 +81,4 @@ class GeneralSettingsViewModel @Inject constructor(
             userDataRepository.updateGeneralSettings(generalSettings = generalSettings)
         }
     }
-
 }

@@ -83,7 +83,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
             Intent("com.gau.go.launcherex.theme"),
             Intent("org.adw.launcher.THEMES"),
             Intent("org.adw.launcher.icons.ACTION_PICK_ICON"),
-            Intent("com.teslacoilsw.launcher.THEME")
+            Intent("com.teslacoilsw.launcher.THEME"),
         )
 
         val resolveInfos = mutableSetOf<ResolveInfo>()
@@ -93,8 +93,8 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                 resolveInfos.addAll(
                     packageManager.queryIntentActivities(
                         intent,
-                        PackageManager.GET_META_DATA
-                    )
+                        PackageManager.GET_META_DATA,
+                    ),
                 )
             }
 

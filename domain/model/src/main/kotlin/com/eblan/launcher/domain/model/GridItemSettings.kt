@@ -24,13 +24,17 @@ data class GridItemSettings(
     val showLabel: Boolean,
     val singleLineLabel: Boolean,
     val horizontalAlignment: HorizontalAlignment,
-    val verticalArrangement: VerticalArrangement
+    val verticalArrangement: VerticalArrangement,
 )
 
 enum class HorizontalAlignment {
-    Start, CenterHorizontally, End,
+    Start,
+    CenterHorizontally,
+    End,
 }
 
 enum class VerticalArrangement {
-    Top, Center, Bottom,
+    Top,
+    Center,
+    Bottom,
 }

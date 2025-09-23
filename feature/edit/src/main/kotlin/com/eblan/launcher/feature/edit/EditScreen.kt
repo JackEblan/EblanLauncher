@@ -164,7 +164,7 @@ private fun Success(
             is GridItemData.ApplicationInfo -> {
                 var value by remember { mutableStateOf(data.label.toString()) }
 
-                var isError by remember { mutableStateOf(false)}
+                var isError by remember { mutableStateOf(false) }
 
                 SingleTextFieldDialog(
                     title = "Label",
@@ -195,7 +195,7 @@ private fun Success(
             is GridItemData.Folder -> {
                 var value by remember { mutableStateOf(data.label) }
 
-                var isError by remember { mutableStateOf(false)}
+                var isError by remember { mutableStateOf(false) }
 
                 SingleTextFieldDialog(
                     title = "Label",
@@ -226,7 +226,7 @@ private fun Success(
             is GridItemData.ShortcutInfo -> {
                 var value by remember { mutableStateOf(data.shortLabel) }
 
-                var isError by remember { mutableStateOf(false)}
+                var isError by remember { mutableStateOf(false) }
 
                 SingleTextFieldDialog(
                     title = "Label",

@@ -245,8 +245,8 @@ private fun Success(
                     onUpdateHomeSettings(
                         homeSettings.copy(
                             rows = rows,
-                            columns = columns
-                        )
+                            columns = columns,
+                        ),
                     )
 
                     showGridDialog = false
@@ -301,8 +301,8 @@ private fun Success(
                     onUpdateHomeSettings(
                         homeSettings.copy(
                             dockRows = dockRows,
-                            dockColumns = dockColumns
-                        )
+                            dockColumns = dockColumns,
+                        ),
                     )
 
                     showDockGridDialog = false
@@ -333,7 +333,7 @@ private fun Success(
                     onUpdateHomeSettings(
                         homeSettings.copy(
                             dockHeight = value.toInt(),
-                        )
+                        ),
                     )
 
                     showDockHeightDialog = false

@@ -72,7 +72,7 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                 eblanApplicationInfosToDelete.forEach { eblanApplicationInfo ->
                     val icon = File(
                         fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        eblanApplicationInfo.packageName
+                        eblanApplicationInfo.packageName,
                     )
 
                     if (icon.exists()) {

@@ -22,45 +22,23 @@ import com.eblan.launcher.domain.model.ResolveDirection
 import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
 
-suspend fun resolveConflictsWhenMoving(
+suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
-    moving: GridItem,
-    rows: Int,
-    columns: Int,
-): List<GridItem>? {
-    return if (
-        resolveConflicts(
-            gridItems = gridItems,
-            resolveDirection = resolveDirection,
-            moving = moving,
-            rows = rows,
-            columns = columns,
-        )
-    ) {
-        gridItems
-    } else {
-        null
-    }
-}
-
-private suspend fun resolveConflicts(
-    gridItems: MutableList<GridItem>,
-    resolveDirection: ResolveDirection,
-    moving: GridItem,
+    movingGridItem: GridItem,
     rows: Int,
     columns: Int,
 ): Boolean {
     for ((index, gridItem) in gridItems.withIndex()) {
         coroutineContext.ensureActive()
 
-        val isOverlapping = gridItem.id != moving.id &&
-            rectanglesOverlap(moving, gridItem)
+        val isOverlapping = gridItem.id != movingGridItem.id &&
+            rectanglesOverlap(moving = movingGridItem, other = gridItem)
 
         if (isOverlapping) {
             val movedGridItem = moveGridItem(
                 resolveDirection = resolveDirection,
-                moving = moving,
+                moving = movingGridItem,
                 conflicting = gridItem,
                 rows = rows,
                 columns = columns,
@@ -71,7 +49,7 @@ private suspend fun resolveConflicts(
             if (!resolveConflicts(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    moving = movedGridItem,
+                    movingGridItem = movedGridItem,
                     rows = rows,
                     columns = columns,
                 )
@@ -110,7 +88,7 @@ private fun moveGridItem(
             )
         }
 
-        ResolveDirection.Center -> null
+        ResolveDirection.Center -> moving
     }
 }
 

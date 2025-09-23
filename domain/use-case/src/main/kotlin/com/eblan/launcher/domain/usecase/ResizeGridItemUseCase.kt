@@ -22,7 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.getRelativeResolveDirection
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.grid.rectanglesOverlap
-import com.eblan.launcher.domain.grid.resolveConflictsWhenMoving
+import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -39,8 +39,8 @@ class ResizeGridItemUseCase @Inject constructor(
         resizingGridItem: GridItem,
         rows: Int,
         columns: Int,
-    ): List<GridItem>? {
-        return withContext(defaultDispatcher) {
+    ) {
+        withContext(defaultDispatcher) {
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
@@ -49,7 +49,7 @@ class ResizeGridItemUseCase @Inject constructor(
                 ) && when (resizingGridItem.associate) {
                     Associate.Grid -> {
                         gridItem.page == resizingGridItem.page &&
-                            gridItem.associate == resizingGridItem.associate
+                                gridItem.associate == resizingGridItem.associate
                     }
 
                     Associate.Dock -> {
@@ -72,28 +72,22 @@ class ResizeGridItemUseCase @Inject constructor(
                 )
             }
 
-            val resolvedConflictsGridItems = if (gridItemBySpan != null) {
+            if (gridItemBySpan != null) {
                 val resolveDirection = getRelativeResolveDirection(
                     moving = oldGridItem,
                     other = gridItemBySpan,
                 )
 
-                resolveConflictsWhenMoving(
+                resolveConflicts(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
-                    moving = resizingGridItem,
+                    movingGridItem = resizingGridItem,
                     rows = rows,
                     columns = columns,
                 )
-            } else {
-                gridItems
             }
 
-            if (resolvedConflictsGridItems != null) {
-                gridCacheRepository.upsertGridItems(gridItems = resolvedConflictsGridItems)
-            }
-
-            resolvedConflictsGridItems
+            gridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
     }
 }

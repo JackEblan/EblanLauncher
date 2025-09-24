@@ -345,7 +345,7 @@ fun DragScreen(
                             textSize = homeSettings.gridItemSettings.textSize / 2,
                         ),
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        isDragging = gridItem.id == gridItemSource.gridItem.id,
+                        isDragging = drag == Drag.Dragging && gridItem.id == gridItemSource.gridItem.id,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 },
@@ -377,7 +377,7 @@ fun DragScreen(
                     textColor = textColor,
                     gridItemSettings = homeSettings.gridItemSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
-                    isDragging = gridItem.id == gridItemSource.gridItem.id,
+                    isDragging = drag == Drag.Dragging && gridItem.id == gridItemSource.gridItem.id,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             },

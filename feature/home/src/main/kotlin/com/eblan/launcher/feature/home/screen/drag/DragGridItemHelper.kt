@@ -81,11 +81,11 @@ suspend fun handleDragIntOffset(
         gridHeight: Int,
     ) -> Unit,
 ) {
+    delay(1000L)
+
     if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
-
-    delay(250L)
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()

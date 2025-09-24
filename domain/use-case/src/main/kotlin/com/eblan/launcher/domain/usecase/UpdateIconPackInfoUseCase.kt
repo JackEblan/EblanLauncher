@@ -39,28 +39,30 @@ class UpdateIconPackInfoUseCase @Inject constructor(
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
-            val iconPackDirectory = File(
-                fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-                iconPackInfoPackageName,
-            ).apply { if (!exists()) mkdirs() }
+            if (iconPackInfoPackageName.isNotEmpty()) {
+                val iconPackDirectory = File(
+                    fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+                    iconPackInfoPackageName,
+                ).apply { if (!exists()) mkdirs() }
 
-            val appFilter =
-                iconPackManager.parseAppFilter(iconPackInfoPackageName = iconPackInfoPackageName)
+                val appFilter =
+                    iconPackManager.parseAppFilter(iconPackInfoPackageName = iconPackInfoPackageName)
 
-            val entry = appFilter.entries.find { (component, _) ->
-                component.contains(packageName)
-            } ?: return@withContext
+                val entry = appFilter.entries.find { (component, _) ->
+                    component.contains(packageName)
+                } ?: return@withContext
 
-            val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                packageName = iconPackInfoPackageName,
-                drawableName = entry.value,
-            ) ?: return@withContext
+                val byteArray = iconPackManager.loadByteArrayFromIconPack(
+                    packageName = iconPackInfoPackageName,
+                    drawableName = entry.value,
+                ) ?: return@withContext
 
-            fileManager.getAndUpdateFilePath(
-                directory = iconPackDirectory,
-                name = packageName,
-                byteArray = byteArray,
-            )
+                fileManager.getAndUpdateFilePath(
+                    directory = iconPackDirectory,
+                    name = packageName,
+                    byteArray = byteArray,
+                )
+            }
         }
     }
 }

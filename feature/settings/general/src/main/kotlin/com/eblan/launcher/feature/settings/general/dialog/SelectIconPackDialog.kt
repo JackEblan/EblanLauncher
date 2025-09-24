@@ -101,7 +101,6 @@ fun SelectIconPackDialog(
                         items(eblanIconPackInfos) { eblanIconPackInfo ->
                             ListItem(
                                 headlineContent = { Text(text = eblanIconPackInfo.label.toString()) },
-                                supportingContent = { Text(text = eblanIconPackInfo.packageName) },
                                 leadingContent = {
                                     AsyncImage(
                                         model = eblanIconPackInfo.icon,

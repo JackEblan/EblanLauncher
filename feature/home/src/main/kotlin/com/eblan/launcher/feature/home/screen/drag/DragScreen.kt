@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.drag
 import android.appwidget.AppWidgetManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,9 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,12 +45,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
@@ -63,6 +71,8 @@ import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun DragScreen(
@@ -345,7 +355,7 @@ fun DragScreen(
                             textSize = homeSettings.gridItemSettings.textSize / 2,
                         ),
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        isDragging = drag == Drag.Dragging && gridItem.id == gridItemSource.gridItem.id,
+                        isDragging = gridItem.id == gridItemSource.gridItem.id,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 },
@@ -377,10 +387,168 @@ fun DragScreen(
                     textColor = textColor,
                     gridItemSettings = homeSettings.gridItemSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
-                    isDragging = drag == Drag.Dragging && gridItem.id == gridItemSource.gridItem.id,
+                    isDragging = gridItem.id == gridItemSource.gridItem.id,
                     hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             },
         )
     }
+
+    AnimatedDropGridItem(
+        targetPage = targetPage,
+        gridPadding = gridPadding,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+        dockHeight = homeSettings.dockHeight,
+        paddingValues = paddingValues,
+        rows = homeSettings.rows,
+        columns = homeSettings.columns,
+        dockRows = homeSettings.dockRows,
+        dockColumns = homeSettings.dockColumns,
+        dragIntOffset = dragIntOffset,
+        density = density,
+        textColor = textColor,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        hasShortcutHostPermission = hasShortcutHostPermission,
+        gridItemSettings = homeSettings.gridItemSettings,
+        drag = drag,
+        moveGridItemResult = moveGridItemResult,
+    )
+}
+
+@Composable
+private fun AnimatedDropGridItem(
+    modifier: Modifier = Modifier,
+    targetPage: Int,
+    gridPadding: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    dockHeight: Int,
+    paddingValues: PaddingValues,
+    rows: Int,
+    columns: Int,
+    dockRows: Int,
+    dockColumns: Int,
+    dragIntOffset: IntOffset,
+    density: Density,
+    textColor: TextColor,
+    iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
+    gridItemSettings: GridItemSettings,
+    drag: Drag,
+    moveGridItemResult: MoveGridItemResult?,
+) {
+    if (drag != Drag.End || moveGridItemResult?.isSuccess != true || moveGridItemResult.movingGridItem.page != targetPage) return
+
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val rightPadding = with(density) {
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val gridWidth = screenWidth - horizontalPadding
+
+    val gridHeight = screenHeight - verticalPadding
+
+    val gridLeft = leftPadding + gridPadding
+
+    val gridTop = topPadding + gridPadding
+
+    var cellWidth: Int
+
+    var cellHeight: Int
+
+    var targetX: Int
+
+    var targetY: Int
+
+    when (moveGridItemResult.movingGridItem.associate) {
+        Associate.Grid -> {
+            val gridWidthWithPadding = gridWidth - (gridPadding * 2)
+
+            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPadding * 2)
+
+            cellWidth = gridWidthWithPadding / columns
+
+            cellHeight = gridHeightWithPadding / rows
+
+            targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + gridLeft
+
+            targetY = (moveGridItemResult.movingGridItem.startRow * cellHeight) + gridTop
+        }
+
+        Associate.Dock -> {
+            cellWidth = gridWidth / dockColumns
+
+            cellHeight = dockHeight / dockRows
+
+            targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + leftPadding
+
+            targetY =
+                (moveGridItemResult.movingGridItem.startRow * cellHeight) + (screenHeight - bottomPadding - dockHeight)
+        }
+    }
+
+    val startWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
+
+    val startHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
+
+    val startX = dragIntOffset.x - (startWidth / 2)
+
+    val startY = dragIntOffset.y - (startHeight / 2)
+
+    val animatedX = remember { Animatable(startX.toFloat()) }
+
+    val animatedY = remember { Animatable(startY.toFloat()) }
+
+    val animatedIconSize = remember { Animatable(gridItemSettings.iconSize.toFloat()) }
+
+    val animatedAlpha = remember { Animatable(1f) }
+
+    LaunchedEffect(moveGridItemResult.movingGridItem) {
+        launch { animatedX.animateTo(targetX.toFloat()) }
+
+        launch { animatedY.animateTo(targetY.toFloat()) }
+
+        if (moveGridItemResult.conflictingGridItem != null) {
+            animatedAlpha.animateTo(0f)
+        } else {
+            animatedAlpha.animateTo(1f)
+        }
+
+        if (moveGridItemResult.movingGridItem.associate == Associate.Grid) {
+            launch { animatedIconSize.animateTo((gridItemSettings.iconSize / 2).toFloat()) }
+        }
+    }
+
+    val size = with(density) {
+        DpSize(startWidth.toDp(), startHeight.toDp())
+    }
+
+    GridItemContent(
+        modifier = modifier
+            .offset { IntOffset(animatedX.value.roundToInt(), animatedY.value.roundToInt()) }
+            .alpha(animatedAlpha.value)
+            .size(size),
+        gridItem = moveGridItemResult.movingGridItem,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings.copy(iconSize = animatedIconSize.value.roundToInt()),
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        isDragging = false,
+        hasShortcutHostPermission = hasShortcutHostPermission
+    )
 }

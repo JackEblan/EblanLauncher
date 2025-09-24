@@ -343,10 +343,6 @@ class HomeViewModel @Inject constructor(
             _screen.update {
                 Screen.Pager
             }
-
-            _moveGridItemResult.update {
-                null
-            }
         }
     }
 

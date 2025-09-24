@@ -67,7 +67,7 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "34.0.0"
 
-      - name: Rename signed Files
+      - name: Rename signed files
         run: |
           mv ${{steps.sign_release_apk.outputs.signedReleaseFile}} app/build/outputs/apk/release/EblanLauncher-${{ github.ref_name }}.apk
 

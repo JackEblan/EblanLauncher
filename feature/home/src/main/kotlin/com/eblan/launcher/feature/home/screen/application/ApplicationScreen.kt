@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -617,6 +618,7 @@ private fun EblanApplicationInfoItem(
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

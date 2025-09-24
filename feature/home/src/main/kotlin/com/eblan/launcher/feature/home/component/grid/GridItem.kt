@@ -33,11 +33,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -46,7 +47,6 @@ import coil3.request.ImageRequest
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -121,7 +121,6 @@ fun GridItemContent(
                         textColor = currentTextColor,
                         gridItemSettings = currentGridItemSettings,
                         hasShortcutHostPermission = hasShortcutHostPermission,
-                        eblanApplicationInfo = data.eblanApplicationInfo,
                     )
                 }
 
@@ -206,6 +205,7 @@ private fun ApplicationInfoGridItem(
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -252,7 +252,6 @@ private fun ShortcutInfoGridItem(
     textColor: Color,
     gridItemSettings: GridItemSettings,
     hasShortcutHostPermission: Boolean,
-    eblanApplicationInfo: EblanApplicationInfo,
 ) {
     val density = LocalDensity.current
 
@@ -280,10 +279,12 @@ private fun ShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val colorFilter = if (hasShortcutHostPermission) null else ColorFilter.tint(color = Color.Gray)
+    val alpha = if (hasShortcutHostPermission) 1f else 0.3f
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .alpha(alpha)
+            .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -292,16 +293,14 @@ private fun ShortcutInfoGridItem(
                 model = icon,
                 modifier = Modifier.matchParentSize(),
                 contentDescription = null,
-                colorFilter = colorFilter,
             )
 
             AsyncImage(
-                model = eblanApplicationInfo.icon,
+                model = data.eblanApplicationInfo.icon,
                 modifier = Modifier
                     .size(5.dp)
                     .align(Alignment.BottomEnd),
                 contentDescription = null,
-                colorFilter = colorFilter,
             )
         }
 
@@ -313,6 +312,7 @@ private fun ShortcutInfoGridItem(
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -447,6 +447,7 @@ private fun FolderGridItem(
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
                 fontSize = textSizeSp,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

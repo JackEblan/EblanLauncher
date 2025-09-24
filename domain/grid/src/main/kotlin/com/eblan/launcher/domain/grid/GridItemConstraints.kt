@@ -20,26 +20,34 @@ package com.eblan.launcher.domain.grid
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
 
-fun isGridItemSpanWithinBounds(gridItem: GridItem, rows: Int, columns: Int): Boolean {
-    return gridItem.startRow in 0 until rows &&
-        gridItem.startColumn in 0 until columns &&
-        gridItem.startRow + gridItem.rowSpan <= rows &&
-        gridItem.startColumn + gridItem.columnSpan <= columns
+fun isGridItemSpanWithinBounds(
+    gridItem: GridItem,
+    columns: Int,
+    rows: Int
+): Boolean {
+    return gridItem.startColumn in 0 until columns &&
+            gridItem.startRow in 0 until rows &&
+            gridItem.startColumn + gridItem.columnSpan <= columns &&
+            gridItem.startRow + gridItem.rowSpan <= rows
 }
 
 fun rectanglesOverlap(moving: GridItem, other: GridItem): Boolean {
-    val movingTop = moving.startRow
-    val movingBottom = moving.startRow + moving.rowSpan
     val movingLeft = moving.startColumn
     val movingRight = moving.startColumn + moving.columnSpan
+    val movingTop = moving.startRow
+    val movingBottom = moving.startRow + moving.rowSpan
 
-    val otherTop = other.startRow
-    val otherBottom = other.startRow + other.rowSpan
     val otherLeft = other.startColumn
     val otherRight = other.startColumn + other.columnSpan
+    val otherTop = other.startRow
+    val otherBottom = other.startRow + other.rowSpan
 
-    return movingRight > otherLeft && movingLeft < otherRight && movingBottom > otherTop && movingTop < otherBottom
+    return movingRight > otherLeft &&
+            movingLeft < otherRight &&
+            movingBottom > otherTop &&
+            movingTop < otherBottom
 }
+
 
 fun getResolveDirectionByX(
     gridItem: GridItem,
@@ -73,8 +81,8 @@ fun getResolveDirectionByX(
 fun getGridItemByCoordinates(
     id: String,
     gridItems: List<GridItem>,
-    rows: Int,
     columns: Int,
+    rows: Int,
     x: Int,
     y: Int,
     gridWidth: Int,
@@ -89,10 +97,10 @@ fun getGridItemByCoordinates(
 
         val startRow = y / cellHeight
 
-        val rowInSpan = startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
-
         val columnInSpan =
             startColumn in gridItem.startColumn until (gridItem.startColumn + gridItem.columnSpan)
+
+        val rowInSpan = startRow in gridItem.startRow until (gridItem.startRow + gridItem.rowSpan)
 
         gridItem.id != id && rowInSpan && columnInSpan
     }
@@ -119,16 +127,16 @@ fun findAvailableRegionByPage(
     gridItems: List<GridItem>,
     gridItem: GridItem,
     pageCount: Int,
-    rows: Int,
     columns: Int,
+    rows: Int,
 ): GridItem? {
     for (page in 0 until pageCount) {
         for (row in 0..(rows - gridItem.rowSpan)) {
             for (column in 0..(columns - gridItem.columnSpan)) {
                 val candidateGridItem = gridItem.copy(
                     page = page,
-                    startRow = row,
                     startColumn = column,
+                    startRow = row,
                 )
 
                 val overlaps = gridItems.any { otherGridItem ->
@@ -168,12 +176,12 @@ fun getWidgetGridItemSpan(
         targetCellWidth
     }
 
-    return rowSpan to columnSpan
+    return columnSpan to rowSpan
 }
 
 fun getWidgetGridItemSize(
-    rows: Int,
     columns: Int,
+    rows: Int,
     gridWidth: Int,
     gridHeight: Int,
     minWidth: Int,

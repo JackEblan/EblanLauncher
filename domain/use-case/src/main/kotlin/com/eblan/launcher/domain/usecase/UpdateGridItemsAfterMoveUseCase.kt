@@ -45,9 +45,9 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val folderRows = homeSettings.folderRows
-
             val folderColumns = homeSettings.folderColumns
+
+            val folderRows = homeSettings.folderRows
 
             val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
 
@@ -58,8 +58,8 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     gridItems = gridItems,
                     conflictingGridItem = conflictingGridItem,
                     movingGridItem = movingGridItem,
-                    folderRows = folderRows,
                     folderColumns = folderColumns,
+                    folderRows = folderRows,
                     movingIndex = movingIndex,
                 )
             } else {
@@ -73,8 +73,8 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
         gridItems: MutableList<GridItem>,
         conflictingGridItem: GridItem,
         movingGridItem: GridItem,
-        folderRows: Int,
         folderColumns: Int,
+        folderRows: Int,
         movingIndex: Int,
     ) {
         val conflictingIndex = gridItems.indexOfFirst { it.id == conflictingGridItem.id }
@@ -84,9 +84,9 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 val newGridItem = findAvailableRegionByPage(
                     gridItems = data.gridItems,
                     gridItem = movingGridItem,
-                    rows = folderRows,
-                    columns = folderColumns,
                     pageCount = data.pageCount,
+                    columns = folderColumns,
+                    rows = folderRows,
                 )
 
                 if (newGridItem != null) {
@@ -100,10 +100,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     val newData = data.copy(pageCount = newPageCount)
 
                     gridItems[movingIndex] = movingGridItem.copy(
-                        page = newPageCount - 1,
-                        startRow = 0,
-                        startColumn = 0,
                         folderId = conflictingGridItem.id,
+                        page = newPageCount - 1,
+                        startColumn = 0,
+                        startRow = 0,
                         associate = Associate.Grid,
                     )
 
@@ -117,27 +117,27 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 val pageCount = 1
 
                 val firstGridItem = conflictingGridItem.copy(
-                    page = 0,
-                    startRow = 0,
-                    startColumn = 0,
                     folderId = id,
+                    page = 0,
+                    startColumn = 0,
+                    startRow = 0,
                     associate = Associate.Grid,
                 )
 
                 val secondGridItem = movingGridItem.copy(
-                    page = 0,
-                    startRow = 0,
-                    startColumn = 0,
                     folderId = id,
+                    page = 0,
+                    startColumn = 0,
+                    startRow = 0,
                     associate = Associate.Grid,
                 )
 
                 val movedSecondGridItem = findAvailableRegionByPage(
                     gridItems = listOf(firstGridItem),
                     gridItem = secondGridItem,
-                    rows = folderRows,
-                    columns = folderColumns,
                     pageCount = pageCount,
+                    columns = folderColumns,
+                    rows = folderRows,
                 )
 
                 if (movedSecondGridItem != null) {
@@ -156,7 +156,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         conflictingGridItem.copy(
                             id = id,
                             data = newData,
-                        ),
+                        )
                     )
                 } else {
                     val newPageCount = pageCount + 1
@@ -171,10 +171,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     gridItems[conflictingIndex] = firstGridItem
 
                     gridItems[movingIndex] = secondGridItem.copy(
-                        page = newPageCount - 1,
-                        startRow = 0,
-                        startColumn = 0,
                         folderId = id,
+                        page = newPageCount - 1,
+                        startColumn = 0,
+                        startRow = 0,
                         associate = Associate.Grid,
                     )
 

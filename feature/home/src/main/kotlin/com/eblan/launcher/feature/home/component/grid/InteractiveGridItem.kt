@@ -21,6 +21,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,9 +39,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -48,6 +49,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
@@ -304,6 +306,7 @@ private fun ApplicationInfoGridItem(
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
                 maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -437,7 +440,7 @@ private fun ShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val colorFilter = if (hasShortcutHostPermission) null else ColorFilter.tint(color = Color.Gray)
+    val alpha = if (hasShortcutHostPermission) 1f else 0.3f
 
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
@@ -497,17 +500,26 @@ private fun ShortcutInfoGridItem(
                     },
                 )
             }
+            .alpha(alpha)
             .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        AsyncImage(
-            model = data.icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSizeDp),
-            colorFilter = colorFilter,
-        )
+        Box(modifier = Modifier.size(iconSizeDp)) {
+            AsyncImage(
+                model = data.icon,
+                modifier = Modifier.matchParentSize(),
+                contentDescription = null,
+            )
+
+            AsyncImage(
+                model = data.eblanApplicationInfo.icon,
+                modifier = Modifier
+                    .size(15.dp)
+                    .align(Alignment.BottomEnd),
+                contentDescription = null,
+            )
+        }
 
         if (gridItemSettings.showLabel) {
             Text(
@@ -517,6 +529,7 @@ private fun ShortcutInfoGridItem(
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
                 maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -719,6 +732,7 @@ private fun FolderGridItem(
                 textAlign = TextAlign.Center,
                 fontSize = textSizeSp,
                 maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

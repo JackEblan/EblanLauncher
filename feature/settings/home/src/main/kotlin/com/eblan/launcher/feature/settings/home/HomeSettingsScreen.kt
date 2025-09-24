@@ -133,7 +133,7 @@ private fun Success(
     ) {
         SettingsColumn(
             title = "Grid",
-            subtitle = "Number of rows and columns",
+            subtitle = "Number of columns and rows",
             onClick = {
                 showGridDialog = true
             },
@@ -173,7 +173,7 @@ private fun Success(
 
         SettingsColumn(
             title = "Dock Grid",
-            subtitle = "Number of rows and columns",
+            subtitle = "Number of columns and rows",
             onClick = {
                 showDockGridDialog = true
             },
@@ -200,9 +200,9 @@ private fun Success(
     }
 
     if (showGridDialog) {
-        var rows by remember { mutableStateOf("${homeSettings.rows}") }
-
         var columns by remember { mutableStateOf("${homeSettings.columns}") }
+
+        var rows by remember { mutableStateOf("${homeSettings.rows}") }
 
         var firstTextFieldIsError by remember { mutableStateOf(false) }
 
@@ -210,42 +210,42 @@ private fun Success(
 
         TwoTextFieldsDialog(
             title = "Grid",
-            firstTextFieldTitle = "Rows",
-            secondTextFieldTitle = "Columns",
-            firstTextFieldValue = rows,
-            secondTextFieldValue = columns,
+            firstTextFieldTitle = "Columns",
+            secondTextFieldTitle = "Rows",
+            firstTextFieldValue = columns,
+            secondTextFieldValue = rows,
             firstTextFieldIsError = firstTextFieldIsError,
             secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
-                rows = it
+                columns = it
             },
             onSecondValueChange = {
-                columns = it
+                rows = it
             },
             onDismissRequest = {
                 showGridDialog = false
             },
             onUpdateClick = {
-                val rows = try {
-                    rows.toInt()
+                val columns = try {
+                    columns.toInt()
                 } catch (_: NumberFormatException) {
                     firstTextFieldIsError = true
                     0
                 }
 
-                val columns = try {
-                    columns.toInt()
+                val rows = try {
+                    rows.toInt()
                 } catch (_: NumberFormatException) {
                     secondTextFieldIsError = true
                     0
                 }
 
-                if (rows > 0 && columns > 0) {
+                if (columns > 0 && rows > 0) {
                     onUpdateHomeSettings(
                         homeSettings.copy(
-                            rows = rows,
                             columns = columns,
+                            rows = rows,
                         ),
                     )
 
@@ -256,9 +256,9 @@ private fun Success(
     }
 
     if (showDockGridDialog) {
-        var dockRows by remember { mutableStateOf("${homeSettings.dockRows}") }
-
         var dockColumns by remember { mutableStateOf("${homeSettings.dockColumns}") }
+
+        var dockRows by remember { mutableStateOf("${homeSettings.dockRows}") }
 
         var firstTextFieldIsError by remember { mutableStateOf(false) }
 
@@ -266,42 +266,42 @@ private fun Success(
 
         TwoTextFieldsDialog(
             title = "Dock Grid",
-            firstTextFieldTitle = "Dock Rows",
-            secondTextFieldTitle = "Dock Columns",
-            firstTextFieldValue = dockRows,
-            secondTextFieldValue = dockColumns,
+            firstTextFieldTitle = "Columns",
+            secondTextFieldTitle = "Rows",
+            firstTextFieldValue = dockColumns,
+            secondTextFieldValue = dockRows,
             firstTextFieldIsError = firstTextFieldIsError,
             secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
-                dockRows = it
+                dockColumns = it
             },
             onSecondValueChange = {
-                dockColumns = it
+                dockRows = it
             },
             onDismissRequest = {
                 showDockGridDialog = false
             },
             onUpdateClick = {
-                val dockRows = try {
-                    dockRows.toInt()
+                val dockColumns = try {
+                    dockColumns.toInt()
                 } catch (_: NumberFormatException) {
                     firstTextFieldIsError = true
                     0
                 }
 
-                val dockColumns = try {
-                    dockColumns.toInt()
+                val dockRows = try {
+                    dockRows.toInt()
                 } catch (_: NumberFormatException) {
                     secondTextFieldIsError = true
                     0
                 }
 
-                if (dockRows > 0 && dockColumns > 0) {
+                if (dockColumns > 0 && dockRows > 0) {
                     onUpdateHomeSettings(
                         homeSettings.copy(
-                            dockRows = dockRows,
                             dockColumns = dockColumns,
+                            dockRows = dockRows,
                         ),
                     )
 

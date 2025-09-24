@@ -51,8 +51,8 @@ class GetFolderDataByIdUseCase @Inject constructor(
                 ).filter { gridItem ->
                 gridItem.folderId == id && isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = homeSettings.folderRows,
                     columns = homeSettings.folderColumns,
+                    rows = homeSettings.folderRows,
                 )
             }
 

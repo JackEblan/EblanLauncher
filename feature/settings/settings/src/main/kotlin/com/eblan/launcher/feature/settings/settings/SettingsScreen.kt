@@ -187,7 +187,7 @@ private fun Success(
         SettingsRow(
             imageVector = EblanLauncherIcons.Apps,
             title = "App Drawer",
-            subtitle = "Rows and columns count",
+            subtitle = "Columns and rows count",
             onClick = onAppDrawer,
         )
 
@@ -196,7 +196,7 @@ private fun Success(
         SettingsRow(
             imageVector = EblanLauncherIcons.Folder,
             title = "Folder",
-            subtitle = "Rows and columns count",
+            subtitle = "Columns and rows count",
             onClick = onFolder,
         )
 

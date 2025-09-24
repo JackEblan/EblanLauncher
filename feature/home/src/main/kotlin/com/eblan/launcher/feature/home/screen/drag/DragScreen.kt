@@ -85,8 +85,8 @@ fun DragScreen(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
@@ -334,21 +334,22 @@ fun DragScreen(
                         shape = RoundedCornerShape(8.dp),
                     ),
                 gridItems = gridItemsCacheByPage[page],
-                rows = homeSettings.rows,
                 columns = homeSettings.columns,
-            ) { gridItem ->
-                GridItemContent(
-                    gridItem = gridItem,
-                    textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings.copy(
-                        iconSize = homeSettings.gridItemSettings.iconSize / 2,
-                        textSize = homeSettings.gridItemSettings.textSize / 2,
-                    ),
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                    isDragging = gridItem.id == gridItemSource.gridItem.id,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
-                )
-            }
+                rows = homeSettings.rows,
+                { gridItem ->
+                    GridItemContent(
+                        gridItem = gridItem,
+                        textColor = textColor,
+                        gridItemSettings = homeSettings.gridItemSettings.copy(
+                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
+                            textSize = homeSettings.gridItemSettings.textSize / 2,
+                        ),
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                        isDragging = gridItem.id == gridItemSource.gridItem.id,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                    )
+                },
+            )
         }
 
         PageIndicator(
@@ -368,17 +369,18 @@ fun DragScreen(
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 ),
             gridItems = dockGridItemsCache,
-            rows = homeSettings.dockRows,
             columns = homeSettings.dockColumns,
-        ) { gridItem ->
-            GridItemContent(
-                gridItem = gridItem,
-                textColor = textColor,
-                gridItemSettings = homeSettings.gridItemSettings,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                isDragging = gridItem.id == gridItemSource.gridItem.id,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-            )
-        }
+            rows = homeSettings.dockRows,
+            { gridItem ->
+                GridItemContent(
+                    gridItem = gridItem,
+                    textColor = textColor,
+                    gridItemSettings = homeSettings.gridItemSettings,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    isDragging = gridItem.id == gridItemSource.gridItem.id,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                )
+            },
+        )
     }
 }

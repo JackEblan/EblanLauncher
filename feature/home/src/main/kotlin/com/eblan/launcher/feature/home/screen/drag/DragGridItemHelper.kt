@@ -75,8 +75,8 @@ suspend fun handleDragIntOffset(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
@@ -145,8 +145,8 @@ suspend fun handleDragIntOffset(
             gridItem = gridItem,
             cellWidth = cellWidth,
             cellHeight = cellHeight,
-            rows = dockRows,
             columns = dockColumns,
+            rows = dockRows,
             gridWidth = gridWidth,
             gridHeight = dockHeight,
             gridX = dragX,
@@ -157,8 +157,8 @@ suspend fun handleDragIntOffset(
 
         val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
             gridItem = moveGridItem,
-            rows = dockRows,
             columns = dockColumns,
+            rows = dockRows,
         )
 
         if (isGridItemSpanWithinBounds) {
@@ -166,8 +166,8 @@ suspend fun handleDragIntOffset(
                 moveGridItem,
                 dragX,
                 dockY,
-                dockRows,
                 dockColumns,
+                dockRows,
                 gridWidth,
                 dockHeight,
             )
@@ -190,8 +190,8 @@ suspend fun handleDragIntOffset(
             gridItem = gridItem,
             cellWidth = cellWidth,
             cellHeight = cellHeight,
-            rows = rows,
             columns = columns,
+            rows = rows,
             gridWidth = gridWidthWithPadding,
             gridHeight = gridHeightWithPadding,
             gridX = gridX,
@@ -202,8 +202,8 @@ suspend fun handleDragIntOffset(
 
         val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
             gridItem = moveGridItem,
-            rows = rows,
             columns = columns,
+            rows = rows,
         )
 
         if (isGridItemSpanWithinBounds) {
@@ -211,8 +211,8 @@ suspend fun handleDragIntOffset(
                 moveGridItem,
                 gridX,
                 gridY,
-                rows,
                 columns,
+                rows,
                 gridWidthWithPadding,
                 gridHeightWithPadding,
             )
@@ -225,8 +225,8 @@ private fun getMoveGridItem(
     gridItem: GridItem,
     cellWidth: Int,
     cellHeight: Int,
-    rows: Int,
     columns: Int,
+    rows: Int,
     gridWidth: Int,
     gridHeight: Int,
     gridX: Int,
@@ -253,8 +253,8 @@ private fun getMoveGridItem(
                 gridItem = gridItem,
                 cellHeight = cellHeight,
                 cellWidth = cellWidth,
-                rows = rows,
                 columns = columns,
+                rows = rows,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
                 gridX = gridX,
@@ -270,8 +270,8 @@ private fun getMoveNewGridItem(
     gridItem: GridItem,
     cellHeight: Int,
     cellWidth: Int,
-    rows: Int,
     columns: Int,
+    rows: Int,
     gridWidth: Int,
     gridHeight: Int,
     gridX: Int,
@@ -280,7 +280,7 @@ private fun getMoveNewGridItem(
 ): GridItem {
     return when (val data = gridItem.data) {
         is GridItemData.Widget -> {
-            val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
+            val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
                 cellHeight = cellHeight,
                 cellWidth = cellWidth,
                 minHeight = data.minHeight,
@@ -290,8 +290,8 @@ private fun getMoveNewGridItem(
             )
 
             val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-                rows = rows,
                 columns = columns,
+                rows = rows,
                 gridWidth = gridWidth,
                 gridHeight = gridHeight,
                 minWidth = data.minWidth,
@@ -307,20 +307,20 @@ private fun getMoveNewGridItem(
 
             gridItem.copy(
                 page = targetPage,
-                startRow = gridY / cellHeight,
                 startColumn = gridX / cellWidth,
-                rowSpan = checkedRowSpan,
+                startRow = gridY / cellHeight,
                 columnSpan = checkedColumnSpan,
-                associate = associate,
+                rowSpan = checkedRowSpan,
                 data = newData,
+                associate = associate,
             )
         }
 
         else -> {
             gridItem.copy(
                 page = targetPage,
-                startRow = gridY / cellHeight,
                 startColumn = gridX / cellWidth,
+                startRow = gridY / cellHeight,
                 associate = associate,
             )
         }
@@ -339,8 +339,8 @@ private fun getMoveExistingGridItem(
     is GridItemData.Widget -> {
         gridItem.copy(
             page = targetPage,
-            startRow = gridY / cellHeight,
             startColumn = gridX / cellWidth,
+            startRow = gridY / cellHeight,
             associate = associate,
         )
     }
@@ -348,8 +348,8 @@ private fun getMoveExistingGridItem(
     else -> {
         gridItem.copy(
             page = targetPage,
-            startRow = gridY / cellHeight,
             startColumn = gridX / cellWidth,
+            startRow = gridY / cellHeight,
             associate = associate,
         )
     }

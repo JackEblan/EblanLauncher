@@ -184,75 +184,76 @@ fun FolderScreen(
                                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                             ),
                         gridItems = targetState.gridItemsByPage[index],
-                        rows = homeSettings.folderRows,
                         columns = homeSettings.folderColumns,
-                    ) { gridItem ->
-                        val cellWidth = gridWidth / homeSettings.folderColumns
+                        rows = homeSettings.folderRows,
+                        { gridItem ->
+                            val cellWidth = gridWidth / homeSettings.folderColumns
 
-                        val cellHeight =
-                            (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
+                            val cellHeight =
+                                (gridHeight - pageIndicatorHeightPx - titleHeight) / homeSettings.folderRows
 
-                        val x = gridItem.startColumn * cellWidth
+                            val x = gridItem.startColumn * cellWidth
 
-                        val y = gridItem.startRow * cellHeight
+                            val y = gridItem.startRow * cellHeight
 
-                        val width = gridItem.columnSpan * cellWidth
+                            val width = gridItem.columnSpan * cellWidth
 
-                        val height = gridItem.rowSpan * cellHeight
+                            val height = gridItem.rowSpan * cellHeight
 
-                        InteractiveGridItemContent(
-                            gridItem = gridItem,
-                            hasShortcutHostPermission = hasShortcutHostPermission,
-                            drag = drag,
-                            gridItemSettings = homeSettings.gridItemSettings,
-                            textColor = textColor,
-                            iconPackInfoPackageName = iconPackInfoPackageName,
-                            onTapApplicationInfo = { componentName ->
-                                launcherApps.startMainActivity(
-                                    componentName = componentName,
-                                    sourceBounds = Rect(
-                                        x,
-                                        y,
-                                        x + width,
-                                        y + height
+                            InteractiveGridItemContent(
+                                gridItem = gridItem,
+                                hasShortcutHostPermission = hasShortcutHostPermission,
+                                drag = drag,
+                                gridItemSettings = homeSettings.gridItemSettings,
+                                textColor = textColor,
+                                iconPackInfoPackageName = iconPackInfoPackageName,
+                                onTapApplicationInfo = { componentName ->
+                                    launcherApps.startMainActivity(
+                                        componentName = componentName,
+                                        sourceBounds = Rect(
+                                            x,
+                                            y,
+                                            x + width,
+                                            y + height
+                                        )
                                     )
-                                )
-                            },
-                            onTapShortcutInfo = { packageName, shortcutId ->
-                                launcherApps.startShortcut(
-                                    packageName = packageName, id = shortcutId, sourceBounds = Rect(
-                                        x,
-                                        y,
-                                        x + width,
-                                        y + height
+                                },
+                                onTapShortcutInfo = { packageName, shortcutId ->
+                                    launcherApps.startShortcut(
+                                        packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                                            x,
+                                            y,
+                                            x + width,
+                                            y + height
+                                        )
                                     )
-                                )
-                            },
-                            onTapFolderGridItem = {
-                                onResetTargetPage()
+                                },
+                                onTapFolderGridItem = {
+                                    onResetTargetPage()
 
-                                onAddFolder(gridItem.id)
-                            },
-                            onLongPress = {
-                                onUpdateGridItemOffset(
-                                    IntOffset(
-                                        x = x + leftPadding,
-                                        y = y + (topPadding + titleHeight),
-                                    ),
-                                )
-                            },
-                            onUpdateImageBitmap = { imageBitmap ->
-                                onLongPressGridItem(
-                                    index,
-                                    GridItemSource.Existing(gridItem = gridItem),
-                                    imageBitmap,
-                                )
-                            },
-                            onDraggingGridItem = {
-                                onDraggingGridItem(foldersDataById.last().gridItems)
-                            },
-                        )
-                    }
+                                    onAddFolder(gridItem.id)
+                                },
+                                onLongPress = {
+                                    onUpdateGridItemOffset(
+                                        IntOffset(
+                                            x = x + leftPadding,
+                                            y = y + (topPadding + titleHeight),
+                                        ),
+                                    )
+                                },
+                                onUpdateImageBitmap = { imageBitmap ->
+                                    onLongPressGridItem(
+                                        index,
+                                        GridItemSource.Existing(gridItem = gridItem),
+                                        imageBitmap,
+                                    )
+                                },
+                                onDraggingGridItem = {
+                                    onDraggingGridItem(foldersDataById.last().gridItems)
+                                },
+                            )
+                        },
+                    )
                 }
 
                 PageIndicator(

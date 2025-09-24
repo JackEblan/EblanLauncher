@@ -50,10 +50,10 @@ fun resizeGridItemWithPixels(
     )
 
     return gridItem.copy(
-        startRow = newStartRow,
         startColumn = newStartColumn,
-        rowSpan = newRowSpan,
+        startRow = newStartRow,
         columnSpan = newColumnSpan,
+        rowSpan = newRowSpan,
     )
 }
 
@@ -86,10 +86,10 @@ fun resizeWidgetGridItemWithPixels(
     )
 
     return gridItem.copy(
-        startRow = newStartRow,
         startColumn = newStartColumn,
-        rowSpan = newRowSpan,
+        startRow = newStartRow,
         columnSpan = newColumnSpan,
+        rowSpan = newRowSpan,
     )
 }
 

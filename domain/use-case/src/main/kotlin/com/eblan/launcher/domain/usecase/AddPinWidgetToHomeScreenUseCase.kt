@@ -65,9 +65,9 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
         return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val rows = homeSettings.rows
-
             val columns = homeSettings.columns
+
+            val rows = homeSettings.rows
 
             val pageCount = homeSettings.pageCount
 
@@ -92,7 +92,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
                 val cellHeight = gridHeight / rows
 
-                val (checkedRowSpan, checkedColumnSpan) = getWidgetGridItemSpan(
+                val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
                     cellHeight = cellHeight,
                     cellWidth = cellWidth,
                     minHeight = minHeight,
@@ -102,8 +102,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 )
 
                 val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                     gridWidth = rootWidth,
                     gridHeight = gridHeight,
                     minWidth = minWidth,
@@ -134,10 +134,10 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                     id = Uuid.random().toHexString(),
                     folderId = null,
                     page = initialPage,
-                    startRow = 0,
                     startColumn = 0,
-                    rowSpan = checkedRowSpan,
+                    startRow = 0,
                     columnSpan = checkedColumnSpan,
+                    rowSpan = checkedRowSpan,
                     data = data,
                     associate = Associate.Grid,
                     override = false,
@@ -148,8 +148,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                     gridItems = gridItems,
                     gridItem = gridItem,
                     pageCount = pageCount,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 )
 
                 if (newGridItem != null) {

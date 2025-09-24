@@ -61,17 +61,17 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     }.build()
 
     private val defaultHomeSettingsProto = HomeSettingsProto.newBuilder().apply {
-        rows = 5
         columns = 5
+        rows = 5
         pageCount = 1
         infiniteScroll = false
-        dockRows = 1
         dockColumns = 5
+        dockRows = 1
         dockHeight = 300
         initialPage = 0
         wallpaperScroll = false
-        folderRows = 5
         folderColumns = 5
+        folderRows = 5
         gridItemSettingsProto = defaultGridItemSettingsProto
     }.build()
 

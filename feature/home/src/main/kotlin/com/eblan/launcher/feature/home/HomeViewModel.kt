@@ -186,8 +186,8 @@ class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ) {
@@ -199,8 +199,8 @@ class HomeViewModel @Inject constructor(
                     movingGridItem = movingGridItem,
                     x = x,
                     y = y,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
                 )
@@ -210,16 +210,16 @@ class HomeViewModel @Inject constructor(
 
     fun resizeGridItem(
         resizingGridItem: GridItem,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ) {
         moveGridItemJob?.cancel()
 
         moveGridItemJob = viewModelScope.launch {
             resizeGridItemUseCase(
                 resizingGridItem = resizingGridItem,
-                rows = rows,
                 columns = columns,
+                rows = rows,
             )
         }
     }
@@ -228,8 +228,8 @@ class HomeViewModel @Inject constructor(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ) {
@@ -241,8 +241,8 @@ class HomeViewModel @Inject constructor(
                     movingGridItem = movingGridItem,
                     x = x,
                     y = y,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
                 )

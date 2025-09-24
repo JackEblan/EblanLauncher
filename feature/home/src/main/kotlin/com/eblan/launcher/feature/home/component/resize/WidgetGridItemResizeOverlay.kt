@@ -65,8 +65,8 @@ fun WidgetGridItemResizeOverlay(
     color: Color,
     onResizeWidgetGridItem: (
         gridItem: GridItem,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
@@ -215,16 +215,16 @@ fun WidgetGridItemResizeOverlay(
 
         if (resizingGridItem != null && isGridItemSpanWithinBounds(
                 gridItem = resizingGridItem,
-                rows = rows,
                 columns = columns,
+                rows = rows,
             )
         ) {
             delay(250L)
 
             onResizeWidgetGridItem(
                 resizingGridItem,
-                rows,
                 columns,
+                rows,
             )
         }
     }

@@ -55,8 +55,8 @@ fun GridItemResizeOverlay(
     gridHeight: Int,
     cellWidth: Int,
     cellHeight: Int,
-    rows: Int,
     columns: Int,
+    rows: Int,
     x: Int,
     y: Int,
     width: Int,
@@ -64,8 +64,8 @@ fun GridItemResizeOverlay(
     color: Color,
     onResizeGridItem: (
         gridItem: GridItem,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
 ) {
@@ -232,13 +232,17 @@ fun GridItemResizeOverlay(
 
         if (resizingGridItem != null && isGridItemSpanWithinBounds(
                 gridItem = resizingGridItem,
-                rows = rows,
                 columns = columns,
+                rows = rows,
             )
         ) {
             delay(250L)
 
-            onResizeGridItem(resizingGridItem, rows, columns)
+            onResizeGridItem(
+                resizingGridItem,
+                columns,
+                rows
+            )
         }
     }
 

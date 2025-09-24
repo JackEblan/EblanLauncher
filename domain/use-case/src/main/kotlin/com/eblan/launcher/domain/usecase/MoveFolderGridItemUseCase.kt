@@ -42,8 +42,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
         movingGridItem: GridItem,
         x: Int,
         y: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
         gridHeight: Int,
     ): MoveGridItemResult {
@@ -51,8 +51,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 ) && gridItem.page == movingGridItem.page
             }.toMutableList()
 
@@ -64,8 +64,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
             val gridItemByCoordinates = getGridItemByCoordinates(
                 id = movingGridItem.id,
                 gridItems = gridItems,
-                rows = rows,
                 columns = columns,
+                rows = rows,
                 x = x,
                 y = y,
                 gridWidth = gridWidth,
@@ -78,8 +78,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     movingGridItem = movingGridItem,
                     gridItemByCoordinates = gridItemByCoordinates,
                     x = x,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                     gridWidth = gridWidth,
                 )
             }
@@ -96,8 +96,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     movingGridItem = movingGridItem,
                     gridItemBySpan = gridItemBySpan,
                     gridItems = gridItems,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 )
             }
 
@@ -116,8 +116,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
         movingGridItem: GridItem,
         gridItemByCoordinates: GridItem,
         x: Int,
-        rows: Int,
         columns: Int,
+        rows: Int,
         gridWidth: Int,
     ): MoveGridItemResult {
         val resolveDirection = getResolveDirectionByX(
@@ -133,8 +133,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     movingGridItem = movingGridItem,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 )
 
                 if (resolvedConflicts) {
@@ -162,8 +162,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
         movingGridItem: GridItem,
         gridItemBySpan: GridItem,
         gridItems: MutableList<GridItem>,
-        rows: Int,
         columns: Int,
+        rows: Int,
     ): MoveGridItemResult {
         val resolveDirection = getRelativeResolveDirection(
             moving = movingGridItem,
@@ -174,8 +174,8 @@ class MoveFolderGridItemUseCase @Inject constructor(
             gridItems = gridItems,
             resolveDirection = resolveDirection,
             movingGridItem = movingGridItem,
-            rows = rows,
             columns = columns,
+            rows = rows,
         )
 
         gridCacheRepository.upsertGridItems(gridItems = gridItems)

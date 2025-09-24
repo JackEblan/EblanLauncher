@@ -26,8 +26,8 @@ suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
     resolveDirection: ResolveDirection,
     movingGridItem: GridItem,
-    rows: Int,
     columns: Int,
+    rows: Int,
 ): Boolean {
     for ((index, gridItem) in gridItems.withIndex()) {
         coroutineContext.ensureActive()
@@ -40,8 +40,8 @@ suspend fun resolveConflicts(
                 resolveDirection = resolveDirection,
                 moving = movingGridItem,
                 conflicting = gridItem,
-                rows = rows,
                 columns = columns,
+                rows = rows,
             ) ?: return false
 
             gridItems[index] = movedGridItem
@@ -50,8 +50,8 @@ suspend fun resolveConflicts(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     movingGridItem = movedGridItem,
-                    rows = rows,
                     columns = columns,
+                    rows = rows,
                 )
             ) {
                 return false
@@ -66,16 +66,16 @@ private fun moveGridItem(
     resolveDirection: ResolveDirection,
     moving: GridItem,
     conflicting: GridItem,
-    rows: Int,
     columns: Int,
+    rows: Int,
 ): GridItem? {
     return when (resolveDirection) {
         ResolveDirection.Left -> {
             moveGridItemToLeft(
                 moving = moving,
                 conflicting = conflicting,
-                rows = rows,
                 columns = columns,
+                rows = rows,
             )
         }
 
@@ -83,8 +83,8 @@ private fun moveGridItem(
             moveGridItemToRight(
                 moving = moving,
                 conflicting = conflicting,
-                rows = rows,
                 columns = columns,
+                rows = rows,
             )
         }
 
@@ -95,8 +95,8 @@ private fun moveGridItem(
 private fun moveGridItemToRight(
     moving: GridItem,
     conflicting: GridItem,
-    rows: Int,
     columns: Int,
+    rows: Int,
 ): GridItem? {
     var newStartColumn = moving.startColumn + moving.columnSpan
     var newStartRow = conflicting.startRow
@@ -111,16 +111,16 @@ private fun moveGridItemToRight(
     }
 
     return conflicting.copy(
-        startRow = newStartRow,
         startColumn = newStartColumn,
+        startRow = newStartRow,
     )
 }
 
 private fun moveGridItemToLeft(
     moving: GridItem,
     conflicting: GridItem,
-    rows: Int,
     columns: Int,
+    rows: Int,
 ): GridItem? {
     var newStartColumn = moving.startColumn - conflicting.columnSpan
     var newStartRow = conflicting.startRow
@@ -139,7 +139,7 @@ private fun moveGridItemToLeft(
     }
 
     return conflicting.copy(
-        startRow = newStartRow,
         startColumn = newStartColumn,
+        startRow = newStartRow,
     )
 }

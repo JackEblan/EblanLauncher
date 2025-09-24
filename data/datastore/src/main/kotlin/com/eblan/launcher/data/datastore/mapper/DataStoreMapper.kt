@@ -56,17 +56,17 @@ import com.eblan.launcher.domain.model.VerticalArrangement
 
 internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
     return HomeSettings(
-        rows = rows,
         columns = columns,
+        rows = rows,
         pageCount = pageCount,
         infiniteScroll = infiniteScroll,
-        dockRows = dockRows,
         dockColumns = dockColumns,
+        dockRows = dockRows,
         dockHeight = dockHeight,
         initialPage = initialPage,
         wallpaperScroll = wallpaperScroll,
-        folderRows = folderRows,
         folderColumns = folderColumns,
+        folderRows = folderRows,
         gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
     )
 }
@@ -252,17 +252,17 @@ internal fun GridItemSettings.toGridItemSettingsProto(): GridItemSettingsProto {
 
 internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto {
     return HomeSettingsProto.newBuilder()
-        .setRows(rows)
         .setColumns(columns)
+        .setRows(rows)
         .setPageCount(pageCount)
         .setInfiniteScroll(infiniteScroll)
-        .setDockRows(dockRows)
         .setDockColumns(dockColumns)
+        .setDockRows(dockRows)
         .setDockHeight(dockHeight)
         .setInitialPage(initialPage)
         .setWallpaperScroll(wallpaperScroll)
-        .setFolderRows(folderRows)
         .setFolderColumns(folderColumns)
+        .setFolderRows(folderRows)
         .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
         .build()
 }

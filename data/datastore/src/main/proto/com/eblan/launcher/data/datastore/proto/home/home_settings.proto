@@ -6,16 +6,16 @@ option java_package = "com.eblan.launcher.data.datastore.proto.home";
 option java_multiple_files = true;
 
 message HomeSettingsProto {
-  int32 rows = 1;
-  int32 columns = 2;
+  int32 columns = 1;
+  int32 rows = 2;
   int32 pageCount = 3;
   bool infiniteScroll = 4;
-  int32 dockRows = 5;
-  int32 dockColumns = 6;
+  int32 dockColumns = 5;
+  int32 dockRows = 6;
   int32 dockHeight = 7;
   int32 initialPage = 8;
   bool wallpaperScroll = 9;
-  int32 folderRows = 10;
-  int32 folderColumns = 11;
+  int32 folderColumns = 10;
+  int32 folderRows = 11;
   GridItemSettingsProto gridItemSettingsProto = 12;
 }

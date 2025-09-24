@@ -116,7 +116,7 @@ private fun Success(
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
             title = "Folder Grid",
-            subtitle = "Number of rows and columns",
+            subtitle = "Number of columns and rows",
             onClick = {
                 showGridDialog = true
             },
@@ -124,9 +124,9 @@ private fun Success(
     }
 
     if (showGridDialog) {
-        var folderRows by remember { mutableStateOf("${homeSettings.folderRows}") }
-
         var folderColumns by remember { mutableStateOf("${homeSettings.folderColumns}") }
+
+        var folderRows by remember { mutableStateOf("${homeSettings.folderRows}") }
 
         var firstTextFieldIsError by remember { mutableStateOf(false) }
 
@@ -134,42 +134,42 @@ private fun Success(
 
         TwoTextFieldsDialog(
             title = "Folder Grid",
-            firstTextFieldTitle = "Folder Rows",
-            secondTextFieldTitle = "Folder Columns",
-            firstTextFieldValue = folderRows,
-            secondTextFieldValue = folderColumns,
+            firstTextFieldTitle = "Columns",
+            secondTextFieldTitle = "Rows",
+            firstTextFieldValue = folderColumns,
+            secondTextFieldValue = folderRows,
             firstTextFieldIsError = firstTextFieldIsError,
             secondTextFieldIsError = secondTextFieldIsError,
             keyboardType = KeyboardType.Number,
             onFirstValueChange = {
-                folderRows = it
+                folderColumns = it
             },
             onSecondValueChange = {
-                folderColumns = it
+                folderRows = it
             },
             onDismissRequest = {
                 showGridDialog = false
             },
             onUpdateClick = {
-                val folderRows = try {
-                    folderRows.toInt()
+                val folderColumns = try {
+                    folderColumns.toInt()
                 } catch (_: NumberFormatException) {
                     firstTextFieldIsError = true
                     0
                 }
 
-                val folderColumns = try {
-                    folderColumns.toInt()
+                val folderRows = try {
+                    folderRows.toInt()
                 } catch (_: NumberFormatException) {
                     secondTextFieldIsError = true
                     0
                 }
 
-                if (folderRows > 0 && folderColumns > 0) {
+                if (folderColumns > 0 && folderRows > 0) {
                     onUpdateHomeSettings(
                         homeSettings.copy(
-                            folderRows = folderRows,
                             folderColumns = folderColumns,
+                            folderRows = folderRows,
                         ),
                     )
 

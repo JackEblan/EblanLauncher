@@ -46,7 +46,6 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -381,7 +380,7 @@ fun HomeScreen(
             drag = drag,
             overlayIntOffset = overlayIntOffset,
             overlayImageBitmap = overlayImageBitmap,
-            onUpdateOverlay = {
+            onResetOverlay = {
                 overlayImageBitmap = null
             },
         )
@@ -712,28 +711,25 @@ private fun OverlayImage(
     drag: Drag,
     overlayIntOffset: IntOffset,
     overlayImageBitmap: ImageBitmap?,
-    onUpdateOverlay: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     if (overlayImageBitmap != null) {
         when (drag) {
-            Drag.Dragging -> {
-                Image(
-                    modifier = modifier
-                        .offset {
-                            overlayIntOffset
-                        }
-                        .alpha(0.5f),
-                    bitmap = overlayImageBitmap,
-                    contentDescription = null,
-                )
-            }
-
             Drag.End, Drag.Cancel -> {
-                onUpdateOverlay()
+                onResetOverlay()
             }
 
             else -> Unit
         }
+
+        Image(
+            modifier = modifier
+                .offset {
+                    overlayIntOffset
+                },
+            bitmap = overlayImageBitmap,
+            contentDescription = null,
+        )
     }
 }
 

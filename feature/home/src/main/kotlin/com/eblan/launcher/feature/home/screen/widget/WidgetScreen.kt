@@ -48,12 +48,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -383,6 +385,8 @@ private fun EblanAppWidgetProviderInfoItem(
 
     var isLongPressed by remember { mutableStateOf(false) }
 
+    var alpha by remember { mutableFloatStateOf(1f) }
+
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
             when (drag) {
@@ -392,6 +396,8 @@ private fun EblanAppWidgetProviderInfoItem(
 
                 Drag.Cancel, Drag.End -> {
                     isLongPressed = false
+
+                    alpha = 1f
                 }
 
                 else -> Unit
@@ -455,6 +461,8 @@ private fun EblanAppWidgetProviderInfoItem(
                                     ),
                                     graphicsLayer.toImageBitmap(),
                                 )
+
+                                alpha = 0f
                             }
                         },
                     )
@@ -463,7 +471,8 @@ private fun EblanAppWidgetProviderInfoItem(
                     intOffset =
                         layoutCoordinates.positionInRoot()
                             .round()
-                },
+                }
+                .alpha(alpha),
             model = preview,
             contentDescription = null,
         )
@@ -480,7 +489,7 @@ private fun EblanAppWidgetProviderInfoItem(
     }
 }
 
-fun getWidgetGridItem(
+private fun getWidgetGridItem(
     id: String,
     page: Int,
     componentName: String,

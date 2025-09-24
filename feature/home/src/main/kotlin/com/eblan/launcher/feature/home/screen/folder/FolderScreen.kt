@@ -156,10 +156,10 @@ fun FolderScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
-                        .padding(5.dp)
                         .onSizeChanged {
                             titleHeight = it.height
-                        },
+                        }
+                        .padding(5.dp),
                 ) {
                     Spacer(modifier = Modifier.height(20.dp))
 

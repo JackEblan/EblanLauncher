@@ -152,8 +152,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                 setQueryFlags(
                     LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                 )
             }
 
@@ -174,14 +174,14 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     override fun startShortcut(
         packageName: String,
         id: String,
-        sourceBounds: Rect
+        sourceBounds: Rect,
     ) {
         launcherApps.startShortcut(
             packageName,
             id,
             sourceBounds,
             null,
-            userHandle
+            userHandle,
         )
     }
 
@@ -192,7 +192,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     override fun startAppDetailsActivity(
         componentName: String?,
-        sourceBounds: Rect
+        sourceBounds: Rect,
     ) {
         if (componentName != null) {
             launcherApps.startAppDetailsActivity(

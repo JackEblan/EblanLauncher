@@ -241,7 +241,7 @@ fun GridItemResizeOverlay(
             onResizeGridItem(
                 resizingGridItem,
                 columns,
-                rows
+                rows,
             )
         }
     }

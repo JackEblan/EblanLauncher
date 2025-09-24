@@ -214,18 +214,20 @@ fun FolderScreen(
                                             x,
                                             y,
                                             x + width,
-                                            y + height
-                                        )
+                                            y + height,
+                                        ),
                                     )
                                 },
                                 onTapShortcutInfo = { packageName, shortcutId ->
                                     launcherApps.startShortcut(
-                                        packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                                        packageName = packageName,
+                                        id = shortcutId,
+                                        sourceBounds = Rect(
                                             x,
                                             y,
                                             x + width,
-                                            y + height
-                                        )
+                                            y + height,
+                                        ),
                                     )
                                 },
                                 onTapFolderGridItem = {

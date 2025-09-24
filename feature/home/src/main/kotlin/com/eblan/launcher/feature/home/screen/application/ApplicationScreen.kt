@@ -531,8 +531,8 @@ private fun EblanApplicationInfoItem(
                                     intOffset.x,
                                     intOffset.y,
                                     intOffset.x + intSize.width,
-                                    intOffset.y + intSize.height
-                                )
+                                    intOffset.y + intSize.height,
+                                ),
                             )
                         }
                     },
@@ -671,8 +671,8 @@ private fun PopupApplicationInfoMenu(
                             x,
                             y,
                             x + popupMenuIntSize.width,
-                            y + popupMenuIntSize.height
-                        )
+                            y + popupMenuIntSize.height,
+                        ),
                     )
 
                     onDismissRequest()

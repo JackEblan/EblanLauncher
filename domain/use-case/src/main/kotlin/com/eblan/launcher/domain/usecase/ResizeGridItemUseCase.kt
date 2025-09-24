@@ -49,7 +49,7 @@ class ResizeGridItemUseCase @Inject constructor(
                 ) && when (resizingGridItem.associate) {
                     Associate.Grid -> {
                         gridItem.page == resizingGridItem.page &&
-                                gridItem.associate == resizingGridItem.associate
+                            gridItem.associate == resizingGridItem.associate
                     }
 
                     Associate.Dock -> {

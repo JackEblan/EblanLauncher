@@ -43,7 +43,7 @@ interface AndroidLauncherAppsWrapper {
 
     fun getShortcutIconDrawable(
         shortcutInfo: ShortcutInfo,
-        density: Int
+        density: Int,
     ): Drawable
 
     fun startAppDetailsActivity(

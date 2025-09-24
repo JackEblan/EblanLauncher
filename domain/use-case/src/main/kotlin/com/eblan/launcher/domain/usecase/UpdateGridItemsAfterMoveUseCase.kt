@@ -156,7 +156,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         conflictingGridItem.copy(
                             id = id,
                             data = newData,
-                        )
+                        ),
                     )
                 } else {
                     val newPageCount = pageCount + 1

@@ -219,7 +219,7 @@ fun PagerScreen(
                             onStartMainActivity = { componentName ->
                                 launcherApps.startMainActivity(
                                     componentName = componentName,
-                                    sourceBounds = Rect()
+                                    sourceBounds = Rect(),
                                 )
                             },
                             onPerformGlobalAction = { globalAction ->
@@ -331,7 +331,7 @@ fun PagerScreen(
                 SideEffect {
                     launcherApps.startMainActivity(
                         componentName = gestureAction.componentName,
-                        sourceBounds = Rect()
+                        sourceBounds = Rect(),
                     )
 
                     showDoubleTap = false
@@ -634,18 +634,20 @@ private fun HorizontalPagerScreen(
                                     x,
                                     y,
                                     x + width,
-                                    y + height
-                                )
+                                    y + height,
+                                ),
                             )
                         },
                         onTapShortcutInfo = { packageName, shortcutId ->
                             launcherApps.startShortcut(
-                                packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                                packageName = packageName,
+                                id = shortcutId,
+                                sourceBounds = Rect(
                                     x,
                                     y,
                                     x + width,
-                                    y + height
-                                )
+                                    y + height,
+                                ),
                             )
                         },
                         onTapFolderGridItem = {
@@ -721,18 +723,20 @@ private fun HorizontalPagerScreen(
                                 x,
                                 y,
                                 x + width,
-                                y + height
-                            )
+                                y + height,
+                            ),
                         )
                     },
                     onTapShortcutInfo = { packageName, shortcutId ->
                         launcherApps.startShortcut(
-                            packageName = packageName, id = shortcutId, sourceBounds = Rect(
+                            packageName = packageName,
+                            id = shortcutId,
+                            sourceBounds = Rect(
                                 x,
                                 y,
                                 x + width,
-                                y + height
-                            )
+                                y + height,
+                            ),
                         )
                     },
                     onTapFolderGridItem = {
@@ -787,10 +791,11 @@ private fun HorizontalPagerScreen(
                 launcherApps.startAppDetailsActivity(
                     componentName = componentName,
                     sourceBounds = Rect(
-                        popupMenuIntOffset.x, popupMenuIntOffset.y,
+                        popupMenuIntOffset.x,
+                        popupMenuIntOffset.y,
                         popupMenuIntOffset.x + popupGridItemMenuIntSize.width,
                         popupMenuIntOffset.y + popupGridItemMenuIntSize.height,
-                    )
+                    ),
                 )
             },
             onDismissRequest = {

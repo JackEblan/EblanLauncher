@@ -628,25 +628,33 @@ private fun HorizontalPagerScreen(
                         drag = drag,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         onTapApplicationInfo = { componentName ->
+                            val sourceBoundsX = x + leftPadding
+
+                            val sourceBoundsY = y + topPadding
+
                             launcherApps.startMainActivity(
                                 componentName = componentName,
                                 sourceBounds = Rect(
-                                    x,
-                                    y,
-                                    x + width,
-                                    y + height,
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + width,
+                                    sourceBoundsY + height,
                                 ),
                             )
                         },
                         onTapShortcutInfo = { packageName, shortcutId ->
+                            val sourceBoundsX = x + leftPadding
+
+                            val sourceBoundsY = y + topPadding
+
                             launcherApps.startShortcut(
                                 packageName = packageName,
                                 id = shortcutId,
                                 sourceBounds = Rect(
-                                    x,
-                                    y,
-                                    x + width,
-                                    y + height,
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + width,
+                                    sourceBoundsY + height,
                                 ),
                             )
                         },
@@ -717,25 +725,33 @@ private fun HorizontalPagerScreen(
                     drag = drag,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     onTapApplicationInfo = { componentName ->
+                        val sourceBoundsX = x + leftPadding
+
+                        val sourceBoundsY = y + topPadding
+
                         launcherApps.startMainActivity(
                             componentName = componentName,
                             sourceBounds = Rect(
-                                x,
-                                y,
-                                x + width,
-                                y + height,
+                                sourceBoundsX,
+                                sourceBoundsY,
+                                sourceBoundsX + width,
+                                sourceBoundsY + height,
                             ),
                         )
                     },
                     onTapShortcutInfo = { packageName, shortcutId ->
+                        val sourceBoundsX = x + leftPadding
+
+                        val sourceBoundsY = y + topPadding
+
                         launcherApps.startShortcut(
                             packageName = packageName,
                             id = shortcutId,
                             sourceBounds = Rect(
-                                x,
-                                y,
-                                x + width,
-                                y + height,
+                                sourceBoundsX,
+                                sourceBoundsY,
+                                sourceBoundsX + width,
+                                sourceBoundsY + height,
                             ),
                         )
                     },

@@ -267,6 +267,7 @@ fun ApplicationScreen(
                                     drag = drag,
                                     appDrawerSettings = appDrawerSettings,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
+                                    paddingValues = paddingValues,
                                     onLongPress = { intOffset, intSize ->
                                         onUpdateGridItemOffset(intOffset)
 
@@ -300,6 +301,7 @@ fun ApplicationScreen(
                                             eblanApplicationInfo = eblanApplicationInfo,
                                             appDrawerSettings = appDrawerSettings,
                                             iconPackInfoPackageName = iconPackInfoPackageName,
+                                            paddingValues = paddingValues,
                                             onLongPress = { intOffset, intSize ->
                                                 onUpdateGridItemOffset(intOffset)
 
@@ -350,6 +352,7 @@ private fun EblanApplicationInfoDockSearchBar(
     onQueryChange: (String) -> Unit,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     iconPackInfoPackageName: String,
+    paddingValues: PaddingValues,
     onLongPress: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -400,6 +403,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
+                    paddingValues = paddingValues,
                     onLongPress = onLongPress,
                     onLongPressGridItem = onLongPressGridItem,
                     onDraggingGridItem = onDraggingGridItem,
@@ -419,6 +423,7 @@ private fun EblanApplicationInfoItem(
     eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
     iconPackInfoPackageName: String,
+    paddingValues: PaddingValues,
     onLongPress: (
         intOffset: IntOffset,
         intSize: IntSize,
@@ -491,6 +496,14 @@ private fun EblanApplicationInfoItem(
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
             when (drag) {
@@ -531,13 +544,17 @@ private fun EblanApplicationInfoItem(
 
                             scale.animateTo(1f)
 
+                            val sourceBoundsX = intOffset.x + leftPadding
+
+                            val sourceBoundsY = intOffset.y + topPadding
+
                             launcherApps.startMainActivity(
                                 componentName = eblanApplicationInfo.componentName,
                                 sourceBounds = Rect(
-                                    intOffset.x,
-                                    intOffset.y,
-                                    intOffset.x + intSize.width,
-                                    intOffset.y + intSize.height,
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + intSize.width,
+                                    sourceBoundsY + intSize.height,
                                 ),
                             )
                         }

@@ -344,15 +344,15 @@ private fun AnimatedDropGridItem(
         convertToVector = { settings ->
             AnimationVector2D(
                 settings.iconSize.toFloat(),
-                settings.textSize.toFloat()
+                settings.textSize.toFloat(),
             )
         },
         convertFromVector = { vector ->
             gridItemSettings.copy(
                 iconSize = vector.v1.roundToInt(),
-                textSize = vector.v2.roundToInt()
+                textSize = vector.v2.roundToInt(),
             )
-        }
+        },
     )
 
     val animatedGridItemSettings = remember {
@@ -368,8 +368,8 @@ private fun AnimatedDropGridItem(
             animatedGridItemSettings.animateTo(
                 gridItemSettings.copy(
                     iconSize = gridItemSettings.iconSize / 2,
-                    textSize = gridItemSettings.textSize / 2
-                )
+                    textSize = gridItemSettings.textSize / 2,
+                ),
             )
         }
     }
@@ -388,7 +388,6 @@ private fun AnimatedDropGridItem(
         gridItemSettings = animatedGridItemSettings.value,
         iconPackInfoPackageName = iconPackInfoPackageName,
         isDragging = false,
-        hasShortcutHostPermission = hasShortcutHostPermission
+        hasShortcutHostPermission = hasShortcutHostPermission,
     )
 }
-

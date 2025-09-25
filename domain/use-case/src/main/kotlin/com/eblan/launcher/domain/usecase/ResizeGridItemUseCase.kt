@@ -49,7 +49,7 @@ class ResizeGridItemUseCase @Inject constructor(
                 ) && when (resizingGridItem.associate) {
                     Associate.Grid -> {
                         gridItem.page == resizingGridItem.page &&
-                            gridItem.associate == resizingGridItem.associate
+                                gridItem.associate == resizingGridItem.associate
                     }
 
                     Associate.Dock -> {
@@ -78,16 +78,20 @@ class ResizeGridItemUseCase @Inject constructor(
                     other = gridItemBySpan,
                 )
 
-                resolveConflicts(
+                val resolvedConflicts = resolveConflicts(
                     gridItems = gridItems,
                     resolveDirection = resolveDirection,
                     movingGridItem = resizingGridItem,
                     columns = columns,
                     rows = rows,
                 )
-            }
 
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+                if (resolvedConflicts) {
+                    gridCacheRepository.upsertGridItems(gridItems = gridItems)
+                }
+            } else {
+                gridCacheRepository.upsertGridItems(gridItems = gridItems)
+            }
         }
     }
 }

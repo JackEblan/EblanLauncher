@@ -1,0 +1,4 @@
+What's new
+- Fixed an unexpected crash that occurred when opening the app
+- Improved drag-and-drop item animations for smoother interactions
+- Improved Shortcut icon

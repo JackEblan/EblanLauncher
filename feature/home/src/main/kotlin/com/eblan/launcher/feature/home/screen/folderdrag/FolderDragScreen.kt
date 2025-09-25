@@ -17,6 +17,9 @@
  */
 package com.eblan.launcher.feature.home.screen.folderdrag
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -26,7 +29,9 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,13 +42,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -53,6 +62,8 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.getSystemTextColor
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun FolderDragScreen(
@@ -70,6 +81,7 @@ fun FolderDragScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
+    moveGridItemResult: MoveGridItemResult?,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -93,7 +105,7 @@ fun FolderDragScreen(
 
     val gridPaddingDp = 8.dp
 
-    val gridPaddingPx = with(density) {
+    val gridPadding = with(density) {
         (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
@@ -118,7 +130,7 @@ fun FolderDragScreen(
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             screenHeight = screenHeight,
-            gridPadding = gridPaddingPx,
+            gridPadding = gridPadding,
             screenWidth = screenWidth,
             pageIndicatorHeight = pageIndicatorHeightPx,
             columns = homeSettings.folderColumns,
@@ -153,7 +165,7 @@ fun FolderDragScreen(
                     currentPage = horizontalPagerState.currentPage,
                     dragIntOffset = dragIntOffset,
                     screenHeight = screenHeight,
-                    gridPadding = gridPaddingPx,
+                    gridPadding = gridPadding,
                     pageIndicatorHeight = pageIndicatorHeightPx,
                     paddingValues = paddingValues,
                     onDragEnd = onDragEnd,
@@ -208,7 +220,7 @@ fun FolderDragScreen(
                             textSize = homeSettings.gridItemSettings.textSize / 2,
                         ),
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        isDragging = drag == Drag.Dragging && gridItem.id == gridItemSource.gridItem.id,
+                        isDragging = gridItem.id == gridItemSource.gridItem.id,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 },
@@ -223,4 +235,152 @@ fun FolderDragScreen(
             currentPage = horizontalPagerState.currentPage,
         )
     }
+
+    AnimatedDropGridItem(
+        targetPage = horizontalPagerState.currentPage,
+        gridPadding = gridPadding,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+        pageIndicatorHeight = pageIndicatorHeightPx,
+        paddingValues = paddingValues,
+        columns = homeSettings.folderColumns,
+        rows = homeSettings.folderRows,
+        dragIntOffset = dragIntOffset,
+        textColor = textColor,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        hasShortcutHostPermission = hasShortcutHostPermission,
+        gridItemSettings = homeSettings.gridItemSettings,
+        drag = drag,
+        moveGridItemResult = moveGridItemResult,
+    )
 }
+
+@Composable
+private fun AnimatedDropGridItem(
+    modifier: Modifier = Modifier,
+    targetPage: Int,
+    gridPadding: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+    pageIndicatorHeight: Int,
+    paddingValues: PaddingValues,
+    columns: Int,
+    rows: Int,
+    dragIntOffset: IntOffset,
+    textColor: TextColor,
+    iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
+    gridItemSettings: GridItemSettings,
+    drag: Drag,
+    moveGridItemResult: MoveGridItemResult?,
+) {
+    if (drag != Drag.End || moveGridItemResult?.isSuccess != true || moveGridItemResult.movingGridItem.page != targetPage) return
+
+    val density = LocalDensity.current
+
+    val leftPadding = with(density) {
+        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val rightPadding = with(density) {
+        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
+    }
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    val horizontalPadding = leftPadding + rightPadding
+
+    val verticalPadding = topPadding + bottomPadding
+
+    val gridWidth = screenWidth - horizontalPadding
+
+    val gridHeight = screenHeight - verticalPadding
+
+    val gridLeft = leftPadding + gridPadding
+
+    val gridTop = topPadding + gridPadding
+
+    val gridWidthWithPadding = gridWidth - (gridPadding * 2)
+
+    val gridHeightWithPadding = gridHeight - pageIndicatorHeight - (gridPadding * 2)
+
+    val cellWidth = gridWidthWithPadding / columns
+
+    val cellHeight = gridHeightWithPadding / rows
+
+    val x = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + gridLeft
+
+    val y = (moveGridItemResult.movingGridItem.startRow * cellHeight) + gridTop
+
+    val width = moveGridItemResult.movingGridItem.columnSpan * cellWidth
+
+    val height = moveGridItemResult.movingGridItem.rowSpan * cellHeight
+
+    val startX = dragIntOffset.x - (width / 2)
+
+    val startY = dragIntOffset.y - (height / 2)
+
+    val animatedX = remember { Animatable(startX.toFloat()) }
+
+    val animatedY = remember { Animatable(startY.toFloat()) }
+
+    val animatedAlpha = remember { Animatable(1f) }
+
+    val gridItemSettingsConverter = TwoWayConverter<GridItemSettings, AnimationVector2D>(
+        convertToVector = { settings ->
+            AnimationVector2D(
+                settings.iconSize.toFloat(),
+                settings.textSize.toFloat()
+            )
+        },
+        convertFromVector = { vector ->
+            gridItemSettings.copy(
+                iconSize = vector.v1.roundToInt(),
+                textSize = vector.v2.roundToInt()
+            )
+        }
+    )
+
+    val animatedGridItemSettings = remember {
+        Animatable(gridItemSettings, gridItemSettingsConverter)
+    }
+
+    LaunchedEffect(moveGridItemResult.movingGridItem) {
+        launch { animatedX.animateTo(x.toFloat()) }
+
+        launch { animatedY.animateTo(y.toFloat()) }
+
+        launch {
+            animatedGridItemSettings.animateTo(
+                gridItemSettings.copy(
+                    iconSize = gridItemSettings.iconSize / 2,
+                    textSize = gridItemSettings.textSize / 2
+                )
+            )
+        }
+    }
+
+    val size = with(density) {
+        DpSize(width.toDp(), height.toDp())
+    }
+
+    GridItemContent(
+        modifier = modifier
+            .offset { IntOffset(animatedX.value.roundToInt(), animatedY.value.roundToInt()) }
+            .alpha(animatedAlpha.value)
+            .size(size),
+        gridItem = moveGridItemResult.movingGridItem,
+        textColor = textColor,
+        gridItemSettings = animatedGridItemSettings.value,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        isDragging = false,
+        hasShortcutHostPermission = hasShortcutHostPermission
+    )
+}
+

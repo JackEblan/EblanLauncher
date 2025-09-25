@@ -21,6 +21,8 @@ import android.appwidget.AppWidgetManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -48,7 +50,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -400,13 +401,13 @@ fun DragScreen(
         screenWidth = screenWidth,
         screenHeight = screenHeight,
         dockHeight = homeSettings.dockHeight,
+        pageIndicatorHeight = pageIndicatorHeightPx,
         paddingValues = paddingValues,
-        rows = homeSettings.rows,
         columns = homeSettings.columns,
-        dockRows = homeSettings.dockRows,
+        rows = homeSettings.rows,
         dockColumns = homeSettings.dockColumns,
+        dockRows = homeSettings.dockRows,
         dragIntOffset = dragIntOffset,
-        density = density,
         textColor = textColor,
         iconPackInfoPackageName = iconPackInfoPackageName,
         hasShortcutHostPermission = hasShortcutHostPermission,
@@ -424,13 +425,13 @@ private fun AnimatedDropGridItem(
     screenWidth: Int,
     screenHeight: Int,
     dockHeight: Int,
+    pageIndicatorHeight: Int,
     paddingValues: PaddingValues,
-    rows: Int,
     columns: Int,
-    dockRows: Int,
+    rows: Int,
     dockColumns: Int,
+    dockRows: Int,
     dragIntOffset: IntOffset,
-    density: Density,
     textColor: TextColor,
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
@@ -439,6 +440,8 @@ private fun AnimatedDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
 ) {
     if (drag != Drag.End || moveGridItemResult?.isSuccess != true || moveGridItemResult.movingGridItem.page != targetPage) return
+
+    val density = LocalDensity.current
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -480,7 +483,8 @@ private fun AnimatedDropGridItem(
         Associate.Grid -> {
             val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-            val gridHeightWithPadding = (gridHeight - dockHeight) - (gridPadding * 2)
+            val gridHeightWithPadding =
+                (gridHeight - pageIndicatorHeight - dockHeight) - (gridPadding * 2)
 
             cellWidth = gridWidthWithPadding / columns
 
@@ -515,9 +519,26 @@ private fun AnimatedDropGridItem(
 
     val animatedY = remember { Animatable(startY.toFloat()) }
 
-    val animatedIconSize = remember { Animatable(gridItemSettings.iconSize.toFloat()) }
-
     val animatedAlpha = remember { Animatable(1f) }
+
+    val gridItemSettingsConverter = TwoWayConverter<GridItemSettings, AnimationVector2D>(
+        convertToVector = { settings ->
+            AnimationVector2D(
+                settings.iconSize.toFloat(),
+                settings.textSize.toFloat()
+            )
+        },
+        convertFromVector = { vector ->
+            gridItemSettings.copy(
+                iconSize = vector.v1.roundToInt(),
+                textSize = vector.v2.roundToInt()
+            )
+        }
+    )
+
+    val animatedGridItemSettings = remember {
+        Animatable(gridItemSettings, gridItemSettingsConverter)
+    }
 
     LaunchedEffect(moveGridItemResult.movingGridItem) {
         launch { animatedX.animateTo(targetX.toFloat()) }
@@ -531,7 +552,12 @@ private fun AnimatedDropGridItem(
         }
 
         if (moveGridItemResult.movingGridItem.associate == Associate.Grid) {
-            launch { animatedIconSize.animateTo((gridItemSettings.iconSize / 2).toFloat()) }
+            animatedGridItemSettings.animateTo(
+                gridItemSettings.copy(
+                    iconSize = gridItemSettings.iconSize / 2,
+                    textSize = gridItemSettings.textSize / 2
+                )
+            )
         }
     }
 
@@ -546,7 +572,7 @@ private fun AnimatedDropGridItem(
             .size(size),
         gridItem = moveGridItemResult.movingGridItem,
         textColor = textColor,
-        gridItemSettings = gridItemSettings.copy(iconSize = animatedIconSize.value.roundToInt()),
+        gridItemSettings = animatedGridItemSettings.value,
         iconPackInfoPackageName = iconPackInfoPackageName,
         isDragging = false,
         hasShortcutHostPermission = hasShortcutHostPermission

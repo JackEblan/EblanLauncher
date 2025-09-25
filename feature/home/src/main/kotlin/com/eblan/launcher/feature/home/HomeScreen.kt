@@ -687,6 +687,7 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    moveGridItemResult = movedGridItemResult,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
                         folderTargetPage = newTargetPage

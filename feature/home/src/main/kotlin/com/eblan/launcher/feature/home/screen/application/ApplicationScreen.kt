@@ -21,27 +21,36 @@ import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -57,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -219,6 +229,10 @@ fun ApplicationScreen(
         )
     }
 
+    val lazyGridState = rememberLazyGridState()
+
+    var currentChar by remember { mutableStateOf<Char?>(null) }
+
     BackHandler {
         showPopupApplicationMenu = false
 
@@ -288,38 +302,50 @@ fun ApplicationScreen(
                                     },
                                 )
 
-                                LazyVerticalGrid(
-                                    columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
-                                    overscrollEffect = overscrollEffect,
-                                ) {
-                                    items(eblanApplicationInfos) { eblanApplicationInfo ->
-                                        EblanApplicationInfoItem(
-                                            page = page,
-                                            drag = drag,
-                                            eblanApplicationInfo = eblanApplicationInfo,
-                                            appDrawerSettings = appDrawerSettings,
-                                            iconPackInfoPackageName = iconPackInfoPackageName,
-                                            paddingValues = paddingValues,
-                                            onLongPress = { intOffset, intSize ->
-                                                onUpdateGridItemOffset(intOffset)
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    LazyVerticalGrid(
+                                        columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+                                        state = lazyGridState,
+                                        modifier = Modifier.weight(1f),
+                                        contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
+                                        overscrollEffect = overscrollEffect,
+                                    ) {
+                                        items(eblanApplicationInfos) { eblanApplicationInfo ->
+                                            EblanApplicationInfoItem(
+                                                page = page,
+                                                drag = drag,
+                                                eblanApplicationInfo = eblanApplicationInfo,
+                                                appDrawerSettings = appDrawerSettings,
+                                                iconPackInfoPackageName = iconPackInfoPackageName,
+                                                paddingValues = paddingValues,
+                                                onLongPress = { intOffset, intSize ->
+                                                    onUpdateGridItemOffset(intOffset)
 
-                                                popupMenuIntOffset = intOffset
+                                                    popupMenuIntOffset = intOffset
 
-                                                popupMenuIntSize = intSize
-                                            },
-                                            onLongPressGridItem = onLongPressGridItem,
-                                            onDraggingGridItem = {
-                                                onDraggingGridItem()
+                                                    popupMenuIntSize = intSize
+                                                },
+                                                onLongPressGridItem = onLongPressGridItem,
+                                                onDraggingGridItem = {
+                                                    onDraggingGridItem()
 
-                                                showPopupApplicationMenu = false
-                                            },
-                                            onUpdatePopupMenu = {
-                                                showPopupApplicationMenu = true
-                                            },
-                                        )
+                                                    showPopupApplicationMenu = false
+                                                },
+                                                onUpdatePopupMenu = {
+                                                    showPopupApplicationMenu = true
+                                                },
+                                            )
+                                        }
                                     }
+
+                                    LetterSideBar(
+                                        eblanApplicationInfos = eblanApplicationInfos,
+                                        lazyGridState = lazyGridState,
+                                        paddingValues = paddingValues,
+                                        onUpdateLetter = { char ->
+                                            currentChar = char
+                                        }
+                                    )
                                 }
                             }
 
@@ -333,6 +359,26 @@ fun ApplicationScreen(
                                         showPopupApplicationMenu = false
                                     },
                                 )
+                            }
+
+                            if (currentChar != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(end = 64.dp)
+                                        .align(Alignment.CenterEnd)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.primaryContainer,
+                                            shape = CircleShape
+                                        )
+                                        .size(64.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = currentChar.toString(),
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.headlineLarge
+                                    )
+                                }
                             }
                         }
                     }
@@ -716,3 +762,81 @@ private fun PopupApplicationInfoMenu(
         },
     )
 }
+
+@Composable
+private fun LetterSideBar(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    lazyGridState: LazyGridState,
+    paddingValues: PaddingValues,
+    onUpdateLetter: (Char?) -> Unit,
+) {
+    val density = LocalDensity.current
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val letters = listOf('#') + ('A'..'Z').toList()
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
+    Column(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = { change, _ ->
+                        val dragLetterIntY =
+                            change.position.y.roundToInt()
+
+                        val letterHeight =
+                            (size.height - bottomPadding) / letters.size
+
+                        val index =
+                            (dragLetterIntY / letterHeight)
+                                .coerceIn(0, letters.lastIndex)
+
+                        val letter = letters[index]
+
+                        onUpdateLetter(letter)
+
+                        val itemIndex =
+                            eblanApplicationInfos.indexOfFirst { info ->
+                                val firstChar =
+                                    info.label?.firstOrNull()
+                                        ?.uppercaseChar() ?: '#'
+                                if (firstChar in 'A'..'Z') {
+                                    firstChar == letter
+                                } else {
+                                    letter == '#'
+                                }
+                            }
+
+                        if (itemIndex >= 0) {
+                            coroutineScope.launch {
+                                lazyGridState.scrollToItem(itemIndex)
+                            }
+                        }
+                    },
+                    onDragEnd = {
+                        onUpdateLetter(null)
+                    },
+                    onDragCancel = {
+                        onUpdateLetter(null)
+                    }
+                )
+            }
+            .width(24.dp)
+            .fillMaxHeight()
+            .padding(bottom = paddingValues.calculateBottomPadding()),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        letters.forEach { letter ->
+            Text(
+                text = letter.toString(),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+

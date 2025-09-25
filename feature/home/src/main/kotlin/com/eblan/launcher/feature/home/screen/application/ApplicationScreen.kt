@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -46,10 +47,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
@@ -84,6 +88,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
@@ -338,11 +343,11 @@ fun ApplicationScreen(
                                         }
                                     }
 
-                                    LetterSideBar(
+                                    AlphabetSideBar(
                                         eblanApplicationInfos = eblanApplicationInfos,
                                         lazyGridState = lazyGridState,
                                         paddingValues = paddingValues,
-                                        onUpdateLetter = { char ->
+                                        onUpdateChar = { char ->
                                             currentChar = char
                                         }
                                     )
@@ -764,78 +769,81 @@ private fun PopupApplicationInfoMenu(
 }
 
 @Composable
-private fun LetterSideBar(
+private fun AlphabetSideBar(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     lazyGridState: LazyGridState,
     paddingValues: PaddingValues,
-    onUpdateLetter: (Char?) -> Unit,
+    onUpdateChar: (Char?) -> Unit,
 ) {
     val density = LocalDensity.current
 
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
-    val letters = listOf('#') + ('A'..'Z').toList()
+    val alphabet = listOf('#') + ('A'..'Z').toList()
 
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
+    val textColor = LocalContentColor.current
 
-    Column(
+    BoxWithConstraints(
         modifier = modifier
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { change, _ ->
-                        val dragLetterIntY =
-                            change.position.y.roundToInt()
+            .width(24.dp)
+            .padding(bottom = paddingValues.calculateBottomPadding())
+    ) {
+        val maxHeight = this@BoxWithConstraints.constraints.maxHeight
 
-                        val letterHeight =
-                            (size.height - bottomPadding) / letters.size
+        val charHeightPx = maxHeight / alphabet.size
 
-                        val index =
-                            (dragLetterIntY / letterHeight)
-                                .coerceIn(0, letters.lastIndex)
+        val charHeight = with(density) {
+            charHeightPx.toDp()
+        }
 
-                        val letter = letters[index]
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { change, _ ->
+                            val dragY = change.position.y.roundToInt().coerceIn(0, maxHeight)
 
-                        onUpdateLetter(letter)
+                            val index = (dragY / charHeightPx).coerceIn(0, alphabet.lastIndex)
 
-                        val itemIndex =
-                            eblanApplicationInfos.indexOfFirst { info ->
-                                val firstChar =
-                                    info.label?.firstOrNull()
-                                        ?.uppercaseChar() ?: '#'
+                            val char = alphabet[index]
+
+                            onUpdateChar(char)
+
+                            val itemIndex = eblanApplicationInfos.indexOfFirst { info ->
+                                val firstChar = info.label?.firstOrNull()?.uppercaseChar() ?: '#'
+
                                 if (firstChar in 'A'..'Z') {
-                                    firstChar == letter
+                                    firstChar == char
                                 } else {
-                                    letter == '#'
+                                    char == '#'
                                 }
                             }
 
-                        if (itemIndex >= 0) {
-                            coroutineScope.launch {
-                                lazyGridState.scrollToItem(itemIndex)
+                            if (itemIndex >= 0) {
+                                scope.launch {
+                                    lazyGridState.scrollToItem(itemIndex)
+                                }
                             }
-                        }
-                    },
-                    onDragEnd = {
-                        onUpdateLetter(null)
-                    },
-                    onDragCancel = {
-                        onUpdateLetter(null)
-                    }
+                        },
+                        onDragEnd = { onUpdateChar(null) },
+                        onDragCancel = { onUpdateChar(null) }
+                    )
+                },
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            alphabet.forEach { char ->
+                BasicText(
+                    text = char.toString(),
+                    modifier = Modifier.height(charHeight),
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 2.sp,
+                        maxFontSize = 10.sp
+                    ),
+                    color = { textColor }
                 )
             }
-            .width(24.dp)
-            .fillMaxHeight()
-            .padding(bottom = paddingValues.calculateBottomPadding()),
-        verticalArrangement = Arrangement.SpaceBetween,
-    ) {
-        letters.forEach { letter ->
-            Text(
-                text = letter.toString(),
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 }

@@ -129,6 +129,7 @@ fun HomeRoute(
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
         onCancelGridCache = viewModel::cancelGridCache,
+        onCancelFolderDragGridCache = viewModel::cancelFolderDragGridCache,
         onEdit = onEdit,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
@@ -199,6 +200,7 @@ fun HomeScreen(
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
+    onCancelFolderDragGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -349,6 +351,7 @@ fun HomeScreen(
                     onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                     onCancelGridCache = onCancelGridCache,
+                    onCancelFolderDragGridCache = onCancelFolderDragGridCache,
                     onEdit = onEdit,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
@@ -441,6 +444,7 @@ private fun Success(
     ) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
+    onCancelFolderDragGridCache: () -> Unit,
     onEdit: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -694,7 +698,7 @@ private fun Success(
 
                         onResetGridCacheAfterMoveFolder()
                     },
-                    onDragCancel = onCancelGridCache,
+                    onDragCancel = onCancelFolderDragGridCache,
                     onMoveOutsideFolder = { newGridItemSource ->
                         gridItemSource = newGridItemSource
 

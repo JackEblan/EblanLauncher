@@ -204,7 +204,7 @@ fun DragScreen(
         )
     }
 
-    LaunchedEffect(key1 = dragIntOffset) {
+    LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragIntOffset(
             density = density,
             targetPage = targetPage,

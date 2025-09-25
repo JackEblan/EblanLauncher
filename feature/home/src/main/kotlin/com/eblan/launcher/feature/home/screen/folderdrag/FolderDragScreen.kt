@@ -122,7 +122,7 @@ fun FolderDragScreen(
         },
     )
 
-    LaunchedEffect(key1 = dragIntOffset) {
+    LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleFolderDragIntOffset(
             density = density,
             targetPage = horizontalPagerState.currentPage,
@@ -252,6 +252,7 @@ fun FolderDragScreen(
         gridItemSettings = homeSettings.gridItemSettings,
         drag = drag,
         moveGridItemResult = moveGridItemResult,
+        folderDataById = folderDataById,
     )
 }
 
@@ -273,8 +274,15 @@ private fun AnimatedDropGridItem(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
+    folderDataById: FolderDataById?,
 ) {
-    if (drag != Drag.End || moveGridItemResult?.isSuccess != true || moveGridItemResult.movingGridItem.page != targetPage) return
+    if (drag != Drag.End ||
+        moveGridItemResult?.isSuccess != true ||
+        moveGridItemResult.movingGridItem.page != targetPage ||
+        folderDataById == null
+    ) {
+        return
+    }
 
     val density = LocalDensity.current
 

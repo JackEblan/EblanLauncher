@@ -383,9 +383,21 @@ class HomeViewModel @Inject constructor(
             _screen.update {
                 Screen.Pager
             }
+        }
+    }
 
-            _moveGridItemResult.update {
-                null
+    fun cancelFolderDragGridCache() {
+        viewModelScope.launch {
+            moveGridItemJob?.cancelAndJoin()
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
+
+            _foldersDataById.update {
+                ArrayDeque()
             }
         }
     }

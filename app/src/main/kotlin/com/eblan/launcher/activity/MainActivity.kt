@@ -101,13 +101,7 @@ class MainActivity : ComponentActivity() {
                             MainNavHost(
                                 navController = navController,
                                 onSettings = {
-                                    val intent = Intent(this, SettingsActivity::class.java).apply {
-                                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                    }
-
-                                    startActivity(intent)
-
-                                    finish()
+                                    startActivity(Intent(this, SettingsActivity::class.java))
                                 },
                             )
                         }

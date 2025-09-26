@@ -144,11 +144,12 @@ fun PagerScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val initialPage =
-        if (homeSettings.infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage
-
     val gridHorizontalPagerState = rememberPagerState(
-        initialPage = initialPage,
+        initialPage = if (homeSettings.infiniteScroll) {
+            (Int.MAX_VALUE / 2) + targetPage
+        } else {
+            targetPage
+        },
         pageCount = {
             if (homeSettings.infiniteScroll) {
                 Int.MAX_VALUE
@@ -214,7 +215,13 @@ fun PagerScreen(
                 intent.hasCategory(Intent.CATEGORY_HOME)
             ) {
                 scope.launch {
-                    gridHorizontalPagerState.animateScrollToPage(initialPage)
+                    gridHorizontalPagerState.animateScrollToPage(
+                        if (homeSettings.infiniteScroll) {
+                            (Int.MAX_VALUE / 2) + homeSettings.initialPage
+                        } else {
+                            homeSettings.initialPage
+                        }
+                    )
                 }
             }
         }

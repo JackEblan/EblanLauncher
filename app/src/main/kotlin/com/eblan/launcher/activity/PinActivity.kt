@@ -69,7 +69,6 @@ class PinActivity : ComponentActivity() {
             val homeIntent = Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_HOME)
                 .setPackage(packageName)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
             val pinItemRequest = androidLauncherAppsWrapper.getPinItemRequest(intent = intent)
 

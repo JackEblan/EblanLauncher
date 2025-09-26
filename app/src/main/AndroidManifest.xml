@@ -31,7 +31,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.EblanLauncher.Wallpaper">
             <intent-filter>
@@ -57,6 +57,7 @@
 
         <activity
             android:name=".activity.PinActivity"
+            android:taskAffinity=""
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
             android:exported="true"

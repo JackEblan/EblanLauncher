@@ -175,7 +175,7 @@ fun PagerScreen(
 
     val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
 
-    val applicationComponentY by remember {
+    val applicationComponentY by remember(key1 = gestureSettings) {
         derivedStateOf {
             if (swipeUpY.value < screenHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
                 swipeUpY.value

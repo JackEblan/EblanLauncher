@@ -33,7 +33,7 @@ import kotlinx.coroutines.delay
 
 suspend fun handleFolderDragIntOffset(
     density: Density,
-    targetPage: Int,
+    currentPage: Int,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
@@ -123,7 +123,7 @@ suspend fun handleFolderDragIntOffset(
         val cellHeight = gridHeightWithPadding / rows
 
         val newGridItem = gridItem.copy(
-            page = targetPage,
+            page = currentPage,
             startColumn = gridX / cellWidth,
             startRow = gridY / cellHeight,
             associate = Associate.Grid,

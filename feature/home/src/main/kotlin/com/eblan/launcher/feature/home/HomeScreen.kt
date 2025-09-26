@@ -32,11 +32,12 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -64,6 +65,7 @@ import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.feature.home.component.pager.rememberHomePagerState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -76,6 +78,7 @@ import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import kotlin.math.roundToInt
 
@@ -475,13 +478,37 @@ private fun Success(
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
-    var targetPage by remember {
-        mutableIntStateOf(
-            homeData.userData.homeSettings.initialPage,
-        )
+    val gridHorizontalPagerState = rememberHomePagerState(
+        infiniteScroll = homeData.userData.homeSettings.infiniteScroll,
+        initialPage = if (homeData.userData.homeSettings.infiniteScroll) {
+            (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.initialPage
+        } else {
+            homeData.userData.homeSettings.initialPage
+        },
+        pageCount = {
+            if (homeData.userData.homeSettings.infiniteScroll) {
+                Int.MAX_VALUE
+            } else {
+                homeData.userData.homeSettings.pageCount
+            }
+        },
+    )
+
+    val currentPage by remember(gridHorizontalPagerState) {
+        derivedStateOf {
+            calculatePage(
+                index = gridHorizontalPagerState.currentPage,
+                infiniteScroll = homeData.userData.homeSettings.infiniteScroll,
+                pageCount = homeData.userData.homeSettings.pageCount,
+            )
+        }
     }
 
-    var folderTargetPage by remember { mutableIntStateOf(0) }
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            foldersDataById.lastOrNull()?.pageCount ?: 0
+        },
+    )
 
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
@@ -507,7 +534,6 @@ private fun Success(
         when (targetState) {
             Screen.Pager -> {
                 PagerScreen(
-                    targetPage = targetPage,
                     gridItems = homeData.gridItems,
                     gridItemsByPage = homeData.gridItemsByPage,
                     drag = drag,
@@ -526,14 +552,9 @@ private fun Success(
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                    onLongPressGrid = { newCurrentPage ->
-                        targetPage = newCurrentPage
-                    },
-                    onTapFolderGridItem = { newCurrentPage, id ->
-                        targetPage = newCurrentPage
-
-                        onShowFolder(id)
-                    },
+                    gridHorizontalPagerState = gridHorizontalPagerState,
+                    currentPage = currentPage,
+                    onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
                             homeData.gridItems,
@@ -542,9 +563,7 @@ private fun Success(
                         )
                     },
                     onEdit = onEdit,
-                    onResize = { newTargetPage ->
-                        targetPage = newTargetPage
-
+                    onResize = {
                         onShowGridCache(
                             homeData.gridItems,
                             GridItemCacheType.Grid,
@@ -553,9 +572,7 @@ private fun Success(
                     },
                     onSettings = onSettings,
                     onEditPage = onEditPage,
-                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
-                        targetPage = newCurrentPage
-
+                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
                         onUpdateGridItemImageBitmap(imageBitmap)
@@ -570,7 +587,6 @@ private fun Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    startCurrentPage = targetPage,
                     gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
@@ -584,30 +600,20 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    gridHorizontalPagerState = gridHorizontalPagerState,
+                    currentPage = currentPage,
                     onMoveGridItem = onMoveGridItem,
-                    onDragEndAfterMove = { newTargetPage, movingGridItem, conflictingGridItem ->
-                        targetPage = newTargetPage
-
-                        onResetGridCacheAfterMove(movingGridItem, conflictingGridItem)
-                    },
-                    onMoveGridItemsFailed = { newTargetPage ->
-                        targetPage = newTargetPage
-
-                        onCancelGridCache()
-                    },
+                    onDragEndAfterMove = onResetGridCacheAfterMove,
+                    onMoveGridItemsFailed = onCancelGridCache,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
-                    onDeleteWidgetGridItemCache = { newTargetPage, gridItem, appWidgetId ->
-                        targetPage = newTargetPage
-
-                        onDeleteWidgetGridItemCache(gridItem, appWidgetId)
-                    },
+                    onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                 )
             }
 
             Screen.Resize -> {
                 ResizeScreen(
-                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage[targetPage],
+                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage[currentPage],
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
@@ -642,7 +648,6 @@ private fun Success(
 
             Screen.Folder -> {
                 FolderScreen(
-                    startCurrentPage = folderTargetPage,
                     foldersDataById = foldersDataById,
                     drag = drag,
                     paddingValues = paddingValues,
@@ -652,15 +657,11 @@ private fun Success(
                     textColor = homeData.textColor,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
-                    onResetTargetPage = {
-                        folderTargetPage = 0
-                    },
-                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
-                        folderTargetPage = newCurrentPage
-
+                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
                         onUpdateGridItemImageBitmap(imageBitmap)
@@ -678,7 +679,6 @@ private fun Success(
 
             Screen.FolderDrag -> {
                 FolderDragScreen(
-                    startCurrentPage = folderTargetPage,
                     gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
                     gridItemSource = gridItemSource,
                     textColor = homeData.textColor,
@@ -692,12 +692,9 @@ private fun Success(
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     moveGridItemResult = movedGridItemResult,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onMoveFolderGridItem = onMoveFolderGridItem,
-                    onDragEnd = { newTargetPage ->
-                        folderTargetPage = newTargetPage
-
-                        onResetGridCacheAfterMoveFolder()
-                    },
+                    onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,
                     onMoveOutsideFolder = { newGridItemSource ->
                         gridItemSource = newGridItemSource

@@ -36,11 +36,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -78,7 +77,6 @@ import kotlin.math.roundToInt
 @Composable
 fun DragScreen(
     modifier: Modifier = Modifier,
-    startCurrentPage: Int,
     dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
     gridItemsCacheByPage: Map<Int, List<GridItem>>,
@@ -92,6 +90,8 @@ fun DragScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
+    gridHorizontalPagerState: PagerState,
+    currentPage: Int,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -102,15 +102,13 @@ fun DragScreen(
         gridHeight: Int,
     ) -> Unit,
     onDragEndAfterMove: (
-        targetPage: Int,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
-    onMoveGridItemsFailed: (Int) -> Unit,
+    onMoveGridItemsFailed: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
-        targetPage: Int,
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
@@ -139,23 +137,12 @@ fun DragScreen(
 
     var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
 
-    val horizontalPagerState = rememberPagerState(
-        initialPage = if (homeSettings.infiniteScroll) (Int.MAX_VALUE / 2) + startCurrentPage else startCurrentPage,
-        pageCount = {
-            if (homeSettings.infiniteScroll) {
-                Int.MAX_VALUE
-            } else {
-                homeSettings.pageCount
-            }
-        },
-    )
-
-    val horizontalPagerPaddingDp = 50.dp
+    val gridHorizontalPagerPaddingDp = 50.dp
 
     val gridPaddingDp = 8.dp
 
     val gridPadding = with(density) {
-        (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
+        (gridHorizontalPagerPaddingDp + gridPaddingDp).roundToPx()
     }
 
     val pageIndicatorHeight = 20.dp
@@ -164,21 +151,10 @@ fun DragScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    val targetPage by remember {
-        derivedStateOf {
-            calculatePage(
-                index = horizontalPagerState.currentPage,
-                infiniteScroll = homeSettings.infiniteScroll,
-                pageCount = homeSettings.pageCount,
-            )
-        }
-    }
-
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         handleConfigureResult(
-            targetPage = targetPage,
             moveGridItemResult = moveGridItemResult,
             updatedGridItem = updatedGridItem,
             resultCode = result.resultCode,
@@ -207,7 +183,7 @@ fun DragScreen(
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragIntOffset(
             density = density,
-            targetPage = targetPage,
+            currentPage = currentPage,
             drag = drag,
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
@@ -220,7 +196,7 @@ fun DragScreen(
             columns = homeSettings.columns,
             dockRows = homeSettings.dockRows,
             dockColumns = homeSettings.dockColumns,
-            isScrollInProgress = horizontalPagerState.isScrollInProgress,
+            isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
             onUpdatePageDirection = { newPageDirection ->
@@ -232,10 +208,10 @@ fun DragScreen(
 
     LaunchedEffect(key1 = pageDirection) {
         handlePageDirection(
-            currentPage = horizontalPagerState.currentPage,
+            currentPage = gridHorizontalPagerState.currentPage,
             pageDirection = pageDirection,
             onAnimateScrollToPage = { page ->
-                horizontalPagerState.animateScrollToPage(page = page)
+                gridHorizontalPagerState.animateScrollToPage(page = page)
 
                 pageDirection = null
             },
@@ -246,7 +222,6 @@ fun DragScreen(
         when (drag) {
             Drag.End -> {
                 handleOnDragEnd(
-                    targetPage = targetPage,
                     moveGridItemResult = moveGridItemResult,
                     androidAppWidgetHostWrapper = appWidgetHostWrapper,
                     appWidgetManager = appWidgetManager,
@@ -267,7 +242,7 @@ fun DragScreen(
             }
 
             Drag.Cancel -> {
-                onMoveGridItemsFailed(targetPage)
+                onMoveGridItemsFailed()
             }
 
             else -> Unit
@@ -276,7 +251,6 @@ fun DragScreen(
 
     LaunchedEffect(key1 = deleteAppWidgetId) {
         handleDeleteAppWidgetId(
-            targetPage = targetPage,
             gridItem = gridItemSource.gridItem,
             appWidgetId = lastAppWidgetId,
             deleteAppWidgetId = deleteAppWidgetId,
@@ -286,7 +260,6 @@ fun DragScreen(
 
     LaunchedEffect(key1 = updatedGridItem) {
         handleBoundWidget(
-            targetPage = targetPage,
             gridItemSource = gridItemSource,
             updatedGridItem = updatedGridItem,
             moveGridItemResult = moveGridItemResult,
@@ -296,9 +269,9 @@ fun DragScreen(
         )
     }
 
-    LaunchedEffect(key1 = horizontalPagerState) {
+    LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
-            horizontalPagerState = horizontalPagerState,
+            horizontalPagerState = gridHorizontalPagerState,
             wallpaperScroll = homeSettings.wallpaperScroll,
             wallpaperManagerWrapper = wallpaperManagerWrapper,
             pageCount = homeSettings.pageCount,
@@ -316,13 +289,13 @@ fun DragScreen(
             ),
     ) {
         HorizontalPager(
-            state = horizontalPagerState,
+            state = gridHorizontalPagerState,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
-                top = horizontalPagerPaddingDp,
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                bottom = horizontalPagerPaddingDp,
+                top = gridHorizontalPagerPaddingDp,
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr) + gridHorizontalPagerPaddingDp,
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + gridHorizontalPagerPaddingDp,
+                bottom = gridHorizontalPagerPaddingDp,
             ),
         ) { index ->
             val page = calculatePage(
@@ -368,7 +341,7 @@ fun DragScreen(
                 .height(pageIndicatorHeight)
                 .fillMaxWidth(),
             pageCount = homeSettings.pageCount,
-            currentPage = targetPage,
+            currentPage = currentPage,
         )
 
         GridLayout(
@@ -396,7 +369,7 @@ fun DragScreen(
     }
 
     AnimatedDropGridItem(
-        targetPage = targetPage,
+        currentPage = currentPage,
         gridPadding = gridPadding,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
@@ -421,7 +394,7 @@ fun DragScreen(
 @Composable
 private fun AnimatedDropGridItem(
     modifier: Modifier = Modifier,
-    targetPage: Int,
+    currentPage: Int,
     gridPadding: Int,
     screenWidth: Int,
     screenHeight: Int,
@@ -443,7 +416,7 @@ private fun AnimatedDropGridItem(
 ) {
     if (drag != Drag.End ||
         moveGridItemResult?.isSuccess != true ||
-        moveGridItemResult.movingGridItem.page != targetPage ||
+        moveGridItemResult.movingGridItem.page != currentPage ||
         gridItemSource is GridItemSource.Pin
     ) {
         return

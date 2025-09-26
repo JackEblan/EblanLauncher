@@ -54,7 +54,7 @@ suspend fun handlePageDirection(
 
 suspend fun handleDragIntOffset(
     density: Density,
-    targetPage: Int,
+    currentPage: Int,
     drag: Drag,
     gridItem: GridItem,
     dragIntOffset: IntOffset,
@@ -141,7 +141,7 @@ suspend fun handleDragIntOffset(
         val dockY = dragY - (gridHeight - dockHeight)
 
         val moveGridItem = getMoveGridItem(
-            targetPage = targetPage,
+            targetPage = currentPage,
             gridItem = gridItem,
             cellWidth = cellWidth,
             cellHeight = cellHeight,
@@ -186,7 +186,7 @@ suspend fun handleDragIntOffset(
         val cellHeight = gridHeightWithPadding / rows
 
         val moveGridItem = getMoveGridItem(
-            targetPage = targetPage,
+            targetPage = currentPage,
             gridItem = gridItem,
             cellWidth = cellWidth,
             cellHeight = cellHeight,

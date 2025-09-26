@@ -84,7 +84,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
-import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -92,8 +91,6 @@ import kotlin.math.roundToInt
 fun ShortcutScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
@@ -101,7 +98,6 @@ fun ShortcutScreen(
     drag: Drag,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -110,12 +106,6 @@ fun ShortcutScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
     val scope = rememberCoroutineScope()
@@ -198,7 +188,7 @@ fun ShortcutScreen(
                                     drag = drag,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
-                                    page = page,
+                                    currentPage = currentPage,
                                     gridItemSettings = gridItemSettings,
                                     onDraggingGridItem = onDraggingGridItem,
                                 )
@@ -215,7 +205,7 @@ fun ShortcutScreen(
                                             drag = drag,
                                             onUpdateGridItemOffset = onUpdateGridItemOffset,
                                             onLongPressGridItem = onLongPressGridItem,
-                                            page = page,
+                                            currentPage = currentPage,
                                             gridItemSettings = gridItemSettings,
                                             onDraggingGridItem = onDraggingGridItem,
                                         )
@@ -238,8 +228,11 @@ private fun EblanShortcutInfoDockSearchBar(
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
 ) {
@@ -289,7 +282,7 @@ private fun EblanShortcutInfoDockSearchBar(
                         onUpdateGridItemOffset(intOffset)
                     },
                     onLongPressGridItem = onLongPressGridItem,
-                    page = page,
+                    currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
                 )
@@ -305,8 +298,11 @@ private fun EblanApplicationInfoItem(
     eblanShortcutInfos: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
 ) {
@@ -360,7 +356,7 @@ private fun EblanApplicationInfoItem(
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
-                    page = page,
+                    currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
                 )
@@ -375,8 +371,11 @@ private fun EblanShortcutInfoItem(
     eblanShortcutInfo: EblanShortcutInfo,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
 ) {
@@ -452,12 +451,11 @@ private fun EblanShortcutInfoItem(
                                 )
 
                                 onLongPressGridItem(
-                                    page,
                                     GridItemSource.New(
                                         gridItem = GridItem(
                                             id = eblanShortcutInfo.shortcutId,
                                             folderId = null,
-                                            page = page,
+                                            page = currentPage,
                                             startColumn = 0,
                                             startRow = 0,
                                             columnSpan = 1,

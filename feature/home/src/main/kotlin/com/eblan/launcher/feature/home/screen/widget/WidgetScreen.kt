@@ -84,7 +84,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
-import com.eblan.launcher.feature.home.util.calculatePage
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -94,8 +93,6 @@ import kotlin.uuid.Uuid
 fun WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
@@ -103,7 +100,6 @@ fun WidgetScreen(
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -112,12 +108,6 @@ fun WidgetScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
-
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
     val scope = rememberCoroutineScope()
@@ -194,7 +184,7 @@ fun WidgetScreen(
                                     drag = drag,
                                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onLongPressGridItem = onLongPressGridItem,
-                                    page = page,
+                                    currentPage = currentPage,
                                     gridItemSettings = gridItemSettings,
                                     onDraggingGridItem = onDraggingGridItem,
                                 )
@@ -211,7 +201,7 @@ fun WidgetScreen(
                                             drag = drag,
                                             onUpdateGridItemOffset = onUpdateGridItemOffset,
                                             onLongPressGridItem = onLongPressGridItem,
-                                            page = page,
+                                            currentPage = currentPage,
                                             gridItemSettings = gridItemSettings,
                                             onDraggingGridItem = onDraggingGridItem,
                                         )
@@ -234,8 +224,11 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
 ) {
@@ -280,7 +273,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
                         onUpdateGridItemOffset(intOffset)
                     },
                     onLongPressGridItem = onLongPressGridItem,
-                    page = page,
+                    currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
                 )
@@ -296,8 +289,11 @@ private fun EblanApplicationInfoItem(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
 ) {
@@ -351,7 +347,7 @@ private fun EblanApplicationInfoItem(
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
-                    page = page,
+                    currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
                 )
@@ -367,8 +363,11 @@ private fun EblanAppWidgetProviderInfoItem(
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
-    page: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
 ) {
@@ -436,12 +435,11 @@ private fun EblanAppWidgetProviderInfoItem(
                                 scale.animateTo(1f)
 
                                 onLongPressGridItem(
-                                    page,
                                     GridItemSource.New(
                                         gridItem = getWidgetGridItem(
                                             id = Uuid.random()
                                                 .toHexString(),
-                                            page = page,
+                                            page = currentPage,
                                             componentName = eblanAppWidgetProviderInfo.componentName,
                                             configure = eblanAppWidgetProviderInfo.configure,
                                             packageName = eblanAppWidgetProviderInfo.packageName,

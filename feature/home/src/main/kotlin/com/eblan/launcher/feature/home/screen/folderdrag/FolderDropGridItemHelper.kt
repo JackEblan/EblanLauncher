@@ -23,13 +23,12 @@ import androidx.compose.ui.unit.IntOffset
 
 fun handleOnDragEnd(
     density: Density,
-    currentPage: Int,
     dragIntOffset: IntOffset,
     screenHeight: Int,
     gridPadding: Int,
     pageIndicatorHeight: Int,
     paddingValues: PaddingValues,
-    onDragEnd: (Int) -> Unit,
+    onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
 ) {
     val topPadding = with(density) {
@@ -53,7 +52,7 @@ fun handleOnDragEnd(
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 
     if (isVerticalBounds) {
-        onDragEnd(currentPage)
+        onDragEnd()
     } else {
         onDragCancel()
     }

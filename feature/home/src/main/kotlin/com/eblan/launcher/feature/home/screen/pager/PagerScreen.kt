@@ -305,9 +305,7 @@ fun PagerScreen(
             modifier = Modifier.offset {
                 IntOffset(x = 0, y = applicationComponentY.roundToInt())
             },
-            currentPage = gridHorizontalPagerState.currentPage,
-            pageCount = homeSettings.pageCount,
-            infiniteScroll = homeSettings.infiniteScroll,
+            currentPage = currentPage,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -354,10 +352,8 @@ fun PagerScreen(
 
             GestureAction.OpenAppDrawer -> {
                 DoubleTapApplicationScreen(
-                    currentPage = gridHorizontalPagerState.currentPage,
+                    currentPage = currentPage,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    pageCount = homeSettings.pageCount,
-                    infiniteScroll = homeSettings.infiniteScroll,
                     paddingValues = paddingValues,
                     drag = drag,
                     screenHeight = screenHeight,
@@ -435,9 +431,7 @@ fun PagerScreen(
 
     if (showWidgets) {
         WidgetScreen(
-            currentPage = gridHorizontalPagerState.currentPage,
-            pageCount = homeSettings.pageCount,
-            infiniteScroll = homeSettings.infiniteScroll,
+            currentPage = currentPage,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
@@ -456,9 +450,7 @@ fun PagerScreen(
 
     if (showShortcuts) {
         ShortcutScreen(
-            currentPage = gridHorizontalPagerState.currentPage,
-            pageCount = homeSettings.pageCount,
-            infiniteScroll = homeSettings.infiniteScroll,
+            currentPage = currentPage,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,

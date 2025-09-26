@@ -110,7 +110,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
-import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
@@ -123,8 +122,6 @@ import kotlin.uuid.Uuid
 fun DoubleTapApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -155,8 +152,6 @@ fun DoubleTapApplicationScreen(
             IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
         },
         currentPage = currentPage,
-        pageCount = pageCount,
-        infiniteScroll = infiniteScroll,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         paddingValues = paddingValues,
         drag = drag,
@@ -183,8 +178,6 @@ fun DoubleTapApplicationScreen(
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    pageCount: Int,
-    infiniteScroll: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -205,12 +198,6 @@ fun ApplicationScreen(
     val focusManager = LocalFocusManager.current
 
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
-
-    val page = calculatePage(
-        index = currentPage,
-        infiniteScroll = infiniteScroll,
-        pageCount = pageCount,
-    )
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -278,7 +265,7 @@ fun ApplicationScreen(
                                     ),
                             ) {
                                 EblanApplicationInfoDockSearchBar(
-                                    page = page,
+                                    currentPage = currentPage,
                                     onQueryChange = onGetEblanApplicationInfosByLabel,
                                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                                     drag = drag,
@@ -315,7 +302,7 @@ fun ApplicationScreen(
                                     ) {
                                         items(eblanApplicationInfos) { eblanApplicationInfo ->
                                             EblanApplicationInfoItem(
-                                                page = page,
+                                                currentPage = currentPage,
                                                 drag = drag,
                                                 eblanApplicationInfo = eblanApplicationInfo,
                                                 appDrawerSettings = appDrawerSettings,
@@ -395,7 +382,7 @@ fun ApplicationScreen(
 @Composable
 private fun EblanApplicationInfoDockSearchBar(
     modifier: Modifier = Modifier,
-    page: Int,
+    currentPage: Int,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
     onQueryChange: (String) -> Unit,
@@ -446,7 +433,7 @@ private fun EblanApplicationInfoDockSearchBar(
         ) {
             items(eblanApplicationInfosByLabel) { eblanApplicationInfo ->
                 EblanApplicationInfoItem(
-                    page = page,
+                    currentPage = currentPage,
                     drag = drag,
                     eblanApplicationInfo = eblanApplicationInfo,
                     appDrawerSettings = appDrawerSettings,
@@ -466,7 +453,7 @@ private fun EblanApplicationInfoDockSearchBar(
 @Composable
 private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
-    page: Int,
+    currentPage: Int,
     drag: Drag,
     eblanApplicationInfo: EblanApplicationInfo,
     appDrawerSettings: AppDrawerSettings,
@@ -633,7 +620,7 @@ private fun EblanApplicationInfoItem(
                                         id = Uuid.random()
                                             .toHexString(),
                                         folderId = null,
-                                        page = page,
+                                        page = currentPage,
                                         startColumn = 0,
                                         startRow = 0,
                                         columnSpan = 1,

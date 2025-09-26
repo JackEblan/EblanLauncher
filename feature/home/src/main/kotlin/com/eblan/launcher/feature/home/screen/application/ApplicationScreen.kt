@@ -349,7 +349,7 @@ fun ApplicationScreen(
                                         paddingValues = paddingValues,
                                         onUpdateChar = { char ->
                                             currentChar = char
-                                        }
+                                        },
                                     )
                                 }
                             }
@@ -373,15 +373,15 @@ fun ApplicationScreen(
                                         .align(Alignment.CenterEnd)
                                         .background(
                                             color = MaterialTheme.colorScheme.primaryContainer,
-                                            shape = CircleShape
+                                            shape = CircleShape,
                                         )
                                         .size(64.dp),
-                                    contentAlignment = Alignment.Center
+                                    contentAlignment = Alignment.Center,
                                 ) {
                                     Text(
                                         text = currentChar.toString(),
                                         color = Color.White,
-                                        style = MaterialTheme.typography.headlineLarge
+                                        style = MaterialTheme.typography.headlineLarge,
                                     )
                                 }
                             }
@@ -787,7 +787,7 @@ private fun AlphabetSideBar(
     BoxWithConstraints(
         modifier = modifier
             .width(24.dp)
-            .padding(bottom = paddingValues.calculateBottomPadding())
+            .padding(bottom = paddingValues.calculateBottomPadding()),
     ) {
         val maxHeight = this@BoxWithConstraints.constraints.maxHeight
 
@@ -828,10 +828,10 @@ private fun AlphabetSideBar(
                             }
                         },
                         onDragEnd = { onUpdateChar(null) },
-                        onDragCancel = { onUpdateChar(null) }
+                        onDragCancel = { onUpdateChar(null) },
                     )
                 },
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             alphabet.forEach { char ->
                 BasicText(
@@ -839,12 +839,11 @@ private fun AlphabetSideBar(
                     modifier = Modifier.height(charHeight),
                     autoSize = TextAutoSize.StepBased(
                         minFontSize = 2.sp,
-                        maxFontSize = 10.sp
+                        maxFontSize = 10.sp,
                     ),
-                    color = { textColor }
+                    color = { textColor },
                 )
             }
         }
     }
 }
-

@@ -414,6 +414,7 @@ fun DragScreen(
         gridItemSettings = homeSettings.gridItemSettings,
         drag = drag,
         moveGridItemResult = moveGridItemResult,
+        gridItemSource = gridItemSource,
     )
 }
 
@@ -438,8 +439,15 @@ private fun AnimatedDropGridItem(
     gridItemSettings: GridItemSettings,
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
+    gridItemSource: GridItemSource,
 ) {
-    if (drag != Drag.End || moveGridItemResult?.isSuccess != true || moveGridItemResult.movingGridItem.page != targetPage) return
+    if (drag != Drag.End ||
+        moveGridItemResult?.isSuccess != true ||
+        moveGridItemResult.movingGridItem.page != targetPage ||
+        gridItemSource is GridItemSource.Pin
+    ) {
+        return
+    }
 
     val density = LocalDensity.current
 

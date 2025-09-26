@@ -194,7 +194,7 @@ class MoveGridItemUseCase @Inject constructor(
             rows = rows,
         )
 
-        if(resolvedConflicts){
+        if (resolvedConflicts) {
             gridCacheRepository.upsertGridItems(gridItems = gridItems)
         }
 

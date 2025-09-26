@@ -134,7 +134,6 @@ fun DoubleTapApplicationScreen(
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -194,7 +193,6 @@ fun ApplicationScreen(
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -409,7 +407,6 @@ private fun EblanApplicationInfoDockSearchBar(
         intSize: IntSize,
     ) -> Unit,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -480,7 +477,6 @@ private fun EblanApplicationInfoItem(
         intSize: IntSize,
     ) -> Unit,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -632,7 +628,6 @@ private fun EblanApplicationInfoItem(
                                 )
 
                             onLongPressGridItem(
-                                page,
                                 GridItemSource.New(
                                     gridItem = GridItem(
                                         id = Uuid.random()

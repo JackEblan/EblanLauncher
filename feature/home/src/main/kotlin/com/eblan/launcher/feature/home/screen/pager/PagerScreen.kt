@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -98,7 +97,6 @@ import kotlin.math.roundToInt
 @Composable
 fun PagerScreen(
     modifier: Modifier = Modifier,
-    targetPage: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     drag: Drag,
@@ -117,18 +115,15 @@ fun PagerScreen(
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     iconPackInfoPackageName: String,
-    onLongPressGrid: (Int) -> Unit,
-    onTapFolderGridItem: (
-        currentPage: Int,
-        id: String,
-    ) -> Unit,
+    gridHorizontalPagerState: PagerState,
+    currentPage: Int,
+    onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -143,21 +138,6 @@ fun PagerScreen(
     val density = LocalDensity.current
 
     val launcherApps = LocalLauncherApps.current
-
-    val gridHorizontalPagerState = rememberPagerState(
-        initialPage = if (homeSettings.infiniteScroll) {
-            (Int.MAX_VALUE / 2) + targetPage
-        } else {
-            targetPage
-        },
-        pageCount = {
-            if (homeSettings.infiniteScroll) {
-                Int.MAX_VALUE
-            } else {
-                homeSettings.pageCount
-            }
-        },
-    )
 
     var showDoubleTap by remember { mutableStateOf(false) }
 
@@ -284,7 +264,8 @@ fun PagerScreen(
                     },
                 )
             },
-        horizontalPagerState = gridHorizontalPagerState,
+        gridHorizontalPagerState = gridHorizontalPagerState,
+        currentPage = currentPage,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
         gridWidth = gridWidth,
@@ -297,7 +278,6 @@ fun PagerScreen(
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
-        onLongPressGrid = onLongPressGrid,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
         onResize = onResize,
@@ -499,7 +479,8 @@ fun PagerScreen(
 @Composable
 private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
-    horizontalPagerState: PagerState,
+    gridHorizontalPagerState: PagerState,
+    currentPage: Int,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,
@@ -508,15 +489,11 @@ private fun HorizontalPagerScreen(
     dockGridItems: List<GridItem>,
     textColor: TextColor,
     gridItemSource: GridItemSource?,
-    onLongPressGrid: (Int) -> Unit,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
-    onTapFolderGridItem: (
-        currentPage: Int,
-        id: String,
-    ) -> Unit,
+    onTapFolderGridItem: (String) -> Unit,
     onEdit: (String) -> Unit,
     onResize: (Int) -> Unit,
     onSettings: () -> Unit,
@@ -525,7 +502,6 @@ private fun HorizontalPagerScreen(
     onShortcuts: () -> Unit,
     onDoubleTap: () -> Unit,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -557,16 +533,6 @@ private fun HorizontalPagerScreen(
 
     var popupGridItemMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val currentPage by remember {
-        derivedStateOf {
-            calculatePage(
-                index = horizontalPagerState.currentPage,
-                infiniteScroll = homeSettings.infiniteScroll,
-                pageCount = homeSettings.pageCount,
-            )
-        }
-    }
-
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -587,9 +553,9 @@ private fun HorizontalPagerScreen(
         }
     }
 
-    LaunchedEffect(key1 = horizontalPagerState) {
+    LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
-            horizontalPagerState = horizontalPagerState,
+            horizontalPagerState = gridHorizontalPagerState,
             wallpaperScroll = homeSettings.wallpaperScroll,
             wallpaperManagerWrapper = wallpaperManagerWrapper,
             pageCount = homeSettings.pageCount,
@@ -609,8 +575,6 @@ private fun HorizontalPagerScreen(
                         popupSettingsMenuIntOffset = offset.round()
 
                         showPopupSettingsMenu = true
-
-                        onLongPressGrid(currentPage)
                     },
                 )
             }
@@ -621,7 +585,7 @@ private fun HorizontalPagerScreen(
             ),
     ) {
         HorizontalPager(
-            state = horizontalPagerState,
+            state = gridHorizontalPagerState,
             modifier = Modifier.weight(1f),
         ) { index ->
             val page = calculatePage(
@@ -693,7 +657,7 @@ private fun HorizontalPagerScreen(
                             )
                         },
                         onTapFolderGridItem = {
-                            onTapFolderGridItem(currentPage, gridItem.id)
+                            onTapFolderGridItem(gridItem.id)
                         },
                         onLongPress = {
                             val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
@@ -706,7 +670,6 @@ private fun HorizontalPagerScreen(
                         },
                         onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
-                                currentPage,
                                 GridItemSource.Existing(gridItem = gridItem),
                                 imageBitmap,
                             )
@@ -790,7 +753,7 @@ private fun HorizontalPagerScreen(
                         )
                     },
                     onTapFolderGridItem = {
-                        onTapFolderGridItem(currentPage, gridItem.id)
+                        onTapFolderGridItem(gridItem.id)
                     },
                     onLongPress = {
                         val dockY =
@@ -806,7 +769,6 @@ private fun HorizontalPagerScreen(
                     },
                     onUpdateImageBitmap = { imageBitmap ->
                         onLongPressGridItem(
-                            currentPage,
                             GridItemSource.Existing(gridItem = gridItem),
                             imageBitmap,
                         )

@@ -101,7 +101,6 @@ fun ShortcutScreen(
     drag: Drag,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -238,7 +237,10 @@ private fun EblanShortcutInfoDockSearchBar(
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?
+    ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
@@ -305,7 +307,10 @@ private fun EblanApplicationInfoItem(
     eblanShortcutInfos: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?
+    ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
@@ -375,7 +380,10 @@ private fun EblanShortcutInfoItem(
     eblanShortcutInfo: EblanShortcutInfo,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?
+    ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
@@ -452,7 +460,6 @@ private fun EblanShortcutInfoItem(
                                 )
 
                                 onLongPressGridItem(
-                                    page,
                                     GridItemSource.New(
                                         gridItem = GridItem(
                                             id = eblanShortcutInfo.shortcutId,

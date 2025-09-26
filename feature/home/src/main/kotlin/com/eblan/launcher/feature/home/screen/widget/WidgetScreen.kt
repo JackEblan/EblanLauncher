@@ -103,7 +103,6 @@ fun WidgetScreen(
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -234,7 +233,10 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?
+    ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
@@ -296,7 +298,10 @@ private fun EblanApplicationInfoItem(
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?
+    ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
@@ -367,7 +372,10 @@ private fun EblanAppWidgetProviderInfoItem(
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset) -> Unit,
-    onLongPressGridItem: (currentPage: Int, gridItemSource: GridItemSource, imageBitmap: ImageBitmap?) -> Unit,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?
+    ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
@@ -436,7 +444,6 @@ private fun EblanAppWidgetProviderInfoItem(
                                 scale.animateTo(1f)
 
                                 onLongPressGridItem(
-                                    page,
                                     GridItemSource.New(
                                         gridItem = getWidgetGridItem(
                                             id = Uuid.random()

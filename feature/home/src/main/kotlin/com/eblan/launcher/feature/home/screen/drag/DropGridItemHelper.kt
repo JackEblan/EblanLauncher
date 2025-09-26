@@ -33,7 +33,6 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
 fun handleOnDragEnd(
-    targetPage: Int,
     moveGridItemResult: MoveGridItemResult?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
@@ -41,16 +40,15 @@ fun handleOnDragEnd(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
     onDragEndAfterMove: (
-        targetPage: Int,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
-    onMoveGridItemsFailed: (Int) -> Unit,
+    onMoveGridItemsFailed: () -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
     if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
-        onMoveGridItemsFailed(targetPage)
+        onMoveGridItemsFailed()
 
         return
     }
@@ -74,7 +72,6 @@ fun handleOnDragEnd(
                 )
             } else {
                 onDragEndAfterMove(
-                    targetPage,
                     moveGridItemResult.movingGridItem,
                     moveGridItemResult.conflictingGridItem,
                 )
@@ -91,7 +88,6 @@ fun handleOnDragEnd(
                     )
 
                     onDragEndAfterMove(
-                        targetPage,
                         moveGridItemResult.movingGridItem,
                         moveGridItemResult.conflictingGridItem,
                     )
@@ -118,7 +114,6 @@ fun handleOnDragEnd(
 
         else -> {
             onDragEndAfterMove(
-                targetPage,
                 moveGridItemResult.movingGridItem,
                 moveGridItemResult.conflictingGridItem,
             )
@@ -150,14 +145,11 @@ fun handleConfigureResult(
     moveGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     resultCode: Int,
-    targetPage: Int,
     onDeleteWidgetGridItemCache: (
-        targetPage: Int,
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
     onDragEndAfterMove: (
-        targetPage: Int,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -170,11 +162,10 @@ fun handleConfigureResult(
         ?: error("Expected GridItemData as Widget")
 
     if (resultCode == Activity.RESULT_CANCELED) {
-        onDeleteWidgetGridItemCache(targetPage, updatedGridItem, data.appWidgetId)
+        onDeleteWidgetGridItemCache(updatedGridItem, data.appWidgetId)
     }
 
     onDragEndAfterMove(
-        targetPage,
         updatedGridItem,
         moveGridItemResult.conflictingGridItem,
     )
@@ -184,9 +175,7 @@ fun handleDeleteAppWidgetId(
     gridItem: GridItem,
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
-    targetPage: Int,
     onDeleteWidgetGridItemCache: (
-        targetPage: Int,
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
@@ -196,18 +185,16 @@ fun handleDeleteAppWidgetId(
     ) {
         check(gridItem.data is GridItemData.Widget)
 
-        onDeleteWidgetGridItemCache(targetPage, gridItem, appWidgetId)
+        onDeleteWidgetGridItemCache(gridItem, appWidgetId)
     }
 }
 
 fun handleBoundWidget(
     gridItemSource: GridItemSource,
     updatedGridItem: GridItem?,
-    targetPage: Int,
     moveGridItemResult: MoveGridItemResult?,
     onConfigure: (Intent) -> Unit,
     onDragEndAfterMove: (
-        targetPage: Int,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -220,7 +207,6 @@ fun handleBoundWidget(
     when (gridItemSource) {
         is GridItemSource.New -> {
             configureComponent(
-                targetPage = targetPage,
                 appWidgetId = data.appWidgetId,
                 configure = data.configure,
                 updatedGridItem = updatedGridItem,
@@ -232,7 +218,6 @@ fun handleBoundWidget(
 
         is GridItemSource.Pin -> {
             bindPinWidget(
-                targetPage = targetPage,
                 appWidgetId = data.appWidgetId,
                 gridItem = updatedGridItem,
                 pinItemRequest = gridItemSource.pinItemRequest,
@@ -293,14 +278,12 @@ private fun onDragEndPinShortcut(
 }
 
 private fun configureComponent(
-    targetPage: Int,
     appWidgetId: Int,
     configure: String?,
     updatedGridItem: GridItem,
     conflictingGridItem: GridItem?,
     onConfigure: (Intent) -> Unit,
     onDragEndAfterMove: (
-        targetPage: Int,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -317,7 +300,6 @@ private fun configureComponent(
         onConfigure(intent)
     } else {
         onDragEndAfterMove(
-            targetPage,
             updatedGridItem,
             conflictingGridItem,
         )
@@ -325,14 +307,12 @@ private fun configureComponent(
 }
 
 private fun bindPinWidget(
-    targetPage: Int,
     appWidgetId: Int,
     gridItem: GridItem,
     pinItemRequest: PinItemRequest,
     updatedGridItem: GridItem,
     conflictingGridItem: GridItem?,
     onDragEndAfterMove: (
-        targetPage: Int,
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
@@ -349,7 +329,6 @@ private fun bindPinWidget(
 
     if (bindPinWidget) {
         onDragEndAfterMove(
-            targetPage,
             updatedGridItem,
             conflictingGridItem,
         )

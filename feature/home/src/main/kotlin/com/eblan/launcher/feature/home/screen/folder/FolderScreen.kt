@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,7 +63,6 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 @Composable
 fun FolderScreen(
     modifier: Modifier = Modifier,
-    startCurrentPage: Int,
     foldersDataById: ArrayDeque<FolderDataById>,
     drag: Drag,
     paddingValues: PaddingValues,
@@ -73,6 +72,7 @@ fun FolderScreen(
     textColor: TextColor,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    folderGridHorizontalPagerState: PagerState,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -146,13 +146,6 @@ fun FolderScreen(
                 ),
             targetState = folderDataById,
         ) { targetState ->
-            val horizontalPagerState = rememberPagerState(
-                initialPage = startCurrentPage,
-                pageCount = {
-                    folderDataById.pageCount
-                },
-            )
-
             Column(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
@@ -173,7 +166,7 @@ fun FolderScreen(
                 }
 
                 HorizontalPager(
-                    state = horizontalPagerState,
+                    state = folderGridHorizontalPagerState,
                     modifier = Modifier.weight(1f),
                 ) { index ->
                     GridLayout(
@@ -270,8 +263,8 @@ fun FolderScreen(
                     modifier = Modifier
                         .height(pageIndicatorHeight)
                         .fillMaxWidth(),
-                    pageCount = horizontalPagerState.pageCount,
-                    currentPage = horizontalPagerState.currentPage,
+                    pageCount = folderGridHorizontalPagerState.pageCount,
+                    currentPage = folderGridHorizontalPagerState.currentPage,
                 )
             }
         }

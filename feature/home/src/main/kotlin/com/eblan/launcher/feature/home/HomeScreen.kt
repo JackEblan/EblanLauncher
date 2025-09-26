@@ -32,12 +32,12 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -504,7 +504,11 @@ private fun Success(
         }
     }
 
-    var folderTargetPage by remember { mutableIntStateOf(0) }
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            foldersDataById.lastOrNull()?.pageCount ?: 0
+        },
+    )
 
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
@@ -644,7 +648,6 @@ private fun Success(
 
             Screen.Folder -> {
                 FolderScreen(
-                    startCurrentPage = folderTargetPage,
                     foldersDataById = foldersDataById,
                     drag = drag,
                     paddingValues = paddingValues,
@@ -654,15 +657,13 @@ private fun Success(
                     textColor = homeData.textColor,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
                     onResetTargetPage = {
-                        folderTargetPage = 0
                     },
                     onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
-                        folderTargetPage = newCurrentPage
-
                         gridItemSource = newGridItemSource
 
                         onUpdateGridItemImageBitmap(imageBitmap)
@@ -680,7 +681,6 @@ private fun Success(
 
             Screen.FolderDrag -> {
                 FolderDragScreen(
-                    startCurrentPage = folderTargetPage,
                     gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
                     gridItemSource = gridItemSource,
                     textColor = homeData.textColor,
@@ -694,10 +694,9 @@ private fun Success(
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     moveGridItemResult = movedGridItemResult,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = { newTargetPage ->
-                        folderTargetPage = newTargetPage
-
                         onResetGridCacheAfterMoveFolder()
                     },
                     onDragCancel = onCancelFolderDragGridCache,

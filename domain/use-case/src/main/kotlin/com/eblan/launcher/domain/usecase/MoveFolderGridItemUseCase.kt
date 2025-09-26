@@ -53,7 +53,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     gridItem = gridItem,
                     columns = columns,
                     rows = rows,
-                ) && gridItem.page == movingGridItem.page
+                )
             }.toMutableList()
 
             val index =

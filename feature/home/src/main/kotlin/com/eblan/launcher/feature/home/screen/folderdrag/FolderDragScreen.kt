@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,7 +68,6 @@ import kotlin.math.roundToInt
 @Composable
 fun FolderDragScreen(
     modifier: Modifier = Modifier,
-    startCurrentPage: Int,
     gridItemsCacheByPage: Map<Int, List<GridItem>>,
     gridItemSource: GridItemSource?,
     textColor: TextColor,
@@ -82,6 +81,7 @@ fun FolderDragScreen(
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
     moveGridItemResult: MoveGridItemResult?,
+    folderGridHorizontalPagerState: PagerState,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -115,17 +115,10 @@ fun FolderDragScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    val horizontalPagerState = rememberPagerState(
-        initialPage = startCurrentPage,
-        pageCount = {
-            folderDataById?.pageCount ?: 0
-        },
-    )
-
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleFolderDragIntOffset(
             density = density,
-            targetPage = horizontalPagerState.currentPage,
+            currentPage = folderGridHorizontalPagerState.currentPage,
             drag = drag,
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
@@ -135,7 +128,7 @@ fun FolderDragScreen(
             pageIndicatorHeight = pageIndicatorHeightPx,
             columns = homeSettings.folderColumns,
             rows = homeSettings.folderRows,
-            isScrollInProgress = horizontalPagerState.isScrollInProgress,
+            isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveOutsideFolder = onMoveOutsideFolder,
@@ -147,10 +140,10 @@ fun FolderDragScreen(
 
     LaunchedEffect(key1 = pageDirection) {
         handlePageDirection(
-            currentPage = horizontalPagerState.currentPage,
+            currentPage = folderGridHorizontalPagerState.currentPage,
             pageDirection = pageDirection,
             onAnimateScrollToPage = { page ->
-                horizontalPagerState.animateScrollToPage(page = page)
+                folderGridHorizontalPagerState.animateScrollToPage(page = page)
 
                 pageDirection = null
             },
@@ -162,7 +155,7 @@ fun FolderDragScreen(
             Drag.End, Drag.Cancel -> {
                 handleOnDragEnd(
                     density = density,
-                    currentPage = horizontalPagerState.currentPage,
+                    currentPage = folderGridHorizontalPagerState.currentPage,
                     dragIntOffset = dragIntOffset,
                     screenHeight = screenHeight,
                     gridPadding = gridPadding,
@@ -186,7 +179,7 @@ fun FolderDragScreen(
             ),
     ) {
         HorizontalPager(
-            state = horizontalPagerState,
+            state = folderGridHorizontalPagerState,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
                 top = horizontalPagerPaddingDp,
@@ -231,13 +224,13 @@ fun FolderDragScreen(
             modifier = Modifier
                 .height(pageIndicatorHeight)
                 .fillMaxWidth(),
-            pageCount = horizontalPagerState.pageCount,
-            currentPage = horizontalPagerState.currentPage,
+            pageCount = folderGridHorizontalPagerState.pageCount,
+            currentPage = folderGridHorizontalPagerState.currentPage,
         )
     }
 
     AnimatedDropGridItem(
-        targetPage = horizontalPagerState.currentPage,
+        targetPage = folderGridHorizontalPagerState.currentPage,
         gridPadding = gridPadding,
         screenWidth = screenWidth,
         screenHeight = screenHeight,

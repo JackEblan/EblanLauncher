@@ -17,9 +17,9 @@ fun rememberHomePagerState(
 ): PagerState {
     return rememberSaveable(
         infiniteScroll,
-        saver = HomePagerState.Saver
+        saver = DefaultPagerState.Saver
     ) {
-        HomePagerState(
+        DefaultPagerState(
             currentPage = initialPage,
             currentPageOffsetFraction = initialPageOffsetFraction,
             updatedPageCount = pageCount
@@ -28,7 +28,7 @@ fun rememberHomePagerState(
         .apply { pageCountState.value = pageCount }
 }
 
-private class HomePagerState(
+private class DefaultPagerState(
     currentPage: Int,
     currentPageOffsetFraction: Float,
     updatedPageCount: () -> Int
@@ -40,7 +40,7 @@ private class HomePagerState(
 
     companion object {
         /** To keep current page and current page offset saved */
-        val Saver: Saver<HomePagerState, *> =
+        val Saver: Saver<DefaultPagerState, *> =
             listSaver(
                 save = {
                     listOf(
@@ -50,7 +50,7 @@ private class HomePagerState(
                     )
                 },
                 restore = {
-                    HomePagerState(
+                    DefaultPagerState(
                         currentPage = it[0] as Int,
                         currentPageOffsetFraction = it[1] as Float,
                         updatedPageCount = { it[2] as Int }

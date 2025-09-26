@@ -91,10 +91,7 @@ class SettingsActivity : ComponentActivity() {
                             Surface {
                                 SettingsNavHost(
                                     navController = navController,
-                                    onFinish = {
-
-                                        finish()
-                                    },
+                                    onFinish = ::finish,
                                 )
                             }
                         }

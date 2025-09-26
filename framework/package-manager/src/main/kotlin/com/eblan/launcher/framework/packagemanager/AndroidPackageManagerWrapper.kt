@@ -17,6 +17,10 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
+import android.content.ComponentName
+
 interface AndroidPackageManagerWrapper {
     fun isDefaultLauncher(): Boolean
+
+    fun isComponentExported(componentName: ComponentName): Boolean
 }

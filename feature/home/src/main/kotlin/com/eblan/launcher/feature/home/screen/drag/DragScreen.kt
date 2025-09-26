@@ -70,6 +70,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -122,6 +123,8 @@ fun DragScreen(
     val density = LocalDensity.current
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
+
+    val packageManager = LocalPackageManager.current
 
     val view = LocalView.current
 
@@ -263,6 +266,7 @@ fun DragScreen(
             gridItemSource = gridItemSource,
             updatedGridItem = updatedGridItem,
             moveGridItemResult = moveGridItemResult,
+            packageManager = packageManager,
             onConfigure = configureLauncher::launch,
             onDeleteGridItemCache = onDeleteGridItemCache,
             onDragEndAfterMove = onDragEndAfterMove,

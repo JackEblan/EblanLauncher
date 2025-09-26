@@ -29,6 +29,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
@@ -193,6 +194,7 @@ fun handleBoundWidget(
     gridItemSource: GridItemSource,
     updatedGridItem: GridItem?,
     moveGridItemResult: MoveGridItemResult?,
+    packageManager: AndroidPackageManagerWrapper,
     onConfigure: (Intent) -> Unit,
     onDragEndAfterMove: (
         movingGridItem: GridItem,
@@ -211,6 +213,7 @@ fun handleBoundWidget(
                 configure = data.configure,
                 updatedGridItem = updatedGridItem,
                 conflictingGridItem = moveGridItemResult.conflictingGridItem,
+                packageManager = packageManager,
                 onConfigure = onConfigure,
                 onDragEndAfterMove = onDragEndAfterMove,
             )
@@ -282,6 +285,7 @@ private fun configureComponent(
     configure: String?,
     updatedGridItem: GridItem,
     conflictingGridItem: GridItem?,
+    packageManager: AndroidPackageManagerWrapper,
     onConfigure: (Intent) -> Unit,
     onDragEndAfterMove: (
         movingGridItem: GridItem,
@@ -290,7 +294,7 @@ private fun configureComponent(
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
-    if (configureComponent != null) {
+    if (configureComponent != null && packageManager.isComponentExported(componentName = configureComponent)) {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
 
         intent.component = configureComponent

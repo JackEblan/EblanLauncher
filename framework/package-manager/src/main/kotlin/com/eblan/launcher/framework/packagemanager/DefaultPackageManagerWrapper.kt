@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.framework.packagemanager
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -104,5 +106,16 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                 resolveInfo.activityInfo.packageName
             }.distinct()
         }
+    }
+
+    override fun isComponentExported(componentName: ComponentName): Boolean {
+        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
+            component = componentName
+        }
+
+        val activityInfo =
+            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
+
+        return activityInfo != null && activityInfo.exported
     }
 }

@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
@@ -40,6 +41,7 @@ import com.eblan.launcher.service.ApplicationInfoService
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import com.eblan.launcher.util.handleEdgeToEdge
@@ -66,6 +68,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var androidWallpaperManagerWrapper: AndroidWallpaperManagerWrapper
 
+    @Inject
+    lateinit var androidPackageManagerWrapper: AndroidPackageManagerWrapper
+
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +83,7 @@ class MainActivity : ComponentActivity() {
                 LocalLauncherApps provides androidLauncherAppsWrapper,
                 LocalPinItemRequest provides pinItemRequestWrapper,
                 LocalWallpaperManager provides androidWallpaperManagerWrapper,
+                LocalPackageManager provides androidPackageManagerWrapper,
             ) {
                 val navController = rememberNavController()
 

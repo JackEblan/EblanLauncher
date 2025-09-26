@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.activity
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -93,9 +92,6 @@ class SettingsActivity : ComponentActivity() {
                                 SettingsNavHost(
                                     navController = navController,
                                     onFinish = {
-                                        val intent = Intent(this, MainActivity::class.java)
-
-                                        startActivity(intent)
 
                                         finish()
                                     },

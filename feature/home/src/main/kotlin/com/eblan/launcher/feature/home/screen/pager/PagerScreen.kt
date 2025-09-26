@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import android.graphics.Rect
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -36,6 +38,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
@@ -57,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.core.net.toUri
+import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -140,8 +144,11 @@ fun PagerScreen(
 
     val launcherApps = LocalLauncherApps.current
 
+    val initialPage =
+        if (homeSettings.infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage
+
     val gridHorizontalPagerState = rememberPagerState(
-        initialPage = if (homeSettings.infiniteScroll) (Int.MAX_VALUE / 2) + targetPage else targetPage,
+        initialPage = initialPage,
         pageCount = {
             if (homeSettings.infiniteScroll) {
                 Int.MAX_VALUE
@@ -196,6 +203,26 @@ fun PagerScreen(
             } else {
                 screenHeight.toFloat()
             }
+        }
+    }
+
+    val activity = LocalActivity.current as ComponentActivity
+
+    DisposableEffect(Unit) {
+        val listener = Consumer<Intent> { intent ->
+            if (intent.action == Intent.ACTION_MAIN &&
+                intent.hasCategory(Intent.CATEGORY_HOME)
+            ) {
+                scope.launch {
+                    gridHorizontalPagerState.animateScrollToPage(initialPage)
+                }
+            }
+        }
+
+        activity.addOnNewIntentListener(listener)
+
+        onDispose {
+            activity.removeOnNewIntentListener(listener)
         }
     }
 

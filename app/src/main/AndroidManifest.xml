@@ -31,7 +31,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
-            android:taskAffinity=""
+            android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.EblanLauncher.Wallpaper">
             <intent-filter>
@@ -47,7 +47,8 @@
 
         <activity
             android:name=".activity.SettingsActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
                 <category android:name="android.intent.category.DEFAULT" />

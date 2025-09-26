@@ -120,7 +120,7 @@ fun PagerScreen(
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
-    onResize: (Int) -> Unit,
+    onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onLongPressGridItem: (
@@ -200,7 +200,7 @@ fun PagerScreen(
                             (Int.MAX_VALUE / 2) + homeSettings.initialPage
                         } else {
                             homeSettings.initialPage
-                        }
+                        },
                     )
                 }
             }
@@ -495,7 +495,7 @@ private fun HorizontalPagerScreen(
     iconPackInfoPackageName: String,
     onTapFolderGridItem: (String) -> Unit,
     onEdit: (String) -> Unit,
-    onResize: (Int) -> Unit,
+    onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
@@ -783,7 +783,6 @@ private fun HorizontalPagerScreen(
 
     if (showPopupGridItemMenu && gridItemSource?.gridItem != null) {
         PopupGridItemMenu(
-            currentPage = currentPage,
             gridItem = gridItemSource.gridItem,
             x = popupMenuIntOffset.x,
             y = popupMenuIntOffset.y,
@@ -892,14 +891,13 @@ private fun PopupSettingsMenu(
 
 @Composable
 private fun PopupGridItemMenu(
-    currentPage: Int,
     gridItem: GridItem,
     x: Int,
     y: Int,
     width: Int,
     height: Int,
     onEdit: (String) -> Unit,
-    onResize: (Int) -> Unit,
+    onResize: () -> Unit,
     onUninstallApplicationInfo: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (String?) -> Unit,
@@ -923,7 +921,7 @@ private fun PopupGridItemMenu(
                             onDismissRequest()
                         },
                         onResize = {
-                            onResize(currentPage)
+                            onResize()
 
                             onDismissRequest()
                         },
@@ -953,7 +951,7 @@ private fun PopupGridItemMenu(
                             onDismissRequest()
                         },
                         onResize = {
-                            onResize(currentPage)
+                            onResize()
 
                             onDismissRequest()
                         },
@@ -973,7 +971,7 @@ private fun PopupGridItemMenu(
                             onDismissRequest()
                         },
                         onResize = {
-                            onResize(currentPage)
+                            onResize()
 
                             onDismissRequest()
                         },
@@ -991,7 +989,7 @@ private fun PopupGridItemMenu(
                     WidgetGridItemMenu(
                         showResize = showResize,
                         onResize = {
-                            onResize(currentPage)
+                            onResize()
                         },
                         onDelete = {
                             onDeleteGridItem(gridItem)

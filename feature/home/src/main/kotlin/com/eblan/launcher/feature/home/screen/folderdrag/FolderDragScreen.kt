@@ -91,7 +91,7 @@ fun FolderDragScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
-    onDragEnd: (Int) -> Unit,
+    onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
@@ -155,7 +155,6 @@ fun FolderDragScreen(
             Drag.End, Drag.Cancel -> {
                 handleOnDragEnd(
                     density = density,
-                    currentPage = folderGridHorizontalPagerState.currentPage,
                     dragIntOffset = dragIntOffset,
                     screenHeight = screenHeight,
                     gridPadding = gridPadding,

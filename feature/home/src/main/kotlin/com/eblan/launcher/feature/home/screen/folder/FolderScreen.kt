@@ -76,9 +76,7 @@ fun FolderScreen(
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
-    onResetTargetPage: () -> Unit,
     onLongPressGridItem: (
-        currentPage: Int,
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
@@ -119,8 +117,6 @@ fun FolderScreen(
 
     LaunchedEffect(key1 = foldersDataById) {
         if (foldersDataById.isEmpty()) {
-            onResetTargetPage()
-
             onUpdateScreen(Screen.Pager)
         }
     }
@@ -232,8 +228,6 @@ fun FolderScreen(
                                     )
                                 },
                                 onTapFolderGridItem = {
-                                    onResetTargetPage()
-
                                     onAddFolder(gridItem.id)
                                 },
                                 onLongPress = {
@@ -246,7 +240,6 @@ fun FolderScreen(
                                 },
                                 onUpdateImageBitmap = { imageBitmap ->
                                     onLongPressGridItem(
-                                        index,
                                         GridItemSource.Existing(gridItem = gridItem),
                                         imageBitmap,
                                     )

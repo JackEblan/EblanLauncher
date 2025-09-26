@@ -1,3 +1,20 @@
+/*
+ *
+ *   Copyright 2023 Einstein Blanco
+ *
+ *   Licensed under the GNU General Public License v3.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/gpl-3.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
 package com.eblan.launcher.feature.home.component.pager
 
 import androidx.annotation.FloatRange
@@ -13,16 +30,16 @@ fun rememberHomePagerState(
     infiniteScroll: Boolean,
     initialPage: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) initialPageOffsetFraction: Float = 0f,
-    pageCount: () -> Int
+    pageCount: () -> Int,
 ): PagerState {
     return rememberSaveable(
         infiniteScroll,
-        saver = DefaultPagerState.Saver
+        saver = DefaultPagerState.Saver,
     ) {
         DefaultPagerState(
             currentPage = initialPage,
             currentPageOffsetFraction = initialPageOffsetFraction,
-            updatedPageCount = pageCount
+            updatedPageCount = pageCount,
         )
     }
         .apply { pageCountState.value = pageCount }
@@ -31,7 +48,7 @@ fun rememberHomePagerState(
 private class DefaultPagerState(
     currentPage: Int,
     currentPageOffsetFraction: Float,
-    updatedPageCount: () -> Int
+    updatedPageCount: () -> Int,
 ) : PagerState(currentPage, currentPageOffsetFraction) {
 
     var pageCountState = mutableStateOf(updatedPageCount)
@@ -46,16 +63,16 @@ private class DefaultPagerState(
                     listOf(
                         it.currentPage,
                         (it.currentPageOffsetFraction).coerceIn(-0.5f, 0.5f),
-                        it.pageCount
+                        it.pageCount,
                     )
                 },
                 restore = {
                     DefaultPagerState(
                         currentPage = it[0] as Int,
                         currentPageOffsetFraction = it[1] as Float,
-                        updatedPageCount = { it[2] as Int }
+                        updatedPageCount = { it[2] as Int },
                     )
-                }
+                },
             )
     }
 }

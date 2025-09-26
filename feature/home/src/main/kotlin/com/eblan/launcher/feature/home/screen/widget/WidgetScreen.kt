@@ -235,7 +235,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?
+        imageBitmap: ImageBitmap?,
     ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
@@ -300,7 +300,7 @@ private fun EblanApplicationInfoItem(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?
+        imageBitmap: ImageBitmap?,
     ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,
@@ -374,7 +374,7 @@ private fun EblanAppWidgetProviderInfoItem(
     onUpdateGridItemOffset: (IntOffset) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?
+        imageBitmap: ImageBitmap?,
     ) -> Unit,
     page: Int,
     gridItemSettings: GridItemSettings,

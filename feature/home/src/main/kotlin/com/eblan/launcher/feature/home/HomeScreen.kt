@@ -563,7 +563,7 @@ private fun Success(
                         )
                     },
                     onEdit = onEdit,
-                    onResize = { newTargetPage ->
+                    onResize = {
                         onShowGridCache(
                             homeData.gridItems,
                             GridItemCacheType.Grid,
@@ -661,9 +661,7 @@ private fun Success(
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
-                    onResetTargetPage = {
-                    },
-                    onLongPressGridItem = { newCurrentPage, newGridItemSource, imageBitmap ->
+                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
                         gridItemSource = newGridItemSource
 
                         onUpdateGridItemImageBitmap(imageBitmap)
@@ -696,9 +694,7 @@ private fun Success(
                     moveGridItemResult = movedGridItemResult,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     onMoveFolderGridItem = onMoveFolderGridItem,
-                    onDragEnd = { newTargetPage ->
-                        onResetGridCacheAfterMoveFolder()
-                    },
+                    onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,
                     onMoveOutsideFolder = { newGridItemSource ->
                         gridItemSource = newGridItemSource

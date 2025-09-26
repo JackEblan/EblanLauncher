@@ -1,0 +1,4 @@
+What's new
+- Improved activities launch behavior
+- Fixed overlapping grid items at the edges
+- Added App Drawer alphabet scrollbar

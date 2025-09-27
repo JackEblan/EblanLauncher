@@ -494,7 +494,13 @@ private fun Success(
         },
     )
 
-    val currentPage by remember(gridHorizontalPagerState) {
+    val folderGridHorizontalPagerState = rememberPagerState(
+        pageCount = {
+            foldersDataById.lastOrNull()?.pageCount ?: 0
+        },
+    )
+
+    val currentPage by remember(key1 = gridHorizontalPagerState) {
         derivedStateOf {
             calculatePage(
                 index = gridHorizontalPagerState.currentPage,
@@ -503,12 +509,6 @@ private fun Success(
             )
         }
     }
-
-    val folderGridHorizontalPagerState = rememberPagerState(
-        pageCount = {
-            foldersDataById.lastOrNull()?.pageCount ?: 0
-        },
-    )
 
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()

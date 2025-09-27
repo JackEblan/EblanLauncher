@@ -189,7 +189,7 @@ fun PagerScreen(
 
     val activity = LocalActivity.current as ComponentActivity
 
-    DisposableEffect(Unit) {
+    DisposableEffect(key1 = Unit) {
         val listener = Consumer<Intent> { intent ->
             if (intent.action == Intent.ACTION_MAIN &&
                 intent.hasCategory(Intent.CATEGORY_HOME)

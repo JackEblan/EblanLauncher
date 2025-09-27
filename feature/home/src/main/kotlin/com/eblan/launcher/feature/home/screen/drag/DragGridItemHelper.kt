@@ -335,22 +335,24 @@ private fun getMoveExistingGridItem(
     gridX: Int,
     gridY: Int,
     associate: Associate,
-) = when (gridItem.data) {
-    is GridItemData.Widget -> {
-        gridItem.copy(
-            page = targetPage,
-            startColumn = gridX / cellWidth,
-            startRow = gridY / cellHeight,
-            associate = associate,
-        )
-    }
+): GridItem {
+    return when (gridItem.data) {
+        is GridItemData.Widget -> {
+            gridItem.copy(
+                page = targetPage,
+                startColumn = gridX / cellWidth,
+                startRow = gridY / cellHeight,
+                associate = associate,
+            )
+        }
 
-    else -> {
-        gridItem.copy(
-            page = targetPage,
-            startColumn = gridX / cellWidth,
-            startRow = gridY / cellHeight,
-            associate = associate,
-        )
+        else -> {
+            gridItem.copy(
+                page = targetPage,
+                startColumn = gridX / cellWidth,
+                startRow = gridY / cellHeight,
+                associate = associate,
+            )
+        }
     }
 }

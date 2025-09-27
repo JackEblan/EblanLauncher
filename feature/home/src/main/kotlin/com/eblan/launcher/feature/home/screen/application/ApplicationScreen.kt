@@ -793,8 +793,8 @@ private fun AlphabetSideBar(
 
                             onUpdateChar(char)
 
-                            val itemIndex = eblanApplicationInfos.indexOfFirst { info ->
-                                val firstChar = info.label?.firstOrNull()?.uppercaseChar() ?: '#'
+                            val charIndex = eblanApplicationInfos.indexOfFirst { eblanApplicationInfo ->
+                                val firstChar = eblanApplicationInfo.label?.firstOrNull()?.uppercaseChar() ?: '#'
 
                                 if (firstChar in 'A'..'Z') {
                                     firstChar == char
@@ -803,9 +803,9 @@ private fun AlphabetSideBar(
                                 }
                             }
 
-                            if (itemIndex >= 0) {
+                            if (charIndex >= 0) {
                                 scope.launch {
-                                    lazyGridState.scrollToItem(itemIndex)
+                                    lazyGridState.scrollToItem(charIndex)
                                 }
                             }
                         },

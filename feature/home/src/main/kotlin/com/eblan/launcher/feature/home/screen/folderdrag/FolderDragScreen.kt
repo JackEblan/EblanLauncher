@@ -382,16 +382,18 @@ private fun AnimatedDropGridItem(
             .offset {
                 IntOffset(
                     x = initialX.value.roundToInt(),
-                    y = initialY.value.roundToInt()
+                    y = initialY.value.roundToInt(),
                 )
             }
             .alpha(animatedAlpha.value)
-            .size(with(density) {
-                DpSize(
-                    width = initialWidth.value.roundToInt().toDp(),
-                    height = initialHeight.value.roundToInt().toDp()
-                )
-            }),
+            .size(
+                with(density) {
+                    DpSize(
+                        width = initialWidth.value.roundToInt().toDp(),
+                        height = initialHeight.value.roundToInt().toDp(),
+                    )
+                },
+            ),
         gridItem = moveGridItemResult.movingGridItem,
         textColor = textColor,
         gridItemSettings = animatedGridItemSettings.value,

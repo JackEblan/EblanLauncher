@@ -457,17 +457,17 @@ private fun AnimatedDropGridItem(
 
     val gridTop = topPadding + gridPadding
 
-    var initialCellWidth: Int
+    var initialWidth: Int
 
-    var initialCellHeight: Int
-
-    var targetCellWidth: Int
-
-    var targetCellHeight: Int
+    var initialHeight: Int
 
     var targetX: Int
 
     var targetY: Int
+
+    var targetWidth: Int
+
+    var targetHeight: Int
 
     when (moveGridItemResult.movingGridItem.associate) {
         Associate.Grid -> {
@@ -476,45 +476,57 @@ private fun AnimatedDropGridItem(
             val gridHeightWithPadding =
                 (gridHeight - pageIndicatorHeight - dockHeight) - (gridPadding * 2)
 
-            initialCellWidth = gridWidth / columns
+            val initialCellWidth = gridWidth / columns
 
-            initialCellHeight = (gridHeight - pageIndicatorHeight - dockHeight) / rows
+            val initialCellHeight = (gridHeight - pageIndicatorHeight - dockHeight) / rows
 
-            targetCellWidth = gridWidthWithPadding / columns
+            val cellWidth = gridWidthWithPadding / columns
 
-            targetCellHeight = gridHeightWithPadding / rows
+            val cellHeight = gridHeightWithPadding / rows
 
-            targetX = (moveGridItemResult.movingGridItem.startColumn * targetCellWidth) + gridLeft
+            initialWidth = moveGridItemResult.movingGridItem.columnSpan * initialCellWidth
 
-            targetY = (moveGridItemResult.movingGridItem.startRow * targetCellHeight) + gridTop
+            initialHeight = moveGridItemResult.movingGridItem.rowSpan * initialCellHeight
+
+            targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + gridLeft
+
+            targetY = (moveGridItemResult.movingGridItem.startRow * cellHeight) + gridTop
+
+            targetWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
+
+            targetHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
         }
 
         Associate.Dock -> {
-            initialCellWidth = gridWidth / dockColumns
+            val cellWidth = gridWidth / dockColumns
 
-            initialCellHeight = dockHeight / dockRows
+            val cellHeight = dockHeight / dockRows
 
-            targetCellWidth = gridWidth / dockColumns
+            initialWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
 
-            targetCellHeight = dockHeight / dockRows
+            initialHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
 
             targetX =
-                (moveGridItemResult.movingGridItem.startColumn * targetCellWidth) + leftPadding
+                (moveGridItemResult.movingGridItem.startColumn * cellWidth) + leftPadding
 
             targetY =
-                (moveGridItemResult.movingGridItem.startRow * targetCellHeight) + (screenHeight - bottomPadding - dockHeight)
+                (moveGridItemResult.movingGridItem.startRow * cellHeight) + (screenHeight - bottomPadding - dockHeight)
+
+            targetWidth = initialWidth
+
+            targetHeight = initialHeight
         }
     }
 
-    val initialWidth =
-        remember { Animatable((moveGridItemResult.movingGridItem.columnSpan * initialCellWidth).toFloat()) }
+    val animatedX = remember { Animatable(overlayIntOffset.x.toFloat()) }
 
-    val initialHeight =
-        remember { Animatable((moveGridItemResult.movingGridItem.rowSpan * initialCellHeight).toFloat()) }
+    val animatedY = remember { Animatable(overlayIntOffset.y.toFloat()) }
 
-    val initialX = remember { Animatable(overlayIntOffset.x.toFloat()) }
+    val animatedWidth =
+        remember { Animatable(initialWidth.toFloat()) }
 
-    val initialY = remember { Animatable(overlayIntOffset.y.toFloat()) }
+    val animatedHeight =
+        remember { Animatable(initialHeight.toFloat()) }
 
     val animatedAlpha = remember { Animatable(1f) }
 
@@ -538,13 +550,13 @@ private fun AnimatedDropGridItem(
     }
 
     LaunchedEffect(key1 = moveGridItemResult.movingGridItem) {
-        launch { initialX.animateTo(targetX.toFloat()) }
+        launch { animatedX.animateTo(targetX.toFloat()) }
 
-        launch { initialY.animateTo(targetY.toFloat()) }
+        launch { animatedY.animateTo(targetY.toFloat()) }
 
-        launch { initialWidth.animateTo(targetCellWidth.toFloat()) }
+        launch { animatedWidth.animateTo(targetWidth.toFloat()) }
 
-        launch { initialHeight.animateTo(targetCellHeight.toFloat()) }
+        launch { animatedHeight.animateTo(targetHeight.toFloat()) }
 
         if (moveGridItemResult.conflictingGridItem != null) {
             animatedAlpha.animateTo(0f)
@@ -566,17 +578,19 @@ private fun AnimatedDropGridItem(
         modifier = modifier
             .offset {
                 IntOffset(
-                    x = initialX.value.roundToInt(),
-                    y = initialY.value.roundToInt(),
+                    x = animatedX.value.roundToInt(),
+                    y = animatedY.value.roundToInt(),
                 )
             }
             .alpha(animatedAlpha.value)
-            .size(with(density) {
-                DpSize(
-                    width = initialWidth.value.roundToInt().toDp(),
-                    height = initialHeight.value.roundToInt().toDp(),
-                )
-            }),
+            .size(
+                with(density) {
+                    DpSize(
+                        width = animatedWidth.value.roundToInt().toDp(),
+                        height = animatedHeight.value.roundToInt().toDp(),
+                    )
+                },
+            ),
         gridItem = moveGridItemResult.movingGridItem,
         textColor = textColor,
         gridItemSettings = animatedGridItemSettings.value,

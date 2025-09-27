@@ -36,55 +36,11 @@ fun doGestureActions(
     val swipeThreshold = 100f
 
     if (swipeUpY < screenHeight - swipeThreshold) {
-        when (val gestureAction = gestureSettings.swipeUp) {
-            is GestureAction.OpenApp -> {
-                onStartMainActivity(gestureAction.componentName)
-            }
-
-            GestureAction.OpenNotificationPanel -> {
-                onPerformGlobalAction(GlobalAction.Notifications)
-            }
-
-            GestureAction.LockScreen -> {
-                onPerformGlobalAction(GlobalAction.LockScreen)
-            }
-
-            GestureAction.OpenQuickSettings -> {
-                onPerformGlobalAction(GlobalAction.QuickSettings)
-            }
-
-            GestureAction.OpenRecents -> {
-                onPerformGlobalAction(GlobalAction.Recents)
-            }
-
-            GestureAction.None, GestureAction.OpenAppDrawer -> Unit
-        }
+        handleGestureAction(gestureSettings.swipeUp, onStartMainActivity, onPerformGlobalAction)
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
-        when (val gestureAction = gestureSettings.swipeDown) {
-            is GestureAction.OpenApp -> {
-                onStartMainActivity(gestureAction.componentName)
-            }
-
-            GestureAction.OpenNotificationPanel -> {
-                onPerformGlobalAction(GlobalAction.Notifications)
-            }
-
-            GestureAction.LockScreen -> {
-                onPerformGlobalAction(GlobalAction.LockScreen)
-            }
-
-            GestureAction.OpenQuickSettings -> {
-                onPerformGlobalAction(GlobalAction.QuickSettings)
-            }
-
-            GestureAction.OpenRecents -> {
-                onPerformGlobalAction(GlobalAction.Recents)
-            }
-
-            GestureAction.None, GestureAction.OpenAppDrawer -> Unit
-        }
+        handleGestureAction(gestureSettings.swipeDown, onStartMainActivity, onPerformGlobalAction)
     }
 }
 
@@ -95,32 +51,67 @@ fun resetSwipeOffset(
     screenHeight: Int,
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
-    val swipeThreshold = screenHeight - 200f
+    scope.animateOffset(
+        gestureAction = gestureSettings.swipeDown,
+        swipeY = swipeDownY,
+        screenHeight = screenHeight,
+    )
 
-    scope.launch {
-        if (gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
-            val swipeDownYTarget = if (swipeDownY.value < swipeThreshold) {
-                0f
-            } else {
-                screenHeight.toFloat()
-            }
+    scope.animateOffset(
+        gestureAction = gestureSettings.swipeUp,
+        swipeY = swipeUpY,
+        screenHeight = screenHeight,
+    )
+}
 
-            swipeDownY.animateTo(swipeDownYTarget)
-        } else {
-            swipeDownY.snapTo(screenHeight.toFloat())
+private fun handleGestureAction(
+    gestureAction: GestureAction,
+    onStartMainActivity: (String?) -> Unit,
+    onPerformGlobalAction: (GlobalAction) -> Unit,
+) {
+    when (gestureAction) {
+        is GestureAction.OpenApp -> {
+            onStartMainActivity(gestureAction.componentName)
+        }
+
+        GestureAction.OpenNotificationPanel -> {
+            onPerformGlobalAction(GlobalAction.Notifications)
+        }
+
+        GestureAction.LockScreen -> {
+            onPerformGlobalAction(GlobalAction.LockScreen)
+        }
+
+        GestureAction.OpenQuickSettings -> {
+            onPerformGlobalAction(GlobalAction.QuickSettings)
+        }
+
+        GestureAction.OpenRecents -> {
+            onPerformGlobalAction(GlobalAction.Recents)
+        }
+
+        GestureAction.None, GestureAction.OpenAppDrawer -> {
+            Unit
         }
     }
+}
 
-    scope.launch {
-        if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
-            val swipeUpYTarget = if (swipeUpY.value < swipeThreshold) {
+private fun CoroutineScope.animateOffset(
+    gestureAction: GestureAction,
+    swipeY: Animatable<Float, AnimationVector1D>,
+    screenHeight: Int,
+) {
+    launch {
+        if (gestureAction is GestureAction.OpenAppDrawer) {
+            val target = if (swipeY.value < screenHeight - 200f) {
                 0f
             } else {
                 screenHeight.toFloat()
             }
-            swipeUpY.animateTo(swipeUpYTarget)
+
+            swipeY.animateTo(target)
         } else {
-            swipeUpY.snapTo(screenHeight.toFloat())
+            swipeY.snapTo(screenHeight.toFloat())
         }
     }
 }

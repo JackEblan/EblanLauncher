@@ -34,13 +34,13 @@ class ChangeShortcutsUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         packageName: String,
         launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
     ) {
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             val eblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 

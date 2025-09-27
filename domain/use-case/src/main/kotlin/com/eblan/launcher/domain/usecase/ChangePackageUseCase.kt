@@ -39,10 +39,10 @@ class ChangePackageUseCase @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val updateIconPackInfoUseCase: UpdateIconPackInfoUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
             val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)

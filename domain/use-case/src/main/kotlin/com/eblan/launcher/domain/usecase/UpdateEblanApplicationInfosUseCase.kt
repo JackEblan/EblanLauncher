@@ -36,10 +36,10 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
     private val updateIconPackInfosUseCase: UpdateIconPackInfosUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             val oldEblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 

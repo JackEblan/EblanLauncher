@@ -35,14 +35,14 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         if (!appWidgetManagerWrapper.hasSystemFeatureAppWidgets) {
             return
         }
 
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             val oldEblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 

@@ -34,10 +34,10 @@ class RemovePackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val userDataRepository: UserDataRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 

@@ -35,14 +35,14 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         if (!launcherAppsWrapper.hasShortcutHostPermission) {
             return
         }
 
-        withContext(defaultDispatcher) {
+        withContext(ioDispatcher) {
             val oldEblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 

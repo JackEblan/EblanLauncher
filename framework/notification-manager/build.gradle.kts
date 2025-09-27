@@ -22,15 +22,11 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.service"
+    namespace = "com.eblan.launcher.framework.notificationmanager"
 }
 
 dependencies {
     implementation(projects.domain.common)
     implementation(projects.domain.framework)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.notificationManager)
-
-    implementation(libs.androidx.core.ktx)
+    implementation(projects.domain.model)
 }

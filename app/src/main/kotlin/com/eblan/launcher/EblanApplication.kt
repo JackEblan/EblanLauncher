@@ -18,7 +18,26 @@
 package com.eblan.launcher
 
 import android.app.Application
+import android.app.NotificationManager
+import android.os.Build
+import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
-class EblanApplication : Application()
+class EblanApplication : Application() {
+    @Inject
+    lateinit var notificationManagerWrapper: AndroidNotificationManagerWrapper
+
+    override fun onCreate() {
+        super.onCreate()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManagerWrapper.createNotificationChannel(
+                channelId = AndroidNotificationManagerWrapper.CHANNEL_ID,
+                name = "Eblan Launcher Service",
+                importance = NotificationManager.IMPORTANCE_DEFAULT,
+            )
+        }
+    }
+}

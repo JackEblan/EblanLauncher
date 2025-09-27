@@ -15,22 +15,19 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.notificationmanager
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-android {
-    namespace = "com.eblan.launcher.service"
-}
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface NotificationManagerModule {
 
-dependencies {
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.notificationManager)
-
-    implementation(libs.androidx.core.ktx)
+    @Binds
+    @Singleton
+    fun notificationManagerWrapper(impl: DefaultNotificationManagerWrapper): AndroidNotificationManagerWrapper
 }

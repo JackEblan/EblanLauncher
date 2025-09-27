@@ -78,6 +78,7 @@ dependencies {
     implementation(projects.framework.iconPackManager)
     implementation(projects.framework.launcherApps)
     implementation(projects.framework.resources)
+    implementation(projects.framework.notificationManager)
     implementation(projects.framework.packageManager)
     implementation(projects.framework.wallpaperManager)
     implementation(projects.framework.widgetManager)

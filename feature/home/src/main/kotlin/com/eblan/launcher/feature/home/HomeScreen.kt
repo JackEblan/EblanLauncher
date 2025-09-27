@@ -696,6 +696,7 @@ private fun Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     moveGridItemResult = movedGridItemResult,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                    overlayIntOffset = overlayIntOffset,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,

@@ -24,16 +24,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.eblan.launcher.domain.model.HomeSettings
 
 @Composable
 fun rememberHomePagerState(
-    infiniteScroll: Boolean,
+    homeSettings: HomeSettings,
     initialPage: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) initialPageOffsetFraction: Float = 0f,
     pageCount: () -> Int,
 ): PagerState {
     return rememberSaveable(
-        infiniteScroll,
+        homeSettings,
         saver = DefaultPagerState.Saver,
     ) {
         DefaultPagerState(

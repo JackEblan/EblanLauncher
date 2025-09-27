@@ -481,7 +481,7 @@ private fun Success(
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val gridHorizontalPagerState = rememberHomePagerState(
-        infiniteScroll = homeData.userData.homeSettings.infiniteScroll,
+        homeSettings = homeData.userData.homeSettings,
         initialPage = if (homeData.userData.homeSettings.infiniteScroll) {
             (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.initialPage
         } else {

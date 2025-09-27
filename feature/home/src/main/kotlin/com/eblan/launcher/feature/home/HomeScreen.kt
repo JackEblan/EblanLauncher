@@ -347,6 +347,7 @@ fun HomeScreen(
                     eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     gridItemsCache = gridItemsCache,
                     pinGridItem = pinGridItem,
+                    overlayIntOffset = overlayIntOffset,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -412,6 +413,7 @@ private fun Success(
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
+    overlayIntOffset: IntOffset,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -602,6 +604,7 @@ private fun Success(
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
+                    overlayIntOffset = overlayIntOffset,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onMoveGridItemsFailed = onCancelGridCache,

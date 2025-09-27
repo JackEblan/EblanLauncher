@@ -1,0 +1,3 @@
+What's new
+- IconPackInfoService now correctly shows notification
+- Drag and drop animations are smoother

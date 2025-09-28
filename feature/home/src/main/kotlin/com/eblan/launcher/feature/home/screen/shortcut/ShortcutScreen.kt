@@ -86,6 +86,8 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -395,6 +397,8 @@ private fun EblanShortcutInfoItem(
 ) {
     val scope = rememberCoroutineScope()
 
+    var job = remember<Job?> { null }
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -429,6 +433,67 @@ private fun EblanShortcutInfoItem(
 
     Column(
         modifier = modifier
+            .pointerInput(key1 = isLongPressed) {
+                detectTapGestures(
+                    onLongPress = {
+                        job = scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize
+                            )
+
+                            val data = GridItemData.ShortcutInfo(
+                                shortcutId = eblanShortcutInfo.shortcutId,
+                                packageName = eblanShortcutInfo.packageName,
+                                shortLabel = eblanShortcutInfo.shortLabel,
+                                longLabel = eblanShortcutInfo.longLabel,
+                                icon = eblanShortcutInfo.icon,
+                                eblanApplicationInfo = eblanShortcutInfo.eblanApplicationInfo,
+                            )
+
+                            onLongPressGridItem(
+                                GridItemSource.New(
+                                    gridItem = GridItem(
+                                        id = eblanShortcutInfo.shortcutId,
+                                        folderId = null,
+                                        page = currentPage,
+                                        startColumn = 0,
+                                        startRow = 0,
+                                        columnSpan = 1,
+                                        rowSpan = 1,
+                                        data = data,
+                                        associate = Associate.Grid,
+                                        override = false,
+                                        gridItemSettings = gridItemSettings,
+                                    ),
+                                ),
+                                graphicsLayer.toImageBitmap(),
+                            )
+
+                            delay(250L)
+
+                            isLongPressed = true
+
+                            alpha = 0f
+                        }
+                    },
+                    onPress = {
+                        awaitRelease()
+
+                        job?.cancel()
+
+                        scope.launch {
+                            if (scale.value < 1f) {
+                                scale.animateTo(1f)
+                            }
+                        }
+                    },
+                )
+            }
             .fillMaxWidth()
             .alpha(alpha)
             .scale(
@@ -445,51 +510,6 @@ private fun EblanShortcutInfoItem(
                     }
 
                     drawLayer(graphicsLayer)
-                }
-                .pointerInput(key1 = drag) {
-                    detectTapGestures(
-                        onLongPress = {
-                            isLongPressed = true
-
-                            onUpdateGridItemOffset(intOffset, intSize)
-
-                            scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
-                                val data = GridItemData.ShortcutInfo(
-                                    shortcutId = eblanShortcutInfo.shortcutId,
-                                    packageName = eblanShortcutInfo.packageName,
-                                    shortLabel = eblanShortcutInfo.shortLabel,
-                                    longLabel = eblanShortcutInfo.longLabel,
-                                    icon = eblanShortcutInfo.icon,
-                                    eblanApplicationInfo = eblanShortcutInfo.eblanApplicationInfo,
-                                )
-
-                                onLongPressGridItem(
-                                    GridItemSource.New(
-                                        gridItem = GridItem(
-                                            id = eblanShortcutInfo.shortcutId,
-                                            folderId = null,
-                                            page = currentPage,
-                                            startColumn = 0,
-                                            startRow = 0,
-                                            columnSpan = 1,
-                                            rowSpan = 1,
-                                            data = data,
-                                            associate = Associate.Grid,
-                                            override = false,
-                                            gridItemSettings = gridItemSettings,
-                                        ),
-                                    ),
-                                    graphicsLayer.toImageBitmap(),
-                                )
-
-                                alpha = 0f
-                            }
-                        },
-                    )
                 }
                 .onGloballyPositioned { layoutCoordinates ->
                     intOffset = layoutCoordinates.positionInRoot().round()

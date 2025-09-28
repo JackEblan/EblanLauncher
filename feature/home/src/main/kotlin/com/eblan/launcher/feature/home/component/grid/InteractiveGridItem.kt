@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -69,6 +70,8 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -191,6 +194,8 @@ private fun ApplicationInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
+    var job = remember<Job?> { null }
+
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
@@ -255,29 +260,26 @@ private fun ApplicationInfoGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
-                    drawContext.transform.scale(
-                        scaleX = scale.value,
-                        scaleY = scale.value,
-                    )
-
                     this@drawWithContent.drawContent()
                 }
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(key1 = drag) {
+            .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress()
-
-                        scope.launch {
+                        job = scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
+                            onLongPress()
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            delay(250L)
+
+                            isLongPressed = true
 
                             alpha = 0f
                         }
@@ -291,9 +293,24 @@ private fun ApplicationInfoGridItem(
                             onTap()
                         }
                     },
+                    onPress = {
+                        awaitRelease()
+
+                        job?.cancel()
+
+                        scope.launch {
+                            if (scale.value < 1f) {
+                                scale.animateTo(1f)
+                            }
+                        }
+                    },
                 )
             }
             .alpha(alpha)
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            )
             .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
@@ -373,16 +390,16 @@ private fun WidgetGridItem(
                     minHeight = data.minHeight,
                 ).apply {
                     setOnLongClickListener {
-                        isLongPressed = true
-
-                        onLongPress()
-
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
+                            onLongPress()
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            isLongPressed = true
 
                             alpha = 0f
                         }
@@ -426,6 +443,8 @@ private fun ShortcutInfoGridItem(
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    var job = remember<Job?> { null }
 
     val density = LocalDensity.current
 
@@ -479,29 +498,26 @@ private fun ShortcutInfoGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
-                    drawContext.transform.scale(
-                        scaleX = scale.value,
-                        scaleY = scale.value,
-                    )
-
                     this@drawWithContent.drawContent()
                 }
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(key1 = drag) {
+            .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress()
-
-                        scope.launch {
+                        job = scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
+                            onLongPress()
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            delay(250L)
+
+                            isLongPressed = true
 
                             alpha = 0f
                         }
@@ -517,9 +533,24 @@ private fun ShortcutInfoGridItem(
                             }
                         }
                     },
+                    onPress = {
+                        awaitRelease()
+
+                        job?.cancel()
+
+                        scope.launch {
+                            if (scale.value < 1f) {
+                                scale.animateTo(1f)
+                            }
+                        }
+                    },
                 )
             }
             .alpha(alpha)
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            )
             .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
@@ -572,6 +603,8 @@ private fun FolderGridItem(
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    var job = remember<Job?> { null }
 
     val density = LocalDensity.current
 
@@ -635,19 +668,21 @@ private fun FolderGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(key1 = drag) {
+            .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress()
-
-                        scope.launch {
+                        job = scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
 
+                            onLongPress()
+
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            delay(250L)
+
+                            isLongPressed = true
 
                             alpha = 0f
                         }
@@ -661,9 +696,24 @@ private fun FolderGridItem(
                             onTap()
                         }
                     },
+                    onPress = {
+                        awaitRelease()
+
+                        job?.cancel()
+
+                        scope.launch {
+                            if (scale.value < 1f) {
+                                scale.animateTo(1f)
+                            }
+                        }
+                    },
                 )
             }
             .alpha(alpha)
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            )
             .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,

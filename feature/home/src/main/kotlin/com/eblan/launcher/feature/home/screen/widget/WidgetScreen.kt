@@ -86,6 +86,8 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -387,6 +389,8 @@ private fun EblanAppWidgetProviderInfoItem(
 ) {
     val scope = rememberCoroutineScope()
 
+    var job = remember<Job?> { null }
+
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -422,6 +426,65 @@ private fun EblanAppWidgetProviderInfoItem(
 
     Column(
         modifier = modifier
+            .pointerInput(key1 = isLongPressed) {
+                detectTapGestures(
+                    onLongPress = {
+                        job = scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize
+                            )
+
+                            onLongPressGridItem(
+                                GridItemSource.New(
+                                    gridItem = getWidgetGridItem(
+                                        id = Uuid.random()
+                                            .toHexString(),
+                                        page = currentPage,
+                                        componentName = eblanAppWidgetProviderInfo.componentName,
+                                        configure = eblanAppWidgetProviderInfo.configure,
+                                        packageName = eblanAppWidgetProviderInfo.packageName,
+                                        targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
+                                        minWidth = eblanAppWidgetProviderInfo.minWidth,
+                                        minHeight = eblanAppWidgetProviderInfo.minHeight,
+                                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                                        preview = eblanAppWidgetProviderInfo.preview,
+                                        gridItemSettings = gridItemSettings,
+                                        eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
+                                    ),
+                                ),
+                                graphicsLayer.toImageBitmap(),
+                            )
+
+                            delay(250L)
+
+                            isLongPressed = true
+
+                            alpha = 0f
+                        }
+                    },
+                    onPress = {
+                        awaitRelease()
+
+                        job?.cancel()
+
+                        scope.launch {
+                            if (scale.value < 1f) {
+                                scale.animateTo(1f)
+                            }
+                        }
+                    },
+                )
+            }
             .fillMaxWidth()
             .alpha(alpha)
             .scale(
@@ -438,49 +501,6 @@ private fun EblanAppWidgetProviderInfoItem(
                     }
 
                     drawLayer(graphicsLayer)
-                }
-                .pointerInput(key1 = drag) {
-                    detectTapGestures(
-                        onLongPress = {
-                            isLongPressed = true
-
-                            onUpdateGridItemOffset(intOffset, intSize)
-
-                            scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
-                                onLongPressGridItem(
-                                    GridItemSource.New(
-                                        gridItem = getWidgetGridItem(
-                                            id = Uuid.random()
-                                                .toHexString(),
-                                            page = currentPage,
-                                            componentName = eblanAppWidgetProviderInfo.componentName,
-                                            configure = eblanAppWidgetProviderInfo.configure,
-                                            packageName = eblanAppWidgetProviderInfo.packageName,
-                                            targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                            targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                                            minWidth = eblanAppWidgetProviderInfo.minWidth,
-                                            minHeight = eblanAppWidgetProviderInfo.minHeight,
-                                            resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                                            minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                                            minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                                            maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                                            maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                            preview = eblanAppWidgetProviderInfo.preview,
-                                            gridItemSettings = gridItemSettings,
-                                            eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
-                                        ),
-                                    ),
-                                    graphicsLayer.toImageBitmap(),
-                                )
-
-                                alpha = 0f
-                            }
-                        },
-                    )
                 }
                 .onGloballyPositioned { layoutCoordinates ->
                     intOffset = layoutCoordinates.positionInRoot().round()

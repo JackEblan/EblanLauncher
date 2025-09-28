@@ -113,6 +113,8 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.roundToInt
@@ -487,6 +489,8 @@ private fun EblanApplicationInfoItem(
 
     val scope = rememberCoroutineScope()
 
+    var job = remember<Job?> { null }
+
     val context = LocalContext.current
 
     val density = LocalDensity.current
@@ -565,6 +569,90 @@ private fun EblanApplicationInfoItem(
 
     Column(
         modifier = modifier
+            .pointerInput(key1 = isLongPressed) {
+                detectTapGestures(
+                    onTap = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            val sourceBoundsX = intOffset.x + leftPadding
+
+                            val sourceBoundsY = intOffset.y + topPadding
+
+                            launcherApps.startMainActivity(
+                                componentName = eblanApplicationInfo.componentName,
+                                sourceBounds = Rect(
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + intSize.width,
+                                    sourceBoundsY + intSize.height,
+                                ),
+                            )
+                        }
+                    },
+                    onLongPress = {
+                        job = scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onLongPress(
+                                intOffset,
+                                intSize,
+                            )
+
+                            val data =
+                                GridItemData.ApplicationInfo(
+                                    componentName = eblanApplicationInfo.componentName,
+                                    packageName = eblanApplicationInfo.packageName,
+                                    icon = eblanApplicationInfo.icon,
+                                    label = eblanApplicationInfo.label,
+                                )
+
+                            onLongPressGridItem(
+                                GridItemSource.New(
+                                    gridItem = GridItem(
+                                        id = Uuid.random()
+                                            .toHexString(),
+                                        folderId = null,
+                                        page = currentPage,
+                                        startColumn = 0,
+                                        startRow = 0,
+                                        columnSpan = 1,
+                                        rowSpan = 1,
+                                        data = data,
+                                        associate = Associate.Grid,
+                                        override = false,
+                                        gridItemSettings = appDrawerSettings.gridItemSettings,
+                                    ),
+                                ),
+                                graphicsLayer.toImageBitmap(),
+                            )
+
+                            delay(250L)
+
+                            onUpdatePopupMenu()
+
+                            isLongPressed = true
+
+                            alpha = 0f
+                        }
+                    },
+                    onPress = {
+                        awaitRelease()
+
+                        job?.cancel()
+
+                        scope.launch {
+                            if (scale.value < 1f) {
+                                scale.animateTo(1f)
+                            }
+                        }
+                    },
+                )
+            }
             .height(appDrawerRowsHeightDp)
             .alpha(alpha)
             .scale(
@@ -589,82 +677,6 @@ private fun EblanApplicationInfoItem(
                     }
 
                     drawLayer(graphicsLayer)
-                }
-                .pointerInput(key1 = drag) {
-                    detectTapGestures(
-                        onTap = {
-                            scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
-                                val sourceBoundsX = intOffset.x + leftPadding
-
-                                val sourceBoundsY = intOffset.y + topPadding
-
-                                launcherApps.startMainActivity(
-                                    componentName = eblanApplicationInfo.componentName,
-                                    sourceBounds = Rect(
-                                        sourceBoundsX,
-                                        sourceBoundsY,
-                                        sourceBoundsX + intSize.width,
-                                        sourceBoundsY + intSize.height,
-                                    ),
-                                )
-                            }
-                        },
-                        onLongPress = {
-                            isLongPressed = true
-
-                            onLongPress(
-                                intOffset,
-                                intSize,
-                            )
-
-                            scope.launch {
-                                scale.animateTo(0.5f)
-
-                                scale.animateTo(1f)
-
-                                val data =
-                                    GridItemData.ApplicationInfo(
-                                        componentName = eblanApplicationInfo.componentName,
-                                        packageName = eblanApplicationInfo.packageName,
-                                        icon = eblanApplicationInfo.icon,
-                                        label = eblanApplicationInfo.label,
-                                    )
-
-                                onLongPressGridItem(
-                                    GridItemSource.New(
-                                        gridItem = GridItem(
-                                            id = Uuid.random()
-                                                .toHexString(),
-                                            folderId = null,
-                                            page = currentPage,
-                                            startColumn = 0,
-                                            startRow = 0,
-                                            columnSpan = 1,
-                                            rowSpan = 1,
-                                            data = data,
-                                            associate = Associate.Grid,
-                                            override = false,
-                                            gridItemSettings = appDrawerSettings.gridItemSettings,
-                                        ),
-                                    ),
-                                    graphicsLayer.toImageBitmap(),
-                                )
-
-                                onUpdatePopupMenu()
-
-                                alpha = 0f
-                            }
-                        },
-                        onPress = {
-                            awaitRelease()
-
-                            isLongPressed = false
-                        },
-                    )
                 }
                 .onGloballyPositioned { layoutCoordinates ->
                     intOffset =

@@ -256,6 +256,12 @@ private fun ApplicationInfoGridItem(
         }
     }
 
+    LaunchedEffect(key1 = isLongPressed) {
+        if (isLongPressed && drag == Drag.Start) {
+            alpha = 0f
+        }
+    }
+
     Column(
         modifier = modifier
             .drawWithContent {
@@ -280,8 +286,6 @@ private fun ApplicationInfoGridItem(
                             delay(250L)
 
                             isLongPressed = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -494,6 +498,12 @@ private fun ShortcutInfoGridItem(
         }
     }
 
+    LaunchedEffect(key1 = isLongPressed) {
+        if (isLongPressed && drag == Drag.Start) {
+            alpha = 0f
+        }
+    }
+
     Column(
         modifier = modifier
             .drawWithContent {
@@ -518,8 +528,6 @@ private fun ShortcutInfoGridItem(
                             delay(250L)
 
                             isLongPressed = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -654,6 +662,12 @@ private fun FolderGridItem(
         }
     }
 
+    LaunchedEffect(key1 = isLongPressed) {
+        if (isLongPressed && drag == Drag.Start) {
+            alpha = 0f
+        }
+    }
+
     Column(
         modifier = modifier
             .drawWithContent {
@@ -683,8 +697,6 @@ private fun FolderGridItem(
                             delay(250L)
 
                             isLongPressed = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {

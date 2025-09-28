@@ -567,6 +567,12 @@ private fun EblanApplicationInfoItem(
         }
     }
 
+    LaunchedEffect(key1 = isLongPressed) {
+        if (isLongPressed && drag == Drag.Start) {
+            alpha = 0f
+        }
+    }
+
     Column(
         modifier = modifier
             .pointerInput(key1 = isLongPressed) {
@@ -636,8 +642,6 @@ private fun EblanApplicationInfoItem(
                             onUpdatePopupMenu()
 
                             isLongPressed = true
-
-                            alpha = 0f
                         }
                     },
                     onPress = {

@@ -447,6 +447,8 @@ private fun EblanShortcutInfoItem(
 
                             scale.animateTo(1f)
 
+                            delay(250L)
+
                             onUpdateGridItemOffset(
                                 intOffset,
                                 intSize
@@ -479,8 +481,6 @@ private fun EblanShortcutInfoItem(
                                 ),
                                 graphicsLayer.toImageBitmap(),
                             )
-
-                            delay(250L)
 
                             isLongPressed = true
                         }

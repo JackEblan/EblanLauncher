@@ -279,11 +279,11 @@ private fun ApplicationInfoGridItem(
 
                             scale.animateTo(1f)
 
+                            delay(250L)
+
                             onLongPress()
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            delay(250L)
 
                             isLongPressed = true
                         }
@@ -399,9 +399,9 @@ private fun WidgetGridItem(
 
                             scale.animateTo(1f)
 
-                            onLongPress()
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            onLongPress()
 
                             isLongPressed = true
 
@@ -521,11 +521,11 @@ private fun ShortcutInfoGridItem(
 
                             scale.animateTo(1f)
 
+                            delay(250L)
+
                             onLongPress()
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            delay(250L)
 
                             isLongPressed = true
                         }
@@ -690,11 +690,11 @@ private fun FolderGridItem(
 
                             scale.animateTo(1f)
 
+                            delay(250L)
+
                             onLongPress()
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
-
-                            delay(250L)
 
                             isLongPressed = true
                         }

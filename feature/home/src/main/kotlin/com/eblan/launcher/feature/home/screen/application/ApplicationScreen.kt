@@ -604,6 +604,8 @@ private fun EblanApplicationInfoItem(
 
                             scale.animateTo(1f)
 
+                            delay(250L)
+
                             onLongPress(
                                 intOffset,
                                 intSize,
@@ -636,8 +638,6 @@ private fun EblanApplicationInfoItem(
                                 ),
                                 graphicsLayer.toImageBitmap(),
                             )
-
-                            delay(250L)
 
                             onUpdatePopupMenu()
 

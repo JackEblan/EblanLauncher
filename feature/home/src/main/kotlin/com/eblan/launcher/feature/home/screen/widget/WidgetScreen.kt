@@ -440,6 +440,8 @@ private fun EblanAppWidgetProviderInfoItem(
 
                             scale.animateTo(1f)
 
+                            delay(250L)
+
                             onUpdateGridItemOffset(
                                 intOffset,
                                 intSize
@@ -470,8 +472,6 @@ private fun EblanAppWidgetProviderInfoItem(
                                 ),
                                 graphicsLayer.toImageBitmap(),
                             )
-
-                            delay(250L)
 
                             isLongPressed = true
                         }

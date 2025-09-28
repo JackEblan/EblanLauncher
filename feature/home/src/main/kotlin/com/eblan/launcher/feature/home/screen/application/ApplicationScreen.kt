@@ -70,6 +70,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -298,7 +299,7 @@ fun ApplicationScreen(
                                     },
                                 )
 
-                                Row(modifier = Modifier.fillMaxWidth()) {
+                                Row(modifier = Modifier.fillMaxSize()) {
                                     LazyVerticalGrid(
                                         columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
                                         state = lazyGridState,
@@ -564,102 +565,12 @@ private fun EblanApplicationInfoItem(
 
     Column(
         modifier = modifier
-            .drawWithContent {
-                graphicsLayer.record {
-                    drawContext.transform.scale(
-                        scaleX = scale.value,
-                        scaleY = scale.value,
-                    )
-
-                    this@drawWithContent.drawContent()
-                }
-
-                drawLayer(graphicsLayer)
-            }
-            .pointerInput(key1 = drag) {
-                detectTapGestures(
-                    onTap = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            val sourceBoundsX = intOffset.x + leftPadding
-
-                            val sourceBoundsY = intOffset.y + topPadding
-
-                            launcherApps.startMainActivity(
-                                componentName = eblanApplicationInfo.componentName,
-                                sourceBounds = Rect(
-                                    sourceBoundsX,
-                                    sourceBoundsY,
-                                    sourceBoundsX + intSize.width,
-                                    sourceBoundsY + intSize.height,
-                                ),
-                            )
-                        }
-                    },
-                    onLongPress = {
-                        isLongPressed = true
-
-                        onLongPress(
-                            intOffset,
-                            intSize,
-                        )
-
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            val data =
-                                GridItemData.ApplicationInfo(
-                                    componentName = eblanApplicationInfo.componentName,
-                                    packageName = eblanApplicationInfo.packageName,
-                                    icon = eblanApplicationInfo.icon,
-                                    label = eblanApplicationInfo.label,
-                                )
-
-                            onLongPressGridItem(
-                                GridItemSource.New(
-                                    gridItem = GridItem(
-                                        id = Uuid.random()
-                                            .toHexString(),
-                                        folderId = null,
-                                        page = currentPage,
-                                        startColumn = 0,
-                                        startRow = 0,
-                                        columnSpan = 1,
-                                        rowSpan = 1,
-                                        data = data,
-                                        associate = Associate.Grid,
-                                        override = false,
-                                        gridItemSettings = appDrawerSettings.gridItemSettings,
-                                    ),
-                                ),
-                                graphicsLayer.toImageBitmap(),
-                            )
-
-                            onUpdatePopupMenu()
-
-                            alpha = 0f
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        isLongPressed = false
-                    },
-                )
-            }
-            .onGloballyPositioned { layoutCoordinates ->
-                intOffset =
-                    layoutCoordinates.positionInRoot().round()
-
-                intSize = layoutCoordinates.size
-            }
             .height(appDrawerRowsHeightDp)
-            .alpha(alpha),
+            .alpha(alpha)
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            ),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -671,7 +582,97 @@ private fun EblanApplicationInfoItem(
                 .addLastModifiedToFileCacheKey(true)
                 .build(),
             contentDescription = null,
-            modifier = Modifier.size(iconSizeDp),
+            modifier = Modifier
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(graphicsLayer)
+                }
+                .pointerInput(key1 = drag) {
+                    detectTapGestures(
+                        onTap = {
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                val sourceBoundsX = intOffset.x + leftPadding
+
+                                val sourceBoundsY = intOffset.y + topPadding
+
+                                launcherApps.startMainActivity(
+                                    componentName = eblanApplicationInfo.componentName,
+                                    sourceBounds = Rect(
+                                        sourceBoundsX,
+                                        sourceBoundsY,
+                                        sourceBoundsX + intSize.width,
+                                        sourceBoundsY + intSize.height,
+                                    ),
+                                )
+                            }
+                        },
+                        onLongPress = {
+                            isLongPressed = true
+
+                            onLongPress(
+                                intOffset,
+                                intSize,
+                            )
+
+                            scope.launch {
+                                scale.animateTo(0.5f)
+
+                                scale.animateTo(1f)
+
+                                val data =
+                                    GridItemData.ApplicationInfo(
+                                        componentName = eblanApplicationInfo.componentName,
+                                        packageName = eblanApplicationInfo.packageName,
+                                        icon = eblanApplicationInfo.icon,
+                                        label = eblanApplicationInfo.label,
+                                    )
+
+                                onLongPressGridItem(
+                                    GridItemSource.New(
+                                        gridItem = GridItem(
+                                            id = Uuid.random()
+                                                .toHexString(),
+                                            folderId = null,
+                                            page = currentPage,
+                                            startColumn = 0,
+                                            startRow = 0,
+                                            columnSpan = 1,
+                                            rowSpan = 1,
+                                            data = data,
+                                            associate = Associate.Grid,
+                                            override = false,
+                                            gridItemSettings = appDrawerSettings.gridItemSettings,
+                                        ),
+                                    ),
+                                    graphicsLayer.toImageBitmap(),
+                                )
+
+                                onUpdatePopupMenu()
+
+                                alpha = 0f
+                            }
+                        },
+                        onPress = {
+                            awaitRelease()
+
+                            isLongPressed = false
+                        },
+                    )
+                }
+                .onGloballyPositioned { layoutCoordinates ->
+                    intOffset =
+                        layoutCoordinates.positionInRoot().round()
+
+                    intSize = layoutCoordinates.size
+                }
+                .size(iconSizeDp),
         )
 
         if (appDrawerSettings.gridItemSettings.showLabel) {
@@ -799,15 +800,18 @@ private fun AlphabetSideBar(
 
                             onUpdateChar(char)
 
-                            val charIndex = eblanApplicationInfos.indexOfFirst { eblanApplicationInfo ->
-                                val firstChar = eblanApplicationInfo.label?.firstOrNull()?.uppercaseChar() ?: '#'
+                            val charIndex =
+                                eblanApplicationInfos.indexOfFirst { eblanApplicationInfo ->
+                                    val firstChar =
+                                        eblanApplicationInfo.label?.firstOrNull()?.uppercaseChar()
+                                            ?: '#'
 
-                                if (firstChar in 'A'..'Z') {
-                                    firstChar == char
-                                } else {
-                                    char == '#'
+                                    if (firstChar in 'A'..'Z') {
+                                        firstChar == char
+                                    } else {
+                                        char == '#'
+                                    }
                                 }
-                            }
 
                             if (charIndex >= 0) {
                                 scope.launch {

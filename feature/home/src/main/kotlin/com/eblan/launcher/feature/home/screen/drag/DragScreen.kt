@@ -551,7 +551,7 @@ private fun AnimatedDropGridItem(
             if (moveGridItemResult.conflictingGridItem != null) {
                 animatedAlpha.animateTo(
                     targetValue = 0f,
-                    animationSpec = tween(durationMillis = 250)
+                    animationSpec = tween(durationMillis = 250),
                 )
             }
         }

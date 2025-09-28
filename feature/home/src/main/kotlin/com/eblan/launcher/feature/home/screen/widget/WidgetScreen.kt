@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -420,18 +421,19 @@ private fun EblanAppWidgetProviderInfoItem(
     }
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .alpha(alpha)
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
             modifier = Modifier
                 .drawWithContent {
                     graphicsLayer.record {
-                        drawContext.transform.scale(
-                            scaleX = scale.value,
-                            scaleY = scale.value,
-                        )
-
                         this@drawWithContent.drawContent()
                     }
 
@@ -484,8 +486,7 @@ private fun EblanAppWidgetProviderInfoItem(
                     intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
-                }
-                .alpha(alpha),
+                },
             model = preview,
             contentDescription = null,
         )

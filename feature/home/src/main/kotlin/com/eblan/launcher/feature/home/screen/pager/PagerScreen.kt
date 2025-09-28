@@ -127,7 +127,10 @@ fun PagerScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
@@ -497,7 +500,10 @@ private fun HorizontalPagerScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
 ) {
@@ -654,11 +660,13 @@ private fun HorizontalPagerScreen(
                         onLongPress = {
                             val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
 
+                            val intSize = IntSize(width = width, height = height)
+
                             popupMenuIntOffset = IntOffset(x = x, y = y)
 
                             popupGridItemMenuIntSize = IntSize(width = width, height = height)
 
-                            onUpdateGridItemOffset(intOffset)
+                            onUpdateGridItemOffset(intOffset, intSize)
                         },
                         onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
@@ -753,11 +761,13 @@ private fun HorizontalPagerScreen(
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 
+                        val intSize = IntSize(width = width, height = height)
+
                         popupMenuIntOffset = intOffset
 
                         popupGridItemMenuIntSize = IntSize(width = width, height = height)
 
-                        onUpdateGridItemOffset(intOffset)
+                        onUpdateGridItemOffset(intOffset, intSize)
                     },
                     onUpdateImageBitmap = { imageBitmap ->
                         onLongPressGridItem(

@@ -68,6 +68,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
@@ -101,7 +102,10 @@ fun ShortcutScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -227,7 +231,10 @@ private fun EblanShortcutInfoDockSearchBar(
     onQueryChange: (String) -> Unit,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -276,10 +283,10 @@ private fun EblanShortcutInfoDockSearchBar(
                     eblanApplicationInfo = eblanApplicationInfo,
                     eblanShortcutInfos = eblanShortcutInfosByLabel,
                     drag = drag,
-                    onUpdateGridItemOffset = { intOffset ->
+                    onUpdateGridItemOffset = { intOffset, intSize ->
                         focusManager.clearFocus()
 
-                        onUpdateGridItemOffset(intOffset)
+                        onUpdateGridItemOffset(intOffset, intSize)
                     },
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
@@ -297,7 +304,10 @@ private fun EblanApplicationInfoItem(
     eblanApplicationInfo: EblanApplicationInfo,
     eblanShortcutInfos: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -370,7 +380,10 @@ private fun EblanShortcutInfoItem(
     modifier: Modifier = Modifier,
     eblanShortcutInfo: EblanShortcutInfo,
     drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -382,6 +395,8 @@ private fun EblanShortcutInfoItem(
     val scope = rememberCoroutineScope()
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
 
     val preview = eblanShortcutInfo.icon ?: eblanShortcutInfo.eblanApplicationInfo.icon
 
@@ -434,7 +449,7 @@ private fun EblanShortcutInfoItem(
                         onLongPress = {
                             isLongPressed = true
 
-                            onUpdateGridItemOffset(intOffset)
+                            onUpdateGridItemOffset(intOffset, intSize)
 
                             scope.launch {
                                 scale.animateTo(0.5f)
@@ -476,6 +491,8 @@ private fun EblanShortcutInfoItem(
                 }
                 .onGloballyPositioned { layoutCoordinates ->
                     intOffset = layoutCoordinates.positionInRoot().round()
+
+                    intSize = layoutCoordinates.size
                 }
                 .alpha(alpha),
             model = preview,

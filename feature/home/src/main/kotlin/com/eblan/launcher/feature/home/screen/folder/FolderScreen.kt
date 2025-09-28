@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
@@ -80,7 +81,10 @@ fun FolderScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
 ) {
     val density = LocalDensity.current
@@ -235,6 +239,10 @@ fun FolderScreen(
                                         IntOffset(
                                             x = x + leftPadding,
                                             y = y + (topPadding + titleHeight),
+                                        ),
+                                        IntSize(
+                                            width = width,
+                                            height = height,
                                         ),
                                     )
                                 },

@@ -68,6 +68,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
@@ -103,7 +104,10 @@ fun WidgetScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -223,7 +227,10 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     onQueryChange: (String) -> Unit,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -267,10 +274,10 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
                     eblanApplicationInfo = eblanApplicationInfo,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
                     drag = drag,
-                    onUpdateGridItemOffset = { intOffset ->
+                    onUpdateGridItemOffset = { intOffset, intSize ->
                         focusManager.clearFocus()
 
-                        onUpdateGridItemOffset(intOffset)
+                        onUpdateGridItemOffset(intOffset, intSize)
                     },
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
@@ -288,7 +295,10 @@ private fun EblanApplicationInfoItem(
     eblanApplicationInfo: EblanApplicationInfo,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -362,7 +372,10 @@ private fun EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -374,6 +387,8 @@ private fun EblanAppWidgetProviderInfoItem(
     val scope = rememberCoroutineScope()
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
 
     val preview = eblanAppWidgetProviderInfo.preview
         ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
@@ -427,7 +442,7 @@ private fun EblanAppWidgetProviderInfoItem(
                         onLongPress = {
                             isLongPressed = true
 
-                            onUpdateGridItemOffset(intOffset)
+                            onUpdateGridItemOffset(intOffset, intSize)
 
                             scope.launch {
                                 scale.animateTo(0.5f)
@@ -466,9 +481,9 @@ private fun EblanAppWidgetProviderInfoItem(
                     )
                 }
                 .onGloballyPositioned { layoutCoordinates ->
-                    intOffset =
-                        layoutCoordinates.positionInRoot()
-                            .round()
+                    intOffset = layoutCoordinates.positionInRoot().round()
+
+                    intSize = layoutCoordinates.size
                 }
                 .alpha(alpha),
             model = preview,

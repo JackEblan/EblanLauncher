@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
@@ -94,6 +95,7 @@ fun DragScreen(
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -386,6 +388,7 @@ fun DragScreen(
         dockColumns = homeSettings.dockColumns,
         dockRows = homeSettings.dockRows,
         overlayIntOffset = overlayIntOffset,
+        overlayIntSize = overlayIntSize,
         textColor = textColor,
         iconPackInfoPackageName = iconPackInfoPackageName,
         hasShortcutHostPermission = hasShortcutHostPermission,
@@ -411,6 +414,7 @@ private fun AnimatedDropGridItem(
     dockColumns: Int,
     dockRows: Int,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     textColor: TextColor,
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
@@ -457,10 +461,6 @@ private fun AnimatedDropGridItem(
 
     val gridTop = topPadding + gridPadding
 
-    var initialWidth: Int
-
-    var initialHeight: Int
-
     var targetX: Int
 
     var targetY: Int
@@ -476,17 +476,9 @@ private fun AnimatedDropGridItem(
             val gridHeightWithPadding =
                 (gridHeight - pageIndicatorHeight - dockHeight) - (gridPadding * 2)
 
-            val initialCellWidth = gridWidth / columns
-
-            val initialCellHeight = (gridHeight - pageIndicatorHeight - dockHeight) / rows
-
             val cellWidth = gridWidthWithPadding / columns
 
             val cellHeight = gridHeightWithPadding / rows
-
-            initialWidth = moveGridItemResult.movingGridItem.columnSpan * initialCellWidth
-
-            initialHeight = moveGridItemResult.movingGridItem.rowSpan * initialCellHeight
 
             targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + gridLeft
 
@@ -502,19 +494,15 @@ private fun AnimatedDropGridItem(
 
             val cellHeight = dockHeight / dockRows
 
-            initialWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
-
-            initialHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
-
             targetX =
                 (moveGridItemResult.movingGridItem.startColumn * cellWidth) + leftPadding
 
             targetY =
                 (moveGridItemResult.movingGridItem.startRow * cellHeight) + (screenHeight - bottomPadding - dockHeight)
 
-            targetWidth = initialWidth
+            targetWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
 
-            targetHeight = initialHeight
+            targetHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
         }
     }
 
@@ -523,10 +511,10 @@ private fun AnimatedDropGridItem(
     val animatedY = remember { Animatable(overlayIntOffset.y.toFloat()) }
 
     val animatedWidth =
-        remember { Animatable(initialWidth.toFloat()) }
+        remember { Animatable(overlayIntSize.width.toFloat()) }
 
     val animatedHeight =
-        remember { Animatable(initialHeight.toFloat()) }
+        remember { Animatable(overlayIntSize.height.toFloat()) }
 
     val animatedAlpha = remember { Animatable(1f) }
 

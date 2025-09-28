@@ -134,7 +134,10 @@ fun DoubleTapApplicationScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -189,7 +192,10 @@ fun ApplicationScreen(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
@@ -273,7 +279,7 @@ fun ApplicationScreen(
                                     iconPackInfoPackageName = iconPackInfoPackageName,
                                     paddingValues = paddingValues,
                                     onLongPress = { intOffset, intSize ->
-                                        onUpdateGridItemOffset(intOffset)
+                                        onUpdateGridItemOffset(intOffset, intSize)
 
                                         popupMenuIntOffset = intOffset
 
@@ -309,7 +315,7 @@ fun ApplicationScreen(
                                                 iconPackInfoPackageName = iconPackInfoPackageName,
                                                 paddingValues = paddingValues,
                                                 onLongPress = { intOffset, intSize ->
-                                                    onUpdateGridItemOffset(intOffset)
+                                                    onUpdateGridItemOffset(intOffset, intSize)
 
                                                     popupMenuIntOffset = intOffset
 

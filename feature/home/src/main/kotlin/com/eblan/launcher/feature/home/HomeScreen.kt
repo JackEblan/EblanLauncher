@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -50,7 +51,10 @@ import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -238,6 +242,8 @@ fun HomeScreen(
 
     var overlayIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
+    var overlayIntSize by remember { mutableStateOf(IntSize.Zero) }
+
     var overlayImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
     var drag by remember { mutableStateOf(Drag.None) }
@@ -348,6 +354,7 @@ fun HomeScreen(
                     gridItemsCache = gridItemsCache,
                     pinGridItem = pinGridItem,
                     overlayIntOffset = overlayIntOffset,
+                    overlayIntSize = overlayIntSize,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -372,8 +379,10 @@ fun HomeScreen(
                     onUpdateGridItemImageBitmap = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
                     },
-                    onUpdateGridItemOffset = { intOffset ->
+                    onUpdateGridItemOffset = { intOffset, intSize ->
                         overlayIntOffset = intOffset
+
+                        overlayIntSize = intSize
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
@@ -386,8 +395,13 @@ fun HomeScreen(
         OverlayImage(
             drag = drag,
             overlayIntOffset = overlayIntOffset,
+            overlayIntSize = overlayIntSize,
             overlayImageBitmap = overlayImageBitmap,
             onResetOverlay = {
+                overlayIntOffset = IntOffset.Zero
+
+                overlayIntSize = IntSize.Zero
+
                 overlayImageBitmap = null
             },
         )
@@ -414,6 +428,7 @@ private fun Success(
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -470,7 +485,10 @@ private fun Success(
     onAddFolder: (String) -> Unit,
     onMoveOutsideFolder: (List<GridItem>) -> Unit,
     onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
-    onUpdateGridItemOffset: (IntOffset) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
@@ -605,6 +623,7 @@ private fun Success(
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
                     overlayIntOffset = overlayIntOffset,
+                    overlayIntSize = overlayIntSize,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onMoveGridItemsFailed = onCancelGridCache,
@@ -716,9 +735,16 @@ private fun OverlayImage(
     modifier: Modifier = Modifier,
     drag: Drag,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     overlayImageBitmap: ImageBitmap?,
     onResetOverlay: () -> Unit,
 ) {
+    val density = LocalDensity.current
+
+    val size = with(density) {
+        DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
+    }
+
     if (overlayImageBitmap != null) {
         when (drag) {
             Drag.End, Drag.Cancel -> {
@@ -732,7 +758,8 @@ private fun OverlayImage(
             modifier = modifier
                 .offset {
                     overlayIntOffset
-                },
+                }
+                .size(size),
             bitmap = overlayImageBitmap,
             contentDescription = null,
         )

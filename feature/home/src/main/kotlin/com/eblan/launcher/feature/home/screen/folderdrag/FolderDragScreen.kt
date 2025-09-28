@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
@@ -83,6 +84,7 @@ fun FolderDragScreen(
     moveGridItemResult: MoveGridItemResult?,
     folderGridHorizontalPagerState: PagerState,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -239,6 +241,7 @@ fun FolderDragScreen(
         columns = homeSettings.folderColumns,
         rows = homeSettings.folderRows,
         overlayIntOffset = overlayIntOffset,
+        overlayIntSize = overlayIntSize,
         textColor = textColor,
         iconPackInfoPackageName = iconPackInfoPackageName,
         hasShortcutHostPermission = hasShortcutHostPermission,
@@ -261,6 +264,7 @@ private fun AnimatedDropGridItem(
     columns: Int,
     rows: Int,
     overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     textColor: TextColor,
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
@@ -311,31 +315,27 @@ private fun AnimatedDropGridItem(
 
     val gridHeightWithPadding = gridHeight - pageIndicatorHeight - (gridPadding * 2)
 
-    val initialCellWidth = gridWidth / columns
+    val cellWidth = gridWidthWithPadding / columns
 
-    val initialCellHeight = gridHeight - pageIndicatorHeight / rows
+    val cellHeight = gridHeightWithPadding / rows
 
-    val targetCellWidth = gridWidthWithPadding / columns
+    val targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + gridLeft
 
-    val targetCellHeight = gridHeightWithPadding / rows
+    val targetY = (moveGridItemResult.movingGridItem.startRow * cellHeight) + gridTop
 
-    val initialX = remember { Animatable(overlayIntOffset.x.toFloat()) }
+    val targetWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
 
-    val initialY = remember { Animatable(overlayIntOffset.y.toFloat()) }
+    val targetHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
 
-    val targetX = (moveGridItemResult.movingGridItem.startColumn * targetCellWidth) + gridLeft
+    val animatedX = remember { Animatable(overlayIntOffset.x.toFloat()) }
 
-    val targetY = (moveGridItemResult.movingGridItem.startRow * targetCellHeight) + gridTop
+    val animatedY = remember { Animatable(overlayIntOffset.y.toFloat()) }
 
-    val initialWidth =
-        remember { Animatable((moveGridItemResult.movingGridItem.columnSpan * initialCellWidth).toFloat()) }
+    val animatedWidth =
+        remember { Animatable(overlayIntSize.width.toFloat()) }
 
-    val initialHeight =
-        remember { Animatable((moveGridItemResult.movingGridItem.rowSpan * initialCellHeight).toFloat()) }
-
-    val targetWidth = moveGridItemResult.movingGridItem.columnSpan * targetCellWidth
-
-    val targetHeight = moveGridItemResult.movingGridItem.rowSpan * targetCellHeight
+    val animatedHeight =
+        remember { Animatable(overlayIntSize.height.toFloat()) }
 
     val animatedAlpha = remember { Animatable(1f) }
 
@@ -359,13 +359,13 @@ private fun AnimatedDropGridItem(
     }
 
     LaunchedEffect(key1 = moveGridItemResult.movingGridItem) {
-        launch { initialX.animateTo(targetX.toFloat()) }
+        launch { animatedX.animateTo(targetX.toFloat()) }
 
-        launch { initialY.animateTo(targetY.toFloat()) }
+        launch { animatedY.animateTo(targetY.toFloat()) }
 
-        launch { initialWidth.animateTo(targetWidth.toFloat()) }
+        launch { animatedWidth.animateTo(targetWidth.toFloat()) }
 
-        launch { initialHeight.animateTo(targetHeight.toFloat()) }
+        launch { animatedHeight.animateTo(targetHeight.toFloat()) }
 
         launch {
             animatedGridItemSettings.animateTo(
@@ -381,16 +381,16 @@ private fun AnimatedDropGridItem(
         modifier = modifier
             .offset {
                 IntOffset(
-                    x = initialX.value.roundToInt(),
-                    y = initialY.value.roundToInt(),
+                    x = animatedX.value.roundToInt(),
+                    y = animatedY.value.roundToInt(),
                 )
             }
             .alpha(animatedAlpha.value)
             .size(
                 with(density) {
                     DpSize(
-                        width = initialWidth.value.roundToInt().toDp(),
-                        height = initialHeight.value.roundToInt().toDp(),
+                        width = animatedWidth.value.roundToInt().toDp(),
+                        height = animatedHeight.value.roundToInt().toDp(),
                     )
                 },
             ),

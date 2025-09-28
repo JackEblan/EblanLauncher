@@ -53,13 +53,17 @@ class MoveFolderGridItemUseCase @Inject constructor(
                     gridItem = gridItem,
                     columns = columns,
                     rows = rows,
-                )
+                ) && gridItem.page == movingGridItem.page
             }.toMutableList()
 
             val index =
                 gridItems.indexOfFirst { gridItem -> gridItem.id == movingGridItem.id }
 
-            gridItems[index] = movingGridItem
+            if (index != -1) {
+                gridItems[index] = movingGridItem
+            } else {
+                gridItems.add(movingGridItem)
+            }
 
             val gridItemByCoordinates = getGridItemByCoordinates(
                 id = movingGridItem.id,

@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -546,19 +547,24 @@ private fun AnimatedDropGridItem(
 
         launch { animatedHeight.animateTo(targetHeight.toFloat()) }
 
-        if (moveGridItemResult.conflictingGridItem != null) {
-            animatedAlpha.animateTo(0f)
-        } else {
-            animatedAlpha.animateTo(1f)
+        launch {
+            if (moveGridItemResult.conflictingGridItem != null) {
+                animatedAlpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 250)
+                )
+            }
         }
 
-        if (moveGridItemResult.movingGridItem.associate == Associate.Grid) {
-            animatedGridItemSettings.animateTo(
-                gridItemSettings.copy(
-                    iconSize = gridItemSettings.iconSize / 2,
-                    textSize = gridItemSettings.textSize / 2,
-                ),
-            )
+        launch {
+            if (moveGridItemResult.movingGridItem.associate == Associate.Grid) {
+                animatedGridItemSettings.animateTo(
+                    gridItemSettings.copy(
+                        iconSize = gridItemSettings.iconSize / 2,
+                        textSize = gridItemSettings.textSize / 2,
+                    ),
+                )
+            }
         }
     }
 

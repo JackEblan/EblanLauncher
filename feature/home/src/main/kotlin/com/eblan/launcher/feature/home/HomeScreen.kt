@@ -716,6 +716,7 @@ private fun Success(
                     moveGridItemResult = movedGridItemResult,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     overlayIntOffset = overlayIntOffset,
+                    overlayIntSize = overlayIntSize,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,

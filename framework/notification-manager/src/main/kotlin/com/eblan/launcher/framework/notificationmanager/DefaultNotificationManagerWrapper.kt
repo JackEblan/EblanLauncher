@@ -38,8 +38,8 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@Applicatio
     ) {
         val channel = NotificationChannel(
             channelId,
-            "Eblan Launcher Service",
-            NotificationManager.IMPORTANCE_DEFAULT,
+            name,
+            importance,
         )
 
         notificationManager.createNotificationChannel(channel)

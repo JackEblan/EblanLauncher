@@ -52,7 +52,7 @@ suspend fun handlePageDirection(
     }
 }
 
-suspend fun handleDragIntOffset(
+suspend fun handleDragGridItem(
     density: Density,
     currentPage: Int,
     drag: Drag,

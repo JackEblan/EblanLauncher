@@ -390,14 +390,22 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            delay(defaultDelay)
+            val lastId = _foldersDataById.value.last().id
 
-            _screen.update {
-                Screen.Pager
-            }
+            getFolderDataByIdUseCase(id = lastId)?.let { folder ->
+                _foldersDataById.update { currentFolders ->
+                    ArrayDeque(currentFolders).apply {
+                        val index = indexOfFirst { it.id == lastId }
 
-            _foldersDataById.update {
-                ArrayDeque()
+                        set(index, folder)
+                    }
+                }
+
+                delay(defaultDelay)
+
+                _screen.update {
+                    Screen.Folder
+                }
             }
         }
     }

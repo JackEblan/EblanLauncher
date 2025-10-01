@@ -31,7 +31,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import kotlinx.coroutines.delay
 
-suspend fun handleFolderDragIntOffset(
+suspend fun handleDragFolderGridItem(
     density: Density,
     currentPage: Int,
     drag: Drag,

@@ -20,8 +20,10 @@ package com.eblan.launcher.feature.home.screen.folderdrag
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import com.eblan.launcher.domain.model.MoveGridItemResult
 
-fun handleOnDragEnd(
+fun handleDropFolderGridItem(
+    moveGridItemResult: MoveGridItemResult?,
     density: Density,
     dragIntOffset: IntOffset,
     screenHeight: Int,
@@ -31,6 +33,12 @@ fun handleOnDragEnd(
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
 ) {
+    if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
+        onDragCancel()
+
+        return
+    }
+
     val topPadding = with(density) {
         paddingValues.calculateTopPadding().roundToPx()
     }

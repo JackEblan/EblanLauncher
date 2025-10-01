@@ -187,8 +187,20 @@ fun DragScreen(
         )
     }
 
+    val lastMoveGridItemResult = remember(key1 = moveGridItemResult) {
+        if (moveGridItemResult != null && moveGridItemResult.isSuccess) {
+            moveGridItemResult
+        } else {
+            MoveGridItemResult(
+                isSuccess = true,
+                movingGridItem = gridItemSource.gridItem,
+                conflictingGridItem = null,
+            )
+        }
+    }
+
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
-        handleDragIntOffset(
+        handleDragGridItem(
             density = density,
             currentPage = currentPage,
             drag = drag,
@@ -228,7 +240,7 @@ fun DragScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.End -> {
-                handleOnDragEnd(
+                handleDropGridItem(
                     moveGridItemResult = moveGridItemResult,
                     androidAppWidgetHostWrapper = appWidgetHostWrapper,
                     appWidgetManager = appWidgetManager,
@@ -395,7 +407,7 @@ fun DragScreen(
         hasShortcutHostPermission = hasShortcutHostPermission,
         gridItemSettings = homeSettings.gridItemSettings,
         drag = drag,
-        moveGridItemResult = moveGridItemResult,
+        moveGridItemResult = lastMoveGridItemResult,
         gridItemSource = gridItemSource,
     )
 }

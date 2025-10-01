@@ -33,7 +33,7 @@ import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
-fun handleOnDragEnd(
+fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,

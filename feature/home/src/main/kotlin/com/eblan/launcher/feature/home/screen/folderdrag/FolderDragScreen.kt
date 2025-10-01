@@ -118,8 +118,20 @@ fun FolderDragScreen(
         pageIndicatorHeight.roundToPx()
     }
 
+    val lastMoveGridItemResult = remember(key1 = moveGridItemResult) {
+        if (moveGridItemResult != null && moveGridItemResult.isSuccess) {
+            moveGridItemResult
+        } else {
+            MoveGridItemResult(
+                isSuccess = true,
+                movingGridItem = gridItemSource.gridItem,
+                conflictingGridItem = null,
+            )
+        }
+    }
+
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
-        handleFolderDragIntOffset(
+        handleDragFolderGridItem(
             density = density,
             currentPage = folderGridHorizontalPagerState.currentPage,
             drag = drag,
@@ -156,7 +168,8 @@ fun FolderDragScreen(
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.End, Drag.Cancel -> {
-                handleOnDragEnd(
+                handleDropFolderGridItem(
+                    moveGridItemResult = moveGridItemResult,
                     density = density,
                     dragIntOffset = dragIntOffset,
                     screenHeight = screenHeight,
@@ -247,7 +260,7 @@ fun FolderDragScreen(
         hasShortcutHostPermission = hasShortcutHostPermission,
         gridItemSettings = homeSettings.gridItemSettings,
         drag = drag,
-        moveGridItemResult = moveGridItemResult,
+        moveGridItemResult = lastMoveGridItemResult,
         folderDataById = folderDataById,
     )
 }

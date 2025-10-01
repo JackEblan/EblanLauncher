@@ -747,12 +747,10 @@ private fun OverlayImage(
     }
 
     if (overlayImageBitmap != null) {
-        when (drag) {
-            Drag.End, Drag.Cancel -> {
+        LaunchedEffect(key1 = drag) {
+            if (drag == Drag.Cancel || drag == Drag.End) {
                 onResetOverlay()
             }
-
-            else -> Unit
         }
 
         Image(

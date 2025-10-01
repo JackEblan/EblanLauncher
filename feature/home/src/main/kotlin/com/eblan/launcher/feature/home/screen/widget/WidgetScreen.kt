@@ -432,7 +432,7 @@ private fun EblanAppWidgetProviderInfoItem(
 
                             onUpdateGridItemOffset(
                                 intOffset,
-                                intSize
+                                intSize,
                             )
 
                             onLongPressGridItem(

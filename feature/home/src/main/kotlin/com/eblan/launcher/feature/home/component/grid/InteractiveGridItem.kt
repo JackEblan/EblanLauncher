@@ -70,7 +70,6 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -404,17 +403,16 @@ private fun WidgetGridItem(
             modifier = modifier
                 .drawWithContent {
                     graphicsLayer.record {
-                        drawContext.transform.scale(
-                            scaleX = scale.value,
-                            scaleY = scale.value,
-                        )
-
                         this@drawWithContent.drawContent()
                     }
 
                     drawLayer(graphicsLayer)
                 }
                 .alpha(alpha)
+                .scale(
+                    scaleX = scale.value,
+                    scaleY = scale.value,
+                )
                 .fillMaxSize(),
         )
     }
@@ -643,11 +641,6 @@ private fun FolderGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
-                    drawContext.transform.scale(
-                        scaleX = scale.value,
-                        scaleY = scale.value,
-                    )
-
                     this@drawWithContent.drawContent()
                 }
 
@@ -660,8 +653,6 @@ private fun FolderGridItem(
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            delay(250L)
 
                             onLongPress()
 

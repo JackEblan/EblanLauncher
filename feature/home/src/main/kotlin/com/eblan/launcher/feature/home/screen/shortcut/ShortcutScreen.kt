@@ -439,7 +439,7 @@ private fun EblanShortcutInfoItem(
 
                             onUpdateGridItemOffset(
                                 intOffset,
-                                intSize
+                                intSize,
                             )
 
                             val data = GridItemData.ShortcutInfo(

@@ -24,7 +24,6 @@ import com.eblan.launcher.data.repository.DefaultEblanIconPackInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridItemRepository
 import com.eblan.launcher.data.repository.DefaultGridCacheRepository
-import com.eblan.launcher.data.repository.DefaultPageCacheRepository
 import com.eblan.launcher.data.repository.DefaultShortcutInfoGridItemRepository
 import com.eblan.launcher.data.repository.DefaultUserDataRepository
 import com.eblan.launcher.data.repository.DefaultWidgetGridItemRepository
@@ -35,7 +34,6 @@ import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -67,10 +65,6 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun eblanShortcutInfoRepository(impl: DefaultEblanShortcutInfoRepository): EblanShortcutInfoRepository
-
-    @Binds
-    @Singleton
-    fun pageCacheRepository(impl: DefaultPageCacheRepository): PageCacheRepository
 
     @Binds
     @Singleton

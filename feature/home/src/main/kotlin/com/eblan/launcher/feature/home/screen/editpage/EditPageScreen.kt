@@ -143,9 +143,12 @@ fun EditPageScreen(
                 items = currentPageItems,
                 key = { _, pageItem -> pageItem.id },
             ) { index, pageItem ->
-                DraggableItem(state = gridDragAndDropState, index = index) {
+                DraggableItem(
+                    modifier = Modifier.padding(5.dp),
+                    state = gridDragAndDropState,
+                    index = index,
+                ) {
                     OutlinedCard(
-                        modifier = Modifier.padding(5.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = getSystemTextColor(textColor = textColor).copy(
                                 alpha = 0.25f,

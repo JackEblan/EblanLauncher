@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.PageCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
@@ -78,7 +77,6 @@ class HomeViewModel @Inject constructor(
     private val cachePageItemsUseCase: CachePageItemsUseCase,
     private val updatePageItemsUseCase: UpdatePageItemsUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
-    pageCacheRepository: PageCacheRepository,
     private val updateGridItemsAfterResizeUseCase: UpdateGridItemsAfterResizeUseCase,
     private val updateGridItemsAfterMoveUseCase: UpdateGridItemsAfterMoveUseCase,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
@@ -115,11 +113,9 @@ class HomeViewModel @Inject constructor(
 
     private val defaultDelay = 500L
 
-    val pageItems = pageCacheRepository.pageItems.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList(),
-    )
+    private val _pageItems = MutableStateFlow(emptyList<PageItem>())
+
+    val pageItems = _pageItems.asStateFlow()
 
     private var moveGridItemJob: Job? = null
 
@@ -278,7 +274,9 @@ class HomeViewModel @Inject constructor(
                 Screen.Loading
             }
 
-            cachePageItemsUseCase(gridItems = gridItems)
+            _pageItems.update {
+                cachePageItemsUseCase(gridItems = gridItems)
+            }
 
             delay(defaultDelay)
 

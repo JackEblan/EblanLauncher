@@ -113,8 +113,6 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.roundToInt
@@ -489,8 +487,6 @@ private fun EblanApplicationInfoItem(
 
     val scope = rememberCoroutineScope()
 
-    var job = remember<Job?> { null }
-
     val context = LocalContext.current
 
     val density = LocalDensity.current
@@ -567,12 +563,6 @@ private fun EblanApplicationInfoItem(
         }
     }
 
-    LaunchedEffect(key1 = isLongPressed) {
-        if (isLongPressed && drag == Drag.Start) {
-            alpha = 0f
-        }
-    }
-
     Column(
         modifier = modifier
             .pointerInput(key1 = isLongPressed) {
@@ -599,12 +589,10 @@ private fun EblanApplicationInfoItem(
                         }
                     },
                     onLongPress = {
-                        job = scope.launch {
+                        scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            delay(250L)
 
                             onLongPress(
                                 intOffset,
@@ -642,17 +630,17 @@ private fun EblanApplicationInfoItem(
                             onUpdatePopupMenu()
 
                             isLongPressed = true
+
+                            alpha = 0f
                         }
                     },
                     onPress = {
                         awaitRelease()
 
-                        job?.cancel()
+                        scale.stop()
 
-                        scope.launch {
-                            if (scale.value < 1f) {
-                                scale.animateTo(1f)
-                            }
+                        if (scale.value < 1f) {
+                            scale.animateTo(1f)
                         }
                     },
                 )

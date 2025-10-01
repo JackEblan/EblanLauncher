@@ -70,7 +70,6 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -194,8 +193,6 @@ private fun ApplicationInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var job = remember<Job?> { null }
-
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
@@ -256,12 +253,6 @@ private fun ApplicationInfoGridItem(
         }
     }
 
-    LaunchedEffect(key1 = isLongPressed) {
-        if (isLongPressed && drag == Drag.Start) {
-            alpha = 0f
-        }
-    }
-
     Column(
         modifier = modifier
             .drawWithContent {
@@ -274,18 +265,18 @@ private fun ApplicationInfoGridItem(
             .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        job = scope.launch {
+                        scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            delay(250L)
 
                             onLongPress()
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             isLongPressed = true
+
+                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -300,12 +291,10 @@ private fun ApplicationInfoGridItem(
                     onPress = {
                         awaitRelease()
 
-                        job?.cancel()
+                        scale.stop()
 
-                        scope.launch {
-                            if (scale.value < 1f) {
-                                scale.animateTo(1f)
-                            }
+                        if (scale.value < 1f) {
+                            scale.animateTo(1f)
                         }
                     },
                 )
@@ -448,8 +437,6 @@ private fun ShortcutInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var job = remember<Job?> { null }
-
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
@@ -498,12 +485,6 @@ private fun ShortcutInfoGridItem(
         }
     }
 
-    LaunchedEffect(key1 = isLongPressed) {
-        if (isLongPressed && drag == Drag.Start) {
-            alpha = 0f
-        }
-    }
-
     Column(
         modifier = modifier
             .drawWithContent {
@@ -516,18 +497,18 @@ private fun ShortcutInfoGridItem(
             .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        job = scope.launch {
+                        scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            delay(250L)
 
                             onLongPress()
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             isLongPressed = true
+
+                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -544,12 +525,10 @@ private fun ShortcutInfoGridItem(
                     onPress = {
                         awaitRelease()
 
-                        job?.cancel()
+                        scale.stop()
 
-                        scope.launch {
-                            if (scale.value < 1f) {
-                                scale.animateTo(1f)
-                            }
+                        if (scale.value < 1f) {
+                            scale.animateTo(1f)
                         }
                     },
                 )
@@ -612,8 +591,6 @@ private fun FolderGridItem(
 
     val scope = rememberCoroutineScope()
 
-    var job = remember<Job?> { null }
-
     val density = LocalDensity.current
 
     val iconSizeDp = with(density) {
@@ -662,12 +639,6 @@ private fun FolderGridItem(
         }
     }
 
-    LaunchedEffect(key1 = isLongPressed) {
-        if (isLongPressed && drag == Drag.Start) {
-            alpha = 0f
-        }
-    }
-
     Column(
         modifier = modifier
             .drawWithContent {
@@ -685,7 +656,7 @@ private fun FolderGridItem(
             .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        job = scope.launch {
+                        scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
@@ -697,6 +668,8 @@ private fun FolderGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             isLongPressed = true
+
+                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -711,12 +684,10 @@ private fun FolderGridItem(
                     onPress = {
                         awaitRelease()
 
-                        job?.cancel()
+                        scale.stop()
 
-                        scope.launch {
-                            if (scale.value < 1f) {
-                                scale.animateTo(1f)
-                            }
+                        if (scale.value < 1f) {
+                            scale.animateTo(1f)
                         }
                     },
                 )

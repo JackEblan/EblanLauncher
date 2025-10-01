@@ -86,8 +86,6 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -397,8 +395,6 @@ private fun EblanShortcutInfoItem(
 ) {
     val scope = rememberCoroutineScope()
 
-    var job = remember<Job?> { null }
-
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
@@ -431,23 +427,15 @@ private fun EblanShortcutInfoItem(
         }
     }
 
-    LaunchedEffect(key1 = isLongPressed) {
-        if (isLongPressed && drag == Drag.Start) {
-            alpha = 0f
-        }
-    }
-
     Column(
         modifier = modifier
             .pointerInput(key1 = isLongPressed) {
                 detectTapGestures(
                     onLongPress = {
-                        job = scope.launch {
+                        scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            delay(250L)
 
                             onUpdateGridItemOffset(
                                 intOffset,
@@ -483,17 +471,17 @@ private fun EblanShortcutInfoItem(
                             )
 
                             isLongPressed = true
+
+                            alpha = 0f
                         }
                     },
                     onPress = {
                         awaitRelease()
 
-                        job?.cancel()
+                        scale.stop()
 
-                        scope.launch {
-                            if (scale.value < 1f) {
-                                scale.animateTo(1f)
-                            }
+                        if (scale.value < 1f) {
+                            scale.animateTo(1f)
                         }
                     },
                 )

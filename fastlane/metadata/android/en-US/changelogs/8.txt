@@ -1,0 +1,2 @@
+What's new
+- Improved drag and drop animations are smoother

@@ -463,7 +463,9 @@ private fun ShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    var alpha by remember { mutableFloatStateOf(if (hasShortcutHostPermission) 1f else 0.3f) }
+    val defaultAlpha = if (hasShortcutHostPermission) 1f else 0.3f
+
+    var alpha by remember { mutableFloatStateOf(defaultAlpha) }
 
     LaunchedEffect(key1 = drag) {
         if (isLongPressed) {
@@ -475,7 +477,7 @@ private fun ShortcutInfoGridItem(
                 Drag.Cancel, Drag.End -> {
                     isLongPressed = false
 
-                    alpha = 1f
+                    alpha = defaultAlpha
                 }
 
                 else -> Unit

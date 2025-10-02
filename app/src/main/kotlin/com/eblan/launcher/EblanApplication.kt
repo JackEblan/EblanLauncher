@@ -19,18 +19,28 @@ package com.eblan.launcher
 
 import android.app.Application
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Build
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.content.FileProvider
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.HiltAndroidApp
+import java.io.File
 import javax.inject.Inject
 
 @HiltAndroidApp
-class EblanApplication : Application() {
+class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
     @Inject
     lateinit var notificationManagerWrapper: AndroidNotificationManagerWrapper
 
+    private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+
     override fun onCreate() {
         super.onCreate()
+
+        Thread.setDefaultUncaughtExceptionHandler(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManagerWrapper.createNotificationChannel(
@@ -39,5 +49,76 @@ class EblanApplication : Application() {
                 importance = NotificationManager.IMPORTANCE_DEFAULT,
             )
         }
+    }
+
+    override fun uncaughtException(thread: Thread, throwable: Throwable) {
+        try {
+            val file = File(filesDir, "last_crash.txt")
+
+            val device = "${Build.MANUFACTURER} ${Build.MODEL}"
+            val androidVersion = "Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})"
+            val appVersion = try {
+                val pInfo = packageManager.getPackageInfo(packageName, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    "${pInfo.versionName} (${pInfo.longVersionCode})"
+                } else {
+                    pInfo.versionCode
+                }
+            } catch (_: Exception) {
+                "Unknown"
+            }
+
+            val crashInfo = buildString {
+                appendLine("=== Crash Report ===")
+                appendLine("Device: $device")
+                appendLine("OS: $androidVersion")
+                appendLine("App: $appVersion")
+                appendLine("Time: ${java.util.Date()}")
+                appendLine()
+                appendLine(Log.getStackTraceString(throwable))
+            }
+
+            file.writeText(crashInfo)
+
+            showCrashNotification(file = file)
+        } catch (e: Exception) {
+            Log.e("CrashLogger", "Failed to write crash log", e)
+        } finally {
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
+    }
+
+    private fun showCrashNotification(file: File) {
+        val uri = FileProvider.getUriForFile(
+            this,
+            "$packageName.fileprovider",
+            file,
+        )
+
+        val openIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "text/plain")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val notification =
+            NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.stat_notify_error)
+                .setContentTitle("Eblan Launcher has crashed")
+                .setContentText("View the stack trace and report on GitHub")
+                .setAutoCancel(true)
+                .addAction(0, "Open stacktrace", pendingIntent)
+                .build()
+
+        notificationManagerWrapper.notify(
+            id = AndroidNotificationManagerWrapper.CRASH_NOTIFICATION_ID,
+            notification = notification,
+        )
     }
 }

@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.framework.notificationmanager
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -43,5 +44,9 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@Applicatio
         )
 
         notificationManager.createNotificationChannel(channel)
+    }
+
+    override fun notify(id: Int, notification: Notification) {
+        notificationManager.notify(id, notification)
     }
 }

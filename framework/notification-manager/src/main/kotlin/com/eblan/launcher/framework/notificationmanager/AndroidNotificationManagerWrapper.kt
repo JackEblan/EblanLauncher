@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.framework.notificationmanager
 
+import android.app.Notification
 import android.os.Build
 import androidx.annotation.RequiresApi
 
@@ -29,7 +30,11 @@ interface AndroidNotificationManagerWrapper {
         importance: Int,
     )
 
+    fun notify(id: Int, notification: Notification)
+
     companion object {
         const val CHANNEL_ID = "Eblan Launcher"
+        const val ICON_PACK_INFO_SERVICE_NOTIFICATION_ID = 1
+        const val CRASH_NOTIFICATION_ID = 2
     }
 }

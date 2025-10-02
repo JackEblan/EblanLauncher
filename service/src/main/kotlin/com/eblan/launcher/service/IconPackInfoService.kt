@@ -75,7 +75,7 @@ class IconPackInfoService : Service() {
 
             ServiceCompat.startForeground(
                 this,
-                1,
+                AndroidNotificationManagerWrapper.ICON_PACK_INFO_SERVICE_NOTIFICATION_ID,
                 notification,
                 foregroundServiceType,
             )

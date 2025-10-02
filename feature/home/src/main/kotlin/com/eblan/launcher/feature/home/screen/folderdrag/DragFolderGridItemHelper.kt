@@ -107,7 +107,13 @@ suspend fun handleDragFolderGridItem(
         onUpdatePageDirection(PageDirection.Right)
     } else if (!isVerticalBounds) {
         onMoveOutsideFolder(
-            GridItemSource.Existing(gridItem = gridItem.copy(folderId = null)),
+            GridItemSource.Existing(
+                gridItem = gridItem.copy(
+                    startColumn = -1,
+                    startRow = -1,
+                    folderId = null,
+                ),
+            ),
         )
     } else {
         val gridWidthWithPadding = gridWidth - (gridPadding * 2)

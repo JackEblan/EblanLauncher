@@ -444,6 +444,8 @@ class HomeViewModel @Inject constructor(
             getFolderDataByIdUseCase(id = id)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
                     ArrayDeque(currentFolders).apply {
+                        clear()
+
                         add(folder)
                     }
                 }
@@ -479,15 +481,17 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            _foldersDataById.update {
-                ArrayDeque()
+            gridCacheRepository.insertGridItems(gridItems = gridItems)
+
+            gridCacheRepository.updateGridItemCacheType(gridItemCacheType = GridItemCacheType.Grid)
+
+            _moveGridItemResult.update {
+                null
             }
 
-            showGridCache(
-                gridItems = gridItems,
-                gridItemCacheType = GridItemCacheType.Grid,
-                screen = Screen.Drag,
-            )
+            _screen.update {
+                Screen.Drag
+            }
         }
     }
 

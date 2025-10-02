@@ -190,12 +190,14 @@ fun DragScreen(
     val lastMoveGridItemResult = remember(key1 = moveGridItemResult) {
         if (moveGridItemResult != null && moveGridItemResult.isSuccess) {
             moveGridItemResult
-        } else {
+        } else if (gridItemSource.gridItem.startColumn > -1 && gridItemSource.gridItem.startRow > -1) {
             MoveGridItemResult(
                 isSuccess = true,
                 movingGridItem = gridItemSource.gridItem,
                 conflictingGridItem = null,
             )
+        } else {
+            null
         }
     }
 

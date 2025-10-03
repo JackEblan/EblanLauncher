@@ -382,6 +382,7 @@ private fun PinWidgetScreen(
     }
 }
 
+@Suppress("DEPRECATION")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable

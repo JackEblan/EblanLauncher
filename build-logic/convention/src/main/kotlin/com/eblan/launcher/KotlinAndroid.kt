@@ -34,9 +34,9 @@ internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
     commonExtension.apply {
-        compileSdk = 34
+        compileSdk = 35
 
-        defaultConfig {
+        defaultConfig.apply {
             minSdk = 24
         }
 
@@ -56,7 +56,7 @@ internal fun Project.configureKotlinAndroid(
 }
 
 internal fun Project.configureKotlinJvm() {
-    extensions.configure<JavaPluginExtension> {
+    configure<JavaPluginExtension> {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }

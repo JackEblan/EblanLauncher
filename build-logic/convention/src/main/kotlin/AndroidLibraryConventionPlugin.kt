@@ -31,11 +31,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
-            extensions.configure<LibraryExtension> {
+            configure<LibraryExtension> {
                 configureKotlinAndroid(this)
-                testOptions.targetSdk = 34
-                defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-                testOptions.animationsDisabled = true
             }
         }
     }

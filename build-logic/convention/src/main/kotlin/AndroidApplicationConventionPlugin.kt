@@ -33,13 +33,12 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.kotlin.android.get().pluginId)
             }
 
-            extensions.configure<ApplicationExtension> {
+            configure<ApplicationExtension> {
+                defaultConfig.targetSdk = 35
+
                 configureKotlinAndroid(this)
 
                 configureAndroidCompose(this)
-
-                defaultConfig.targetSdk = 34
-                testOptions.animationsDisabled = true
             }
         }
     }

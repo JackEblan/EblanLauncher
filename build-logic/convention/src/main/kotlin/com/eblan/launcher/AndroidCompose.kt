@@ -32,24 +32,9 @@ internal fun Project.configureAndroidCompose(
         buildFeatures {
             compose = true
         }
-
-        dependencies {
-            val bom = libs.androidx.compose.bom
-            add("implementation", platform(bom))
-            add("androidTestImplementation", platform(bom))
-            add("debugImplementation", libs.androidx.compose.ui.tooling)
-            add("implementation", libs.androidx.compose.ui.tooling.preview)
-        }
-
-        testOptions {
-            unitTests {
-                // For Robolectric
-                isIncludeAndroidResources = true
-            }
-        }
     }
 
-    extensions.configure<ComposeCompilerGradlePluginExtension> {
+    configure<ComposeCompilerGradlePluginExtension> {
         fun Provider<String>.onlyIfTrue() = flatMap { provider { it.takeIf(String::toBoolean) } }
         fun Provider<*>.relativeToRootProject(dir: String) = flatMap {
             rootProject.layout.buildDirectory.dir(projectDir.toRelativeString(rootDir))
@@ -64,5 +49,13 @@ internal fun Project.configureAndroidCompose(
             .let(reportsDestination::set)
 
         stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose_compiler_config.conf"))
+    }
+
+    dependencies {
+        val bom = libs.androidx.compose.bom
+        add("implementation", platform(bom))
+        add("androidTestImplementation", platform(bom))
+        add("debugImplementation", libs.androidx.compose.ui.tooling)
+        add("implementation", libs.androidx.compose.ui.tooling.preview)
     }
 }

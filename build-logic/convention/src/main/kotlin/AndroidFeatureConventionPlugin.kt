@@ -16,11 +16,9 @@
  *
  */
 
-import com.android.build.gradle.LibraryExtension
 import com.eblan.launcher.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 
 class AndroidFeatureConventionPlugin : Plugin<Project> {
@@ -30,10 +28,6 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 apply(libs.plugins.com.eblan.launcher.library.get().pluginId)
                 apply(libs.plugins.com.eblan.launcher.hilt.get().pluginId)
                 apply(libs.plugins.kotlin.serialization.get().pluginId)
-            }
-
-            extensions.configure<LibraryExtension> {
-                testOptions.animationsDisabled = true
             }
 
             dependencies {

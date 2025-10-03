@@ -28,8 +28,6 @@ android {
         applicationId = "com.eblan.launcher"
         versionCode = 8
         versionName = "0.1.0-alpha8"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -41,16 +39,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 

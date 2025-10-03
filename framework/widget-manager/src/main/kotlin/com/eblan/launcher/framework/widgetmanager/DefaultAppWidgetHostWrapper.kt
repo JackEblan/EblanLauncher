@@ -44,6 +44,7 @@ internal class DefaultAppWidgetHostWrapper @Inject constructor(@ApplicationConte
         return appWidgetHost.allocateAppWidgetId()
     }
 
+    @Suppress("DEPRECATION")
     override fun createView(
         appWidgetId: Int,
         appWidgetProviderInfo: AppWidgetProviderInfo,

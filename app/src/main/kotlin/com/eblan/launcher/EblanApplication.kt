@@ -35,8 +35,6 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
     @Inject
     lateinit var notificationManagerWrapper: AndroidNotificationManagerWrapper
 
-    private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
-
     override fun onCreate() {
         super.onCreate()
 
@@ -51,41 +49,36 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
-        try {
-            val file = File(filesDir, "last_crash.txt")
+        val file = File(filesDir, "last_crash.txt")
 
-            val device = "${Build.MANUFACTURER} ${Build.MODEL}"
-            val androidVersion = "Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})"
-            val appVersion = try {
-                val pInfo = packageManager.getPackageInfo(packageName, 0)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    "${pInfo.versionName} (${pInfo.longVersionCode})"
-                } else {
-                    pInfo.versionCode
-                }
-            } catch (_: Exception) {
-                "Unknown"
+        val device = "${Build.MANUFACTURER} ${Build.MODEL}"
+        val androidVersion = "Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})"
+        val appVersion = try {
+            val pInfo = packageManager.getPackageInfo(packageName, 0)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                "${pInfo.versionName} (${pInfo.longVersionCode})"
+            } else {
+                pInfo.versionCode
             }
-
-            val crashInfo = buildString {
-                appendLine("=== Crash Report ===")
-                appendLine("Device: $device")
-                appendLine("OS: $androidVersion")
-                appendLine("App: $appVersion")
-                appendLine("Time: ${java.util.Date()}")
-                appendLine()
-                appendLine(Log.getStackTraceString(throwable))
-            }
-
-            file.writeText(crashInfo)
-
-            showCrashNotification(file = file)
-        } catch (e: Exception) {
-            Log.e("CrashLogger", "Failed to write crash log", e)
-        } finally {
-            defaultHandler?.uncaughtException(thread, throwable)
+        } catch (_: Exception) {
+            "Unknown"
         }
+
+        val crashInfo = buildString {
+            appendLine("=== Crash Report ===")
+            appendLine("Device: $device")
+            appendLine("OS: $androidVersion")
+            appendLine("App: $appVersion")
+            appendLine("Time: ${java.util.Date()}")
+            appendLine()
+            appendLine(Log.getStackTraceString(throwable))
+        }
+
+        file.writeText(crashInfo)
+
+        showCrashNotification(file = file)
     }
 
     private fun showCrashNotification(file: File) {

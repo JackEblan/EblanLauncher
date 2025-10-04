@@ -48,11 +48,15 @@ internal class DefaultWallpaperManagerWrapper @Inject constructor(@ApplicationCo
 
     override fun getColorsChanged(): Flow<Int?> {
         return callbackFlow {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                trySend(wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)?.colorHints)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    send(wallpaperManager.getWallpaperColors(WallpaperManager.FLAG_SYSTEM)?.colorHints)
+                }
 
                 val callback = WallpaperManager.OnColorsChangedListener { wallpaperColors, which ->
-                    if ((which and WallpaperManager.FLAG_SYSTEM) != 0) {
+                    if (which and WallpaperManager.FLAG_SYSTEM != 0 &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    ) {
                         trySend(wallpaperColors?.colorHints)
                     }
                 }
@@ -66,7 +70,9 @@ internal class DefaultWallpaperManagerWrapper @Inject constructor(@ApplicationCo
                     wallpaperManager.removeOnColorsChangedListener(callback)
                 }
             } else {
-                trySend(null)
+                send(null)
+
+                awaitClose()
             }
         }
     }

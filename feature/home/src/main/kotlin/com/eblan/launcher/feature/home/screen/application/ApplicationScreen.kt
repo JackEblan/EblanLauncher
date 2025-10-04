@@ -23,10 +23,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,26 +38,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -89,7 +81,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
@@ -115,6 +106,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -202,14 +194,6 @@ fun ApplicationScreen(
     onAnimateDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-
-    var showPopupApplicationMenu by remember { mutableStateOf(false) }
-
-    var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
-
-    var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
-
     val scope = rememberCoroutineScope()
 
     val overscrollAlpha = remember { Animatable(0f) }
@@ -224,16 +208,6 @@ fun ApplicationScreen(
             onFling = onDismiss,
             onFastFling = onAnimateDismiss,
         )
-    }
-
-    val lazyGridState = rememberLazyGridState()
-
-    var currentChar by remember { mutableStateOf<Char?>(null) }
-
-    BackHandler {
-        showPopupApplicationMenu = false
-
-        onAnimateDismiss()
     }
 
     Surface(
@@ -259,124 +233,23 @@ fun ApplicationScreen(
                         }
 
                         else -> {
-                            Column(
-                                modifier = Modifier
-                                    .offset {
-                                        IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
-                                    }
-                                    .matchParentSize()
-                                    .padding(
-                                        top = paddingValues.calculateTopPadding(),
-                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                    ),
-                            ) {
-                                EblanApplicationInfoDockSearchBar(
-                                    currentPage = currentPage,
-                                    onQueryChange = onGetEblanApplicationInfosByLabel,
-                                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                                    drag = drag,
-                                    appDrawerSettings = appDrawerSettings,
-                                    iconPackInfoPackageName = iconPackInfoPackageName,
-                                    paddingValues = paddingValues,
-                                    onLongPress = { intOffset, intSize ->
-                                        onUpdateGridItemOffset(intOffset, intSize)
-
-                                        popupMenuIntOffset = intOffset
-
-                                        popupMenuIntSize = intSize
-
-                                        focusManager.clearFocus()
-                                    },
-                                    onLongPressGridItem = onLongPressGridItem,
-                                    onDraggingGridItem = {
-                                        onDraggingGridItem()
-
-                                        showPopupApplicationMenu = false
-                                    },
-                                    onUpdatePopupMenu = {
-                                        showPopupApplicationMenu = true
-                                    },
-                                )
-
-                                Row(modifier = Modifier.fillMaxSize()) {
-                                    LazyVerticalGrid(
-                                        columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-                                        state = lazyGridState,
-                                        modifier = Modifier.weight(1f),
-                                        contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
-                                        overscrollEffect = overscrollEffect,
-                                    ) {
-                                        items(eblanApplicationInfos) { eblanApplicationInfo ->
-                                            EblanApplicationInfoItem(
-                                                currentPage = currentPage,
-                                                drag = drag,
-                                                eblanApplicationInfo = eblanApplicationInfo,
-                                                appDrawerSettings = appDrawerSettings,
-                                                iconPackInfoPackageName = iconPackInfoPackageName,
-                                                paddingValues = paddingValues,
-                                                onLongPress = { intOffset, intSize ->
-                                                    onUpdateGridItemOffset(intOffset, intSize)
-
-                                                    popupMenuIntOffset = intOffset
-
-                                                    popupMenuIntSize = intSize
-                                                },
-                                                onLongPressGridItem = onLongPressGridItem,
-                                                onDraggingGridItem = {
-                                                    onDraggingGridItem()
-
-                                                    showPopupApplicationMenu = false
-                                                },
-                                                onUpdatePopupMenu = {
-                                                    showPopupApplicationMenu = true
-                                                },
-                                            )
-                                        }
-                                    }
-
-                                    AlphabetSideBar(
-                                        eblanApplicationInfos = eblanApplicationInfos,
-                                        lazyGridState = lazyGridState,
-                                        paddingValues = paddingValues,
-                                        onUpdateChar = { char ->
-                                            currentChar = char
-                                        },
-                                    )
-                                }
-                            }
-
-                            if (showPopupApplicationMenu && gridItemSource?.gridItem != null) {
-                                PopupApplicationInfoMenu(
-                                    paddingValues = paddingValues,
-                                    popupMenuIntOffset = popupMenuIntOffset,
-                                    gridItem = gridItemSource.gridItem,
-                                    popupMenuIntSize = popupMenuIntSize,
-                                    onDismissRequest = {
-                                        showPopupApplicationMenu = false
-                                    },
-                                )
-                            }
-
-                            if (currentChar != null) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(end = 64.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .background(
-                                            color = MaterialTheme.colorScheme.primaryContainer,
-                                            shape = CircleShape,
-                                        )
-                                        .size(64.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = currentChar.toString(),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.headlineLarge,
-                                    )
-                                }
-                            }
+                            Success(
+                                currentPage = currentPage,
+                                paddingValues = paddingValues,
+                                drag = drag,
+                                appDrawerSettings = appDrawerSettings,
+                                eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                                gridItemSource = gridItemSource,
+                                iconPackInfoPackageName = iconPackInfoPackageName,
+                                eblanApplicationInfos = eblanApplicationInfos,
+                                overscrollOffset = overscrollOffset.value,
+                                overscrollEffect = overscrollEffect,
+                                onLongPressGridItem = onLongPressGridItem,
+                                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                                onAnimateDismiss = onAnimateDismiss,
+                                onDraggingGridItem = onDraggingGridItem
+                            )
                         }
                     }
                 }
@@ -384,6 +257,199 @@ fun ApplicationScreen(
         }
     }
 }
+
+@Composable
+private fun Success(
+    modifier: Modifier = Modifier,
+    currentPage: Int,
+    paddingValues: PaddingValues,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    gridItemSource: GridItemSource?,
+    iconPackInfoPackageName: String,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    overscrollOffset: Float,
+    overscrollEffect: OffsetOverscrollEffect,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onAnimateDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
+) {
+    val density = LocalDensity.current
+
+    val focusManager = LocalFocusManager.current
+
+    var showPopupApplicationMenu by remember { mutableStateOf(false) }
+
+    var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val lazyGridState = rememberLazyGridState()
+
+    val scrollBarHeight = 100.dp
+
+    val scrollBarHeightPx = with(density) {
+        scrollBarHeight.toPx()
+    }
+
+    BackHandler {
+        showPopupApplicationMenu = false
+
+        onAnimateDismiss()
+    }
+
+    val rows =
+        ceil(eblanApplicationInfos.size / appDrawerSettings.appDrawerColumns.toFloat()).toInt()
+
+    val totalHeight = rows * appDrawerSettings.appDrawerRowsHeight
+
+    val row by remember(key1 = appDrawerSettings) {
+        derivedStateOf {
+            lazyGridState.firstVisibleItemIndex / appDrawerSettings.appDrawerColumns
+        }
+    }
+
+    val totalScrollY by remember {
+        derivedStateOf {
+            row * appDrawerSettings.appDrawerRowsHeight + lazyGridState.firstVisibleItemScrollOffset
+        }
+    }
+
+    val totalScrollProgress by remember {
+        derivedStateOf {
+            if (totalHeight <= lazyGridState.layoutInfo.viewportSize.height) {
+                0f
+            } else {
+                (totalScrollY.toFloat() / (totalHeight - lazyGridState.layoutInfo.viewportSize.height).toFloat())
+                    .coerceIn(0f, 1f)
+            }
+        }
+    }
+
+    val scrollBarY by remember {
+        derivedStateOf {
+            (totalScrollProgress * lazyGridState.layoutInfo.viewportSize.height).coerceAtMost(
+                lazyGridState.layoutInfo.viewportSize.height - scrollBarHeightPx
+            )
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .offset {
+                IntOffset(x = 0, y = overscrollOffset.roundToInt())
+            }
+            .fillMaxSize()
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+            ),
+    ) {
+        EblanApplicationInfoDockSearchBar(
+            currentPage = currentPage,
+            onQueryChange = onGetEblanApplicationInfosByLabel,
+            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+            drag = drag,
+            appDrawerSettings = appDrawerSettings,
+            iconPackInfoPackageName = iconPackInfoPackageName,
+            paddingValues = paddingValues,
+            onLongPress = { intOffset, intSize ->
+                onUpdateGridItemOffset(intOffset, intSize)
+
+                popupMenuIntOffset = intOffset
+
+                popupMenuIntSize = intSize
+
+                focusManager.clearFocus()
+            },
+            onLongPressGridItem = onLongPressGridItem,
+            onDraggingGridItem = {
+                onDraggingGridItem()
+
+                showPopupApplicationMenu = false
+            },
+            onUpdatePopupMenu = {
+                showPopupApplicationMenu = true
+            },
+        )
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+                state = lazyGridState,
+                modifier = Modifier.weight(1f),
+                overscrollEffect = overscrollEffect,
+            ) {
+                items(eblanApplicationInfos) { eblanApplicationInfo ->
+                    EblanApplicationInfoItem(
+                        currentPage = currentPage,
+                        drag = drag,
+                        eblanApplicationInfo = eblanApplicationInfo,
+                        appDrawerSettings = appDrawerSettings,
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                        paddingValues = paddingValues,
+                        onLongPress = { intOffset, intSize ->
+                            onUpdateGridItemOffset(intOffset, intSize)
+
+                            popupMenuIntOffset = intOffset
+
+                            popupMenuIntSize = intSize
+                        },
+                        onLongPressGridItem = onLongPressGridItem,
+                        onDraggingGridItem = {
+                            onDraggingGridItem()
+
+                            showPopupApplicationMenu = false
+                        },
+                        onUpdatePopupMenu = {
+                            showPopupApplicationMenu = true
+                        },
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(bottom = paddingValues.calculateBottomPadding())
+            ) {
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(x = 0, y = scrollBarY.roundToInt())
+                        }
+                        .size(
+                            width = 10.dp,
+                            height = scrollBarHeight
+                        )
+                        .background(color = Color.Blue))
+            }
+        }
+    }
+
+    if (showPopupApplicationMenu && gridItemSource?.gridItem != null) {
+        PopupApplicationInfoMenu(
+            paddingValues = paddingValues,
+            popupMenuIntOffset = popupMenuIntOffset,
+            gridItem = gridItemSource.gridItem,
+            popupMenuIntSize = popupMenuIntSize,
+            onDismissRequest = {
+                showPopupApplicationMenu = false
+            },
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -759,87 +825,4 @@ private fun PopupApplicationInfoMenu(
             )
         },
     )
-}
-
-@Composable
-private fun AlphabetSideBar(
-    modifier: Modifier = Modifier,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
-    lazyGridState: LazyGridState,
-    paddingValues: PaddingValues,
-    onUpdateChar: (Char?) -> Unit,
-) {
-    val density = LocalDensity.current
-
-    val scope = rememberCoroutineScope()
-
-    val alphabet = listOf('#') + ('A'..'Z').toList()
-
-    val textColor = LocalContentColor.current
-
-    BoxWithConstraints(
-        modifier = modifier
-            .width(24.dp)
-            .padding(bottom = paddingValues.calculateBottomPadding()),
-    ) {
-        val maxHeight = this@BoxWithConstraints.constraints.maxHeight
-
-        val charHeightPx = maxHeight / alphabet.size
-
-        val charHeight = with(density) {
-            charHeightPx.toDp()
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onVerticalDrag = { change, _ ->
-                            val dragY = change.position.y.roundToInt().coerceIn(0, maxHeight)
-
-                            val index = (dragY / charHeightPx).coerceIn(0, alphabet.lastIndex)
-
-                            val char = alphabet[index]
-
-                            onUpdateChar(char)
-
-                            val charIndex =
-                                eblanApplicationInfos.indexOfFirst { eblanApplicationInfo ->
-                                    val firstChar =
-                                        eblanApplicationInfo.label?.firstOrNull()?.uppercaseChar()
-                                            ?: '#'
-
-                                    if (firstChar in 'A'..'Z') {
-                                        firstChar == char
-                                    } else {
-                                        char == '#'
-                                    }
-                                }
-
-                            if (charIndex >= 0) {
-                                scope.launch {
-                                    lazyGridState.scrollToItem(charIndex)
-                                }
-                            }
-                        },
-                        onDragEnd = { onUpdateChar(null) },
-                        onDragCancel = { onUpdateChar(null) },
-                    )
-                },
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            alphabet.forEach { char ->
-                BasicText(
-                    text = char.toString(),
-                    modifier = Modifier.height(charHeight),
-                    autoSize = TextAutoSize.StepBased(
-                        minFontSize = 2.sp,
-                        maxFontSize = 10.sp,
-                    ),
-                    color = { textColor },
-                )
-            }
-        }
-    }
 }

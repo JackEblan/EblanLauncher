@@ -21,13 +21,14 @@ import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -42,10 +43,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -63,7 +66,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -107,6 +109,7 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -248,7 +251,7 @@ fun ApplicationScreen(
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                                 onAnimateDismiss = onAnimateDismiss,
-                                onDraggingGridItem = onDraggingGridItem
+                                onDraggingGridItem = onDraggingGridItem,
                             )
                         }
                     }
@@ -295,7 +298,9 @@ private fun Success(
 
     val lazyGridState = rememberLazyGridState()
 
-    val scrollBarHeight = 100.dp
+    val scrollBarHeight = with(density) {
+        appDrawerSettings.appDrawerRowsHeight.toDp()
+    }
 
     val scrollBarHeightPx = with(density) {
         scrollBarHeight.toPx()
@@ -318,28 +323,53 @@ private fun Success(
         }
     }
 
-    val totalScrollY by remember {
+    val totalScrollY by remember(key1 = lazyGridState) {
         derivedStateOf {
             row * appDrawerSettings.appDrawerRowsHeight + lazyGridState.firstVisibleItemScrollOffset
         }
     }
 
-    val totalScrollProgress by remember {
+    val scrollBarY by remember(key1 = lazyGridState) {
         derivedStateOf {
-            if (totalHeight <= lazyGridState.layoutInfo.viewportSize.height) {
-                0f
+            val viewportHeight = lazyGridState.layoutInfo.viewportSize.height
+
+            val availableScroll = totalHeight - viewportHeight
+
+            val progress = totalScrollY.toFloat() / availableScroll.toFloat()
+
+            val maxThumbY = (viewportHeight - scrollBarHeightPx).coerceAtLeast(0f)
+
+            (progress * maxThumbY).coerceIn(0f, maxThumbY)
+        }
+    }
+
+    val scope = rememberCoroutineScope()
+
+    var isThumbDragging by remember { mutableStateOf(false) }
+
+    var thumbY by remember { mutableFloatStateOf(0f) }
+
+    val currentThumbY by remember {
+        derivedStateOf {
+            if (isThumbDragging) {
+                thumbY
             } else {
-                (totalScrollY.toFloat() / (totalHeight - lazyGridState.layoutInfo.viewportSize.height).toFloat())
-                    .coerceIn(0f, 1f)
+                scrollBarY
             }
         }
     }
 
-    val scrollBarY by remember {
-        derivedStateOf {
-            (totalScrollProgress * lazyGridState.layoutInfo.viewportSize.height).coerceAtMost(
-                lazyGridState.layoutInfo.viewportSize.height - scrollBarHeightPx
-            )
+    val thumbAlpha by animateFloatAsState(
+        targetValue = if (lazyGridState.isScrollInProgress || isThumbDragging) {
+            1f
+        } else {
+            0.2f
+        },
+    )
+
+    LaunchedEffect(key1 = scrollBarY) {
+        if (!isThumbDragging) {
+            thumbY = scrollBarY
         }
     }
 
@@ -383,11 +413,11 @@ private fun Success(
             },
         )
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth()) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
                 state = lazyGridState,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.matchParentSize(),
                 overscrollEffect = overscrollEffect,
             ) {
                 items(eblanApplicationInfos) { eblanApplicationInfo ->
@@ -420,19 +450,64 @@ private fun Success(
 
             Box(
                 modifier = Modifier
+                    .align(Alignment.TopEnd)
                     .fillMaxHeight()
-                    .padding(bottom = paddingValues.calculateBottomPadding())
+                    .padding(bottom = paddingValues.calculateBottomPadding()),
             ) {
                 Box(
                     modifier = Modifier
-                        .offset {
-                            IntOffset(x = 0, y = scrollBarY.roundToInt())
+                        .offset { IntOffset(x = 0, y = currentThumbY.roundToInt()) }
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragStart = {
+                                    thumbY = scrollBarY
+
+                                    isThumbDragging = true
+                                },
+                                onVerticalDrag = { change, deltaY ->
+                                    val viewportHeight =
+                                        lazyGridState.layoutInfo.viewportSize.height.toFloat()
+
+                                    val maxThumbY =
+                                        (viewportHeight - scrollBarHeightPx).coerceAtLeast(0f)
+
+                                    thumbY = (thumbY + deltaY).coerceIn(0f, maxThumbY)
+
+                                    scope.launch {
+                                        val (index, scrollOffset) = scrollThumbToItemPosition(
+                                            thumbY = thumbY,
+                                            maxThumbY = maxThumbY,
+                                            totalHeight = totalHeight,
+                                            viewportHeight = viewportHeight,
+                                            rowHeight = appDrawerSettings.appDrawerRowsHeight,
+                                            columns = appDrawerSettings.appDrawerColumns,
+                                            itemCount = eblanApplicationInfos.size,
+                                        )
+
+                                        lazyGridState.scrollToItem(
+                                            index = index,
+                                            scrollOffset = scrollOffset,
+                                        )
+                                    }
+                                },
+                                onDragEnd = {
+                                    isThumbDragging = false
+                                },
+                                onDragCancel = {
+                                    isThumbDragging = false
+                                },
+                            )
                         }
+                        .alpha(thumbAlpha)
                         .size(
-                            width = 10.dp,
-                            height = scrollBarHeight
+                            width = 8.dp,
+                            height = scrollBarHeight,
                         )
-                        .background(color = Color.Blue))
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(10.dp),
+                        ),
+                )
             }
         }
     }
@@ -449,7 +524,6 @@ private fun Success(
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -825,4 +899,32 @@ private fun PopupApplicationInfoMenu(
             )
         },
     )
+}
+
+private fun scrollThumbToItemPosition(
+    thumbY: Float,
+    maxThumbY: Float,
+    totalHeight: Int,
+    viewportHeight: Float,
+    rowHeight: Int,
+    columns: Int,
+    itemCount: Int,
+): Pair<Int, Int> {
+    val progress = if (maxThumbY <= 0f || totalHeight <= viewportHeight) {
+        0f
+    } else {
+        (thumbY / maxThumbY).coerceIn(0f, 1f)
+    }
+
+    val availableScroll = (totalHeight - viewportHeight).coerceAtLeast(0f)
+
+    val targetScrollY = progress * availableScroll
+
+    val targetRow = (targetScrollY / rowHeight).toInt()
+
+    val offsetInRow = (targetScrollY % rowHeight).toInt()
+
+    val targetIndex = (targetRow * columns).coerceIn(0, max(0, itemCount - 1))
+
+    return targetIndex to offsetInRow
 }

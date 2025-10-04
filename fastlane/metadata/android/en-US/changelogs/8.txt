@@ -1,3 +1,4 @@
 What's new
 - Improved drag and drop animations are smoother
 - Fixed WallpaperColors compatibility
+- Improved scroll bar

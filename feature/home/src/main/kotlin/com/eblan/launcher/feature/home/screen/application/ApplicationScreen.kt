@@ -820,12 +820,20 @@ private fun ScrollBarThumb(
         }
     }
 
-    val scrollBarHeight = with(density) {
-        appDrawerSettings.appDrawerRowsHeight.toDp()
+    val scrollBarHeight by remember {
+        derivedStateOf {
+            with(density) {
+                (viewPortHeight / 4).toDp()
+            }
+        }
     }
 
-    val scrollBarHeightPx = with(density) {
-        scrollBarHeight.toPx()
+    val scrollBarHeightPx by remember {
+        derivedStateOf {
+            with(density) {
+                scrollBarHeight.toPx()
+            }
+        }
     }
 
     val viewPortThumbY by remember(key1 = lazyGridState) {
@@ -878,7 +886,6 @@ private fun ScrollBarThumb(
                     .offset {
                         IntOffset(x = 0, y = thumbY.roundToInt())
                     }
-                    .size(60.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = CircleShape,
@@ -886,6 +893,7 @@ private fun ScrollBarThumb(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
+                    modifier = Modifier.padding(10.dp),
                     text = char.toString(),
                     style = MaterialTheme.typography.headlineLarge,
                 )

@@ -112,7 +112,6 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -800,7 +799,7 @@ private fun ScrollBarThumb(
     val scope = rememberCoroutineScope()
 
     val rows =
-        ceil(itemsCount / appDrawerSettings.appDrawerColumns.toFloat()).toInt()
+        (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
     val totalHeight = rows * appDrawerSettings.appDrawerRowsHeight
 
@@ -873,10 +872,10 @@ private fun ScrollBarThumb(
 
                 val index =
                     if (currentThumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
-                        floor((currentThumbY) / charHeight).toInt()
+                        floor((currentThumbY) / charHeight)
                     } else {
-                        floor((currentThumbY + scrollBarHeightPx) / charHeight).toInt()
-                    }.coerceIn(0, chars.size - 1)
+                        floor((currentThumbY + scrollBarHeightPx) / charHeight)
+                    }.toInt().coerceIn(0, chars.size - 1)
 
                 chars[index]
             } else {

@@ -798,8 +798,7 @@ private fun ScrollBarThumb(
 
     val scope = rememberCoroutineScope()
 
-    val rows =
-        (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
+    val rows = (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
     val totalHeight = rows * appDrawerSettings.appDrawerRowsHeight
 
@@ -953,12 +952,7 @@ private fun ScrollBarThumb(
                                         max(0, itemsCount - 1),
                                     )
 
-                                val (index, scrollOffset) = targetIndex to offsetInRow
-
-                                onScrollToItem(
-                                    index,
-                                    scrollOffset,
-                                )
+                                onScrollToItem(targetIndex, offsetInRow)
                             }
                         },
                         onDragEnd = {

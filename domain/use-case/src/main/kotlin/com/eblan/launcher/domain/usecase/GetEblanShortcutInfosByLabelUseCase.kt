@@ -40,11 +40,11 @@ class GetEblanShortcutInfosByLabelUseCase @Inject constructor(
                         eblanShortcutInfo.eblanApplicationInfo.label
 
                     eblanApplicationInfoLabel != null &&
-                            label.isNotBlank() &&
-                            eblanApplicationInfoLabel.contains(
-                                other = label,
-                                ignoreCase = true,
-                            )
+                        label.isNotBlank() &&
+                        eblanApplicationInfoLabel.contains(
+                            other = label,
+                            ignoreCase = true,
+                        )
                 }
                 .sortedBy { eblanShortcutInfo ->
                     eblanShortcutInfo.eblanApplicationInfo.label

@@ -40,11 +40,11 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
                         eblanAppWidgetProviderInfo.eblanApplicationInfo.label
 
                     eblanApplicationInfoLabel != null &&
-                            label.isNotBlank() &&
-                            eblanApplicationInfoLabel.contains(
-                                other = label,
-                                ignoreCase = true,
-                            )
+                        label.isNotBlank() &&
+                        eblanApplicationInfoLabel.contains(
+                            other = label,
+                            ignoreCase = true,
+                        )
                 }
                 .sortedBy { eblanAppWidgetProviderInfo ->
                     eblanAppWidgetProviderInfo.eblanApplicationInfo.label

@@ -39,10 +39,12 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
                     val eblanApplicationInfoLabel =
                         eblanAppWidgetProviderInfo.eblanApplicationInfo.label
 
-                    eblanApplicationInfoLabel != null && eblanApplicationInfoLabel.contains(
-                        other = label,
-                        ignoreCase = true,
-                    )
+                    eblanApplicationInfoLabel != null &&
+                            label.isNotBlank() &&
+                            eblanApplicationInfoLabel.contains(
+                                other = label,
+                                ignoreCase = true,
+                            )
                 }
                 .sortedBy { eblanAppWidgetProviderInfo ->
                     eblanAppWidgetProviderInfo.eblanApplicationInfo.label

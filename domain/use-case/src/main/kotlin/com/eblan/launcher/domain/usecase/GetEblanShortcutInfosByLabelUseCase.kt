@@ -39,10 +39,12 @@ class GetEblanShortcutInfosByLabelUseCase @Inject constructor(
                     val eblanApplicationInfoLabel =
                         eblanShortcutInfo.eblanApplicationInfo.label
 
-                    eblanApplicationInfoLabel != null && eblanApplicationInfoLabel.contains(
-                        other = label,
-                        ignoreCase = true,
-                    )
+                    eblanApplicationInfoLabel != null &&
+                            label.isNotBlank() &&
+                            eblanApplicationInfoLabel.contains(
+                                other = label,
+                                ignoreCase = true,
+                            )
                 }
                 .sortedBy { eblanShortcutInfo ->
                     eblanShortcutInfo.eblanApplicationInfo.label

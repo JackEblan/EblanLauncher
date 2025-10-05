@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -39,11 +40,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
@@ -110,6 +113,7 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -385,7 +389,7 @@ private fun Success(
                     .padding(bottom = paddingValues.calculateBottomPadding()),
                 lazyGridState = lazyGridState,
                 appDrawerSettings = appDrawerSettings,
-                eblanApplicationInfosSize = eblanApplicationInfos.size,
+                itemsCount = eblanApplicationInfos.size,
                 onScrollToItem = lazyGridState::scrollToItem,
             )
         }
@@ -785,7 +789,7 @@ private fun ScrollBarThumb(
     modifier: Modifier = Modifier,
     lazyGridState: LazyGridState,
     appDrawerSettings: AppDrawerSettings,
-    eblanApplicationInfosSize: Int,
+    itemsCount: Int,
     onScrollToItem: suspend (
         index: Int,
         scrollOffset: Int,
@@ -796,7 +800,7 @@ private fun ScrollBarThumb(
     val scope = rememberCoroutineScope()
 
     val rows =
-        ceil(eblanApplicationInfosSize / appDrawerSettings.appDrawerColumns.toFloat()).toInt()
+        ceil(itemsCount / appDrawerSettings.appDrawerColumns.toFloat()).toInt()
 
     val totalHeight = rows * appDrawerSettings.appDrawerRowsHeight
 
@@ -860,13 +864,56 @@ private fun ScrollBarThumb(
         },
     )
 
+    val char by remember(key1 = lazyGridState) {
+        derivedStateOf {
+            if (isThumbDragging) {
+                val chars = listOf('#') + ('A'..'Z')
+
+                val charHeight = viewPortHeight / chars.size
+
+                val index =
+                    if (currentThumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
+                        floor((currentThumbY) / charHeight).toInt()
+                    } else {
+                        floor((currentThumbY + scrollBarHeightPx) / charHeight).toInt()
+                    }.coerceIn(0, chars.size - 1)
+
+                chars[index]
+            } else {
+                null
+            }
+        }
+    }
+
     LaunchedEffect(key1 = viewPortThumbY) {
         if (!isThumbDragging) {
             thumbY = viewPortThumbY
         }
     }
 
-    Box(modifier = modifier) {
+    Row(modifier = modifier) {
+        if (isThumbDragging) {
+            Box(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(x = 0, y = currentThumbY.roundToInt())
+                    }
+                    .size(60.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = CircleShape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = char.toString(),
+                    style = MaterialTheme.typography.headlineLarge,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+
         Box(
             modifier = Modifier
                 .offset { IntOffset(x = 0, y = currentThumbY.roundToInt()) }
@@ -904,7 +951,7 @@ private fun ScrollBarThumb(
                                 val targetIndex =
                                     (targetRow * appDrawerSettings.appDrawerColumns).coerceIn(
                                         0,
-                                        max(0, eblanApplicationInfosSize - 1),
+                                        max(0, itemsCount - 1),
                                     )
 
                                 val (index, scrollOffset) = targetIndex to offsetInRow

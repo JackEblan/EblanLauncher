@@ -943,8 +943,8 @@ private fun ScrollBarThumb(
 
                             scope.launch {
                                 onScrollToItem(
-                                    targetIndex.roundToInt(),
-                                    offsetInRow.roundToInt(),
+                                    targetIndex.roundToInt().coerceAtLeast(0),
+                                    offsetInRow.roundToInt().coerceAtLeast(0),
                                 )
                             }
                         },

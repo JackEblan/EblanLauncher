@@ -113,7 +113,6 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.floor
-import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -798,7 +797,8 @@ private fun ScrollBarThumb(
 
     val scope = rememberCoroutineScope()
 
-    val rows = (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
+    val rows =
+        (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
     val totalHeight = rows * appDrawerSettings.appDrawerRowsHeight
 
@@ -834,25 +834,13 @@ private fun ScrollBarThumb(
 
             val progress = totalScrollY.toFloat() / availableScroll.toFloat()
 
-            val maxThumbY = (viewPortHeight - scrollBarHeightPx).coerceAtLeast(0f)
-
-            (progress * maxThumbY).coerceIn(0f, maxThumbY)
+            progress * (viewPortHeight - scrollBarHeightPx)
         }
     }
 
     var isThumbDragging by remember { mutableStateOf(false) }
 
-    var thumbY by remember { mutableFloatStateOf(0f) }
-
-    val currentThumbY by remember {
-        derivedStateOf {
-            if (isThumbDragging) {
-                thumbY
-            } else {
-                viewPortThumbY
-            }
-        }
-    }
+    var draggingThumbY by remember { mutableFloatStateOf(0f) }
 
     val thumbAlpha by animateFloatAsState(
         targetValue = if (lazyGridState.isScrollInProgress || isThumbDragging) {
@@ -870,10 +858,10 @@ private fun ScrollBarThumb(
                 val charHeight = viewPortHeight / chars.size
 
                 val index =
-                    if (currentThumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
-                        floor((currentThumbY) / charHeight)
+                    if (draggingThumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
+                        floor((draggingThumbY) / charHeight)
                     } else {
-                        floor((currentThumbY + scrollBarHeightPx) / charHeight)
+                        floor((draggingThumbY + scrollBarHeightPx) / charHeight)
                     }.toInt().coerceIn(0, chars.size - 1)
 
                 chars[index]
@@ -883,18 +871,12 @@ private fun ScrollBarThumb(
         }
     }
 
-    LaunchedEffect(key1 = viewPortThumbY) {
-        if (!isThumbDragging) {
-            thumbY = viewPortThumbY
-        }
-    }
-
     Row(modifier = modifier) {
         if (isThumbDragging) {
             Box(
                 modifier = Modifier
                     .offset {
-                        IntOffset(x = 0, y = currentThumbY.roundToInt())
+                        IntOffset(x = 0, y = draggingThumbY.roundToInt())
                     }
                     .size(60.dp)
                     .background(
@@ -914,45 +896,48 @@ private fun ScrollBarThumb(
 
         Box(
             modifier = Modifier
-                .offset { IntOffset(x = 0, y = currentThumbY.roundToInt()) }
+                .offset {
+                    val y = if (isThumbDragging) {
+                        draggingThumbY
+                    } else {
+                        viewPortThumbY
+                    }.roundToInt()
+
+                    IntOffset(x = 0, y = y)
+                }
                 .pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onDragStart = {
-                            thumbY = viewPortThumbY
+                            draggingThumbY = viewPortThumbY
 
                             isThumbDragging = true
                         },
                         onVerticalDrag = { change, deltaY ->
-                            val maxThumbY = (viewPortHeight - scrollBarHeightPx).coerceAtLeast(0f)
+                            draggingThumbY =
+                                (draggingThumbY + deltaY).coerceIn(
+                                    0f,
+                                    viewPortHeight - scrollBarHeightPx,
+                                )
 
-                            thumbY = (thumbY + deltaY).coerceIn(0f, maxThumbY)
+                            val progress = draggingThumbY / (viewPortHeight - scrollBarHeightPx)
+
+                            val availableScroll = totalHeight - viewPortHeight
+
+                            val targetScrollY = progress * availableScroll
+
+                            val targetRow =
+                                targetScrollY / appDrawerSettings.appDrawerRowsHeight
+
+                            val offsetInRow =
+                                targetScrollY % appDrawerSettings.appDrawerRowsHeight
+
+                            val targetIndex = targetRow * appDrawerSettings.appDrawerColumns
 
                             scope.launch {
-                                val progress =
-                                    if (maxThumbY <= 0f || totalHeight <= viewPortHeight) {
-                                        0f
-                                    } else {
-                                        (thumbY / maxThumbY).coerceIn(0f, 1f)
-                                    }
-
-                                val availableScroll =
-                                    (totalHeight - viewPortHeight).coerceAtLeast(0)
-
-                                val targetScrollY = progress * availableScroll
-
-                                val targetRow =
-                                    (targetScrollY / appDrawerSettings.appDrawerRowsHeight).toInt()
-
-                                val offsetInRow =
-                                    (targetScrollY % appDrawerSettings.appDrawerRowsHeight).toInt()
-
-                                val targetIndex =
-                                    (targetRow * appDrawerSettings.appDrawerColumns).coerceIn(
-                                        0,
-                                        max(0, itemsCount - 1),
-                                    )
-
-                                onScrollToItem(targetIndex, offsetInRow)
+                                onScrollToItem(
+                                    targetIndex.roundToInt(),
+                                    offsetInRow.roundToInt(),
+                                )
                             }
                         },
                         onDragEnd = {

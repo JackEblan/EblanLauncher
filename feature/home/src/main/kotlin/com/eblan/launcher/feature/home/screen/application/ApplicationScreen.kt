@@ -838,12 +838,12 @@ private fun ScrollBarThumb(
         }
     }
 
-    var isThumbDragging by remember { mutableStateOf(false) }
+    var isDraggingThumb by remember { mutableStateOf(false) }
 
-    var draggingThumbY by remember { mutableFloatStateOf(0f) }
+    var thumbY by remember { mutableFloatStateOf(0f) }
 
     val thumbAlpha by animateFloatAsState(
-        targetValue = if (lazyGridState.isScrollInProgress || isThumbDragging) {
+        targetValue = if (lazyGridState.isScrollInProgress || isDraggingThumb) {
             1f
         } else {
             0.2f
@@ -852,16 +852,16 @@ private fun ScrollBarThumb(
 
     val char by remember(key1 = lazyGridState) {
         derivedStateOf {
-            if (isThumbDragging) {
+            if (isDraggingThumb) {
                 val chars = listOf('#') + ('A'..'Z')
 
                 val charHeight = viewPortHeight / chars.size
 
                 val index =
-                    if (draggingThumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
-                        floor((draggingThumbY) / charHeight)
+                    if (thumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
+                        floor((thumbY) / charHeight)
                     } else {
-                        floor((draggingThumbY + scrollBarHeightPx) / charHeight)
+                        floor((thumbY + scrollBarHeightPx) / charHeight)
                     }.toInt().coerceIn(0, chars.size - 1)
 
                 chars[index]
@@ -872,11 +872,11 @@ private fun ScrollBarThumb(
     }
 
     Row(modifier = modifier) {
-        if (isThumbDragging) {
+        if (isDraggingThumb) {
             Box(
                 modifier = Modifier
                     .offset {
-                        IntOffset(x = 0, y = draggingThumbY.roundToInt())
+                        IntOffset(x = 0, y = thumbY.roundToInt())
                     }
                     .size(60.dp)
                     .background(
@@ -897,8 +897,8 @@ private fun ScrollBarThumb(
         Box(
             modifier = Modifier
                 .offset {
-                    val y = if (isThumbDragging) {
-                        draggingThumbY
+                    val y = if (isDraggingThumb) {
+                        thumbY
                     } else {
                         viewPortThumbY
                     }.roundToInt()
@@ -908,18 +908,18 @@ private fun ScrollBarThumb(
                 .pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onDragStart = {
-                            draggingThumbY = viewPortThumbY
+                            thumbY = viewPortThumbY
 
-                            isThumbDragging = true
+                            isDraggingThumb = true
                         },
                         onVerticalDrag = { change, deltaY ->
-                            draggingThumbY =
-                                (draggingThumbY + deltaY).coerceIn(
+                            thumbY =
+                                (thumbY + deltaY).coerceIn(
                                     0f,
                                     viewPortHeight - scrollBarHeightPx,
                                 )
 
-                            val progress = draggingThumbY / (viewPortHeight - scrollBarHeightPx)
+                            val progress = thumbY / (viewPortHeight - scrollBarHeightPx)
 
                             val availableScroll = totalHeight - viewPortHeight
 
@@ -941,10 +941,10 @@ private fun ScrollBarThumb(
                             }
                         },
                         onDragEnd = {
-                            isThumbDragging = false
+                            isDraggingThumb = false
                         },
                         onDragCancel = {
-                            isThumbDragging = false
+                            isDraggingThumb = false
                         },
                     )
                 }

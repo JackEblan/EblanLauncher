@@ -346,10 +346,24 @@ private fun Success(
             },
         )
 
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = paddingValues.calculateStartPadding(
+                        LayoutDirection.Ltr,
+                    ),
+                    end = paddingValues.calculateEndPadding(
+                        LayoutDirection.Ltr,
+                    ),
+                ),
+        ) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
                 state = lazyGridState,
+                contentPadding = PaddingValues(
+                    bottom = paddingValues.calculateBottomPadding(),
+                ),
                 modifier = Modifier.matchParentSize(),
                 overscrollEffect = overscrollEffect,
             ) {
@@ -389,6 +403,7 @@ private fun Success(
                 lazyGridState = lazyGridState,
                 appDrawerSettings = appDrawerSettings,
                 itemsCount = eblanApplicationInfos.size,
+                paddingValues = paddingValues,
                 onScrollToItem = lazyGridState::scrollToItem,
             )
         }
@@ -517,9 +532,7 @@ private fun EblanApplicationInfoItem(
 
     val textColor = getSystemTextColor(textColor = appDrawerSettings.gridItemSettings.textColor)
 
-    val appDrawerRowsHeightDp = with(density) {
-        appDrawerSettings.appDrawerRowsHeight.toDp()
-    }
+    val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
 
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -659,7 +672,7 @@ private fun EblanApplicationInfoItem(
                     },
                 )
             }
-            .height(appDrawerRowsHeightDp)
+            .height(appDrawerRowsHeight)
             .alpha(alpha)
             .scale(
                 scaleX = scale.value,
@@ -781,6 +794,7 @@ private fun ScrollBarThumb(
     lazyGridState: LazyGridState,
     appDrawerSettings: AppDrawerSettings,
     itemsCount: Int,
+    paddingValues: PaddingValues,
     onScrollToItem: suspend (
         index: Int,
         scrollOffset: Int,
@@ -790,10 +804,20 @@ private fun ScrollBarThumb(
 
     val scope = rememberCoroutineScope()
 
+    val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
+
+    val appDrawerRowsHeightPx = with(density) {
+        appDrawerRowsHeight.roundToPx()
+    }
+
+    val bottomPadding = with(density) {
+        paddingValues.calculateBottomPadding().roundToPx()
+    }
+
     val rows =
         (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
-    val totalHeight = rows * appDrawerSettings.appDrawerRowsHeight
+    val totalHeight = rows * appDrawerRowsHeightPx
 
     val row by remember(key1 = appDrawerSettings) {
         derivedStateOf {
@@ -803,7 +827,7 @@ private fun ScrollBarThumb(
 
     val totalScrollY by remember(key1 = lazyGridState) {
         derivedStateOf {
-            row * appDrawerSettings.appDrawerRowsHeight + lazyGridState.firstVisibleItemScrollOffset
+            row * appDrawerRowsHeightPx + lazyGridState.firstVisibleItemScrollOffset
         }
     }
 
@@ -813,7 +837,7 @@ private fun ScrollBarThumb(
         }
     }
 
-    val scrollBarHeight by remember {
+    val thumbHeight by remember {
         derivedStateOf {
             with(density) {
                 (viewPortHeight / 4).toDp()
@@ -821,10 +845,10 @@ private fun ScrollBarThumb(
         }
     }
 
-    val scrollBarHeightPx by remember {
+    val thumbHeightPx by remember {
         derivedStateOf {
             with(density) {
-                scrollBarHeight.toPx()
+                thumbHeight.toPx()
             }
         }
     }
@@ -835,7 +859,7 @@ private fun ScrollBarThumb(
 
             val progress = totalScrollY.toFloat() / availableScroll.toFloat()
 
-            progress * (viewPortHeight - scrollBarHeightPx)
+            (progress * viewPortHeight).coerceIn(0f, viewPortHeight - thumbHeightPx - bottomPadding)
         }
     }
 
@@ -856,13 +880,13 @@ private fun ScrollBarThumb(
             if (isDraggingThumb) {
                 val chars = listOf('#') + ('A'..'Z')
 
-                val charHeight = viewPortHeight / chars.size
+                val charHeight = (viewPortHeight - bottomPadding) / chars.size
 
                 val index =
-                    if (thumbY + scrollBarHeightPx < viewPortHeight - scrollBarHeightPx) {
-                        floor((thumbY) / charHeight)
+                    if (thumbY + thumbHeightPx < viewPortHeight - thumbHeightPx - bottomPadding) {
+                        floor(thumbY / charHeight)
                     } else {
-                        floor((thumbY + scrollBarHeightPx) / charHeight)
+                        floor((thumbY + thumbHeightPx) / charHeight)
                     }.toInt().coerceIn(0, chars.size - 1)
 
                 chars[index]
@@ -914,23 +938,21 @@ private fun ScrollBarThumb(
                             isDraggingThumb = true
                         },
                         onVerticalDrag = { change, deltaY ->
-                            thumbY =
-                                (thumbY + deltaY).coerceIn(
-                                    0f,
-                                    viewPortHeight - scrollBarHeightPx,
-                                )
+                            val availableHeight = viewPortHeight - thumbHeightPx - bottomPadding
 
-                            val progress = thumbY / (viewPortHeight - scrollBarHeightPx)
+                            thumbY = (thumbY + deltaY).coerceIn(0f, availableHeight)
 
                             val availableScroll = totalHeight - viewPortHeight
+
+                            val progress = thumbY / availableHeight
 
                             val targetScrollY = progress * availableScroll
 
                             val targetRow =
-                                targetScrollY / appDrawerSettings.appDrawerRowsHeight
+                                targetScrollY / appDrawerRowsHeightPx
 
                             val offsetInRow =
-                                targetScrollY % appDrawerSettings.appDrawerRowsHeight
+                                targetScrollY % appDrawerRowsHeightPx
 
                             val targetIndex = targetRow * appDrawerSettings.appDrawerColumns
 
@@ -950,7 +972,7 @@ private fun ScrollBarThumb(
                     )
                 }
                 .alpha(thumbAlpha)
-                .size(width = 8.dp, height = scrollBarHeight)
+                .size(width = 8.dp, height = thumbHeight)
                 .background(
                     color = MaterialTheme.colorScheme.primary,
                     shape = RoundedCornerShape(10.dp),

@@ -51,9 +51,9 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     }.build()
 
     private val defaultGridItemSettingsProto = GridItemSettingsProto.newBuilder().apply {
-        iconSize = 150
+        iconSize = 40
         textColorProto = TextColorProto.TextColorSystem
-        textSize = 30
+        textSize = 10
         showLabel = true
         singleLineLabel = true
         horizontalAlignmentProto = HorizontalAlignmentProto.CenterHorizontally
@@ -67,7 +67,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         infiniteScroll = false
         dockColumns = 5
         dockRows = 1
-        dockHeight = 300
+        dockHeight = 100
         initialPage = 0
         wallpaperScroll = false
         folderColumns = 5

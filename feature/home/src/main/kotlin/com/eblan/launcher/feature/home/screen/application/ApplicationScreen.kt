@@ -87,6 +87,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
@@ -520,14 +521,6 @@ private fun EblanApplicationInfoItem(
         appDrawerSettings.appDrawerRowsHeight.toDp()
     }
 
-    val iconSizeDp = with(density) {
-        appDrawerSettings.gridItemSettings.iconSize.toDp()
-    }
-
-    val textSizeSp = with(density) {
-        appDrawerSettings.gridItemSettings.textSize.toSp()
-    }
-
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     var isLongPressed by remember { mutableStateOf(false) }
@@ -697,7 +690,7 @@ private fun EblanApplicationInfoItem(
 
                     intSize = layoutCoordinates.size
                 }
-                .size(iconSizeDp),
+                .size(appDrawerSettings.gridItemSettings.iconSize.dp),
         )
 
         if (appDrawerSettings.gridItemSettings.showLabel) {
@@ -708,7 +701,7 @@ private fun EblanApplicationInfoItem(
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
-                fontSize = textSizeSp,
+                fontSize = appDrawerSettings.gridItemSettings.textSize.sp,
                 overflow = TextOverflow.Ellipsis,
             )
         }

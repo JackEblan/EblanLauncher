@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
@@ -61,7 +62,7 @@ suspend fun handleDragGridItem(
     screenWidth: Int,
     screenHeight: Int,
     pageIndicatorHeight: Int,
-    dockHeight: Int,
+    dockHeight: Dp,
     gridPadding: Int,
     rows: Int,
     columns: Int,
@@ -103,6 +104,10 @@ suspend fun handleDragGridItem(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
+    val dockHeightPx = with(density) {
+        dockHeight.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -121,13 +126,13 @@ suspend fun handleDragGridItem(
 
     val isOnTopGrid = dragY < gridPadding
 
-    val isOnBottomGrid = dragY > gridHeight - dockHeight - gridPadding
+    val isOnBottomGrid = dragY > gridHeight - dockHeightPx - gridPadding
 
     val isHorizontalBounds = !isOnLeftGrid && !isOnRightGrid
 
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 
-    val isOnDock = dragY > (gridHeight - dockHeight)
+    val isOnDock = dragY > (gridHeight - dockHeightPx)
 
     if (isOnLeftGrid && isVerticalBounds) {
         onUpdatePageDirection(PageDirection.Left)
@@ -136,9 +141,9 @@ suspend fun handleDragGridItem(
     } else if (isOnDock) {
         val cellWidth = gridWidth / dockColumns
 
-        val cellHeight = dockHeight / dockRows
+        val cellHeight = dockHeightPx / dockRows
 
-        val dockY = dragY - (gridHeight - dockHeight)
+        val dockY = dragY - (gridHeight - dockHeightPx)
 
         val moveGridItem = getMoveGridItem(
             targetPage = currentPage,
@@ -148,7 +153,7 @@ suspend fun handleDragGridItem(
             columns = dockColumns,
             rows = dockRows,
             gridWidth = gridWidth,
-            gridHeight = dockHeight,
+            gridHeight = dockHeightPx,
             gridX = dragX,
             gridY = dockY,
             associate = Associate.Dock,
@@ -169,13 +174,13 @@ suspend fun handleDragGridItem(
                 dockColumns,
                 dockRows,
                 gridWidth,
-                dockHeight,
+                dockHeightPx,
             )
         }
     } else if (isHorizontalBounds && isVerticalBounds) {
         val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeightWithPadding = (gridHeight - pageIndicatorHeight - dockHeight) - (gridPadding * 2)
+        val gridHeightWithPadding = (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
 
         val gridX = dragX - gridPadding
 

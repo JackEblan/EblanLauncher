@@ -282,8 +282,8 @@ private fun BoxScope.ExpandableFloatingActionButton(
             .width(IntrinsicSize.Max)
             .padding(
                 end = 20.dp,
-                bottom = paddingValues.calculateBottomPadding() + 20.dp
-            )
+                bottom = paddingValues.calculateBottomPadding() + 20.dp,
+            ),
     ) {
         AnimatedVisibility(visible = isExpanded) {
             Column(horizontalAlignment = Alignment.End) {
@@ -312,11 +312,12 @@ private fun BoxScope.ExpandableFloatingActionButton(
             modifier = Modifier.align(Alignment.End),
             onClick = {
                 isExpanded = !isExpanded
-            }) {
+            },
+        ) {
             Icon(
                 modifier = Modifier.rotate(rotation),
                 imageVector = EblanLauncherIcons.Add,
-                contentDescription = null
+                contentDescription = null,
             )
         }
     }

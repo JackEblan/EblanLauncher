@@ -183,7 +183,7 @@ private fun Success(
 
         SettingsColumn(
             title = "Dock Height",
-            subtitle = "Height of the dock by pixels",
+            subtitle = "Height of the dock",
             onClick = {
                 showDockHeightDialog = true
             },

@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -132,10 +133,6 @@ fun DragScreen(
 
     val view = LocalView.current
 
-    val dockHeightDp = with(density) {
-        homeSettings.dockHeight.toDp()
-    }
-
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
     var lastAppWidgetId by remember { mutableIntStateOf(AppWidgetManager.INVALID_APPWIDGET_ID) }
@@ -143,6 +140,8 @@ fun DragScreen(
     var deleteAppWidgetId by remember { mutableStateOf(false) }
 
     var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
+
+    val dockHeight = homeSettings.dockHeight.dp
 
     val gridHorizontalPagerPaddingDp = 50.dp
 
@@ -211,7 +210,7 @@ fun DragScreen(
             screenWidth = screenWidth,
             screenHeight = screenHeight,
             pageIndicatorHeight = pageIndicatorHeightPx,
-            dockHeight = homeSettings.dockHeight,
+            dockHeight = dockHeight,
             gridPadding = gridPadding,
             rows = homeSettings.rows,
             columns = homeSettings.columns,
@@ -369,7 +368,7 @@ fun DragScreen(
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dockHeightDp)
+                .height(dockHeight)
                 .padding(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
@@ -395,7 +394,7 @@ fun DragScreen(
         gridPadding = gridPadding,
         screenWidth = screenWidth,
         screenHeight = screenHeight,
-        dockHeight = homeSettings.dockHeight,
+        dockHeight = dockHeight,
         pageIndicatorHeight = pageIndicatorHeightPx,
         paddingValues = paddingValues,
         columns = homeSettings.columns,
@@ -421,7 +420,7 @@ private fun AnimatedDropGridItem(
     gridPadding: Int,
     screenWidth: Int,
     screenHeight: Int,
-    dockHeight: Int,
+    dockHeight: Dp,
     pageIndicatorHeight: Int,
     paddingValues: PaddingValues,
     columns: Int,
@@ -464,6 +463,10 @@ private fun AnimatedDropGridItem(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
+    val dockHeightPx = with(density) {
+        dockHeight.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -489,7 +492,7 @@ private fun AnimatedDropGridItem(
             val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
             val gridHeightWithPadding =
-                (gridHeight - pageIndicatorHeight - dockHeight) - (gridPadding * 2)
+                (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
 
             val cellWidth = gridWidthWithPadding / columns
 
@@ -507,13 +510,13 @@ private fun AnimatedDropGridItem(
         Associate.Dock -> {
             val cellWidth = gridWidth / dockColumns
 
-            val cellHeight = dockHeight / dockRows
+            val cellHeight = dockHeightPx / dockRows
 
             targetX =
                 (moveGridItemResult.movingGridItem.startColumn * cellWidth) + leftPadding
 
             targetY =
-                (moveGridItemResult.movingGridItem.startRow * cellHeight) + (screenHeight - bottomPadding - dockHeight)
+                (moveGridItemResult.movingGridItem.startRow * cellHeight) + (screenHeight - bottomPadding - dockHeightPx)
 
             targetWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
 

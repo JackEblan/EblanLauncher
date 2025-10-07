@@ -509,8 +509,10 @@ private fun HorizontalPagerScreen(
 ) {
     val density = LocalDensity.current
 
-    val dockHeightDp = with(density) {
-        homeSettings.dockHeight.toDp()
+    val dockHeight = homeSettings.dockHeight.dp
+
+    val dockHeightPx = with(density) {
+        dockHeight.roundToPx()
     }
 
     var showPopupGridItemMenu by remember { mutableStateOf(false) }
@@ -606,7 +608,7 @@ private fun HorizontalPagerScreen(
                     val cellWidth = gridWidth / homeSettings.columns
 
                     val cellHeight =
-                        (gridHeight - pageIndicatorHeightPx - homeSettings.dockHeight) / homeSettings.rows
+                        (gridHeight - pageIndicatorHeightPx - dockHeightPx) / homeSettings.rows
 
                     val x = gridItem.startColumn * cellWidth
 
@@ -693,7 +695,7 @@ private fun HorizontalPagerScreen(
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dockHeightDp)
+                .height(dockHeight)
                 .padding(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
@@ -704,7 +706,7 @@ private fun HorizontalPagerScreen(
             { gridItem ->
                 val cellWidth = gridWidth / homeSettings.dockColumns
 
-                val cellHeight = homeSettings.dockHeight / homeSettings.dockRows
+                val cellHeight = dockHeightPx / homeSettings.dockRows
 
                 val x = gridItem.startColumn * cellWidth
 
@@ -757,7 +759,7 @@ private fun HorizontalPagerScreen(
                     },
                     onLongPress = {
                         val dockY =
-                            y + (gridHeight - homeSettings.dockHeight)
+                            y + (gridHeight - dockHeightPx)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 

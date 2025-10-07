@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -192,16 +193,6 @@ private fun ApplicationInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val density = LocalDensity.current
-
-    val iconSizeDp = with(density) {
-        gridItemSettings.iconSize.toDp()
-    }
-
-    val textSizeSp = with(density) {
-        gridItemSettings.textSize.toSp()
-    }
-
     val scale = remember { Animatable(1f) }
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
@@ -313,7 +304,7 @@ private fun ApplicationInfoGridItem(
                 .addLastModifiedToFileCacheKey(true)
                 .build(),
             contentDescription = null,
-            modifier = Modifier.size(iconSizeDp),
+            modifier = Modifier.size(gridItemSettings.iconSize.dp),
         )
 
         if (gridItemSettings.showLabel) {
@@ -321,7 +312,7 @@ private fun ApplicationInfoGridItem(
                 text = data.label.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
-                fontSize = textSizeSp,
+                fontSize = gridItemSettings.textSize.sp,
                 maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -435,16 +426,6 @@ private fun ShortcutInfoGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val density = LocalDensity.current
-
-    val iconSizeDp = with(density) {
-        gridItemSettings.iconSize.toDp()
-    }
-
-    val textSizeSp = with(density) {
-        gridItemSettings.textSize.toSp()
-    }
-
     val scale = remember { Animatable(1f) }
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
@@ -542,7 +523,7 @@ private fun ShortcutInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        Box(modifier = Modifier.size(iconSizeDp)) {
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
                 model = data.icon,
                 modifier = Modifier.matchParentSize(),
@@ -564,7 +545,7 @@ private fun ShortcutInfoGridItem(
                 text = data.shortLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,
-                fontSize = textSizeSp,
+                fontSize = gridItemSettings.textSize.sp,
                 maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -592,14 +573,6 @@ private fun FolderGridItem(
     val scope = rememberCoroutineScope()
 
     val density = LocalDensity.current
-
-    val iconSizeDp = with(density) {
-        gridItemSettings.iconSize.toDp()
-    }
-
-    val textSizeSp = with(density) {
-        gridItemSettings.textSize.toSp()
-    }
 
     val scale = remember { Animatable(1f) }
 
@@ -701,7 +674,7 @@ private fun FolderGridItem(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
                         shape = RoundedCornerShape(5.dp),
                     )
-                    .size(iconSizeDp),
+                    .size(gridItemSettings.iconSize.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,
@@ -772,7 +745,7 @@ private fun FolderGridItem(
             Icon(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
-                modifier = Modifier.size(iconSizeDp),
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
                 tint = textColor,
             )
         }
@@ -782,7 +755,7 @@ private fun FolderGridItem(
                 text = data.label,
                 color = textColor,
                 textAlign = TextAlign.Center,
-                fontSize = textSizeSp,
+                fontSize = gridItemSettings.textSize.sp,
                 maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
             )

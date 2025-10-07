@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
@@ -93,10 +94,6 @@ fun ResizeScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
-    val dockHeightDp = with(density) {
-        homeSettings.dockHeight.toDp()
-    }
-
     BackHandler {
         onResizeCancel()
     }
@@ -128,7 +125,7 @@ fun ResizeScreen(
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dockHeightDp),
+                .height(homeSettings.dockHeight.dp),
             gridItems = dockGridItemsCache,
             columns = homeSettings.dockColumns,
             rows = homeSettings.dockRows,

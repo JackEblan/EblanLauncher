@@ -857,9 +857,11 @@ private fun ScrollBarThumb(
         derivedStateOf {
             val availableScroll = totalHeight - viewPortHeight
 
+            val availableHeight = viewPortHeight - thumbHeightPx - bottomPadding
+
             val progress = totalScrollY.toFloat() / availableScroll.toFloat()
 
-            (progress * viewPortHeight).coerceIn(0f, viewPortHeight - thumbHeightPx - bottomPadding)
+            (progress * availableHeight).coerceIn(0f, availableHeight)
         }
     }
 
@@ -938,11 +940,11 @@ private fun ScrollBarThumb(
                             isDraggingThumb = true
                         },
                         onVerticalDrag = { change, deltaY ->
+                            val availableScroll = totalHeight - viewPortHeight
+
                             val availableHeight = viewPortHeight - thumbHeightPx - bottomPadding
 
                             thumbY = (thumbY + deltaY).coerceIn(0f, availableHeight)
-
-                            val availableScroll = totalHeight - viewPortHeight
 
                             val progress = thumbY / availableHeight
 

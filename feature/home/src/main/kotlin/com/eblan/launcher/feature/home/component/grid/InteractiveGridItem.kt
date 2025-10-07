@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -572,8 +571,6 @@ private fun FolderGridItem(
 
     val scope = rememberCoroutineScope()
 
-    val density = LocalDensity.current
-
     val scale = remember { Animatable(1f) }
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
@@ -681,11 +678,7 @@ private fun FolderGridItem(
                 maxLines = 2,
             ) {
                 data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                    val gridItemIconSizeDp = with(density) {
-                        (gridItemSettings.iconSize * 0.25).toInt().toDp()
-                    }
-
-                    val gridItemModifier = Modifier.size(gridItemIconSizeDp)
+                    val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).toInt().dp)
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {

@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -309,8 +308,6 @@ private fun FolderGridItem(
 ) {
     val context = LocalContext.current
 
-    val density = LocalDensity.current
-
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
@@ -344,11 +341,7 @@ private fun FolderGridItem(
                 maxLines = 2,
             ) {
                 data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                    val gridItemIconSizeDp = with(density) {
-                        (gridItemSettings.iconSize * 0.25).toInt().toDp()
-                    }
-
-                    val gridItemModifier = Modifier.size(gridItemIconSizeDp)
+                    val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).toInt().dp)
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {

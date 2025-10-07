@@ -47,9 +47,11 @@ fun SettingsSwitch(
 ) {
     Row(
         modifier = modifier
-            .clickable(onClick = {
-                onCheckedChange(!checked)
-            })
+            .clickable(
+                enabled = enabled,
+                onClick = {
+                    onCheckedChange(!checked)
+                })
             .fillMaxWidth()
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically,

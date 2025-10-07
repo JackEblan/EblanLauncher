@@ -24,12 +24,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -64,6 +64,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -200,7 +201,13 @@ fun EditPageScreen(
         }
 
         ExpandableFloatingActionButton(
-            paddingValues = paddingValues,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .width(IntrinsicSize.Max)
+                .padding(
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + 20.dp,
+                    bottom = paddingValues.calculateBottomPadding() + 20.dp,
+                ),
             onCancel = {
                 onUpdateScreen(Screen.Pager)
             },
@@ -265,9 +272,8 @@ private fun PageButtons(
 }
 
 @Composable
-private fun BoxScope.ExpandableFloatingActionButton(
+private fun ExpandableFloatingActionButton(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
     onCancel: () -> Unit,
     onAdd: () -> Unit,
     onSave: () -> Unit,
@@ -276,15 +282,7 @@ private fun BoxScope.ExpandableFloatingActionButton(
 
     val rotation by animateFloatAsState(targetValue = if (isExpanded) 45f else 0f)
 
-    Column(
-        modifier = modifier
-            .align(Alignment.BottomEnd)
-            .width(IntrinsicSize.Max)
-            .padding(
-                end = 20.dp,
-                bottom = paddingValues.calculateBottomPadding() + 20.dp,
-            ),
-    ) {
+    Column(modifier = modifier) {
         AnimatedVisibility(visible = isExpanded) {
             Column(horizontalAlignment = Alignment.End) {
                 Button(

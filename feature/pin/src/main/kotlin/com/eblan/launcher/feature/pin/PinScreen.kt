@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -186,8 +185,7 @@ private fun PinShortcutScreen(
             Box(
                 modifier = modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .consumeWindowInsets(paddingValues),
+                    .padding(paddingValues),
             ) {
                 PinBottomSheet(
                     label = shortcutInfo.shortLabel.toString(),
@@ -323,8 +321,7 @@ private fun PinWidgetScreen(
             BoxWithConstraints(
                 modifier = modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .consumeWindowInsets(paddingValues),
+                    .padding(paddingValues),
             ) {
                 PinBottomSheet(
                     label = appWidgetProviderInfo.loadLabel(context.packageManager),

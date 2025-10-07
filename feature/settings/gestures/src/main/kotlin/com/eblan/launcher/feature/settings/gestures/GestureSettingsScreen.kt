@@ -22,7 +22,6 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -95,8 +94,7 @@ private fun GestureSettingsScreen(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .consumeWindowInsets(paddingValues),
+                .padding(paddingValues),
         ) {
             when (gesturesSettingsUiState) {
                 GesturesSettingsUiState.Loading -> {

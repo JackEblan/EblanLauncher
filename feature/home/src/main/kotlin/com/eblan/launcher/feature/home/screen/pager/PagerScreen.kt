@@ -992,6 +992,8 @@ private fun PopupGridItemMenu(
                         showResize = showResize,
                         onResize = {
                             onResize()
+
+                            onDismissRequest()
                         },
                         onDelete = {
                             onDeleteGridItem(gridItem)

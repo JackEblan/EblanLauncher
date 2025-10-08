@@ -94,6 +94,12 @@ fun ResizeScreen(
 
     val gridHeight = screenHeight - verticalPadding
 
+    val dockHeight = homeSettings.dockHeight.dp
+
+    val dockHeightPx = with(density) {
+        dockHeight.roundToPx()
+    }
+
     BackHandler {
         onResizeCancel()
     }
@@ -125,7 +131,7 @@ fun ResizeScreen(
         GridLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(homeSettings.dockHeight.dp),
+                .height(dockHeight),
             gridItems = dockGridItemsCache,
             columns = homeSettings.dockColumns,
             rows = homeSettings.dockRows,
@@ -146,7 +152,7 @@ fun ResizeScreen(
         Associate.Grid -> {
             val cellWidth = gridWidth / homeSettings.columns
 
-            val cellHeight = (gridHeight - homeSettings.dockHeight) / homeSettings.rows
+            val cellHeight = (gridHeight - dockHeightPx) / homeSettings.rows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -163,7 +169,7 @@ fun ResizeScreen(
             ResizeOverlay(
                 gridItem = gridItem,
                 gridWidth = gridWidth,
-                gridHeight = gridHeight - homeSettings.dockHeight,
+                gridHeight = gridHeight - dockHeightPx,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 columns = homeSettings.columns,
@@ -181,7 +187,7 @@ fun ResizeScreen(
         Associate.Dock -> {
             val cellWidth = gridWidth / homeSettings.dockColumns
 
-            val cellHeight = homeSettings.dockHeight / homeSettings.dockRows
+            val cellHeight = dockHeightPx / homeSettings.dockRows
 
             val x = gridItem.startColumn * cellWidth
 
@@ -189,7 +195,7 @@ fun ResizeScreen(
 
             val dockX = x + leftPadding
 
-            val dockY = (y + topPadding) + (gridHeight - homeSettings.dockHeight)
+            val dockY = (y + topPadding) + (gridHeight - dockHeightPx)
 
             val width = gridItem.columnSpan * cellWidth
 
@@ -198,7 +204,7 @@ fun ResizeScreen(
             ResizeOverlay(
                 gridItem = gridItem,
                 gridWidth = gridWidth,
-                gridHeight = homeSettings.dockHeight,
+                gridHeight = dockHeightPx,
                 cellWidth = cellWidth,
                 cellHeight = cellHeight,
                 columns = homeSettings.dockColumns,

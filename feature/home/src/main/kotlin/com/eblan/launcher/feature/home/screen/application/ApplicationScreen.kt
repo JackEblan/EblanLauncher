@@ -814,10 +814,13 @@ private fun ScrollBarThumb(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
-    val rows =
-        (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
+    val totalHeight by remember(key1 = itemsCount, key2 = appDrawerSettings) {
+        derivedStateOf {
+            val rows = (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
-    val totalHeight = rows * appDrawerRowsHeightPx
+            rows * appDrawerRowsHeightPx
+        }
+    }
 
     val row by remember(key1 = appDrawerSettings) {
         derivedStateOf {

@@ -139,7 +139,7 @@ fun GridItemContent(
 }
 
 @Composable
-private fun ApplicationInfoGridItem(
+fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
     textColor: Color,
@@ -225,10 +225,8 @@ private fun WidgetGridItem(
             modifier = modifier.fillMaxSize(),
         )
     } else {
-        val icon = data.preview ?: data.eblanApplicationInfo.icon
-
         AsyncImage(
-            model = icon,
+            model = data.preview ?: data.eblanApplicationInfo.icon,
             contentDescription = null,
             modifier = modifier.fillMaxSize(),
         )
@@ -236,7 +234,7 @@ private fun WidgetGridItem(
 }
 
 @Composable
-private fun ShortcutInfoGridItem(
+fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
     textColor: Color,
@@ -286,7 +284,6 @@ private fun ShortcutInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                modifier = Modifier.weight(1f),
                 text = data.shortLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,
@@ -299,7 +296,7 @@ private fun ShortcutInfoGridItem(
 }
 
 @Composable
-private fun FolderGridItem(
+fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
     textColor: Color,

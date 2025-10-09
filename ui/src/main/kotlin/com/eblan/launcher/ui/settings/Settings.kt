@@ -40,7 +40,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 fun SettingsSwitch(
     modifier: Modifier = Modifier,
     checked: Boolean,
-    enabled: Boolean = true,
     title: String,
     subtitle: String,
     onCheckedChange: (Boolean) -> Unit,
@@ -48,7 +47,6 @@ fun SettingsSwitch(
     Row(
         modifier = modifier
             .clickable(
-                enabled = enabled,
                 onClick = {
                     onCheckedChange(!checked)
                 },
@@ -73,7 +71,6 @@ fun SettingsSwitch(
 
         Switch(
             checked = checked,
-            enabled = enabled,
             onCheckedChange = onCheckedChange,
         )
     }

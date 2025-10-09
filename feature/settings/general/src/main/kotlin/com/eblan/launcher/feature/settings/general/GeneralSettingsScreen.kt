@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.designsystem.theme.supportsDynamicTheming
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.EblanIconPackInfo
@@ -217,15 +216,16 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SettingsSwitch(
-            checked = generalSettings.dynamicTheme,
-            title = "Dynamic Theme",
-            subtitle = "Dynamic theme",
-            enabled = supportsDynamicTheming(),
-            onCheckedChange = { dynamicTheme ->
-                onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
-            },
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            SettingsSwitch(
+                checked = generalSettings.dynamicTheme,
+                title = "Dynamic Theme",
+                subtitle = "Dynamic theme",
+                onCheckedChange = { dynamicTheme ->
+                    onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
+                },
+            )
+        }
     }
 
     if (showThemeBrandDialog) {

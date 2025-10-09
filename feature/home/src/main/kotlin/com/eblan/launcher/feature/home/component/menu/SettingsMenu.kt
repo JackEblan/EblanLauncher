@@ -39,6 +39,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 fun SettingsMenu(
     modifier: Modifier = Modifier,
     hasShortcutHostPermission: Boolean,
+    hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onWidgets: () -> Unit,
@@ -65,13 +66,15 @@ fun SettingsMenu(
                     onClick = onEditPage,
                 )
 
-                Spacer(modifier = Modifier.height(5.dp))
+                if (hasSystemFeatureAppWidgets) {
+                    Spacer(modifier = Modifier.height(5.dp))
 
-                PopupMenuRow(
-                    imageVector = EblanLauncherIcons.Widgets,
-                    title = "Widgets",
-                    onClick = onWidgets,
-                )
+                    PopupMenuRow(
+                        imageVector = EblanLauncherIcons.Widgets,
+                        title = "Widgets",
+                        onClick = onWidgets,
+                    )
+                }
 
                 if (hasShortcutHostPermission) {
                     Spacer(modifier = Modifier.height(5.dp))

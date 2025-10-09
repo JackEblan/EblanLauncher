@@ -565,6 +565,7 @@ private fun Success(
                     paddingValues = paddingValues,
                     appDrawerSettings = homeData.userData.appDrawerSettings,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    hasSystemFeatureAppWidgets = homeData.hasSystemFeatureAppWidgets,
                     gestureSettings = homeData.userData.gestureSettings,
                     gridItemSource = gridItemSource,
                     homeSettings = homeData.userData.homeSettings,

@@ -107,6 +107,7 @@ fun PagerScreen(
     screenHeight: Int,
     paddingValues: PaddingValues,
     hasShortcutHostPermission: Boolean,
+    hasSystemFeatureAppWidgets: Boolean,
     gestureSettings: GestureSettings,
     appDrawerSettings: AppDrawerSettings,
     gridItemSource: GridItemSource?,
@@ -278,6 +279,7 @@ fun PagerScreen(
         textColor = textColor,
         drag = drag,
         hasShortcutHostPermission = hasShortcutHostPermission,
+        hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
@@ -486,6 +488,7 @@ private fun HorizontalPagerScreen(
     gridItemSource: GridItemSource?,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
+    hasSystemFeatureAppWidgets: Boolean,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     onTapFolderGridItem: (String) -> Unit,
@@ -824,6 +827,7 @@ private fun HorizontalPagerScreen(
             popupSettingsMenuIntOffset = popupSettingsMenuIntOffset,
             gridItems = gridItems,
             hasShortcutHostPermission = hasShortcutHostPermission,
+            hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
             onSettings = onSettings,
             onEditPage = onEditPage,
             onWidgets = onWidgets,
@@ -847,6 +851,7 @@ private fun PopupSettingsMenu(
     popupSettingsMenuIntOffset: IntOffset,
     gridItems: List<GridItem>,
     hasShortcutHostPermission: Boolean,
+    hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
@@ -863,6 +868,7 @@ private fun PopupSettingsMenu(
     ) {
         SettingsMenu(
             hasShortcutHostPermission = hasShortcutHostPermission,
+            hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
             onSettings = {
                 onSettings()
 

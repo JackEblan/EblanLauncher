@@ -18,18 +18,8 @@
 package com.eblan.launcher.feature.home.component.grid
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +28,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -48,30 +37,17 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.addLastModifiedToFileCacheKey
-import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import kotlinx.coroutines.launch
-import java.io.File
 
 @Composable
 fun InteractiveGridItemContent(
@@ -109,7 +85,7 @@ fun InteractiveGridItemContent(
 
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
-            ApplicationInfoGridItem(
+            InteractiveApplicationInfoGridItem(
                 modifier = modifier,
                 textColor = currentTextColor,
                 gridItemSettings = currentGridItemSettings,
@@ -126,7 +102,7 @@ fun InteractiveGridItemContent(
         }
 
         is GridItemData.Widget -> {
-            WidgetGridItem(
+            InteractiveWidgetGridItem(
                 modifier = modifier,
                 data = data,
                 drag = drag,
@@ -137,7 +113,7 @@ fun InteractiveGridItemContent(
         }
 
         is GridItemData.ShortcutInfo -> {
-            ShortcutInfoGridItem(
+            InteractiveShortcutInfoGridItem(
                 modifier = modifier,
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
@@ -157,7 +133,7 @@ fun InteractiveGridItemContent(
         }
 
         is GridItemData.Folder -> {
-            FolderGridItem(
+            InteractiveFolderGridItem(
                 modifier = modifier,
                 gridItemSettings = currentGridItemSettings,
                 textColor = currentTextColor,
@@ -174,7 +150,7 @@ fun InteractiveGridItemContent(
 }
 
 @Composable
-private fun ApplicationInfoGridItem(
+private fun InteractiveApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
@@ -186,41 +162,13 @@ private fun ApplicationInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
 
     val scale = remember { Animatable(1f) }
 
-    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
-
     var isLongPressed by remember { mutableStateOf(false) }
-
-    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
-
-    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
-
-    val iconFile = File(iconPackDirectory, data.packageName)
-
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-        iconFile.absolutePath
-    } else {
-        data.icon
-    }
-
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
-
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
@@ -242,7 +190,7 @@ private fun ApplicationInfoGridItem(
         }
     }
 
-    Column(
+    ApplicationInfoGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
@@ -294,33 +242,15 @@ private fun ApplicationInfoGridItem(
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        horizontalAlignment = horizontalAlignment,
-        verticalArrangement = verticalArrangement,
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(icon)
-                .addLastModifiedToFileCacheKey(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier.size(gridItemSettings.iconSize.dp),
-        )
-
-        if (gridItemSettings.showLabel) {
-            Text(
-                text = data.label.toString(),
-                color = textColor,
-                textAlign = TextAlign.Center,
-                fontSize = gridItemSettings.textSize.sp,
-                maxLines = maxLines,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+    )
 }
 
 @Composable
-private fun WidgetGridItem(
+private fun InteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Widget,
     drag: Drag,
@@ -409,7 +339,7 @@ private fun WidgetGridItem(
 }
 
 @Composable
-private fun ShortcutInfoGridItem(
+private fun InteractiveShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
@@ -427,21 +357,7 @@ private fun ShortcutInfoGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
-
     var isLongPressed by remember { mutableStateOf(false) }
-
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
-
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
 
     val defaultAlpha = if (hasShortcutHostPermission) 1f else 0.3f
 
@@ -465,7 +381,7 @@ private fun ShortcutInfoGridItem(
         }
     }
 
-    Column(
+    ShortcutInfoGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
@@ -519,41 +435,15 @@ private fun ShortcutInfoGridItem(
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        horizontalAlignment = horizontalAlignment,
-        verticalArrangement = verticalArrangement,
-    ) {
-        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
-            AsyncImage(
-                model = data.icon,
-                modifier = Modifier.matchParentSize(),
-                contentDescription = null,
-            )
-
-            AsyncImage(
-                model = data.eblanApplicationInfo.icon,
-                modifier = Modifier
-                    .size(15.dp)
-                    .align(Alignment.BottomEnd),
-                contentDescription = null,
-            )
-        }
-
-        if (gridItemSettings.showLabel) {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = data.shortLabel,
-                color = textColor,
-                textAlign = TextAlign.Center,
-                fontSize = gridItemSettings.textSize.sp,
-                maxLines = maxLines,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+        hasShortcutHostPermission = hasShortcutHostPermission,
+    )
 }
 
 @Composable
-private fun FolderGridItem(
+private fun InteractiveFolderGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
@@ -565,29 +455,13 @@ private fun FolderGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
 
     val scale = remember { Animatable(1f) }
 
-    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
-
     var isLongPressed by remember { mutableStateOf(false) }
-
-    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
-        HorizontalAlignment.Start -> Alignment.Start
-        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
-        HorizontalAlignment.End -> Alignment.End
-    }
-
-    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
-        VerticalArrangement.Top -> Arrangement.Top
-        VerticalArrangement.Center -> Arrangement.Center
-        VerticalArrangement.Bottom -> Arrangement.Bottom
-    }
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
@@ -609,7 +483,7 @@ private fun FolderGridItem(
         }
     }
 
-    Column(
+    FolderGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {
@@ -661,97 +535,9 @@ private fun FolderGridItem(
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        horizontalAlignment = horizontalAlignment,
-        verticalArrangement = verticalArrangement,
-    ) {
-        if (data.gridItems.isNotEmpty()) {
-            FlowRow(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(5.dp),
-                    )
-                    .size(gridItemSettings.iconSize.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalArrangement = Arrangement.SpaceEvenly,
-                maxItemsInEachRow = 2,
-                maxLines = 2,
-            ) {
-                data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                    val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).toInt().dp)
-
-                    when (val currentData = gridItem.data) {
-                        is GridItemData.ApplicationInfo -> {
-                            val iconPacksDirectory =
-                                File(context.filesDir, FileManager.ICON_PACKS_DIR)
-
-                            val iconPackDirectory =
-                                File(iconPacksDirectory, iconPackInfoPackageName)
-
-                            val iconFile = File(iconPackDirectory, currentData.packageName)
-
-                            val icon =
-                                if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-                                    iconFile.absolutePath
-                                } else {
-                                    currentData.icon
-                                }
-
-                            AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(icon)
-                                    .addLastModifiedToFileCacheKey(true)
-                                    .build(),
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                            )
-                        }
-
-                        is GridItemData.ShortcutInfo -> {
-                            AsyncImage(
-                                model = currentData.icon,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                            )
-                        }
-
-                        is GridItemData.Widget -> {
-                            AsyncImage(
-                                model = currentData.preview,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                            )
-                        }
-
-                        is GridItemData.Folder -> {
-                            Icon(
-                                imageVector = EblanLauncherIcons.Folder,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                                tint = textColor,
-                            )
-                        }
-                    }
-                }
-            }
-        } else {
-            Icon(
-                imageVector = EblanLauncherIcons.Folder,
-                contentDescription = null,
-                modifier = Modifier.size(gridItemSettings.iconSize.dp),
-                tint = textColor,
-            )
-        }
-
-        if (gridItemSettings.showLabel) {
-            Text(
-                text = data.label,
-                color = textColor,
-                textAlign = TextAlign.Center,
-                fontSize = gridItemSettings.textSize.sp,
-                maxLines = maxLines,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+    )
 }

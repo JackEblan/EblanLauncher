@@ -18,7 +18,6 @@
 package com.eblan.launcher.designsystem.theme
 
 import android.os.Build
-import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -192,7 +191,7 @@ fun EblanLauncherTheme(
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
-        supportsDynamicTheming() && dynamicTheme -> getDynamicColorScheme(
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dynamicTheme -> getDynamicColorScheme(
             darkThemeConfig = darkThemeConfig,
         )
 
@@ -210,9 +209,6 @@ fun EblanLauncherTheme(
         content = content,
     )
 }
-
-@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
-fun supportsDynamicTheming() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
 @Composable
 private fun getGreenColorScheme(darkThemeConfig: DarkThemeConfig): ColorScheme {

@@ -816,13 +816,14 @@ private fun ScrollBarThumb(
 
     val totalHeight by remember(key1 = itemsCount, key2 = appDrawerSettings) {
         derivedStateOf {
-            val rows = (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
+            val rows =
+                (itemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
             rows * appDrawerRowsHeightPx
         }
     }
 
-    val row by remember(key1 = appDrawerSettings) {
+    val row by remember(key1 = lazyGridState, key2 = appDrawerSettings) {
         derivedStateOf {
             lazyGridState.firstVisibleItemIndex / appDrawerSettings.appDrawerColumns
         }

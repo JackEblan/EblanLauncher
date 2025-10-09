@@ -240,8 +240,7 @@ private fun InteractiveApplicationInfoGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            )
-            .fillMaxSize(),
+            ),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,
@@ -433,8 +432,7 @@ private fun InteractiveShortcutInfoGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            )
-            .fillMaxSize(),
+            ),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,
@@ -533,8 +531,7 @@ private fun InteractiveFolderGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            )
-            .fillMaxSize(),
+            ),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,

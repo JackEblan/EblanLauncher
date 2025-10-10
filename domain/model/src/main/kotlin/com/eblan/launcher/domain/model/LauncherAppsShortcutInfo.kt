@@ -22,7 +22,7 @@ data class LauncherAppsShortcutInfo(
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,
-    val icon: ByteArray,
+    val icon: ByteArray?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -186,8 +186,12 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
-    override fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo, density: Int): Drawable {
-        return launcherApps.getShortcutIconDrawable(shortcutInfo, density)
+    override fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo?, density: Int): Drawable? {
+        return if (shortcutInfo != null) {
+            launcherApps.getShortcutIconDrawable(shortcutInfo, density)
+        } else {
+            null
+        }
     }
 
     override fun startAppDetailsActivity(
@@ -219,7 +223,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun toLauncherAppsShortcutInfo(shortcutInfo: ShortcutInfo): LauncherAppsShortcutInfo {
         val icon = withContext(defaultDispatcher) {
-            getShortcutIconDrawable(shortcutInfo, 0).toByteArray()
+            getShortcutIconDrawable(shortcutInfo, 0)?.toByteArray()
         }
 
         return LauncherAppsShortcutInfo(

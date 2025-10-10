@@ -58,7 +58,7 @@ class PinViewModel @Inject constructor(
         packageName: String,
         shortLabel: String,
         longLabel: String,
-        byteArray: ByteArray,
+        byteArray: ByteArray?,
     ) {
         viewModelScope.launch {
             _gridItem.update {

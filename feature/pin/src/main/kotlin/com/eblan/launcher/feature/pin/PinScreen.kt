@@ -137,7 +137,7 @@ private fun PinShortcutScreen(
         packageName: String,
         shortLabel: String,
         longLabel: String,
-        byteArray: ByteArray,
+        byteArray: ByteArray?,
     ) -> Unit,
     onDeleteShortcutGridItem: (GridItem) -> Unit,
     onAddedToHomeScreenToast: (String) -> Unit,
@@ -196,7 +196,7 @@ private fun PinShortcutScreen(
                             shortcutInfo.`package`,
                             shortcutInfo.shortLabel.toString(),
                             shortcutInfo.longLabel.toString(),
-                            icon.toByteArray(),
+                            icon?.toByteArray(),
                         )
                     },
                     onFinish = onFinish,
@@ -386,7 +386,7 @@ private fun PinWidgetScreen(
 private fun PinBottomSheet(
     modifier: Modifier = Modifier,
     label: String,
-    icon: Any,
+    icon: Any?,
     onAdd: suspend () -> Unit,
     onFinish: () -> Unit,
     onLongPress: () -> Unit,

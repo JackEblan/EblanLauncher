@@ -57,11 +57,13 @@ class ChangeShortcutsUseCase @Inject constructor(
                         }
 
                     if (eblanApplicationInfo != null) {
-                        val icon = fileManager.getAndUpdateFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = launcherAppsShortcutInfo.shortcutId,
-                            byteArray = launcherAppsShortcutInfo.icon,
-                        )
+                        val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                                name = launcherAppsShortcutInfo.shortcutId,
+                                byteArray = byteArray,
+                            )
+                        }
 
                         EblanShortcutInfo(
                             shortcutId = launcherAppsShortcutInfo.shortcutId,

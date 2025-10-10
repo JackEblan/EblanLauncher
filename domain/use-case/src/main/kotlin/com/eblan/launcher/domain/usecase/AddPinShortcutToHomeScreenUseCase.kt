@@ -44,7 +44,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         packageName: String,
         shortLabel: String,
         longLabel: String,
-        byteArray: ByteArray,
+        byteArray: ByteArray?,
     ): GridItem? {
         return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
@@ -62,11 +62,13 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
 
             if (eblanApplicationInfo != null) {
-                val icon = fileManager.getAndUpdateFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    name = shortcutId,
-                    byteArray = byteArray,
-                )
+                val icon = byteArray?.let { currentByteArray ->
+                    fileManager.getAndUpdateFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                        name = shortcutId,
+                        byteArray = currentByteArray,
+                    )
+                }
 
                 val data = GridItemData.ShortcutInfo(
                     shortcutId = shortcutId,

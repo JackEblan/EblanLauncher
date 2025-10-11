@@ -26,9 +26,7 @@ import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
 import com.eblan.launcher.domain.model.GlobalAction
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 internal class EblanAccessibilityService : AccessibilityService() {
     private val globalActionBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -71,7 +69,7 @@ internal class EblanAccessibilityService : AccessibilityService() {
             applicationContext,
             globalActionBroadcastReceiver,
             intentFilter,
-            RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_NOT_EXPORTED,
         )
     }
 

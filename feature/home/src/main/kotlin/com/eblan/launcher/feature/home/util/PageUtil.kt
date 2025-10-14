@@ -21,9 +21,14 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.snapshotFlow
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.flow.onStart
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-fun calculatePage(index: Int, infiniteScroll: Boolean, pageCount: Int): Int {
+fun calculatePage(
+    index: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+): Int {
     return if (infiniteScroll) {
         val offsetIndex = index - (Int.MAX_VALUE / 2)
         offsetIndex - offsetIndex.floorDiv(pageCount) * pageCount
@@ -87,5 +92,26 @@ suspend fun handleWallpaperScroll(
         if (offsetFraction == 0f) {
             reverseXOffset = offsetFraction
         }
+    }
+}
+
+fun calculateNearestInitialPage(
+    currentPage: Int,
+    targetPage: Int,
+    infiniteScroll: Boolean,
+    pageCount: Int,
+): Int {
+    if (!infiniteScroll) return targetPage
+
+    val modCurrent = ((currentPage % pageCount) + pageCount) % pageCount
+    val modTarget = ((targetPage % pageCount) + pageCount) % pageCount
+
+    val forward = (modTarget - modCurrent).mod(pageCount)
+    val backward = forward - pageCount
+
+    return if (abs(forward) <= abs(backward)) {
+        currentPage + forward
+    } else {
+        currentPage + backward
     }
 }

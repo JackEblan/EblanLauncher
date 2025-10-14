@@ -191,22 +191,25 @@ fun PagerScreen(
         }
     }
 
+    val wallpaperManagerWrapper = LocalWallpaperManager.current
+
+    val view = LocalView.current
+
     val activity = LocalActivity.current as ComponentActivity
 
-    DisposableEffect(key1 = Unit) {
+    DisposableEffect(key1 = scope) {
         val listener = Consumer<Intent> { intent ->
-            if (intent.action == Intent.ACTION_MAIN &&
-                intent.hasCategory(Intent.CATEGORY_HOME)
-            ) {
-                scope.launch {
-                    gridHorizontalPagerState.scrollToPage(
-                        if (homeSettings.infiniteScroll) {
-                            (Int.MAX_VALUE / 2) + homeSettings.initialPage
-                        } else {
-                            homeSettings.initialPage
-                        },
-                    )
-                }
+            scope.launch {
+                handleOnNewIntent(
+                    gridHorizontalPagerState = gridHorizontalPagerState,
+                    intent = intent,
+                    initialPage = homeSettings.initialPage,
+                    wallpaperScroll = homeSettings.wallpaperScroll,
+                    wallpaperManagerWrapper = wallpaperManagerWrapper,
+                    pageCount = homeSettings.pageCount,
+                    infiniteScroll = homeSettings.infiniteScroll,
+                    windowToken = view.windowToken,
+                )
             }
         }
 

@@ -17,11 +17,15 @@
  */
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
+import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -62,6 +66,52 @@ fun resetSwipeOffset(
         swipeY = swipeUpY,
         screenHeight = screenHeight,
     )
+}
+
+suspend fun handleOnNewIntent(
+    gridHorizontalPagerState: PagerState,
+    intent: Intent,
+    initialPage: Int,
+    wallpaperScroll: Boolean,
+    wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
+    pageCount: Int,
+    infiniteScroll: Boolean,
+    windowToken: android.os.IBinder,
+) {
+    if (intent.action != Intent.ACTION_MAIN &&
+        !intent.hasCategory(Intent.CATEGORY_HOME)
+    ) {
+        return
+    }
+
+    val initialPage = if (infiniteScroll) {
+        (Int.MAX_VALUE / 2) + initialPage
+    } else {
+        initialPage
+    }
+
+    gridHorizontalPagerState.scrollToPage(initialPage)
+
+    if (wallpaperScroll) {
+        val page = calculatePage(
+            index = gridHorizontalPagerState.currentPage,
+            infiniteScroll = infiniteScroll,
+            pageCount = pageCount,
+        )
+
+        val xOffset = page / (pageCount - 1)
+
+        wallpaperManagerWrapper.setWallpaperOffsetSteps(
+            xStep = 1f / (pageCount.toFloat() - 1),
+            yStep = 1f,
+        )
+
+        wallpaperManagerWrapper.setWallpaperOffsets(
+            windowToken = windowToken,
+            xOffset = xOffset.toFloat(),
+            yOffset = 0f,
+        )
+    }
 }
 
 private fun handleGestureAction(

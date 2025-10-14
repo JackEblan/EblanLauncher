@@ -87,7 +87,6 @@ import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.application.DoubleTapApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
-import com.eblan.launcher.feature.home.util.calculateNearestInitialPage
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalLauncherApps
@@ -180,7 +179,7 @@ fun PagerScreen(
 
     val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
 
-    val applicationComponentY by remember(key1 = gestureSettings) {
+    val applicationComponentY by remember {
         derivedStateOf {
             if (swipeUpY.value < screenHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
                 swipeUpY.value
@@ -199,15 +198,14 @@ fun PagerScreen(
             if (intent.action == Intent.ACTION_MAIN &&
                 intent.hasCategory(Intent.CATEGORY_HOME)
             ) {
-                val nearestInitialPage = calculateNearestInitialPage(
-                    currentPage = gridHorizontalPagerState.currentPage,
-                    targetPage = homeSettings.initialPage,
-                    infiniteScroll = homeSettings.infiniteScroll,
-                    pageCount = homeSettings.pageCount,
-                )
-
                 scope.launch {
-                    gridHorizontalPagerState.animateScrollToPage(nearestInitialPage)
+                    gridHorizontalPagerState.scrollToPage(
+                        if (homeSettings.infiniteScroll) {
+                            (Int.MAX_VALUE / 2) + homeSettings.initialPage
+                        } else {
+                            homeSettings.initialPage
+                        },
+                    )
                 }
             }
         }

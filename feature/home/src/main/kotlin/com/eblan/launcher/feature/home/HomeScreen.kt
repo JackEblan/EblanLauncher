@@ -69,7 +69,6 @@ import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.feature.home.component.pager.rememberHomePagerState
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -498,8 +497,7 @@ private fun Success(
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
-    val gridHorizontalPagerState = rememberHomePagerState(
-        homeSettings = homeData.userData.homeSettings,
+    val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (homeData.userData.homeSettings.infiniteScroll) {
             (Int.MAX_VALUE / 2) + homeData.userData.homeSettings.initialPage
         } else {

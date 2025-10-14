@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -91,7 +92,11 @@ class SettingsActivity : ComponentActivity() {
                             Surface {
                                 SettingsNavHost(
                                     navController = navController,
-                                    onFinish = ::finish,
+                                    onFinish = {
+                                        startActivity(Intent(this, MainActivity::class.java))
+
+                                        finish()
+                                    },
                                 )
                             }
                         }

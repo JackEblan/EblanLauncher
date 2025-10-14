@@ -108,6 +108,8 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 onSettings = {
                                     startActivity(Intent(this, SettingsActivity::class.java))
+
+                                    finish()
                                 },
                             )
                         }

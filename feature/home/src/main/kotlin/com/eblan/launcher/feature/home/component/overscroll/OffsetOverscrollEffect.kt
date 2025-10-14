@@ -22,15 +22,9 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.OverscrollEffect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.DelegatableNode
-import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -55,7 +49,7 @@ class OffsetOverscrollEffect(
         val consumedByPreScroll = if (abs(overscrollOffset.value) > 0.5 && !sameDirection) {
             val prevOverscrollValue = overscrollOffset.value
 
-            val newOverscrollValue = overscrollOffset.value + delta.y
+            val newOverscrollValue = overscrollOffset.value + (delta.y * overscrollFactor)
 
             if (sign(prevOverscrollValue) != sign(newOverscrollValue)) {
                 scope.launch {
@@ -67,9 +61,9 @@ class OffsetOverscrollEffect(
                 Offset(x = 0f, y = delta.y + prevOverscrollValue)
             } else {
                 scope.launch {
-                    overscrollOffset.snapTo(overscrollOffset.value + delta.y)
+                    overscrollOffset.snapTo(newOverscrollValue)
 
-                    overscrollAlpha.snapTo(overscrollOffset.value)
+                    overscrollAlpha.snapTo(newOverscrollValue)
                 }
 
                 delta.copy(x = 0f)
@@ -86,10 +80,12 @@ class OffsetOverscrollEffect(
 
         if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
             scope.launch {
-                overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y * overscrollFactor)
+                val newOverscrollValue = overscrollOffset.value + (overscrollDelta.y * overscrollFactor)
+
+                overscrollOffset.snapTo(newOverscrollValue)
 
                 if (overscrollOffset.value > 0f) {
-                    overscrollAlpha.snapTo(overscrollOffset.value)
+                    overscrollAlpha.snapTo(newOverscrollValue)
                 } else {
                     overscrollAlpha.snapTo(0f)
                 }
@@ -132,16 +128,6 @@ class OffsetOverscrollEffect(
     override val isInProgress: Boolean
         get() = overscrollOffset.value != 0f
 
-    override val node: DelegatableNode = object : Modifier.Node(), LayoutModifierNode {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints,
-        ): MeasureResult {
-            val placeable = measurable.measure(constraints)
-
-            return layout(placeable.width, placeable.height) {
-                placeable.placeRelative(x = 0, y = 0)
-            }
-        }
-    }
+    override val node: DelegatableNode
+        get() = super.node
 }

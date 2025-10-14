@@ -448,6 +448,7 @@ fun PagerScreen(
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+            appDrawerSettings = appDrawerSettings,
             onDismiss = {
                 showWidgets = false
             },
@@ -467,6 +468,7 @@ fun PagerScreen(
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
+            appDrawerSettings = appDrawerSettings,
             onDismiss = {
                 showShortcuts = false
             },

@@ -206,11 +206,12 @@ fun ApplicationScreen(
 
     val overscrollOffset = remember { Animatable(0f) }
 
-    val overscrollEffect = remember(key1 = scope) {
+    val overscrollEffect = remember(key1 = scope, key2 = appDrawerSettings) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
             overscrollOffset = overscrollOffset,
+            overscrollFactor = appDrawerSettings.overscrollFactor,
             onFling = onDismiss,
             onFastFling = onAnimateDismiss,
         )

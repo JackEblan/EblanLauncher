@@ -41,6 +41,7 @@ class OffsetOverscrollEffect(
     private val scope: CoroutineScope,
     private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
     private val overscrollOffset: Animatable<Float, AnimationVector1D>,
+    private val overscrollFactor: Float,
     private val onFling: suspend () -> Unit,
     private val onFastFling: suspend () -> Unit,
 ) : OverscrollEffect {
@@ -85,7 +86,7 @@ class OffsetOverscrollEffect(
 
         if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
             scope.launch {
-                overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y * 0.5f)
+                overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y * overscrollFactor)
 
                 if (overscrollOffset.value > 0f) {
                     overscrollAlpha.snapTo(overscrollOffset.value)

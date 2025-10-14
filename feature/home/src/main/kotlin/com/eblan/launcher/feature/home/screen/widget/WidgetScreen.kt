@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
@@ -101,6 +102,7 @@ fun WidgetScreen(
     screenHeight: Int,
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    appDrawerSettings: AppDrawerSettings,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -121,11 +123,12 @@ fun WidgetScreen(
 
     val overscrollOffset = remember { Animatable(0f) }
 
-    val overscrollEffect = remember(key1 = scope) {
+    val overscrollEffect = remember(key1 = scope, key2 = appDrawerSettings) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
             overscrollOffset = overscrollOffset,
+            overscrollFactor = appDrawerSettings.overscrollFactor,
             onFling = onDismiss,
             onFastFling = {
                 animatedSwipeUpY.animateTo(screenHeight.toFloat())

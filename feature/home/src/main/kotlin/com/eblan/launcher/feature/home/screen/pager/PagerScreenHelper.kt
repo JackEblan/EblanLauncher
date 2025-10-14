@@ -99,8 +99,6 @@ suspend fun handleOnNewIntent(
             pageCount = pageCount,
         )
 
-        val xOffset = page / (pageCount - 1)
-
         wallpaperManagerWrapper.setWallpaperOffsetSteps(
             xStep = 1f / (pageCount.toFloat() - 1),
             yStep = 1f,
@@ -108,7 +106,7 @@ suspend fun handleOnNewIntent(
 
         wallpaperManagerWrapper.setWallpaperOffsets(
             windowToken = windowToken,
-            xOffset = xOffset.toFloat(),
+            xOffset = page / (pageCount.toFloat() - 1),
             yOffset = 0f,
         )
     }

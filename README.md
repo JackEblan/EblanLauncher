@@ -5,7 +5,12 @@
 # Eblan Launcher
 Android Launcher made from scratch using Kotlin, Coroutines and Jetpack Compose
 
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/packages/com.eblan.launcher)
+
 </div>
+
+> [!WARNING]
+> **Alpha Stage:** This is an experimental version. Expect bugs, instability, and incomplete features.
 
 # About The Project
 Most Android launchers are just forks of AOSP’s Launcher3. I wanted to try something different—building from scratch while welcoming new developers and applying solid coding principles and best practices to keep the project alive for the long run. Open-source Launcher3 forks often end up abandoned because of their complexity, making it tough for newcomers to contribute. And, not gonna lie… a lot of them are still written in Java and rely on legacy APIs.

@@ -47,6 +47,8 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@Applicatio
     }
 
     override fun notify(id: Int, notification: Notification) {
-        notificationManager.notify(id, notification)
+        if (notificationManager.areNotificationsEnabled()) {
+            notificationManager.notify(id, notification)
+        }
     }
 }

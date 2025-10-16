@@ -18,6 +18,7 @@
 package com.eblan.launcher.feature.settings.settings
 
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +54,10 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.settings.HintRow
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
 @Composable
 fun SettingsRoute(
@@ -134,6 +140,7 @@ fun SettingsScreen(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
@@ -147,11 +154,24 @@ private fun Success(
 
     val packageManager = LocalPackageManager.current
 
+    val notificationsPermissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        null
+    }
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
+        if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
+            HintRow(
+                hint = "Allow post notification for Eblan Launcher",
+                onClick = notificationsPermissionState::launchPermissionRequest,
+            )
+        }
+
         if (!packageManager.isDefaultLauncher()) {
             HintRow(
                 hint = "Set Eblan Launcher as your default launcher",
@@ -238,6 +258,34 @@ private fun SettingsRow(
             Spacer(modifier = Modifier.height(5.dp))
 
             Text(text = subtitle)
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalPermissionsApi::class)
+private fun NotificationPermission(onGrantPermission: (Boolean) -> Unit) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        return
+    }
+
+    val notificationsPermissionState = rememberPermissionState(
+        permission = android.Manifest.permission.POST_NOTIFICATIONS,
+    )
+
+    LaunchedEffect(key1 = notificationsPermissionState.status) {
+        when (val status = notificationsPermissionState.status) {
+            is PermissionStatus.Granted -> {
+                onGrantPermission(true)
+            }
+
+            is PermissionStatus.Denied -> {
+                onGrantPermission(false)
+
+                if (!status.shouldShowRationale) {
+                    notificationsPermissionState.launchPermissionRequest()
+                }
+            }
         }
     }
 }

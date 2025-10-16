@@ -18,16 +18,51 @@
 package com.eblan.launcher.common.util
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import androidx.core.graphics.drawable.toBitmapOrNull
+import androidx.core.graphics.createBitmap
 import java.io.ByteArrayOutputStream
 
 fun Drawable.toByteArray(): ByteArray? {
-    return ByteArrayOutputStream().use { stream ->
-        toBitmapOrNull()?.let { bitmap ->
+    if (this is BitmapDrawable) {
+        return ByteArrayOutputStream().use { stream ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
 
             stream.toByteArray()
         }
+    }
+
+    val width = if (!bounds.isEmpty) {
+        bounds.width()
+    } else {
+        intrinsicWidth
+    }
+
+    val height = if (!bounds.isEmpty) {
+        bounds.height()
+    } else {
+        intrinsicHeight
+    }
+
+    return if (width > 0 && height > 0) {
+        val bitmap = createBitmap(
+            width = width,
+            height = height,
+        )
+
+        val canvas = Canvas(bitmap)
+
+        setBounds(0, 0, canvas.width, canvas.height)
+
+        draw(canvas)
+
+        ByteArrayOutputStream().use { stream ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+
+            stream.toByteArray()
+        }
+    } else {
+        null
     }
 }

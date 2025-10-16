@@ -15,19 +15,10 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.bitmap
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import android.graphics.drawable.Drawable
 
-android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
-}
-
-dependencies {
-    implementation(projects.common)
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
-    implementation(projects.framework.bitmap)
+interface AndroidBitmapWrapper {
+    suspend fun createByteArray(drawable: Drawable): ByteArray?
 }

@@ -15,19 +15,19 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.bitmap
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
-}
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface BitmapModule {
 
-dependencies {
-    implementation(projects.common)
-    implementation(projects.domain.common)
-    implementation(projects.domain.framework)
-    implementation(projects.framework.bitmap)
+    @Binds
+    @Singleton
+    fun androidBitmapWrapper(impl: DefaultBitmapWrapper): AndroidBitmapWrapper
 }

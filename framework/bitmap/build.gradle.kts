@@ -22,12 +22,9 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.framework.packagemanager"
+    namespace = "com.eblan.launcher.framework.bitmap"
 }
 
 dependencies {
-    implementation(projects.common)
     implementation(projects.domain.common)
-    implementation(projects.domain.framework)
-    implementation(projects.framework.bitmap)
 }

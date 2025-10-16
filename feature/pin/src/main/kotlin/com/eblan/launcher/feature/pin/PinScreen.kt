@@ -64,10 +64,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalBitmap
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import kotlinx.coroutines.launch
@@ -147,7 +147,11 @@ private fun PinShortcutScreen(
 
     val launcherApps = LocalLauncherApps.current
 
+    val bitmap = LocalBitmap.current
+
     val shortcutInfo = pinItemRequest.shortcutInfo
+
+    val scope = rememberCoroutineScope()
 
     if (shortcutInfo != null) {
         val icon = remember {
@@ -191,13 +195,17 @@ private fun PinShortcutScreen(
                     label = shortcutInfo.shortLabel.toString(),
                     icon = icon,
                     onAdd = {
-                        onAddPinShortcutToHomeScreen(
-                            shortcutInfo.id,
-                            shortcutInfo.`package`,
-                            shortcutInfo.shortLabel.toString(),
-                            shortcutInfo.longLabel.toString(),
-                            icon?.toByteArray(),
-                        )
+                        scope.launch {
+                            onAddPinShortcutToHomeScreen(
+                                shortcutInfo.id,
+                                shortcutInfo.`package`,
+                                shortcutInfo.shortLabel.toString(),
+                                shortcutInfo.longLabel.toString(),
+                                icon?.let { drawable ->
+                                    bitmap.createByteArray(drawable = drawable)
+                                },
+                            )
+                        }
                     },
                     onFinish = onFinish,
                     onLongPress = {

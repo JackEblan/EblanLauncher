@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.feature.pin.PinScreen
+import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
@@ -37,6 +38,7 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.PinActivityUiState
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalBitmap
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.viewmodel.PinActivityViewModel
@@ -58,6 +60,9 @@ class PinActivity : ComponentActivity() {
     @Inject
     lateinit var pinItemRequestWrapper: PinItemRequestWrapper
 
+    @Inject
+    lateinit var androidBitmapWrapper: AndroidBitmapWrapper
+
     private val viewModel: PinActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +83,7 @@ class PinActivity : ComponentActivity() {
                     LocalAppWidgetManager provides androidAppWidgetManagerWrapper,
                     LocalPinItemRequest provides pinItemRequestWrapper,
                     LocalLauncherApps provides androidLauncherAppsWrapper,
+                    LocalBitmap provides androidBitmapWrapper,
                 ) {
                     val pinActivityUiState by viewModel.pinActivityUiState.collectAsStateWithLifecycle()
 

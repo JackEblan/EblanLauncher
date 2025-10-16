@@ -18,6 +18,7 @@
 package com.eblan.launcher.ui.local
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
@@ -47,4 +48,8 @@ val LocalWallpaperManager = staticCompositionLocalOf<AndroidWallpaperManagerWrap
 
 val LocalPackageManager = staticCompositionLocalOf<AndroidPackageManagerWrapper> {
     error("No AndroidPackageManager provided")
+}
+
+val LocalBitmap = staticCompositionLocalOf<AndroidBitmapWrapper> {
+    error("No BitmapWrapper provided")
 }

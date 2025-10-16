@@ -19,13 +19,16 @@ package com.eblan.launcher.common.util
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toBitmapOrNull
 import java.io.ByteArrayOutputStream
 
-fun Drawable.toByteArray(): ByteArray {
-    val stream = ByteArrayOutputStream()
+fun Drawable.toByteArray(): ByteArray? {
+    val bitmap = toBitmapOrNull() ?: return null
 
-    toBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream)
+    return ByteArrayOutputStream().use { stream ->
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
 
-    return stream.toByteArray()
+        stream.toByteArray()
+    }
 }
+

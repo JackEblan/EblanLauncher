@@ -57,7 +57,7 @@ jobs:
         run: |
           VERSION_NAME=$(sed -n 's/.*versionName *= *"\(.*\)".*/\1/p' app/build.gradle.kts)
           VERSION_CODE=$(sed -n 's/.*versionCode *= *\([0-9]\+\).*/\1/p' app/build.gradle.kts)  
-  
+          
           echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
           echo "version_code=${VERSION_CODE}" >> $GITHUB_OUTPUT
 
@@ -79,12 +79,18 @@ jobs:
           
           if [ ! -f "$FILE_PATH" ]; then
            echo "❌ Missing file for versionCode: $FILE_PATH"
-            exit 1
+           exit 1
           fi
            echo "✅ Found metadata file: $FILE_PATH"
 
       - name: Build release
         run: ./gradlew :app:assembleRelease
+
+      - name: Upload mapping file
+        uses: actions/upload-artifact@v4
+        with:
+          name: mapping-${{ github.ref_name }}
+          path: app/build/outputs/mapping/release/mapping.txt
 
       - name: Sign release APK
         uses: r0adkll/sign-android-release@v1

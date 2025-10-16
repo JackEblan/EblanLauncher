@@ -23,12 +23,11 @@ import androidx.core.graphics.drawable.toBitmapOrNull
 import java.io.ByteArrayOutputStream
 
 fun Drawable.toByteArray(): ByteArray? {
-    val bitmap = toBitmapOrNull() ?: return null
-
     return ByteArrayOutputStream().use { stream ->
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        toBitmapOrNull()?.let { bitmap ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
 
-        stream.toByteArray()
+            stream.toByteArray()
+        }
     }
 }
-

@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    api(projects.framework.bitmap)
+    api(projects.framework.drawable)
     api(projects.framework.launcherApps)
     api(projects.framework.packageManager)
     api(projects.framework.wallpaperManager)

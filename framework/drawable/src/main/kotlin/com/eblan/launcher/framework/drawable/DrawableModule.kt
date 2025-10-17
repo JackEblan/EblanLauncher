@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.bitmap
+package com.eblan.launcher.framework.drawable
 
 import dagger.Binds
 import dagger.Module
@@ -25,9 +25,9 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-internal interface BitmapModule {
+internal interface DrawableModule {
 
     @Binds
     @Singleton
-    fun androidBitmapWrapper(impl: DefaultBitmapWrapper): AndroidBitmapWrapper
+    fun androidDrawableWrapper(impl: DefaultDrawableWrapper): AndroidDrawableWrapper
 }

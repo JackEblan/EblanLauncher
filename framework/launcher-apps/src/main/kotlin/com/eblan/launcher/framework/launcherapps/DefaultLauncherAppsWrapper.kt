@@ -39,7 +39,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanLauncherActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
-import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
+import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
@@ -54,7 +54,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-    private val androidBitmapWrapper: AndroidBitmapWrapper,
+    private val androidDrawableWrapper: AndroidDrawableWrapper,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -224,7 +224,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun toLauncherAppsShortcutInfo(shortcutInfo: ShortcutInfo): LauncherAppsShortcutInfo {
         val icon = getShortcutIconDrawable(shortcutInfo, 0)?.let { drawable ->
-            androidBitmapWrapper.createByteArray(drawable = drawable)
+            androidDrawableWrapper.createByteArray(drawable = drawable)
         }
 
         return LauncherAppsShortcutInfo(

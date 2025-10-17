@@ -67,7 +67,7 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalBitmap
+import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import kotlinx.coroutines.launch
@@ -147,7 +147,7 @@ private fun PinShortcutScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val bitmap = LocalBitmap.current
+    val drawable = LocalDrawable.current
 
     val shortcutInfo = pinItemRequest.shortcutInfo
 
@@ -201,8 +201,8 @@ private fun PinShortcutScreen(
                                 shortcutInfo.`package`,
                                 shortcutInfo.shortLabel.toString(),
                                 shortcutInfo.longLabel.toString(),
-                                icon?.let { drawable ->
-                                    bitmap.createByteArray(drawable = drawable)
+                                icon?.let {
+                                    drawable.createByteArray(drawable = it)
                                 },
                             )
                         }

@@ -26,13 +26,13 @@ import android.os.Build
 import android.os.Bundle
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
-import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
+import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val androidBitmapWrapper: AndroidBitmapWrapper,
+    private val androidDrawableWrapper: AndroidDrawableWrapper,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -62,7 +62,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
 
     private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
         val preview = loadPreviewImage(context, 0)?.let { drawable ->
-            androidBitmapWrapper.createByteArray(drawable = drawable)
+            androidDrawableWrapper.createByteArray(drawable = drawable)
         }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

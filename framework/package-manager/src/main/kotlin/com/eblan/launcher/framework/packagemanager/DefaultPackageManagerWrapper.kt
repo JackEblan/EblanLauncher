@@ -26,7 +26,7 @@ import android.content.pm.ResolveInfo
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
+import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -35,7 +35,7 @@ import javax.inject.Inject
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-    private val androidBitmapWrapper: AndroidBitmapWrapper,
+    private val androidDrawableWrapper: AndroidDrawableWrapper,
 ) : PackageManagerWrapper, AndroidPackageManagerWrapper {
 
     private val packageManager = context.packageManager
@@ -43,7 +43,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
     override suspend fun getApplicationIcon(packageName: String): ByteArray? {
         return withContext(defaultDispatcher) {
             try {
-                androidBitmapWrapper.createByteArray(drawable = packageManager.getApplicationIcon(packageName))
+                androidDrawableWrapper.createByteArray(drawable = packageManager.getApplicationIcon(packageName))
             } catch (_: PackageManager.NameNotFoundException) {
                 null
             }

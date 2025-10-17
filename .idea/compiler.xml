@@ -13,6 +13,7 @@
       <module name="EblanLauncher.feature.pinned-widget" target="21" />
       <module name="EblanLauncher.feature.settings.gesture" target="21" />
       <module name="EblanLauncher.feature.widgets" target="21" />
+      <module name="EblanLauncher.framework.bitmap" target="21" />
       <module name="EblanLauncher.framework.coil" target="21" />
       <module name="EblanLauncher.framework.window-manager" target="21" />
       <module name="EblanLauncher.framework.window-metrics" target="21" />

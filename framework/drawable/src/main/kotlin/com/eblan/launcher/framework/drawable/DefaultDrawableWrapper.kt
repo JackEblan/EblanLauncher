@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.bitmap
+package com.eblan.launcher.framework.drawable
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -29,9 +29,9 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
-internal class DefaultBitmapWrapper @Inject constructor(
+internal class DefaultDrawableWrapper @Inject constructor(
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-) : AndroidBitmapWrapper {
+) : AndroidDrawableWrapper {
     override suspend fun createByteArray(drawable: Drawable): ByteArray? {
         if (drawable is BitmapDrawable) {
             return ByteArrayOutputStream().use { stream ->

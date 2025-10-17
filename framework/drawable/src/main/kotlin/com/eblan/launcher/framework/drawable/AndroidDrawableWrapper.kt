@@ -15,10 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.bitmap
+package com.eblan.launcher.framework.drawable
 
 import android.graphics.drawable.Drawable
 
-interface AndroidBitmapWrapper {
+interface AndroidDrawableWrapper {
     suspend fun createByteArray(drawable: Drawable): ByteArray?
 }

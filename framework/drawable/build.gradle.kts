@@ -22,7 +22,7 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.framework.bitmap"
+    namespace = "com.eblan.launcher.framework.drawable"
 }
 
 dependencies {

@@ -20,10 +20,10 @@ package com.eblan.launcher.framework.iconpackmanager
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Xml
-import com.eblan.launcher.common.util.toByteArray
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
+import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -33,6 +33,7 @@ import javax.inject.Inject
 internal class DefaultIconPackManager @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    private val androidBitmapWrapper: AndroidBitmapWrapper,
 ) : IconPackManager {
     @SuppressLint("DiscouragedApi")
     override suspend fun parseAppFilter(iconPackInfoPackageName: String): Map<String, String> {
@@ -40,7 +41,10 @@ internal class DefaultIconPackManager @Inject constructor(
             val result = mutableMapOf<String, String>()
 
             val packageContext =
-                context.createPackageContext(iconPackInfoPackageName, Context.CONTEXT_IGNORE_SECURITY)
+                context.createPackageContext(
+                    iconPackInfoPackageName,
+                    Context.CONTEXT_IGNORE_SECURITY,
+                )
 
             packageContext.assets.open("appfilter.xml").use { stream ->
                 val parser = Xml.newPullParser()
@@ -82,7 +86,12 @@ internal class DefaultIconPackManager @Inject constructor(
             val id = resources.getIdentifier(drawableName, "drawable", packageName)
 
             if (id > 0) {
-                resources.getDrawable(id, packageContext.theme).toByteArray()
+                androidBitmapWrapper.createByteArray(
+                    drawable = resources.getDrawable(
+                        id,
+                        packageContext.theme,
+                    ),
+                )
             } else {
                 null
             }

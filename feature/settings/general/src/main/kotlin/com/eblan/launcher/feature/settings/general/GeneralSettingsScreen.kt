@@ -31,16 +31,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -60,10 +56,6 @@ import com.eblan.launcher.service.IconPackInfoService
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.launch
 
 @Composable
 fun GeneralSettingsRoute(
@@ -99,10 +91,6 @@ fun GeneralSettingsScreen(
     onUpdateGeneralSettings: (GeneralSettings) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    val scope = rememberCoroutineScope()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -119,7 +107,6 @@ fun GeneralSettingsScreen(
                 },
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Box(
             modifier = modifier
@@ -137,11 +124,6 @@ fun GeneralSettingsScreen(
                         packageManagerEblanIconPackInfos = packageManagerIconPackInfos,
                         eblanIconPackInfos = eblanIconPackInfos,
                         onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
-                        onShowSnackbar = {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(message = it)
-                            }
-                        },
                         onUpdateGeneralSettings = onUpdateGeneralSettings,
                     )
                 }
@@ -150,7 +132,6 @@ fun GeneralSettingsScreen(
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
@@ -158,7 +139,6 @@ private fun Success(
     packageManagerEblanIconPackInfos: List<EblanIconPackInfo>,
     eblanIconPackInfos: List<EblanIconPackInfo>,
     onDeleteEblanIconPackInfo: (String) -> Unit,
-    onShowSnackbar: (String) -> Unit,
     onUpdateGeneralSettings: (GeneralSettings) -> Unit,
 ) {
     val context = LocalContext.current
@@ -170,12 +150,6 @@ private fun Success(
     var showImportIconPackDialog by remember { mutableStateOf(false) }
 
     var selectIconPackDialog by remember { mutableStateOf(false) }
-
-    var grantNotificationPermission by remember { mutableStateOf(false) }
-
-    NotificationPermissionEffect(onGrantPermission = {
-        grantNotificationPermission = it
-    })
 
     Column(
         modifier = modifier
@@ -279,21 +253,15 @@ private fun Success(
                 showImportIconPackDialog = false
             },
             onUpdateIconPack = { packageName, label ->
-                if (grantNotificationPermission) {
-                    val intent = Intent(context, IconPackInfoService::class.java).apply {
-                        putExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME, packageName)
-                        putExtra(IconPackManager.ICON_PACK_INFO_LABEL, label)
-                    }
+                val intent = Intent(context, IconPackInfoService::class.java).apply {
+                    putExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME, packageName)
+                    putExtra(IconPackManager.ICON_PACK_INFO_LABEL, label)
+                }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(intent)
-                    } else {
-                        context.startService(intent)
-                    }
-
-                    onShowSnackbar("Importing $label cache")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent)
                 } else {
-                    onShowSnackbar("Notification permission is not granted")
+                    context.startService(intent)
                 }
 
                 showImportIconPackDialog = false
@@ -324,33 +292,5 @@ private fun Success(
                 selectIconPackDialog = false
             },
         )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalPermissionsApi::class)
-private fun NotificationPermissionEffect(onGrantPermission: (Boolean) -> Unit) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        onGrantPermission(true)
-    } else {
-        val notificationsPermissionState = rememberPermissionState(
-            android.Manifest.permission.POST_NOTIFICATIONS,
-        )
-
-        LaunchedEffect(key1 = notificationsPermissionState.status) {
-            when (val status = notificationsPermissionState.status) {
-                is PermissionStatus.Granted -> {
-                    onGrantPermission(true)
-                }
-
-                is PermissionStatus.Denied -> {
-                    onGrantPermission(false)
-
-                    if (!status.shouldShowRationale) {
-                        notificationsPermissionState.launchPermissionRequest()
-                    }
-                }
-            }
-        }
     }
 }

@@ -26,8 +26,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.accompanist.permissions)
-
     implementation(projects.domain.framework)
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)

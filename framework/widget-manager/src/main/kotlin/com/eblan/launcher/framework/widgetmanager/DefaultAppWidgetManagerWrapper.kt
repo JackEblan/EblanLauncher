@@ -24,19 +24,15 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import com.eblan.launcher.common.util.toByteArray
-import com.eblan.launcher.domain.common.dispatcher.Dispatcher
-import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
+import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    private val androidBitmapWrapper: AndroidBitmapWrapper,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -65,8 +61,8 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     }
 
     private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
-        val preview = withContext(defaultDispatcher) {
-            loadPreviewImage(context, 0)?.toByteArray()
+        val preview = loadPreviewImage(context, 0)?.let { drawable ->
+            androidBitmapWrapper.createByteArray(drawable = drawable)
         }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

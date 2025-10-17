@@ -42,7 +42,7 @@ jobs:
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
-      - name: Set up JDK 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -62,7 +62,7 @@ jobs:
       - name: Assemble Debug
         run: ./gradlew :app:assembleDebug
 
-      - name: Upload build outputs (APKs)
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Debug APK output

@@ -634,7 +634,8 @@ private fun Success(
 
             Screen.Resize -> {
                 ResizeScreen(
-                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage[currentPage],
+                    currentPage = currentPage,
+                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage[currentPage].orEmpty(),
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,

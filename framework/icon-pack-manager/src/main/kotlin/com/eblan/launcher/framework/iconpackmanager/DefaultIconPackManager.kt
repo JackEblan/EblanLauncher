@@ -92,63 +92,67 @@ internal class DefaultIconPackManager @Inject constructor(
         }
     }
 
-    private fun getXmlPullParser(packageName: String): AutoCloseable? {
-        return try {
-            val packageContext = context.createPackageContext(
-                packageName,
-                Context.CONTEXT_IGNORE_SECURITY,
-            )
+    private suspend fun getXmlPullParser(packageName: String): AutoCloseable? {
+        return withContext(ioDispatcher) {
+            try {
+                val packageContext = context.createPackageContext(
+                    packageName,
+                    Context.CONTEXT_IGNORE_SECURITY,
+                )
 
-            val res = packageContext.resources
+                val res = packageContext.resources
 
-            val xmlId = res.getIdentifier("appfilter", "xml", packageName)
+                val xmlId = res.getIdentifier("appfilter", "xml", packageName)
 
-            val rawId = res.getIdentifier("appfilter", "raw", packageName)
+                val rawId = res.getIdentifier("appfilter", "raw", packageName)
 
-            when {
-                xmlId != 0 -> {
-                    res.getXml(xmlId)
+                when {
+                    xmlId != 0 -> {
+                        res.getXml(xmlId)
+                    }
+
+                    rawId != 0 -> {
+                        res.openRawResource(rawId)
+                    }
+
+                    else -> {
+                        packageContext.assets.open("appfilter.xml")
+                    }
                 }
-
-                rawId != 0 -> {
-                    res.openRawResource(rawId)
-                }
-
-                else -> {
-                    packageContext.assets.open("appfilter.xml")
-                }
+            } catch (e: Resources.NotFoundException) {
+                e.printStackTrace()
+                null
+            } catch (e: IOException) {
+                e.printStackTrace()
+                null
             }
-        } catch (e: Resources.NotFoundException) {
-            e.printStackTrace()
-            null
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
         }
     }
 
-    private fun parseXml(xmlPullParser: XmlPullParser): List<IconPackInfoComponent> {
+    private suspend fun parseXml(xmlPullParser: XmlPullParser): List<IconPackInfoComponent> {
         val iconPackInfoComponents = mutableListOf<IconPackInfoComponent>()
 
         var eventType = xmlPullParser.eventType
 
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            if (eventType == XmlPullParser.START_TAG && xmlPullParser.name == "item") {
-                val component = xmlPullParser.getAttributeValue(null, "component")
+        withContext(ioDispatcher) {
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && xmlPullParser.name == "item") {
+                    val component = xmlPullParser.getAttributeValue(null, "component")
 
-                val drawable = xmlPullParser.getAttributeValue(null, "drawable")
+                    val drawable = xmlPullParser.getAttributeValue(null, "drawable")
 
-                if (!component.isNullOrBlank() && !drawable.isNullOrBlank()) {
-                    iconPackInfoComponents.add(
-                        IconPackInfoComponent(
-                            component = component,
-                            drawable = drawable,
-                        ),
-                    )
+                    if (!component.isNullOrBlank() && !drawable.isNullOrBlank()) {
+                        iconPackInfoComponents.add(
+                            IconPackInfoComponent(
+                                component = component,
+                                drawable = drawable,
+                            ),
+                        )
+                    }
                 }
-            }
 
-            eventType = xmlPullParser.next()
+                eventType = xmlPullParser.next()
+            }
         }
 
         return iconPackInfoComponents

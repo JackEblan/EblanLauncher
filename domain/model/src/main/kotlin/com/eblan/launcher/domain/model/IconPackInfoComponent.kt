@@ -15,21 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.IconPackInfoComponent
-
-interface IconPackManager {
-    suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent>
-
-    suspend fun loadByteArrayFromIconPack(
-        packageName: String,
-        drawableName: String,
-    ): ByteArray?
-
-    companion object {
-        const val ICON_PACK_INFO_PACKAGE_NAME = "iconPackInfoPackageName"
-
-        const val ICON_PACK_INFO_LABEL = "label"
-    }
-}
+data class IconPackInfoComponent(
+    val component: String,
+    val drawable: String,
+)

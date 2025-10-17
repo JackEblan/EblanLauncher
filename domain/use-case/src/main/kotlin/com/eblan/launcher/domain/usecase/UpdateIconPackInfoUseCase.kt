@@ -46,15 +46,15 @@ class UpdateIconPackInfoUseCase @Inject constructor(
                 ).apply { if (!exists()) mkdirs() }
 
                 val appFilter =
-                    iconPackManager.parseAppFilter(iconPackInfoPackageName = iconPackInfoPackageName)
+                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
-                val entry = appFilter.entries.find { (component, _) ->
-                    component.contains(packageName)
+                val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
+                    iconPackInfoComponent.component.contains(packageName)
                 } ?: return@withContext
 
                 val byteArray = iconPackManager.loadByteArrayFromIconPack(
                     packageName = iconPackInfoPackageName,
-                    drawableName = entry.value,
+                    drawableName = iconPackInfoComponent.drawable,
                 ) ?: return@withContext
 
                 fileManager.getAndUpdateFilePath(

@@ -38,29 +38,29 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(iconPackInfoPackageName: String) {
+    suspend operator fun invoke(packageName: String) {
         withContext(ioDispatcher) {
             val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = iconPackInfoPackageName)
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
 
-            if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
+            if (packageName.isNotEmpty() && eblanApplicationInfo != null) {
                 val appFilter =
-                    iconPackManager.parseAppFilter(iconPackInfoPackageName = iconPackInfoPackageName)
+                    iconPackManager.parseAppFilter(packageName = packageName)
 
                 val iconPackDirectory = File(
                     fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-                    iconPackInfoPackageName,
+                    packageName,
                 ).apply { if (!exists()) mkdirs() }
 
                 val installedPackageNames = launcherAppsWrapper.getActivityList()
                     .mapNotNull { eblanLauncherActivityInfo ->
-                        val entry = appFilter.entries.find { (component, _) ->
-                            component.contains(eblanLauncherActivityInfo.packageName)
+                        val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
+                            iconPackInfoComponent.component.contains(eblanLauncherActivityInfo.packageName)
                         } ?: return@mapNotNull null
 
                         val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                            packageName = iconPackInfoPackageName,
-                            drawableName = entry.value,
+                            packageName = packageName,
+                            drawableName = iconPackInfoComponent.drawable,
                         ) ?: return@mapNotNull null
 
                         fileManager.getAndUpdateFilePath(

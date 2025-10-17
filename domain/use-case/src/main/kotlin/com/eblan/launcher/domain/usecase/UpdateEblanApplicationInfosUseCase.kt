@@ -83,7 +83,7 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                 val iconPackInfoPackageName =
                     userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
-                updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
+                updateIconPackInfosUseCase(packageName = iconPackInfoPackageName)
             }
         }
     }

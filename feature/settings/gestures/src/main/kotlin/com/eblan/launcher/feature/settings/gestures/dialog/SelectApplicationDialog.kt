@@ -19,9 +19,7 @@ package com.eblan.launcher.feature.settings.gestures.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -80,10 +78,10 @@ fun SelectApplicationDialog(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
             TextButton(
-                modifier = Modifier.align(Alignment.End),
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(10.dp),
                 onClick = onDismissRequest,
             ) {
                 Text(text = "Cancel")

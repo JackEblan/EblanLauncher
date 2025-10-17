@@ -19,7 +19,6 @@ package com.eblan.launcher.framework.iconpackmanager
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
@@ -31,7 +30,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
-import java.io.IOException
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -42,28 +40,56 @@ internal class DefaultIconPackManager @Inject constructor(
     private val androidBitmapWrapper: AndroidBitmapWrapper,
 ) : IconPackManager {
     override suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent> {
-        val xmlPullParser = getXmlPullParser(packageName = packageName)
+        return withContext(ioDispatcher) {
+            try {
+                val packageContext = context.createPackageContext(
+                    packageName,
+                    Context.CONTEXT_IGNORE_SECURITY,
+                )
 
-        return try {
-            when (xmlPullParser) {
-                is XmlResourceParser -> {
-                    parseXml(xmlPullParser = xmlPullParser)
+                val resources = packageContext.resources
+
+                val xmlId = resources.getIdentifier("appfilter", "xml", packageName)
+
+                val rawId = resources.getIdentifier("appfilter", "raw", packageName)
+
+                val input = when {
+                    xmlId != 0 -> {
+                        resources.getXml(xmlId)
+                    }
+
+                    rawId != 0 -> {
+                        resources.openRawResource(rawId)
+                    }
+
+                    else -> {
+                        packageContext.assets.open("appfilter.xml")
+                    }
                 }
 
-                is InputStream -> {
-                    val xmlParser = XmlPullParserFactory.newInstance().newPullParser()
+                input.use { source ->
+                    when (source) {
+                        is XmlResourceParser -> {
+                            parseXml(xmlPullParser = source)
+                        }
 
-                    xmlParser.setInput(xmlPullParser.reader())
+                        is InputStream -> {
+                            val xmlPullParser = XmlPullParserFactory.newInstance().newPullParser()
 
-                    parseXml(xmlParser)
+                            xmlPullParser.setInput(source.reader())
+
+                            parseXml(xmlPullParser = xmlPullParser)
+                        }
+
+                        else -> {
+                            emptyList()
+                        }
+                    }
                 }
-
-                else -> {
-                    emptyList()
-                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emptyList()
             }
-        } finally {
-            xmlPullParser?.close()
         }
     }
 
@@ -87,43 +113,6 @@ internal class DefaultIconPackManager @Inject constructor(
                     ),
                 )
             } else {
-                null
-            }
-        }
-    }
-
-    private suspend fun getXmlPullParser(packageName: String): AutoCloseable? {
-        return withContext(ioDispatcher) {
-            try {
-                val packageContext = context.createPackageContext(
-                    packageName,
-                    Context.CONTEXT_IGNORE_SECURITY,
-                )
-
-                val res = packageContext.resources
-
-                val xmlId = res.getIdentifier("appfilter", "xml", packageName)
-
-                val rawId = res.getIdentifier("appfilter", "raw", packageName)
-
-                when {
-                    xmlId != 0 -> {
-                        res.getXml(xmlId)
-                    }
-
-                    rawId != 0 -> {
-                        res.openRawResource(rawId)
-                    }
-
-                    else -> {
-                        packageContext.assets.open("appfilter.xml")
-                    }
-                }
-            } catch (e: Resources.NotFoundException) {
-                e.printStackTrace()
-                null
-            } catch (e: IOException) {
-                e.printStackTrace()
                 null
             }
         }

@@ -1,0 +1,2 @@
+- Prevent crash when converting Drawable to ByteArray
+- Improve icon pack parsing and component handling

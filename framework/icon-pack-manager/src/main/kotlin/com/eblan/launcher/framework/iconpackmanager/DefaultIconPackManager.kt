@@ -19,60 +19,80 @@ package com.eblan.launcher.framework.iconpackmanager
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Xml
+import android.content.res.XmlResourceParser
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
+import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.framework.bitmap.AndroidBitmapWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.InputStream
 import javax.inject.Inject
 
+@SuppressLint("DiscouragedApi")
 internal class DefaultIconPackManager @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val androidBitmapWrapper: AndroidBitmapWrapper,
 ) : IconPackManager {
-    @SuppressLint("DiscouragedApi")
-    override suspend fun parseAppFilter(iconPackInfoPackageName: String): Map<String, String> {
+    override suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent> {
         return withContext(ioDispatcher) {
-            val result = mutableMapOf<String, String>()
-
-            val packageContext =
-                context.createPackageContext(
-                    iconPackInfoPackageName,
+            try {
+                val packageContext = context.createPackageContext(
+                    packageName,
                     Context.CONTEXT_IGNORE_SECURITY,
                 )
 
-            packageContext.assets.open("appfilter.xml").use { stream ->
-                val parser = Xml.newPullParser()
+                val resources = packageContext.resources
 
-                parser.setInput(stream, null)
+                val xmlId = resources.getIdentifier("appfilter", "xml", packageName)
 
-                var eventType = parser.eventType
+                val rawId = resources.getIdentifier("appfilter", "raw", packageName)
 
-                while (eventType != XmlPullParser.END_DOCUMENT) {
-                    if (eventType == XmlPullParser.START_TAG && parser.name == "item") {
-                        val component = parser.getAttributeValue(null, "component")
-
-                        val drawable = parser.getAttributeValue(null, "drawable")
-
-                        if (!component.isNullOrBlank() && !drawable.isNullOrBlank()) {
-                            result[component] = drawable
-                        }
+                val input = when {
+                    xmlId != 0 -> {
+                        resources.getXml(xmlId)
                     }
 
-                    eventType = parser.next()
-                }
-            }
+                    rawId != 0 -> {
+                        resources.openRawResource(rawId)
+                    }
 
-            result
+                    else -> {
+                        packageContext.assets.open("appfilter.xml")
+                    }
+                }
+
+                input.use { source ->
+                    when (source) {
+                        is XmlResourceParser -> {
+                            parseXml(xmlPullParser = source)
+                        }
+
+                        is InputStream -> {
+                            val xmlPullParser = XmlPullParserFactory.newInstance().newPullParser()
+
+                            xmlPullParser.setInput(source.reader())
+
+                            parseXml(xmlPullParser = xmlPullParser)
+                        }
+
+                        else -> {
+                            emptyList()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emptyList()
+            }
         }
     }
 
-    @SuppressLint("DiscouragedApi")
     override suspend fun loadByteArrayFromIconPack(
         packageName: String,
         drawableName: String,
@@ -96,5 +116,34 @@ internal class DefaultIconPackManager @Inject constructor(
                 null
             }
         }
+    }
+
+    private suspend fun parseXml(xmlPullParser: XmlPullParser): List<IconPackInfoComponent> {
+        val iconPackInfoComponents = mutableListOf<IconPackInfoComponent>()
+
+        var eventType = xmlPullParser.eventType
+
+        withContext(ioDispatcher) {
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && xmlPullParser.name == "item") {
+                    val component = xmlPullParser.getAttributeValue(null, "component")
+
+                    val drawable = xmlPullParser.getAttributeValue(null, "drawable")
+
+                    if (!component.isNullOrBlank() && !drawable.isNullOrBlank()) {
+                        iconPackInfoComponents.add(
+                            IconPackInfoComponent(
+                                component = component,
+                                drawable = drawable,
+                            ),
+                        )
+                    }
+                }
+
+                eventType = xmlPullParser.next()
+            }
+        }
+
+        return iconPackInfoComponents
     }
 }

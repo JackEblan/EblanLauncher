@@ -82,19 +82,17 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
     }
 
     override suspend fun getIconPackInfoByPackageNames(): List<String> {
-        val intentActions = listOf(
-            Intent("com.anddoes.launcher.THEME"),
+        val intents = listOf(
+            Intent("app.lawnchair.icons.THEMED_ICON"),
+            Intent("org.adw.ActivityStarter.THEMES"),
             Intent("com.novalauncher.THEME"),
-            Intent("com.gau.go.launcherex.theme"),
             Intent("org.adw.launcher.THEMES"),
-            Intent("org.adw.launcher.icons.ACTION_PICK_ICON"),
-            Intent("com.teslacoilsw.launcher.THEME"),
         )
 
         val resolveInfos = mutableSetOf<ResolveInfo>()
 
         return withContext(defaultDispatcher) {
-            intentActions.forEach { intent ->
+            intents.forEach { intent ->
                 resolveInfos.addAll(
                     packageManager.queryIntentActivities(
                         intent,

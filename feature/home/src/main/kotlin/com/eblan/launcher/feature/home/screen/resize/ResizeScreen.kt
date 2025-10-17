@@ -38,6 +38,7 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
+import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -46,7 +47,8 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 @Composable
 fun ResizeScreen(
     modifier: Modifier = Modifier,
-    gridItemsCacheByPage: List<GridItem>?,
+    currentPage: Int,
+    gridItemsCacheByPage: List<GridItem>,
     gridItem: GridItem?,
     screenWidth: Int,
     screenHeight: Int,
@@ -65,8 +67,6 @@ fun ResizeScreen(
     onResizeCancel: () -> Unit,
 ) {
     requireNotNull(gridItem)
-
-    requireNotNull(gridItemsCacheByPage)
 
     val density = LocalDensity.current
 
@@ -100,6 +100,12 @@ fun ResizeScreen(
         dockHeight.roundToPx()
     }
 
+    val pageIndicatorHeight = 20.dp
+
+    val pageIndicatorHeightPx = with(density) {
+        pageIndicatorHeight.roundToPx()
+    }
+
     BackHandler {
         onResizeCancel()
     }
@@ -110,9 +116,7 @@ fun ResizeScreen(
             .padding(paddingValues),
     ) {
         GridLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.weight(1f),
             gridItems = gridItemsCacheByPage,
             columns = homeSettings.columns,
             rows = homeSettings.rows,
@@ -126,6 +130,14 @@ fun ResizeScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             },
+        )
+
+        PageIndicator(
+            modifier = Modifier
+                .height(pageIndicatorHeight)
+                .fillMaxWidth(),
+            pageCount = homeSettings.pageCount,
+            currentPage = currentPage,
         )
 
         GridLayout(
@@ -152,7 +164,7 @@ fun ResizeScreen(
         Associate.Grid -> {
             val cellWidth = gridWidth / homeSettings.columns
 
-            val cellHeight = (gridHeight - dockHeightPx) / homeSettings.rows
+            val cellHeight = (gridHeight - pageIndicatorHeightPx - dockHeightPx) / homeSettings.rows
 
             val x = gridItem.startColumn * cellWidth
 

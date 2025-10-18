@@ -140,6 +140,7 @@ fun DoubleTapApplicationScreen(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
@@ -173,6 +174,7 @@ fun DoubleTapApplicationScreen(
             }
         },
         onDraggingGridItem = onDraggingGridItem,
+        onResetOverlay = onResetOverlay,
     )
 }
 
@@ -199,6 +201,7 @@ fun ApplicationScreen(
     onDismiss: () -> Unit,
     onAnimateDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -256,6 +259,7 @@ fun ApplicationScreen(
                                 onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                                 onAnimateDismiss = onAnimateDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
+                                onResetOverlay = onResetOverlay,
                             )
                         }
                     }
@@ -289,6 +293,7 @@ private fun Success(
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onAnimateDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -344,6 +349,7 @@ private fun Success(
             onUpdatePopupMenu = {
                 showPopupApplicationMenu = true
             },
+            onResetOverlay = onResetOverlay,
         )
 
         Box(
@@ -391,6 +397,7 @@ private fun Success(
                         onUpdatePopupMenu = {
                             showPopupApplicationMenu = true
                         },
+                        onResetOverlay = onResetOverlay,
                     )
                 }
             }
@@ -443,6 +450,7 @@ private fun EblanApplicationInfoDockSearchBar(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onUpdatePopupMenu: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -487,6 +495,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     onLongPressGridItem = onLongPressGridItem,
                     onDraggingGridItem = onDraggingGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,
+                    onResetOverlay = onResetOverlay,
                 )
             }
         }
@@ -513,6 +522,7 @@ private fun EblanApplicationInfoItem(
     ) -> Unit,
     onUpdatePopupMenu: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -535,8 +545,6 @@ private fun EblanApplicationInfoItem(
     val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
 
     val maxLines = if (appDrawerSettings.gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
-
-    var isLongPressed by remember { mutableStateOf(false) }
 
     val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
 
@@ -573,26 +581,30 @@ private fun EblanApplicationInfoItem(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (isLongPressed) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    isLongPressed = false
-
-                    alpha = 1f
-                }
-
-                else -> Unit
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
             }
+
+            Drag.Cancel, Drag.End -> {
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
     Column(
         modifier = modifier
-            .pointerInput(key1 = isLongPressed) {
+            .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onTap = {
                         scope.launch {
@@ -620,11 +632,6 @@ private fun EblanApplicationInfoItem(
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            onLongPress(
-                                intOffset,
-                                intSize,
-                            )
 
                             val data =
                                 GridItemData.ApplicationInfo(
@@ -654,9 +661,12 @@ private fun EblanApplicationInfoItem(
                                 graphicsLayer.toImageBitmap(),
                             )
 
-                            onUpdatePopupMenu()
+                            onLongPress(
+                                intOffset,
+                                intSize,
+                            )
 
-                            isLongPressed = true
+                            onUpdatePopupMenu()
 
                             alpha = 0f
                         }
@@ -665,6 +675,10 @@ private fun EblanApplicationInfoItem(
                         awaitRelease()
 
                         scale.stop()
+
+                        alpha = 1f
+
+                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)

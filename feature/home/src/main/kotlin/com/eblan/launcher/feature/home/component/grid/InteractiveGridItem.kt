@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -67,6 +66,7 @@ fun InteractiveGridItemContent(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
         gridItem.gridItemSettings
@@ -98,6 +98,7 @@ fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onDraggingGridItem = onDraggingGridItem,
+                onResetOverlay = onResetOverlay,
             )
         }
 
@@ -109,6 +110,7 @@ fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onDraggingGridItem = onDraggingGridItem,
+                onResetOverlay = onResetOverlay,
             )
         }
 
@@ -129,6 +131,7 @@ fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onDraggingGridItem = onDraggingGridItem,
+                onResetOverlay = onResetOverlay,
             )
         }
 
@@ -144,6 +147,7 @@ fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onDraggingGridItem = onDraggingGridItem,
+                onResetOverlay = onResetOverlay,
             )
         }
     }
@@ -161,6 +165,7 @@ private fun InteractiveApplicationInfoGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -168,25 +173,27 @@ private fun InteractiveApplicationInfoGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    var isLongPressed by remember { mutableStateOf(false) }
-
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        if (isLongPressed) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    isLongPressed = false
-
-                    alpha = 1f
-                }
-
-                else -> Unit
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
             }
+
+            Drag.Cancel, Drag.End -> {
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -199,7 +206,7 @@ private fun InteractiveApplicationInfoGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(key1 = isLongPressed) {
+            .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
@@ -207,11 +214,9 @@ private fun InteractiveApplicationInfoGridItem(
 
                             scale.animateTo(1f)
 
-                            onLongPress()
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            isLongPressed = true
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -229,6 +234,10 @@ private fun InteractiveApplicationInfoGridItem(
                         awaitRelease()
 
                         scale.stop()
+
+                        alpha = 1f
+
+                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
@@ -256,6 +265,7 @@ private fun InteractiveWidgetGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -269,25 +279,27 @@ private fun InteractiveWidgetGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    var isLongPressed by remember { mutableStateOf(false) }
-
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        if (isLongPressed) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    isLongPressed = false
-
-                    alpha = 1f
-                }
-
-                else -> Unit
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
             }
+
+            Drag.Cancel, Drag.End -> {
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -309,8 +321,6 @@ private fun InteractiveWidgetGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onLongPress()
-
-                            isLongPressed = true
 
                             alpha = 0f
                         }
@@ -349,6 +359,7 @@ private fun InteractiveShortcutInfoGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -356,27 +367,29 @@ private fun InteractiveShortcutInfoGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    var isLongPressed by remember { mutableStateOf(false) }
-
     val defaultAlpha = if (hasShortcutHostPermission) 1f else 0.3f
 
     var alpha by remember { mutableFloatStateOf(defaultAlpha) }
 
     LaunchedEffect(key1 = drag) {
-        if (isLongPressed) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    isLongPressed = false
-
-                    alpha = defaultAlpha
-                }
-
-                else -> Unit
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
             }
+
+            Drag.Cancel, Drag.End -> {
+                alpha = defaultAlpha
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -389,7 +402,7 @@ private fun InteractiveShortcutInfoGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(key1 = isLongPressed) {
+            .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
@@ -397,11 +410,9 @@ private fun InteractiveShortcutInfoGridItem(
 
                             scale.animateTo(1f)
 
-                            onLongPress()
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            isLongPressed = true
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -421,6 +432,10 @@ private fun InteractiveShortcutInfoGridItem(
                         awaitRelease()
 
                         scale.stop()
+
+                        alpha = 1f
+
+                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)
@@ -452,6 +467,7 @@ private fun InteractiveFolderGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -459,25 +475,27 @@ private fun InteractiveFolderGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    var isLongPressed by remember { mutableStateOf(false) }
-
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        if (isLongPressed) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    isLongPressed = false
-
-                    alpha = 1f
-                }
-
-                else -> Unit
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
             }
+
+            Drag.Cancel, Drag.End -> {
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -490,7 +508,7 @@ private fun InteractiveFolderGridItem(
 
                 drawLayer(graphicsLayer)
             }
-            .pointerInput(key1 = isLongPressed) {
+            .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
@@ -498,11 +516,9 @@ private fun InteractiveFolderGridItem(
 
                             scale.animateTo(1f)
 
-                            onLongPress()
-
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            isLongPressed = true
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -520,6 +536,10 @@ private fun InteractiveFolderGridItem(
                         awaitRelease()
 
                         scale.stop()
+
+                        alpha = 1f
+
+                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)

@@ -112,6 +112,7 @@ fun ShortcutScreen(
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
@@ -199,6 +200,7 @@ fun ShortcutScreen(
                                     currentPage = currentPage,
                                     gridItemSettings = gridItemSettings,
                                     onDraggingGridItem = onDraggingGridItem,
+                                    onResetOverlay = onResetOverlay,
                                 )
 
                                 LazyColumn(
@@ -216,6 +218,7 @@ fun ShortcutScreen(
                                             currentPage = currentPage,
                                             gridItemSettings = gridItemSettings,
                                             onDraggingGridItem = onDraggingGridItem,
+                                            onResetOverlay = onResetOverlay,
                                         )
                                     }
                                 }
@@ -246,6 +249,7 @@ private fun EblanShortcutInfoDockSearchBar(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -296,6 +300,7 @@ private fun EblanShortcutInfoDockSearchBar(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
                 )
             }
         }
@@ -319,6 +324,7 @@ private fun EblanApplicationInfoItem(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -373,6 +379,7 @@ private fun EblanApplicationInfoItem(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
                 )
             }
         }
@@ -395,6 +402,7 @@ private fun EblanShortcutInfoItem(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -408,42 +416,39 @@ private fun EblanShortcutInfoItem(
 
     val scale = remember { Animatable(1f) }
 
-    var isLongPressed by remember { mutableStateOf(false) }
-
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        if (isLongPressed) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    isLongPressed = false
-
-                    alpha = 1f
-                }
-
-                else -> Unit
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
             }
+
+            Drag.Cancel, Drag.End -> {
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
     Column(
         modifier = modifier
-            .pointerInput(key1 = isLongPressed) {
+            .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
                         scope.launch {
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            onUpdateGridItemOffset(
-                                intOffset,
-                                intSize,
-                            )
 
                             val data = GridItemData.ShortcutInfo(
                                 shortcutId = eblanShortcutInfo.shortcutId,
@@ -473,7 +478,10 @@ private fun EblanShortcutInfoItem(
                                 graphicsLayer.toImageBitmap(),
                             )
 
-                            isLongPressed = true
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize,
+                            )
 
                             alpha = 0f
                         }
@@ -482,6 +490,10 @@ private fun EblanShortcutInfoItem(
                         awaitRelease()
 
                         scale.stop()
+
+                        alpha = 1f
+
+                        onResetOverlay()
 
                         if (scale.value < 1f) {
                             scale.animateTo(1f)

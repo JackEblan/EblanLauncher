@@ -387,22 +387,21 @@ fun HomeScreen(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
+                    onResetOverlay = {
+                        overlayIntOffset = IntOffset.Zero
+
+                        overlayIntSize = IntSize.Zero
+
+                        overlayImageBitmap = null
+                    },
                 )
             }
         }
 
         OverlayImage(
-            drag = drag,
             overlayIntOffset = overlayIntOffset,
             overlayIntSize = overlayIntSize,
             overlayImageBitmap = overlayImageBitmap,
-            onResetOverlay = {
-                overlayIntOffset = IntOffset.Zero
-
-                overlayIntSize = IntSize.Zero
-
-                overlayImageBitmap = null
-            },
         )
     }
 }
@@ -492,6 +491,7 @@ private fun Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
@@ -601,6 +601,7 @@ private fun Success(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
+                    onResetOverlay = onResetOverlay,
                 )
             }
 
@@ -629,6 +630,7 @@ private fun Success(
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+                    onResetOverlay = onResetOverlay,
                 )
             }
 
@@ -696,6 +698,7 @@ private fun Success(
                             Screen.FolderDrag,
                         )
                     },
+                    onResetOverlay = onResetOverlay,
                 )
             }
 
@@ -725,6 +728,7 @@ private fun Success(
 
                         onMoveOutsideFolder(homeData.gridItems)
                     },
+                    onResetOverlay = onResetOverlay,
                 )
             }
         }
@@ -734,11 +738,9 @@ private fun Success(
 @Composable
 private fun OverlayImage(
     modifier: Modifier = Modifier,
-    drag: Drag,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     overlayImageBitmap: ImageBitmap?,
-    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -747,12 +749,6 @@ private fun OverlayImage(
     }
 
     if (overlayImageBitmap != null) {
-        LaunchedEffect(key1 = drag) {
-            if (drag == Drag.Cancel || drag == Drag.End) {
-                onResetOverlay()
-            }
-        }
-
         Image(
             modifier = modifier
                 .offset {

@@ -86,6 +86,7 @@ fun FolderScreen(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -255,6 +256,7 @@ fun FolderScreen(
                                     onDraggingGridItem = {
                                         onDraggingGridItem(foldersDataById.last().gridItems)
                                     },
+                                    onResetOverlay = onResetOverlay,
                                 )
                             },
                         )

@@ -118,6 +118,7 @@ fun DragScreen(
         gridItem: GridItem,
         appWidgetId: Int,
     ) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -259,10 +260,14 @@ fun DragScreen(
                         lastAppWidgetId = appWidgetId
                     },
                 )
+
+                onResetOverlay()
             }
 
             Drag.Cancel -> {
                 onMoveGridItemsFailed()
+
+                onResetOverlay()
             }
 
             else -> Unit

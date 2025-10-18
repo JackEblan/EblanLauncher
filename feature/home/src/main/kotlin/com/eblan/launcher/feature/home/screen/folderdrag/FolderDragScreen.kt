@@ -97,6 +97,7 @@ fun FolderDragScreen(
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -181,6 +182,8 @@ fun FolderDragScreen(
                     onDragEnd = onDragEnd,
                     onDragCancel = onDragCancel,
                 )
+
+                onResetOverlay()
             }
 
             else -> Unit

@@ -136,6 +136,7 @@ fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -304,6 +305,7 @@ fun PagerScreen(
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
+        onResetOverlay = onResetOverlay,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
@@ -339,6 +341,7 @@ fun PagerScreen(
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
         )
     }
 
@@ -376,6 +379,7 @@ fun PagerScreen(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
                 )
             }
 
@@ -454,6 +458,7 @@ fun PagerScreen(
                 showWidgets = false
             },
             onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
         )
     }
 
@@ -474,6 +479,7 @@ fun PagerScreen(
                 showShortcuts = false
             },
             onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
         )
     }
 }
@@ -514,6 +520,7 @@ private fun HorizontalPagerScreen(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
+    onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -687,6 +694,7 @@ private fun HorizontalPagerScreen(
                             showPopupGridItemMenu = true
                         },
                         onDraggingGridItem = onDraggingGridItem,
+                        onResetOverlay = onResetOverlay,
                     )
                 },
             )
@@ -788,6 +796,7 @@ private fun HorizontalPagerScreen(
                         showPopupGridItemMenu = true
                     },
                     onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
                 )
             },
         )

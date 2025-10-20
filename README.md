@@ -12,7 +12,6 @@ Android Launcher made from scratch using Kotlin, Coroutines and Jetpack Compose
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/JackEblan/EblanLauncher/total?style=for-the-badge)
 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/packages/com.eblan.launcher)
-
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.eblan.launcher/)
 
 </div>

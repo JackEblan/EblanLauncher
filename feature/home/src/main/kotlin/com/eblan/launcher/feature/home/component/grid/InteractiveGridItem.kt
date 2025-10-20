@@ -65,7 +65,6 @@ fun InteractiveGridItemContent(
     onTapFolderGridItem: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val currentGridItemSettings = if (gridItem.override) {
@@ -97,7 +96,6 @@ fun InteractiveGridItemContent(
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
-                onDraggingGridItem = onDraggingGridItem,
                 onResetOverlay = onResetOverlay,
             )
         }
@@ -109,7 +107,6 @@ fun InteractiveGridItemContent(
                 drag = drag,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
-                onDraggingGridItem = onDraggingGridItem,
                 onResetOverlay = onResetOverlay,
             )
         }
@@ -130,7 +127,6 @@ fun InteractiveGridItemContent(
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
-                onDraggingGridItem = onDraggingGridItem,
                 onResetOverlay = onResetOverlay,
             )
         }
@@ -146,7 +142,6 @@ fun InteractiveGridItemContent(
                 onTap = onTapFolderGridItem,
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
-                onDraggingGridItem = onDraggingGridItem,
                 onResetOverlay = onResetOverlay,
             )
         }
@@ -164,7 +159,6 @@ private fun InteractiveApplicationInfoGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
@@ -176,24 +170,16 @@ private fun InteractiveApplicationInfoGridItem(
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = 1f
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
 
-            Drag.Cancel, Drag.End -> {
-                alpha = 1f
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
-
-                onResetOverlay()
-            }
-
-            else -> Unit
+            onResetOverlay()
         }
     }
 
@@ -264,7 +250,6 @@ private fun InteractiveWidgetGridItem(
     drag: Drag,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
@@ -282,24 +267,16 @@ private fun InteractiveWidgetGridItem(
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = 1f
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
 
-            Drag.Cancel, Drag.End -> {
-                alpha = 1f
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
-
-                onResetOverlay()
-            }
-
-            else -> Unit
+            onResetOverlay()
         }
     }
 
@@ -358,7 +335,6 @@ private fun InteractiveShortcutInfoGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
@@ -372,24 +348,16 @@ private fun InteractiveShortcutInfoGridItem(
     var alpha by remember { mutableFloatStateOf(defaultAlpha) }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = defaultAlpha
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
 
-            Drag.Cancel, Drag.End -> {
-                alpha = defaultAlpha
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
-
-                onResetOverlay()
-            }
-
-            else -> Unit
+            onResetOverlay()
         }
     }
 
@@ -466,7 +434,6 @@ private fun InteractiveFolderGridItem(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
@@ -478,24 +445,16 @@ private fun InteractiveFolderGridItem(
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = 1f
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
 
-            Drag.Cancel, Drag.End -> {
-                alpha = 1f
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
-
-                onResetOverlay()
-            }
-
-            else -> Unit
+            onResetOverlay()
         }
     }
 

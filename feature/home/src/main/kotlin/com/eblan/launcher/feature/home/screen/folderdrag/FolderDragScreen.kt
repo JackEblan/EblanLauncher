@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
@@ -102,8 +101,6 @@ fun FolderDragScreen(
     onResetOverlay: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
-
-    if (gridItemCache.gridItemCacheType != GridItemCacheType.Folder) return
 
     val density = LocalDensity.current
 

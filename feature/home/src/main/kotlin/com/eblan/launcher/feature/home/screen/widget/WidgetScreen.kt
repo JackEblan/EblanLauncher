@@ -96,6 +96,7 @@ import kotlin.uuid.Uuid
 fun WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
+    isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
@@ -124,7 +125,7 @@ fun WidgetScreen(
 
     val overscrollOffset = remember { Animatable(0f) }
 
-    val overscrollEffect = remember(key1 = scope, key2 = appDrawerSettings) {
+    val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
@@ -144,16 +145,18 @@ fun WidgetScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
-            }
+        if (isApplicationComponentVisible) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
 
-            Drag.Cancel, Drag.End -> {
-                onResetOverlay()
-            }
+                Drag.Cancel, Drag.End -> {
+                    onResetOverlay()
+                }
 
-            else -> Unit
+                else -> Unit
+            }
         }
     }
 

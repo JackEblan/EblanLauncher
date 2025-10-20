@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -92,7 +91,6 @@ import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 @Composable
 fun PagerScreen(
@@ -180,7 +178,7 @@ fun PagerScreen(
 
     val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
 
-    val applicationComponentY by remember {
+    val offsetY by remember {
         derivedStateOf {
             if (swipeUpY.value < screenHeight && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
                 swipeUpY.value
@@ -197,6 +195,12 @@ fun PagerScreen(
     val view = LocalView.current
 
     val activity = LocalActivity.current as ComponentActivity
+
+    val isApplicationComponentVisible by remember {
+        derivedStateOf {
+            offsetY == 0f
+        }
+    }
 
     DisposableEffect(key1 = scope) {
         val listener = Consumer<Intent> { intent ->
@@ -274,6 +278,7 @@ fun PagerScreen(
             },
         gridHorizontalPagerState = gridHorizontalPagerState,
         currentPage = currentPage,
+        isApplicationComponentVisible = isApplicationComponentVisible,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
         gridWidth = gridWidth,
@@ -312,10 +317,9 @@ fun PagerScreen(
         gestureSettings.swipeDown is GestureAction.OpenAppDrawer
     ) {
         ApplicationScreen(
-            modifier = Modifier.offset {
-                IntOffset(x = 0, y = applicationComponentY.roundToInt())
-            },
             currentPage = currentPage,
+            offsetY = offsetY,
+            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -364,6 +368,7 @@ fun PagerScreen(
             GestureAction.OpenAppDrawer -> {
                 DoubleTapApplicationScreen(
                     currentPage = currentPage,
+                    isApplicationComponentVisible = isApplicationComponentVisible,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     paddingValues = paddingValues,
                     drag = drag,
@@ -444,6 +449,7 @@ fun PagerScreen(
     if (showWidgets) {
         WidgetScreen(
             currentPage = currentPage,
+            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
@@ -465,6 +471,7 @@ fun PagerScreen(
     if (showShortcuts) {
         ShortcutScreen(
             currentPage = currentPage,
+            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
@@ -489,6 +496,7 @@ private fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
+    isApplicationComponentVisible: Boolean,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,
@@ -563,7 +571,9 @@ private fun HorizontalPagerScreen(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging) {
+        if (!isApplicationComponentVisible && drag == Drag.Dragging) {
+            onDraggingGridItem()
+
             showPopupGridItemMenu = false
         }
     }
@@ -693,7 +703,6 @@ private fun HorizontalPagerScreen(
 
                             showPopupGridItemMenu = true
                         },
-                        onDraggingGridItem = onDraggingGridItem,
                         onResetOverlay = onResetOverlay,
                     )
                 },
@@ -795,7 +804,6 @@ private fun HorizontalPagerScreen(
 
                         showPopupGridItemMenu = true
                     },
-                    onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
                 )
             },

@@ -126,6 +126,12 @@ fun FolderScreen(
         }
     }
 
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Dragging) {
+            onDraggingGridItem(foldersDataById.last().gridItems)
+        }
+    }
+
     BackHandler(foldersDataById.isNotEmpty()) {
         onRemoveLastFolder()
     }
@@ -252,9 +258,6 @@ fun FolderScreen(
                                             GridItemSource.Existing(gridItem = gridItem),
                                             imageBitmap,
                                         )
-                                    },
-                                    onDraggingGridItem = {
-                                        onDraggingGridItem(foldersDataById.last().gridItems)
                                     },
                                     onResetOverlay = onResetOverlay,
                                 )

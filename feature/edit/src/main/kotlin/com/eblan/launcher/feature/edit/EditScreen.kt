@@ -143,7 +143,7 @@ private fun Success(
             }
 
             is GridItemData.ShortcutInfo -> {
-                EditShortcut(
+                EditShortcutInfo(
                     gridItem = gridItem,
                     data = data,
                     onUpdateGridItem = onUpdateGridItem,
@@ -317,7 +317,7 @@ private fun EditFolder(
 }
 
 @Composable
-private fun EditShortcut(
+private fun EditShortcutInfo(
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     onUpdateGridItem: (GridItem) -> Unit,

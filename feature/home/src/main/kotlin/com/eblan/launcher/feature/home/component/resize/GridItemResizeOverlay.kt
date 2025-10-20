@@ -105,29 +105,37 @@ fun GridItemResizeOverlay(
 
     val borderX by remember {
         derivedStateOf {
-            if (dragHandle == Alignment.TopStart) {
-                if (currentWidth >= dragHandleSizePx) {
-                    currentX
-                } else {
-                    (x + width) - dragHandleSizePx
+            when (dragHandle) {
+                Alignment.TopStart -> {
+                    if (currentWidth >= dragHandleSizePx) {
+                        currentX
+                    } else {
+                        (x + width) - dragHandleSizePx
+                    }
                 }
-            } else if (dragHandle == Alignment.TopEnd) {
-                if (currentWidth >= dragHandleSizePx) {
-                    currentX
-                } else {
-                    x
+
+                Alignment.TopEnd -> {
+                    if (currentWidth >= dragHandleSizePx) {
+                        currentX
+                    } else {
+                        x
+                    }
                 }
-            } else if (dragHandle == Alignment.BottomStart) {
-                if (currentWidth >= dragHandleSizePx) {
-                    currentX
-                } else {
-                    (x + width) - dragHandleSizePx
+
+                Alignment.BottomStart -> {
+                    if (currentWidth >= dragHandleSizePx) {
+                        currentX
+                    } else {
+                        (x + width) - dragHandleSizePx
+                    }
                 }
-            } else {
-                if (currentWidth >= dragHandleSizePx) {
-                    currentX
-                } else {
-                    x
+
+                else -> {
+                    if (currentWidth >= dragHandleSizePx) {
+                        currentX
+                    } else {
+                        x
+                    }
                 }
             }
         }
@@ -135,29 +143,37 @@ fun GridItemResizeOverlay(
 
     val borderY by remember {
         derivedStateOf {
-            if (dragHandle == Alignment.TopStart) {
-                if (currentHeight >= dragHandleSizePx) {
-                    currentY
-                } else {
-                    (y + height) - dragHandleSizePx
+            when (dragHandle) {
+                Alignment.TopStart -> {
+                    if (currentHeight >= dragHandleSizePx) {
+                        currentY
+                    } else {
+                        (y + height) - dragHandleSizePx
+                    }
                 }
-            } else if (dragHandle == Alignment.TopEnd) {
-                if (currentHeight >= dragHandleSizePx) {
-                    currentY
-                } else {
-                    (y + height) - dragHandleSizePx
+
+                Alignment.TopEnd -> {
+                    if (currentHeight >= dragHandleSizePx) {
+                        currentY
+                    } else {
+                        (y + height) - dragHandleSizePx
+                    }
                 }
-            } else if (dragHandle == Alignment.BottomStart) {
-                if (currentHeight >= dragHandleSizePx) {
-                    currentY
-                } else {
-                    y
+
+                Alignment.BottomStart -> {
+                    if (currentHeight >= dragHandleSizePx) {
+                        currentY
+                    } else {
+                        y
+                    }
                 }
-            } else {
-                if (currentHeight >= dragHandleSizePx) {
-                    currentY
-                } else {
-                    y
+
+                else -> {
+                    if (currentHeight >= dragHandleSizePx) {
+                        currentY
+                    } else {
+                        y
+                    }
                 }
             }
         }

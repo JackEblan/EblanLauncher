@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -26,7 +28,9 @@ import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
@@ -37,88 +41,91 @@ class GetPinGridItemUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(pinItemRequestType: PinItemRequestType): GridItem? {
-        val homeSettings = userDataRepository.userData.first().homeSettings
+        return withContext(defaultDispatcher) {
+            val homeSettings = userDataRepository.userData.first().homeSettings
 
-        return when (pinItemRequestType) {
-            is PinItemRequestType.Widget -> {
-                val eblanAppWidgetProviderInfo =
-                    eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfo(className = pinItemRequestType.className)
+            when (pinItemRequestType) {
+                is PinItemRequestType.Widget -> {
+                    val eblanAppWidgetProviderInfo =
+                        eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfo(className = pinItemRequestType.className)
 
-                if (eblanAppWidgetProviderInfo != null) {
-                    val data = Widget(
-                        appWidgetId = 0,
-                        componentName = eblanAppWidgetProviderInfo.componentName,
-                        packageName = eblanAppWidgetProviderInfo.packageName,
-                        configure = eblanAppWidgetProviderInfo.configure,
-                        minWidth = eblanAppWidgetProviderInfo.minWidth,
-                        minHeight = eblanAppWidgetProviderInfo.minHeight,
-                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                        targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                        preview = eblanAppWidgetProviderInfo.preview,
-                        eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
-                    )
+                    if (eblanAppWidgetProviderInfo != null) {
+                        val data = Widget(
+                            appWidgetId = 0,
+                            componentName = eblanAppWidgetProviderInfo.componentName,
+                            packageName = eblanAppWidgetProviderInfo.packageName,
+                            configure = eblanAppWidgetProviderInfo.configure,
+                            minWidth = eblanAppWidgetProviderInfo.minWidth,
+                            minHeight = eblanAppWidgetProviderInfo.minHeight,
+                            resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                            minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                            minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                            maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                            maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                            targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                            targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
+                            preview = eblanAppWidgetProviderInfo.preview,
+                            eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
+                        )
 
-                    GridItem(
-                        id = Uuid.random()
-                            .toHexString(),
-                        folderId = null,
-                        page = homeSettings.initialPage,
-                        startColumn = 0,
-                        startRow = 0,
-                        columnSpan = 1,
-                        rowSpan = 1,
-                        data = data,
-                        associate = Associate.Grid,
-                        override = false,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                    )
-                } else {
-                    null
+                        GridItem(
+                            id = Uuid.random()
+                                .toHexString(),
+                            folderId = null,
+                            page = homeSettings.initialPage,
+                            startColumn = 0,
+                            startRow = 0,
+                            columnSpan = 1,
+                            rowSpan = 1,
+                            data = data,
+                            associate = Associate.Grid,
+                            override = false,
+                            gridItemSettings = homeSettings.gridItemSettings,
+                        )
+                    } else {
+                        null
+                    }
                 }
-            }
 
-            is PinItemRequestType.ShortcutInfo -> {
-                val eblanApplicationInfo =
-                    eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = pinItemRequestType.packageName)
+                is PinItemRequestType.ShortcutInfo -> {
+                    val eblanApplicationInfo =
+                        eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = pinItemRequestType.packageName)
 
-                if (eblanApplicationInfo != null) {
-                    val iconInferred = File(
-                        fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        pinItemRequestType.shortcutId,
-                    ).absolutePath
+                    if (eblanApplicationInfo != null) {
+                        val iconInferred = File(
+                            fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                            pinItemRequestType.shortcutId,
+                        ).absolutePath
 
-                    val data = ShortcutInfo(
-                        shortcutId = pinItemRequestType.shortcutId,
-                        packageName = pinItemRequestType.packageName,
-                        shortLabel = pinItemRequestType.shortLabel,
-                        longLabel = pinItemRequestType.longLabel,
-                        icon = iconInferred,
-                        eblanApplicationInfo = eblanApplicationInfo,
-                    )
+                        val data = ShortcutInfo(
+                            shortcutId = pinItemRequestType.shortcutId,
+                            packageName = pinItemRequestType.packageName,
+                            shortLabel = pinItemRequestType.shortLabel,
+                            longLabel = pinItemRequestType.longLabel,
+                            icon = iconInferred,
+                            eblanApplicationInfo = eblanApplicationInfo,
+                        )
 
-                    GridItem(
-                        id = pinItemRequestType.shortcutId,
-                        folderId = null,
-                        page = homeSettings.initialPage,
-                        startColumn = 0,
-                        startRow = 0,
-                        columnSpan = 1,
-                        rowSpan = 1,
-                        data = data,
-                        associate = Associate.Grid,
-                        override = false,
-                        gridItemSettings = homeSettings.gridItemSettings,
-                    )
-                } else {
-                    null
+                        GridItem(
+                            id = pinItemRequestType.shortcutId,
+                            folderId = null,
+                            page = homeSettings.initialPage,
+                            startColumn = 0,
+                            startRow = 0,
+                            columnSpan = 1,
+                            rowSpan = 1,
+                            data = data,
+                            associate = Associate.Grid,
+                            override = false,
+                            gridItemSettings = homeSettings.gridItemSettings,
+                        )
+                    } else {
+                        null
+                    }
                 }
             }
         }

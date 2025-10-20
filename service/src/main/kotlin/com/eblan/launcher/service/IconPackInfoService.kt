@@ -23,7 +23,6 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import androidx.core.app.ServiceCompat
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.usecase.UpdateIconPackInfosUseCase
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
@@ -62,23 +61,23 @@ class IconPackInfoService : Service() {
                 NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
                     .setSmallIcon(R.drawable.baseline_cached_24)
                     .setContentTitle("Eblan Launcher")
-                    .setContentText("Importing $iconPackInfoLabel to cache, this may take a few seconds")
+                    .setContentText("Importing $iconPackInfoLabel to cache")
                     .setOngoing(true)
                     .setProgress(0, 0, true)
                     .build()
 
-            val foregroundServiceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                startForeground(
+                    AndroidNotificationManagerWrapper.ICON_PACK_INFO_SERVICE_NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                )
             } else {
-                0
+                startForeground(
+                    AndroidNotificationManagerWrapper.ICON_PACK_INFO_SERVICE_NOTIFICATION_ID,
+                    notification,
+                )
             }
-
-            ServiceCompat.startForeground(
-                this,
-                AndroidNotificationManagerWrapper.ICON_PACK_INFO_SERVICE_NOTIFICATION_ID,
-                notification,
-                foregroundServiceType,
-            )
 
             serviceScope.launch {
                 iconPackInfoJob = launch {

@@ -121,6 +121,7 @@ import kotlin.uuid.Uuid
 fun DoubleTapApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
+    isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -142,19 +143,19 @@ fun DoubleTapApplicationScreen(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
-    val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
+    val offsetY = remember { Animatable(screenHeight.toFloat()) }
 
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = animatedSwipeUpY) {
-        animatedSwipeUpY.animateTo(0f)
+    LaunchedEffect(key1 = offsetY) {
+        offsetY.animateTo(0f)
     }
 
     ApplicationScreen(
-        modifier = modifier.offset {
-            IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
-        },
+        modifier = modifier,
         currentPage = currentPage,
+        offsetY = offsetY.value,
+        isApplicationComponentVisible = isApplicationComponentVisible,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         paddingValues = paddingValues,
         drag = drag,
@@ -168,7 +169,7 @@ fun DoubleTapApplicationScreen(
         onDismiss = onDismiss,
         onAnimateDismiss = {
             scope.launch {
-                animatedSwipeUpY.animateTo(screenHeight.toFloat())
+                offsetY.animateTo(screenHeight.toFloat())
 
                 onDismiss()
             }
@@ -182,6 +183,8 @@ fun DoubleTapApplicationScreen(
 fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
+    offsetY: Float,
+    isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -209,7 +212,7 @@ fun ApplicationScreen(
 
     val overscrollOffset = remember { Animatable(0f) }
 
-    val overscrollEffect = remember(key1 = scope, key2 = appDrawerSettings) {
+    val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
             overscrollAlpha = overscrollAlpha,
@@ -222,6 +225,9 @@ fun ApplicationScreen(
 
     Surface(
         modifier = modifier
+            .offset {
+                IntOffset(x = 0, y = offsetY.roundToInt())
+            }
             .graphicsLayer(alpha = 1f - (overscrollAlpha.value / 500f))
             .fillMaxSize(),
     ) {
@@ -245,6 +251,7 @@ fun ApplicationScreen(
                         else -> {
                             Success(
                                 currentPage = currentPage,
+                                isApplicationComponentVisible = isApplicationComponentVisible,
                                 paddingValues = paddingValues,
                                 drag = drag,
                                 appDrawerSettings = appDrawerSettings,
@@ -273,6 +280,7 @@ fun ApplicationScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
+    isApplicationComponentVisible: Boolean,
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,
@@ -312,20 +320,22 @@ private fun Success(
     }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (isApplicationComponentVisible) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
 
-                showPopupApplicationMenu = false
+                    showPopupApplicationMenu = false
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    onResetOverlay()
+
+                    showPopupApplicationMenu = false
+                }
+
+                else -> Unit
             }
-
-            Drag.Cancel, Drag.End -> {
-                onResetOverlay()
-
-                showPopupApplicationMenu = false
-            }
-
-            else -> Unit
         }
     }
 

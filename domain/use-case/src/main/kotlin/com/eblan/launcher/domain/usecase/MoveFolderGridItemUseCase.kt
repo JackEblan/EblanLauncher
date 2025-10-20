@@ -28,14 +28,14 @@ import com.eblan.launcher.domain.grid.resolveConflicts
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.ResolveDirection
-import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MoveFolderGridItemUseCase @Inject constructor(
-    private val gridCacheRepository: GridCacheRepository,
+    private val folderGridCacheRepository: FolderGridCacheRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -48,7 +48,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
         gridHeight: Int,
     ): MoveGridItemResult {
         return withContext(defaultDispatcher) {
-            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+            val gridItems = folderGridCacheRepository.gridItemsCache.first().filter { gridItem ->
                 isGridItemSpanWithinBounds(
                     gridItem = gridItem,
                     columns = columns,
@@ -105,7 +105,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                 )
             }
 
-            gridCacheRepository.upsertGridItems(gridItems = gridItems)
+            folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
 
             return@withContext MoveGridItemResult(
                 isSuccess = true,
@@ -142,7 +142,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
                 )
 
                 if (resolvedConflicts) {
-                    gridCacheRepository.upsertGridItems(gridItems = gridItems)
+                    folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
                 }
 
                 MoveGridItemResult(
@@ -182,7 +182,7 @@ class MoveFolderGridItemUseCase @Inject constructor(
             rows = rows,
         )
 
-        gridCacheRepository.upsertGridItems(gridItems = gridItems)
+        folderGridCacheRepository.upsertGridItems(gridItems = gridItems)
 
         return MoveGridItemResult(
             isSuccess = resolvedConflicts,

@@ -15,9 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.domain.repository
 
-enum class GridItemCacheType {
-    Grid,
-    Folder,
+import com.eblan.launcher.domain.model.GridItem
+import kotlinx.coroutines.flow.Flow
+
+interface FolderGridCacheRepository {
+    val gridItemsCache: Flow<List<GridItem>>
+
+    fun insertGridItems(gridItems: List<GridItem>)
+
+    fun insertGridItem(gridItem: GridItem)
+
+    suspend fun upsertGridItems(gridItems: List<GridItem>)
 }

@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
@@ -83,7 +84,7 @@ fun DragScreen(
     modifier: Modifier = Modifier,
     dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
-    gridItemsCacheByPage: Map<Int, List<GridItem>>,
+    gridItemCache: GridItemCache,
     drag: Drag,
     screenWidth: Int,
     screenHeight: Int,
@@ -343,7 +344,7 @@ fun DragScreen(
                         color = getSystemTextColor(textColor = textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
-                gridItems = gridItemsCacheByPage[page],
+                gridItems = gridItemCache.gridItemsCacheByPage[page],
                 columns = homeSettings.columns,
                 rows = homeSettings.rows,
                 { gridItem ->

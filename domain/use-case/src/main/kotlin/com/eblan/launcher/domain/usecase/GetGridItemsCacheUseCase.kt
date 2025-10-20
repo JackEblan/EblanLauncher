@@ -17,65 +17,61 @@
  */
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemCacheType
+import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetGridItemsCacheUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
+    private val folderGridCacheRepository: FolderGridCacheRepository,
     private val userDataRepository: UserDataRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<GridItemCache> {
         return combine(
             userDataRepository.userData,
             gridCacheRepository.gridItemsCache,
-            gridCacheRepository.gridItemCacheType,
-        ) { userData, gridItems, gridItemCacheType ->
-            when (gridItemCacheType) {
-                GridItemCacheType.Grid -> {
-                    val gridItemsWithinBounds = gridItems.filter { gridItem ->
-                        isGridItemSpanWithinBounds(
-                            gridItem = gridItem,
-                            columns = userData.homeSettings.columns,
-                            rows = userData.homeSettings.rows,
-                        ) && gridItem.associate == Associate.Grid
-                    }.groupBy { gridItem -> gridItem.page }
+            folderGridCacheRepository.gridItemsCache,
+        ) { userData, gridItems, folderGridItems ->
+            val gridItemsCacheByPage = gridItems.filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    columns = userData.homeSettings.columns,
+                    rows = userData.homeSettings.rows,
+                ) && gridItem.associate == Associate.Grid
+            }.groupBy { gridItem -> gridItem.page }
 
-                    val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
-                        isGridItemSpanWithinBounds(
-                            gridItem = gridItem,
-                            columns = userData.homeSettings.dockColumns,
-                            rows = userData.homeSettings.dockRows,
-                        ) && gridItem.associate == Associate.Dock
-                    }
-
-                    GridItemCache(
-                        gridItemsCacheByPage = gridItemsWithinBounds,
-                        dockGridItemsCache = dockGridItemsWithinBounds,
-                    )
-                }
-
-                GridItemCacheType.Folder -> {
-                    val gridItemsWithinBounds = gridItems.filter { gridItem ->
-                        isGridItemSpanWithinBounds(
-                            gridItem = gridItem,
-                            columns = userData.homeSettings.folderColumns,
-                            rows = userData.homeSettings.folderRows,
-                        ) && gridItem.associate == Associate.Grid
-                    }.groupBy { gridItem -> gridItem.page }
-
-                    GridItemCache(
-                        gridItemsCacheByPage = gridItemsWithinBounds,
-                        dockGridItemsCache = emptyList(),
-                    )
-                }
+            val dockGridItemsCache = gridItems.filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    columns = userData.homeSettings.dockColumns,
+                    rows = userData.homeSettings.dockRows,
+                ) && gridItem.associate == Associate.Dock
             }
-        }
+
+            val folderGridItemsCacheByPage = folderGridItems.filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    columns = userData.homeSettings.folderColumns,
+                    rows = userData.homeSettings.folderRows,
+                ) && gridItem.associate == Associate.Grid
+            }.groupBy { gridItem -> gridItem.page }
+
+            GridItemCache(
+                gridItemsCacheByPage = gridItemsCacheByPage,
+                dockGridItemsCache = dockGridItemsCache,
+                folderGridItemsCacheByPage = folderGridItemsCacheByPage,
+            )
+        }.flowOn(defaultDispatcher)
     }
 }

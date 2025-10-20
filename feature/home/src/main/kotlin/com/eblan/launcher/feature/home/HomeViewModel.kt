@@ -23,10 +23,10 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
 import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
@@ -71,6 +71,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     getHomeDataUseCase: GetHomeDataUseCase,
     private val gridCacheRepository: GridCacheRepository,
+    private val folderGridCacheRepository: FolderGridCacheRepository,
     private val moveGridItemUseCase: MoveGridItemUseCase,
     private val resizeGridItemUseCase: ResizeGridItemUseCase,
     getEblanApplicationComponentUseCase: GetEblanApplicationComponentUseCase,
@@ -171,6 +172,7 @@ class HomeViewModel @Inject constructor(
         initialValue = GridItemCache(
             gridItemsCacheByPage = emptyMap(),
             dockGridItemsCache = emptyList(),
+            folderGridItemsCacheByPage = emptyMap(),
         ),
     )
 
@@ -248,13 +250,29 @@ class HomeViewModel @Inject constructor(
 
     fun showGridCache(
         gridItems: List<GridItem>,
-        gridItemCacheType: GridItemCacheType,
         screen: Screen,
     ) {
         viewModelScope.launch {
             gridCacheRepository.insertGridItems(gridItems = gridItems)
 
-            gridCacheRepository.updateGridItemCacheType(gridItemCacheType = gridItemCacheType)
+            delay(defaultDelay)
+
+            _moveGridItemResult.update {
+                null
+            }
+
+            _screen.update {
+                screen
+            }
+        }
+    }
+
+    fun showFolderGridCache(
+        gridItems: List<GridItem>,
+        screen: Screen,
+    ) {
+        viewModelScope.launch {
+            folderGridCacheRepository.insertGridItems(gridItems = gridItems)
 
             delay(defaultDelay)
 
@@ -352,7 +370,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val lastId = _foldersDataById.value.last().id
 
-            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+            updateGridItemsUseCase(gridItems = folderGridCacheRepository.gridItemsCache.first())
 
             getFolderDataByIdUseCase(id = lastId)?.let { folder ->
                 _foldersDataById.update { currentFolders ->
@@ -473,24 +491,6 @@ class HomeViewModel @Inject constructor(
         _foldersDataById.update { currentFolders ->
             ArrayDeque(currentFolders).apply {
                 removeLast()
-            }
-        }
-    }
-
-    fun moveGridItemOutsideFolder(gridItems: List<GridItem>) {
-        viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
-
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            gridCacheRepository.updateGridItemCacheType(gridItemCacheType = GridItemCacheType.Grid)
-
-            _moveGridItemResult.update {
-                null
-            }
-
-            _screen.update {
-                Screen.Drag
             }
         }
     }

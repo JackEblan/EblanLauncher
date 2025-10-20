@@ -147,7 +147,6 @@ fun HomeRoute(
         onShowFolder = viewModel::showFolder,
         onRemoveLastFolder = viewModel::removeLastFolder,
         onAddFolder = viewModel::addFolder,
-        onMoveOutsideFolder = viewModel::moveGridItemOutsideFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
         onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
@@ -225,7 +224,6 @@ fun HomeScreen(
     onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
-    onMoveOutsideFolder: (List<GridItem>) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onGetEblanShortcutInfosByLabel: (String) -> Unit,
@@ -350,7 +348,7 @@ fun HomeScreen(
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
                     eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
-                    gridItemsCache = gridItemsCache,
+                    gridItemCache = gridItemsCache,
                     pinGridItem = pinGridItem,
                     overlayIntOffset = overlayIntOffset,
                     overlayIntSize = overlayIntSize,
@@ -374,7 +372,6 @@ fun HomeScreen(
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
                     onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
-                    onMoveOutsideFolder = onMoveOutsideFolder,
                     onUpdateGridItemImageBitmap = { imageBitmap ->
                         overlayImageBitmap = imageBitmap
                     },
@@ -423,7 +420,7 @@ private fun Success(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
-    gridItemsCache: GridItemCache,
+    gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
@@ -481,7 +478,6 @@ private fun Success(
     onShowFolder: (String) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
-    onMoveOutsideFolder: (List<GridItem>) -> Unit,
     onUpdateGridItemImageBitmap: (ImageBitmap?) -> Unit,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -607,14 +603,14 @@ private fun Success(
 
             Screen.Drag -> {
                 DragScreen(
-                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
+                    gridItemCache = gridItemCache,
                     dragIntOffset = dragIntOffset,
                     gridItemSource = gridItemSource,
                     drag = drag,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
                     paddingValues = paddingValues,
-                    dockGridItemsCache = gridItemsCache.dockGridItemsCache,
+                    dockGridItemsCache = gridItemCache.dockGridItemsCache,
                     textColor = homeData.textColor,
                     moveGridItemResult = movedGridItemResult,
                     homeSettings = homeData.userData.homeSettings,
@@ -637,11 +633,11 @@ private fun Success(
             Screen.Resize -> {
                 ResizeScreen(
                     currentPage = currentPage,
-                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage[currentPage].orEmpty(),
+                    gridItemCache = gridItemCache,
                     gridItem = gridItemSource?.gridItem,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    dockGridItemsCache = gridItemsCache.dockGridItemsCache,
+                    dockGridItemsCache = gridItemCache.dockGridItemsCache,
                     textColor = homeData.textColor,
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
@@ -704,7 +700,7 @@ private fun Success(
 
             Screen.FolderDrag -> {
                 FolderDragScreen(
-                    gridItemsCacheByPage = gridItemsCache.gridItemsCacheByPage,
+                    gridItemCache = gridItemCache,
                     gridItemSource = gridItemSource,
                     textColor = homeData.textColor,
                     drag = drag,
@@ -726,7 +722,11 @@ private fun Success(
                     onMoveOutsideFolder = { newGridItemSource ->
                         gridItemSource = newGridItemSource
 
-                        onMoveOutsideFolder(homeData.gridItems)
+                        onShowGridCache(
+                            homeData.gridItems,
+                            GridItemCacheType.Grid,
+                            Screen.Drag,
+                        )
                     },
                     onResetOverlay = onResetOverlay,
                 )

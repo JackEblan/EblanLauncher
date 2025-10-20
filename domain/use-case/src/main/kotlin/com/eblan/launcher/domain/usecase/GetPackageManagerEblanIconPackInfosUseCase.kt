@@ -17,25 +17,32 @@
  */
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GetPackageManagerEblanIconPackInfosUseCase @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(): List<EblanIconPackInfo> {
-        return packageManagerWrapper.getIconPackInfoByPackageNames().mapNotNull { packageName ->
-            eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
-                ?.let { eblanApplicationInfo ->
-                    EblanIconPackInfo(
-                        packageName = eblanApplicationInfo.packageName,
-                        icon = eblanApplicationInfo.icon,
-                        label = eblanApplicationInfo.label,
-                    )
-                }
+        return withContext(defaultDispatcher) {
+            packageManagerWrapper.getIconPackInfoByPackageNames().mapNotNull { packageName ->
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
+                    ?.let { eblanApplicationInfo ->
+                        EblanIconPackInfo(
+                            packageName = eblanApplicationInfo.packageName,
+                            icon = eblanApplicationInfo.icon,
+                            label = eblanApplicationInfo.label,
+                        )
+                    }
+            }
         }
     }
 }

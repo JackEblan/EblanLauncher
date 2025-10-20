@@ -169,6 +169,7 @@ class HomeViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = GridItemCache(
+            gridItemCacheType = GridItemCacheType.Grid,
             gridItemsCacheByPage = emptyMap(),
             dockGridItemsCache = emptyList(),
         ),
@@ -473,24 +474,6 @@ class HomeViewModel @Inject constructor(
         _foldersDataById.update { currentFolders ->
             ArrayDeque(currentFolders).apply {
                 removeLast()
-            }
-        }
-    }
-
-    fun moveGridItemOutsideFolder(gridItems: List<GridItem>) {
-        viewModelScope.launch {
-            moveGridItemJob?.cancelAndJoin()
-
-            gridCacheRepository.insertGridItems(gridItems = gridItems)
-
-            gridCacheRepository.updateGridItemCacheType(gridItemCacheType = GridItemCacheType.Grid)
-
-            _moveGridItemResult.update {
-                null
-            }
-
-            _screen.update {
-                Screen.Drag
             }
         }
     }

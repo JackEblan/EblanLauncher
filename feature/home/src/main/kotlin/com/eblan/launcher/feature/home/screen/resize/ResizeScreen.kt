@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
@@ -48,7 +50,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 fun ResizeScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    gridItemsCacheByPage: List<GridItem>,
+    gridItemCache: GridItemCache,
     gridItem: GridItem?,
     screenWidth: Int,
     screenHeight: Int,
@@ -67,6 +69,8 @@ fun ResizeScreen(
     onResizeCancel: () -> Unit,
 ) {
     requireNotNull(gridItem)
+
+    if (gridItemCache.gridItemCacheType != GridItemCacheType.Grid) return
 
     val density = LocalDensity.current
 
@@ -117,7 +121,7 @@ fun ResizeScreen(
     ) {
         GridLayout(
             modifier = Modifier.weight(1f),
-            gridItems = gridItemsCacheByPage,
+            gridItems = gridItemCache.gridItemsCacheByPage[currentPage].orEmpty(),
             columns = homeSettings.columns,
             rows = homeSettings.rows,
             { gridItem ->

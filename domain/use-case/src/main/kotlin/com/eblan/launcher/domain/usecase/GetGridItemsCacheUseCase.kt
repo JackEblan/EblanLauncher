@@ -17,19 +17,24 @@
  */
 package com.eblan.launcher.domain.usecase
 
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class GetGridItemsCacheUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<GridItemCache> {
         return combine(
@@ -39,7 +44,7 @@ class GetGridItemsCacheUseCase @Inject constructor(
         ) { userData, gridItems, gridItemCacheType ->
             when (gridItemCacheType) {
                 GridItemCacheType.Grid -> {
-                    val gridItemsWithinBounds = gridItems.filter { gridItem ->
+                    val gridItemsCacheByPage = gridItems.filter { gridItem ->
                         isGridItemSpanWithinBounds(
                             gridItem = gridItem,
                             columns = userData.homeSettings.columns,
@@ -47,7 +52,7 @@ class GetGridItemsCacheUseCase @Inject constructor(
                         ) && gridItem.associate == Associate.Grid
                     }.groupBy { gridItem -> gridItem.page }
 
-                    val dockGridItemsWithinBounds = gridItems.filter { gridItem ->
+                    val dockGridItemsCache = gridItems.filter { gridItem ->
                         isGridItemSpanWithinBounds(
                             gridItem = gridItem,
                             columns = userData.homeSettings.dockColumns,
@@ -56,13 +61,14 @@ class GetGridItemsCacheUseCase @Inject constructor(
                     }
 
                     GridItemCache(
-                        gridItemsCacheByPage = gridItemsWithinBounds,
-                        dockGridItemsCache = dockGridItemsWithinBounds,
+                        gridItemCacheType = gridItemCacheType,
+                        gridItemsCacheByPage = gridItemsCacheByPage,
+                        dockGridItemsCache = dockGridItemsCache,
                     )
                 }
 
                 GridItemCacheType.Folder -> {
-                    val gridItemsWithinBounds = gridItems.filter { gridItem ->
+                    val gridItemsCacheByPage = gridItems.filter { gridItem ->
                         isGridItemSpanWithinBounds(
                             gridItem = gridItem,
                             columns = userData.homeSettings.folderColumns,
@@ -71,11 +77,12 @@ class GetGridItemsCacheUseCase @Inject constructor(
                     }.groupBy { gridItem -> gridItem.page }
 
                     GridItemCache(
-                        gridItemsCacheByPage = gridItemsWithinBounds,
+                        gridItemCacheType = gridItemCacheType,
+                        gridItemsCacheByPage = gridItemsCacheByPage,
                         dockGridItemsCache = emptyList(),
                     )
                 }
             }
-        }
+        }.flowOn(defaultDispatcher)
     }
 }

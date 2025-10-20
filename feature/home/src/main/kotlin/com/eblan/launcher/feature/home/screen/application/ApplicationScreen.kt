@@ -842,7 +842,7 @@ private fun ScrollBarThumb(
         derivedStateOf {
             val rows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                        appDrawerSettings.appDrawerColumns
+                    appDrawerSettings.appDrawerColumns
 
             val totalHeight = rows * appDrawerRowsHeightPx
 
@@ -931,7 +931,7 @@ private fun ScrollBarThumb(
                         onVerticalDrag = { change, deltaY ->
                             val rows =
                                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                                        appDrawerSettings.appDrawerColumns
+                                    appDrawerSettings.appDrawerColumns
 
                             val totalHeight = rows * appDrawerRowsHeightPx
 

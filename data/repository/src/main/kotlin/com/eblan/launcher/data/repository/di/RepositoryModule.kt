@@ -60,7 +60,6 @@ internal interface RepositoryModule {
     @Singleton
     fun gridCacheRepository(impl: DefaultGridCacheRepository): GridCacheRepository
 
-
     @Binds
     @Singleton
     fun folderGridCacheRepository(impl: DefaultFolderGridCacheRepository): FolderGridCacheRepository

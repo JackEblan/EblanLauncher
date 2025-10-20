@@ -17,24 +17,24 @@
  */
 package com.eblan.launcher.data.repository
 
-import com.eblan.launcher.data.cache.GridCacheDataSource
+import com.eblan.launcher.data.cache.FolderGridCacheDataSource
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import javax.inject.Inject
 
-internal class DefaultFolderGridCacheRepository @Inject constructor(private val gridCacheDataSource: GridCacheDataSource) :
+internal class DefaultFolderGridCacheRepository @Inject constructor(private val folderGridCacheDataSource: FolderGridCacheDataSource) :
     FolderGridCacheRepository {
-    override val gridItemsCache = gridCacheDataSource.gridItemsCache
+    override val gridItemsCache = folderGridCacheDataSource.gridItemsCache
 
     override fun insertGridItems(gridItems: List<GridItem>) {
-        gridCacheDataSource.insertGridItems(gridItems = gridItems)
+        folderGridCacheDataSource.insertGridItems(gridItems = gridItems)
     }
 
     override fun insertGridItem(gridItem: GridItem) {
-        gridCacheDataSource.insertGridItem(gridItem = gridItem)
+        folderGridCacheDataSource.insertGridItem(gridItem = gridItem)
     }
 
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
-        gridCacheDataSource.upsertGridItems(gridItems = gridItems)
+        folderGridCacheDataSource.upsertGridItems(gridItems = gridItems)
     }
 }

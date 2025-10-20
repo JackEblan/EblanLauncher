@@ -295,7 +295,7 @@ private fun EditFolder(
                 value = it
             },
             onDismissRequest = {
-                showEditLabelDialog = false
+                showEditPageCountDialog = false
             },
             onUpdateClick = {
                 if (value.isNotBlank()) {

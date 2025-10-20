@@ -408,8 +408,8 @@ private fun AnimatedDropGridItem(
             .size(
                 with(density) {
                     DpSize(
-                        width = animatedWidth.value.roundToInt().toDp(),
-                        height = animatedHeight.value.roundToInt().toDp(),
+                        width = animatedWidth.value.toDp(),
+                        height = animatedHeight.value.toDp(),
                     )
                 },
             ),

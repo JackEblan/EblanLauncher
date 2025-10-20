@@ -276,7 +276,7 @@ fun ShortcutInfoGridItem(
             AsyncImage(
                 model = data.eblanApplicationInfo.icon,
                 modifier = Modifier
-                    .size(5.dp)
+                    .size((gridItemSettings.iconSize * 0.25).dp)
                     .align(Alignment.BottomEnd),
                 contentDescription = null,
             )
@@ -338,7 +338,7 @@ fun FolderGridItem(
                 maxLines = 2,
             ) {
                 data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
-                    val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).toInt().dp)
+                    val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).dp)
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {

@@ -41,7 +41,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +54,6 @@ import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.settings.HintRow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
@@ -176,8 +174,7 @@ private fun Success(
             HintRow(
                 hint = "Set Eblan Launcher as your default launcher",
                 onClick = {
-                    val intent = Intent(Settings.ACTION_HOME_SETTINGS)
-                    context.startActivity(intent)
+                    context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
                 },
             )
         }
@@ -258,34 +255,6 @@ private fun SettingsRow(
             Spacer(modifier = Modifier.height(5.dp))
 
             Text(text = subtitle)
-        }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalPermissionsApi::class)
-private fun NotificationPermission(onGrantPermission: (Boolean) -> Unit) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        return
-    }
-
-    val notificationsPermissionState = rememberPermissionState(
-        permission = android.Manifest.permission.POST_NOTIFICATIONS,
-    )
-
-    LaunchedEffect(key1 = notificationsPermissionState.status) {
-        when (val status = notificationsPermissionState.status) {
-            is PermissionStatus.Granted -> {
-                onGrantPermission(true)
-            }
-
-            is PermissionStatus.Denied -> {
-                onGrantPermission(false)
-
-                if (!status.shouldShowRationale) {
-                    notificationsPermissionState.launchPermissionRequest()
-                }
-            }
         }
     }
 }

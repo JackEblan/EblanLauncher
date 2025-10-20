@@ -311,6 +311,24 @@ private fun Success(
         onAnimateDismiss()
     }
 
+    LaunchedEffect(key1 = drag) {
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
+
+                showPopupApplicationMenu = false
+            }
+
+            Drag.Cancel, Drag.End -> {
+                onResetOverlay()
+
+                showPopupApplicationMenu = false
+            }
+
+            else -> Unit
+        }
+    }
+
     Column(
         modifier = modifier
             .offset {
@@ -341,11 +359,6 @@ private fun Success(
                 focusManager.clearFocus()
             },
             onLongPressGridItem = onLongPressGridItem,
-            onDraggingGridItem = {
-                onDraggingGridItem()
-
-                showPopupApplicationMenu = false
-            },
             onUpdatePopupMenu = {
                 showPopupApplicationMenu = true
             },
@@ -389,11 +402,6 @@ private fun Success(
                             popupMenuIntSize = intSize
                         },
                         onLongPressGridItem = onLongPressGridItem,
-                        onDraggingGridItem = {
-                            onDraggingGridItem()
-
-                            showPopupApplicationMenu = false
-                        },
                         onUpdatePopupMenu = {
                             showPopupApplicationMenu = true
                         },
@@ -448,7 +456,6 @@ private fun EblanApplicationInfoDockSearchBar(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onDraggingGridItem: () -> Unit,
     onUpdatePopupMenu: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -493,7 +500,6 @@ private fun EblanApplicationInfoDockSearchBar(
                     paddingValues = paddingValues,
                     onLongPress = onLongPress,
                     onLongPressGridItem = onLongPressGridItem,
-                    onDraggingGridItem = onDraggingGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,
                     onResetOverlay = onResetOverlay,
                 )
@@ -521,7 +527,6 @@ private fun EblanApplicationInfoItem(
         imageBitmap: ImageBitmap?,
     ) -> Unit,
     onUpdatePopupMenu: () -> Unit,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -581,24 +586,14 @@ private fun EblanApplicationInfoItem(
     }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = 1f
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
-
-            Drag.Cancel, Drag.End -> {
-                alpha = 1f
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
-
-                onResetOverlay()
-            }
-
-            else -> Unit
         }
     }
 

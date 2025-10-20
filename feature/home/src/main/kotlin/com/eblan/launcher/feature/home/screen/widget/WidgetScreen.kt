@@ -143,6 +143,20 @@ fun WidgetScreen(
         animatedSwipeUpY.animateTo(0f)
     }
 
+    LaunchedEffect(key1 = drag) {
+        when (drag) {
+            Drag.Dragging -> {
+                onDraggingGridItem()
+            }
+
+            Drag.Cancel, Drag.End -> {
+                onResetOverlay()
+            }
+
+            else -> Unit
+        }
+    }
+
     BackHandler {
         scope.launch {
             animatedSwipeUpY.animateTo(screenHeight.toFloat())
@@ -195,7 +209,6 @@ fun WidgetScreen(
                                     onLongPressGridItem = onLongPressGridItem,
                                     currentPage = currentPage,
                                     gridItemSettings = gridItemSettings,
-                                    onDraggingGridItem = onDraggingGridItem,
                                     onResetOverlay = onResetOverlay,
                                 )
 
@@ -213,7 +226,6 @@ fun WidgetScreen(
                                             onLongPressGridItem = onLongPressGridItem,
                                             currentPage = currentPage,
                                             gridItemSettings = gridItemSettings,
-                                            onDraggingGridItem = onDraggingGridItem,
                                             onResetOverlay = onResetOverlay,
                                         )
                                     }
@@ -244,7 +256,6 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
@@ -290,7 +301,6 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
                 )
             }
@@ -314,7 +324,6 @@ private fun EblanApplicationInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -369,7 +378,6 @@ private fun EblanApplicationInfoItem(
                     onLongPressGridItem = onLongPressGridItem,
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
-                    onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
                 )
             }
@@ -393,7 +401,6 @@ private fun EblanAppWidgetProviderInfoItem(
     ) -> Unit,
     currentPage: Int,
     gridItemSettings: GridItemSettings,
-    onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -412,24 +419,14 @@ private fun EblanAppWidgetProviderInfoItem(
     var alpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(key1 = drag) {
-        when (drag) {
-            Drag.Dragging -> {
-                onDraggingGridItem()
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = 1f
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
             }
-
-            Drag.Cancel, Drag.End -> {
-                alpha = 1f
-
-                scale.stop()
-
-                if (scale.value < 1f) {
-                    scale.animateTo(1f)
-                }
-
-                onResetOverlay()
-            }
-
-            else -> Unit
         }
     }
 

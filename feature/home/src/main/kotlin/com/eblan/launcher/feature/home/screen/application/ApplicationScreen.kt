@@ -328,10 +328,14 @@ private fun Success(
                     showPopupApplicationMenu = false
                 }
 
-                Drag.Cancel, Drag.End -> {
+                Drag.Cancel -> {
                     onResetOverlay()
 
                     showPopupApplicationMenu = false
+                }
+
+                Drag.End -> {
+                    onResetOverlay()
                 }
 
                 else -> Unit

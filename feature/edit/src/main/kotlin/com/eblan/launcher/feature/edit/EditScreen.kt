@@ -120,27 +120,38 @@ private fun Success(
     gridItem: GridItem,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
-    var showEditLabelDialog by remember { mutableStateOf(false) }
-
-    val subtitle = when (val data = gridItem.data) {
-        is GridItemData.ApplicationInfo -> data.label.toString()
-        is GridItemData.Folder -> data.label
-        is GridItemData.ShortcutInfo -> data.shortLabel
-        is GridItemData.Widget -> ""
-    }
-
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
-        SettingsColumn(
-            title = "Edit Label",
-            subtitle = subtitle,
-            onClick = {
-                showEditLabelDialog = true
-            },
-        )
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                EditApplicationInfo(
+                    gridItem = gridItem,
+                    data = data,
+                    onUpdateGridItem = onUpdateGridItem,
+                )
+            }
+
+            is GridItemData.Folder -> {
+                EditFolder(
+                    gridItem = gridItem,
+                    data = data,
+                    onUpdateGridItem = onUpdateGridItem,
+                )
+            }
+
+            is GridItemData.ShortcutInfo -> {
+                EditShortcut(
+                    gridItem = gridItem,
+                    data = data,
+                    onUpdateGridItem = onUpdateGridItem,
+                )
+            }
+
+            else -> Unit
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -162,103 +173,193 @@ private fun Success(
             },
         )
     }
+}
+
+@Composable
+private fun EditApplicationInfo(
+    gridItem: GridItem,
+    data: GridItemData.ApplicationInfo,
+    onUpdateGridItem: (GridItem) -> Unit,
+) {
+    var showEditLabelDialog by remember { mutableStateOf(false) }
+
+    SettingsColumn(
+        title = "Edit Label",
+        subtitle = data.label.toString(),
+        onClick = {
+            showEditLabelDialog = true
+        },
+    )
 
     if (showEditLabelDialog) {
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                var value by remember { mutableStateOf(data.label.toString()) }
+        var value by remember { mutableStateOf(data.label.toString()) }
 
-                var isError by remember { mutableStateOf(false) }
+        var isError by remember { mutableStateOf(false) }
 
-                SingleTextFieldDialog(
-                    title = "Label",
-                    textFieldTitle = "Label",
-                    value = value,
-                    isError = isError,
-                    keyboardType = KeyboardType.Text,
-                    onValueChange = {
-                        value = it
-                    },
-                    onDismissRequest = {
-                        showEditLabelDialog = false
-                    },
-                    onUpdateClick = {
-                        if (value.isNotBlank()) {
-                            val newData = data.copy(label = value)
+        SingleTextFieldDialog(
+            title = "Label",
+            textFieldTitle = "Label",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Text,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showEditLabelDialog = false
+            },
+            onUpdateClick = {
+                if (value.isNotBlank()) {
+                    val newData = data.copy(label = value)
 
-                            onUpdateGridItem(gridItem.copy(data = newData))
+                    onUpdateGridItem(gridItem.copy(data = newData))
 
-                            showEditLabelDialog = false
-                        } else {
-                            isError = true
-                        }
-                    },
-                )
-            }
+                    showEditLabelDialog = false
+                } else {
+                    isError = true
+                }
+            },
+        )
+    }
+}
 
-            is GridItemData.Folder -> {
-                var value by remember { mutableStateOf(data.label) }
+@Composable
+private fun EditFolder(
+    gridItem: GridItem,
+    data: GridItemData.Folder,
+    onUpdateGridItem: (GridItem) -> Unit,
+) {
+    var showEditLabelDialog by remember { mutableStateOf(false) }
 
-                var isError by remember { mutableStateOf(false) }
+    var showEditPageCountDialog by remember { mutableStateOf(false) }
 
-                SingleTextFieldDialog(
-                    title = "Label",
-                    textFieldTitle = "Label",
-                    value = value,
-                    isError = isError,
-                    keyboardType = KeyboardType.Text,
-                    onValueChange = {
-                        value = it
-                    },
-                    onDismissRequest = {
-                        showEditLabelDialog = false
-                    },
-                    onUpdateClick = {
-                        if (value.isNotBlank()) {
-                            val newData = data.copy(label = value)
+    SettingsColumn(
+        title = "Edit Label",
+        subtitle = data.label,
+        onClick = {
+            showEditLabelDialog = true
+        },
+    )
 
-                            onUpdateGridItem(gridItem.copy(data = newData))
+    SettingsColumn(
+        title = "Edit Page Count",
+        subtitle = data.pageCount.toString(),
+        onClick = {
+            showEditPageCountDialog = true
+        },
+    )
 
-                            showEditLabelDialog = false
-                        } else {
-                            isError = true
-                        }
-                    },
-                )
-            }
+    if (showEditLabelDialog) {
+        var value by remember { mutableStateOf(data.label) }
 
-            is GridItemData.ShortcutInfo -> {
-                var value by remember { mutableStateOf(data.shortLabel) }
+        var isError by remember { mutableStateOf(false) }
 
-                var isError by remember { mutableStateOf(false) }
+        SingleTextFieldDialog(
+            title = "Label",
+            textFieldTitle = "Label",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Text,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showEditLabelDialog = false
+            },
+            onUpdateClick = {
+                if (value.isNotBlank()) {
+                    val newData = data.copy(label = value)
 
-                SingleTextFieldDialog(
-                    title = "Label",
-                    textFieldTitle = "Label",
-                    value = value,
-                    isError = isError,
-                    keyboardType = KeyboardType.Text,
-                    onValueChange = {
-                        value = it
-                    },
-                    onDismissRequest = {
-                        showEditLabelDialog = false
-                    },
-                    onUpdateClick = {
-                        if (value.isNotBlank()) {
-                            val newData = data.copy(shortLabel = value)
+                    onUpdateGridItem(gridItem.copy(data = newData))
 
-                            onUpdateGridItem(gridItem.copy(data = newData))
+                    showEditLabelDialog = false
+                } else {
+                    isError = true
+                }
+            },
+        )
+    }
 
-                            showEditLabelDialog = false
-                        } else {
-                            isError = true
-                        }
-                    },
-                )
-            }
+    if (showEditPageCountDialog) {
+        var value by remember { mutableStateOf("${data.pageCount}") }
 
-            else -> Unit
-        }
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Page Count",
+            textFieldTitle = "Page Count",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Number,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showEditLabelDialog = false
+            },
+            onUpdateClick = {
+                if (value.isNotBlank()) {
+                    try {
+                        val newData = data.copy(pageCount = value.toInt())
+
+                        onUpdateGridItem(gridItem.copy(data = newData))
+
+                        showEditPageCountDialog = false
+                    } catch (_: NumberFormatException) {
+                        isError = true
+                    }
+                } else {
+                    isError = true
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun EditShortcut(
+    gridItem: GridItem,
+    data: GridItemData.ShortcutInfo,
+    onUpdateGridItem: (GridItem) -> Unit,
+) {
+    var showEditLabelDialog by remember { mutableStateOf(false) }
+
+    SettingsColumn(
+        title = "Short Label",
+        subtitle = data.shortLabel,
+        onClick = {
+            showEditLabelDialog = true
+        },
+    )
+
+    if (showEditLabelDialog) {
+        var value by remember { mutableStateOf(data.shortLabel) }
+
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Label",
+            textFieldTitle = "Label",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Text,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                showEditLabelDialog = false
+            },
+            onUpdateClick = {
+                if (value.isNotBlank()) {
+                    val newData = data.copy(shortLabel = value)
+
+                    onUpdateGridItem(gridItem.copy(data = newData))
+
+                    showEditLabelDialog = false
+                } else {
+                    isError = true
+                }
+            },
+        )
     }
 }

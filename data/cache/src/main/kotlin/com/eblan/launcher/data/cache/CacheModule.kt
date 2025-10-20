@@ -30,4 +30,8 @@ internal interface CacheModule {
     @Binds
     @Singleton
     fun gridCacheDataSource(impl: DefaultGridCacheDataSource): GridCacheDataSource
+
+    @Binds
+    @Singleton
+    fun folderGridCacheDataSource(impl: DefaultFolderGridCacheDataSource): FolderGridCacheDataSource
 }

@@ -222,7 +222,7 @@ fun FolderDragScreen(
                         color = getSystemTextColor(textColor = textColor),
                         shape = RoundedCornerShape(8.dp),
                     ),
-                gridItems = gridItemCache.gridItemsCacheByPage[index],
+                gridItems = gridItemCache.folderGridItemsCacheByPage[index],
                 columns = homeSettings.folderColumns,
                 rows = homeSettings.folderRows,
                 { gridItem ->

@@ -18,14 +18,11 @@
 package com.eblan.launcher.data.cache
 
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.flow.Flow
 
 interface GridCacheDataSource {
     val gridItemsCache: Flow<List<GridItem>>
-
-    val gridItemCacheType: Flow<GridItemCacheType>
 
     fun insertGridItems(gridItems: List<GridItem>)
 
@@ -38,6 +35,4 @@ interface GridCacheDataSource {
     suspend fun updateGridItemData(id: String, data: GridItemData)
 
     suspend fun upsertGridItems(gridItems: List<GridItem>)
-
-    fun updateGridItemCacheType(gridItemCacheType: GridItemCacheType)
 }

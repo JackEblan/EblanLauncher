@@ -64,7 +64,6 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemCacheType
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
@@ -131,6 +130,7 @@ fun HomeRoute(
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
         onShowGridCache = viewModel::showGridCache,
+        onShowFolderGridCache = viewModel::showFolderGridCache,
         onResetGridCacheAfterResize = viewModel::resetGridCacheAfterResize,
         onResetGridCacheAfterMove = viewModel::resetGridCacheAfterMove,
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
@@ -195,7 +195,10 @@ fun HomeScreen(
     ) -> Unit,
     onShowGridCache: (
         gridItems: List<GridItem>,
-        gridItemCacheType: GridItemCacheType,
+        screen: Screen,
+    ) -> Unit,
+    onShowFolderGridCache: (
+        gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
@@ -356,6 +359,7 @@ fun HomeScreen(
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
                     onShowGridCache = onShowGridCache,
+                    onShowFolderGridCache = onShowFolderGridCache,
                     onResetGridCacheAfterResize = onResetGridCacheAfterResize,
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                     onCancelGridCache = onCancelGridCache,
@@ -449,7 +453,10 @@ private fun Success(
     ) -> Unit,
     onShowGridCache: (
         gridItems: List<GridItem>,
-        gridItemCacheType: GridItemCacheType,
+        screen: Screen,
+    ) -> Unit,
+    onShowFolderGridCache: (
+        gridItems: List<GridItem>,
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
@@ -535,7 +542,6 @@ private fun Success(
 
             onShowGridCache(
                 homeData.gridItems,
-                GridItemCacheType.Grid,
                 Screen.Drag,
             )
         }
@@ -573,7 +579,6 @@ private fun Success(
                     onDraggingGridItem = {
                         onShowGridCache(
                             homeData.gridItems,
-                            GridItemCacheType.Grid,
                             Screen.Drag,
                         )
                     },
@@ -581,7 +586,6 @@ private fun Success(
                     onResize = {
                         onShowGridCache(
                             homeData.gridItems,
-                            GridItemCacheType.Grid,
                             Screen.Resize,
                         )
                     },
@@ -688,9 +692,8 @@ private fun Success(
                     },
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onDraggingGridItem = { folderGridItems ->
-                        onShowGridCache(
+                        onShowFolderGridCache(
                             folderGridItems,
-                            GridItemCacheType.Folder,
                             Screen.FolderDrag,
                         )
                     },
@@ -724,7 +727,6 @@ private fun Success(
 
                         onShowGridCache(
                             homeData.gridItems,
-                            GridItemCacheType.Grid,
                             Screen.Drag,
                         )
                     },

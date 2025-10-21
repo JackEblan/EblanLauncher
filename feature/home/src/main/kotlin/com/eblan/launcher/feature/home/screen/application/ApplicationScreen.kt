@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -56,7 +57,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -208,22 +211,9 @@ fun ApplicationScreen(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
     val overscrollAlpha = remember { Animatable(0f) }
 
     val overscrollOffset = remember { Animatable(0f) }
-
-    val overscrollEffect = remember(key1 = scope) {
-        OffsetOverscrollEffect(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onDismiss,
-            onFastFling = onAnimateDismiss,
-        )
-    }
 
     Surface(
         modifier = modifier
@@ -261,14 +251,15 @@ fun ApplicationScreen(
                                 gridItemSource = gridItemSource,
                                 iconPackInfoPackageName = iconPackInfoPackageName,
                                 eblanApplicationInfos = eblanApplicationInfos,
-                                overscrollOffset = overscrollOffset.value,
-                                overscrollEffect = overscrollEffect,
+                                overscrollOffset = overscrollOffset,
+                                overscrollAlpha = overscrollAlpha,
                                 onLongPressGridItem = onLongPressGridItem,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                                 onAnimateDismiss = onAnimateDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
                                 onResetOverlay = onResetOverlay,
+                                onFling = onDismiss,
                             )
                         }
                     }
@@ -278,6 +269,7 @@ fun ApplicationScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
@@ -290,8 +282,8 @@ private fun Success(
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    overscrollOffset: Float,
-    overscrollEffect: OffsetOverscrollEffect,
+    overscrollOffset: Animatable<Float, AnimationVector1D>,
+    overscrollAlpha: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -304,8 +296,11 @@ private fun Success(
     onAnimateDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
+    onFling: suspend () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
+
+    val scope = rememberCoroutineScope()
 
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
@@ -352,7 +347,7 @@ private fun Success(
     Column(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = overscrollOffset.roundToInt())
+                IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
             }
             .fillMaxSize()
             .padding(
@@ -385,11 +380,42 @@ private fun Success(
             onResetOverlay = onResetOverlay,
         )
 
+        SecondaryTabRow(selectedTabIndex = horizontalPagerState.currentPage) {
+            eblanApplicationInfos.keys.forEachIndexed { index, serialNumber ->
+                Tab(
+                    selected = horizontalPagerState.currentPage == index,
+                    onClick = {
+                        scope.launch {
+                            horizontalPagerState.animateScrollToPage(index)
+                        }
+                    },
+                    text = {
+                        Text(
+                            text = "User $serialNumber",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                )
+            }
+        }
+
         HorizontalPager(
             modifier = Modifier.fillMaxWidth(),
             state = horizontalPagerState,
         ) { index ->
             Box(modifier = Modifier.fillMaxWidth()) {
+                val overscrollEffect = remember(key1 = scope) {
+                    OffsetOverscrollEffect(
+                        scope = scope,
+                        overscrollAlpha = overscrollAlpha,
+                        overscrollOffset = overscrollOffset,
+                        overscrollFactor = appDrawerSettings.overscrollFactor,
+                        onFling = onFling,
+                        onFastFling = onAnimateDismiss,
+                    )
+                }
+
                 val lazyGridState = rememberLazyGridState()
 
                 val serialNumber = eblanApplicationInfos.keys.toList()[index]
@@ -852,7 +878,7 @@ private fun ScrollBarThumb(
         derivedStateOf {
             val rows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                    appDrawerSettings.appDrawerColumns
+                        appDrawerSettings.appDrawerColumns
 
             val totalHeight = rows * appDrawerRowsHeightPx
 
@@ -941,7 +967,7 @@ private fun ScrollBarThumb(
                         onVerticalDrag = { change, deltaY ->
                             val rows =
                                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                                    appDrawerSettings.appDrawerColumns
+                                        appDrawerSettings.appDrawerColumns
 
                             val totalHeight = rows * appDrawerRowsHeightPx
 

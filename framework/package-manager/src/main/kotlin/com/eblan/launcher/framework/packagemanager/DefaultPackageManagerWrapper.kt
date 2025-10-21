@@ -48,8 +48,8 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
             try {
                 androidDrawableWrapper.createByteArray(
                     drawable = packageManager.getApplicationIcon(
-                        packageName
-                    )
+                        packageName,
+                    ),
                 )
             } catch (_: PackageManager.NameNotFoundException) {
                 null

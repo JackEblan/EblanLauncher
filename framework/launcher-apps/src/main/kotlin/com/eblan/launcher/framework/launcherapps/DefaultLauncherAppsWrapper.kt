@@ -29,7 +29,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Process
+import android.os.Process.myUserHandle
 import android.os.UserHandle
 import androidx.annotation.RequiresApi
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
@@ -40,6 +40,7 @@ import com.eblan.launcher.domain.model.EblanLauncherActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
@@ -55,11 +56,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val userManagerWrapper: AndroidUserManagerWrapper,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-
-    private val userHandle = Process.myUserHandle()
 
     override val hasShortcutHostPermission
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && launcherApps.hasShortcutHostPermission()
@@ -67,20 +67,35 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     override val launcherAppsEvent: Flow<LauncherAppsEvent> = callbackFlow {
         val callback = object : LauncherApps.Callback() {
             override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
-                if (packageName != null) {
-                    trySend(LauncherAppsEvent.PackageRemoved(packageName = packageName))
+                if (packageName != null && user != null) {
+                    trySend(
+                        LauncherAppsEvent.PackageRemoved(
+                            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+                            packageName = packageName,
+                        ),
+                    )
                 }
             }
 
             override fun onPackageAdded(packageName: String?, user: UserHandle?) {
-                if (packageName != null) {
-                    trySend(LauncherAppsEvent.PackageAdded(packageName = packageName))
+                if (packageName != null && user != null) {
+                    trySend(
+                        LauncherAppsEvent.PackageAdded(
+                            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+                            packageName = packageName,
+                        ),
+                    )
                 }
             }
 
             override fun onPackageChanged(packageName: String?, user: UserHandle?) {
-                if (packageName != null) {
-                    trySend(LauncherAppsEvent.PackageChanged(packageName = packageName))
+                if (packageName != null && user != null) {
+                    trySend(
+                        LauncherAppsEvent.PackageChanged(
+                            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+                            packageName = packageName,
+                        ),
+                    )
                 }
             }
 
@@ -113,6 +128,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                         trySend(
                             LauncherAppsEvent.ShortcutsChanged(
+                                serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
                                 packageName = packageName,
                                 launcherAppsShortcutInfos = launcherAppsShortcutInfo,
                             ),
@@ -131,8 +147,18 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     override suspend fun getActivityList(): List<EblanLauncherActivityInfo> {
         return withContext(defaultDispatcher) {
-            launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
-                launcherActivityInfo.toEblanLauncherActivityInfo()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                launcherApps.profiles.flatMap { currentUserHandle ->
+                    launcherApps.getActivityList(null, currentUserHandle)
+                        .map { launcherActivityInfo ->
+                            launcherActivityInfo.toEblanLauncherActivityInfo()
+                        }
+                }
+            } else {
+                launcherApps.getActivityList(null, myUserHandle())
+                    .map { launcherActivityInfo ->
+                        launcherActivityInfo.toEblanLauncherActivityInfo()
+                    }
             }
         }
     }
@@ -141,7 +167,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         if (componentName != null) {
             launcherApps.startMainActivity(
                 ComponentName.unflattenFromString(componentName),
-                userHandle,
+                myUserHandle(),
                 sourceBounds,
                 Bundle.EMPTY,
             )
@@ -158,7 +184,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 )
             }
 
-            launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+            launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
                 toLauncherAppsShortcutInfo(shortcutInfo = shortcutInfo)
             }
         } else {
@@ -182,7 +208,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             id,
             sourceBounds,
             null,
-            userHandle,
+            myUserHandle(),
         )
     }
 
@@ -202,7 +228,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         if (componentName != null) {
             launcherApps.startAppDetailsActivity(
                 ComponentName.unflattenFromString(componentName),
-                userHandle,
+                myUserHandle(),
                 sourceBounds,
                 Bundle.EMPTY,
             )
@@ -213,6 +239,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         val icon = packageManagerWrapper.getApplicationIcon(applicationInfo.packageName)
 
         return EblanLauncherActivityInfo(
+            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
             componentName = componentName.flattenToString(),
             packageName = applicationInfo.packageName,
             icon = icon,

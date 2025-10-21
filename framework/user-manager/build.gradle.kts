@@ -15,16 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
 
-@Entity
-data class EblanApplicationInfoEntity(
-    @PrimaryKey val packageName: String,
-    val serialNumber: Long,
-    val componentName: String?,
-    val icon: String?,
-    val label: String?,
-)
+android {
+    namespace = "com.eblan.launcher.framework.usermanager"
+}
+
+dependencies {
+    implementation(projects.common)
+    implementation(projects.domain.common)
+}

@@ -18,13 +18,23 @@
 package com.eblan.launcher.domain.model
 
 sealed interface LauncherAppsEvent {
-    data class PackageAdded(val packageName: String) : LauncherAppsEvent
+    data class PackageAdded(
+        val serialNumber: Long,
+        val packageName: String,
+    ) : LauncherAppsEvent
 
-    data class PackageRemoved(val packageName: String) : LauncherAppsEvent
+    data class PackageRemoved(
+        val serialNumber: Long,
+        val packageName: String,
+    ) : LauncherAppsEvent
 
-    data class PackageChanged(val packageName: String) : LauncherAppsEvent
+    data class PackageChanged(
+        val serialNumber: Long,
+        val packageName: String,
+    ) : LauncherAppsEvent
 
     data class ShortcutsChanged(
+        val serialNumber: Long,
         val packageName: String,
         val launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
     ) : LauncherAppsEvent

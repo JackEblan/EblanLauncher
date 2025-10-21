@@ -75,11 +75,17 @@ class ApplicationInfoService : Service() {
                 launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
                     when (launcherAppsEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
-                            addPackageUseCase(packageName = launcherAppsEvent.packageName)
+                            addPackageUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
+                                packageName = launcherAppsEvent.packageName,
+                            )
                         }
 
                         is LauncherAppsEvent.PackageChanged -> {
-                            changePackageUseCase(packageName = launcherAppsEvent.packageName)
+                            changePackageUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
+                                packageName = launcherAppsEvent.packageName,
+                            )
                         }
 
                         is LauncherAppsEvent.PackageRemoved -> {

@@ -15,16 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.entity
+package com.eblan.launcher.framework.usermanager
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import android.os.UserHandle
 
-@Entity
-data class EblanApplicationInfoEntity(
-    @PrimaryKey val packageName: String,
-    val serialNumber: Long,
-    val componentName: String?,
-    val icon: String?,
-    val label: String?,
-)
+interface AndroidUserManagerWrapper {
+    fun getSerialNumberForUser(userHandle: UserHandle): Long
+
+    fun getUserForSerialNumber(serialNumber: Long): UserHandle
+}

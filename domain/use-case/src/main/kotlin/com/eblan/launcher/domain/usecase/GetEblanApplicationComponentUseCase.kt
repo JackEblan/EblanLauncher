@@ -44,6 +44,8 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
             val sortedEblanApplicationInfos =
                 eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
                     eblanApplicationInfo.label?.lowercase()
+                }.groupBy { eblanApplicationInfo ->
+                    eblanApplicationInfo.serialNumber
                 }
 
             val groupedEblanAppWidgetProviderInfos =

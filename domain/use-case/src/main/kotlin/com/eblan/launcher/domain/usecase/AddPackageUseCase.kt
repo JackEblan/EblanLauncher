@@ -39,7 +39,10 @@ class AddPackageUseCase @Inject constructor(
     private val updateIconPackInfoUseCase: UpdateIconPackInfoUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(packageName: String) {
+    suspend operator fun invoke(
+        serialNumber: Long,
+        packageName: String,
+    ) {
         withContext(defaultDispatcher) {
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
@@ -56,6 +59,7 @@ class AddPackageUseCase @Inject constructor(
             val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
             val eblanApplicationInfo = EblanApplicationInfo(
+                serialNumber = serialNumber,
                 componentName = componentName,
                 packageName = packageName,
                 icon = icon,

@@ -54,6 +54,7 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                     }
 
                     EblanApplicationInfo(
+                        serialNumber = eblanLauncherActivityInfo.serialNumber,
                         componentName = eblanLauncherActivityInfo.componentName,
                         packageName = eblanLauncherActivityInfo.packageName,
                         icon = icon,

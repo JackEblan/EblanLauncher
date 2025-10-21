@@ -46,6 +46,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -287,7 +289,7 @@ private fun Success(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
-    eblanApplicationInfos: List<EblanApplicationInfo>,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     overscrollOffset: Float,
     overscrollEffect: OffsetOverscrollEffect,
     onLongPressGridItem: (
@@ -312,6 +314,12 @@ private fun Success(
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val lazyGridState = rememberLazyGridState()
+
+    val horizontalPagerState = rememberPagerState(
+        pageCount = {
+            eblanApplicationInfos.keys.size
+        },
+    )
 
     BackHandler {
         showPopupApplicationMenu = false
@@ -391,50 +399,54 @@ private fun Success(
                     ),
                 ),
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-                state = lazyGridState,
-                contentPadding = PaddingValues(
-                    bottom = paddingValues.calculateBottomPadding(),
-                ),
-                modifier = Modifier.matchParentSize(),
-                overscrollEffect = overscrollEffect,
-            ) {
-                items(eblanApplicationInfos) { eblanApplicationInfo ->
-                    EblanApplicationInfoItem(
-                        currentPage = currentPage,
-                        drag = drag,
-                        eblanApplicationInfo = eblanApplicationInfo,
-                        appDrawerSettings = appDrawerSettings,
-                        iconPackInfoPackageName = iconPackInfoPackageName,
-                        paddingValues = paddingValues,
-                        onLongPress = { intOffset, intSize ->
-                            onUpdateGridItemOffset(intOffset, intSize)
+            HorizontalPager(state = horizontalPagerState) { index ->
+                val serialNumber = eblanApplicationInfos.keys.toList()[index]
 
-                            popupMenuIntOffset = intOffset
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+                    state = lazyGridState,
+                    contentPadding = PaddingValues(
+                        bottom = paddingValues.calculateBottomPadding(),
+                    ),
+                    modifier = Modifier.matchParentSize(),
+                    overscrollEffect = overscrollEffect,
+                ) {
+                    items(eblanApplicationInfos[serialNumber].orEmpty()) { eblanApplicationInfo ->
+                        EblanApplicationInfoItem(
+                            currentPage = currentPage,
+                            drag = drag,
+                            eblanApplicationInfo = eblanApplicationInfo,
+                            appDrawerSettings = appDrawerSettings,
+                            iconPackInfoPackageName = iconPackInfoPackageName,
+                            paddingValues = paddingValues,
+                            onLongPress = { intOffset, intSize ->
+                                onUpdateGridItemOffset(intOffset, intSize)
 
-                            popupMenuIntSize = intSize
-                        },
-                        onLongPressGridItem = onLongPressGridItem,
-                        onUpdatePopupMenu = {
-                            showPopupApplicationMenu = true
-                        },
-                        onResetOverlay = onResetOverlay,
-                    )
+                                popupMenuIntOffset = intOffset
+
+                                popupMenuIntSize = intSize
+                            },
+                            onLongPressGridItem = onLongPressGridItem,
+                            onUpdatePopupMenu = {
+                                showPopupApplicationMenu = true
+                            },
+                            onResetOverlay = onResetOverlay,
+                        )
+                    }
                 }
-            }
 
-            ScrollBarThumb(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .fillMaxHeight()
-                    .padding(bottom = paddingValues.calculateBottomPadding()),
-                lazyGridState = lazyGridState,
-                appDrawerSettings = appDrawerSettings,
-                paddingValues = paddingValues,
-                eblanApplicationInfos = eblanApplicationInfos,
-                onScrollToItem = lazyGridState::scrollToItem,
-            )
+                ScrollBarThumb(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxHeight()
+                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                    lazyGridState = lazyGridState,
+                    appDrawerSettings = appDrawerSettings,
+                    paddingValues = paddingValues,
+                    eblanApplicationInfos = eblanApplicationInfos[serialNumber].orEmpty(),
+                    onScrollToItem = lazyGridState::scrollToItem,
+                )
+            }
         }
     }
 

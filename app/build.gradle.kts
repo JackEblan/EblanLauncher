@@ -66,6 +66,7 @@ dependencies {
     implementation(projects.framework.resources)
     implementation(projects.framework.notificationManager)
     implementation(projects.framework.packageManager)
+    implementation(projects.framework.userManager)
     implementation(projects.framework.wallpaperManager)
     implementation(projects.framework.widgetManager)
     implementation(projects.service)

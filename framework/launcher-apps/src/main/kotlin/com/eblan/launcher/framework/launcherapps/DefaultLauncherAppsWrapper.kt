@@ -174,7 +174,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             myUserHandle()
         }
 
-        if (componentName != null) {
+        if (componentName != null && userHandle != null) {
             launcherApps.startMainActivity(
                 ComponentName.unflattenFromString(componentName),
                 userHandle,

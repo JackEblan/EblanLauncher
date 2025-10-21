@@ -313,8 +313,6 @@ private fun Success(
 
     var popupMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val lazyGridState = rememberLazyGridState()
-
     val horizontalPagerState = rememberPagerState(
         pageCount = {
             eblanApplicationInfos.keys.size
@@ -387,28 +385,22 @@ private fun Success(
             onResetOverlay = onResetOverlay,
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = paddingValues.calculateStartPadding(
-                        LayoutDirection.Ltr,
-                    ),
-                    end = paddingValues.calculateEndPadding(
-                        LayoutDirection.Ltr,
-                    ),
-                ),
-        ) {
-            HorizontalPager(state = horizontalPagerState) { index ->
+        HorizontalPager(
+            modifier = Modifier.fillMaxWidth(),
+            state = horizontalPagerState,
+        ) { index ->
+            Box(modifier = Modifier.fillMaxWidth()) {
+                val lazyGridState = rememberLazyGridState()
+
                 val serialNumber = eblanApplicationInfos.keys.toList()[index]
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
                     state = lazyGridState,
+                    modifier = Modifier.matchParentSize(),
                     contentPadding = PaddingValues(
                         bottom = paddingValues.calculateBottomPadding(),
                     ),
-                    modifier = Modifier.matchParentSize(),
                     overscrollEffect = overscrollEffect,
                 ) {
                     items(eblanApplicationInfos[serialNumber].orEmpty()) { eblanApplicationInfo ->
@@ -438,8 +430,7 @@ private fun Success(
                 ScrollBarThumb(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .fillMaxHeight()
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                        .fillMaxHeight(),
                     lazyGridState = lazyGridState,
                     appDrawerSettings = appDrawerSettings,
                     paddingValues = paddingValues,
@@ -638,6 +629,7 @@ private fun EblanApplicationInfoItem(
                             val sourceBoundsY = intOffset.y + topPadding
 
                             launcherApps.startMainActivity(
+                                serialNumber = eblanApplicationInfo.serialNumber,
                                 componentName = eblanApplicationInfo.componentName,
                                 sourceBounds = Rect(
                                     sourceBoundsX,
@@ -656,6 +648,7 @@ private fun EblanApplicationInfoItem(
 
                             val data =
                                 GridItemData.ApplicationInfo(
+                                    serialNumber = eblanApplicationInfo.serialNumber,
                                     componentName = eblanApplicationInfo.componentName,
                                     packageName = eblanApplicationInfo.packageName,
                                     icon = eblanApplicationInfo.icon,
@@ -798,6 +791,7 @@ private fun PopupApplicationInfoMenu(
                 modifier = modifier,
                 onApplicationInfo = {
                     launcherApps.startAppDetailsActivity(
+                        serialNumber = applicationInfo.serialNumber,
                         componentName = applicationInfo.componentName,
                         sourceBounds = Rect(
                             x,

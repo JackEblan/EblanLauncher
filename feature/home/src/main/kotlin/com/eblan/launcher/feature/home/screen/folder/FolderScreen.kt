@@ -207,12 +207,13 @@ fun FolderScreen(
                                     gridItemSettings = homeSettings.gridItemSettings,
                                     textColor = textColor,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
-                                    onTapApplicationInfo = { componentName ->
+                                    onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 
                                         val sourceBoundsY = y + topPadding
 
                                         launcherApps.startMainActivity(
+                                            serialNumber = serialNumber,
                                             componentName = componentName,
                                             sourceBounds = Rect(
                                                 sourceBoundsX,

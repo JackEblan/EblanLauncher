@@ -68,6 +68,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 icon = data.icon,
                                 label = data.label,
                                 override = gridItem.override,
+                                serialNumber = data.serialNumber,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )

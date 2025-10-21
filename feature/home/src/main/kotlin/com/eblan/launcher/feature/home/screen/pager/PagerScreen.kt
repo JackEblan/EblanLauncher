@@ -650,12 +650,13 @@ private fun HorizontalPagerScreen(
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        onTapApplicationInfo = { componentName ->
+                        onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
                             val sourceBoundsY = y + topPadding
 
                             launcherApps.startMainActivity(
+                                serialNumber = serialNumber,
                                 componentName = componentName,
                                 sourceBounds = Rect(
                                     sourceBoundsX,
@@ -748,12 +749,13 @@ private fun HorizontalPagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
                     iconPackInfoPackageName = iconPackInfoPackageName,
-                    onTapApplicationInfo = { componentName ->
+                    onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
                         val sourceBoundsY = y + topPadding
 
                         launcherApps.startMainActivity(
+                            serialNumber = serialNumber,
                             componentName = componentName,
                             sourceBounds = Rect(
                                 sourceBoundsX,
@@ -827,8 +829,9 @@ private fun HorizontalPagerScreen(
                 context.startActivity(intent)
             },
             onDeleteGridItem = onDeleteGridItem,
-            onInfo = { componentName ->
+            onInfo = { serialNumber, componentName ->
                 launcherApps.startAppDetailsActivity(
+                    serialNumber = serialNumber,
                     componentName = componentName,
                     sourceBounds = Rect(
                         popupMenuIntOffset.x,
@@ -932,7 +935,10 @@ private fun PopupGridItemMenu(
     onResize: () -> Unit,
     onUninstallApplicationInfo: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onInfo: (String?) -> Unit,
+    onInfo: (
+        serialNumber: Long,
+        componentName: String?,
+    ) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     Popup(
@@ -963,7 +969,10 @@ private fun PopupGridItemMenu(
                             onDismissRequest()
                         },
                         onInfo = {
-                            onInfo(data.componentName)
+                            onInfo(
+                                data.serialNumber,
+                                data.componentName,
+                            )
 
                             onDismissRequest()
                         },

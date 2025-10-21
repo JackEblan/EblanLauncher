@@ -163,7 +163,31 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override fun startMainActivity(componentName: String?, sourceBounds: Rect) {
+    override fun startMainActivity(
+        serialNumber: Long,
+        componentName: String?,
+        sourceBounds: Rect,
+    ) {
+        val userHandle = if (serialNumber != -1L) {
+            userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+        } else {
+            myUserHandle()
+        }
+
+        if (componentName != null) {
+            launcherApps.startMainActivity(
+                ComponentName.unflattenFromString(componentName),
+                userHandle,
+                sourceBounds,
+                Bundle.EMPTY,
+            )
+        }
+    }
+
+    override fun startMainActivity(
+        componentName: String?,
+        sourceBounds: Rect,
+    ) {
         if (componentName != null) {
             launcherApps.startMainActivity(
                 ComponentName.unflattenFromString(componentName),
@@ -222,13 +246,14 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     override fun startAppDetailsActivity(
+        serialNumber: Long,
         componentName: String?,
         sourceBounds: Rect,
     ) {
         if (componentName != null) {
             launcherApps.startAppDetailsActivity(
                 ComponentName.unflattenFromString(componentName),
-                myUserHandle(),
+                userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber),
                 sourceBounds,
                 Bundle.EMPTY,
             )

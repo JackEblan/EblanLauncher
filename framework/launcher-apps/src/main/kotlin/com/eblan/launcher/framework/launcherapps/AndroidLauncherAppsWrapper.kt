@@ -31,6 +31,12 @@ interface AndroidLauncherAppsWrapper {
     fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest
 
     fun startMainActivity(
+        serialNumber: Long,
+        componentName: String?,
+        sourceBounds: Rect,
+    )
+
+    fun startMainActivity(
         componentName: String?,
         sourceBounds: Rect,
     )
@@ -47,6 +53,7 @@ interface AndroidLauncherAppsWrapper {
     ): Drawable?
 
     fun startAppDetailsActivity(
+        serialNumber: Long,
         componentName: String?,
         sourceBounds: Rect,
     )

@@ -57,7 +57,10 @@ fun InteractiveGridItemContent(
     hasShortcutHostPermission: Boolean,
     drag: Drag,
     iconPackInfoPackageName: String,
-    onTapApplicationInfo: (String?) -> Unit,
+    onTapApplicationInfo: (
+        serialNumber: Long,
+        componentName: String?,
+    ) -> Unit,
     onTapShortcutInfo: (
         packageName: String,
         shortcutId: String,
@@ -92,7 +95,10 @@ fun InteractiveGridItemContent(
                 drag = drag,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 onTap = {
-                    onTapApplicationInfo(data.componentName)
+                    onTapApplicationInfo(
+                        data.serialNumber,
+                        data.componentName,
+                    )
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,

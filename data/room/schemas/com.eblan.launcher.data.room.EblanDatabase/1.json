@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "27e3caa5290f103475a6f7949fcb7414",
+    "identityHash": "a584951ec91235e6293854d6aa165189",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`, `serialNumber`))",
         "fields": [
           {
             "fieldPath": "packageName",
@@ -39,13 +39,14 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "packageName"
+            "packageName",
+            "serialNumber"
           ]
         }
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`className`), FOREIGN KEY(`packageName`, `serialNumber`) REFERENCES `EblanApplicationInfoEntity`(`packageName`, `serialNumber`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "className",
@@ -68,6 +69,12 @@
             "fieldPath": "packageName",
             "columnName": "packageName",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -165,13 +172,14 @@
         },
         "indices": [
           {
-            "name": "index_EblanAppWidgetProviderInfoEntity_packageName",
+            "name": "index_EblanAppWidgetProviderInfoEntity_packageName_serialNumber",
             "unique": false,
             "columnNames": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_EblanAppWidgetProviderInfoEntity_packageName` ON `${TABLE_NAME}` (`packageName`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_EblanAppWidgetProviderInfoEntity_packageName_serialNumber` ON `${TABLE_NAME}` (`packageName`, `serialNumber`)"
           }
         ],
         "foreignKeys": [
@@ -180,17 +188,19 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "referencedColumns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ]
           }
         ]
       },
       {
         "tableName": "EblanShortcutInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`shortcutId`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`shortcutId`), FOREIGN KEY(`packageName`, `serialNumber`) REFERENCES `EblanApplicationInfoEntity`(`packageName`, `serialNumber`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "shortcutId",
@@ -202,6 +212,12 @@
             "fieldPath": "packageName",
             "columnName": "packageName",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -257,13 +273,14 @@
         },
         "indices": [
           {
-            "name": "index_EblanShortcutInfoEntity_packageName",
+            "name": "index_EblanShortcutInfoEntity_packageName_serialNumber",
             "unique": false,
             "columnNames": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_EblanShortcutInfoEntity_packageName` ON `${TABLE_NAME}` (`packageName`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_EblanShortcutInfoEntity_packageName_serialNumber` ON `${TABLE_NAME}` (`packageName`, `serialNumber`)"
           }
         ],
         "foreignKeys": [
@@ -272,17 +289,19 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "referencedColumns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ]
           }
         ]
       },
       {
         "tableName": "ApplicationInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`, `serialNumber`) REFERENCES `EblanApplicationInfoEntity`(`packageName`, `serialNumber`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -359,6 +378,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
@@ -409,13 +434,14 @@
         },
         "indices": [
           {
-            "name": "index_ApplicationInfoGridItemEntity_packageName",
+            "name": "index_ApplicationInfoGridItemEntity_packageName_serialNumber",
             "unique": false,
             "columnNames": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ApplicationInfoGridItemEntity_packageName` ON `${TABLE_NAME}` (`packageName`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ApplicationInfoGridItemEntity_packageName_serialNumber` ON `${TABLE_NAME}` (`packageName`, `serialNumber`)"
           }
         ],
         "foreignKeys": [
@@ -424,17 +450,19 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "referencedColumns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ]
           }
         ]
       },
       {
         "tableName": "WidgetGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`, `serialNumber`) REFERENCES `EblanApplicationInfoEntity`(`packageName`, `serialNumber`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -572,6 +600,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
@@ -649,13 +683,14 @@
         },
         "indices": [
           {
-            "name": "index_WidgetGridItemEntity_packageName",
+            "name": "index_WidgetGridItemEntity_packageName_serialNumber",
             "unique": false,
             "columnNames": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_WidgetGridItemEntity_packageName` ON `${TABLE_NAME}` (`packageName`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_WidgetGridItemEntity_packageName_serialNumber` ON `${TABLE_NAME}` (`packageName`, `serialNumber`)"
           }
         ],
         "foreignKeys": [
@@ -664,17 +699,19 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "referencedColumns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ]
           }
         ]
       },
       {
         "tableName": "ShortcutInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`) REFERENCES `EblanApplicationInfoEntity`(`packageName`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packageName`, `serialNumber`) REFERENCES `EblanApplicationInfoEntity`(`packageName`, `serialNumber`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -759,6 +796,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "gridItemSettings.iconSize",
             "columnName": "iconSize",
             "affinity": "INTEGER",
@@ -836,13 +879,14 @@
         },
         "indices": [
           {
-            "name": "index_ShortcutInfoGridItemEntity_packageName",
+            "name": "index_ShortcutInfoGridItemEntity_packageName_serialNumber",
             "unique": false,
             "columnNames": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ShortcutInfoGridItemEntity_packageName` ON `${TABLE_NAME}` (`packageName`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ShortcutInfoGridItemEntity_packageName_serialNumber` ON `${TABLE_NAME}` (`packageName`, `serialNumber`)"
           }
         ],
         "foreignKeys": [
@@ -851,10 +895,12 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ],
             "referencedColumns": [
-              "packageName"
+              "packageName",
+              "serialNumber"
             ]
           }
         ]
@@ -1009,7 +1055,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '27e3caa5290f103475a6f7949fcb7414')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a584951ec91235e6293854d6aa165189')"
     ]
   }
 }

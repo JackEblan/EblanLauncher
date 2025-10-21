@@ -75,7 +75,7 @@ class ChangePackageUseCase @Inject constructor(
             val oldEblanAppWidgetProviderInfos =
                 eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
 
-            val newEblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProvidersForProfile()
+            val newEblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.map { appWidgetManagerAppWidgetProviderInfo ->

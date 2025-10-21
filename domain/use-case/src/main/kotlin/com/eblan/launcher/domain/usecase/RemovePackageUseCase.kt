@@ -54,7 +54,7 @@ class RemovePackageUseCase @Inject constructor(
                 iconFile.delete()
             }
 
-            appWidgetManagerWrapper.getInstalledProvidersForProfile()
+            appWidgetManagerWrapper.getInstalledProviders()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.forEach { appWidgetManagerAppWidgetProviderInfo ->

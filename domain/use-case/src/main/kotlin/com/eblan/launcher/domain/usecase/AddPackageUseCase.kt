@@ -70,7 +70,7 @@ class AddPackageUseCase @Inject constructor(
                 eblanApplicationInfo = eblanApplicationInfo,
             )
 
-            val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProvidersForProfile()
+            val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.map { appWidgetManagerAppWidgetProviderInfo ->

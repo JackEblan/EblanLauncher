@@ -37,6 +37,7 @@ class ChangeShortcutsUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
+        serialNumber: Long,
         packageName: String,
         launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
     ) {
@@ -68,6 +69,7 @@ class ChangeShortcutsUseCase @Inject constructor(
                         EblanShortcutInfo(
                             shortcutId = launcherAppsShortcutInfo.shortcutId,
                             packageName = launcherAppsShortcutInfo.packageName,
+                            serialNumber = serialNumber,
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             eblanApplicationInfo = eblanApplicationInfo,

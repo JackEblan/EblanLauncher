@@ -61,6 +61,7 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         return EblanShortcutInfoEntity(
             shortcutId = shortcutId,
             packageName = packageName,
+            serialNumber = serialNumber,
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
@@ -72,6 +73,7 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         return EblanShortcutInfo(
             shortcutId = shortcutId,
             packageName = packageName,
+            serialNumber = serialNumber,
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,

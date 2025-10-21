@@ -23,22 +23,42 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Process.myUserHandle
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val userManagerWrapper: AndroidUserManagerWrapper,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
-    override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
-        return appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+    override suspend fun getInstalledProvidersForProfile(): List<AppWidgetManagerAppWidgetProviderInfo> {
+        return withContext(defaultDispatcher) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                userManagerWrapper.getUserProfiles().flatMap { currentUserHandle ->
+                    appWidgetManager.getInstalledProvidersForProfile(currentUserHandle)
+                        .map { appWidgetProviderInfo ->
+                            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+                        }
+                }
+            } else {
+                appWidgetManager.getInstalledProvidersForProfile(myUserHandle())
+                    .map { appWidgetProviderInfo ->
+                        appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+                    }
+            }
         }
     }
 
@@ -63,6 +83,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             AppWidgetManagerAppWidgetProviderInfo(
                 className = provider.className,
                 packageName = provider.packageName,
+                serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile),
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
                 targetCellWidth = targetCellWidth,
@@ -80,6 +101,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             AppWidgetManagerAppWidgetProviderInfo(
                 className = provider.className,
                 packageName = provider.packageName,
+                serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile),
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
                 targetCellWidth = 0,

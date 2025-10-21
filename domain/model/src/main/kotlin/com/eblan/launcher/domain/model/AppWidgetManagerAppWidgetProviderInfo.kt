@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.model
 data class AppWidgetManagerAppWidgetProviderInfo(
     val className: String,
     val packageName: String,
+    val serialNumber: Long,
     val componentName: String,
     val configure: String?,
     val targetCellWidth: Int,

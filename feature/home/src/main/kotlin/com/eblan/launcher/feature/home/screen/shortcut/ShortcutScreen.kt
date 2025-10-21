@@ -453,6 +453,7 @@ private fun EblanShortcutInfoItem(
                             val data = GridItemData.ShortcutInfo(
                                 shortcutId = eblanShortcutInfo.shortcutId,
                                 packageName = eblanShortcutInfo.packageName,
+                                serialNumber = eblanShortcutInfo.serialNumber,
                                 shortLabel = eblanShortcutInfo.shortLabel,
                                 longLabel = eblanShortcutInfo.longLabel,
                                 icon = eblanShortcutInfo.icon,

@@ -67,6 +67,7 @@ class UpdateEblanShortcutInfosUseCase @Inject constructor(
                         EblanShortcutInfo(
                             shortcutId = launcherAppsShortcutInfo.shortcutId,
                             packageName = launcherAppsShortcutInfo.packageName,
+                            serialNumber = launcherAppsShortcutInfo.serialNumber,
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             eblanApplicationInfo = eblanApplicationInfo,

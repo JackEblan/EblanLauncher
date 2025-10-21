@@ -94,6 +94,7 @@ class ApplicationInfoService : Service() {
 
                         is LauncherAppsEvent.ShortcutsChanged -> {
                             changeShortcutsUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
                                 packageName = launcherAppsEvent.packageName,
                                 launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
                             )

@@ -70,7 +70,7 @@ class AddPackageUseCase @Inject constructor(
                 eblanApplicationInfo = eblanApplicationInfo,
             )
 
-            val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
+            val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProvidersForProfile()
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.map { appWidgetManagerAppWidgetProviderInfo ->
@@ -88,6 +88,7 @@ class AddPackageUseCase @Inject constructor(
                         componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                         configure = appWidgetManagerAppWidgetProviderInfo.configure,
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        serialNumber = serialNumber,
                         targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                         targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                         minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,

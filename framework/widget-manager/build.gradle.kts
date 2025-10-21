@@ -31,4 +31,5 @@ dependencies {
     implementation(projects.domain.framework)
     implementation(projects.domain.model)
     implementation(projects.framework.drawable)
+    implementation(projects.framework.userManager)
 }

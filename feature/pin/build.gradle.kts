@@ -33,5 +33,6 @@ dependencies {
     implementation(projects.domain.useCase)
     implementation(projects.framework.drawable)
     implementation(projects.framework.launcherApps)
+    implementation(projects.framework.userManager)
     implementation(projects.framework.widgetManager)
 }

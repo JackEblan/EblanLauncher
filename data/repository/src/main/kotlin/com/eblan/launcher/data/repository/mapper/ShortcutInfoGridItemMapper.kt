@@ -34,6 +34,7 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
         data = GridItemData.ShortcutInfo(
             shortcutId = shortcutId,
             packageName = packageName,
+            serialNumber = serialNumber,
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
@@ -61,6 +62,7 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         longLabel = longLabel,
         icon = icon,
         override = override,
+        serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
         eblanApplicationInfo = eblanApplicationInfo,
     )
@@ -82,6 +84,7 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         longLabel = longLabel,
         icon = icon,
         override = override,
+        serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
         eblanApplicationInfo = eblanApplicationInfo,
     )

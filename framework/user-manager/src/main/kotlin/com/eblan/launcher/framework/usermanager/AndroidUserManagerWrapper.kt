@@ -23,4 +23,6 @@ interface AndroidUserManagerWrapper {
     fun getSerialNumberForUser(userHandle: UserHandle): Long
 
     fun getUserForSerialNumber(serialNumber: Long): UserHandle
+
+    fun getUserProfiles(): List<UserHandle>
 }

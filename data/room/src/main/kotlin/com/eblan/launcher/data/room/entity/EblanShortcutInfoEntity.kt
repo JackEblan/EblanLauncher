@@ -28,16 +28,17 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
     foreignKeys = [
         ForeignKey(
             entity = EblanApplicationInfoEntity::class,
-            parentColumns = ["packageName"],
-            childColumns = ["packageName"],
+            parentColumns = ["packageName", "serialNumber"],
+            childColumns = ["packageName", "serialNumber"],
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(value = ["packageName"])],
+    indices = [Index(value = ["packageName", "serialNumber"])],
 )
 data class EblanShortcutInfoEntity(
     @PrimaryKey val shortcutId: String,
     val packageName: String,
+    val serialNumber: Long,
     val shortLabel: String,
     val longLabel: String,
     val icon: String?,

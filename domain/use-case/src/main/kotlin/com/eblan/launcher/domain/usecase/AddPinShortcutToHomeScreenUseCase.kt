@@ -42,6 +42,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
     suspend operator fun invoke(
         shortcutId: String,
         packageName: String,
+        serialNumber: Long,
         shortLabel: String,
         longLabel: String,
         byteArray: ByteArray?,
@@ -73,6 +74,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 val data = GridItemData.ShortcutInfo(
                     shortcutId = shortcutId,
                     packageName = packageName,
+                    serialNumber = serialNumber,
                     shortLabel = shortLabel,
                     longLabel = longLabel,
                     icon = icon,

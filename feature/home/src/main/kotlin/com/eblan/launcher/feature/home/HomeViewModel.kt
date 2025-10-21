@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.home
 
+import android.os.Process
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
@@ -48,6 +49,7 @@ import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -89,6 +91,7 @@ class HomeViewModel @Inject constructor(
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
+    private val userManagerWrapper: AndroidUserManagerWrapper,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -522,7 +525,10 @@ class HomeViewModel @Inject constructor(
     fun getPinGridItem(pinItemRequestType: PinItemRequestType) {
         viewModelScope.launch {
             _pinGridItem.update {
-                getPinGridItemUseCase(pinItemRequestType = pinItemRequestType)
+                getPinGridItemUseCase(
+                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = Process.myUserHandle()),
+                    pinItemRequestType = pinItemRequestType,
+                )
             }
         }
     }

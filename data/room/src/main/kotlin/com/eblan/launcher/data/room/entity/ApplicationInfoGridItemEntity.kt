@@ -29,17 +29,16 @@ import com.eblan.launcher.domain.model.GridItemSettings
     foreignKeys = [
         ForeignKey(
             entity = EblanApplicationInfoEntity::class,
-            parentColumns = ["packageName"],
-            childColumns = ["packageName"],
+            parentColumns = ["packageName", "serialNumber"],
+            childColumns = ["packageName", "serialNumber"],
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(value = ["packageName"])],
+    indices = [Index(value = ["packageName", "serialNumber"])],
 )
 data class ApplicationInfoGridItemEntity(
     @PrimaryKey
     val id: String,
-    val serialNumber: Long,
     val folderId: String?,
     val page: Int,
     val startColumn: Int,
@@ -52,5 +51,6 @@ data class ApplicationInfoGridItemEntity(
     val icon: String?,
     val label: String?,
     val override: Boolean,
+    val serialNumber: Long,
     @Embedded val gridItemSettings: GridItemSettings,
 )

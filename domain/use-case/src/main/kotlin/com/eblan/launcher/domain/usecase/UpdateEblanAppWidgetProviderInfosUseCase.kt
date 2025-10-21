@@ -52,7 +52,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                 eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
 
             val newEblanAppWidgetProviderInfos =
-                appWidgetManagerWrapper.getInstalledProviders()
+                appWidgetManagerWrapper.getInstalledProvidersForProfile()
                     .mapNotNull { appWidgetManagerAppWidgetProviderInfo ->
                         val eblanApplicationInfo =
                             oldEblanApplicationInfos.find { eblanApplicationInfo ->
@@ -74,6 +74,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                                 componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                                 configure = appWidgetManagerAppWidgetProviderInfo.configure,
                                 packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                                serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
                                 targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                                 targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                                 minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,

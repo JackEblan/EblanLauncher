@@ -30,12 +30,12 @@ import com.eblan.launcher.domain.model.GridItemSettings
     foreignKeys = [
         ForeignKey(
             entity = EblanApplicationInfoEntity::class,
-            parentColumns = ["packageName"],
-            childColumns = ["packageName"],
+            parentColumns = ["packageName", "serialNumber"],
+            childColumns = ["packageName", "serialNumber"],
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(value = ["packageName"])],
+    indices = [Index(value = ["packageName", "serialNumber"])],
 )
 data class ShortcutInfoGridItemEntity(
     @PrimaryKey
@@ -53,6 +53,7 @@ data class ShortcutInfoGridItemEntity(
     val longLabel: String,
     val icon: String?,
     val override: Boolean,
+    val serialNumber: Long,
     @Embedded val gridItemSettings: GridItemSettings,
     @Embedded(prefix = "applicationInfo_") val eblanApplicationInfo: EblanApplicationInfo,
 )

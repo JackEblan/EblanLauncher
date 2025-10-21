@@ -54,9 +54,9 @@ import javax.inject.Inject
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -123,7 +123,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 if (hasShortcutHostPermission) {
                     launch {
                         val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
-                            toLauncherAppsShortcutInfo(shortcutInfo = shortcutInfo)
+                            shortcutInfo.toLauncherAppsShortcutInfo()
                         }
 
                         trySend(
@@ -199,20 +199,39 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
-        return if (hasShortcutHostPermission) {
-            val shortcutQuery = LauncherApps.ShortcutQuery().apply {
-                setQueryFlags(
-                    LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
-                )
-            }
+        return withContext(defaultDispatcher) {
+            if (hasShortcutHostPermission) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    launcherApps.profiles.flatMap { currentUserHandle ->
+                        val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                            setQueryFlags(
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                                    LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                    LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            )
+                        }
 
-            launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
-                toLauncherAppsShortcutInfo(shortcutInfo = shortcutInfo)
+                        launcherApps.getShortcuts(shortcutQuery, currentUserHandle)
+                            ?.map { shortcutInfo ->
+                                shortcutInfo.toLauncherAppsShortcutInfo()
+                            } ?: emptyList()
+                    }
+                } else {
+                    val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                        setQueryFlags(
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                        )
+                    }
+
+                    launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+                        shortcutInfo.toLauncherAppsShortcutInfo()
+                    }
+                }
+            } else {
+                null
             }
-        } else {
-            null
         }
     }
 
@@ -274,16 +293,17 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
-    private suspend fun toLauncherAppsShortcutInfo(shortcutInfo: ShortcutInfo): LauncherAppsShortcutInfo {
-        val icon = getShortcutIconDrawable(shortcutInfo, 0)?.let { drawable ->
+    private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {
+        val icon = getShortcutIconDrawable(this, 0)?.let { drawable ->
             androidDrawableWrapper.createByteArray(drawable = drawable)
         }
 
         return LauncherAppsShortcutInfo(
-            shortcutId = shortcutInfo.id,
-            packageName = shortcutInfo.`package`,
-            shortLabel = shortcutInfo.shortLabel.toString(),
-            longLabel = shortcutInfo.longLabel.toString(),
+            shortcutId = id,
+            packageName = `package`,
+            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
+            shortLabel = shortLabel.toString(),
+            longLabel = longLabel.toString(),
             icon = icon,
         )
     }

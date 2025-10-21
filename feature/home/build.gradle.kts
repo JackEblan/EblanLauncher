@@ -31,4 +31,5 @@ dependencies {
     implementation(projects.domain.grid)
     implementation(projects.domain.repository)
     implementation(projects.domain.useCase)
+    implementation(projects.framework.userManager)
 }

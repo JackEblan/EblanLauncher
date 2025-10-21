@@ -28,18 +28,19 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
     foreignKeys = [
         ForeignKey(
             entity = EblanApplicationInfoEntity::class,
-            parentColumns = ["packageName"],
-            childColumns = ["packageName"],
+            parentColumns = ["packageName", "serialNumber"],
+            childColumns = ["packageName", "serialNumber"],
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index(value = ["packageName"])],
+    indices = [Index(value = ["packageName", "serialNumber"])],
 )
 data class EblanAppWidgetProviderInfoEntity(
     @PrimaryKey val className: String,
     val componentName: String,
     val configure: String?,
     val packageName: String,
+    val serialNumber: Long,
     val targetCellWidth: Int,
     val targetCellHeight: Int,
     val minWidth: Int,

@@ -24,8 +24,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -179,14 +181,30 @@ fun ApplicationInfoGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(icon)
-                .addLastModifiedToFileCacheKey(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier.size(gridItemSettings.iconSize.dp),
-        )
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(icon)
+                    .addLastModifiedToFileCacheKey(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.matchParentSize(),
+            )
+
+            if (data.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.40).dp)
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
+                }
+            }
+        }
 
         if (gridItemSettings.showLabel) {
             Text(

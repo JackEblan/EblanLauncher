@@ -53,6 +53,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -737,28 +738,44 @@ private fun EblanApplicationInfoItem(
     ) {
         Spacer(modifier = Modifier.height(5.dp))
 
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(icon)
-                .addLastModifiedToFileCacheKey(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier
-                .drawWithContent {
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
+        Box(modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp)) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(icon)
+                    .addLastModifiedToFileCacheKey(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+
+                        drawLayer(graphicsLayer)
                     }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        intOffset =
+                            layoutCoordinates.positionInRoot().round()
 
-                    drawLayer(graphicsLayer)
-                }
-                .onGloballyPositioned { layoutCoordinates ->
-                    intOffset =
-                        layoutCoordinates.positionInRoot().round()
+                        intSize = layoutCoordinates.size
+                    }
+                    .size(appDrawerSettings.gridItemSettings.iconSize.dp),
+            )
 
-                    intSize = layoutCoordinates.size
+            if (eblanApplicationInfo.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((appDrawerSettings.gridItemSettings.iconSize * 0.40).dp)
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
                 }
-                .size(appDrawerSettings.gridItemSettings.iconSize.dp),
-        )
+            }
+        }
 
         if (appDrawerSettings.gridItemSettings.showLabel) {
             Spacer(modifier = Modifier.height(10.dp))

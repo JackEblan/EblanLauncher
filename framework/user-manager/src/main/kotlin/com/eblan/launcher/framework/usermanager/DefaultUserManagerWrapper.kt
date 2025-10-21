@@ -34,8 +34,4 @@ internal class DefaultUserManagerWrapper @Inject constructor(@ApplicationContext
     override fun getUserForSerialNumber(serialNumber: Long): UserHandle {
         return userManager.getUserForSerialNumber(serialNumber)
     }
-
-    override fun getUserProfiles(): List<UserHandle> {
-        return userManager.userProfiles
-    }
 }

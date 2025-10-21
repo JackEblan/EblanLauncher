@@ -38,5 +38,5 @@ internal object RoomModule {
         context,
         EblanDatabase::class.java,
         EblanDatabase.DATABASE_NAME,
-    ).build()
+    ).fallbackToDestructiveMigration(dropAllTables = true).build()
 }

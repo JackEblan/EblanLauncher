@@ -21,7 +21,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
@@ -36,11 +35,6 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
-
-    private val packageManager = context.packageManager
-
-    override val hasSystemFeatureAppWidgets =
-        packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
 
     override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
         return appWidgetManager.installedProviders.map { appWidgetProviderInfo ->

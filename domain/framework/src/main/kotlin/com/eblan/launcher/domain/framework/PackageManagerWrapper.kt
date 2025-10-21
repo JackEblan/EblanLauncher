@@ -18,6 +18,8 @@
 package com.eblan.launcher.domain.framework
 
 interface PackageManagerWrapper {
+    val hasSystemFeatureAppWidgets: Boolean
+
     suspend fun getApplicationIcon(packageName: String): ByteArray?
 
     suspend fun getApplicationLabel(packageName: String): String?

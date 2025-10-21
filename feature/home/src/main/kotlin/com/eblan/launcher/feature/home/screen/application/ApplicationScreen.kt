@@ -301,8 +301,6 @@ private fun Success(
 ) {
     val focusManager = LocalFocusManager.current
 
-    val scope = rememberCoroutineScope()
-
     var showPopupApplicationMenu by remember { mutableStateOf(false) }
 
     var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -381,90 +379,69 @@ private fun Success(
             onResetOverlay = onResetOverlay,
         )
 
-        SecondaryTabRow(selectedTabIndex = horizontalPagerState.currentPage) {
-            eblanApplicationInfos.keys.forEachIndexed { index, serialNumber ->
-                Tab(
-                    selected = horizontalPagerState.currentPage == index,
-                    onClick = {
-                        scope.launch {
-                            horizontalPagerState.animateScrollToPage(index)
-                        }
-                    },
-                    text = {
-                        Text(
-                            text = "User $serialNumber",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    },
-                )
-            }
-        }
+        if (eblanApplicationInfos.keys.size > 1) {
+            EblanApplicationInfoTabRow(
+                currentPage = horizontalPagerState.currentPage,
+                eblanApplicationInfos = eblanApplicationInfos,
+                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+            )
 
-        HorizontalPager(
-            modifier = Modifier.fillMaxWidth(),
-            state = horizontalPagerState,
-        ) { index ->
-            Box(modifier = Modifier.fillMaxWidth()) {
-                val overscrollEffect = remember(key1 = scope) {
-                    OffsetOverscrollEffect(
-                        scope = scope,
-                        overscrollAlpha = overscrollAlpha,
-                        overscrollOffset = overscrollOffset,
-                        overscrollFactor = appDrawerSettings.overscrollFactor,
-                        onFling = onFling,
-                        onFastFling = onAnimateDismiss,
-                    )
-                }
-
-                val lazyGridState = rememberLazyGridState()
-
-                val serialNumber = eblanApplicationInfos.keys.toList()[index]
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
-                    state = lazyGridState,
-                    modifier = Modifier.matchParentSize(),
-                    contentPadding = PaddingValues(
-                        bottom = paddingValues.calculateBottomPadding(),
-                    ),
-                    overscrollEffect = overscrollEffect,
-                ) {
-                    items(eblanApplicationInfos[serialNumber].orEmpty()) { eblanApplicationInfo ->
-                        EblanApplicationInfoItem(
-                            currentPage = currentPage,
-                            drag = drag,
-                            eblanApplicationInfo = eblanApplicationInfo,
-                            appDrawerSettings = appDrawerSettings,
-                            iconPackInfoPackageName = iconPackInfoPackageName,
-                            paddingValues = paddingValues,
-                            onLongPress = { intOffset, intSize ->
-                                onUpdateGridItemOffset(intOffset, intSize)
-
-                                popupMenuIntOffset = intOffset
-
-                                popupMenuIntSize = intSize
-                            },
-                            onLongPressGridItem = onLongPressGridItem,
-                            onUpdatePopupMenu = {
-                                showPopupApplicationMenu = true
-                            },
-                            onResetOverlay = onResetOverlay,
-                        )
-                    }
-                }
-
-                ScrollBarThumb(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .fillMaxHeight(),
-                    lazyGridState = lazyGridState,
-                    appDrawerSettings = appDrawerSettings,
+            HorizontalPager(
+                modifier = Modifier.fillMaxWidth(),
+                state = horizontalPagerState,
+            ) { index ->
+                EblanApplicationInfosPage(
+                    index = index,
+                    currentPage = currentPage,
                     paddingValues = paddingValues,
-                    eblanApplicationInfos = eblanApplicationInfos[serialNumber].orEmpty(),
-                    onScrollToItem = lazyGridState::scrollToItem,
+                    drag = drag,
+                    appDrawerSettings = appDrawerSettings,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    eblanApplicationInfos = eblanApplicationInfos,
+                    overscrollOffset = overscrollOffset,
+                    overscrollAlpha = overscrollAlpha,
+                    onLongPressGridItem = onLongPressGridItem,
+                    onAnimateDismiss = onAnimateDismiss,
+                    onResetOverlay = onResetOverlay,
+                    onFling = onFling,
+                    onLongPress = { intOffset, intSize ->
+                        onUpdateGridItemOffset(intOffset, intSize)
+
+                        popupMenuIntOffset = intOffset
+
+                        popupMenuIntSize = intSize
+                    },
+                    onUpdatePopupMenu = {
+                        showPopupApplicationMenu = true
+                    },
                 )
             }
+        } else {
+            EblanApplicationInfosPage(
+                index = 0,
+                currentPage = currentPage,
+                paddingValues = paddingValues,
+                drag = drag,
+                appDrawerSettings = appDrawerSettings,
+                iconPackInfoPackageName = iconPackInfoPackageName,
+                eblanApplicationInfos = eblanApplicationInfos,
+                overscrollOffset = overscrollOffset,
+                overscrollAlpha = overscrollAlpha,
+                onLongPressGridItem = onLongPressGridItem,
+                onAnimateDismiss = onAnimateDismiss,
+                onResetOverlay = onResetOverlay,
+                onFling = onFling,
+                onLongPress = { intOffset, intSize ->
+                    onUpdateGridItemOffset(intOffset, intSize)
+
+                    popupMenuIntOffset = intOffset
+
+                    popupMenuIntSize = intSize
+                },
+                onUpdatePopupMenu = {
+                    showPopupApplicationMenu = true
+                },
+            )
         }
     }
 
@@ -549,6 +526,113 @@ private fun EblanApplicationInfoDockSearchBar(
                 )
             }
         }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun EblanApplicationInfoTabRow(
+    currentPage: Int,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    onAnimateScrollToPage: suspend (Int) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    SecondaryTabRow(selectedTabIndex = currentPage) {
+        eblanApplicationInfos.keys.forEachIndexed { index, serialNumber ->
+            Tab(
+                selected = currentPage == index,
+                onClick = {
+                    scope.launch {
+                        onAnimateScrollToPage(index)
+                    }
+                },
+                text = {
+                    Text(
+                        text = "User $serialNumber",
+                        maxLines = 1,
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun EblanApplicationInfosPage(
+    modifier: Modifier = Modifier,
+    index: Int,
+    currentPage: Int,
+    paddingValues: PaddingValues,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
+    iconPackInfoPackageName: String,
+    eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
+    overscrollOffset: Animatable<Float, AnimationVector1D>,
+    overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onAnimateDismiss: () -> Unit,
+    onResetOverlay: () -> Unit,
+    onFling: suspend () -> Unit,
+    onLongPress: (IntOffset, IntSize) -> Unit,
+    onUpdatePopupMenu: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    val overscrollEffect = remember(key1 = scope) {
+        OffsetOverscrollEffect(
+            scope = scope,
+            overscrollAlpha = overscrollAlpha,
+            overscrollOffset = overscrollOffset,
+            overscrollFactor = appDrawerSettings.overscrollFactor,
+            onFling = onFling,
+            onFastFling = onAnimateDismiss,
+        )
+    }
+
+    val lazyGridState = rememberLazyGridState()
+
+    val serialNumber = eblanApplicationInfos.keys.toList()[index]
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
+            state = lazyGridState,
+            modifier = Modifier.matchParentSize(),
+            contentPadding = PaddingValues(
+                bottom = paddingValues.calculateBottomPadding(),
+            ),
+            overscrollEffect = overscrollEffect,
+        ) {
+            items(eblanApplicationInfos[serialNumber].orEmpty()) { eblanApplicationInfo ->
+                EblanApplicationInfoItem(
+                    currentPage = currentPage,
+                    drag = drag,
+                    eblanApplicationInfo = eblanApplicationInfo,
+                    appDrawerSettings = appDrawerSettings,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    paddingValues = paddingValues,
+                    onLongPress = onLongPress,
+                    onLongPressGridItem = onLongPressGridItem,
+                    onUpdatePopupMenu = onUpdatePopupMenu,
+                    onResetOverlay = onResetOverlay,
+                )
+            }
+        }
+
+        ScrollBarThumb(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .fillMaxHeight(),
+            lazyGridState = lazyGridState,
+            appDrawerSettings = appDrawerSettings,
+            paddingValues = paddingValues,
+            eblanApplicationInfos = eblanApplicationInfos[serialNumber].orEmpty(),
+            onScrollToItem = lazyGridState::scrollToItem,
+        )
     }
 }
 
@@ -766,7 +850,7 @@ private fun EblanApplicationInfoItem(
                 ElevatedCard(
                     modifier = Modifier
                         .size((appDrawerSettings.gridItemSettings.iconSize * 0.40).dp)
-                        .align(Alignment.BottomEnd)
+                        .align(Alignment.BottomEnd),
                 ) {
                     Icon(
                         imageVector = EblanLauncherIcons.Work,
@@ -895,7 +979,7 @@ private fun ScrollBarThumb(
         derivedStateOf {
             val rows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                        appDrawerSettings.appDrawerColumns
+                    appDrawerSettings.appDrawerColumns
 
             val totalHeight = rows * appDrawerRowsHeightPx
 
@@ -984,7 +1068,7 @@ private fun ScrollBarThumb(
                         onVerticalDrag = { change, deltaY ->
                             val rows =
                                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                                        appDrawerSettings.appDrawerColumns
+                                    appDrawerSettings.appDrawerColumns
 
                             val totalHeight = rows * appDrawerRowsHeightPx
 

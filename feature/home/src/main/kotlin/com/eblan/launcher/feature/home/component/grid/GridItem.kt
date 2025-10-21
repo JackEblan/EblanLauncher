@@ -195,7 +195,7 @@ fun ApplicationInfoGridItem(
                 ElevatedCard(
                     modifier = Modifier
                         .size((gridItemSettings.iconSize * 0.40).dp)
-                        .align(Alignment.BottomEnd)
+                        .align(Alignment.BottomEnd),
                 ) {
                     Icon(
                         imageVector = EblanLauncherIcons.Work,

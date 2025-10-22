@@ -166,7 +166,7 @@ fun WidgetScreen(
                                 onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                                 onDismiss = onDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
-                                onResetOverlay = onResetOverlay
+                                onResetOverlay = onResetOverlay,
                             )
                         }
                     }

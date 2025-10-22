@@ -36,7 +36,7 @@ class AddPackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val updateIconPackInfoUseCase: UpdateIconPackInfoUseCase,
+    private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -107,7 +107,7 @@ class AddPackageUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             )
 
-            updateIconPackInfoUseCase(packageName = packageName)
+            updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }
     }
 }

@@ -21,7 +21,9 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -34,6 +36,8 @@ class RemovePackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val userDataRepository: UserDataRepository,
+    private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
+    private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
@@ -41,9 +45,13 @@ class RemovePackageUseCase @Inject constructor(
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
-            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(
+            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(packageName = packageName)
+
+            eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfoByPackageName(
                 packageName = packageName,
             )
+
+            eblanShortcutInfoRepository.deleteEblanShortcutInfoByPackageName(packageName = packageName)
 
             val iconFile = File(
                 fileManager.getFilesDirectory(FileManager.ICONS_DIR),

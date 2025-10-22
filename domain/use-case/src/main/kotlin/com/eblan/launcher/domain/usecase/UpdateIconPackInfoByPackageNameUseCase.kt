@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-class UpdateIconPackInfoUseCase @Inject constructor(
+class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val iconPackManager: IconPackManager,
     private val userDataRepository: UserDataRepository,

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a584951ec91235e6293854d6aa165189",
+    "identityHash": "4c63c5afca9dc3b9a1927ad73dff12ac",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -200,7 +200,7 @@
       },
       {
         "tableName": "EblanShortcutInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`shortcutId`), FOREIGN KEY(`packageName`, `serialNumber`) REFERENCES `EblanApplicationInfoEntity`(`packageName`, `serialNumber`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`shortcutId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `shortLabel` TEXT NOT NULL, `longLabel` TEXT NOT NULL, `icon` TEXT, `applicationInfo_serialNumber` INTEGER NOT NULL, `applicationInfo_componentName` TEXT, `applicationInfo_packageName` TEXT NOT NULL, `applicationInfo_icon` TEXT, `applicationInfo_label` TEXT, PRIMARY KEY(`shortcutId`))",
         "fields": [
           {
             "fieldPath": "shortcutId",
@@ -270,34 +270,7 @@
           "columnNames": [
             "shortcutId"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_EblanShortcutInfoEntity_packageName_serialNumber",
-            "unique": false,
-            "columnNames": [
-              "packageName",
-              "serialNumber"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_EblanShortcutInfoEntity_packageName_serialNumber` ON `${TABLE_NAME}` (`packageName`, `serialNumber`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "EblanApplicationInfoEntity",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "packageName",
-              "serialNumber"
-            ],
-            "referencedColumns": [
-              "packageName",
-              "serialNumber"
-            ]
-          }
-        ]
+        }
       },
       {
         "tableName": "ApplicationInfoGridItemEntity",
@@ -1055,7 +1028,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a584951ec91235e6293854d6aa165189')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c63c5afca9dc3b9a1927ad73dff12ac')"
     ]
   }
 }

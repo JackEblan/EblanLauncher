@@ -200,8 +200,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                 val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                     setQueryFlags(
                         LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 
@@ -233,7 +233,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         serialNumber: Long,
         packageName: String,
         id: String,
-        sourceBounds: Rect
+        sourceBounds: Rect,
     ) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 

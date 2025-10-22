@@ -195,7 +195,7 @@ fun ShortcutScreen(
                                 onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                                 onDismiss = onDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
-                                onResetOverlay = onResetOverlay
+                                onResetOverlay = onResetOverlay,
                             )
                         }
                     }
@@ -332,7 +332,7 @@ private fun Success(
                     overscrollEffect = overscrollEffect,
                 ) {
                     items(
-                        eblanShortcutInfos[serialNumber]?.keys?.toList().orEmpty()
+                        eblanShortcutInfos[serialNumber]?.keys?.toList().orEmpty(),
                     ) { eblanApplicationInfo ->
                         EblanApplicationInfoItem(
                             eblanApplicationInfo = eblanApplicationInfo,

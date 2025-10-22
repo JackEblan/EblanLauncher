@@ -19,26 +19,21 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 
 class ChangePackageUseCase @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
-    private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val updateIconPackInfoUseCase: UpdateIconPackInfoUseCase,
+    private val updateEblanAppWidgetProviderInfosByPackageNameUseCase: UpdateEblanAppWidgetProviderInfosByPackageNameUseCase,
+    private val updateEblanShortcutInfosByPackageNameUseCase: UpdateEblanShortcutInfosByPackageNameUseCase,
+    private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -72,67 +67,11 @@ class ChangePackageUseCase @Inject constructor(
                 eblanApplicationInfo = eblanApplicationInfo,
             )
 
-            val oldEblanAppWidgetProviderInfos =
-                eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
+            updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
 
-            val newEblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
-                .filter { appWidgetManagerAppWidgetProviderInfo ->
-                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-                }.map { appWidgetManagerAppWidgetProviderInfo ->
-                    val preview =
-                        appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
-                            fileManager.getAndUpdateFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                                name = appWidgetManagerAppWidgetProviderInfo.className,
-                                byteArray = currentPreview,
-                            )
-                        }
+            updateEblanShortcutInfosByPackageNameUseCase(packageName = packageName)
 
-                    EblanAppWidgetProviderInfo(
-                        className = appWidgetManagerAppWidgetProviderInfo.className,
-                        componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
-                        configure = appWidgetManagerAppWidgetProviderInfo.configure,
-                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                        serialNumber = serialNumber,
-                        targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
-                        targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                        minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
-                        minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
-                        resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
-                        minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
-                        minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
-                        maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
-                        maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                        preview = preview,
-                        eblanApplicationInfo = eblanApplicationInfo,
-                    )
-                }
-
-            if (oldEblanAppWidgetProviderInfos != newEblanAppWidgetProviderInfos) {
-                val eblanAppWidgetProviderInfosToDelete =
-                    oldEblanAppWidgetProviderInfos - newEblanAppWidgetProviderInfos.toSet()
-
-                eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
-                    eblanAppWidgetProviderInfos = newEblanAppWidgetProviderInfos,
-                )
-
-                eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfos(
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
-                )
-
-                eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
-                    val widgetFile = File(
-                        fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        eblanAppWidgetProviderInfo.className,
-                    )
-
-                    if (widgetFile.exists()) {
-                        widgetFile.delete()
-                    }
-                }
-
-                updateIconPackInfoUseCase(packageName = packageName)
-            }
+            updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }
     }
 }

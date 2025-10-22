@@ -35,4 +35,9 @@ interface ApplicationInfoGridItemRepository {
     suspend fun deleteApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
 
     suspend fun deleteApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem)
+
+    suspend fun getApplicationInfoGridItems(
+        serialNumber: Long,
+        packageName: String,
+    ): List<ApplicationInfoGridItem>
 }

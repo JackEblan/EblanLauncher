@@ -35,4 +35,6 @@ interface WidgetGridItemRepository {
     suspend fun deleteWidgetGridItems(widgetGridItems: List<WidgetGridItem>)
 
     suspend fun deleteWidgetGridItem(widgetGridItem: WidgetGridItem)
+
+    suspend fun getWidgetGridItems(packageName: String): List<WidgetGridItem>
 }

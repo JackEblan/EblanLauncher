@@ -47,4 +47,7 @@ interface WidgetGridItemDao {
 
     @Delete
     suspend fun deleteWidgetGridItemEntity(entity: WidgetGridItemEntity)
+
+    @Query("SELECT * FROM WidgetGridItemEntity WHERE packageName = :packageName")
+    suspend fun getWidgetGridItemEntities(packageName: String): List<WidgetGridItemEntity>
 }

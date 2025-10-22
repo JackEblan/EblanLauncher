@@ -149,16 +149,14 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         return withContext(defaultDispatcher) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 launcherApps.profiles.flatMap { userHandle ->
-                    launcherApps.getActivityList(null, userHandle)
-                        .map { launcherActivityInfo ->
-                            launcherActivityInfo.toEblanLauncherActivityInfo()
-                        }
-                }
-            } else {
-                launcherApps.getActivityList(null, myUserHandle())
-                    .map { launcherActivityInfo ->
+                    launcherApps.getActivityList(null, userHandle).map { launcherActivityInfo ->
                         launcherActivityInfo.toEblanLauncherActivityInfo()
                     }
+                }
+            } else {
+                launcherApps.getActivityList(null, myUserHandle()).map { launcherActivityInfo ->
+                    launcherActivityInfo.toEblanLauncherActivityInfo()
+                }
             }
         }
     }

@@ -70,4 +70,11 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
     override suspend fun deleteWidgetGridItem(widgetGridItem: WidgetGridItem) {
         widgetGridItemDao.deleteWidgetGridItemEntity(entity = widgetGridItem.asEntity())
     }
+
+    override suspend fun getWidgetGridItems(packageName: String): List<WidgetGridItem> {
+        return widgetGridItemDao.getWidgetGridItemEntities(packageName = packageName)
+            .map { entity ->
+                entity.asModel()
+            }
+    }
 }

@@ -130,6 +130,7 @@ class DeleteGridItemUseCase @Inject constructor(
                             rowSpan = gridItem.rowSpan,
                             associate = gridItem.associate,
                             appWidgetId = data.appWidgetId,
+                            className = data.className,
                             packageName = data.packageName,
                             componentName = data.componentName,
                             configure = data.configure,

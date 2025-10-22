@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.Flow
 interface WidgetGridItemRepository {
     val gridItems: Flow<List<GridItem>>
 
+    val widgetGridItems: Flow<List<WidgetGridItem>>
+
     suspend fun upsertWidgetGridItems(widgetGridItems: List<WidgetGridItem>)
 
     suspend fun upsertWidgetGridItem(widgetGridItem: WidgetGridItem): Long
@@ -37,4 +39,6 @@ interface WidgetGridItemRepository {
     suspend fun deleteWidgetGridItem(widgetGridItem: WidgetGridItem)
 
     suspend fun getWidgetGridItems(packageName: String): List<WidgetGridItem>
+
+    suspend fun updateWidgetGridItems(widgetGridItems: List<WidgetGridItem>)
 }

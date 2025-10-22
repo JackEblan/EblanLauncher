@@ -50,4 +50,7 @@ interface WidgetGridItemDao {
 
     @Query("SELECT * FROM WidgetGridItemEntity WHERE packageName = :packageName")
     suspend fun getWidgetGridItemEntities(packageName: String): List<WidgetGridItemEntity>
+
+    @Update
+    suspend fun updateWidgetGridItemEntities(entities: List<WidgetGridItemEntity>)
 }

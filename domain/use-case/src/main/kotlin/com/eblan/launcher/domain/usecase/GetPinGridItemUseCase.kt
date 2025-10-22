@@ -58,6 +58,7 @@ class GetPinGridItemUseCase @Inject constructor(
                     if (eblanAppWidgetProviderInfo != null) {
                         val data = Widget(
                             appWidgetId = 0,
+                            className = eblanAppWidgetProviderInfo.className,
                             componentName = eblanAppWidgetProviderInfo.componentName,
                             packageName = eblanAppWidgetProviderInfo.packageName,
                             serialNumber = serialNumber,

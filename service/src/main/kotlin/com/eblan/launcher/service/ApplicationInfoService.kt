@@ -29,6 +29,7 @@ import com.eblan.launcher.domain.usecase.UpdateApplicationInfoGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateShortcutInfoGridItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +60,9 @@ class ApplicationInfoService : Service() {
 
     @Inject
     lateinit var updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase
+
+    @Inject
+    lateinit var updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase
 
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
@@ -103,6 +107,8 @@ class ApplicationInfoService : Service() {
 
             launch {
                 updateApplicationInfoGridItemsUseCase()
+
+                updateWidgetGridItemsUseCase()
 
                 updateShortcutInfoGridItemsUseCase()
             }

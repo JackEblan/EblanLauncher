@@ -45,29 +45,27 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
 
             val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-            val launcherActivityInfosMap =
-                launcherAppsActivityInfos.associateBy { launcherAppsShortcutInfo -> launcherAppsShortcutInfo.packageName to launcherAppsShortcutInfo.serialNumber }
-
             val updatedApplicationInfoGridItems =
                 applicationInfoGridItems.mapNotNull { applicationInfoGridItem ->
-                    val key =
-                        applicationInfoGridItem.packageName to applicationInfoGridItem.serialNumber
+                    val launcherAppsActivityInfo =
+                        launcherAppsActivityInfos.find { launcherShortcutInfo ->
+                            launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
+                                    launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
+                        }
 
-                    val matchingLauncherActivityInfo = launcherActivityInfosMap[key]
-
-                    if (matchingLauncherActivityInfo != null) {
-                        val icon = matchingLauncherActivityInfo.icon?.let { byteArray ->
+                    if (launcherAppsActivityInfo != null) {
+                        val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
                             fileManager.getAndUpdateFilePath(
                                 directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                name = matchingLauncherActivityInfo.packageName,
+                                name = launcherAppsActivityInfo.packageName,
                                 byteArray = byteArray,
                             )
                         }
 
                         applicationInfoGridItem.copy(
-                            componentName = matchingLauncherActivityInfo.componentName,
+                            componentName = launcherAppsActivityInfo.componentName,
                             icon = icon,
-                            label = matchingLauncherActivityInfo.label,
+                            label = launcherAppsActivityInfo.label,
                         )
                     } else {
                         deleteApplicationInfoGridItems.add(applicationInfoGridItem)

@@ -33,6 +33,7 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
         rowSpan = rowSpan,
         data = GridItemData.Widget(
             appWidgetId = appWidgetId,
+            className = className,
             componentName = componentName,
             packageName = packageName,
             serialNumber = serialNumber,
@@ -67,6 +68,7 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         associate = associate,
         appWidgetId = appWidgetId,
         packageName = packageName,
+        className = className,
         componentName = componentName,
         configure = configure,
         minWidth = minWidth,
@@ -98,6 +100,7 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         associate = associate,
         appWidgetId = appWidgetId,
         packageName = packageName,
+        className = className,
         componentName = componentName,
         configure = configure,
         minWidth = minWidth,

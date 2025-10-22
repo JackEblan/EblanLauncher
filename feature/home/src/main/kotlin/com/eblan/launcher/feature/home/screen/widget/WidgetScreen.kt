@@ -497,6 +497,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                     gridItem = getWidgetGridItem(
                                         id = Uuid.random().toHexString(),
                                         page = currentPage,
+                                        className = eblanAppWidgetProviderInfo.className,
                                         componentName = eblanAppWidgetProviderInfo.componentName,
                                         configure = eblanAppWidgetProviderInfo.configure,
                                         packageName = eblanAppWidgetProviderInfo.packageName,
@@ -584,6 +585,7 @@ private fun getWidgetGridItem(
     page: Int,
     componentName: String,
     configure: String?,
+    className: String,
     packageName: String,
     serialNumber: Long,
     targetCellHeight: Int,
@@ -601,6 +603,7 @@ private fun getWidgetGridItem(
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
+        className = className,
         componentName = componentName,
         packageName = packageName,
         serialNumber = serialNumber,

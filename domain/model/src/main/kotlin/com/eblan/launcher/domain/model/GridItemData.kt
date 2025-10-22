@@ -29,6 +29,7 @@ sealed interface GridItemData {
 
     data class Widget(
         val appWidgetId: Int,
+        val className: String,
         val componentName: String,
         val packageName: String,
         val serialNumber: Long,

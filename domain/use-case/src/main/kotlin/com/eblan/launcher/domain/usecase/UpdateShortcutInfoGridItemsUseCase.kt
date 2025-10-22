@@ -45,28 +45,26 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
             val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
 
             if (launcherAppsShortcutInfos != null) {
-                val launcherShortcutInfosMap =
-                    launcherAppsShortcutInfos.associateBy { launcherAppsShortcutInfo -> launcherAppsShortcutInfo.shortcutId to launcherAppsShortcutInfo.serialNumber }
-
                 val updatedShortcutInfoGridItems =
                     shortcutInfoGridItems.mapNotNull { shortcutInfoGridItem ->
-                        val key =
-                            shortcutInfoGridItem.shortcutId to shortcutInfoGridItem.serialNumber
+                        val launcherAppsShortcutInfo =
+                            launcherAppsShortcutInfos.find { launcherShortcutInfo ->
+                                launcherShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
+                                        launcherShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                            }
 
-                        val matchingLauncherShortcutInfo = launcherShortcutInfosMap[key]
-
-                        if (matchingLauncherShortcutInfo != null) {
-                            val icon = matchingLauncherShortcutInfo.icon?.let { byteArray ->
+                        if (launcherAppsShortcutInfo != null) {
+                            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
                                 fileManager.getAndUpdateFilePath(
                                     directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                    name = matchingLauncherShortcutInfo.shortcutId,
+                                    name = launcherAppsShortcutInfo.shortcutId,
                                     byteArray = byteArray,
                                 )
                             }
 
                             shortcutInfoGridItem.copy(
-                                shortLabel = matchingLauncherShortcutInfo.shortLabel,
-                                longLabel = matchingLauncherShortcutInfo.longLabel,
+                                shortLabel = launcherAppsShortcutInfo.shortLabel,
+                                longLabel = launcherAppsShortcutInfo.longLabel,
                                 icon = icon,
                             )
                         } else {

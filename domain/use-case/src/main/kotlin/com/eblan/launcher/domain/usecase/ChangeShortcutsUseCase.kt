@@ -40,7 +40,7 @@ class ChangeShortcutsUseCase @Inject constructor(
             launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
                 val shortcutInfoGridItem =
                     shortcutInfoGridItemRepository.getShortcutInfoGridItem(id = launcherAppsShortcutInfo.shortcutId)
-
+// TODO: This makes the shortcut grid item null
                 if (shortcutInfoGridItem != null) {
                     val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
                         fileManager.getAndUpdateFilePath(

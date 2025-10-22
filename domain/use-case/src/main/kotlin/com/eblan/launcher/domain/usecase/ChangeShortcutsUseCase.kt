@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,49 +30,48 @@ import javax.inject.Inject
 class ChangeShortcutsUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         serialNumber: Long,
         packageName: String,
         launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
-    ) {
-        withContext(defaultDispatcher) {
-            val launcherAppsShortcutInfoIds =
-                launcherAppsShortcutInfos.map { launcherAppsShortcutInfo -> launcherAppsShortcutInfo.shortcutId }
+    ) = withContext(defaultDispatcher) {
 
-            launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
-                shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName = packageName)
-                    .forEach { shortcutInfoGridItem ->
-                        val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+        val launcherAppsShortcutInfoIds = launcherAppsShortcutInfos.map { it.shortcutId }.toSet()
+
+        val launcherAppsShortcutInfoMap =
+            launcherAppsWrapper.getShortcuts(serialNumber = serialNumber)
+                ?.groupBy { launcherAppsShortcutInfo -> launcherAppsShortcutInfo.packageName }
+                ?: emptyMap()
+
+        launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
+            shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName = packageName)
+                .forEach { shortcutInfoGridItem ->
+                    launcherAppsShortcutInfoMap[launcherAppsShortcutInfo.packageName]?.forEach { completeLauncherAppsShortcutInfo ->
+                        val icon = completeLauncherAppsShortcutInfo.icon?.let { byteArray ->
                             fileManager.getAndUpdateFilePath(
                                 directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                name = launcherAppsShortcutInfo.shortcutId,
+                                name = completeLauncherAppsShortcutInfo.shortcutId,
                                 byteArray = byteArray,
                             )
                         }
 
-                        val newShortcutInfoGridItem = shortcutInfoGridItem.copy(
-                            serialNumber = launcherAppsShortcutInfo.serialNumber,
-                            shortLabel = launcherAppsShortcutInfo.shortLabel,
-                            longLabel = launcherAppsShortcutInfo.longLabel,
-                            icon = icon,
-                        )
-
                         shortcutInfoGridItemRepository.updateShortcutInfoGridItem(
-                            shortcutInfoGridItem = newShortcutInfoGridItem
-                        )
-                    }
-            }
-
-            shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName = packageName)
-                .forEach { shortcutInfoGridItem ->
-                    if (shortcutInfoGridItem.shortcutId !in launcherAppsShortcutInfoIds) {
-                        shortcutInfoGridItemRepository.deleteShortcutInfoGridItem(
-                            shortcutInfoGridItem = shortcutInfoGridItem,
+                            shortcutInfoGridItem.copy(
+                                serialNumber = completeLauncherAppsShortcutInfo.serialNumber,
+                                shortLabel = completeLauncherAppsShortcutInfo.shortLabel,
+                                longLabel = completeLauncherAppsShortcutInfo.longLabel,
+                                icon = icon,
+                            )
                         )
                     }
                 }
         }
+
+        shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName)
+            .filter { it.shortcutId !in launcherAppsShortcutInfoIds }
+            .forEach { shortcutInfoGridItemRepository.deleteShortcutInfoGridItem(it) }
     }
 }

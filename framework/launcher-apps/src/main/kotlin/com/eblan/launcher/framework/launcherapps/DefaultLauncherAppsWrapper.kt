@@ -161,6 +161,28 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getShortcuts(serialNumber: Long): List<LauncherAppsShortcutInfo>? {
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            if (hasShortcutHostPermission && userHandle != null) {
+                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                    setQueryFlags(
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                    )
+                }
+
+                launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                    shortcutInfo.toLauncherAppsShortcutInfo()
+                }
+            } else {
+                null
+            }
+        }
+    }
+
     override fun startMainActivity(
         serialNumber: Long,
         componentName: String?,

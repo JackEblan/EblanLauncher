@@ -24,9 +24,13 @@ import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -37,6 +41,10 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
+    private val widgetGridItemRepository: WidgetGridItemRepository,
+    private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
+    private val folderGridItemRepository: FolderGridItemRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -58,9 +66,13 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
             val initialPage = homeSettings.initialPage
 
-            val gridItems = gridCacheRepository.gridItemsCache.first()
+            val gridItems = applicationInfoGridItemRepository.applicationInfoGridItems.first() +
+                    widgetGridItemRepository.widgetGridItems.first() +
+                    shortcutInfoGridItemRepository.shortcutInfoGridItems.first() +
+                    folderGridItemRepository.folderGridItems.first()
 
-            val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
+            val eblanApplicationInfo =
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
 
             if (eblanApplicationInfo != null) {
                 val icon = byteArray?.let { currentByteArray ->

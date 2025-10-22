@@ -22,6 +22,7 @@
     <application>
         <service
             android:name=".ApplicationInfoService"
+            android:foregroundServiceType="dataSync"
             android:exported="false"/>
 
         <service

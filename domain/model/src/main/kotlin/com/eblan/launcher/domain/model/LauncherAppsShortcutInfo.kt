@@ -23,7 +23,6 @@ data class LauncherAppsShortcutInfo(
     val serialNumber: Long,
     val shortLabel: String,
     val longLabel: String,
-    val hasKeyFieldsOnly: Boolean,
     val icon: ByteArray?,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -33,7 +32,6 @@ data class LauncherAppsShortcutInfo(
         other as LauncherAppsShortcutInfo
 
         if (serialNumber != other.serialNumber) return false
-        if (hasKeyFieldsOnly != other.hasKeyFieldsOnly) return false
         if (shortcutId != other.shortcutId) return false
         if (packageName != other.packageName) return false
         if (shortLabel != other.shortLabel) return false
@@ -45,7 +43,6 @@ data class LauncherAppsShortcutInfo(
 
     override fun hashCode(): Int {
         var result = serialNumber.hashCode()
-        result = 31 * result + hasKeyFieldsOnly.hashCode()
         result = 31 * result + shortcutId.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + shortLabel.hashCode()

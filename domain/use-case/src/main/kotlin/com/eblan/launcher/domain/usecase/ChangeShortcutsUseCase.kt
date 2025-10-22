@@ -43,26 +43,24 @@ class ChangeShortcutsUseCase @Inject constructor(
             launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
                 shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName = packageName)
                     .forEach { shortcutInfoGridItem ->
-                        if (!launcherAppsShortcutInfo.hasKeyFieldsOnly) {
-                            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                                fileManager.getAndUpdateFilePath(
-                                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                    name = launcherAppsShortcutInfo.shortcutId,
-                                    byteArray = byteArray,
-                                )
-                            }
-
-                            val newShortcutInfoGridItem = shortcutInfoGridItem.copy(
-                                serialNumber = launcherAppsShortcutInfo.serialNumber,
-                                shortLabel = launcherAppsShortcutInfo.shortLabel,
-                                longLabel = launcherAppsShortcutInfo.longLabel,
-                                icon = icon,
-                            )
-
-                            shortcutInfoGridItemRepository.updateShortcutInfoGridItem(
-                                shortcutInfoGridItem = newShortcutInfoGridItem
+                        val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                                name = launcherAppsShortcutInfo.shortcutId,
+                                byteArray = byteArray,
                             )
                         }
+
+                        val newShortcutInfoGridItem = shortcutInfoGridItem.copy(
+                            serialNumber = launcherAppsShortcutInfo.serialNumber,
+                            shortLabel = launcherAppsShortcutInfo.shortLabel,
+                            longLabel = launcherAppsShortcutInfo.longLabel,
+                            icon = icon,
+                        )
+
+                        shortcutInfoGridItemRepository.updateShortcutInfoGridItem(
+                            shortcutInfoGridItem = newShortcutInfoGridItem
+                        )
                     }
             }
 

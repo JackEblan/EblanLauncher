@@ -127,6 +127,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+
         applicationInfoServiceIntent = Intent(this, ApplicationInfoService::class.java)
 
         startService(applicationInfoServiceIntent)
@@ -136,7 +137,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        stopService(applicationInfoServiceIntent)
 
         androidAppWidgetHostWrapper.stopListening()
     }

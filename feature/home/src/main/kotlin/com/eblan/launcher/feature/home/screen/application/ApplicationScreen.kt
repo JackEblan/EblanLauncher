@@ -29,15 +29,18 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -387,7 +390,7 @@ private fun Success(
             )
 
             HorizontalPager(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 state = horizontalPagerState,
             ) { index ->
                 EblanApplicationInfosPage(
@@ -558,6 +561,7 @@ private fun EblanApplicationInfoTabRow(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun EblanApplicationInfosPage(
     modifier: Modifier = Modifier,
@@ -597,7 +601,7 @@ private fun EblanApplicationInfosPage(
 
     val serialNumber = eblanApplicationInfos.keys.toList()[index]
 
-    Box(modifier = modifier.fillMaxWidth()) {
+    Box(modifier = modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(count = appDrawerSettings.appDrawerColumns),
             state = lazyGridState,
@@ -623,16 +627,18 @@ private fun EblanApplicationInfosPage(
             }
         }
 
-        ScrollBarThumb(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .fillMaxHeight(),
-            lazyGridState = lazyGridState,
-            appDrawerSettings = appDrawerSettings,
-            paddingValues = paddingValues,
-            eblanApplicationInfos = eblanApplicationInfos[serialNumber].orEmpty(),
-            onScrollToItem = lazyGridState::scrollToItem,
-        )
+        if (!WindowInsets.isImeVisible) {
+            ScrollBarThumb(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .fillMaxHeight(),
+                lazyGridState = lazyGridState,
+                appDrawerSettings = appDrawerSettings,
+                paddingValues = paddingValues,
+                eblanApplicationInfos = eblanApplicationInfos[serialNumber].orEmpty(),
+                onScrollToItem = lazyGridState::scrollToItem,
+            )
+        }
     }
 }
 
@@ -995,7 +1001,9 @@ private fun ScrollBarThumb(
             }
 
             val availableHeight =
-                lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding
+                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding).coerceAtLeast(
+                    0f,
+                )
 
             val progress = totalScrollY.toFloat() / availableScroll.toFloat()
 

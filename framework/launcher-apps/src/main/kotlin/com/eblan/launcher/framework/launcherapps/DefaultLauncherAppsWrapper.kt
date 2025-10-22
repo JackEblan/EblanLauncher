@@ -281,6 +281,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
             shortLabel = shortLabel.toString(),
             longLabel = longLabel.toString(),
+            hasKeyFieldsOnly = hasKeyFieldsOnly(),
             icon = icon,
         )
     }

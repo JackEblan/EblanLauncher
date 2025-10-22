@@ -31,7 +31,6 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -100,10 +99,13 @@ class GetPinGridItemUseCase @Inject constructor(
                         eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = pinItemRequestType.packageName)
 
                     if (eblanApplicationInfo != null) {
-                        val iconInferred = File(
-                            fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            pinItemRequestType.shortcutId,
-                        ).absolutePath
+                        val icon = pinItemRequestType.icon?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                                name = pinItemRequestType.shortcutId,
+                                byteArray = byteArray,
+                            )
+                        }
 
                         val data = ShortcutInfo(
                             shortcutId = pinItemRequestType.shortcutId,
@@ -111,7 +113,7 @@ class GetPinGridItemUseCase @Inject constructor(
                             serialNumber = 0L,
                             shortLabel = pinItemRequestType.shortLabel,
                             longLabel = pinItemRequestType.longLabel,
-                            icon = iconInferred,
+                            icon = icon,
                             eblanApplicationInfo = eblanApplicationInfo,
                         )
 

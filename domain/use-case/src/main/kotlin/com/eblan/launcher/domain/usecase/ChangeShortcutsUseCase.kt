@@ -29,19 +29,19 @@ import javax.inject.Inject
 class ChangeShortcutsUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         serialNumber: Long,
         packageName: String,
         launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
     ) {
-        withContext(ioDispatcher) {
+        withContext(defaultDispatcher) {
             launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
                 val shortcutInfoGridItem =
                     shortcutInfoGridItemRepository.getShortcutInfoGridItem(id = launcherAppsShortcutInfo.shortcutId)
-// TODO: This makes the shortcut grid item null
-                if (shortcutInfoGridItem != null) {
+
+                if (shortcutInfoGridItem != null && !launcherAppsShortcutInfo.hasKeyFieldsOnly) {
                     val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
                         fileManager.getAndUpdateFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),

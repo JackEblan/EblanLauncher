@@ -43,13 +43,13 @@ class ChangePackageUseCase @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         serialNumber: Long,
         packageName: String,
     ) {
-        withContext(ioDispatcher) {
+        withContext(defaultDispatcher) {
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
             val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)

@@ -41,6 +41,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,7 +81,12 @@ import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
+import com.eblan.launcher.ui.local.LocalDrawable
+import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -243,6 +249,12 @@ fun HomeScreen(
 
     val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
 
+    val launcherApps = LocalLauncherApps.current
+
+    val drawable = LocalDrawable.current
+
+    val scope = rememberCoroutineScope()
+
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
@@ -256,11 +268,15 @@ fun HomeScreen(
 
                 val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-                handlePinItemRequest(
-                    pinItemRequest = pinItemRequest,
-                    context = context,
-                    onGetPinGridItem = onGetPinGridItem,
-                )
+                scope.launch {
+                    handlePinItemRequest(
+                        pinItemRequest = pinItemRequest,
+                        context = context,
+                        launcherAppsWrapper = launcherApps,
+                        drawable = drawable,
+                        onGetPinGridItem = onGetPinGridItem,
+                    )
+                }
             }
 
             override fun onEnded(event: DragAndDropEvent) {
@@ -750,9 +766,11 @@ private fun OverlayImage(
     }
 }
 
-private fun handlePinItemRequest(
+private suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
     context: Context,
+    launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    drawable: AndroidDrawableWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
@@ -776,6 +794,12 @@ private fun handlePinItemRequest(
                             packageName = shortcutInfo.`package`,
                             shortLabel = shortcutInfo.shortLabel.toString(),
                             longLabel = shortcutInfo.longLabel.toString(),
+                            icon = launcherAppsWrapper.getShortcutIconDrawable(
+                                shortcutInfo = shortcutInfo,
+                                density = 0,
+                            )?.let {
+                                drawable.createByteArray(drawable = it)
+                            },
                         ),
                     )
                 }

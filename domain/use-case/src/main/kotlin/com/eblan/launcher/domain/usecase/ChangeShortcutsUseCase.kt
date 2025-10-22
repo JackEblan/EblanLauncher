@@ -37,29 +37,43 @@ class ChangeShortcutsUseCase @Inject constructor(
         launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
     ) {
         withContext(defaultDispatcher) {
-            launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
-                val shortcutInfoGridItem =
-                    shortcutInfoGridItemRepository.getShortcutInfoGridItem(id = launcherAppsShortcutInfo.shortcutId)
+            val launcherAppsShortcutInfoIds =
+                launcherAppsShortcutInfos.map { launcherAppsShortcutInfo -> launcherAppsShortcutInfo.shortcutId }
 
-                if (shortcutInfoGridItem != null && !launcherAppsShortcutInfo.hasKeyFieldsOnly) {
-                    val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = launcherAppsShortcutInfo.shortcutId,
-                            byteArray = byteArray,
+            launcherAppsShortcutInfos.forEach { launcherAppsShortcutInfo ->
+                shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName = packageName)
+                    .forEach { shortcutInfoGridItem ->
+                        if (!launcherAppsShortcutInfo.hasKeyFieldsOnly) {
+                            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+                                fileManager.getAndUpdateFilePath(
+                                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                                    name = launcherAppsShortcutInfo.shortcutId,
+                                    byteArray = byteArray,
+                                )
+                            }
+
+                            val newShortcutInfoGridItem = shortcutInfoGridItem.copy(
+                                serialNumber = launcherAppsShortcutInfo.serialNumber,
+                                shortLabel = launcherAppsShortcutInfo.shortLabel,
+                                longLabel = launcherAppsShortcutInfo.longLabel,
+                                icon = icon,
+                            )
+
+                            shortcutInfoGridItemRepository.updateShortcutInfoGridItem(
+                                shortcutInfoGridItem = newShortcutInfoGridItem
+                            )
+                        }
+                    }
+            }
+
+            shortcutInfoGridItemRepository.getShortcutInfoGridItems(packageName = packageName)
+                .forEach { shortcutInfoGridItem ->
+                    if (shortcutInfoGridItem.shortcutId !in launcherAppsShortcutInfoIds) {
+                        shortcutInfoGridItemRepository.deleteShortcutInfoGridItem(
+                            shortcutInfoGridItem = shortcutInfoGridItem,
                         )
                     }
-
-                    val newShortcutInfoGridItem = shortcutInfoGridItem.copy(
-                        serialNumber = launcherAppsShortcutInfo.serialNumber,
-                        shortLabel = launcherAppsShortcutInfo.shortLabel,
-                        longLabel = launcherAppsShortcutInfo.longLabel,
-                        icon = icon,
-                    )
-
-                    shortcutInfoGridItemRepository.updateShortcutInfoGridItem(shortcutInfoGridItem = newShortcutInfoGridItem)
                 }
-            }
         }
     }
 }

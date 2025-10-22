@@ -47,4 +47,7 @@ interface ShortcutInfoGridItemDao {
 
     @Delete
     suspend fun deleteShortcutInfoGridItemEntity(entity: ShortcutInfoGridItemEntity)
+
+    @Query("SELECT * FROM ShortcutInfoGridItemEntity WHERE packageName = :packageName")
+    suspend fun getShortcutInfoGridItemEntities(packageName: String): List<ShortcutInfoGridItemEntity>
 }

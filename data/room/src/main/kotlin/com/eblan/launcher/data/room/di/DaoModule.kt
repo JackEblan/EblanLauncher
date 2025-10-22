@@ -22,7 +22,6 @@ import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.EblanIconPackInfoDao
-import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
 import com.eblan.launcher.data.room.dao.FolderGridItemDao
 import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
 import com.eblan.launcher.data.room.dao.WidgetGridItemDao
@@ -60,11 +59,6 @@ internal object DaoModule {
     @Singleton
     fun eblanAppWidgetProviderInfoDao(eblanDatabase: EblanDatabase): EblanAppWidgetProviderInfoDao =
         eblanDatabase.eblanAppWidgetProviderInfoDao()
-
-    @Provides
-    @Singleton
-    fun eblanShortcutInfoDao(eblanDatabase: EblanDatabase): EblanShortcutInfoDao =
-        eblanDatabase.eblanShortcutInfoDao()
 
     @Provides
     @Singleton

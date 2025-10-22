@@ -194,35 +194,6 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
-        return withContext(defaultDispatcher) {
-            if (hasShortcutHostPermission) {
-                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
-                    setQueryFlags(
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
-                    )
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    launcherApps.profiles.flatMap { userHandle ->
-                        launcherApps.getShortcuts(shortcutQuery, userHandle)
-                            ?.map { shortcutInfo ->
-                                shortcutInfo.toLauncherAppsShortcutInfo()
-                            } ?: emptyList()
-                    }
-                } else {
-                    launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
-                        shortcutInfo.toLauncherAppsShortcutInfo()
-                    }
-                }
-            } else {
-                null
-            }
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest {
         return launcherApps.getPinItemRequest(intent)

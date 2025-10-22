@@ -19,7 +19,6 @@ package com.eblan.launcher.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -51,7 +50,6 @@ object EblanLauncherIcons {
     val Gesture = Icons.Default.Gesture
     val Folder = Icons.Default.Folder
     val Apps = Icons.Default.Apps
-    val Shortcut = Icons.AutoMirrored.Filled.Shortcut
     val Image = Icons.Default.Image
     val Search = Icons.Default.Search
     val ArrowDropDown = Icons.Default.ArrowDropDown

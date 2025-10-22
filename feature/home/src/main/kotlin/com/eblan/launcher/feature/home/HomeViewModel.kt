@@ -34,7 +34,6 @@ import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
@@ -87,7 +86,6 @@ class HomeViewModel @Inject constructor(
     private val getFolderDataByIdUseCase: GetFolderDataByIdUseCase,
     getEblanApplicationInfosByLabelUseCase: GetEblanApplicationInfosByLabelUseCase,
     getEblanAppWidgetProviderInfosByLabelUseCase: GetEblanAppWidgetProviderInfosByLabelUseCase,
-    getEblanShortcutInfosByLabelUseCase: GetEblanShortcutInfosByLabelUseCase,
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
@@ -131,8 +129,6 @@ class HomeViewModel @Inject constructor(
 
     private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow<String?>(null)
 
-    private val _eblanShortcutInfoLabel = MutableStateFlow<String?>(null)
-
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val eblanApplicationInfosByLabel =
         _eblanApplicationLabel.filterNotNull()
@@ -151,18 +147,6 @@ class HomeViewModel @Inject constructor(
             .debounce(defaultDelay)
             .flatMapLatest { label ->
                 getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyMap(),
-            )
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanShortcutInfosByLabel =
-        _eblanShortcutInfoLabel.filterNotNull()
-            .debounce(defaultDelay)
-            .flatMapLatest { label ->
-                getEblanShortcutInfosByLabelUseCase(label = label)
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -506,12 +490,6 @@ class HomeViewModel @Inject constructor(
 
     fun getEblanAppWidgetProviderInfosByLabel(label: String) {
         _eblanAppWidgetProviderInfoLabel.update {
-            label
-        }
-    }
-
-    fun getEblanShortcutInfosByLabel(label: String) {
-        _eblanShortcutInfoLabel.update {
             label
         }
     }

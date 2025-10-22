@@ -32,7 +32,6 @@ class ChangePackageUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val updateEblanAppWidgetProviderInfosByPackageNameUseCase: UpdateEblanAppWidgetProviderInfosByPackageNameUseCase,
-    private val updateEblanShortcutInfosByPackageNameUseCase: UpdateEblanShortcutInfosByPackageNameUseCase,
     private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
@@ -63,13 +62,9 @@ class ChangePackageUseCase @Inject constructor(
                 label = label,
             )
 
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(
-                eblanApplicationInfo = eblanApplicationInfo,
-            )
+            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
 
             updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
-
-            updateEblanShortcutInfosByPackageNameUseCase(packageName = packageName)
 
             updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }

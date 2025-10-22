@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.usecase.ChangeShortcutsUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
-import com.eblan.launcher.domain.usecase.UpdateEblanShortcutInfosUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,9 +43,6 @@ class ApplicationInfoService : Service() {
 
     @Inject
     lateinit var updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase
-
-    @Inject
-    lateinit var updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase
 
     @Inject
     lateinit var addPackageUseCase: AddPackageUseCase
@@ -107,8 +103,6 @@ class ApplicationInfoService : Service() {
                 updateEblanApplicationInfosUseCase()
 
                 updateEblanAppWidgetProviderInfosUseCase()
-
-                updateEblanShortcutInfosUseCase()
             }
         }
 

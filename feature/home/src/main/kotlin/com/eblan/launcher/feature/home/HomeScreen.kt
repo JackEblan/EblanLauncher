@@ -60,7 +60,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -107,8 +106,6 @@ fun HomeRoute(
 
     val eblanAppWidgetProviderInfosByLabel by viewModel.eblanAppWidgetProviderInfosByLabel.collectAsStateWithLifecycle()
 
-    val eblanShortcutInfosByLabel by viewModel.eblanShortcutInfosByLabel.collectAsStateWithLifecycle()
-
     val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
@@ -123,7 +120,6 @@ fun HomeRoute(
         foldersDataById = folders,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-        eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
         onMoveGridItem = viewModel::moveGridItem,
@@ -149,7 +145,6 @@ fun HomeRoute(
         onAddFolder = viewModel::addFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
-        onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
@@ -167,7 +162,6 @@ fun HomeScreen(
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     onMoveGridItem: (
@@ -229,7 +223,6 @@ fun HomeScreen(
     onAddFolder: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
@@ -350,7 +343,6 @@ fun HomeScreen(
                     foldersDataById = foldersDataById,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     gridItemCache = gridItemsCache,
                     pinGridItem = pinGridItem,
                     overlayIntOffset = overlayIntOffset,
@@ -386,7 +378,6 @@ fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = {
                         overlayIntOffset = IntOffset.Zero
@@ -423,7 +414,6 @@ private fun Success(
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
@@ -492,7 +482,6 @@ private fun Success(
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -571,7 +560,6 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
@@ -599,7 +587,6 @@ private fun Success(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
                 )

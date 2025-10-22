@@ -63,7 +63,6 @@ import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
@@ -85,7 +84,6 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.application.DoubleTapApplicationScreen
-import com.eblan.launcher.feature.home.screen.shortcut.ShortcutScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
@@ -113,7 +111,6 @@ fun PagerScreen(
     homeSettings: HomeSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
@@ -133,7 +130,6 @@ fun PagerScreen(
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -146,8 +142,6 @@ fun PagerScreen(
     var showDoubleTap by remember { mutableStateOf(false) }
 
     var showWidgets by remember { mutableStateOf(false) }
-
-    var showShortcuts by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -300,9 +294,6 @@ fun PagerScreen(
         onEditPage = onEditPage,
         onWidgets = {
             showWidgets = true
-        },
-        onShortcuts = {
-            showShortcuts = true
         },
         onDoubleTap = {
             showDoubleTap = true
@@ -468,28 +459,6 @@ fun PagerScreen(
             onResetOverlay = onResetOverlay,
         )
     }
-
-    if (showShortcuts) {
-        ShortcutScreen(
-            currentPage = currentPage,
-            isApplicationComponentVisible = isApplicationComponentVisible,
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            gridItemSettings = homeSettings.gridItemSettings,
-            paddingValues = paddingValues,
-            screenHeight = screenHeight,
-            drag = drag,
-            eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
-            onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
-            appDrawerSettings = appDrawerSettings,
-            onDismiss = {
-                showShortcuts = false
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
-        )
-    }
 }
 
 @Composable
@@ -517,7 +486,6 @@ private fun HorizontalPagerScreen(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
-    onShortcuts: () -> Unit,
     onDoubleTap: () -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -858,12 +826,10 @@ private fun HorizontalPagerScreen(
         PopupSettingsMenu(
             popupSettingsMenuIntOffset = popupSettingsMenuIntOffset,
             gridItems = gridItems,
-            hasShortcutHostPermission = hasShortcutHostPermission,
             hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
             onSettings = onSettings,
             onEditPage = onEditPage,
             onWidgets = onWidgets,
-            onShortcuts = onShortcuts,
             onWallpaper = {
                 val intent = Intent(Intent.ACTION_SET_WALLPAPER)
 
@@ -882,12 +848,10 @@ private fun HorizontalPagerScreen(
 private fun PopupSettingsMenu(
     popupSettingsMenuIntOffset: IntOffset,
     gridItems: List<GridItem>,
-    hasShortcutHostPermission: Boolean,
     hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
-    onShortcuts: () -> Unit,
     onWallpaper: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -899,7 +863,6 @@ private fun PopupSettingsMenu(
         onDismissRequest = onDismissRequest,
     ) {
         SettingsMenu(
-            hasShortcutHostPermission = hasShortcutHostPermission,
             hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
             onSettings = {
                 onSettings()
@@ -914,11 +877,6 @@ private fun PopupSettingsMenu(
 
             onWidgets = {
                 onWidgets()
-
-                onDismissRequest()
-            },
-            onShortcuts = {
-                onShortcuts()
 
                 onDismissRequest()
             },

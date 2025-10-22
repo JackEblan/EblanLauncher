@@ -59,7 +59,11 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 eblanShortcutInfos.sortedBy { eblanShortcutInfo ->
                     eblanShortcutInfo.eblanApplicationInfo.label
                 }.groupBy { eblanShortcutInfo ->
-                    eblanShortcutInfo.eblanApplicationInfo
+                    eblanShortcutInfo.serialNumber
+                }.mapValues { entry ->
+                    entry.value.groupBy { eblanShortcutInfo ->
+                        eblanShortcutInfo.eblanApplicationInfo
+                    }
                 }
 
             EblanApplicationComponent(

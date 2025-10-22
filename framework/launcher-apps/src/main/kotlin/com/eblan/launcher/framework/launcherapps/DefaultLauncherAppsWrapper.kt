@@ -148,8 +148,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     override suspend fun getActivityList(): List<EblanLauncherActivityInfo> {
         return withContext(defaultDispatcher) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                launcherApps.profiles.flatMap { currentUserHandle ->
-                    launcherApps.getActivityList(null, currentUserHandle)
+                launcherApps.profiles.flatMap { userHandle ->
+                    launcherApps.getActivityList(null, userHandle)
                         .map { launcherActivityInfo ->
                             launcherActivityInfo.toEblanLauncherActivityInfo()
                         }
@@ -168,11 +168,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         componentName: String?,
         sourceBounds: Rect,
     ) {
-        val userHandle = if (serialNumber != -1L) {
-            userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
-        } else {
-            myUserHandle()
-        }
+        val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
         if (componentName != null && userHandle != null) {
             launcherApps.startMainActivity(
@@ -201,30 +197,22 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
         return withContext(defaultDispatcher) {
             if (hasShortcutHostPermission) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    launcherApps.profiles.flatMap { currentUserHandle ->
-                        val shortcutQuery = LauncherApps.ShortcutQuery().apply {
-                            setQueryFlags(
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                    LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                    LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
-                            )
-                        }
+                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                    setQueryFlags(
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                    )
+                }
 
-                        launcherApps.getShortcuts(shortcutQuery, currentUserHandle)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    launcherApps.profiles.flatMap { userHandle ->
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)
                             ?.map { shortcutInfo ->
                                 shortcutInfo.toLauncherAppsShortcutInfo()
                             } ?: emptyList()
                     }
                 } else {
-                    val shortcutQuery = LauncherApps.ShortcutQuery().apply {
-                        setQueryFlags(
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
-                        )
-                    }
-
                     launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
                         shortcutInfo.toLauncherAppsShortcutInfo()
                     }
@@ -238,6 +226,26 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest {
         return launcherApps.getPinItemRequest(intent)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    override fun startShortcut(
+        serialNumber: Long,
+        packageName: String,
+        id: String,
+        sourceBounds: Rect
+    ) {
+        val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+        if (userHandle != null) {
+            launcherApps.startShortcut(
+                packageName,
+                id,
+                sourceBounds,
+                null,
+                userHandle,
+            )
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)

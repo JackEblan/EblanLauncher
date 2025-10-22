@@ -62,6 +62,7 @@ fun InteractiveGridItemContent(
         componentName: String?,
     ) -> Unit,
     onTapShortcutInfo: (
+        serialNumber: Long,
         packageName: String,
         shortcutId: String,
     ) -> Unit,
@@ -127,6 +128,7 @@ fun InteractiveGridItemContent(
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 onTap = {
                     onTapShortcutInfo(
+                        data.serialNumber,
                         data.packageName,
                         data.shortcutId,
                     )

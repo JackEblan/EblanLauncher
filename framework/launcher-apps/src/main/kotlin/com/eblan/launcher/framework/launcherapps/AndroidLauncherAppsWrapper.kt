@@ -41,6 +41,15 @@ interface AndroidLauncherAppsWrapper {
         sourceBounds: Rect,
     )
 
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    fun startShortcut(
+        serialNumber: Long,
+        packageName: String,
+        id: String,
+        sourceBounds: Rect,
+    )
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
     fun startShortcut(
         packageName: String,
         id: String,

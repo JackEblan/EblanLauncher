@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
@@ -666,21 +667,24 @@ private fun HorizontalPagerScreen(
                                 ),
                             )
                         },
-                        onTapShortcutInfo = { packageName, shortcutId ->
+                        onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                             val sourceBoundsX = x + leftPadding
 
                             val sourceBoundsY = y + topPadding
 
-                            launcherApps.startShortcut(
-                                packageName = packageName,
-                                id = shortcutId,
-                                sourceBounds = Rect(
-                                    sourceBoundsX,
-                                    sourceBoundsY,
-                                    sourceBoundsX + width,
-                                    sourceBoundsY + height,
-                                ),
-                            )
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                                launcherApps.startShortcut(
+                                    serialNumber = serialNumber,
+                                    packageName = packageName,
+                                    id = shortcutId,
+                                    sourceBounds = Rect(
+                                        sourceBoundsX,
+                                        sourceBoundsY,
+                                        sourceBoundsX + width,
+                                        sourceBoundsY + height,
+                                    ),
+                                )
+                            }
                         },
                         onTapFolderGridItem = {
                             onTapFolderGridItem(gridItem.id)
@@ -765,21 +769,24 @@ private fun HorizontalPagerScreen(
                             ),
                         )
                     },
-                    onTapShortcutInfo = { packageName, shortcutId ->
+                    onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                         val sourceBoundsX = x + leftPadding
 
                         val sourceBoundsY = y + topPadding
 
-                        launcherApps.startShortcut(
-                            packageName = packageName,
-                            id = shortcutId,
-                            sourceBounds = Rect(
-                                sourceBoundsX,
-                                sourceBoundsY,
-                                sourceBoundsX + width,
-                                sourceBoundsY + height,
-                            ),
-                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                            launcherApps.startShortcut(
+                                serialNumber = serialNumber,
+                                packageName = packageName,
+                                id = shortcutId,
+                                sourceBounds = Rect(
+                                    sourceBoundsX,
+                                    sourceBoundsY,
+                                    sourceBoundsX + width,
+                                    sourceBoundsY + height,
+                                ),
+                            )
+                        }
                     },
                     onTapFolderGridItem = {
                         onTapFolderGridItem(gridItem.id)

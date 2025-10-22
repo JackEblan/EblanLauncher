@@ -35,6 +35,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,7 +45,9 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -121,23 +125,6 @@ fun ShortcutScreen(
 
     val overscrollAlpha = remember { Animatable(0f) }
 
-    val overscrollOffset = remember { Animatable(0f) }
-
-    val overscrollEffect = remember(key1 = scope) {
-        OffsetOverscrollEffect(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onDismiss,
-            onFastFling = {
-                animatedSwipeUpY.animateTo(screenHeight.toFloat())
-
-                onDismiss()
-            },
-        )
-    }
-
     LaunchedEffect(key1 = animatedSwipeUpY) {
         animatedSwipeUpY.animateTo(0f)
     }
@@ -193,53 +180,190 @@ fun ShortcutScreen(
                         }
 
                         else -> {
-                            Column(
-                                modifier = Modifier
-                                    .offset {
-                                        IntOffset(
-                                            x = 0,
-                                            y = overscrollOffset.value.roundToInt(),
-                                        )
-                                    }
-                                    .matchParentSize()
-                                    .padding(
-                                        top = paddingValues.calculateTopPadding(),
-                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                    ),
-                            ) {
-                                EblanShortcutInfoDockSearchBar(
-                                    onQueryChange = onGetEblanShortcutInfosByLabel,
-                                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
-                                    drag = drag,
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onLongPressGridItem = onLongPressGridItem,
-                                    currentPage = currentPage,
-                                    gridItemSettings = gridItemSettings,
-                                    onResetOverlay = onResetOverlay,
-                                )
-
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
-                                    overscrollEffect = overscrollEffect,
-                                ) {
-                                    items(eblanShortcutInfos.keys.toList()) { eblanApplicationInfo ->
-                                        EblanApplicationInfoItem(
-                                            eblanApplicationInfo = eblanApplicationInfo,
-                                            eblanShortcutInfos = eblanShortcutInfos,
-                                            drag = drag,
-                                            onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                            onLongPressGridItem = onLongPressGridItem,
-                                            currentPage = currentPage,
-                                            gridItemSettings = gridItemSettings,
-                                            onResetOverlay = onResetOverlay,
-                                        )
-                                    }
-                                }
-                            }
+                            Success(
+                                currentPage = currentPage,
+                                isApplicationComponentVisible = isApplicationComponentVisible,
+                                eblanShortcutInfos = eblanShortcutInfos,
+                                gridItemSettings = gridItemSettings,
+                                paddingValues = paddingValues,
+                                screenHeight = screenHeight,
+                                drag = drag,
+                                eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
+                                appDrawerSettings = appDrawerSettings,
+                                onLongPressGridItem = onLongPressGridItem,
+                                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
+                                onDismiss = onDismiss,
+                                onDraggingGridItem = onDraggingGridItem,
+                                onResetOverlay = onResetOverlay
+                            )
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Success(
+    modifier: Modifier = Modifier,
+    currentPage: Int,
+    isApplicationComponentVisible: Boolean,
+    eblanShortcutInfos: Map<Long, Map<EblanApplicationInfo, List<EblanShortcutInfo>>>,
+    gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
+    screenHeight: Int,
+    drag: Drag,
+    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
+    appDrawerSettings: AppDrawerSettings,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onGetEblanShortcutInfosByLabel: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
+) {
+    val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
+
+    val scope = rememberCoroutineScope()
+
+    val overscrollAlpha = remember { Animatable(0f) }
+
+    val overscrollOffset = remember { Animatable(0f) }
+
+    val overscrollEffect = remember(key1 = scope) {
+        OffsetOverscrollEffect(
+            scope = scope,
+            overscrollAlpha = overscrollAlpha,
+            overscrollOffset = overscrollOffset,
+            overscrollFactor = appDrawerSettings.overscrollFactor,
+            onFling = onDismiss,
+            onFastFling = {
+                animatedSwipeUpY.animateTo(screenHeight.toFloat())
+
+                onDismiss()
+            },
+        )
+    }
+
+    val horizontalPagerState = rememberPagerState(
+        pageCount = {
+            eblanShortcutInfos.keys.size
+        },
+    )
+
+    LaunchedEffect(key1 = animatedSwipeUpY) {
+        animatedSwipeUpY.animateTo(0f)
+    }
+
+    LaunchedEffect(key1 = drag) {
+        if (isApplicationComponentVisible) {
+            when (drag) {
+                Drag.Dragging -> {
+                    onDraggingGridItem()
+                }
+
+                Drag.Cancel, Drag.End -> {
+                    onResetOverlay()
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
+    BackHandler {
+        scope.launch {
+            animatedSwipeUpY.animateTo(screenHeight.toFloat())
+
+            onDismiss()
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = overscrollOffset.value.roundToInt(),
+                )
+            }
+            .fillMaxSize()
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+            ),
+    ) {
+        EblanShortcutInfoDockSearchBar(
+            onQueryChange = onGetEblanShortcutInfosByLabel,
+            eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
+            drag = drag,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onLongPressGridItem = onLongPressGridItem,
+            currentPage = currentPage,
+            gridItemSettings = gridItemSettings,
+            onResetOverlay = onResetOverlay,
+        )
+
+        if (eblanShortcutInfos.keys.size > 1) {
+            EblanShortcutInfoTabRow(
+                currentPage = horizontalPagerState.currentPage,
+                eblanShortcutInfos = eblanShortcutInfos,
+                onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
+            )
+
+            HorizontalPager(
+                modifier = Modifier.fillMaxWidth(),
+                state = horizontalPagerState,
+            ) { index ->
+                val serialNumber = eblanShortcutInfos.keys.toList()[index]
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
+                    overscrollEffect = overscrollEffect,
+                ) {
+                    items(
+                        eblanShortcutInfos[serialNumber]?.keys?.toList().orEmpty()
+                    ) { eblanApplicationInfo ->
+                        EblanApplicationInfoItem(
+                            eblanApplicationInfo = eblanApplicationInfo,
+                            eblanShortcutInfos = eblanShortcutInfos[serialNumber].orEmpty(),
+                            drag = drag,
+                            onUpdateGridItemOffset = onUpdateGridItemOffset,
+                            onLongPressGridItem = onLongPressGridItem,
+                            currentPage = currentPage,
+                            gridItemSettings = gridItemSettings,
+                            onResetOverlay = onResetOverlay,
+                        )
+                    }
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
+                overscrollEffect = overscrollEffect,
+            ) {
+                items(eblanShortcutInfos[0]?.keys?.toList().orEmpty()) { eblanApplicationInfo ->
+                    EblanApplicationInfoItem(
+                        eblanApplicationInfo = eblanApplicationInfo,
+                        eblanShortcutInfos = eblanShortcutInfos[0].orEmpty(),
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                    )
                 }
             }
         }
@@ -316,6 +440,35 @@ private fun EblanShortcutInfoDockSearchBar(
                     onResetOverlay = onResetOverlay,
                 )
             }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun EblanShortcutInfoTabRow(
+    currentPage: Int,
+    eblanShortcutInfos: Map<Long, Map<EblanApplicationInfo, List<EblanShortcutInfo>>>,
+    onAnimateScrollToPage: suspend (Int) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    SecondaryTabRow(selectedTabIndex = currentPage) {
+        eblanShortcutInfos.keys.forEachIndexed { index, serialNumber ->
+            Tab(
+                selected = currentPage == index,
+                onClick = {
+                    scope.launch {
+                        onAnimateScrollToPage(index)
+                    }
+                },
+                text = {
+                    Text(
+                        text = "User $serialNumber",
+                        maxLines = 1,
+                    )
+                },
+            )
         }
     }
 }

@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.feature.pin
 
-import android.os.Process
+import android.os.UserHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
@@ -57,6 +57,7 @@ class PinViewModel @Inject constructor(
     val isFinished = _isFinished.asStateFlow()
 
     fun addPinShortcutToHomeScreen(
+        userHandle: UserHandle,
         id: String,
         packageName: String,
         shortLabel: String,
@@ -68,7 +69,7 @@ class PinViewModel @Inject constructor(
                 addPinShortcutToHomeScreenUseCase(
                     shortcutId = id,
                     packageName = packageName,
-                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = Process.myUserHandle()),
+                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
                     shortLabel = shortLabel,
                     longLabel = longLabel,
                     byteArray = byteArray,
@@ -78,6 +79,7 @@ class PinViewModel @Inject constructor(
     }
 
     fun addPinWidgetToHomeScreen(
+        userHandle: UserHandle,
         className: String,
         componentName: String,
         configure: String?,
@@ -101,7 +103,7 @@ class PinViewModel @Inject constructor(
                     componentName = componentName,
                     configure = configure,
                     packageName = packageName,
-                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = Process.myUserHandle()),
+                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
                     targetCellHeight = targetCellHeight,
                     targetCellWidth = targetCellWidth,
                     minWidth = minWidth,

@@ -23,15 +23,23 @@ import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 internal class DefaultApplicationInfoGridItemRepository @Inject constructor(private val applicationInfoGridItemDao: ApplicationInfoGridItemDao) :
     ApplicationInfoGridItemRepository {
-    override val applicationInfoGridItems =
+    override val gridItems =
         applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
             entities.map { entity ->
                 entity.asGridItem()
+            }
+        }
+
+    override val applicationInfoGridItems: Flow<List<ApplicationInfoGridItem>> =
+        applicationInfoGridItemDao.getApplicationInfoGridItemEntities().map { entities ->
+            entities.map { entity ->
+                entity.asModel()
             }
         }
 
@@ -81,5 +89,13 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
         ).map { entity ->
             entity.asModel()
         }
+    }
+
+    override suspend fun updateApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>) {
+        val entities = applicationInfoGridItems.map { applicationInfoGridItem ->
+            applicationInfoGridItem.asEntity()
+        }
+
+        applicationInfoGridItemDao.updateApplicationInfoGridItemEntities(entities = entities)
     }
 }

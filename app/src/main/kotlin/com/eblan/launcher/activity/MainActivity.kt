@@ -138,6 +138,8 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
 
+        stopService(applicationInfoServiceIntent)
+
         androidAppWidgetHostWrapper.stopListening()
     }
 }

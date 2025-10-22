@@ -19,19 +19,16 @@ package com.eblan.launcher.service
 
 import android.app.Service
 import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
-import com.eblan.launcher.domain.usecase.ChangeShortcutsUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
+import com.eblan.launcher.domain.usecase.UpdateApplicationInfoGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
-import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
+import com.eblan.launcher.domain.usecase.UpdateShortcutInfoGridItemsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +55,10 @@ class ApplicationInfoService : Service() {
     lateinit var changePackageUseCase: ChangePackageUseCase
 
     @Inject
-    lateinit var changeShortcutsUseCase: ChangeShortcutsUseCase
+    lateinit var updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase
+
+    @Inject
+    lateinit var updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase
 
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
@@ -70,27 +70,6 @@ class ApplicationInfoService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification =
-            NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
-                .setSmallIcon(R.drawable.baseline_cached_24)
-                .setContentTitle("Eblan Launcher")
-                .setContentText("Syncing data")
-                .setOngoing(true)
-                .build()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            startForeground(
-                AndroidNotificationManagerWrapper.ICON_PACK_INFO_SERVICE_NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
-            )
-        } else {
-            startForeground(
-                AndroidNotificationManagerWrapper.ICON_PACK_INFO_SERVICE_NOTIFICATION_ID,
-                notification,
-            )
-        }
-
         serviceScope.launch {
             launch {
                 launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
@@ -112,14 +91,6 @@ class ApplicationInfoService : Service() {
                         is LauncherAppsEvent.PackageRemoved -> {
                             removePackageUseCase(packageName = launcherAppsEvent.packageName)
                         }
-
-                        is LauncherAppsEvent.ShortcutsChanged -> {
-                            changeShortcutsUseCase(
-                                serialNumber = launcherAppsEvent.serialNumber,
-                                packageName = launcherAppsEvent.packageName,
-                                launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
-                            )
-                        }
                     }
                 }
             }
@@ -129,8 +100,20 @@ class ApplicationInfoService : Service() {
 
                 updateEblanAppWidgetProviderInfosUseCase()
             }
+
+            launch {
+                updateApplicationInfoGridItemsUseCase()
+
+                updateShortcutInfoGridItemsUseCase()
+            }
         }
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        serviceScope.cancel()
     }
 }

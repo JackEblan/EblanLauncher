@@ -23,7 +23,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.flow.Flow
 
 interface FolderGridItemRepository {
-    val folderGridItems: Flow<List<GridItem>>
+    val gridItems: Flow<List<GridItem>>
 
     suspend fun getFolderGridItemData(id: String): GridItemData.Folder?
 

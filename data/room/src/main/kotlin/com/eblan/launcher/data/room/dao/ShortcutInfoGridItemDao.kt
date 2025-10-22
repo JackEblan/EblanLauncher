@@ -50,4 +50,7 @@ interface ShortcutInfoGridItemDao {
 
     @Query("SELECT * FROM ShortcutInfoGridItemEntity WHERE packageName = :packageName")
     suspend fun getShortcutInfoGridItemEntities(packageName: String): List<ShortcutInfoGridItemEntity>
+
+    @Update
+    suspend fun updateShortcutInfoGridItemEntities(entities: List<ShortcutInfoGridItemEntity>)
 }

@@ -36,7 +36,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.EblanLauncherActivityInfo
+import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
@@ -47,7 +47,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -114,28 +113,6 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             ) {
                 // TODO: Hide installed applications
             }
-
-            override fun onShortcutsChanged(
-                packageName: String,
-                shortcuts: MutableList<ShortcutInfo>,
-                user: UserHandle,
-            ) {
-                if (hasShortcutHostPermission) {
-                    launch {
-                        val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
-                            shortcutInfo.toLauncherAppsShortcutInfo()
-                        }
-
-                        trySend(
-                            LauncherAppsEvent.ShortcutsChanged(
-                                serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
-                                packageName = packageName,
-                                launcherAppsShortcutInfos = launcherAppsShortcutInfo,
-                            ),
-                        )
-                    }
-                }
-            }
         }
 
         launcherApps.registerCallback(callback, Handler(Looper.getMainLooper()))
@@ -145,7 +122,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }.flowOn(defaultDispatcher)
 
-    override suspend fun getActivityList(): List<EblanLauncherActivityInfo> {
+    override suspend fun getActivityList(): List<LauncherAppsActivityInfo> {
         return withContext(defaultDispatcher) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 launcherApps.profiles.flatMap { userHandle ->
@@ -161,21 +138,28 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getShortcuts(serialNumber: Long): List<LauncherAppsShortcutInfo>? {
+    override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
         return withContext(defaultDispatcher) {
-            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
-
-            if (hasShortcutHostPermission && userHandle != null) {
+            if (hasShortcutHostPermission) {
                 val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                     setQueryFlags(
                         LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 
-                launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
-                    shortcutInfo.toLauncherAppsShortcutInfo()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    launcherApps.profiles.flatMap { userHandle ->
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)
+                            ?.map { shortcutInfo ->
+                                shortcutInfo.toLauncherAppsShortcutInfo()
+                            } ?: emptyList()
+                    }
+                } else {
+                    launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+                        shortcutInfo.toLauncherAppsShortcutInfo()
+                    }
                 }
             } else {
                 null
@@ -278,10 +262,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): EblanLauncherActivityInfo {
+    private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo {
         val icon = packageManagerWrapper.getApplicationIcon(applicationInfo.packageName)
 
-        return EblanLauncherActivityInfo(
+        return LauncherAppsActivityInfo(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
             componentName = componentName.flattenToString(),
             packageName = applicationInfo.packageName,

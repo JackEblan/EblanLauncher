@@ -53,4 +53,7 @@ interface ApplicationInfoGridItemDao {
         serialNumber: Long,
         packageName: String,
     ): List<ApplicationInfoGridItemEntity>
+
+    @Update
+    suspend fun updateApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
 }

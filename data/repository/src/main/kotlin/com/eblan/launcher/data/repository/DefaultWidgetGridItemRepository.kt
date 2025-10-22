@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 internal class DefaultWidgetGridItemRepository @Inject constructor(private val widgetGridItemDao: WidgetGridItemDao) :
     WidgetGridItemRepository {
-    override val widgetGridItems =
+    override val gridItems =
         widgetGridItemDao.getWidgetGridItemEntities().map { entities ->
             entities.map { entity ->
                 entity.asGridItem()

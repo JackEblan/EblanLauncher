@@ -22,7 +22,7 @@ import com.eblan.launcher.domain.model.WidgetGridItem
 import kotlinx.coroutines.flow.Flow
 
 interface WidgetGridItemRepository {
-    val widgetGridItems: Flow<List<GridItem>>
+    val gridItems: Flow<List<GridItem>>
 
     suspend fun upsertWidgetGridItems(widgetGridItems: List<WidgetGridItem>)
 

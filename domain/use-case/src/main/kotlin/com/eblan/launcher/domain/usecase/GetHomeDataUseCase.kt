@@ -53,10 +53,10 @@ class GetHomeDataUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = combine(
-            applicationInfoGridItemRepository.applicationInfoGridItems,
-            widgetGridItemRepository.widgetGridItems,
-            shortcutInfoGridItemRepository.shortcutInfoGridItems,
-            folderGridItemRepository.folderGridItems,
+            applicationInfoGridItemRepository.gridItems,
+            widgetGridItemRepository.gridItems,
+            shortcutInfoGridItemRepository.gridItems,
+            folderGridItemRepository.gridItems,
         ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems ->
             (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems)
                 .filterNot { gridItem ->

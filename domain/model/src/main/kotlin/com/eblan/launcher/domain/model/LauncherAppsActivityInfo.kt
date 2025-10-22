@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanLauncherActivityInfo(
+data class LauncherAppsActivityInfo(
     val serialNumber: Long,
     val componentName: String,
     val packageName: String,
@@ -28,7 +28,7 @@ data class EblanLauncherActivityInfo(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as EblanLauncherActivityInfo
+        other as LauncherAppsActivityInfo
 
         if (serialNumber != other.serialNumber) return false
         if (componentName != other.componentName) return false

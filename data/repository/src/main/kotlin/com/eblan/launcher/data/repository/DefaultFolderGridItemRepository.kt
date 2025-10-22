@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 internal class DefaultFolderGridItemRepository @Inject constructor(private val folderGridItemDao: FolderGridItemDao) :
     FolderGridItemRepository {
-    override val folderGridItems =
+    override val gridItems =
         folderGridItemDao.getFolderGridItemWrapperEntities().map { entities ->
             entities.map { entity ->
                 entity.asGridItem()

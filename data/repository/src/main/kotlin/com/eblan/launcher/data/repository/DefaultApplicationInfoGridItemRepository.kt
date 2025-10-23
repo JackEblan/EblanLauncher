@@ -88,4 +88,14 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
 
         applicationInfoGridItemDao.updateApplicationInfoGridItemEntities(entities = entities)
     }
+
+    override suspend fun deleteApplicationInfoGridItem(
+        serialNumber: Long,
+        packageName: String,
+    ) {
+        applicationInfoGridItemDao.deleteApplicationInfoGridItemEntity(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
+    }
 }

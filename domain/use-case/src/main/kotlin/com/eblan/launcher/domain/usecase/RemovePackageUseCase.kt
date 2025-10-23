@@ -20,8 +20,11 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -33,7 +36,9 @@ class RemovePackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val userDataRepository: UserDataRepository,
     private val updateEblanAppWidgetProviderInfosByPackageNameUseCase: UpdateEblanAppWidgetProviderInfosByPackageNameUseCase,
-    private val updateWidgetGridItemsByPackageNameUseCase: UpdateWidgetGridItemsByPackageNameUseCase,
+    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
+    private val widgetGridItemRepository: WidgetGridItemRepository,
+    private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -71,7 +76,20 @@ class RemovePackageUseCase @Inject constructor(
 
             updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
 
-            updateWidgetGridItemsByPackageNameUseCase(packageName = packageName)
+            applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            widgetGridItemRepository.deleteWidgetGridItem(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            shortcutInfoGridItemRepository.deleteShortcutInfoGridItem(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
         }
     }
 }

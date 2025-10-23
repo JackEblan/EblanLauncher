@@ -40,4 +40,9 @@ interface ApplicationInfoGridItemRepository {
     ): List<ApplicationInfoGridItem>
 
     suspend fun updateApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
+
+    suspend fun deleteApplicationInfoGridItem(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

@@ -47,4 +47,10 @@ interface WidgetGridItemDao {
 
     @Update
     suspend fun updateWidgetGridItemEntities(entities: List<WidgetGridItemEntity>)
+
+    @Query("DELETE FROM WidgetGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun deleteWidgetGridItemEntity(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

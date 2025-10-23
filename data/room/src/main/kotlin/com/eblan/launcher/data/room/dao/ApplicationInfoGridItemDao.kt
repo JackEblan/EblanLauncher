@@ -50,4 +50,10 @@ interface ApplicationInfoGridItemDao {
 
     @Update
     suspend fun updateApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
+
+    @Query("DELETE FROM ApplicationInfoGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun deleteApplicationInfoGridItemEntity(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

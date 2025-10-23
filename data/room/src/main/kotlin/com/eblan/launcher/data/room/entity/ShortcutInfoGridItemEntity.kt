@@ -19,24 +19,12 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItemSettings
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = EblanApplicationInfoEntity::class,
-            parentColumns = ["packageName", "serialNumber"],
-            childColumns = ["packageName", "serialNumber"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
-    indices = [Index(value = ["packageName", "serialNumber"])],
-)
+@Entity
 data class ShortcutInfoGridItemEntity(
     @PrimaryKey
     val id: String,

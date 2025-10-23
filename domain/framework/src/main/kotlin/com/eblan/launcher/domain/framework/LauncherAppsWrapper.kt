@@ -29,5 +29,5 @@ interface LauncherAppsWrapper {
 
     suspend fun getActivityList(): List<LauncherAppsActivityInfo>
 
-    suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>?
+    suspend fun getPinnedShortcuts(): List<LauncherAppsShortcutInfo>?
 }

@@ -138,15 +138,11 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
-    override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
+    override suspend fun getPinnedShortcuts(): List<LauncherAppsShortcutInfo>? {
         return withContext(defaultDispatcher) {
             if (hasShortcutHostPermission) {
                 val shortcutQuery = LauncherApps.ShortcutQuery().apply {
-                    setQueryFlags(
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
-                    )
+                    setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

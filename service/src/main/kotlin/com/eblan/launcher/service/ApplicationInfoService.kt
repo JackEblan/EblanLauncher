@@ -107,9 +107,13 @@ class ApplicationInfoService : Service() {
 
             launch {
                 updateApplicationInfoGridItemsUseCase()
+            }
 
+            launch {
                 updateWidgetGridItemsUseCase()
+            }
 
+            launch {
                 updateShortcutInfoGridItemsUseCase()
             }
         }

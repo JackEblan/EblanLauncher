@@ -42,7 +42,7 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
 
             val shortcutInfoGridItems = shortcutInfoGridItemRepository.shortcutInfoGridItems.first()
 
-            val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcuts()
+            val launcherAppsShortcutInfos = launcherAppsWrapper.getPinnedShortcuts()
 
             if (launcherAppsShortcutInfos != null) {
                 val updatedShortcutInfoGridItems =

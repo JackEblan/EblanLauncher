@@ -163,6 +163,29 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getPinnedShortcutsByPackageName(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsShortcutInfo>? {
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            if (hasShortcutHostPermission && userHandle != null) {
+                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                    setPackage(packageName)
+
+                    setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                }
+
+                launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                    shortcutInfo.toLauncherAppsShortcutInfo()
+                }
+            } else {
+                null
+            }
+        }
+    }
+
     override fun startMainActivity(
         serialNumber: Long,
         componentName: String?,
@@ -283,6 +306,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
             shortLabel = shortLabel.toString(),
             longLabel = longLabel.toString(),
+            isEnabled = isEnabled,
+            disabledMessage = disabledMessage?.toString(),
             icon = icon,
         )
     }

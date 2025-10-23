@@ -62,6 +62,8 @@ class PinViewModel @Inject constructor(
         packageName: String,
         shortLabel: String,
         longLabel: String,
+        isEnabled: Boolean,
+        disabledMessage: String?,
         byteArray: ByteArray?,
     ) {
         viewModelScope.launch {
@@ -72,6 +74,8 @@ class PinViewModel @Inject constructor(
                     serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
                     shortLabel = shortLabel,
                     longLabel = longLabel,
+                    isEnabled = isEnabled,
+                    disabledMessage = disabledMessage,
                     byteArray = byteArray,
                 )
             }

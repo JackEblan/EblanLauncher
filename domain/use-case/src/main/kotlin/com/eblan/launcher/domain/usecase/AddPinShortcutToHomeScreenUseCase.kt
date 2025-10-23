@@ -53,6 +53,8 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
         serialNumber: Long,
         shortLabel: String,
         longLabel: String,
+        isEnabled: Boolean,
+        disabledMessage: String?,
         byteArray: ByteArray?,
     ): GridItem? {
         return withContext(defaultDispatcher) {
@@ -90,6 +92,8 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 shortLabel = shortLabel,
                 longLabel = longLabel,
                 icon = icon,
+                isEnabled = isEnabled,
+                disabledMessage = disabledMessage,
                 eblanApplicationInfo = eblanApplicationInfo,
             )
 

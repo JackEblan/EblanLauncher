@@ -67,6 +67,8 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
                             shortcutInfoGridItem.copy(
                                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                                 longLabel = launcherAppsShortcutInfo.longLabel,
+                                isEnabled = launcherAppsShortcutInfo.isEnabled,
+                                disabledMessage = launcherAppsShortcutInfo.disabledMessage,
                                 icon = icon,
                             ),
                         )

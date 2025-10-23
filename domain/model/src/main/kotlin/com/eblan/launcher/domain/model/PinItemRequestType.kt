@@ -25,6 +25,8 @@ sealed interface PinItemRequestType {
         val packageName: String,
         val shortLabel: String,
         val longLabel: String,
+        val isEnabled: Boolean,
+        val disabledMessage: String?,
         val icon: ByteArray?,
     ) : PinItemRequestType {
         override fun equals(other: Any?): Boolean {

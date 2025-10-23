@@ -38,6 +38,8 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
+            isEnabled = isEnabled,
+            disabledMessage = disabledMessage,
             eblanApplicationInfo = eblanApplicationInfo,
         ),
         associate = associate,
@@ -63,6 +65,8 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         icon = icon,
         override = override,
         serialNumber = serialNumber,
+        isEnabled = isEnabled,
+        disabledMessage = disabledMessage,
         gridItemSettings = gridItemSettings,
         eblanApplicationInfo = eblanApplicationInfo,
     )
@@ -86,6 +90,8 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         override = override,
         serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
+        isEnabled = isEnabled,
+        disabledMessage = disabledMessage,
         eblanApplicationInfo = eblanApplicationInfo,
     )
 }

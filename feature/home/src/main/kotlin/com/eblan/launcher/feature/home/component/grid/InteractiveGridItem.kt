@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.viewinterop.AndroidView
+import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -329,6 +330,12 @@ private fun InteractiveWidgetGridItem(
                 )
                 .fillMaxSize(),
         )
+    } else {
+        AsyncImage(
+            model = data.preview ?: data.eblanApplicationInfo.icon,
+            contentDescription = null,
+            modifier = modifier.fillMaxSize(),
+        )
     }
 }
 
@@ -394,7 +401,7 @@ private fun InteractiveShortcutInfoGridItem(
                         }
                     },
                     onTap = {
-                        if (hasShortcutHostPermission) {
+                        if (hasShortcutHostPermission && data.isEnabled) {
                             scope.launch {
                                 scale.animateTo(0.5f)
 

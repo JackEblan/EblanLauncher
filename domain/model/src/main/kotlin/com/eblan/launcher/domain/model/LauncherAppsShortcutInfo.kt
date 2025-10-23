@@ -23,6 +23,8 @@ data class LauncherAppsShortcutInfo(
     val serialNumber: Long,
     val shortLabel: String,
     val longLabel: String,
+    val isEnabled: Boolean,
+    val disabledMessage: String?,
     val icon: ByteArray?,
 ) {
     override fun equals(other: Any?): Boolean {

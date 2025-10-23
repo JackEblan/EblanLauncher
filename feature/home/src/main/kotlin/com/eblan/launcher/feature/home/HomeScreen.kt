@@ -794,6 +794,8 @@ private suspend fun handlePinItemRequest(
                             packageName = shortcutInfo.`package`,
                             shortLabel = shortcutInfo.shortLabel.toString(),
                             longLabel = shortcutInfo.longLabel.toString(),
+                            isEnabled = shortcutInfo.isEnabled,
+                            disabledMessage = shortcutInfo.disabledMessage?.toString(),
                             icon = launcherAppsWrapper.getShortcutIconDrawable(
                                 shortcutInfo = shortcutInfo,
                                 density = 0,

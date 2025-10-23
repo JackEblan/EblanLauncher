@@ -21,12 +21,15 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -43,6 +46,8 @@ class ChangePackageUseCase @Inject constructor(
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
+    private val launcherAppsWrapper: LauncherAppsWrapper,
+    private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -80,6 +85,11 @@ class ChangePackageUseCase @Inject constructor(
                 packageName = packageName,
                 icon = icon,
                 label = label,
+            )
+
+            updateShortcutInfoGridItem(
+                packageName = packageName,
+                serialNumber = serialNumber,
             )
 
             updateEblanAppWidgetProviderInfos(packageName = packageName)
@@ -167,26 +177,10 @@ class ChangePackageUseCase @Inject constructor(
                         null
                     }
                 }.onEach { eblanAppWidgetProviderInfo ->
-                    widgetGridItemRepository.getWidgetGridItems(packageName = packageName)
-                        .forEach { widgetGridItem ->
-                            widgetGridItemRepository.updateWidgetGridItem(
-                                widgetGridItem = widgetGridItem.copy(
-                                    componentName = eblanAppWidgetProviderInfo.componentName,
-                                    configure = eblanAppWidgetProviderInfo.configure,
-                                    packageName = eblanAppWidgetProviderInfo.packageName,
-                                    serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                                    targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                                    targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                    minWidth = eblanAppWidgetProviderInfo.minWidth,
-                                    minHeight = eblanAppWidgetProviderInfo.minHeight,
-                                    resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                                    minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                                    minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                                    maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                                    maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                ),
-                            )
-                        }
+                    updateWidgetGridItem(
+                        packageName = packageName,
+                        eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
+                    )
                 }
 
         if (oldEblanAppWidgetProviderInfos != newEblanAppWidgetProviderInfos) {
@@ -211,6 +205,90 @@ class ChangePackageUseCase @Inject constructor(
                     widgetFile.delete()
                 }
             }
+        }
+    }
+
+    private suspend fun updateWidgetGridItem(
+        packageName: String,
+        eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
+    ) {
+        widgetGridItemRepository.getWidgetGridItems(packageName = packageName)
+            .forEach { widgetGridItem ->
+                widgetGridItemRepository.updateWidgetGridItem(
+                    widgetGridItem = widgetGridItem.copy(
+                        componentName = eblanAppWidgetProviderInfo.componentName,
+                        configure = eblanAppWidgetProviderInfo.configure,
+                        packageName = eblanAppWidgetProviderInfo.packageName,
+                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
+                        targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
+                        minWidth = eblanAppWidgetProviderInfo.minWidth,
+                        minHeight = eblanAppWidgetProviderInfo.minHeight,
+                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
+                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
+                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
+                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
+                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
+                    ),
+                )
+            }
+    }
+
+    private suspend fun updateShortcutInfoGridItem(
+        packageName: String,
+        serialNumber: Long,
+    ) {
+        if (!launcherAppsWrapper.hasShortcutHostPermission) return
+
+        val updateShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
+
+        val deleteShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
+
+        val shortcutInfoGridItems = shortcutInfoGridItemRepository.getShortcutInfoGridItems(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
+
+        val launcherAppsShortcutInfos =
+            launcherAppsWrapper.getPinnedShortcutsByPackageName(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+        if (launcherAppsShortcutInfos != null) {
+            shortcutInfoGridItems.forEach { shortcutInfoGridItem ->
+                val launcherAppsShortcutInfo =
+                    launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
+                        launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
+                            launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                    }
+
+                if (launcherAppsShortcutInfo != null) {
+                    val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+                        fileManager.getAndUpdateFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                            name = launcherAppsShortcutInfo.shortcutId,
+                            byteArray = byteArray,
+                        )
+                    }
+
+                    updateShortcutInfoGridItems.add(
+                        shortcutInfoGridItem.copy(
+                            shortLabel = launcherAppsShortcutInfo.shortLabel,
+                            longLabel = launcherAppsShortcutInfo.longLabel,
+                            isEnabled = launcherAppsShortcutInfo.isEnabled,
+                            disabledMessage = launcherAppsShortcutInfo.disabledMessage,
+                            icon = icon,
+                        ),
+                    )
+                } else {
+                    deleteShortcutInfoGridItems.add(shortcutInfoGridItem)
+                }
+            }
+
+            shortcutInfoGridItemRepository.updateShortcutInfoGridItems(shortcutInfoGridItems = updateShortcutInfoGridItems)
+
+            shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = deleteShortcutInfoGridItems)
         }
     }
 }

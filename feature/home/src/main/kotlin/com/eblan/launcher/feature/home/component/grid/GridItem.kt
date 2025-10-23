@@ -275,7 +275,7 @@ fun ShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val alpha = if (hasShortcutHostPermission) 1f else 0.3f
+    val alpha = if (hasShortcutHostPermission || data.isEnabled) 1f else 0.5f
 
     Column(
         modifier = modifier

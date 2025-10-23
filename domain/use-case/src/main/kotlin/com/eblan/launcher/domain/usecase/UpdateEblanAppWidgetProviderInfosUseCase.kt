@@ -61,11 +61,11 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
 
                         if (eblanApplicationInfo != null) {
                             val preview =
-                                appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
+                                appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
                                     fileManager.getAndUpdateFilePath(
                                         directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
                                         name = appWidgetManagerAppWidgetProviderInfo.className,
-                                        byteArray = currentPreview,
+                                        byteArray = byteArray,
                                     )
                                 }
 

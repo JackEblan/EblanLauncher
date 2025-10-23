@@ -32,12 +32,12 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
-        withContext(ioDispatcher) {
+        withContext(defaultDispatcher) {
             val updateShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
 
             val deleteShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()

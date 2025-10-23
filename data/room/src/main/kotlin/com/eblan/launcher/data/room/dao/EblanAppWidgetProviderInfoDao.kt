@@ -33,9 +33,6 @@ interface EblanAppWidgetProviderInfoDao {
     @Upsert
     suspend fun upsertEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
 
-    @Upsert
-    suspend fun upsertEblanAppWidgetProviderInfoEntity(entity: EblanAppWidgetProviderInfoEntity)
-
     @Delete
     suspend fun deleteEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
 

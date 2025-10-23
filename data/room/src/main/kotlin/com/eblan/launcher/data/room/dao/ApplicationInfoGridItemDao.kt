@@ -33,14 +33,8 @@ interface ApplicationInfoGridItemDao {
     @Upsert
     suspend fun upsertApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
 
-    @Upsert
-    suspend fun upsertApplicationInfoGridItemEntity(entity: ApplicationInfoGridItemEntity): Long
-
     @Update
     suspend fun updateApplicationInfoGridItemEntity(entity: ApplicationInfoGridItemEntity)
-
-    @Query("SELECT * FROM ApplicationInfoGridItemEntity WHERE id = :id")
-    suspend fun getApplicationInfoGridItemEntity(id: String): ApplicationInfoGridItemEntity?
 
     @Delete
     suspend fun deleteApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)

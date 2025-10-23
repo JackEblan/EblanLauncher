@@ -28,11 +28,7 @@ interface ApplicationInfoGridItemRepository {
 
     suspend fun upsertApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
 
-    suspend fun upsertApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem): Long
-
     suspend fun updateApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem)
-
-    suspend fun getApplicationInfoGridItem(id: String): ApplicationInfoGridItem?
 
     suspend fun deleteApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
 

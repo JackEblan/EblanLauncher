@@ -34,12 +34,14 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val packageManagerWrapper: PackageManagerWrapper,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
-        withContext(ioDispatcher) {
+        withContext(defaultDispatcher) {
+            val updateWidgetGridItems = mutableListOf<WidgetGridItem>()
+
             val deleteWidgetGridItems = mutableListOf<WidgetGridItem>()
 
             val widgetGridItems =
@@ -48,23 +50,23 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
             val appWidgetManagerAppWidgetProviderInfos =
                 appWidgetManagerWrapper.getInstalledProviders()
 
-            val updatedWidgetGridItems =
-                widgetGridItems.mapNotNull { widgetGridItem ->
-                    val appWidgetManagerAppWidgetProviderInfo =
-                        appWidgetManagerAppWidgetProviderInfos.find { appWidgetManagerAppWidgetProviderInfo ->
-                            appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className
+            widgetGridItems.forEach { widgetGridItem ->
+                val appWidgetManagerAppWidgetProviderInfo =
+                    appWidgetManagerAppWidgetProviderInfos.find { appWidgetManagerAppWidgetProviderInfo ->
+                        appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className
+                    }
+
+                if (appWidgetManagerAppWidgetProviderInfo != null) {
+                    val preview =
+                        appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                                name = appWidgetManagerAppWidgetProviderInfo.className,
+                                byteArray = byteArray,
+                            )
                         }
 
-                    if (appWidgetManagerAppWidgetProviderInfo != null) {
-                        val preview =
-                            appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                                fileManager.getAndUpdateFilePath(
-                                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                    name = appWidgetManagerAppWidgetProviderInfo.className,
-                                    byteArray = byteArray,
-                                )
-                            }
-
+                    updateWidgetGridItems.add(
                         widgetGridItem.copy(
                             className = appWidgetManagerAppWidgetProviderInfo.className,
                             componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
@@ -80,15 +82,14 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                             targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                             preview = preview,
                         )
-                    } else {
-                        deleteWidgetGridItems.add(widgetGridItem)
-
-                        null
-                    }
+                    )
+                } else {
+                    deleteWidgetGridItems.add(widgetGridItem)
                 }
+            }
 
             widgetGridItemRepository.updateWidgetGridItems(
-                widgetGridItems = updatedWidgetGridItems,
+                widgetGridItems = updateWidgetGridItems,
             )
 
             widgetGridItemRepository.deleteWidgetGridItems(

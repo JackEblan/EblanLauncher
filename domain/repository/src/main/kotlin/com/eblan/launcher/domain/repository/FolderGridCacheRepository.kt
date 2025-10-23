@@ -25,7 +25,5 @@ interface FolderGridCacheRepository {
 
     fun insertGridItems(gridItems: List<GridItem>)
 
-    fun insertGridItem(gridItem: GridItem)
-
     suspend fun upsertGridItems(gridItems: List<GridItem>)
 }

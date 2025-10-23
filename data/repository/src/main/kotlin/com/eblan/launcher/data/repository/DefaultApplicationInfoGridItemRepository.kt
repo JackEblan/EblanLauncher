@@ -51,20 +51,10 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
         applicationInfoGridItemDao.upsertApplicationInfoGridItemEntities(entities = entities)
     }
 
-    override suspend fun upsertApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem): Long {
-        return applicationInfoGridItemDao.upsertApplicationInfoGridItemEntity(
-            applicationInfoGridItem.asEntity(),
-        )
-    }
-
     override suspend fun updateApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem) {
         applicationInfoGridItemDao.updateApplicationInfoGridItemEntity(
             applicationInfoGridItem.asEntity(),
         )
-    }
-
-    override suspend fun getApplicationInfoGridItem(id: String): ApplicationInfoGridItem? {
-        return applicationInfoGridItemDao.getApplicationInfoGridItemEntity(id = id)?.asModel()
     }
 
     override suspend fun deleteApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>) {

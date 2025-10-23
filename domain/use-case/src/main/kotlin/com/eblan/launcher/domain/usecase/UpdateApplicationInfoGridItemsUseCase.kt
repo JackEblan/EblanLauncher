@@ -32,12 +32,14 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
-        withContext(ioDispatcher) {
+        withContext(defaultDispatcher) {
+            val updateApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
+
             val deleteApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
             val applicationInfoGridItems =
@@ -45,37 +47,36 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
 
             val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-            val updatedApplicationInfoGridItems =
-                applicationInfoGridItems.mapNotNull { applicationInfoGridItem ->
-                    val launcherAppsActivityInfo =
-                        launcherAppsActivityInfos.find { launcherShortcutInfo ->
-                            launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
+            applicationInfoGridItems.forEach { applicationInfoGridItem ->
+                val launcherAppsActivityInfo =
+                    launcherAppsActivityInfos.find { launcherShortcutInfo ->
+                        launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
                                 launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
-                        }
+                    }
 
-                    if (launcherAppsActivityInfo != null) {
-                        val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
-                            fileManager.getAndUpdateFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                name = launcherAppsActivityInfo.packageName,
-                                byteArray = byteArray,
-                            )
-                        }
+                if (launcherAppsActivityInfo != null) {
+                    val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
+                        fileManager.getAndUpdateFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                            name = launcherAppsActivityInfo.packageName,
+                            byteArray = byteArray,
+                        )
+                    }
 
+                    updateApplicationInfoGridItems.add(
                         applicationInfoGridItem.copy(
                             componentName = launcherAppsActivityInfo.componentName,
                             icon = icon,
                             label = launcherAppsActivityInfo.label,
                         )
-                    } else {
-                        deleteApplicationInfoGridItems.add(applicationInfoGridItem)
-
-                        null
-                    }
+                    )
+                } else {
+                    deleteApplicationInfoGridItems.add(applicationInfoGridItem)
                 }
+            }
 
             applicationInfoGridItemRepository.updateApplicationInfoGridItems(
-                applicationInfoGridItems = updatedApplicationInfoGridItems,
+                applicationInfoGridItems = updateApplicationInfoGridItems,
             )
 
             applicationInfoGridItemRepository.deleteApplicationInfoGridItems(

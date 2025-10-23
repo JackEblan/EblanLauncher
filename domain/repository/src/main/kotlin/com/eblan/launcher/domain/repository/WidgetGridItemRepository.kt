@@ -28,11 +28,7 @@ interface WidgetGridItemRepository {
 
     suspend fun upsertWidgetGridItems(widgetGridItems: List<WidgetGridItem>)
 
-    suspend fun upsertWidgetGridItem(widgetGridItem: WidgetGridItem): Long
-
     suspend fun updateWidgetGridItem(widgetGridItem: WidgetGridItem)
-
-    suspend fun getWidgetGridItem(id: String): WidgetGridItem?
 
     suspend fun deleteWidgetGridItems(widgetGridItems: List<WidgetGridItem>)
 

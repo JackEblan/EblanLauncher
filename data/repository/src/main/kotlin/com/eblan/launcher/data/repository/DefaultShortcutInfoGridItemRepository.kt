@@ -51,20 +51,10 @@ internal class DefaultShortcutInfoGridItemRepository @Inject constructor(private
         shortcutInfoGridItemDao.upsertShortcutInfoGridItemEntities(entities = entities)
     }
 
-    override suspend fun upsertShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem): Long {
-        return shortcutInfoGridItemDao.upsertShortcutInfoGridItemEntity(
-            shortcutInfoGridItem.asEntity(),
-        )
-    }
-
     override suspend fun updateShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem) {
         shortcutInfoGridItemDao.updateShortcutInfoGridItemEntity(
             shortcutInfoGridItem.asEntity(),
         )
-    }
-
-    override suspend fun getShortcutInfoGridItem(id: String): ShortcutInfoGridItem? {
-        return shortcutInfoGridItemDao.getShortcutInfoGridItemEntity(id = id)?.asModel()
     }
 
     override suspend fun deleteShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>) {
@@ -77,13 +67,6 @@ internal class DefaultShortcutInfoGridItemRepository @Inject constructor(private
 
     override suspend fun deleteShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem) {
         shortcutInfoGridItemDao.deleteShortcutInfoGridItemEntity(entity = shortcutInfoGridItem.asEntity())
-    }
-
-    override suspend fun getShortcutInfoGridItems(packageName: String): List<ShortcutInfoGridItem> {
-        return shortcutInfoGridItemDao.getShortcutInfoGridItemEntities(packageName = packageName)
-            .map { shortcutInfoGridItemEntity ->
-                shortcutInfoGridItemEntity.asModel()
-            }
     }
 
     override suspend fun updateShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>) {

@@ -33,23 +33,14 @@ interface ShortcutInfoGridItemDao {
     @Upsert
     suspend fun upsertShortcutInfoGridItemEntities(entities: List<ShortcutInfoGridItemEntity>)
 
-    @Upsert
-    suspend fun upsertShortcutInfoGridItemEntity(entity: ShortcutInfoGridItemEntity): Long
-
     @Update
     suspend fun updateShortcutInfoGridItemEntity(entity: ShortcutInfoGridItemEntity)
-
-    @Query("SELECT * FROM ShortcutInfoGridItemEntity WHERE id = :id")
-    suspend fun getShortcutInfoGridItemEntity(id: String): ShortcutInfoGridItemEntity?
 
     @Delete
     suspend fun deleteShortcutInfoGridItemEntities(entities: List<ShortcutInfoGridItemEntity>)
 
     @Delete
     suspend fun deleteShortcutInfoGridItemEntity(entity: ShortcutInfoGridItemEntity)
-
-    @Query("SELECT * FROM ShortcutInfoGridItemEntity WHERE packageName = :packageName")
-    suspend fun getShortcutInfoGridItemEntities(packageName: String): List<ShortcutInfoGridItemEntity>
 
     @Update
     suspend fun updateShortcutInfoGridItemEntities(entities: List<ShortcutInfoGridItemEntity>)

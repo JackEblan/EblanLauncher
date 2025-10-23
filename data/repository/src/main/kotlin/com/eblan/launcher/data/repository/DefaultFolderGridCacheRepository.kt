@@ -30,10 +30,6 @@ internal class DefaultFolderGridCacheRepository @Inject constructor(private val 
         folderGridCacheDataSource.insertGridItems(gridItems = gridItems)
     }
 
-    override fun insertGridItem(gridItem: GridItem) {
-        folderGridCacheDataSource.insertGridItem(gridItem = gridItem)
-    }
-
     override suspend fun upsertGridItems(gridItems: List<GridItem>) {
         folderGridCacheDataSource.upsertGridItems(gridItems = gridItems)
     }

@@ -51,20 +51,10 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
         widgetGridItemDao.upsertWidgetGridItemEntities(entities = entities)
     }
 
-    override suspend fun upsertWidgetGridItem(widgetGridItem: WidgetGridItem): Long {
-        return widgetGridItemDao.upsertWidgetGridItemEntity(
-            widgetGridItem.asEntity(),
-        )
-    }
-
     override suspend fun updateWidgetGridItem(widgetGridItem: WidgetGridItem) {
         widgetGridItemDao.updateWidgetGridItemEntity(
             widgetGridItem.asEntity(),
         )
-    }
-
-    override suspend fun getWidgetGridItem(id: String): WidgetGridItem? {
-        return widgetGridItemDao.getWidgetGridItemEntity(id = id)?.asModel()
     }
 
     override suspend fun deleteWidgetGridItems(widgetGridItems: List<WidgetGridItem>) {
@@ -91,6 +81,6 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
             widgetGridItem.asEntity()
         }
 
-        widgetGridItemDao.deleteWidgetGridItemEntities(entities = entities)
+        widgetGridItemDao.updateWidgetGridItemEntities(entities = entities)
     }
 }

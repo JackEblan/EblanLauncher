@@ -62,6 +62,10 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         }
     }
 
+    override suspend fun deleteEblanAppWidgetProviderInfoByPackageName(packageName: String) {
+        eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntityByPackageName(packageName = packageName)
+    }
+
     private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,

@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -65,23 +66,35 @@ class ChangePackageUseCase @Inject constructor(
                 label = label,
             )
 
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+            launch {
+                eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+            }
 
-            updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
+            launch {
+                updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
+            }
 
-            updateApplicationInfoGridItemsByPackageNameUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
+            launch {
+                updateApplicationInfoGridItemsByPackageNameUseCase(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                )
+            }
 
-            updateWidgetGridItemsByPackageNameUseCase(packageName = packageName)
+            launch {
+                updateWidgetGridItemsByPackageNameUseCase(packageName = packageName)
+            }
 
-            updateShortcutInfoGridItemsByPackageNameUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
+            launch {
+                updateShortcutInfoGridItemsByPackageNameUseCase(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                )
+            }
 
-            updateIconPackInfoByPackageNameUseCase(packageName = packageName)
+            launch {
+                updateIconPackInfoByPackageNameUseCase(packageName = packageName)
+            }
         }
     }
 }

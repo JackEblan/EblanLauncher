@@ -41,4 +41,7 @@ interface EblanAppWidgetProviderInfoDao {
 
     @Query("SELECT * FROM EblanAppWidgetProviderInfoEntity WHERE packageName = :packageName")
     suspend fun getEblanAppWidgetProviderInfoEntitiesByPackageName(packageName: String): List<EblanAppWidgetProviderInfoEntity>
+
+    @Query("DELETE FROM EblanAppWidgetProviderInfoEntity WHERE packageName = :packageName")
+    suspend fun deleteEblanAppWidgetProviderInfoEntityByPackageName(packageName: String)
 }

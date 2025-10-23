@@ -116,6 +116,8 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             )
 
             if (newGridItem != null) {
+                gridCacheRepository.insertGridItems(gridItems = gridItems)
+
                 gridCacheRepository.insertGridItem(gridItem = newGridItem)
             }
 

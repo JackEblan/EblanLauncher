@@ -38,6 +38,8 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
         withContext(ioDispatcher) {
+            val updateShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
+
             val deleteShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
 
             val shortcutInfoGridItems = shortcutInfoGridItemRepository.shortcutInfoGridItems.first()
@@ -45,36 +47,35 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
             val launcherAppsShortcutInfos = launcherAppsWrapper.getPinnedShortcuts()
 
             if (launcherAppsShortcutInfos != null) {
-                val updatedShortcutInfoGridItems =
-                    shortcutInfoGridItems.mapNotNull { shortcutInfoGridItem ->
-                        val launcherAppsShortcutInfo =
-                            launcherAppsShortcutInfos.find { launcherShortcutInfo ->
-                                launcherShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                                    launcherShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
-                            }
+                shortcutInfoGridItems.forEach { shortcutInfoGridItem ->
+                    val launcherAppsShortcutInfo =
+                        launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
+                            launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
+                                    launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                        }
 
-                        if (launcherAppsShortcutInfo != null) {
-                            val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                                fileManager.getAndUpdateFilePath(
-                                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                    name = launcherAppsShortcutInfo.shortcutId,
-                                    byteArray = byteArray,
-                                )
-                            }
+                    if (launcherAppsShortcutInfo != null) {
+                        val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                                name = launcherAppsShortcutInfo.shortcutId,
+                                byteArray = byteArray,
+                            )
+                        }
 
+                        updateShortcutInfoGridItems.add(
                             shortcutInfoGridItem.copy(
                                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                                 longLabel = launcherAppsShortcutInfo.longLabel,
                                 icon = icon,
                             )
-                        } else {
-                            deleteShortcutInfoGridItems.add(shortcutInfoGridItem)
-
-                            null
-                        }
+                        )
+                    } else {
+                        deleteShortcutInfoGridItems.add(shortcutInfoGridItem)
                     }
+                }
 
-                shortcutInfoGridItemRepository.updateShortcutInfoGridItems(shortcutInfoGridItems = updatedShortcutInfoGridItems)
+                shortcutInfoGridItemRepository.updateShortcutInfoGridItems(shortcutInfoGridItems = updateShortcutInfoGridItems)
 
                 shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = deleteShortcutInfoGridItems)
             }

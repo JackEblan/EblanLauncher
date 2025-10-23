@@ -828,28 +828,30 @@ private fun EblanApplicationInfoItem(
     ) {
         Spacer(modifier = Modifier.height(5.dp))
 
-        Box(modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp)) {
+        Box(
+            modifier = Modifier
+                .drawWithContent {
+                    graphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
+
+                    drawLayer(graphicsLayer)
+                }
+                .onGloballyPositioned { layoutCoordinates ->
+                    intOffset =
+                        layoutCoordinates.positionInRoot().round()
+
+                    intSize = layoutCoordinates.size
+                }
+                .size(appDrawerSettings.gridItemSettings.iconSize.dp),
+        ) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(icon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset =
-                            layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .size(appDrawerSettings.gridItemSettings.iconSize.dp),
+                modifier = Modifier.matchParentSize(),
             )
 
             if (eblanApplicationInfo.serialNumber != 0L) {

@@ -68,7 +68,7 @@ class RemovePackageUseCase @Inject constructor(
             }
 
             eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
-                packageName = packageName
+                packageName = packageName,
             ).forEach { eblanAppWidgetProviderInfo ->
                 val widgetFile = File(
                     fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),

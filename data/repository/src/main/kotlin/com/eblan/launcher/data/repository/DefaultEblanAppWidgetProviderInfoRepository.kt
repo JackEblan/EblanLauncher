@@ -54,6 +54,14 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             ?.asModel()
     }
 
+    override suspend fun getEblanAppWidgetProviderInfosByPackageName(packageName: String): List<EblanAppWidgetProviderInfo> {
+        return eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntitiesByPackageName(
+            packageName = packageName,
+        ).map { entity ->
+            entity.asModel()
+        }
+    }
+
     private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,

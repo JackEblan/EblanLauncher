@@ -93,7 +93,10 @@ class ApplicationInfoService : Service() {
                         }
 
                         is LauncherAppsEvent.PackageRemoved -> {
-                            removePackageUseCase(packageName = launcherAppsEvent.packageName)
+                            removePackageUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
+                                packageName = launcherAppsEvent.packageName,
+                            )
                         }
                     }
                 }

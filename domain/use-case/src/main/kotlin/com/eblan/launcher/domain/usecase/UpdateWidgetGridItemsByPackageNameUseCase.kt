@@ -25,18 +25,17 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdateWidgetGridItemsUseCase @Inject constructor(
+class UpdateWidgetGridItemsByPackageNameUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(packageName: String) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
         withContext(defaultDispatcher) {
@@ -45,10 +44,11 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
             val deleteWidgetGridItems = mutableListOf<WidgetGridItem>()
 
             val widgetGridItems =
-                widgetGridItemRepository.widgetGridItems.first()
+                widgetGridItemRepository.getWidgetGridItems(packageName = packageName)
 
             val appWidgetManagerAppWidgetProviderInfos =
                 appWidgetManagerWrapper.getInstalledProviders()
+                    .filter { appWidgetManagerAppWidgetProviderInfo -> appWidgetManagerAppWidgetProviderInfo.packageName == packageName }
 
             widgetGridItems.forEach { widgetGridItem ->
                 val appWidgetManagerAppWidgetProviderInfo =

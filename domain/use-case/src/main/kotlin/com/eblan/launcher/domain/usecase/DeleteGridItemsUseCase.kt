@@ -164,7 +164,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                 applicationInfoGridItems = applicationInfoGridItems,
             )
 
-            widgetGridItemRepository.deleteWidgetGridItems(widgetGridItems = widgetGridItems)
+            widgetGridItemRepository.deleteWidgetGridItemsByPackageName(widgetGridItems = widgetGridItems)
 
             shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
 

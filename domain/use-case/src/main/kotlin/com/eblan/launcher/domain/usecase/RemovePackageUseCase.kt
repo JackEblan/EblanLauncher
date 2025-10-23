@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
@@ -32,16 +31,18 @@ import javax.inject.Inject
 class RemovePackageUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val userDataRepository: UserDataRepository,
+    private val updateEblanAppWidgetProviderInfosByPackageNameUseCase: UpdateEblanAppWidgetProviderInfosByPackageNameUseCase,
+    private val updateWidgetGridItemsByPackageNameUseCase: UpdateWidgetGridItemsByPackageNameUseCase,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(packageName: String) {
+    suspend operator fun invoke(
+        serialNumber: Long,
+        packageName: String,
+    ) {
         withContext(ioDispatcher) {
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
-
-            eblanApplicationInfoRepository.deleteEblanApplicationInfoByPackageName(packageName = packageName)
 
             val iconFile = File(
                 fileManager.getFilesDirectory(FileManager.ICONS_DIR),
@@ -51,20 +52,6 @@ class RemovePackageUseCase @Inject constructor(
             if (iconFile.exists()) {
                 iconFile.delete()
             }
-
-            appWidgetManagerWrapper.getInstalledProviders()
-                .filter { appWidgetManagerAppWidgetProviderInfo ->
-                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-                }.forEach { appWidgetManagerAppWidgetProviderInfo ->
-                    val widgetFile = File(
-                        fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        appWidgetManagerAppWidgetProviderInfo.className,
-                    )
-
-                    if (widgetFile.exists()) {
-                        widgetFile.delete()
-                    }
-                }
 
             val iconPacksDirectory = File(
                 fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
@@ -76,6 +63,15 @@ class RemovePackageUseCase @Inject constructor(
             if (iconPackFile.exists()) {
                 iconPacksDirectory.delete()
             }
+
+            eblanApplicationInfoRepository.deleteEblanApplicationInfo(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+            updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
+
+            updateWidgetGridItemsByPackageNameUseCase(packageName = packageName)
         }
     }
 }

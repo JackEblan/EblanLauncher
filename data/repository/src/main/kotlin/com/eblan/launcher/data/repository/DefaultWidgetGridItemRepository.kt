@@ -57,7 +57,7 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
         )
     }
 
-    override suspend fun deleteWidgetGridItems(widgetGridItems: List<WidgetGridItem>) {
+    override suspend fun deleteWidgetGridItemsByPackageName(widgetGridItems: List<WidgetGridItem>) {
         val entities = widgetGridItems.map { widgetGridItem ->
             widgetGridItem.asEntity()
         }

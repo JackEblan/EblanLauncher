@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
-import androidx.core.net.toUri
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -796,13 +795,6 @@ private fun HorizontalPagerScreen(
             height = popupGridItemMenuIntSize.height,
             onEdit = onEdit,
             onResize = onResize,
-            onUninstallApplicationInfo = {
-                val intent = Intent(Intent.ACTION_DELETE).apply {
-                    data = "package:$it".toUri()
-                }
-
-                context.startActivity(intent)
-            },
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->
                 launcherApps.startAppDetailsActivity(
@@ -898,7 +890,6 @@ private fun PopupGridItemMenu(
     height: Int,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
-    onUninstallApplicationInfo: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (
         serialNumber: Long,
@@ -928,11 +919,6 @@ private fun PopupGridItemMenu(
 
                             onDismissRequest()
                         },
-                        onDelete = {
-                            onUninstallApplicationInfo(data.packageName)
-
-                            onDismissRequest()
-                        },
                         onInfo = {
                             onInfo(
                                 data.serialNumber,
@@ -941,7 +927,7 @@ private fun PopupGridItemMenu(
 
                             onDismissRequest()
                         },
-                        onClose = {
+                        onDelete = {
                             onDeleteGridItem(gridItem)
 
                             onDismissRequest()

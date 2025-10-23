@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.feature.home.screen.application
 
-import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -98,7 +97,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
-import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.addLastModifiedToFileCacheKey
@@ -899,8 +897,6 @@ private fun PopupApplicationInfoMenu(
 
     val launcherApps = LocalLauncherApps.current
 
-    val context = LocalContext.current
-
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -935,15 +931,6 @@ private fun PopupApplicationInfoMenu(
                             y + popupMenuIntSize.height,
                         ),
                     )
-
-                    onDismissRequest()
-                },
-                onDelete = {
-                    val intent = Intent(Intent.ACTION_DELETE).apply {
-                        data = "package:${applicationInfo.packageName}".toUri()
-                    }
-
-                    context.startActivity(intent)
 
                     onDismissRequest()
                 },

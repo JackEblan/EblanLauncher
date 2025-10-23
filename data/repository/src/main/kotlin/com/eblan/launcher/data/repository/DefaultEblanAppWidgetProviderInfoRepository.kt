@@ -41,10 +41,6 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntities(entities = entities)
     }
 
-    override suspend fun upsertEblanAppWidgetProviderInfo(eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo) {
-        eblanAppWidgetProviderInfoDao.upsertEblanAppWidgetProviderInfoEntity(entity = eblanAppWidgetProviderInfo.asEntity())
-    }
-
     override suspend fun deleteEblanAppWidgetProviderInfos(eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>) {
         val entities = eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfo ->
             eblanAppWidgetProviderInfo.asEntity()
@@ -58,12 +54,25 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             ?.asModel()
     }
 
+    override suspend fun getEblanAppWidgetProviderInfosByPackageName(packageName: String): List<EblanAppWidgetProviderInfo> {
+        return eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntitiesByPackageName(
+            packageName = packageName,
+        ).map { entity ->
+            entity.asModel()
+        }
+    }
+
+    override suspend fun deleteEblanAppWidgetProviderInfoByPackageName(packageName: String) {
+        eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntityByPackageName(packageName = packageName)
+    }
+
     private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,
             componentName = componentName,
             configure = configure,
             packageName = packageName,
+            serialNumber = serialNumber,
             targetCellWidth = targetCellWidth,
             targetCellHeight = targetCellHeight,
             minWidth = minWidth,
@@ -84,6 +93,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             componentName = componentName,
             configure = configure,
             packageName = packageName,
+            serialNumber = serialNumber,
             targetCellWidth = targetCellWidth,
             targetCellHeight = targetCellHeight,
             minWidth = minWidth,

@@ -31,5 +31,6 @@ data class ApplicationInfoGridItem(
     val icon: String?,
     val label: String?,
     val override: Boolean,
+    val serialNumber: Long,
     val gridItemSettings: GridItemSettings,
 )

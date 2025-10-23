@@ -20,6 +20,7 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -119,11 +120,91 @@ fun WidgetScreen(
 ) {
     val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
-    val scope = rememberCoroutineScope()
-
     val overscrollAlpha = remember { Animatable(0f) }
 
     val overscrollOffset = remember { Animatable(0f) }
+
+    Surface(
+        modifier = modifier
+            .offset {
+                IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
+            }
+            .graphicsLayer(alpha = 1f - (overscrollAlpha.value / 500f))
+            .fillMaxSize(),
+    ) {
+        when (eblanApplicationComponentUiState) {
+            EblanApplicationComponentUiState.Loading -> {
+                LoadingScreen()
+            }
+
+            is EblanApplicationComponentUiState.Success -> {
+                val eblanAppWidgetProviderInfos =
+                    eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when {
+                        eblanAppWidgetProviderInfos.isEmpty() -> {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+
+                        else -> {
+                            Success(
+                                currentPage = currentPage,
+                                isApplicationComponentVisible = isApplicationComponentVisible,
+                                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                                gridItemSettings = gridItemSettings,
+                                paddingValues = paddingValues,
+                                screenHeight = screenHeight,
+                                drag = drag,
+                                eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                                appDrawerSettings = appDrawerSettings,
+                                animatedSwipeUpY = animatedSwipeUpY,
+                                overscrollOffset = overscrollOffset,
+                                overscrollAlpha = overscrollAlpha,
+                                onLongPressGridItem = onLongPressGridItem,
+                                onUpdateGridItemOffset = onUpdateGridItemOffset,
+                                onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                                onDismiss = onDismiss,
+                                onDraggingGridItem = onDraggingGridItem,
+                                onResetOverlay = onResetOverlay,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Success(
+    modifier: Modifier = Modifier,
+    currentPage: Int,
+    isApplicationComponentVisible: Boolean,
+    eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    gridItemSettings: GridItemSettings,
+    paddingValues: PaddingValues,
+    screenHeight: Int,
+    drag: Drag,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    appDrawerSettings: AppDrawerSettings,
+    animatedSwipeUpY: Animatable<Float, AnimationVector1D>,
+    overscrollOffset: Animatable<Float, AnimationVector1D>,
+    overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
@@ -132,11 +213,7 @@ fun WidgetScreen(
             overscrollOffset = overscrollOffset,
             overscrollFactor = appDrawerSettings.overscrollFactor,
             onFling = onDismiss,
-            onFastFling = {
-                animatedSwipeUpY.animateTo(screenHeight.toFloat())
-
-                onDismiss()
-            },
+            onFastFling = onDismiss,
         )
     }
 
@@ -168,74 +245,46 @@ fun WidgetScreen(
         }
     }
 
-    Surface(
+    Column(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
+                IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
             }
-            .graphicsLayer(alpha = 1f - (overscrollAlpha.value / 500f))
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+            ),
     ) {
-        when (eblanApplicationComponentUiState) {
-            EblanApplicationComponentUiState.Loading -> {
-                LoadingScreen()
-            }
+        EblanAppWidgetProviderInfoDockSearchBar(
+            onQueryChange = onGetEblanAppWidgetProviderInfosByLabel,
+            eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+            drag = drag,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onLongPressGridItem = onLongPressGridItem,
+            currentPage = currentPage,
+            gridItemSettings = gridItemSettings,
+            onResetOverlay = onResetOverlay,
+        )
 
-            is EblanApplicationComponentUiState.Success -> {
-                val eblanAppWidgetProviderInfos =
-                    eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    when {
-                        eblanAppWidgetProviderInfos.isEmpty() -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-
-                        else -> {
-                            Column(
-                                modifier = Modifier
-                                    .offset {
-                                        IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
-                                    }
-                                    .matchParentSize()
-                                    .padding(
-                                        top = paddingValues.calculateTopPadding(),
-                                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                                    ),
-                            ) {
-                                EblanAppWidgetProviderInfoDockSearchBar(
-                                    onQueryChange = onGetEblanAppWidgetProviderInfosByLabel,
-                                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                                    drag = drag,
-                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                    onLongPressGridItem = onLongPressGridItem,
-                                    currentPage = currentPage,
-                                    gridItemSettings = gridItemSettings,
-                                    onResetOverlay = onResetOverlay,
-                                )
-
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
-                                    overscrollEffect = overscrollEffect,
-                                ) {
-                                    items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
-                                        EblanApplicationInfoItem(
-                                            eblanApplicationInfo = eblanApplicationInfo,
-                                            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                                            drag = drag,
-                                            onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                            onLongPressGridItem = onLongPressGridItem,
-                                            currentPage = currentPage,
-                                            gridItemSettings = gridItemSettings,
-                                            onResetOverlay = onResetOverlay,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
+                overscrollEffect = overscrollEffect,
+            ) {
+                items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
+                    EblanApplicationInfoItem(
+                        eblanApplicationInfo = eblanApplicationInfo,
+                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                    )
                 }
             }
         }
@@ -412,8 +461,8 @@ private fun EblanAppWidgetProviderInfoItem(
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val preview = eblanAppWidgetProviderInfo.preview
-        ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
+    val preview =
+        eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
 
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -446,12 +495,13 @@ private fun EblanAppWidgetProviderInfoItem(
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = getWidgetGridItem(
-                                        id = Uuid.random()
-                                            .toHexString(),
+                                        id = Uuid.random().toHexString(),
                                         page = currentPage,
+                                        className = eblanAppWidgetProviderInfo.className,
                                         componentName = eblanAppWidgetProviderInfo.componentName,
                                         configure = eblanAppWidgetProviderInfo.configure,
                                         packageName = eblanAppWidgetProviderInfo.packageName,
+                                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                                         targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
                                         targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                                         minWidth = eblanAppWidgetProviderInfo.minWidth,
@@ -535,7 +585,9 @@ private fun getWidgetGridItem(
     page: Int,
     componentName: String,
     configure: String?,
+    className: String,
     packageName: String,
+    serialNumber: Long,
     targetCellHeight: Int,
     targetCellWidth: Int,
     minWidth: Int,
@@ -551,8 +603,10 @@ private fun getWidgetGridItem(
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
+        className = className,
         componentName = componentName,
         packageName = packageName,
+        serialNumber = serialNumber,
         configure = configure,
         minWidth = minWidth,
         minHeight = minHeight,

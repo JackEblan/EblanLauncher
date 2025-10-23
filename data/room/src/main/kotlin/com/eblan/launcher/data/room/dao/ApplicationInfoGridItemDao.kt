@@ -33,18 +33,27 @@ interface ApplicationInfoGridItemDao {
     @Upsert
     suspend fun upsertApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
 
-    @Upsert
-    suspend fun upsertApplicationInfoGridItemEntity(entity: ApplicationInfoGridItemEntity): Long
-
     @Update
     suspend fun updateApplicationInfoGridItemEntity(entity: ApplicationInfoGridItemEntity)
-
-    @Query("SELECT * FROM ApplicationInfoGridItemEntity WHERE id = :id")
-    suspend fun getApplicationInfoGridItemEntity(id: String): ApplicationInfoGridItemEntity?
 
     @Delete
     suspend fun deleteApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
 
     @Delete
     suspend fun deleteApplicationInfoGridItemEntity(entity: ApplicationInfoGridItemEntity)
+
+    @Query("SELECT * FROM ApplicationInfoGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun getApplicationInfoGridItemEntities(
+        serialNumber: Long,
+        packageName: String,
+    ): List<ApplicationInfoGridItemEntity>
+
+    @Update
+    suspend fun updateApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
+
+    @Query("DELETE FROM ApplicationInfoGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun deleteApplicationInfoGridItemEntity(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

@@ -19,8 +19,8 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
@@ -48,15 +48,15 @@ class GetHomeDataUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
     private val resourcesWrapper: ResourcesWrapper,
-    private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<HomeData> {
         val gridItemsFlow = combine(
-            applicationInfoGridItemRepository.applicationInfoGridItems,
-            widgetGridItemRepository.widgetGridItems,
-            shortcutInfoGridItemRepository.shortcutInfoGridItems,
-            folderGridItemRepository.folderGridItems,
+            applicationInfoGridItemRepository.gridItems,
+            widgetGridItemRepository.gridItems,
+            shortcutInfoGridItemRepository.gridItems,
+            folderGridItemRepository.gridItems,
         ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems ->
             (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems)
                 .filterNot { gridItem ->
@@ -104,7 +104,7 @@ class GetHomeDataUseCase @Inject constructor(
                 gridItemsByPage = gridItemsSpanWithinBounds,
                 dockGridItems = dockGridItemsWithinBounds,
                 hasShortcutHostPermission = launcherAppsWrapper.hasShortcutHostPermission,
-                hasSystemFeatureAppWidgets = appWidgetManagerWrapper.hasSystemFeatureAppWidgets,
+                hasSystemFeatureAppWidgets = packageManagerWrapper.hasSystemFeatureAppWidgets,
                 textColor = textColor,
             )
         }.flowOn(defaultDispatcher)

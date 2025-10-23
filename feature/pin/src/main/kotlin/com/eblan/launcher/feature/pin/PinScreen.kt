@@ -21,6 +21,7 @@ import android.appwidget.AppWidgetManager
 import android.content.ClipData
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
+import android.os.UserHandle
 import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -133,10 +134,13 @@ private fun PinShortcutScreen(
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
     onAddPinShortcutToHomeScreen: (
+        userHandle: UserHandle,
         id: String,
         packageName: String,
         shortLabel: String,
         longLabel: String,
+        isEnabled: Boolean,
+        disabledMessage: String?,
         byteArray: ByteArray?,
     ) -> Unit,
     onDeleteShortcutGridItem: (GridItem) -> Unit,
@@ -197,10 +201,13 @@ private fun PinShortcutScreen(
                     onAdd = {
                         scope.launch {
                             onAddPinShortcutToHomeScreen(
+                                shortcutInfo.userHandle,
                                 shortcutInfo.id,
                                 shortcutInfo.`package`,
                                 shortcutInfo.shortLabel.toString(),
                                 shortcutInfo.longLabel.toString(),
+                                shortcutInfo.isEnabled,
+                                shortcutInfo.disabledMessage?.toString(),
                                 icon?.let {
                                     drawable.createByteArray(drawable = it)
                                 },
@@ -232,6 +239,7 @@ private fun PinWidgetScreen(
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
     onAddWidgetToHomeScreen: (
+        userHandle: UserHandle,
         className: String,
         componentName: String,
         configure: String?,
@@ -337,6 +345,7 @@ private fun PinWidgetScreen(
                     onAdd = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             onAddWidgetToHomeScreen(
+                                appWidgetProviderInfo.profile,
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
@@ -355,6 +364,7 @@ private fun PinWidgetScreen(
                             )
                         } else {
                             onAddWidgetToHomeScreen(
+                                appWidgetProviderInfo.profile,
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),

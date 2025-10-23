@@ -38,12 +38,10 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 @Composable
 fun SettingsMenu(
     modifier: Modifier = Modifier,
-    hasShortcutHostPermission: Boolean,
     hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onWidgets: () -> Unit,
-    onShortcuts: () -> Unit,
     onWallpaper: () -> Unit,
 ) {
     Surface(
@@ -73,16 +71,6 @@ fun SettingsMenu(
                         imageVector = EblanLauncherIcons.Widgets,
                         title = "Widgets",
                         onClick = onWidgets,
-                    )
-                }
-
-                if (hasShortcutHostPermission) {
-                    Spacer(modifier = Modifier.height(5.dp))
-
-                    PopupMenuRow(
-                        imageVector = EblanLauncherIcons.Shortcut,
-                        title = "Shortcuts",
-                        onClick = onShortcuts,
                     )
                 }
 

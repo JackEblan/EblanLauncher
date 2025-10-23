@@ -18,6 +18,7 @@
 package com.eblan.launcher.feature.home.screen.folder
 
 import android.graphics.Rect
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
@@ -207,12 +208,13 @@ fun FolderScreen(
                                     gridItemSettings = homeSettings.gridItemSettings,
                                     textColor = textColor,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
-                                    onTapApplicationInfo = { componentName ->
+                                    onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 
                                         val sourceBoundsY = y + topPadding
 
                                         launcherApps.startMainActivity(
+                                            serialNumber = serialNumber,
                                             componentName = componentName,
                                             sourceBounds = Rect(
                                                 sourceBoundsX,
@@ -222,21 +224,24 @@ fun FolderScreen(
                                             ),
                                         )
                                     },
-                                    onTapShortcutInfo = { packageName, shortcutId ->
+                                    onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                                         val sourceBoundsX = x + leftPadding
 
                                         val sourceBoundsY = y + topPadding
 
-                                        launcherApps.startShortcut(
-                                            packageName = packageName,
-                                            id = shortcutId,
-                                            sourceBounds = Rect(
-                                                sourceBoundsX,
-                                                sourceBoundsY,
-                                                sourceBoundsX + width,
-                                                sourceBoundsY + height,
-                                            ),
-                                        )
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                                            launcherApps.startShortcut(
+                                                serialNumber = serialNumber,
+                                                packageName = packageName,
+                                                id = shortcutId,
+                                                sourceBounds = Rect(
+                                                    sourceBoundsX,
+                                                    sourceBoundsY,
+                                                    sourceBoundsX + width,
+                                                    sourceBoundsY + height,
+                                                ),
+                                            )
+                                        }
                                     },
                                     onTapFolderGridItem = {
                                         onAddFolder(gridItem.id)

@@ -22,17 +22,27 @@ import com.eblan.launcher.domain.model.GridItem
 import kotlinx.coroutines.flow.Flow
 
 interface ApplicationInfoGridItemRepository {
-    val applicationInfoGridItems: Flow<List<GridItem>>
+    val gridItems: Flow<List<GridItem>>
+
+    val applicationInfoGridItems: Flow<List<ApplicationInfoGridItem>>
 
     suspend fun upsertApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
 
-    suspend fun upsertApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem): Long
-
     suspend fun updateApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem)
-
-    suspend fun getApplicationInfoGridItem(id: String): ApplicationInfoGridItem?
 
     suspend fun deleteApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
 
     suspend fun deleteApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem)
+
+    suspend fun getApplicationInfoGridItems(
+        serialNumber: Long,
+        packageName: String,
+    ): List<ApplicationInfoGridItem>
+
+    suspend fun updateApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
+
+    suspend fun deleteApplicationInfoGridItem(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

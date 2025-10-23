@@ -15,13 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
 
-data class EblanShortcutInfo(
-    val shortcutId: String,
-    val packageName: String,
-    val shortLabel: String,
-    val longLabel: String,
-    val eblanApplicationInfo: EblanApplicationInfo,
-    val icon: String?,
-)
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
+
+android {
+    namespace = "com.eblan.launcher.framework.usermanager"
+}
+
+dependencies {
+    implementation(projects.common)
+    implementation(projects.domain.common)
+}

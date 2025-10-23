@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.model
 sealed interface GridItemData {
 
     data class ApplicationInfo(
+        val serialNumber: Long,
         val componentName: String?,
         val packageName: String,
         val icon: String?,
@@ -28,8 +29,10 @@ sealed interface GridItemData {
 
     data class Widget(
         val appWidgetId: Int,
+        val className: String,
         val componentName: String,
         val packageName: String,
+        val serialNumber: Long,
         val configure: String?,
         val minWidth: Int,
         val minHeight: Int,
@@ -47,9 +50,12 @@ sealed interface GridItemData {
     data class ShortcutInfo(
         val shortcutId: String,
         val packageName: String,
+        val serialNumber: Long,
         val shortLabel: String,
         val longLabel: String,
         val icon: String?,
+        val isEnabled: Boolean,
+        val disabledMessage: String?,
         val eblanApplicationInfo: EblanApplicationInfo,
     ) : GridItemData
 

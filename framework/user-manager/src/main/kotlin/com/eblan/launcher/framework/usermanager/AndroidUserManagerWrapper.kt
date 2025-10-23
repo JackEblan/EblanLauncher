@@ -15,19 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.repository
+package com.eblan.launcher.framework.usermanager
 
-import com.eblan.launcher.domain.model.EblanShortcutInfo
-import kotlinx.coroutines.flow.Flow
+import android.os.UserHandle
 
-interface EblanShortcutInfoRepository {
-    val eblanShortcutInfos: Flow<List<EblanShortcutInfo>>
+interface AndroidUserManagerWrapper {
+    fun getSerialNumberForUser(userHandle: UserHandle): Long
 
-    suspend fun upsertEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
-
-    suspend fun upsertEblanShortcutInfo(eblanShortcutInfo: EblanShortcutInfo)
-
-    suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
-
-    suspend fun getEblanShortcutInfo(id: String): EblanShortcutInfo?
+    fun getUserForSerialNumber(serialNumber: Long): UserHandle?
 }

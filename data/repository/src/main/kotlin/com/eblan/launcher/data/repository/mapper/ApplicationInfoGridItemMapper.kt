@@ -32,6 +32,7 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
         columnSpan = columnSpan,
         rowSpan = rowSpan,
         data = GridItemData.ApplicationInfo(
+            serialNumber = serialNumber,
             componentName = componentName,
             packageName = packageName,
             icon = icon,
@@ -58,6 +59,7 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
         icon = icon,
         label = label,
         override = override,
+        serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
     )
 }
@@ -65,6 +67,7 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
 internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
     return ApplicationInfoGridItemEntity(
         id = id,
+        serialNumber = serialNumber,
         folderId = folderId,
         page = page,
         startColumn = startColumn,

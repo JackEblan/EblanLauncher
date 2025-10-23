@@ -40,10 +40,17 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
 
     private val packageManager = context.packageManager
 
+    override val hasSystemFeatureAppWidgets
+        get() = packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
+
     override suspend fun getApplicationIcon(packageName: String): ByteArray? {
         return withContext(defaultDispatcher) {
             try {
-                androidDrawableWrapper.createByteArray(drawable = packageManager.getApplicationIcon(packageName))
+                androidDrawableWrapper.createByteArray(
+                    drawable = packageManager.getApplicationIcon(
+                        packageName,
+                    ),
+                )
             } catch (_: PackageManager.NameNotFoundException) {
                 null
             }

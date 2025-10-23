@@ -31,10 +31,25 @@ interface AndroidLauncherAppsWrapper {
     fun getPinItemRequest(intent: Intent): LauncherApps.PinItemRequest
 
     fun startMainActivity(
+        serialNumber: Long,
         componentName: String?,
         sourceBounds: Rect,
     )
 
+    fun startMainActivity(
+        componentName: String?,
+        sourceBounds: Rect,
+    )
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    fun startShortcut(
+        serialNumber: Long,
+        packageName: String,
+        id: String,
+        sourceBounds: Rect,
+    )
+
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
     fun startShortcut(
         packageName: String,
         id: String,
@@ -47,6 +62,7 @@ interface AndroidLauncherAppsWrapper {
     ): Drawable?
 
     fun startAppDetailsActivity(
+        serialNumber: Long,
         componentName: String?,
         sourceBounds: Rect,
     )

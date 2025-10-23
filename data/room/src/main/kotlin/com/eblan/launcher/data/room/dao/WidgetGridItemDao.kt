@@ -33,18 +33,24 @@ interface WidgetGridItemDao {
     @Upsert
     suspend fun upsertWidgetGridItemEntities(entities: List<WidgetGridItemEntity>)
 
-    @Upsert
-    suspend fun upsertWidgetGridItemEntity(entity: WidgetGridItemEntity): Long
-
     @Update
     suspend fun updateWidgetGridItemEntity(entity: WidgetGridItemEntity)
-
-    @Query("SELECT * FROM WidgetGridItemEntity WHERE id = :id")
-    suspend fun getWidgetGridItemEntity(id: String): WidgetGridItemEntity?
 
     @Delete
     suspend fun deleteWidgetGridItemEntities(entities: List<WidgetGridItemEntity>)
 
     @Delete
     suspend fun deleteWidgetGridItemEntity(entity: WidgetGridItemEntity)
+
+    @Query("SELECT * FROM WidgetGridItemEntity WHERE packageName = :packageName")
+    suspend fun getWidgetGridItemEntities(packageName: String): List<WidgetGridItemEntity>
+
+    @Update
+    suspend fun updateWidgetGridItemEntities(entities: List<WidgetGridItemEntity>)
+
+    @Query("DELETE FROM WidgetGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun deleteWidgetGridItemEntity(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

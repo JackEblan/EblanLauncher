@@ -32,9 +32,8 @@ fun ApplicationInfoGridItemMenu(
     modifier: Modifier = Modifier,
     onEdit: () -> Unit,
     onResize: () -> Unit,
-    onDelete: () -> Unit,
     onInfo: () -> Unit,
-    onClose: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -55,21 +54,15 @@ fun ApplicationInfoGridItemMenu(
                 }
 
                 IconButton(
-                    onClick = onDelete,
-                ) {
-                    Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
-                }
-
-                IconButton(
                     onClick = onInfo,
                 ) {
                     Icon(imageVector = EblanLauncherIcons.Info, contentDescription = null)
                 }
 
                 IconButton(
-                    onClick = onClose,
+                    onClick = onDelete,
                 ) {
-                    Icon(imageVector = EblanLauncherIcons.Close, contentDescription = null)
+                    Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
                 }
             }
         },

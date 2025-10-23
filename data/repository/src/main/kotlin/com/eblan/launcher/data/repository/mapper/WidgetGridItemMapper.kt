@@ -33,8 +33,10 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
         rowSpan = rowSpan,
         data = GridItemData.Widget(
             appWidgetId = appWidgetId,
+            className = className,
             componentName = componentName,
             packageName = packageName,
+            serialNumber = serialNumber,
             configure = configure,
             minWidth = minWidth,
             minHeight = minHeight,
@@ -66,6 +68,7 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         associate = associate,
         appWidgetId = appWidgetId,
         packageName = packageName,
+        className = className,
         componentName = componentName,
         configure = configure,
         minWidth = minWidth,
@@ -79,6 +82,7 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         targetCellWidth = targetCellWidth,
         preview = preview,
         override = override,
+        serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
         eblanApplicationInfo = eblanApplicationInfo,
     )
@@ -96,6 +100,7 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         associate = associate,
         appWidgetId = appWidgetId,
         packageName = packageName,
+        className = className,
         componentName = componentName,
         configure = configure,
         minWidth = minWidth,
@@ -109,6 +114,7 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         targetCellWidth = targetCellWidth,
         preview = preview,
         override = override,
+        serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
         eblanApplicationInfo = eblanApplicationInfo,
     )

@@ -45,15 +45,16 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
             val newEblanApplicationInfos =
                 launcherAppsWrapper.getActivityList().map { eblanLauncherActivityInfo ->
-                    val icon = eblanLauncherActivityInfo.icon?.let { currentIcon ->
+                    val icon = eblanLauncherActivityInfo.icon?.let { byteArray ->
                         fileManager.getAndUpdateFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = eblanLauncherActivityInfo.packageName,
-                            byteArray = currentIcon,
+                            byteArray = byteArray,
                         )
                     }
 
                     EblanApplicationInfo(
+                        serialNumber = eblanLauncherActivityInfo.serialNumber,
                         componentName = eblanLauncherActivityInfo.componentName,
                         packageName = eblanLauncherActivityInfo.packageName,
                         icon = icon,

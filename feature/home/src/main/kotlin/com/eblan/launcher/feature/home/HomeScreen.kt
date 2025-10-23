@@ -41,6 +41,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +61,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -81,7 +81,12 @@ import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
+import com.eblan.launcher.ui.local.LocalDrawable
+import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -107,8 +112,6 @@ fun HomeRoute(
 
     val eblanAppWidgetProviderInfosByLabel by viewModel.eblanAppWidgetProviderInfosByLabel.collectAsStateWithLifecycle()
 
-    val eblanShortcutInfosByLabel by viewModel.eblanShortcutInfosByLabel.collectAsStateWithLifecycle()
-
     val gridItemsCache by viewModel.gridItemsCache.collectAsStateWithLifecycle()
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
@@ -123,7 +126,6 @@ fun HomeRoute(
         foldersDataById = folders,
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-        eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
         onMoveGridItem = viewModel::moveGridItem,
@@ -149,7 +151,6 @@ fun HomeRoute(
         onAddFolder = viewModel::addFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
-        onGetEblanShortcutInfosByLabel = viewModel::getEblanShortcutInfosByLabel,
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
@@ -167,7 +168,6 @@ fun HomeScreen(
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     onMoveGridItem: (
@@ -229,7 +229,6 @@ fun HomeScreen(
     onAddFolder: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
@@ -250,6 +249,12 @@ fun HomeScreen(
 
     val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
 
+    val launcherApps = LocalLauncherApps.current
+
+    val drawable = LocalDrawable.current
+
+    val scope = rememberCoroutineScope()
+
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
@@ -263,11 +268,15 @@ fun HomeScreen(
 
                 val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
-                handlePinItemRequest(
-                    pinItemRequest = pinItemRequest,
-                    context = context,
-                    onGetPinGridItem = onGetPinGridItem,
-                )
+                scope.launch {
+                    handlePinItemRequest(
+                        pinItemRequest = pinItemRequest,
+                        context = context,
+                        launcherAppsWrapper = launcherApps,
+                        drawable = drawable,
+                        onGetPinGridItem = onGetPinGridItem,
+                    )
+                }
             }
 
             override fun onEnded(event: DragAndDropEvent) {
@@ -350,7 +359,6 @@ fun HomeScreen(
                     foldersDataById = foldersDataById,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     gridItemCache = gridItemsCache,
                     pinGridItem = pinGridItem,
                     overlayIntOffset = overlayIntOffset,
@@ -386,7 +394,6 @@ fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = {
                         overlayIntOffset = IntOffset.Zero
@@ -423,7 +430,6 @@ private fun Success(
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
-    eblanShortcutInfosByLabel: Map<EblanApplicationInfo, List<EblanShortcutInfo>>,
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
@@ -492,7 +498,6 @@ private fun Success(
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onGetEblanShortcutInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -571,7 +576,6 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    eblanShortcutInfosByLabel = eblanShortcutInfosByLabel,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
@@ -599,7 +603,6 @@ private fun Success(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onGetEblanShortcutInfosByLabel = onGetEblanShortcutInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
                 )
@@ -763,9 +766,11 @@ private fun OverlayImage(
     }
 }
 
-private fun handlePinItemRequest(
+private suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
     context: Context,
+    launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    drawable: AndroidDrawableWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
@@ -789,6 +794,14 @@ private fun handlePinItemRequest(
                             packageName = shortcutInfo.`package`,
                             shortLabel = shortcutInfo.shortLabel.toString(),
                             longLabel = shortcutInfo.longLabel.toString(),
+                            isEnabled = shortcutInfo.isEnabled,
+                            disabledMessage = shortcutInfo.disabledMessage?.toString(),
+                            icon = launcherAppsWrapper.getShortcutIconDrawable(
+                                shortcutInfo = shortcutInfo,
+                                density = 0,
+                            )?.let {
+                                drawable.createByteArray(drawable = it)
+                            },
                         ),
                     )
                 }

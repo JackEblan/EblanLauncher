@@ -36,10 +36,13 @@ class AddPackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val updateIconPackInfoUseCase: UpdateIconPackInfoUseCase,
+    private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(packageName: String) {
+    suspend operator fun invoke(
+        serialNumber: Long,
+        packageName: String,
+    ) {
         withContext(defaultDispatcher) {
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
@@ -56,6 +59,7 @@ class AddPackageUseCase @Inject constructor(
             val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
             val eblanApplicationInfo = EblanApplicationInfo(
+                serialNumber = serialNumber,
                 componentName = componentName,
                 packageName = packageName,
                 icon = icon,
@@ -84,6 +88,7 @@ class AddPackageUseCase @Inject constructor(
                         componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                         configure = appWidgetManagerAppWidgetProviderInfo.configure,
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        serialNumber = serialNumber,
                         targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                         targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                         minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
@@ -102,7 +107,7 @@ class AddPackageUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             )
 
-            updateIconPackInfoUseCase(packageName = packageName)
+            updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }
     }
 }

@@ -19,12 +19,10 @@ package com.eblan.launcher.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
@@ -37,6 +35,7 @@ import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material.icons.filled.Work
 
 object EblanLauncherIcons {
     val Edit = Icons.Default.Edit
@@ -50,12 +49,11 @@ object EblanLauncherIcons {
     val Gesture = Icons.Default.Gesture
     val Folder = Icons.Default.Folder
     val Apps = Icons.Default.Apps
-    val Shortcut = Icons.AutoMirrored.Filled.Shortcut
     val Image = Icons.Default.Image
     val Search = Icons.Default.Search
     val ArrowDropDown = Icons.Default.ArrowDropDown
     val ArrowDropUp = Icons.Default.ArrowDropUp
     val Info = Icons.Default.Info
-    val Close = Icons.Default.Close
     val Add = Icons.Default.Add
+    val Work = Icons.Default.Work
 }

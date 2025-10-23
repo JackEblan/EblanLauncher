@@ -22,6 +22,7 @@ data class EblanAppWidgetProviderInfo(
     val componentName: String,
     val configure: String?,
     val packageName: String,
+    val serialNumber: Long,
     val targetCellWidth: Int,
     val targetCellHeight: Int,
     val minWidth: Int,

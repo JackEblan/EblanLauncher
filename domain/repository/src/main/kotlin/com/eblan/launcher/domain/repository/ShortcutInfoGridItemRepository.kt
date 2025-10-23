@@ -22,17 +22,27 @@ import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
 interface ShortcutInfoGridItemRepository {
-    val shortcutInfoGridItems: Flow<List<GridItem>>
+    val gridItems: Flow<List<GridItem>>
+
+    val shortcutInfoGridItems: Flow<List<ShortcutInfoGridItem>>
 
     suspend fun upsertShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>)
 
-    suspend fun upsertShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem): Long
-
     suspend fun updateShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem)
-
-    suspend fun getShortcutInfoGridItem(id: String): ShortcutInfoGridItem?
 
     suspend fun deleteShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>)
 
     suspend fun deleteShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem)
+
+    suspend fun updateShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>)
+
+    suspend fun getShortcutInfoGridItems(
+        serialNumber: Long,
+        packageName: String,
+    ): List<ShortcutInfoGridItem>
+
+    suspend fun deleteShortcutInfoGridItem(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

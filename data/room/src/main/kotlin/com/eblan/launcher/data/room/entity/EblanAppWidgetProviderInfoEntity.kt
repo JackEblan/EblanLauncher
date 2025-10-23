@@ -19,27 +19,16 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = EblanApplicationInfoEntity::class,
-            parentColumns = ["packageName"],
-            childColumns = ["packageName"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
-    indices = [Index(value = ["packageName"])],
-)
+@Entity
 data class EblanAppWidgetProviderInfoEntity(
     @PrimaryKey val className: String,
     val componentName: String,
     val configure: String?,
     val packageName: String,
+    val serialNumber: Long,
     val targetCellWidth: Int,
     val targetCellHeight: Int,
     val minWidth: Int,

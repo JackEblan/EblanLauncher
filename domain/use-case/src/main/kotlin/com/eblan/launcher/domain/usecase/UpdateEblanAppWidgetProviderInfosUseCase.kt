@@ -21,6 +21,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -35,10 +36,11 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
-        if (!appWidgetManagerWrapper.hasSystemFeatureAppWidgets) {
+        if (!packageManagerWrapper.hasSystemFeatureAppWidgets) {
             return
         }
 
@@ -59,11 +61,11 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
 
                         if (eblanApplicationInfo != null) {
                             val preview =
-                                appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
+                                appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
                                     fileManager.getAndUpdateFilePath(
                                         directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
                                         name = appWidgetManagerAppWidgetProviderInfo.className,
-                                        byteArray = currentPreview,
+                                        byteArray = byteArray,
                                     )
                                 }
 
@@ -72,6 +74,7 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                                 componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                                 configure = appWidgetManagerAppWidgetProviderInfo.configure,
                                 packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                                serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
                                 targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                                 targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                                 minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,

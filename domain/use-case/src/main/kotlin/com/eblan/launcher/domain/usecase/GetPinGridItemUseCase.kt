@@ -31,7 +31,6 @@ import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -44,7 +43,10 @@ class GetPinGridItemUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
-    suspend operator fun invoke(pinItemRequestType: PinItemRequestType): GridItem? {
+    suspend operator fun invoke(
+        serialNumber: Long,
+        pinItemRequestType: PinItemRequestType,
+    ): GridItem? {
         return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
@@ -56,8 +58,10 @@ class GetPinGridItemUseCase @Inject constructor(
                     if (eblanAppWidgetProviderInfo != null) {
                         val data = Widget(
                             appWidgetId = 0,
+                            className = eblanAppWidgetProviderInfo.className,
                             componentName = eblanAppWidgetProviderInfo.componentName,
                             packageName = eblanAppWidgetProviderInfo.packageName,
+                            serialNumber = serialNumber,
                             configure = eblanAppWidgetProviderInfo.configure,
                             minWidth = eblanAppWidgetProviderInfo.minWidth,
                             minHeight = eblanAppWidgetProviderInfo.minHeight,
@@ -96,17 +100,23 @@ class GetPinGridItemUseCase @Inject constructor(
                         eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = pinItemRequestType.packageName)
 
                     if (eblanApplicationInfo != null) {
-                        val iconInferred = File(
-                            fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            pinItemRequestType.shortcutId,
-                        ).absolutePath
+                        val icon = pinItemRequestType.icon?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                                name = pinItemRequestType.shortcutId,
+                                byteArray = byteArray,
+                            )
+                        }
 
                         val data = ShortcutInfo(
                             shortcutId = pinItemRequestType.shortcutId,
                             packageName = pinItemRequestType.packageName,
+                            serialNumber = 0L,
                             shortLabel = pinItemRequestType.shortLabel,
                             longLabel = pinItemRequestType.longLabel,
-                            icon = iconInferred,
+                            icon = icon,
+                            isEnabled = pinItemRequestType.isEnabled,
+                            disabledMessage = pinItemRequestType.disabledMessage,
                             eblanApplicationInfo = eblanApplicationInfo,
                         )
 

@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 internal class DefaultNotificationManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
     AndroidNotificationManagerWrapper {
-    val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    private val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun createNotificationChannel(

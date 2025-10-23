@@ -21,30 +21,33 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import com.eblan.launcher.domain.common.dispatcher.Dispatcher
+import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val androidUserManagerWrapper: AndroidUserManagerWrapper,
+    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
 
-    private val packageManager = context.packageManager
-
-    override val hasSystemFeatureAppWidgets =
-        packageManager.hasSystemFeature(PackageManager.FEATURE_APP_WIDGETS)
-
     override suspend fun getInstalledProviders(): List<AppWidgetManagerAppWidgetProviderInfo> {
-        return appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
-            appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+        return withContext(defaultDispatcher) {
+            appWidgetManager.installedProviders.map { appWidgetProviderInfo ->
+                appWidgetProviderInfo.toEblanAppWidgetProviderInfo()
+            }
         }
     }
 
@@ -69,6 +72,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             AppWidgetManagerAppWidgetProviderInfo(
                 className = provider.className,
                 packageName = provider.packageName,
+                serialNumber = androidUserManagerWrapper.getSerialNumberForUser(userHandle = profile),
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
                 targetCellWidth = targetCellWidth,
@@ -86,6 +90,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             AppWidgetManagerAppWidgetProviderInfo(
                 className = provider.className,
                 packageName = provider.packageName,
+                serialNumber = androidUserManagerWrapper.getSerialNumberForUser(userHandle = profile),
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
                 targetCellWidth = 0,

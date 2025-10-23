@@ -33,12 +33,15 @@ interface EblanAppWidgetProviderInfoDao {
     @Upsert
     suspend fun upsertEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
 
-    @Upsert
-    suspend fun upsertEblanAppWidgetProviderInfoEntity(entity: EblanAppWidgetProviderInfoEntity)
-
     @Delete
     suspend fun deleteEblanAppWidgetProviderInfoEntities(entities: List<EblanAppWidgetProviderInfoEntity>)
 
     @Query("SELECT * FROM EblanAppWidgetProviderInfoEntity WHERE className = :className")
     suspend fun getEblanAppWidgetProviderInfoEntity(className: String): EblanAppWidgetProviderInfoEntity?
+
+    @Query("SELECT * FROM EblanAppWidgetProviderInfoEntity WHERE packageName = :packageName")
+    suspend fun getEblanAppWidgetProviderInfoEntitiesByPackageName(packageName: String): List<EblanAppWidgetProviderInfoEntity>
+
+    @Query("DELETE FROM EblanAppWidgetProviderInfoEntity WHERE packageName = :packageName")
+    suspend fun deleteEblanAppWidgetProviderInfoEntityByPackageName(packageName: String)
 }

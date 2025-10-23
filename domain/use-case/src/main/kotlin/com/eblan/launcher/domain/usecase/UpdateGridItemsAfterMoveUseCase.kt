@@ -57,7 +57,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 groupConflictingGridItemsIntoFolder(
                     gridItems = gridItems,
                     conflictingGridItem = conflictingGridItem,
-                    movingGridItem = movingGridItem,
+                    movingGridItem = gridItems[movingIndex],
                     folderColumns = folderColumns,
                     folderRows = folderRows,
                     movingIndex = movingIndex,

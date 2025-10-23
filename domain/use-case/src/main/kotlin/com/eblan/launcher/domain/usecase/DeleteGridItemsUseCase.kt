@@ -68,6 +68,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 icon = data.icon,
                                 label = data.label,
                                 override = gridItem.override,
+                                serialNumber = data.serialNumber,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
@@ -109,6 +110,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 rowSpan = gridItem.rowSpan,
                                 associate = gridItem.associate,
                                 appWidgetId = data.appWidgetId,
+                                className = data.className,
                                 packageName = data.packageName,
                                 componentName = data.componentName,
                                 configure = data.configure,
@@ -123,6 +125,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 targetCellWidth = data.targetCellWidth,
                                 preview = data.preview,
                                 override = gridItem.override,
+                                serialNumber = data.serialNumber,
                                 gridItemSettings = gridItem.gridItemSettings,
                                 eblanApplicationInfo = data.eblanApplicationInfo,
                             ),
@@ -146,6 +149,9 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 longLabel = data.longLabel,
                                 icon = data.icon,
                                 override = gridItem.override,
+                                serialNumber = data.serialNumber,
+                                isEnabled = data.isEnabled,
+                                disabledMessage = data.disabledMessage,
                                 gridItemSettings = gridItem.gridItemSettings,
                                 eblanApplicationInfo = data.eblanApplicationInfo,
                             ),
@@ -158,7 +164,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                 applicationInfoGridItems = applicationInfoGridItems,
             )
 
-            widgetGridItemRepository.deleteWidgetGridItems(widgetGridItems = widgetGridItems)
+            widgetGridItemRepository.deleteWidgetGridItemsByPackageName(widgetGridItems = widgetGridItems)
 
             shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
 

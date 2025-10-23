@@ -24,11 +24,12 @@ import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
-import com.eblan.launcher.domain.usecase.ChangeShortcutsUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
+import com.eblan.launcher.domain.usecase.UpdateApplicationInfoGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
 import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
-import com.eblan.launcher.domain.usecase.UpdateEblanShortcutInfosUseCase
+import com.eblan.launcher.domain.usecase.UpdateShortcutInfoGridItemsUseCase
+import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,9 +47,6 @@ class ApplicationInfoService : Service() {
     lateinit var updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase
 
     @Inject
-    lateinit var updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase
-
-    @Inject
     lateinit var addPackageUseCase: AddPackageUseCase
 
     @Inject
@@ -58,7 +56,13 @@ class ApplicationInfoService : Service() {
     lateinit var changePackageUseCase: ChangePackageUseCase
 
     @Inject
-    lateinit var changeShortcutsUseCase: ChangeShortcutsUseCase
+    lateinit var updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase
+
+    @Inject
+    lateinit var updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase
+
+    @Inject
+    lateinit var updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase
 
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
@@ -75,21 +79,23 @@ class ApplicationInfoService : Service() {
                 launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
                     when (launcherAppsEvent) {
                         is LauncherAppsEvent.PackageAdded -> {
-                            addPackageUseCase(packageName = launcherAppsEvent.packageName)
+                            addPackageUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
+                                packageName = launcherAppsEvent.packageName,
+                            )
                         }
 
                         is LauncherAppsEvent.PackageChanged -> {
-                            changePackageUseCase(packageName = launcherAppsEvent.packageName)
+                            changePackageUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
+                                packageName = launcherAppsEvent.packageName,
+                            )
                         }
 
                         is LauncherAppsEvent.PackageRemoved -> {
-                            removePackageUseCase(packageName = launcherAppsEvent.packageName)
-                        }
-
-                        is LauncherAppsEvent.ShortcutsChanged -> {
-                            changeShortcutsUseCase(
+                            removePackageUseCase(
+                                serialNumber = launcherAppsEvent.serialNumber,
                                 packageName = launcherAppsEvent.packageName,
-                                launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos,
                             )
                         }
                     }
@@ -100,8 +106,18 @@ class ApplicationInfoService : Service() {
                 updateEblanApplicationInfosUseCase()
 
                 updateEblanAppWidgetProviderInfosUseCase()
+            }
 
-                updateEblanShortcutInfosUseCase()
+            launch {
+                updateApplicationInfoGridItemsUseCase()
+            }
+
+            launch {
+                updateWidgetGridItemsUseCase()
+            }
+
+            launch {
+                updateShortcutInfoGridItemsUseCase()
             }
         }
 

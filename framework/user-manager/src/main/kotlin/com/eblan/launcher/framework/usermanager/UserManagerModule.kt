@@ -15,13 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.repository
+package com.eblan.launcher.framework.usermanager
 
-import com.eblan.launcher.domain.model.PageItem
-import kotlinx.coroutines.flow.Flow
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-interface PageCacheRepository {
-    val pageItems: Flow<List<PageItem>>
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface UserManagerModule {
 
-    fun insertPageItems(pageItems: List<PageItem>)
+    @Binds
+    @Singleton
+    fun androidUserManagerWrapper(impl: DefaultUserManagerWrapper): AndroidUserManagerWrapper
 }

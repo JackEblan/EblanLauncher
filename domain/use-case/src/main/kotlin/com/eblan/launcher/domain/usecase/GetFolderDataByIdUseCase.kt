@@ -44,10 +44,10 @@ class GetFolderDataByIdUseCase @Inject constructor(
             val homeSettings = userDataRepository.userData.first().homeSettings
 
             val gridItems = (
-                applicationInfoGridItemRepository.applicationInfoGridItems.first() +
-                    widgetGridItemRepository.widgetGridItems.first() +
-                    shortcutInfoGridItemRepository.shortcutInfoGridItems.first() +
-                    folderGridItemRepository.folderGridItems.first()
+                applicationInfoGridItemRepository.gridItems.first() +
+                    widgetGridItemRepository.gridItems.first() +
+                    shortcutInfoGridItemRepository.gridItems.first() +
+                    folderGridItemRepository.gridItems.first()
                 ).filter { gridItem ->
                 gridItem.folderId == id && isGridItemSpanWithinBounds(
                     gridItem = gridItem,

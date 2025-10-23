@@ -85,9 +85,9 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             val dockHeight = homeSettings.dockHeight
 
             val gridItems = applicationInfoGridItemRepository.gridItems.first() +
-                    widgetGridItemRepository.gridItems.first() +
-                    shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first()
+                widgetGridItemRepository.gridItems.first() +
+                shortcutInfoGridItemRepository.gridItems.first() +
+                folderGridItemRepository.gridItems.first()
 
             val eblanApplicationInfo =
                 eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)

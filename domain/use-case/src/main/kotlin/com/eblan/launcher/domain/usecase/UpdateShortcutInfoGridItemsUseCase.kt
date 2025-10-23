@@ -51,7 +51,7 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
                     val launcherAppsShortcutInfo =
                         launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
                             launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                                    launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                                launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                         }
 
                     if (launcherAppsShortcutInfo != null) {
@@ -68,7 +68,7 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
                                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                                 longLabel = launcherAppsShortcutInfo.longLabel,
                                 icon = icon,
-                            )
+                            ),
                         )
                     } else {
                         deleteShortcutInfoGridItems.add(shortcutInfoGridItem)

@@ -51,7 +51,7 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
                 val launcherAppsActivityInfo =
                     launcherAppsActivityInfos.find { launcherShortcutInfo ->
                         launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
-                                launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
+                            launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsActivityInfo != null) {
@@ -68,7 +68,7 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
                             componentName = launcherAppsActivityInfo.componentName,
                             icon = icon,
                             label = launcherAppsActivityInfo.label,
-                        )
+                        ),
                     )
                 } else {
                     deleteApplicationInfoGridItems.add(applicationInfoGridItem)

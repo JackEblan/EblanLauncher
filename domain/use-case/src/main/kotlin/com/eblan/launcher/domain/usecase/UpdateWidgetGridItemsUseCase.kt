@@ -81,7 +81,7 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                             targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                             targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                             preview = preview,
-                        )
+                        ),
                     )
                 } else {
                     deleteWidgetGridItems.add(widgetGridItem)

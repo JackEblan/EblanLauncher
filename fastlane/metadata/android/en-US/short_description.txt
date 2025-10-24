@@ -1,1 +1,1 @@
-Android Launcher made from scratch using Kotlin, Coroutines and Jetpack Compose
+Lightweight, fast, customizable, and secure Android launcher

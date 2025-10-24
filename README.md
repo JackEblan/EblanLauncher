@@ -4,7 +4,7 @@
 
 # Eblan Launcher
 
-Android Launcher made from scratch using Kotlin, Coroutines and Jetpack Compose
+Lightweight, fast, customizable, and secure Android launcher
 
 ![GitHub Release](https://img.shields.io/github/v/release/JackEblan/EblanLauncher?style=for-the-badge)
 ![GitHub License](https://img.shields.io/github/license/JackEblan/EblanLauncher?style=for-the-badge)

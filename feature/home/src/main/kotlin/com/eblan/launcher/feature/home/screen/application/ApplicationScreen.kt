@@ -120,6 +120,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -952,17 +953,16 @@ private fun ScrollBarThumb(
 
     val scope = rememberCoroutineScope()
 
-    val appDrawerRowsHeight = appDrawerSettings.appDrawerRowsHeight.dp
-
-    val appDrawerRowsHeightPx = with(density) {
-        appDrawerRowsHeight.roundToPx()
-    }
+    val appDrawerRowsHeightPx =
+        with(density) {
+            appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
+        }
 
     val bottomPadding = with(density) {
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
-    val thumbHeight by remember(key1 = lazyGridState) {
+    val thumbHeight by remember(lazyGridState) {
         derivedStateOf {
             with(density) {
                 (lazyGridState.layoutInfo.viewportSize.height / 4).toDp()
@@ -972,31 +972,38 @@ private fun ScrollBarThumb(
 
     val viewPortThumbY by remember(key1 = lazyGridState, key2 = appDrawerSettings) {
         derivedStateOf {
-            val rows =
+            val totalRows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
                     appDrawerSettings.appDrawerColumns
 
-            val totalHeight = rows * appDrawerRowsHeightPx
+            val visibleRows =
+                ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
+
+            val scrollableRows = (totalRows - visibleRows).coerceAtLeast(0)
+
+            val availableScroll = scrollableRows * appDrawerRowsHeightPx
 
             val row = lazyGridState.firstVisibleItemIndex / appDrawerSettings.appDrawerColumns
 
             val totalScrollY =
                 (row * appDrawerRowsHeightPx) + lazyGridState.firstVisibleItemScrollOffset
 
-            val availableScroll = totalHeight - lazyGridState.layoutInfo.viewportSize.height
-
             val thumbHeightPx = with(density) {
                 thumbHeight.toPx()
             }
 
             val availableHeight =
-                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding).coerceAtLeast(
+                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding)
+                    .coerceAtLeast(0f)
+
+            if (availableScroll <= 0) {
+                0f
+            } else {
+                (totalScrollY.toFloat() / availableScroll.toFloat() * availableHeight).coerceIn(
                     0f,
+                    availableHeight,
                 )
-
-            val progress = totalScrollY.toFloat() / availableScroll.toFloat()
-
-            (progress * availableHeight).coerceIn(0f, availableHeight)
+            }
         }
     }
 
@@ -1005,16 +1012,12 @@ private fun ScrollBarThumb(
     var thumbY by remember { mutableFloatStateOf(0f) }
 
     val thumbAlpha by animateFloatAsState(
-        targetValue = if (lazyGridState.isScrollInProgress || isDraggingThumb) {
-            1f
-        } else {
-            0.2f
-        },
+        targetValue = if (lazyGridState.isScrollInProgress || isDraggingThumb) 1f else 0.2f,
     )
 
     val firstVisibleItem by remember(key1 = lazyGridState, key2 = eblanApplicationInfos) {
         derivedStateOf {
-            if (isDraggingThumb) {
+            if (isDraggingThumb && lazyGridState.firstVisibleItemIndex in eblanApplicationInfos.indices) {
                 eblanApplicationInfos[lazyGridState.firstVisibleItemIndex].label
             } else {
                 null
@@ -1037,10 +1040,9 @@ private fun ScrollBarThumb(
             ) {
                 Text(
                     modifier = Modifier.padding(10.dp),
-                    text = firstVisibleItem.toString(),
+                    text = firstVisibleItem.orEmpty(),
                 )
             }
-
             Spacer(modifier = Modifier.width(10.dp))
         }
 
@@ -1051,11 +1053,11 @@ private fun ScrollBarThumb(
                         thumbY
                     } else {
                         viewPortThumbY
-                    }.roundToInt()
+                    }
 
-                    IntOffset(x = 0, y = y)
+                    IntOffset(0, y.roundToInt())
                 }
-                .pointerInput(key1 = lazyGridState, key2 = appDrawerSettings) {
+                .pointerInput(lazyGridState, appDrawerSettings) {
                     detectVerticalDragGestures(
                         onDragStart = {
                             thumbY = viewPortThumbY
@@ -1063,35 +1065,36 @@ private fun ScrollBarThumb(
                             isDraggingThumb = true
                         },
                         onVerticalDrag = { change, deltaY ->
-                            val rows =
+                            val totalRows =
                                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
                                     appDrawerSettings.appDrawerColumns
 
-                            val totalHeight = rows * appDrawerRowsHeightPx
+                            val visibleRows =
+                                ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
 
-                            val availableScroll =
-                                totalHeight - lazyGridState.layoutInfo.viewportSize.height
+                            val scrollableRows = (totalRows - visibleRows).coerceAtLeast(0)
 
-                            val thumbHeightPx = with(density) {
-                                thumbHeight.toPx()
-                            }
+                            val availableScroll = scrollableRows * appDrawerRowsHeightPx
+
+                            val thumbHeightPx = with(density) { thumbHeight.toPx() }
 
                             val availableHeight =
                                 lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding
 
                             thumbY = (thumbY + deltaY).coerceIn(0f, availableHeight)
 
-                            val progress = thumbY / (availableHeight)
+                            val progress = thumbY / availableHeight
 
                             val targetScrollY = progress * availableScroll
 
-                            val targetRow =
-                                targetScrollY / appDrawerRowsHeightPx
+                            val targetRow = targetScrollY / appDrawerRowsHeightPx
 
-                            val targetIndex = targetRow * appDrawerSettings.appDrawerColumns
+                            val targetIndex = (targetRow * appDrawerSettings.appDrawerColumns)
+                                .roundToInt()
+                                .coerceIn(0, eblanApplicationInfos.lastIndex)
 
                             scope.launch {
-                                onScrollToItem(targetIndex.roundToInt().coerceAtLeast(0))
+                                onScrollToItem(targetIndex)
                             }
                         },
                         onDragEnd = {

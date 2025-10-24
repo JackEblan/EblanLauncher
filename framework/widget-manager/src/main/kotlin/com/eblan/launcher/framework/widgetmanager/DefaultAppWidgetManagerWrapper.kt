@@ -23,6 +23,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.UserHandle
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
@@ -55,6 +56,19 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
 
     override fun bindAppWidgetIdIfAllowed(appWidgetId: Int, provider: ComponentName?): Boolean {
         return appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, provider)
+    }
+
+    override fun bindAppWidgetIdIfAllowed(
+        appWidgetId: Int,
+        userHandle: UserHandle,
+        provider: ComponentName?,
+    ): Boolean {
+        return appWidgetManager.bindAppWidgetIdIfAllowed(
+            appWidgetId,
+            userHandle,
+            provider,
+            Bundle.EMPTY,
+        )
     }
 
     override fun updateAppWidgetOptions(appWidgetId: Int, options: Bundle) {

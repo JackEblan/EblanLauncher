@@ -168,20 +168,20 @@ private fun PinShortcutScreen(
         }
 
         LaunchedEffect(key1 = gridItem) {
-            if (gridItem != null) {
-                if (pinItemRequest.accept()) {
-                    onAddedToHomeScreenToast(
-                        """
+            if (gridItem == null) return@LaunchedEffect
+
+            if (pinItemRequest.isValid && pinItemRequest.accept()) {
+                onAddedToHomeScreenToast(
+                    """
                 ${gridItem.page}
                 ${gridItem.startRow}
                 ${gridItem.startColumn}
-                        """.trimIndent(),
-                    )
+                    """.trimIndent(),
+                )
 
-                    onUpdateGridItems()
-                } else {
-                    onDeleteShortcutGridItem(gridItem)
-                }
+                onUpdateGridItems()
+            } else {
+                onDeleteShortcutGridItem(gridItem)
             }
         }
 
@@ -302,6 +302,7 @@ private fun PinWidgetScreen(
                 gridItem = gridItem,
                 appWidgetHostWrapper = appWidgetHostWrapper,
                 appWidgetManager = appWidgetManager,
+                userHandle = appWidgetProviderInfo.profile,
                 onUpdateWidgetGridItem = onUpdateWidgetGridItemCache,
                 onAddedToHomeScreenToast = onAddedToHomeScreenToast,
                 onUpdateAppWidgetId = { newAppWidgetId ->

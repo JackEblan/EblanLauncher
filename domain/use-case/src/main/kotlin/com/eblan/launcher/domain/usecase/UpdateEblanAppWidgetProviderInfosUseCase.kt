@@ -24,7 +24,6 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -32,7 +31,6 @@ import java.io.File
 import javax.inject.Inject
 
 class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val fileManager: FileManager,
@@ -45,51 +43,53 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
         }
 
         withContext(ioDispatcher) {
-            val oldEblanApplicationInfos =
-                eblanApplicationInfoRepository.eblanApplicationInfos.first()
-
             val oldEblanAppWidgetProviderInfos =
                 eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.first()
 
             val newEblanAppWidgetProviderInfos =
                 appWidgetManagerWrapper.getInstalledProviders()
-                    .mapNotNull { appWidgetManagerAppWidgetProviderInfo ->
-                        val eblanApplicationInfo =
-                            oldEblanApplicationInfos.find { eblanApplicationInfo ->
-                                eblanApplicationInfo.packageName == appWidgetManagerAppWidgetProviderInfo.packageName
-                            }
+                    .map { appWidgetManagerAppWidgetProviderInfo ->
+                        val label =
+                            packageManagerWrapper.getApplicationLabel(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
 
-                        if (eblanApplicationInfo != null) {
-                            val preview =
-                                appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
+                        val icon =
+                            packageManagerWrapper.getApplicationIcon(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+                                ?.let { byteArray ->
                                     fileManager.getAndUpdateFilePath(
-                                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                                        name = appWidgetManagerAppWidgetProviderInfo.className,
+                                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                                        name = appWidgetManagerAppWidgetProviderInfo.packageName,
                                         byteArray = byteArray,
                                     )
                                 }
 
-                            EblanAppWidgetProviderInfo(
-                                className = appWidgetManagerAppWidgetProviderInfo.className,
-                                componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
-                                configure = appWidgetManagerAppWidgetProviderInfo.configure,
-                                packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                                serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
-                                targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
-                                targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                                minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
-                                minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
-                                resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
-                                minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
-                                minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
-                                maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
-                                maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                                preview = preview,
-                                eblanApplicationInfo = eblanApplicationInfo,
-                            )
-                        } else {
-                            null
-                        }
+                        val preview =
+                            appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
+                                fileManager.getAndUpdateFilePath(
+                                    directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                                    name = appWidgetManagerAppWidgetProviderInfo.className,
+                                    byteArray = byteArray,
+                                )
+                            }
+
+                        EblanAppWidgetProviderInfo(
+                            className = appWidgetManagerAppWidgetProviderInfo.className,
+                            componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
+                            configure = appWidgetManagerAppWidgetProviderInfo.configure,
+                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                            serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
+                            targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
+                            targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
+                            minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
+                            minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
+                            resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
+                            minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
+                            minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
+                            maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
+                            maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
+                            preview = preview,
+                            label = label,
+                            icon = icon,
+                        )
                     }
 
             if (oldEblanAppWidgetProviderInfos != newEblanAppWidgetProviderInfos) {

@@ -42,7 +42,8 @@ data class WidgetGridItem(
     val targetCellHeight: Int,
     val targetCellWidth: Int,
     val preview: String?,
+    val label: String?,
+    val icon: String?,
     val override: Boolean,
     val gridItemSettings: GridItemSettings,
-    val eblanApplicationInfo: EblanApplicationInfo,
 )

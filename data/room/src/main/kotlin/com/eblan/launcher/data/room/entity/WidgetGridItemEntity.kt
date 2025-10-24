@@ -21,7 +21,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity
@@ -50,8 +49,9 @@ data class WidgetGridItemEntity(
     val targetCellHeight: Int,
     val targetCellWidth: Int,
     val preview: String?,
+    val label: String?,
+    val icon: String?,
     val override: Boolean,
     val serialNumber: Long,
     @Embedded val gridItemSettings: GridItemSettings,
-    @Embedded(prefix = "applicationInfo_") val eblanApplicationInfo: EblanApplicationInfo,
 )

@@ -99,7 +99,8 @@ class AddPackageUseCase @Inject constructor(
                         maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                         maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                         preview = preview,
-                        eblanApplicationInfo = eblanApplicationInfo,
+                        label = label,
+                        icon = icon,
                     )
                 }
 

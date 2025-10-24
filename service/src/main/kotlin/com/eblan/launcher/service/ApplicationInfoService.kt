@@ -104,7 +104,9 @@ class ApplicationInfoService : Service() {
 
             launch {
                 updateEblanApplicationInfosUseCase()
+            }
 
+            launch {
                 updateEblanAppWidgetProviderInfosUseCase()
             }
 

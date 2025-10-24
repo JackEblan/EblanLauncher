@@ -61,6 +61,7 @@ import androidx.compose.ui.window.Popup
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
@@ -109,7 +110,7 @@ fun PagerScreen(
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,

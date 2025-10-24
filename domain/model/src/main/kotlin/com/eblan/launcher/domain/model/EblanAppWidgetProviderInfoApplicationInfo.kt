@@ -17,22 +17,7 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanAppWidgetProviderInfo(
-    val className: String,
-    val componentName: String,
-    val configure: String?,
-    val packageName: String,
-    val serialNumber: Long,
-    val targetCellWidth: Int,
-    val targetCellHeight: Int,
-    val minWidth: Int,
-    val minHeight: Int,
-    val resizeMode: Int,
-    val minResizeWidth: Int,
-    val minResizeHeight: Int,
-    val maxResizeWidth: Int,
-    val maxResizeHeight: Int,
-    val preview: String?,
-    val label: String?,
+data class EblanAppWidgetProviderInfoApplicationInfo(
     val icon: String?,
+    val label: String?,
 )

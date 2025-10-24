@@ -17,10 +17,8 @@
  */
 package com.eblan.launcher.data.room.entity
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 @Entity
 data class EblanAppWidgetProviderInfoEntity(
@@ -39,5 +37,6 @@ data class EblanAppWidgetProviderInfoEntity(
     val maxResizeWidth: Int,
     val maxResizeHeight: Int,
     val preview: String?,
-    @Embedded(prefix = "applicationInfo_") val eblanApplicationInfo: EblanApplicationInfo,
+    val label: String?,
+    val icon: String?,
 )

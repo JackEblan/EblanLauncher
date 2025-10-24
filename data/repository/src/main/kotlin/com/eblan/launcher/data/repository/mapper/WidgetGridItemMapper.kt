@@ -48,7 +48,8 @@ internal fun WidgetGridItemEntity.asGridItem(): GridItem {
             targetCellHeight = targetCellHeight,
             targetCellWidth = targetCellWidth,
             preview = preview,
-            eblanApplicationInfo = eblanApplicationInfo,
+            label = label,
+            icon = icon,
         ),
         associate = associate,
         override = override,
@@ -81,10 +82,11 @@ internal fun WidgetGridItemEntity.asModel(): WidgetGridItem {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        label = label,
+        icon = icon,
         override = override,
         serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
-        eblanApplicationInfo = eblanApplicationInfo,
     )
 }
 
@@ -113,9 +115,10 @@ internal fun WidgetGridItem.asEntity(): WidgetGridItemEntity {
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
+        label = label,
+        icon = icon,
         override = override,
         serialNumber = serialNumber,
         gridItemSettings = gridItemSettings,
-        eblanApplicationInfo = eblanApplicationInfo,
     )
 }

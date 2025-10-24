@@ -244,7 +244,7 @@ private fun WidgetGridItem(
         )
     } else {
         AsyncImage(
-            model = data.preview ?: data.eblanApplicationInfo.icon,
+            model = data.preview ?: data.icon,
             contentDescription = null,
             modifier = modifier.fillMaxSize(),
         )

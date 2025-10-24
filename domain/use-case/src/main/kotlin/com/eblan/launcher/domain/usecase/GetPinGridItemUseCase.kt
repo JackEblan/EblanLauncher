@@ -73,7 +73,8 @@ class GetPinGridItemUseCase @Inject constructor(
                             targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
                             targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                             preview = eblanAppWidgetProviderInfo.preview,
-                            eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
+                            label = eblanAppWidgetProviderInfo.label,
+                            icon = eblanAppWidgetProviderInfo.icon,
                         )
 
                         GridItem(

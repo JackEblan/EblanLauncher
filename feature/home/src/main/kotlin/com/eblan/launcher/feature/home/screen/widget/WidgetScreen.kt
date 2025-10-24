@@ -79,7 +79,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -103,7 +103,7 @@ fun WidgetScreen(
     paddingValues: PaddingValues,
     screenHeight: Int,
     drag: Drag,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     appDrawerSettings: AppDrawerSettings,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -181,12 +181,12 @@ private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     isApplicationComponentVisible: Boolean,
-    eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     screenHeight: Int,
     drag: Drag,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     appDrawerSettings: AppDrawerSettings,
     animatedSwipeUpY: Animatable<Float, AnimationVector1D>,
     overscrollOffset: Animatable<Float, AnimationVector1D>,
@@ -276,7 +276,7 @@ private fun Success(
             ) {
                 items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                     EblanApplicationInfoItem(
-                        eblanApplicationInfo = eblanApplicationInfo,
+                        eblanAppWidgetProviderInfoApplicationInfo = eblanApplicationInfo,
                         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                         drag = drag,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -296,7 +296,7 @@ private fun Success(
 private fun EblanAppWidgetProviderInfoDockSearchBar(
     modifier: Modifier = Modifier,
     onQueryChange: (String) -> Unit,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -342,7 +342,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
                 EblanApplicationInfoItem(
-                    eblanApplicationInfo = eblanApplicationInfo,
+                    eblanAppWidgetProviderInfoApplicationInfo = eblanApplicationInfo,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
                     drag = drag,
                     onUpdateGridItemOffset = { intOffset, intSize ->
@@ -363,8 +363,8 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
 @Composable
 private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
-    eblanApplicationInfo: EblanApplicationInfo,
-    eblanAppWidgetProviderInfos: Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfoApplicationInfo: EblanAppWidgetProviderInfoApplicationInfo,
+    eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -396,11 +396,10 @@ private fun EblanApplicationInfoItem(
             .animateContentSize(),
     ) {
         ListItem(
-            headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
-            supportingContent = { Text(text = eblanApplicationInfo.packageName) },
+            headlineContent = { Text(text = eblanAppWidgetProviderInfoApplicationInfo.label.toString()) },
             leadingContent = {
                 AsyncImage(
-                    model = eblanApplicationInfo.icon,
+                    model = eblanAppWidgetProviderInfoApplicationInfo.icon,
                     contentDescription = null,
                     modifier = Modifier.size(40.dp),
                 )
@@ -422,7 +421,7 @@ private fun EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            eblanAppWidgetProviderInfos[eblanApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfos[eblanAppWidgetProviderInfoApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
                 EblanAppWidgetProviderInfoItem(
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     drag = drag,
@@ -462,7 +461,7 @@ private fun EblanAppWidgetProviderInfoItem(
     var intSize by remember { mutableStateOf(IntSize.Zero) }
 
     val preview =
-        eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.eblanApplicationInfo.icon
+        eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.icon
 
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -512,8 +511,9 @@ private fun EblanAppWidgetProviderInfoItem(
                                         maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                         maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                                         preview = eblanAppWidgetProviderInfo.preview,
+                                        label = eblanAppWidgetProviderInfo.label,
+                                        icon = eblanAppWidgetProviderInfo.icon,
                                         gridItemSettings = gridItemSettings,
-                                        eblanApplicationInfo = eblanAppWidgetProviderInfo.eblanApplicationInfo,
                                     ),
                                 ),
                                 graphicsLayer.toImageBitmap(),
@@ -598,8 +598,9 @@ private fun getWidgetGridItem(
     maxResizeWidth: Int,
     maxResizeHeight: Int,
     preview: String?,
+    label: String?,
+    icon: String?,
     gridItemSettings: GridItemSettings,
-    eblanApplicationInfo: EblanApplicationInfo,
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
@@ -618,7 +619,8 @@ private fun getWidgetGridItem(
         targetCellHeight = targetCellHeight,
         targetCellWidth = targetCellWidth,
         preview = preview,
-        eblanApplicationInfo = eblanApplicationInfo,
+        label = label,
+        icon = icon,
     )
 
     return GridItem(

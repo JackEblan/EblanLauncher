@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationComponent
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -47,9 +48,12 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
 
             val groupedEblanAppWidgetProviderInfos =
                 eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.eblanApplicationInfo.label
+                    eblanAppWidgetProviderInfo.label
                 }.groupBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.eblanApplicationInfo
+                    EblanAppWidgetProviderInfoApplicationInfo(
+                        icon = eblanAppWidgetProviderInfo.icon,
+                        label = eblanAppWidgetProviderInfo.label,
+                    )
                 }
 
             EblanApplicationComponent(

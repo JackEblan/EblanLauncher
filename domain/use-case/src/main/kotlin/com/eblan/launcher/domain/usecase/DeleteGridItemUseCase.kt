@@ -146,10 +146,11 @@ class DeleteGridItemUseCase @Inject constructor(
                             targetCellHeight = data.targetCellHeight,
                             targetCellWidth = data.targetCellWidth,
                             preview = data.preview,
+                            label = data.label,
+                            icon = data.icon,
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
                             gridItemSettings = gridItem.gridItemSettings,
-                            eblanApplicationInfo = data.eblanApplicationInfo,
                         ),
                     )
                 }

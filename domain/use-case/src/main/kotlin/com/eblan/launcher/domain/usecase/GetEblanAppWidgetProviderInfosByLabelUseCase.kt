@@ -20,7 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -32,25 +32,21 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanApplicationInfo, List<EblanAppWidgetProviderInfo>>> {
+    operator fun invoke(label: String): Flow<Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>> {
         return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
-            eblanAppWidgetProviderInfos
-                .filter { eblanAppWidgetProviderInfo ->
-                    val eblanApplicationInfoLabel =
-                        eblanAppWidgetProviderInfo.eblanApplicationInfo.label
-
-                    eblanApplicationInfoLabel != null &&
-                        label.isNotBlank() &&
-                        eblanApplicationInfoLabel.contains(
-                            other = label,
-                            ignoreCase = true,
-                        )
-                }
-                .sortedBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.eblanApplicationInfo.label
-                }.groupBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.eblanApplicationInfo
-                }
+            eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
+                label.isNotBlank() && eblanAppWidgetProviderInfo.label.toString().contains(
+                    other = label,
+                    ignoreCase = true,
+                )
+            }.sortedBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.label
+            }.groupBy { eblanAppWidgetProviderInfo ->
+                EblanAppWidgetProviderInfoApplicationInfo(
+                    icon = eblanAppWidgetProviderInfo.icon,
+                    label = eblanAppWidgetProviderInfo.label,
+                )
+            }
         }.flowOn(defaultDispatcher)
     }
 }

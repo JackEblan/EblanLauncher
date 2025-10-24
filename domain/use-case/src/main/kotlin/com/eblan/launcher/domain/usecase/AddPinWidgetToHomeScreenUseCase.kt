@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
@@ -27,7 +28,6 @@ import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
@@ -45,11 +45,11 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
@@ -89,14 +89,23 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 shortcutInfoGridItemRepository.gridItems.first() +
                 folderGridItemRepository.gridItems.first()
 
-            val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
-                    ?: return@withContext null
-
             val previewInferred = File(
                 fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
                 className,
             ).absolutePath
+
+            val label =
+                packageManagerWrapper.getApplicationLabel(packageName = packageName)
+
+            val icon =
+                packageManagerWrapper.getApplicationIcon(packageName = packageName)
+                    ?.let { byteArray ->
+                        fileManager.getAndUpdateFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            name = packageName,
+                            byteArray = byteArray,
+                        )
+                    }
 
             val gridHeight = rootHeight - dockHeight
 
@@ -141,7 +150,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 targetCellHeight = targetCellHeight,
                 targetCellWidth = targetCellWidth,
                 preview = previewInferred,
-                eblanApplicationInfo = eblanApplicationInfo,
+                label = label,
+                icon = icon,
             )
 
             val gridItem = GridItem(

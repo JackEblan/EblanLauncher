@@ -84,9 +84,11 @@ import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
+import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -254,6 +256,8 @@ fun HomeScreen(
 
     val drawable = LocalDrawable.current
 
+    val userManager = LocalUserManager.current
+
     val scope = rememberCoroutineScope()
 
     val target = remember {
@@ -275,6 +279,7 @@ fun HomeScreen(
                         context = context,
                         launcherAppsWrapper = launcherApps,
                         drawable = drawable,
+                        userManager = userManager,
                         onGetPinGridItem = onGetPinGridItem,
                     )
                 }
@@ -772,6 +777,7 @@ private suspend fun handlePinItemRequest(
     context: Context,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     drawable: AndroidDrawableWrapper,
+    userManager: AndroidUserManagerWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
@@ -781,7 +787,12 @@ private suspend fun handlePinItemRequest(
                     pinItemRequest.getAppWidgetProviderInfo(context)
 
                 if (appWidgetProviderInfo != null) {
-                    onGetPinGridItem(PinItemRequestType.Widget(className = appWidgetProviderInfo.provider.className))
+                    onGetPinGridItem(
+                        PinItemRequestType.Widget(
+                            serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
+                            className = appWidgetProviderInfo.provider.className,
+                        ),
+                    )
                 }
             }
 
@@ -791,6 +802,7 @@ private suspend fun handlePinItemRequest(
                 if (shortcutInfo != null) {
                     onGetPinGridItem(
                         PinItemRequestType.ShortcutInfo(
+                            serialNumber = userManager.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
                             shortcutId = shortcutInfo.id,
                             packageName = shortcutInfo.`package`,
                             shortLabel = shortcutInfo.shortLabel.toString(),

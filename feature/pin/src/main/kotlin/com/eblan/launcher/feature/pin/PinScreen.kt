@@ -21,7 +21,6 @@ import android.appwidget.AppWidgetManager
 import android.content.ClipData
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
-import android.os.UserHandle
 import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -71,6 +70,7 @@ import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
+import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -134,7 +134,7 @@ private fun PinShortcutScreen(
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
     onAddPinShortcutToHomeScreen: (
-        userHandle: UserHandle,
+        serialNumber: Long,
         id: String,
         packageName: String,
         shortLabel: String,
@@ -154,6 +154,8 @@ private fun PinShortcutScreen(
     val drawable = LocalDrawable.current
 
     val shortcutInfo = pinItemRequest.shortcutInfo
+
+    val userManager = LocalUserManager.current
 
     val scope = rememberCoroutineScope()
 
@@ -201,7 +203,7 @@ private fun PinShortcutScreen(
                     onAdd = {
                         scope.launch {
                             onAddPinShortcutToHomeScreen(
-                                shortcutInfo.userHandle,
+                                userManager.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
                                 shortcutInfo.id,
                                 shortcutInfo.`package`,
                                 shortcutInfo.shortLabel.toString(),
@@ -239,7 +241,7 @@ private fun PinWidgetScreen(
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
     onAddWidgetToHomeScreen: (
-        userHandle: UserHandle,
+        serialNumber: Long,
         className: String,
         componentName: String,
         configure: String?,
@@ -266,6 +268,8 @@ private fun PinWidgetScreen(
     val appWidgetHostWrapper = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
+
+    val userManager = LocalUserManager.current
 
     val context = LocalContext.current
 
@@ -345,7 +349,7 @@ private fun PinWidgetScreen(
                     onAdd = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             onAddWidgetToHomeScreen(
-                                appWidgetProviderInfo.profile,
+                                userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
@@ -364,7 +368,7 @@ private fun PinWidgetScreen(
                             )
                         } else {
                             onAddWidgetToHomeScreen(
-                                appWidgetProviderInfo.profile,
+                                userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),

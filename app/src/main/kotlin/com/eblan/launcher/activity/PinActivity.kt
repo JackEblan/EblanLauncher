@@ -33,6 +33,7 @@ import com.eblan.launcher.feature.pin.PinScreen
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.PinActivityUiState
@@ -41,6 +42,7 @@ import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
+import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.viewmodel.PinActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -63,6 +65,9 @@ class PinActivity : ComponentActivity() {
     @Inject
     lateinit var androidDrawableWrapper: AndroidDrawableWrapper
 
+    @Inject
+    lateinit var androidUserManagerWrapper: AndroidUserManagerWrapper
+
     private val viewModel: PinActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +89,7 @@ class PinActivity : ComponentActivity() {
                     LocalPinItemRequest provides pinItemRequestWrapper,
                     LocalLauncherApps provides androidLauncherAppsWrapper,
                     LocalDrawable provides androidDrawableWrapper,
+                    LocalUserManager provides androidUserManagerWrapper,
                 ) {
                     val pinActivityUiState by viewModel.pinActivityUiState.collectAsStateWithLifecycle()
 

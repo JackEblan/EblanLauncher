@@ -46,7 +46,6 @@ class GetPinGridItemUseCase @Inject constructor(
 ) {
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
-        serialNumber: Long,
         pinItemRequestType: PinItemRequestType,
     ): GridItem? {
         return withContext(defaultDispatcher) {
@@ -63,7 +62,7 @@ class GetPinGridItemUseCase @Inject constructor(
                             className = eblanAppWidgetProviderInfo.className,
                             componentName = eblanAppWidgetProviderInfo.componentName,
                             packageName = eblanAppWidgetProviderInfo.packageName,
-                            serialNumber = serialNumber,
+                            serialNumber = pinItemRequestType.serialNumber,
                             configure = eblanAppWidgetProviderInfo.configure,
                             minWidth = eblanAppWidgetProviderInfo.minWidth,
                             minHeight = eblanAppWidgetProviderInfo.minHeight,
@@ -124,7 +123,7 @@ class GetPinGridItemUseCase @Inject constructor(
                         val data = ShortcutInfo(
                             shortcutId = pinItemRequestType.shortcutId,
                             packageName = pinItemRequestType.packageName,
-                            serialNumber = serialNumber,
+                            serialNumber = pinItemRequestType.serialNumber,
                             shortLabel = pinItemRequestType.shortLabel,
                             longLabel = pinItemRequestType.longLabel,
                             icon = icon,

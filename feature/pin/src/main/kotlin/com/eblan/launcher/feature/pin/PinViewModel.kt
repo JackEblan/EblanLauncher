@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.feature.pin
 
-import android.os.UserHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
@@ -27,7 +26,6 @@ import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterPinUseCase
-import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +40,6 @@ class PinViewModel @Inject constructor(
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsAfterPinUseCase: UpdateGridItemsAfterPinUseCase,
-    private val userManagerWrapper: AndroidUserManagerWrapper,
 ) : ViewModel() {
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
@@ -57,7 +54,7 @@ class PinViewModel @Inject constructor(
     val isFinished = _isFinished.asStateFlow()
 
     fun addPinShortcutToHomeScreen(
-        userHandle: UserHandle,
+        serialNumber: Long,
         id: String,
         packageName: String,
         shortLabel: String,
@@ -71,7 +68,7 @@ class PinViewModel @Inject constructor(
                 addPinShortcutToHomeScreenUseCase(
                     shortcutId = id,
                     packageName = packageName,
-                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
+                    serialNumber = serialNumber,
                     shortLabel = shortLabel,
                     longLabel = longLabel,
                     isEnabled = isEnabled,
@@ -83,7 +80,7 @@ class PinViewModel @Inject constructor(
     }
 
     fun addPinWidgetToHomeScreen(
-        userHandle: UserHandle,
+        serialNumber: Long,
         className: String,
         componentName: String,
         configure: String?,
@@ -107,7 +104,7 @@ class PinViewModel @Inject constructor(
                     componentName = componentName,
                     configure = configure,
                     packageName = packageName,
-                    serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = userHandle),
+                    serialNumber = serialNumber,
                     targetCellHeight = targetCellHeight,
                     targetCellWidth = targetCellWidth,
                     minWidth = minWidth,

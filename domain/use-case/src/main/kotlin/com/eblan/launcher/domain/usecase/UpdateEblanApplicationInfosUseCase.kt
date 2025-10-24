@@ -40,6 +40,9 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() {
         withContext(ioDispatcher) {
+            val iconPackInfoPackageName =
+                userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
+
             val oldEblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
 
@@ -70,14 +73,32 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
                 eblanApplicationInfoRepository.deleteEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfosToDelete)
 
-                eblanApplicationInfosToDelete.forEach { eblanApplicationInfo ->
-                    val icon = File(
-                        fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        eblanApplicationInfo.packageName,
-                    )
+                eblanApplicationInfosToDelete.forEach { eblanApplicationInfoToDelete ->
+                    val isUnique = newEblanApplicationInfos.none { newEblanApplicationInfo ->
+                        newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName
+                    }
 
-                    if (icon.exists()) {
-                        icon.delete()
+                    if (isUnique) {
+                        val icon = File(
+                            fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            eblanApplicationInfoToDelete.packageName,
+                        )
+
+                        if (icon.exists()) {
+                            icon.delete()
+                        }
+
+                        val iconPacksDirectory = File(
+                            fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
+                            iconPackInfoPackageName,
+                        )
+
+                        val iconPackFile =
+                            File(iconPacksDirectory, eblanApplicationInfoToDelete.packageName)
+
+                        if (iconPackFile.exists()) {
+                            iconPackFile.delete()
+                        }
                     }
                 }
 

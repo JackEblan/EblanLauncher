@@ -47,14 +47,34 @@ class RemovePackageUseCase @Inject constructor(
         packageName: String,
     ) {
         withContext(ioDispatcher) {
-            if (serialNumber == 0L) {
-                deleteIcons(packageName = packageName)
-            } else if (eblanApplicationInfoRepository.getEblanApplicationInfo(
-                    serialNumber = 0L,
-                    packageName = packageName,
-                ) == null && serialNumber > 0L
-            ) {
-                deleteIcons(packageName = packageName)
+            val iconPackInfoPackageName =
+                userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
+
+            val isUnique =
+                eblanApplicationInfoRepository.eblanApplicationInfos.first()
+                    .none { eblanApplicationInfo ->
+                        eblanApplicationInfo.packageName == packageName && eblanApplicationInfo.serialNumber != serialNumber
+                    }
+
+            if (isUnique) {
+                val iconFile = File(
+                    fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                    packageName,
+                )
+
+                if (iconFile.exists()) {
+                    iconFile.delete()
+                }
+
+                val iconPacksDirectory = File(
+                    fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
+                    iconPackInfoPackageName,
+                )
+                val iconPackFile = File(iconPacksDirectory, packageName)
+
+                if (iconPackFile.exists()) {
+                    iconPackFile.delete()
+                }
             }
 
             eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
@@ -93,28 +113,6 @@ class RemovePackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
-        }
-    }
-
-    private suspend fun deleteIcons(packageName: String) {
-        val iconFile = File(
-            fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-            packageName,
-        )
-
-        if (iconFile.exists()) {
-            iconFile.delete()
-        }
-
-        val iconPacksDirectory = File(
-            fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-            userDataRepository.userData.first().generalSettings.iconPackInfoPackageName,
-        )
-
-        val iconPackFile = File(iconPacksDirectory, packageName)
-
-        if (iconPackFile.exists()) {
-            iconPacksDirectory.delete()
         }
     }
 }

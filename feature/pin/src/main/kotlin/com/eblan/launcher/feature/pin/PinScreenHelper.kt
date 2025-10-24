@@ -24,7 +24,9 @@ import android.content.Intent
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import android.os.Bundle
+import android.os.UserHandle
 import androidx.activity.result.ActivityResult
+import androidx.annotation.RequiresApi
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
@@ -34,6 +36,7 @@ fun handleGridItem(
     gridItem: GridItem?,
     appWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
+    userHandle: UserHandle,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onAddedToHomeScreenToast: (String) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
@@ -53,6 +56,7 @@ fun handleGridItem(
             appWidgetId = appWidgetId,
             appWidgetManager = appWidgetManager,
             data = data,
+            userHandle = userHandle,
             onUpdateWidgetGridItem = onUpdateWidgetGridItem,
             onLaunch = onLaunch,
         )
@@ -72,6 +76,7 @@ fun onAddPinWidget(
     appWidgetId: Int,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
     data: GridItemData.Widget,
+    userHandle: UserHandle,
     onUpdateWidgetGridItem: (GridItem) -> Unit,
     onLaunch: (Intent) -> Unit,
 ) {
@@ -80,6 +85,7 @@ fun onAddPinWidget(
     val bindAppWidgetIdIfAllowed = appWidgetManager.bindAppWidgetIdIfAllowed(
         appWidgetId = appWidgetId,
         provider = provider,
+        userHandle = userHandle,
     )
 
     if (bindAppWidgetIdIfAllowed) {
@@ -117,6 +123,7 @@ fun handleAppWidgetLauncherResult(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun handleIsBoundWidget(
     gridItem: GridItem?,
     pinItemRequest: PinItemRequest?,
@@ -131,8 +138,7 @@ fun handleIsBoundWidget(
         putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-        pinItemRequest.isValid &&
+    if (pinItemRequest.isValid &&
         pinItemRequest.accept(extras)
     ) {
         onUpdateGridItems()

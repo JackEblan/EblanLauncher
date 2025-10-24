@@ -20,12 +20,12 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
@@ -40,11 +40,11 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -73,10 +73,6 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 shortcutInfoGridItemRepository.gridItems.first() +
                 folderGridItemRepository.gridItems.first()
 
-            val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
-                    ?: return@withContext null
-
             val icon = byteArray?.let { currentByteArray ->
                 fileManager.getAndUpdateFilePath(
                     directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
@@ -84,6 +80,16 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                     byteArray = currentByteArray,
                 )
             }
+
+            val eblanApplicationInfoIcon =
+                packageManagerWrapper.getApplicationIcon(packageName = packageName)
+                    ?.let { byteArray ->
+                        fileManager.getAndUpdateFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            name = packageName,
+                            byteArray = byteArray,
+                        )
+                    }
 
             val data = GridItemData.ShortcutInfo(
                 shortcutId = shortcutId,
@@ -94,7 +100,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 icon = icon,
                 isEnabled = isEnabled,
                 disabledMessage = disabledMessage,
-                eblanApplicationInfo = eblanApplicationInfo,
+                eblanApplicationInfoIcon = eblanApplicationInfoIcon,
             )
 
             val gridItem = GridItem(

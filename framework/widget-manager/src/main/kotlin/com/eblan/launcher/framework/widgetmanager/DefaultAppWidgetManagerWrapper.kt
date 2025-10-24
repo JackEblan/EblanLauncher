@@ -28,7 +28,6 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
-import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -37,7 +36,6 @@ import javax.inject.Inject
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
-    private val androidUserManagerWrapper: AndroidUserManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
@@ -72,7 +70,6 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             AppWidgetManagerAppWidgetProviderInfo(
                 className = provider.className,
                 packageName = provider.packageName,
-                serialNumber = androidUserManagerWrapper.getSerialNumberForUser(userHandle = profile),
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
                 targetCellWidth = targetCellWidth,
@@ -90,7 +87,6 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             AppWidgetManagerAppWidgetProviderInfo(
                 className = provider.className,
                 packageName = provider.packageName,
-                serialNumber = androidUserManagerWrapper.getSerialNumberForUser(userHandle = profile),
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
                 targetCellWidth = 0,

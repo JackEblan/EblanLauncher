@@ -49,13 +49,19 @@ class UpdateWidgetGridItemsByPackageNameUseCase @Inject constructor(
             val widgetGridItems =
                 widgetGridItemRepository.getWidgetGridItems(packageName = packageName)
 
+            val appWidgetManagerAppWidgetProviderInfos =
+                appWidgetManagerWrapper.getInstalledProviders()
+                    .filter { appWidgetManagerAppWidgetProviderInfo ->
+                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                    }
+
             widgetGridItems.forEach { widgetGridItem ->
                 val appWidgetManagerAppWidgetProviderInfo =
-                    appWidgetManagerWrapper.getInstalledProviders()
+                    appWidgetManagerAppWidgetProviderInfos
                         .find { appWidgetManagerAppWidgetProviderInfo ->
-                            appWidgetManagerAppWidgetProviderInfo.packageName == packageName &&
+                            appWidgetManagerAppWidgetProviderInfo.packageName == widgetGridItem.packageName &&
                                 appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className &&
-                                appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber
+                                serialNumber == widgetGridItem.serialNumber
                         }
 
                 if (appWidgetManagerAppWidgetProviderInfo != null) {

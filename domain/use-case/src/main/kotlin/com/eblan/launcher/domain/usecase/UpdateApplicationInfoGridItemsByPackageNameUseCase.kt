@@ -50,17 +50,23 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
                     packageName = packageName,
                 )
 
+            val launcherAppsActivityInfos =
+                launcherAppsWrapper.getActivityList().filter { launcherAppsActivityInfo ->
+                    launcherAppsActivityInfo.serialNumber == serialNumber &&
+                        launcherAppsActivityInfo.packageName == packageName
+                }
+
             applicationInfoGridItems.forEach { applicationInfoGridItem ->
                 val launcherAppsActivityInfo =
-                    launcherAppsWrapper.getActivityList().find { launcherShortcutInfo ->
-                        launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
-                            launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
+                    launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
+                        launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&
+                            launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsActivityInfo != null) {
                     val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
                         fileManager.getAndUpdateFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = launcherAppsActivityInfo.packageName,
                             byteArray = byteArray,
                         )

@@ -154,7 +154,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 isEnabled = data.isEnabled,
                                 disabledMessage = data.disabledMessage,
                                 gridItemSettings = gridItem.gridItemSettings,
-                                eblanApplicationInfo = data.eblanApplicationInfo,
+                                eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
                             ),
                         )
                     }

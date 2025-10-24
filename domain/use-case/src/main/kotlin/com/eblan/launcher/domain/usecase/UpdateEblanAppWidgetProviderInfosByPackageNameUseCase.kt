@@ -80,7 +80,6 @@ class UpdateEblanAppWidgetProviderInfosByPackageNameUseCase @Inject constructor(
                             componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                             configure = appWidgetManagerAppWidgetProviderInfo.configure,
                             packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                            serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
                             targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                             targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
                             minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,

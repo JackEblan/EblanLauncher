@@ -60,14 +60,13 @@ class RemovePackageUseCase @Inject constructor(
             eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
                 packageName = packageName,
             ).forEach { eblanAppWidgetProviderInfo ->
-                if (serialNumber == 0L) {
-                    deleteWidgetPreviews(className = eblanAppWidgetProviderInfo.className)
-                } else if (eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfo(
-                        serialNumber = 0L,
-                        className = eblanAppWidgetProviderInfo.className,
-                    ) == null && serialNumber > 0L
-                ) {
-                    deleteWidgetPreviews(className = eblanAppWidgetProviderInfo.className)
+                val widgetFile = File(
+                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                    eblanAppWidgetProviderInfo.className,
+                )
+
+                if (widgetFile.exists()) {
+                    widgetFile.delete()
                 }
             }
 
@@ -116,17 +115,6 @@ class RemovePackageUseCase @Inject constructor(
 
         if (iconPackFile.exists()) {
             iconPacksDirectory.delete()
-        }
-    }
-
-    private suspend fun deleteWidgetPreviews(className: String) {
-        val widgetFile = File(
-            fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-            className,
-        )
-
-        if (widgetFile.exists()) {
-            widgetFile.delete()
         }
     }
 }

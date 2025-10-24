@@ -20,6 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
@@ -40,6 +41,7 @@ class GetPinGridItemUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
+    private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
@@ -103,22 +105,32 @@ class GetPinGridItemUseCase @Inject constructor(
                     if (eblanApplicationInfo != null) {
                         val icon = pinItemRequestType.icon?.let { byteArray ->
                             fileManager.getAndUpdateFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                                 name = pinItemRequestType.shortcutId,
                                 byteArray = byteArray,
                             )
                         }
 
+                        val eblanApplicationInfoIcon =
+                            packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
+                                ?.let { byteArray ->
+                                    fileManager.getAndUpdateFilePath(
+                                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                                        name = pinItemRequestType.packageName,
+                                        byteArray = byteArray,
+                                    )
+                                }
+
                         val data = ShortcutInfo(
                             shortcutId = pinItemRequestType.shortcutId,
                             packageName = pinItemRequestType.packageName,
-                            serialNumber = 0L,
+                            serialNumber = serialNumber,
                             shortLabel = pinItemRequestType.shortLabel,
                             longLabel = pinItemRequestType.longLabel,
                             icon = icon,
                             isEnabled = pinItemRequestType.isEnabled,
                             disabledMessage = pinItemRequestType.disabledMessage,
-                            eblanApplicationInfo = eblanApplicationInfo,
+                            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                         )
 
                         GridItem(

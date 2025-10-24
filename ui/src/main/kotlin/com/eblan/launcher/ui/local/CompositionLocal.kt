@@ -22,6 +22,7 @@ import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
@@ -52,4 +53,8 @@ val LocalPackageManager = staticCompositionLocalOf<AndroidPackageManagerWrapper>
 
 val LocalDrawable = staticCompositionLocalOf<AndroidDrawableWrapper> {
     error("No DrawableWrapper provided")
+}
+
+val LocalUserManager = staticCompositionLocalOf<AndroidUserManagerWrapper> {
+    error("No UserManagerWrapper provided")
 }

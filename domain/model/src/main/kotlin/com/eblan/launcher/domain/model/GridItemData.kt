@@ -57,7 +57,7 @@ sealed interface GridItemData {
         val icon: String?,
         val isEnabled: Boolean,
         val disabledMessage: String?,
-        val eblanApplicationInfo: EblanApplicationInfo,
+        val eblanApplicationInfoIcon: String?,
     ) : GridItemData
 
     data class Folder(

@@ -20,7 +20,6 @@ package com.eblan.launcher.domain.model
 data class AppWidgetManagerAppWidgetProviderInfo(
     val className: String,
     val packageName: String,
-    val serialNumber: Long,
     val componentName: String,
     val configure: String?,
     val targetCellWidth: Int,
@@ -53,12 +52,7 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         if (packageName != other.packageName) return false
         if (componentName != other.componentName) return false
         if (configure != other.configure) return false
-        if (preview != null) {
-            if (other.preview == null) return false
-            if (!preview.contentEquals(other.preview)) return false
-        } else if (other.preview != null) {
-            return false
-        }
+        if (!preview.contentEquals(other.preview)) return false
 
         return true
     }
@@ -76,7 +70,7 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         result = 31 * result + className.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + componentName.hashCode()
-        result = 31 * result + configure.hashCode()
+        result = 31 * result + (configure?.hashCode() ?: 0)
         result = 31 * result + (preview?.contentHashCode() ?: 0)
         return result
     }

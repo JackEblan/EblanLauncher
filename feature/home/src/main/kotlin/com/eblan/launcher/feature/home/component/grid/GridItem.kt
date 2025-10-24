@@ -261,8 +261,6 @@ fun ShortcutInfoGridItem(
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
-    val icon = data.icon ?: data.eblanApplicationInfo.icon
-
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
         HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
@@ -286,13 +284,13 @@ fun ShortcutInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = icon,
+                model = data.icon,
                 modifier = Modifier.matchParentSize(),
                 contentDescription = null,
             )
 
             AsyncImage(
-                model = data.eblanApplicationInfo.icon,
+                model = data.eblanApplicationInfoIcon,
                 modifier = Modifier
                     .size((gridItemSettings.iconSize * 0.25).dp)
                     .align(Alignment.BottomEnd),

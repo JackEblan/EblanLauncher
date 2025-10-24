@@ -35,6 +35,6 @@ data class ShortcutInfoGridItem(
     val serialNumber: Long,
     val isEnabled: Boolean,
     val disabledMessage: String?,
+    val eblanApplicationInfoIcon: String?,
     val gridItemSettings: GridItemSettings,
-    val eblanApplicationInfo: EblanApplicationInfo,
 )

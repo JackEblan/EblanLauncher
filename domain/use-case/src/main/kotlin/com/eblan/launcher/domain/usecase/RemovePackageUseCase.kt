@@ -47,36 +47,27 @@ class RemovePackageUseCase @Inject constructor(
         packageName: String,
     ) {
         withContext(ioDispatcher) {
-            val iconFile = File(
-                fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                packageName,
-            )
-
-            if (iconFile.exists()) {
-                iconFile.delete()
-            }
-
-            val iconPacksDirectory = File(
-                fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                userDataRepository.userData.first().generalSettings.iconPackInfoPackageName,
-            )
-
-            val iconPackFile = File(iconPacksDirectory, packageName)
-
-            if (iconPackFile.exists()) {
-                iconPacksDirectory.delete()
+            if (serialNumber == 0L) {
+                deleteIcons(packageName = packageName)
+            } else if (eblanApplicationInfoRepository.getEblanApplicationInfo(
+                    serialNumber = 0L,
+                    packageName = packageName,
+                ) == null && serialNumber > 0L
+            ) {
+                deleteIcons(packageName = packageName)
             }
 
             eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
                 packageName = packageName,
             ).forEach { eblanAppWidgetProviderInfo ->
-                val widgetFile = File(
-                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                    eblanAppWidgetProviderInfo.className,
-                )
-
-                if (widgetFile.exists()) {
-                    widgetFile.delete()
+                if (serialNumber == 0L) {
+                    deleteWidgetPreviews(className = eblanAppWidgetProviderInfo.className)
+                } else if (eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfo(
+                        serialNumber = 0L,
+                        className = eblanAppWidgetProviderInfo.className,
+                    ) == null && serialNumber > 0L
+                ) {
+                    deleteWidgetPreviews(className = eblanAppWidgetProviderInfo.className)
                 }
             }
 
@@ -103,6 +94,39 @@ class RemovePackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
+        }
+    }
+
+    private suspend fun deleteIcons(packageName: String) {
+        val iconFile = File(
+            fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+            packageName,
+        )
+
+        if (iconFile.exists()) {
+            iconFile.delete()
+        }
+
+        val iconPacksDirectory = File(
+            fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
+            userDataRepository.userData.first().generalSettings.iconPackInfoPackageName,
+        )
+
+        val iconPackFile = File(iconPacksDirectory, packageName)
+
+        if (iconPackFile.exists()) {
+            iconPacksDirectory.delete()
+        }
+    }
+
+    private suspend fun deleteWidgetPreviews(className: String) {
+        val widgetFile = File(
+            fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+            className,
+        )
+
+        if (widgetFile.exists()) {
+            widgetFile.delete()
         }
     }
 }

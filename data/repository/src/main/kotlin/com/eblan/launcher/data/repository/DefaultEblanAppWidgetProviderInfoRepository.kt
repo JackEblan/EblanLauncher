@@ -68,6 +68,16 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         )
     }
 
+    override suspend fun getEblanAppWidgetProviderInfo(
+        serialNumber: Long,
+        className: String,
+    ): EblanAppWidgetProviderInfo? {
+        return eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntity(
+            serialNumber = serialNumber,
+            className = className,
+        )?.asModel()
+    }
+
     private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,

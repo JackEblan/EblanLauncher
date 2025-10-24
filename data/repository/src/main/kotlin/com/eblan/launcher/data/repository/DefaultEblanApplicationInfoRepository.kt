@@ -68,4 +68,14 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
 
         eblanApplicationInfoDao.deleteEblanApplicationInfoEntities(entities = entities)
     }
+
+    override suspend fun getEblanApplicationInfo(
+        serialNumber: Long,
+        packageName: String,
+    ): EblanApplicationInfo? {
+        return eblanApplicationInfoDao.getEblanApplicationInfoEntity(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )?.asModel()
+    }
 }

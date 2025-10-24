@@ -50,11 +50,9 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
                     packageName = packageName,
                 )
 
-            val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
-
             applicationInfoGridItems.forEach { applicationInfoGridItem ->
                 val launcherAppsActivityInfo =
-                    launcherAppsActivityInfos.find { launcherShortcutInfo ->
+                    launcherAppsWrapper.getActivityList().find { launcherShortcutInfo ->
                         launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
                             launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
                     }

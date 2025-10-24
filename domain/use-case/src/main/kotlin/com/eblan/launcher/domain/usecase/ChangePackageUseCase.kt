@@ -82,7 +82,10 @@ class ChangePackageUseCase @Inject constructor(
             }
 
             launch {
-                updateWidgetGridItemsByPackageNameUseCase(packageName = packageName)
+                updateWidgetGridItemsByPackageNameUseCase(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                )
             }
 
             launch {

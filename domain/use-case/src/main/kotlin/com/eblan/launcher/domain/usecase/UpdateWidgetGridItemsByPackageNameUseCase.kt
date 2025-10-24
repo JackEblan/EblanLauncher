@@ -35,7 +35,10 @@ class UpdateWidgetGridItemsByPackageNameUseCase @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(packageName: String) {
+    suspend operator fun invoke(
+        serialNumber: Long,
+        packageName: String,
+    ) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
         withContext(defaultDispatcher) {
@@ -46,15 +49,14 @@ class UpdateWidgetGridItemsByPackageNameUseCase @Inject constructor(
             val widgetGridItems =
                 widgetGridItemRepository.getWidgetGridItems(packageName = packageName)
 
-            val appWidgetManagerAppWidgetProviderInfos =
-                appWidgetManagerWrapper.getInstalledProviders()
-                    .filter { appWidgetManagerAppWidgetProviderInfo -> appWidgetManagerAppWidgetProviderInfo.packageName == packageName }
-
             widgetGridItems.forEach { widgetGridItem ->
                 val appWidgetManagerAppWidgetProviderInfo =
-                    appWidgetManagerAppWidgetProviderInfos.find { appWidgetManagerAppWidgetProviderInfo ->
-                        appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className
-                    }
+                    appWidgetManagerWrapper.getInstalledProviders()
+                        .find { appWidgetManagerAppWidgetProviderInfo ->
+                            appWidgetManagerAppWidgetProviderInfo.packageName == packageName &&
+                                appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className &&
+                                appWidgetManagerAppWidgetProviderInfo.serialNumber == serialNumber
+                        }
 
                 if (appWidgetManagerAppWidgetProviderInfo != null) {
                     val preview =

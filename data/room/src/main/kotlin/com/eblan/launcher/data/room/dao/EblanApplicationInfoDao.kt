@@ -46,4 +46,10 @@ interface EblanApplicationInfoDao {
 
     @Delete
     suspend fun deleteEblanApplicationInfoEntities(entities: List<EblanApplicationInfoEntity>)
+
+    @Query("SELECT * FROM EblanApplicationInfoEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun getEblanApplicationInfoEntity(
+        serialNumber: Long,
+        packageName: String,
+    ): EblanApplicationInfoEntity?
 }

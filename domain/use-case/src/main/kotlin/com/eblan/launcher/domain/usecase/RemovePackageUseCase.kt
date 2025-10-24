@@ -70,6 +70,7 @@ class RemovePackageUseCase @Inject constructor(
                     fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
                     iconPackInfoPackageName,
                 )
+
                 val iconPackFile = File(iconPacksDirectory, packageName)
 
                 if (iconPackFile.exists()) {

@@ -20,7 +20,6 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
@@ -31,7 +30,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateWidgetGridItemsUseCase @Inject constructor(
-    private val fileManager: FileManager,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val appWidgetManagerWrapper: AppWidgetManagerWrapper,
     private val packageManagerWrapper: PackageManagerWrapper,
@@ -58,15 +56,6 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                     }
 
                 if (appWidgetManagerAppWidgetProviderInfo != null) {
-                    val preview =
-                        appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                            fileManager.getAndUpdateFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                                name = appWidgetManagerAppWidgetProviderInfo.className,
-                                byteArray = byteArray,
-                            )
-                        }
-
                     updateWidgetGridItems.add(
                         UpdateWidgetGridItem(
                             id = widgetGridItem.id,
@@ -82,7 +71,6 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                             maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                             targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
                             targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                            preview = preview,
                         ),
                     )
                 } else {

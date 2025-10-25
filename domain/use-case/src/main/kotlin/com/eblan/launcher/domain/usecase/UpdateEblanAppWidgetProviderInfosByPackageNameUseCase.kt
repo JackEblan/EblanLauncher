@@ -37,9 +37,7 @@ class UpdateEblanAppWidgetProviderInfosByPackageNameUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
-        if (!packageManagerWrapper.hasSystemFeatureAppWidgets) {
-            return
-        }
+        if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
         withContext(ioDispatcher) {
             val oldEblanAppWidgetProviderInfos =

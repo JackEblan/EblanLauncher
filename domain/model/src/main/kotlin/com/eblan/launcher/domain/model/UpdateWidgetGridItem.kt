@@ -31,5 +31,4 @@ data class UpdateWidgetGridItem(
     val maxResizeHeight: Int,
     val targetCellHeight: Int,
     val targetCellWidth: Int,
-    val preview: String?,
 )

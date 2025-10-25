@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
@@ -29,7 +28,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
-    private val fileManager: FileManager,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
@@ -38,8 +36,6 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
         serialNumber: Long,
         packageName: String,
     ) {
-        if (!launcherAppsWrapper.hasShortcutHostPermission) return
-
         withContext(defaultDispatcher) {
             val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
 
@@ -65,19 +61,10 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
                     }
 
                 if (launcherAppsActivityInfo != null) {
-                    val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
-                        fileManager.getFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = launcherAppsActivityInfo.packageName,
-                            byteArray = byteArray,
-                        )
-                    }
-
                     updateApplicationInfoGridItems.add(
                         UpdateApplicationInfoGridItem(
                             id = applicationInfoGridItem.id,
                             componentName = launcherAppsActivityInfo.componentName,
-                            icon = icon,
                             label = launcherAppsActivityInfo.label,
                         ),
                     )

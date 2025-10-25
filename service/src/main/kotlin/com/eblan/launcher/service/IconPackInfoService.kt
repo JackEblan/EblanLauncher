@@ -81,7 +81,7 @@ class IconPackInfoService : Service() {
 
             serviceScope.launch {
                 iconPackInfoJob = launch {
-                    updateIconPackInfosUseCase(packageName = iconPackInfoPackageName)
+                    updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
 
                     stopForeground(STOP_FOREGROUND_REMOVE)
 

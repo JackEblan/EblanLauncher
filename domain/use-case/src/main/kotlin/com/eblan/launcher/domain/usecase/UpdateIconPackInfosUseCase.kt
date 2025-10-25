@@ -38,18 +38,18 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(packageName: String) {
+    suspend operator fun invoke(iconPackInfoPackageName: String) {
         withContext(ioDispatcher) {
             val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
+                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = iconPackInfoPackageName)
 
-            if (packageName.isNotEmpty() && eblanApplicationInfo != null) {
+            if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
                 val appFilter =
-                    iconPackManager.parseAppFilter(packageName = packageName)
+                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
                 val iconPackDirectory = File(
                     fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-                    packageName,
+                    iconPackInfoPackageName,
                 ).apply { if (!exists()) mkdirs() }
 
                 val installedPackageNames = launcherAppsWrapper.getActivityList()
@@ -59,7 +59,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                         } ?: return@mapNotNull null
 
                         val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                            packageName = packageName,
+                            packageName = iconPackInfoPackageName,
                             drawableName = iconPackInfoComponent.drawable,
                         ) ?: return@mapNotNull null
 

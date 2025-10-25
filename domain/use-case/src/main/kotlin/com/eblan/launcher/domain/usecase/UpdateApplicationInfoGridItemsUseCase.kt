@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
@@ -30,14 +29,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
-    private val fileManager: FileManager,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
-        if (!launcherAppsWrapper.hasShortcutHostPermission) return
-
         withContext(defaultDispatcher) {
             val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
 
@@ -50,25 +46,16 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
 
             applicationInfoGridItems.forEach { applicationInfoGridItem ->
                 val launcherAppsActivityInfo =
-                    launcherAppsActivityInfos.find { launcherShortcutInfo ->
-                        launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
-                            launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
+                    launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
+                        launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&
+                            launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsActivityInfo != null) {
-                    val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
-                        fileManager.getFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = launcherAppsActivityInfo.packageName,
-                            byteArray = byteArray,
-                        )
-                    }
-
                     updateApplicationInfoGridItems.add(
                         UpdateApplicationInfoGridItem(
                             id = applicationInfoGridItem.id,
                             componentName = launcherAppsActivityInfo.componentName,
-                            icon = icon,
                             label = launcherAppsActivityInfo.label,
                         ),
                     )

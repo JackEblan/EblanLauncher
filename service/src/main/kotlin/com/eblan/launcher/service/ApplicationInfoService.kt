@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.service
 
-import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -38,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -75,24 +75,11 @@ class ApplicationInfoService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-    private lateinit var notification: Notification
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        notification = NotificationCompat.Builder(
-            this,
-            AndroidNotificationManagerWrapper.CHANNEL_ID,
-        )
-            .setSmallIcon(R.drawable.baseline_cached_24)
-            .setContentTitle("Syncing data")
-            .setContentText("Editing grid items may cause unsaved changes")
-            .setOngoing(true)
-            .setProgress(0, 0, true)
-            .build()
-
         serviceScope.launch {
             launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
                 when (launcherAppsEvent) {
@@ -120,21 +107,40 @@ class ApplicationInfoService : Service() {
             }
         }
 
+        val notification = NotificationCompat.Builder(
+            this,
+            AndroidNotificationManagerWrapper.CHANNEL_ID,
+        )
+            .setSmallIcon(R.drawable.baseline_cached_24)
+            .setContentTitle("Syncing data")
+            .setContentText("Editing grid items may cause unsaved changes")
+            .setOngoing(true)
+            .setProgress(0, 0, true)
+            .build()
+
         serviceScope.launch {
             notificationManagerWrapper.notify(
                 id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
                 notification = notification,
             )
 
-            updateEblanApplicationInfosUseCase()
+            joinAll(
+                launch {
+                    updateEblanApplicationInfosUseCase()
 
-            updateEblanAppWidgetProviderInfosUseCase()
+                    updateEblanAppWidgetProviderInfosUseCase()
+                },
+                launch {
+                    updateShortcutInfoGridItemsUseCase()
+                },
+                launch {
+                    updateApplicationInfoGridItemsUseCase()
 
-            updateApplicationInfoGridItemsUseCase()
+                    updateWidgetGridItemsUseCase()
 
-            updateWidgetGridItemsUseCase()
-
-            updateShortcutInfoGridItemsUseCase()
+                    updateShortcutInfoGridItemsUseCase()
+                },
+            )
 
             notificationManagerWrapper.cancel(
                 id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,

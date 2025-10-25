@@ -970,7 +970,7 @@ private fun ScrollBarThumb(
         }
     }
 
-    val viewPortThumbY by remember(key1 = lazyGridState, key2 = appDrawerSettings) {
+    val viewPortThumbY by remember(key1 = lazyGridState) {
         derivedStateOf {
             val totalRows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
@@ -1057,7 +1057,7 @@ private fun ScrollBarThumb(
 
                     IntOffset(0, y.roundToInt())
                 }
-                .pointerInput(lazyGridState, appDrawerSettings) {
+                .pointerInput(key1 =lazyGridState) {
                     detectVerticalDragGestures(
                         onDragStart = {
                             thumbY = viewPortThumbY

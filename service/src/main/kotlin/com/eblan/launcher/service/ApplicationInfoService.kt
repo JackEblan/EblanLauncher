@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.service
 
+import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -37,7 +38,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -75,22 +75,23 @@ class ApplicationInfoService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
+    private lateinit var notification: Notification
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification =
-            NotificationCompat.Builder(
-                this,
-                AndroidNotificationManagerWrapper.CHANNEL_ID,
-            )
-                .setSmallIcon(R.drawable.baseline_cached_24)
-                .setContentTitle("Eblan Launcher")
-                .setContentText("Grid items are syncing. Changes will be unavailable until sync completes")
-                .setOngoing(true)
-                .setProgress(0, 0, true)
-                .build()
+        notification = NotificationCompat.Builder(
+            this,
+            AndroidNotificationManagerWrapper.CHANNEL_ID,
+        )
+            .setSmallIcon(R.drawable.baseline_cached_24)
+            .setContentTitle("Eblan Launcher")
+            .setContentText("Grid items are syncing. Changes will be unavailable until sync completes")
+            .setOngoing(true)
+            .setProgress(0, 0, true)
+            .build()
 
         serviceScope.launch {
             launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
@@ -125,29 +126,19 @@ class ApplicationInfoService : Service() {
                 notification = notification,
             )
 
-            try {
-                joinAll(
-                    launch {
-                        updateEblanApplicationInfosUseCase()
-                    },
-                    launch {
-                        updateEblanAppWidgetProviderInfosUseCase()
-                    },
-                    launch {
-                        updateApplicationInfoGridItemsUseCase()
-                    },
-                    launch {
-                        updateWidgetGridItemsUseCase()
-                    },
-                    launch {
-                        updateShortcutInfoGridItemsUseCase()
-                    },
-                )
-            } finally {
-                notificationManagerWrapper.cancel(
-                    id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
-                )
-            }
+            updateEblanApplicationInfosUseCase()
+
+            updateEblanAppWidgetProviderInfosUseCase()
+
+            updateApplicationInfoGridItemsUseCase()
+
+            updateWidgetGridItemsUseCase()
+
+            updateShortcutInfoGridItemsUseCase()
+
+            notificationManagerWrapper.cancel(
+                id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
+            )
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -155,6 +146,10 @@ class ApplicationInfoService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        notificationManagerWrapper.cancel(
+            id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
+        )
 
         serviceScope.cancel()
     }

@@ -108,10 +108,19 @@ class UpdateEblanAppWidgetProviderInfosByPackageNameUseCase @Inject constructor(
                 )
 
                 eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
+                    val icon = File(
+                        fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                        eblanAppWidgetProviderInfo.packageName,
+                    )
+
                     val widgetFile = File(
                         fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
                         eblanAppWidgetProviderInfo.className,
                     )
+
+                    if (icon.exists()) {
+                        icon.delete()
+                    }
 
                     if (widgetFile.exists()) {
                         widgetFile.delete()

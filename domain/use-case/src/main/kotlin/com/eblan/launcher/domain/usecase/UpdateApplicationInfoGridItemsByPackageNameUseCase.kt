@@ -66,7 +66,7 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
 
                 if (launcherAppsActivityInfo != null) {
                     val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.getFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = launcherAppsActivityInfo.packageName,
                             byteArray = byteArray,

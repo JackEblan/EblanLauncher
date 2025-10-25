@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
 interface ApplicationInfoGridItemRepository {
@@ -39,10 +40,10 @@ interface ApplicationInfoGridItemRepository {
         packageName: String,
     ): List<ApplicationInfoGridItem>
 
-    suspend fun updateApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
-
     suspend fun deleteApplicationInfoGridItem(
         serialNumber: Long,
         packageName: String,
     )
+
+    suspend fun updateApplicationInfoGridItems(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>)
 }

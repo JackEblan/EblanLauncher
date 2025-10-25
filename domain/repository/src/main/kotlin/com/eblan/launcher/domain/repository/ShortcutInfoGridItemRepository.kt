@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
+import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
 interface ShortcutInfoGridItemRepository {
@@ -34,8 +35,6 @@ interface ShortcutInfoGridItemRepository {
 
     suspend fun deleteShortcutInfoGridItem(shortcutInfoGridItem: ShortcutInfoGridItem)
 
-    suspend fun updateShortcutInfoGridItems(shortcutInfoGridItems: List<ShortcutInfoGridItem>)
-
     suspend fun getShortcutInfoGridItems(
         serialNumber: Long,
         packageName: String,
@@ -45,4 +44,6 @@ interface ShortcutInfoGridItemRepository {
         serialNumber: Long,
         packageName: String,
     )
+
+    suspend fun updateShortcutInfoGridItems(updateShortcutInfoGridItems: List<UpdateShortcutInfoGridItem>)
 }

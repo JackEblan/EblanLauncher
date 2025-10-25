@@ -22,6 +22,7 @@ import com.eblan.launcher.data.repository.mapper.asGridItem
 import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -81,14 +82,6 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
         }
     }
 
-    override suspend fun updateApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>) {
-        val entities = applicationInfoGridItems.map { applicationInfoGridItem ->
-            applicationInfoGridItem.asEntity()
-        }
-
-        applicationInfoGridItemDao.updateApplicationInfoGridItemEntities(entities = entities)
-    }
-
     override suspend fun deleteApplicationInfoGridItem(
         serialNumber: Long,
         packageName: String,
@@ -96,6 +89,12 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
         applicationInfoGridItemDao.deleteApplicationInfoGridItemEntity(
             serialNumber = serialNumber,
             packageName = packageName,
+        )
+    }
+
+    override suspend fun updateApplicationInfoGridItems(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>) {
+        applicationInfoGridItemDao.updateApplicationInfoGridItemEntities(
+            updateApplicationInfoGridItems = updateApplicationInfoGridItems
         )
     }
 }

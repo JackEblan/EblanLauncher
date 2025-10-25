@@ -21,6 +21,7 @@ import com.eblan.launcher.data.repository.mapper.asEntity
 import com.eblan.launcher.data.repository.mapper.asGridItem
 import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.WidgetGridItemDao
+import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.flow.Flow
@@ -76,14 +77,6 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
             }
     }
 
-    override suspend fun updateWidgetGridItems(widgetGridItems: List<WidgetGridItem>) {
-        val entities = widgetGridItems.map { widgetGridItem ->
-            widgetGridItem.asEntity()
-        }
-
-        widgetGridItemDao.updateWidgetGridItemEntities(entities = entities)
-    }
-
     override suspend fun deleteWidgetGridItem(
         serialNumber: Long,
         packageName: String,
@@ -92,5 +85,9 @@ internal class DefaultWidgetGridItemRepository @Inject constructor(private val w
             serialNumber = serialNumber,
             packageName = packageName,
         )
+    }
+
+    override suspend fun updateWidgetGridItems(updateWidgetGridItems: List<UpdateWidgetGridItem>) {
+        widgetGridItemDao.updateWidgetGridItemEntities(updateWidgetGridItems = updateWidgetGridItems)
     }
 }

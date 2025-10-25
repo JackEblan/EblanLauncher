@@ -23,6 +23,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
+import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -45,12 +46,12 @@ interface WidgetGridItemDao {
     @Query("SELECT * FROM WidgetGridItemEntity WHERE packageName = :packageName")
     suspend fun getWidgetGridItemEntities(packageName: String): List<WidgetGridItemEntity>
 
-    @Update
-    suspend fun updateWidgetGridItemEntities(entities: List<WidgetGridItemEntity>)
-
     @Query("DELETE FROM WidgetGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
     suspend fun deleteWidgetGridItemEntity(
         serialNumber: Long,
         packageName: String,
     )
+
+    @Update(entity = WidgetGridItemEntity::class)
+    suspend fun updateWidgetGridItemEntities(updateWidgetGridItems: List<UpdateWidgetGridItem>)
 }

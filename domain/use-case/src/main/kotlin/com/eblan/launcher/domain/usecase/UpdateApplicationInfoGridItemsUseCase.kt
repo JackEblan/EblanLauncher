@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -38,7 +39,7 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
         withContext(defaultDispatcher) {
-            val updateApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
+            val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
 
             val deleteApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
@@ -51,7 +52,7 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
                 val launcherAppsActivityInfo =
                     launcherAppsActivityInfos.find { launcherShortcutInfo ->
                         launcherShortcutInfo.packageName == applicationInfoGridItem.packageName &&
-                            launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
+                                launcherShortcutInfo.serialNumber == applicationInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsActivityInfo != null) {
@@ -64,7 +65,8 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
                     }
 
                     updateApplicationInfoGridItems.add(
-                        applicationInfoGridItem.copy(
+                        UpdateApplicationInfoGridItem(
+                            id = applicationInfoGridItem.id,
                             componentName = launcherAppsActivityInfo.componentName,
                             icon = icon,
                             label = launcherAppsActivityInfo.label,
@@ -76,7 +78,7 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
             }
 
             applicationInfoGridItemRepository.updateApplicationInfoGridItems(
-                applicationInfoGridItems = updateApplicationInfoGridItems,
+                updateApplicationInfoGridItems = updateApplicationInfoGridItems,
             )
 
             applicationInfoGridItemRepository.deleteApplicationInfoGridItems(

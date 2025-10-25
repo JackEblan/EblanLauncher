@@ -23,6 +23,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.ApplicationInfoGridItemEntity
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -48,12 +49,12 @@ interface ApplicationInfoGridItemDao {
         packageName: String,
     ): List<ApplicationInfoGridItemEntity>
 
-    @Update
-    suspend fun updateApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
-
     @Query("DELETE FROM ApplicationInfoGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
     suspend fun deleteApplicationInfoGridItemEntity(
         serialNumber: Long,
         packageName: String,
     )
+
+    @Update(entity = ApplicationInfoGridItemEntity::class)
+    suspend fun updateApplicationInfoGridItemEntities(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>)
 }

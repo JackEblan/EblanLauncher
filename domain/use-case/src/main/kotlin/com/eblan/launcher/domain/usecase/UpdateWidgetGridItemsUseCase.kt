@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,7 +41,7 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
         withContext(defaultDispatcher) {
-            val updateWidgetGridItems = mutableListOf<WidgetGridItem>()
+            val updateWidgetGridItems = mutableListOf<UpdateWidgetGridItem>()
 
             val deleteWidgetGridItems = mutableListOf<WidgetGridItem>()
 
@@ -67,7 +68,8 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                         }
 
                     updateWidgetGridItems.add(
-                        widgetGridItem.copy(
+                        UpdateWidgetGridItem(
+                            id = widgetGridItem.id,
                             className = appWidgetManagerAppWidgetProviderInfo.className,
                             componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                             configure = appWidgetManagerAppWidgetProviderInfo.configure,
@@ -88,13 +90,9 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                 }
             }
 
-            widgetGridItemRepository.updateWidgetGridItems(
-                widgetGridItems = updateWidgetGridItems,
-            )
+            widgetGridItemRepository.updateWidgetGridItems(updateWidgetGridItems = updateWidgetGridItems)
 
-            widgetGridItemRepository.deleteWidgetGridItemsByPackageName(
-                widgetGridItems = deleteWidgetGridItems,
-            )
+            widgetGridItemRepository.deleteWidgetGridItemsByPackageName(widgetGridItems = deleteWidgetGridItems)
         }
     }
 }

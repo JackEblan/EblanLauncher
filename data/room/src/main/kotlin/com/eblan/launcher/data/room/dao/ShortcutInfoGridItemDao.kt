@@ -23,6 +23,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
+import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -42,9 +43,6 @@ interface ShortcutInfoGridItemDao {
     @Delete
     suspend fun deleteShortcutInfoGridItemEntity(entity: ShortcutInfoGridItemEntity)
 
-    @Update
-    suspend fun updateShortcutInfoGridItemEntities(entities: List<ShortcutInfoGridItemEntity>)
-
     @Query("SELECT * FROM ShortcutInfoGridItemEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
     suspend fun getShortcutInfoGridItemEntities(
         serialNumber: Long,
@@ -56,4 +54,7 @@ interface ShortcutInfoGridItemDao {
         serialNumber: Long,
         packageName: String,
     )
+
+    @Update(entity = ShortcutInfoGridItemEntity::class)
+    suspend fun updateShortcutInfoGridItemEntities(updateShortcutInfoGridItems: List<UpdateShortcutInfoGridItem>)
 }

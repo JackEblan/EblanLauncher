@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
+import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -40,7 +41,7 @@ class UpdateShortcutInfoGridItemsByPackageNameUseCase @Inject constructor(
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
         withContext(defaultDispatcher) {
-            val updateShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
+            val updateShortcutInfoGridItems = mutableListOf<UpdateShortcutInfoGridItem>()
 
             val deleteShortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
 
@@ -59,7 +60,7 @@ class UpdateShortcutInfoGridItemsByPackageNameUseCase @Inject constructor(
                     val launcherAppsShortcutInfo =
                         launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
                             launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                                launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                                    launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                         }
 
                     if (launcherAppsShortcutInfo != null) {
@@ -72,7 +73,8 @@ class UpdateShortcutInfoGridItemsByPackageNameUseCase @Inject constructor(
                         }
 
                         updateShortcutInfoGridItems.add(
-                            shortcutInfoGridItem.copy(
+                            UpdateShortcutInfoGridItem(
+                                id = shortcutInfoGridItem.id,
                                 shortLabel = launcherAppsShortcutInfo.shortLabel,
                                 longLabel = launcherAppsShortcutInfo.longLabel,
                                 isEnabled = launcherAppsShortcutInfo.isEnabled,
@@ -85,7 +87,9 @@ class UpdateShortcutInfoGridItemsByPackageNameUseCase @Inject constructor(
                     }
                 }
 
-                shortcutInfoGridItemRepository.updateShortcutInfoGridItems(shortcutInfoGridItems = updateShortcutInfoGridItems)
+                shortcutInfoGridItemRepository.updateShortcutInfoGridItems(
+                    updateShortcutInfoGridItems = updateShortcutInfoGridItems
+                )
 
                 shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = deleteShortcutInfoGridItems)
             }

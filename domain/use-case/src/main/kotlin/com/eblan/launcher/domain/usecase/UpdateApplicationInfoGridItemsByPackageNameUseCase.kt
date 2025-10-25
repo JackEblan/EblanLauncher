@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.ApplicationInfoGridItem
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -40,7 +41,7 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
         if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
         withContext(defaultDispatcher) {
-            val updateApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
+            val updateApplicationInfoGridItems = mutableListOf<UpdateApplicationInfoGridItem>()
 
             val deleteApplicationInfoGridItems = mutableListOf<ApplicationInfoGridItem>()
 
@@ -73,7 +74,8 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
                     }
 
                     updateApplicationInfoGridItems.add(
-                        applicationInfoGridItem.copy(
+                        UpdateApplicationInfoGridItem(
+                            id = applicationInfoGridItem.id,
                             componentName = launcherAppsActivityInfo.componentName,
                             icon = icon,
                             label = launcherAppsActivityInfo.label,
@@ -85,7 +87,7 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
             }
 
             applicationInfoGridItemRepository.updateApplicationInfoGridItems(
-                applicationInfoGridItems = updateApplicationInfoGridItems,
+                updateApplicationInfoGridItems = updateApplicationInfoGridItems,
             )
 
             applicationInfoGridItemRepository.deleteApplicationInfoGridItems(

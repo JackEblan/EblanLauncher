@@ -60,8 +60,8 @@ class IconPackInfoService : Service() {
             val notification =
                 NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
                     .setSmallIcon(R.drawable.baseline_cached_24)
-                    .setContentTitle("Eblan Launcher")
-                    .setContentText("Importing $iconPackInfoLabel to cache")
+                    .setContentTitle("Importing $iconPackInfoLabel into cache")
+                    .setContentText("Loading icons from cache is faster")
                     .setOngoing(true)
                     .setProgress(0, 0, true)
                     .build()

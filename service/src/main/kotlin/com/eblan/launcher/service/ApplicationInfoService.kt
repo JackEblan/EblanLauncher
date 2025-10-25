@@ -87,8 +87,8 @@ class ApplicationInfoService : Service() {
             AndroidNotificationManagerWrapper.CHANNEL_ID,
         )
             .setSmallIcon(R.drawable.baseline_cached_24)
-            .setContentTitle("Eblan Launcher")
-            .setContentText("Grid items are syncing. Changes will be unavailable until sync completes")
+            .setContentTitle("Syncing data")
+            .setContentText("Editing grid items may cause unsaved changes")
             .setOngoing(true)
             .setProgress(0, 0, true)
             .build()

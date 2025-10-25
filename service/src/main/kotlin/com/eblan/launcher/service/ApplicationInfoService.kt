@@ -80,72 +80,74 @@ class ApplicationInfoService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val notification =
+            NotificationCompat.Builder(
+                this,
+                AndroidNotificationManagerWrapper.CHANNEL_ID,
+            )
+                .setSmallIcon(R.drawable.baseline_cached_24)
+                .setContentTitle("Eblan Launcher")
+                .setContentText("Grid items are syncing. Changes will be unavailable until sync completes")
+                .setOngoing(true)
+                .setProgress(0, 0, true)
+                .build()
+
         serviceScope.launch {
-            launch {
-                launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
-                    when (launcherAppsEvent) {
-                        is LauncherAppsEvent.PackageAdded -> {
-                            addPackageUseCase(
-                                serialNumber = launcherAppsEvent.serialNumber,
-                                packageName = launcherAppsEvent.packageName,
-                            )
-                        }
+            launcherAppsWrapper.launcherAppsEvent.collect { launcherAppsEvent ->
+                when (launcherAppsEvent) {
+                    is LauncherAppsEvent.PackageAdded -> {
+                        addPackageUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
+                        )
+                    }
 
-                        is LauncherAppsEvent.PackageChanged -> {
-                            changePackageUseCase(
-                                serialNumber = launcherAppsEvent.serialNumber,
-                                packageName = launcherAppsEvent.packageName,
-                            )
-                        }
+                    is LauncherAppsEvent.PackageChanged -> {
+                        changePackageUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
+                        )
+                    }
 
-                        is LauncherAppsEvent.PackageRemoved -> {
-                            removePackageUseCase(
-                                serialNumber = launcherAppsEvent.serialNumber,
-                                packageName = launcherAppsEvent.packageName,
-                            )
-                        }
+                    is LauncherAppsEvent.PackageRemoved -> {
+                        removePackageUseCase(
+                            serialNumber = launcherAppsEvent.serialNumber,
+                            packageName = launcherAppsEvent.packageName,
+                        )
                     }
                 }
             }
+        }
 
-            val notification =
-                NotificationCompat.Builder(
-                    this@ApplicationInfoService,
-                    AndroidNotificationManagerWrapper.CHANNEL_ID,
-                )
-                    .setSmallIcon(R.drawable.baseline_cached_24)
-                    .setContentTitle("Eblan Launcher")
-                    .setContentText("Grid items are syncing. Changes will be unavailable until sync completes")
-                    .setOngoing(true)
-                    .setProgress(0, 0, true)
-                    .build()
-
+        serviceScope.launch {
             notificationManagerWrapper.notify(
                 id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
                 notification = notification,
             )
 
-            joinAll(
-                launch {
-                    updateEblanApplicationInfosUseCase()
-                },
-                launch {
-                    updateEblanAppWidgetProviderInfosUseCase()
-                },
-                launch {
-                    updateApplicationInfoGridItemsUseCase()
-                },
-                launch {
-                    updateWidgetGridItemsUseCase()
-                },
-                launch {
-                    updateShortcutInfoGridItemsUseCase()
-                },
-            )
-
-            notificationManagerWrapper.cancel(
-                id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
-            )
+            try {
+                joinAll(
+                    launch {
+                        updateEblanApplicationInfosUseCase()
+                    },
+                    launch {
+                        updateEblanAppWidgetProviderInfosUseCase()
+                    },
+                    launch {
+                        updateApplicationInfoGridItemsUseCase()
+                    },
+                    launch {
+                        updateWidgetGridItemsUseCase()
+                    },
+                    launch {
+                        updateShortcutInfoGridItemsUseCase()
+                    },
+                )
+            } finally {
+                notificationManagerWrapper.cancel(
+                    id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
+                )
+            }
         }
 
         return super.onStartCommand(intent, flags, startId)

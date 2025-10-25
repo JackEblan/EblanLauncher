@@ -61,8 +61,8 @@ class UpdateWidgetGridItemsByPackageNameUseCase @Inject constructor(
                     appWidgetManagerAppWidgetProviderInfos
                         .find { appWidgetManagerAppWidgetProviderInfo ->
                             appWidgetManagerAppWidgetProviderInfo.packageName == widgetGridItem.packageName &&
-                                    appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className &&
-                                    serialNumber == widgetGridItem.serialNumber
+                                appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className &&
+                                serialNumber == widgetGridItem.serialNumber
                         }
 
                 if (appWidgetManagerAppWidgetProviderInfo != null) {

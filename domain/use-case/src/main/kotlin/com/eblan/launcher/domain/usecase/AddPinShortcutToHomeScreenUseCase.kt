@@ -68,10 +68,12 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
 
             val initialPage = homeSettings.initialPage
 
-            val gridItems = (applicationInfoGridItemRepository.gridItems.first() +
+            val gridItems = (
+                applicationInfoGridItemRepository.gridItems.first() +
                     widgetGridItemRepository.gridItems.first() +
                     shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first()).filter { gridItem ->
+                    folderGridItemRepository.gridItems.first()
+                ).filter { gridItem ->
                 gridItem.associate == Associate.Grid
             }
 

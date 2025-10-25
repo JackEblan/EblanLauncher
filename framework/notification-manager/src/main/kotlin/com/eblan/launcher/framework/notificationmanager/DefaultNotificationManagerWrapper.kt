@@ -51,4 +51,8 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@Applicatio
             notificationManager.notify(id, notification)
         }
     }
+
+    override fun cancel(id: Int) {
+        notificationManager.cancel(id)
+    }
 }

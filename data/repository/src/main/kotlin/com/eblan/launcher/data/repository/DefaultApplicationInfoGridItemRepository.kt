@@ -94,7 +94,7 @@ internal class DefaultApplicationInfoGridItemRepository @Inject constructor(priv
 
     override suspend fun updateApplicationInfoGridItems(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>) {
         applicationInfoGridItemDao.updateApplicationInfoGridItemEntities(
-            updateApplicationInfoGridItems = updateApplicationInfoGridItems
+            updateApplicationInfoGridItems = updateApplicationInfoGridItems,
         )
     }
 }

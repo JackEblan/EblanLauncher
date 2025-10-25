@@ -1057,7 +1057,7 @@ private fun ScrollBarThumb(
 
                     IntOffset(0, y.roundToInt())
                 }
-                .pointerInput(key1 =lazyGridState) {
+                .pointerInput(key1 = lazyGridState) {
                     detectVerticalDragGestures(
                         onDragStart = {
                             thumbY = viewPortThumbY

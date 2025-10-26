@@ -7,8 +7,8 @@
 Lightweight, fast, customizable, and secure Android launcher
 
 ![GitHub Release](https://img.shields.io/github/v/release/JackEblan/EblanLauncher?style=for-the-badge&color=lightseagreen)
+![IzzyOnDroid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?baseUrl=https%3A%2F%2Fapt.izzysoft.de%2Ffdroid&style=for-the-badge&label=IzzyOnDroid&color=mediumseagreen)
 ![F-Droid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?style=for-the-badge&color=seagreen)
-![F-Droid Version](https://img.shields.io/f-droid/v/com.eblan.launcher?baseUrl=https%3A%2F%2Fapt.izzysoft.de%2Ffdroid&style=for-the-badge&label=IzzyOnDroid&color=mediumseagreen)
 ![GitHub License](https://img.shields.io/github/license/JackEblan/EblanLauncher?style=for-the-badge&color=teal)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/JackEblan/EblanLauncher/total?style=for-the-badge&color=aquamarine)
 

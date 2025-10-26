@@ -19,7 +19,7 @@ Lightweight, fast, customizable, and secure Android launcher
 > [!WARNING]
 > This is an Alpha Stage Build. Expect bugs, instability, and incomplete features.
 
-# About The Project
+## About The Project
 
 Most Android launchers are just forks of AOSP’s Launcher3. I wanted to try something
 different—building from scratch while welcoming new developers and applying solid coding principles
@@ -31,7 +31,7 @@ Meanwhile, many closed-source launchers are starting to get greedy—locking fea
 and sneaking in trackers. My goal is to give everyone the joy of using powerful features without
 compromising privacy.
 
-# Screenshots
+## Screenshots
 
 <div style="width:100%; display:flex; justify-content:space-between;">
 
@@ -43,14 +43,17 @@ compromising privacy.
 
 </div>
 
-# Architecture
+## Architecture
 
 Most of the code in this project is based
 on [Now In Android](https://github.com/android/nowinandroid), but it
 follows [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 instead.
 
-# License
+## Quick Links
+- Join me on [Reddit](https://www.reddit.com/r/EblanLauncher/s/EOkkPnDLik)
+
+## License
 
 **Eblan Launcher** is licensed under the GNU General Public License v3.0. See the [license](LICENSE)
 for more

@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -74,6 +75,8 @@ class AddPackageUseCase @Inject constructor(
                 .filter { appWidgetManagerAppWidgetProviderInfo ->
                     appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                 }.map { appWidgetManagerAppWidgetProviderInfo ->
+                    ensureActive()
+
                     val preview =
                         appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
                             fileManager.getAndUpdateFilePath(

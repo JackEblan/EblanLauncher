@@ -26,6 +26,7 @@ import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
@@ -54,6 +55,8 @@ class UpdateIconPackInfosUseCase @Inject constructor(
 
                 val installedPackageNames = launcherAppsWrapper.getActivityList()
                     .mapNotNull { eblanLauncherActivityInfo ->
+                        ensureActive()
+
                         val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
                             iconPackInfoComponent.component.contains(eblanLauncherActivityInfo.packageName)
                         } ?: return@mapNotNull null
@@ -83,7 +86,11 @@ class UpdateIconPackInfosUseCase @Inject constructor(
 
                 iconPackDirectory.listFiles()
                     ?.filter { it.isFile && it.name !in installedPackageNames }
-                    ?.forEach { it.delete() }
+                    ?.forEach {
+                        ensureActive()
+
+                        it.delete()
+                    }
             }
         }
     }

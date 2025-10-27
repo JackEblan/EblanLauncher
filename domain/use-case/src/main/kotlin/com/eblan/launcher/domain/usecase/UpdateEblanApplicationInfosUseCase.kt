@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -48,6 +49,8 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
 
             val newEblanApplicationInfos =
                 launcherAppsWrapper.getActivityList().map { eblanLauncherActivityInfo ->
+                    ensureActive()
+
                     val icon = eblanLauncherActivityInfo.icon?.let { byteArray ->
                         fileManager.getAndUpdateFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
@@ -74,6 +77,8 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                 eblanApplicationInfoRepository.deleteEblanApplicationInfos(eblanApplicationInfos = eblanApplicationInfosToDelete)
 
                 eblanApplicationInfosToDelete.forEach { eblanApplicationInfoToDelete ->
+                    ensureActive()
+
                     val isUnique = newEblanApplicationInfos.none { newEblanApplicationInfo ->
                         newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName
                     }

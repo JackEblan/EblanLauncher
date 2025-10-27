@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -50,8 +51,12 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
                 appWidgetManagerWrapper.getInstalledProviders()
 
             widgetGridItems.forEach { widgetGridItem ->
+                ensureActive()
+
                 val appWidgetManagerAppWidgetProviderInfo =
                     appWidgetManagerAppWidgetProviderInfos.find { appWidgetManagerAppWidgetProviderInfo ->
+                        ensureActive()
+
                         appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className
                     }
 

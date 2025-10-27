@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -45,8 +46,12 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
             val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
             applicationInfoGridItems.forEach { applicationInfoGridItem ->
+                ensureActive()
+
                 val launcherAppsActivityInfo =
                     launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
+                        ensureActive()
+
                         launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&
                             launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
                     }

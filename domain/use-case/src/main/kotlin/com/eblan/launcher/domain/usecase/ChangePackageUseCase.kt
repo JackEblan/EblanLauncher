@@ -24,6 +24,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -43,6 +44,8 @@ class ChangePackageUseCase @Inject constructor(
         packageName: String,
     ) {
         withContext(defaultDispatcher) {
+            ensureActive()
+
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
             val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)

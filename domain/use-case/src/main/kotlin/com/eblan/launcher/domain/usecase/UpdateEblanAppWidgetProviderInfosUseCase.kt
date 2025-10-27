@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -47,6 +48,8 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
             val newEblanAppWidgetProviderInfos =
                 appWidgetManagerWrapper.getInstalledProviders()
                     .map { appWidgetManagerAppWidgetProviderInfo ->
+                        ensureActive()
+
                         val label =
                             packageManagerWrapper.getApplicationLabel(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
 
@@ -102,6 +105,8 @@ class UpdateEblanAppWidgetProviderInfosUseCase @Inject constructor(
                 )
 
                 eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
+                    ensureActive()
+
                     val icon = File(
                         fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                         eblanAppWidgetProviderInfo.packageName,

@@ -532,7 +532,10 @@ private fun Success(
         },
     )
 
-    val currentPage by remember(key1 = gridHorizontalPagerState) {
+    val currentPage by remember(
+        key1 = gridHorizontalPagerState,
+        key2 = homeData.userData.homeSettings,
+    ) {
         derivedStateOf {
             calculatePage(
                 index = gridHorizontalPagerState.currentPage,

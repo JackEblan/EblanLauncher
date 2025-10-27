@@ -28,9 +28,9 @@ fun isGridItemSpanWithinBounds(
     rows: Int,
 ): Boolean {
     return gridItem.startColumn in 0 until columns &&
-            gridItem.startRow in 0 until rows &&
-            gridItem.startColumn + gridItem.columnSpan <= columns &&
-            gridItem.startRow + gridItem.rowSpan <= rows
+        gridItem.startRow in 0 until rows &&
+        gridItem.startColumn + gridItem.columnSpan <= columns &&
+        gridItem.startRow + gridItem.rowSpan <= rows
 }
 
 fun rectanglesOverlap(moving: GridItem, other: GridItem): Boolean {
@@ -45,9 +45,9 @@ fun rectanglesOverlap(moving: GridItem, other: GridItem): Boolean {
     val otherBottom = other.startRow + other.rowSpan
 
     return movingRight > otherLeft &&
-            movingLeft < otherRight &&
-            movingBottom > otherTop &&
-            movingTop < otherBottom
+        movingLeft < otherRight &&
+        movingBottom > otherTop &&
+        movingTop < otherBottom
 }
 
 fun getResolveDirectionByX(

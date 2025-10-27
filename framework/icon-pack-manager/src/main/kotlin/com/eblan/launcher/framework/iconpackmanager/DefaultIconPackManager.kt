@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
@@ -124,7 +125,7 @@ internal class DefaultIconPackManager @Inject constructor(
         var eventType = xmlPullParser.eventType
 
         withContext(ioDispatcher) {
-            while (eventType != XmlPullParser.END_DOCUMENT) {
+            while (isActive && eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG && xmlPullParser.name == "item") {
                     val component = xmlPullParser.getAttributeValue(null, "component")
 

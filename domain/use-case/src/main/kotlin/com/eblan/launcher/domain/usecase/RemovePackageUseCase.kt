@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -53,6 +54,8 @@ class RemovePackageUseCase @Inject constructor(
             val isUnique =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
                     .none { eblanApplicationInfo ->
+                        ensureActive()
+
                         eblanApplicationInfo.packageName == packageName && eblanApplicationInfo.serialNumber != serialNumber
                     }
 
@@ -81,6 +84,8 @@ class RemovePackageUseCase @Inject constructor(
             eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
                 packageName = packageName,
             ).forEach { eblanAppWidgetProviderInfo ->
+                ensureActive()
+
                 val widgetFile = File(
                     fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
                     eblanAppWidgetProviderInfo.className,

@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -49,8 +50,12 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
 
             if (launcherAppsShortcutInfos != null) {
                 shortcutInfoGridItems.forEach { shortcutInfoGridItem ->
+                    ensureActive()
+
                     val launcherAppsShortcutInfo =
                         launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
+                            ensureActive()
+
                             launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
                                 launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                         }

@@ -56,7 +56,9 @@ class UpdateShortcutInfoGridItemsByPackageNameUseCase @Inject constructor(
             )
 
             if (launcherAppsShortcutInfos != null) {
-                shortcutInfoGridItems.forEach { shortcutInfoGridItem ->
+                shortcutInfoGridItems.filterNot { shortcutInfoGridItem ->
+                    shortcutInfoGridItem.override
+                }.forEach { shortcutInfoGridItem ->
                     val launcherAppsShortcutInfo =
                         launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
                             launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&

@@ -45,7 +45,9 @@ class UpdateApplicationInfoGridItemsUseCase @Inject constructor(
 
             val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
 
-            applicationInfoGridItems.forEach { applicationInfoGridItem ->
+            applicationInfoGridItems.filterNot { applicationInfoGridItem ->
+                applicationInfoGridItem.override
+            }.forEach { applicationInfoGridItem ->
                 ensureActive()
 
                 val launcherAppsActivityInfo =

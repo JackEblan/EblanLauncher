@@ -54,7 +54,9 @@ class UpdateWidgetGridItemsByPackageNameUseCase @Inject constructor(
                         appWidgetManagerAppWidgetProviderInfo.packageName == packageName
                     }
 
-            widgetGridItems.forEach { widgetGridItem ->
+            widgetGridItems.filterNot { widgetGridItem ->
+                widgetGridItem.override
+            }.forEach { widgetGridItem ->
                 val appWidgetManagerAppWidgetProviderInfo =
                     appWidgetManagerAppWidgetProviderInfos
                         .find { appWidgetManagerAppWidgetProviderInfo ->

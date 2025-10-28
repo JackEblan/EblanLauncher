@@ -49,7 +49,9 @@ class UpdateShortcutInfoGridItemsUseCase @Inject constructor(
             val launcherAppsShortcutInfos = launcherAppsWrapper.getPinnedShortcuts()
 
             if (launcherAppsShortcutInfos != null) {
-                shortcutInfoGridItems.forEach { shortcutInfoGridItem ->
+                shortcutInfoGridItems.filterNot { shortcutInfoGridItem ->
+                    shortcutInfoGridItem.override
+                }.forEach { shortcutInfoGridItem ->
                     ensureActive()
 
                     val launcherAppsShortcutInfo =

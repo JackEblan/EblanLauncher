@@ -44,6 +44,12 @@ compromising privacy.
 
 </div>
 
+## Profiler
+
+When idle, Eblan Launcher uses around 100 MB of memory, with the lowest recorded at 80 MB, while the data sync process can consume up to about 250 MB according to the profiler. The actual usage still depends on how many applications are installed. Data sync is resource-intensive, so we’ve added an option that lets you manually run the data sync.
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/2b75780e-989b-4315-86ff-0c6eae7906ae" />
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/a34b28b6-ef53-4a85-9043-3956af060065" />
+
 ## Architecture
 
 Most of the code in this project is based

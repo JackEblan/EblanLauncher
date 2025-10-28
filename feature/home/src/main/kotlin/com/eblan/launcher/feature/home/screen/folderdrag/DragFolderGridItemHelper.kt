@@ -57,7 +57,7 @@ suspend fun handleDragFolderGridItem(
     ) -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
-    delay(250L)
+    delay(100L)
 
     if (drag != Drag.Dragging || isScrollInProgress) {
         return

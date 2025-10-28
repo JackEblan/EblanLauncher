@@ -252,7 +252,7 @@ fun GridItemResizeOverlay(
                 rows = rows,
             )
         ) {
-            delay(250L)
+            delay(100L)
 
             onResizeGridItem(
                 resizingGridItem,

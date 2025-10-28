@@ -2,3 +2,4 @@
 - Perf: Reduce delay in drag and resize operations
 - Fix: Re-calculate current page when home settings change
 - Perf: Make long-running loops cancellable
+- Refactor: Respect per-item override settings for grid items

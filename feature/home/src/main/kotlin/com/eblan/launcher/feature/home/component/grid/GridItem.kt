@@ -53,10 +53,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HorizontalAlignment
-import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
-import com.eblan.launcher.feature.home.util.getGridItemTextColor
-import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import java.io.File
@@ -65,35 +62,20 @@ import java.io.File
 fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    textColor: TextColor,
+    textColor: Color,
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
     isDragging: Boolean,
     hasShortcutHostPermission: Boolean,
 ) {
     key(gridItem.id) {
-        val currentGridItemSettings = if (gridItem.override) {
-            gridItem.gridItemSettings
-        } else {
-            gridItemSettings
-        }
-
-        val currentTextColor = if (gridItem.override) {
-            getGridItemTextColor(
-                systemTextColor = textColor,
-                gridItemTextColor = gridItem.gridItemSettings.textColor,
-            )
-        } else {
-            getSystemTextColor(textColor = textColor)
-        }
-
         if (isDragging) {
             Box(
                 modifier = modifier
                     .fillMaxSize()
                     .border(
                         width = Dp.Hairline,
-                        color = currentTextColor,
+                        color = textColor,
                         shape = RoundedCornerShape(5.dp),
                     ),
             )
@@ -103,8 +85,8 @@ fun GridItemContent(
                     ApplicationInfoGridItem(
                         modifier = modifier,
                         data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                     )
                 }
@@ -120,8 +102,8 @@ fun GridItemContent(
                     ShortcutInfoGridItem(
                         modifier = modifier,
                         data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
                         hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 }
@@ -130,8 +112,8 @@ fun GridItemContent(
                     FolderGridItem(
                         modifier = modifier,
                         data = data,
-                        textColor = currentTextColor,
-                        gridItemSettings = currentGridItemSettings,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                     )
                 }

@@ -70,6 +70,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
@@ -348,13 +349,30 @@ fun DragScreen(
                 columns = homeSettings.columns,
                 rows = homeSettings.rows,
                 { gridItem ->
+                    val gridItemSettings = if (gridItem.override) {
+                        gridItem.gridItemSettings
+                    } else {
+                        homeSettings.gridItemSettings
+                    }.run {
+                        copy(
+                            iconSize = iconSize / 2,
+                            textSize = textSize / 2,
+                        )
+                    }
+
+                    val textColor = if (gridItem.override) {
+                        getGridItemTextColor(
+                            systemTextColor = textColor,
+                            gridItemTextColor = gridItem.gridItemSettings.textColor,
+                        )
+                    } else {
+                        getSystemTextColor(textColor = textColor)
+                    }
+
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
-                        gridItemSettings = homeSettings.gridItemSettings.copy(
-                            iconSize = homeSettings.gridItemSettings.iconSize / 2,
-                            textSize = homeSettings.gridItemSettings.textSize / 2,
-                        ),
+                        gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         isDragging = gridItem.id == gridItemSource.gridItem.id,
                         hasShortcutHostPermission = hasShortcutHostPermission,
@@ -383,10 +401,30 @@ fun DragScreen(
             columns = homeSettings.dockColumns,
             rows = homeSettings.dockRows,
             { gridItem ->
+                val gridItemSettings = if (gridItem.override) {
+                    gridItem.gridItemSettings
+                } else {
+                    homeSettings.gridItemSettings
+                }.run {
+                    copy(
+                        iconSize = iconSize / 2,
+                        textSize = textSize / 2,
+                    )
+                }
+
+                val textColor = if (gridItem.override) {
+                    getGridItemTextColor(
+                        systemTextColor = textColor,
+                        gridItemTextColor = gridItem.gridItemSettings.textColor,
+                    )
+                } else {
+                    getSystemTextColor(textColor = textColor)
+                }
+
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
+                    gridItemSettings = gridItemSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = gridItem.id == gridItemSource.gridItem.id,
                     hasShortcutHostPermission = hasShortcutHostPermission,
@@ -493,6 +531,21 @@ private fun AnimatedDropGridItem(
 
     var targetHeight: Int
 
+    val currentGridItemSettings = if (moveGridItemResult.movingGridItem.override) {
+        moveGridItemResult.movingGridItem.gridItemSettings
+    } else {
+        gridItemSettings
+    }
+
+    val textColor = if (moveGridItemResult.movingGridItem.override) {
+        getGridItemTextColor(
+            systemTextColor = textColor,
+            gridItemTextColor = moveGridItemResult.movingGridItem.gridItemSettings.textColor,
+        )
+    } else {
+        getSystemTextColor(textColor = textColor)
+    }
+
     when (moveGridItemResult.movingGridItem.associate) {
         Associate.Grid -> {
             val gridWidthWithPadding = gridWidth - (gridPadding * 2)
@@ -550,7 +603,7 @@ private fun AnimatedDropGridItem(
             )
         },
         convertFromVector = { vector ->
-            gridItemSettings.copy(
+            currentGridItemSettings.copy(
                 iconSize = vector.v1.roundToInt(),
                 textSize = vector.v2.roundToInt(),
             )
@@ -558,7 +611,7 @@ private fun AnimatedDropGridItem(
     )
 
     val animatedGridItemSettings = remember {
-        Animatable(gridItemSettings, gridItemSettingsConverter)
+        Animatable(currentGridItemSettings, gridItemSettingsConverter)
     }
 
     LaunchedEffect(key1 = moveGridItemResult.movingGridItem) {
@@ -582,9 +635,9 @@ private fun AnimatedDropGridItem(
         launch {
             if (moveGridItemResult.movingGridItem.associate == Associate.Grid) {
                 animatedGridItemSettings.animateTo(
-                    gridItemSettings.copy(
-                        iconSize = gridItemSettings.iconSize / 2,
-                        textSize = gridItemSettings.textSize / 2,
+                    currentGridItemSettings.copy(
+                        iconSize = currentGridItemSettings.iconSize / 2,
+                        textSize = currentGridItemSettings.textSize / 2,
                     ),
                 )
             }

@@ -53,7 +53,9 @@ class UpdateApplicationInfoGridItemsByPackageNameUseCase @Inject constructor(
                         launcherAppsActivityInfo.packageName == packageName
                 }
 
-            applicationInfoGridItems.forEach { applicationInfoGridItem ->
+            applicationInfoGridItems.filterNot { applicationInfoGridItem ->
+                applicationInfoGridItem.override
+            }.forEach { applicationInfoGridItem ->
                 val launcherAppsActivityInfo =
                     launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
                         launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&

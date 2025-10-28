@@ -50,7 +50,9 @@ class UpdateWidgetGridItemsUseCase @Inject constructor(
             val appWidgetManagerAppWidgetProviderInfos =
                 appWidgetManagerWrapper.getInstalledProviders()
 
-            widgetGridItems.forEach { widgetGridItem ->
+            widgetGridItems.filterNot { widgetGridItem ->
+                widgetGridItem.override
+            }.forEach { widgetGridItem ->
                 ensureActive()
 
                 val appWidgetManagerAppWidgetProviderInfo =

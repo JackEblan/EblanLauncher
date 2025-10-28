@@ -82,7 +82,7 @@ suspend fun handleDragGridItem(
         gridHeight: Int,
     ) -> Unit,
 ) {
-    delay(250L)
+    delay(100L)
 
     if (drag != Drag.Dragging || isScrollInProgress) {
         return

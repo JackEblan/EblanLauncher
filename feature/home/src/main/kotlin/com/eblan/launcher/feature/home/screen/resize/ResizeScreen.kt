@@ -122,10 +122,25 @@ fun ResizeScreen(
             columns = homeSettings.columns,
             rows = homeSettings.rows,
             { gridItem ->
+                val gridItemSettings = if (gridItem.override) {
+                    gridItem.gridItemSettings
+                } else {
+                    homeSettings.gridItemSettings
+                }
+
+                val textColor = if (gridItem.override) {
+                    getGridItemTextColor(
+                        systemTextColor = textColor,
+                        gridItemTextColor = gridItem.gridItemSettings.textColor,
+                    )
+                } else {
+                    getSystemTextColor(textColor = textColor)
+                }
+
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
+                    gridItemSettings = gridItemSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     hasShortcutHostPermission = hasShortcutHostPermission,
@@ -149,10 +164,25 @@ fun ResizeScreen(
             columns = homeSettings.dockColumns,
             rows = homeSettings.dockRows,
             { gridItem ->
+                val gridItemSettings = if (gridItem.override) {
+                    gridItem.gridItemSettings
+                } else {
+                    homeSettings.gridItemSettings
+                }
+
+                val textColor = if (gridItem.override) {
+                    getGridItemTextColor(
+                        systemTextColor = textColor,
+                        gridItemTextColor = gridItem.gridItemSettings.textColor,
+                    )
+                } else {
+                    getSystemTextColor(textColor = textColor)
+                }
+
                 GridItemContent(
                     gridItem = gridItem,
                     textColor = textColor,
-                    gridItemSettings = homeSettings.gridItemSettings,
+                    gridItemSettings = gridItemSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     hasShortcutHostPermission = hasShortcutHostPermission,

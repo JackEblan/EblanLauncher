@@ -60,7 +60,7 @@ jobs:
         run: ./gradlew spotlessCheck --init-script gradle/init.gradle.kts --no-configuration-cache
 
       - name: Assemble Debug
-        run: ./gradlew :app:assembleDebug
+        run: ./gradlew :app:assembleDebug --build-cache --parallel --configure-on-demand
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4

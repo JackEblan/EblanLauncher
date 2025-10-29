@@ -23,12 +23,15 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ChangePackageUseCase @Inject constructor(
+    private val userDataRepository: UserDataRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val fileManager: FileManager,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
@@ -45,6 +48,8 @@ class ChangePackageUseCase @Inject constructor(
     ) {
         withContext(defaultDispatcher) {
             ensureActive()
+
+            if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 

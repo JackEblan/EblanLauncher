@@ -32,8 +32,6 @@ interface AndroidNotificationManagerWrapper {
 
     fun notify(id: Int, notification: Notification)
 
-    fun cancel(id: Int)
-
     companion object {
         const val CHANNEL_ID = "Eblan Launcher"
         const val ICON_PACK_INFO_SERVICE_NOTIFICATION_ID = 1

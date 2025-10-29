@@ -67,6 +67,7 @@ fun SettingsRoute(
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
     onFolder: () -> Unit,
+    onExperimental: () -> Unit,
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
 
@@ -79,6 +80,7 @@ fun SettingsRoute(
         onAppDrawer = onAppDrawer,
         onGestures = onGestures,
         onFolder = onFolder,
+        onExperimental = onExperimental,
     )
 }
 
@@ -93,6 +95,7 @@ fun SettingsScreen(
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
     onFolder: () -> Unit,
+    onExperimental: () -> Unit,
 ) {
     BackHandler {
         onFinish()
@@ -131,6 +134,7 @@ fun SettingsScreen(
                         onAppDrawer = onAppDrawer,
                         onGestures = onGestures,
                         onFolder = onFolder,
+                        onExperimental = onExperimental,
                     )
                 }
             }
@@ -147,6 +151,7 @@ private fun Success(
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
     onFolder: () -> Unit,
+    onExperimental: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -222,6 +227,15 @@ private fun Success(
             title = "Gestures",
             subtitle = "Swipe gesture actions",
             onClick = onGestures,
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        SettingsRow(
+            imageVector = EblanLauncherIcons.DeveloperMode,
+            title = "Experimental",
+            subtitle = "Advanced options for power users",
+            onClick = onExperimental,
         )
     }
 }

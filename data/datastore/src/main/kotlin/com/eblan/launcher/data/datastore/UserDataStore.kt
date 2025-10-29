@@ -20,6 +20,8 @@ package com.eblan.launcher.data.datastore
 import androidx.datastore.core.DataStore
 import com.eblan.launcher.data.datastore.mapper.toAppDrawerSettings
 import com.eblan.launcher.data.datastore.mapper.toAppDrawerSettingsProto
+import com.eblan.launcher.data.datastore.mapper.toExperimentalSettings
+import com.eblan.launcher.data.datastore.mapper.toExperimentalSettingsProto
 import com.eblan.launcher.data.datastore.mapper.toGeneralSettings
 import com.eblan.launcher.data.datastore.mapper.toGeneralSettingsProto
 import com.eblan.launcher.data.datastore.mapper.toGestureSettings
@@ -29,6 +31,7 @@ import com.eblan.launcher.data.datastore.mapper.toHomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.data.datastore.proto.copy
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.HomeSettings
@@ -48,6 +51,7 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
                 .toAppDrawerSettings(),
             gestureSettings = userDataProto.gestureSettingsProto.toGestureSettings(),
             generalSettings = userDataProto.generalSettingsProto.toGeneralSettings(),
+            experimentalSettings = userDataProto.experimentalSettingsProto.toExperimentalSettings(),
         )
     }
 
@@ -79,6 +83,14 @@ class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDat
         dataStore.updateData { userDataProto ->
             userDataProto.copy {
                 gestureSettingsProto = gestureSettings.toGestureSettingsProto()
+            }
+        }
+    }
+
+    suspend fun updateExperimentalSettings(experimentalSettings: ExperimentalSettings) {
+        dataStore.updateData { userDataProto ->
+            userDataProto.copy {
+                experimentalSettingsProto = experimentalSettings.toExperimentalSettingsProto()
             }
         }
     }

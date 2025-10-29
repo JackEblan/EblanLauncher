@@ -15,12 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.feature.settings.experimental.model
 
-data class UserData(
-    val homeSettings: HomeSettings,
-    val appDrawerSettings: AppDrawerSettings,
-    val gestureSettings: GestureSettings,
-    val generalSettings: GeneralSettings,
-    val experimentalSettings: ExperimentalSettings,
-)
+import com.eblan.launcher.domain.model.ExperimentalSettings
+
+sealed interface ExperimentalSettingsUiState {
+    data object Loading : ExperimentalSettingsUiState
+
+    data class Success(val experimentalSettings: ExperimentalSettings) : ExperimentalSettingsUiState
+}

@@ -15,30 +15,21 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.settings.navigation
+package com.eblan.launcher.feature.settings.experimental.navigation
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.settings.settings.SettingsRoute
+import com.eblan.launcher.feature.settings.experimental.ExperimentalSettingsRoute
 
-fun NavGraphBuilder.settingsScreen(
-    onFinish: () -> Unit,
-    onGeneral: () -> Unit,
-    onHome: () -> Unit,
-    onAppDrawer: () -> Unit,
-    onGestures: () -> Unit,
-    onFolder: () -> Unit,
-    onExperimental: () -> Unit,
+fun NavController.navigateToExperimentalSettings() {
+    navigate(ExperimentalSettingsRouteData)
+}
+
+fun NavGraphBuilder.experimentalSettingsScreen(
+    onNavigateUp: () -> Unit,
 ) {
-    composable<SettingsRouteData> {
-        SettingsRoute(
-            onFinish = onFinish,
-            onGeneral = onGeneral,
-            onHome = onHome,
-            onAppDrawer = onAppDrawer,
-            onGestures = onGestures,
-            onFolder = onFolder,
-            onExperimental = onExperimental,
-        )
+    composable<ExperimentalSettingsRouteData> {
+        ExperimentalSettingsRoute(onNavigateUp = onNavigateUp)
     }
 }

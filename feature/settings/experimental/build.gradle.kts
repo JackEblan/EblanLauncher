@@ -15,12 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
 
-data class UserData(
-    val homeSettings: HomeSettings,
-    val appDrawerSettings: AppDrawerSettings,
-    val gestureSettings: GestureSettings,
-    val generalSettings: GeneralSettings,
-    val experimentalSettings: ExperimentalSettings,
-)
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+}
+
+android {
+    namespace = "com.eblan.launcher.feature.settings.experimental"
+}
+
+dependencies {
+    implementation(projects.domain.framework)
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
+    implementation(projects.service)
+}

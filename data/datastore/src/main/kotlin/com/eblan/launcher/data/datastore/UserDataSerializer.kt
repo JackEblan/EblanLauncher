@@ -24,6 +24,7 @@ import com.eblan.launcher.data.datastore.mapper.toGestureActionProto
 import com.eblan.launcher.data.datastore.mapper.toThemeBrandProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
+import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.GridItemSettingsProto
@@ -90,6 +91,10 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         swipeDownProto = GestureAction.None.toGestureActionProto()
     }.build()
 
+    private val defaultExperimentalSettings = ExperimentalSettingsProto.newBuilder().apply {
+        syncData = true
+    }.build()
+
     override val defaultValue: UserDataProto = UserDataProto.newBuilder().apply {
         homeSettingsProto = defaultHomeSettingsProto
 
@@ -98,6 +103,8 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         gestureSettingsProto = defaultGestureSettingsProto
 
         generalSettingsProto = defaultGeneralSettingsProto
+
+        experimentalSettingsProto = defaultExperimentalSettings
     }.build()
 
     override suspend fun readFrom(input: InputStream): UserDataProto = try {

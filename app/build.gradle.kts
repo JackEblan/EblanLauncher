@@ -54,6 +54,7 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.feature.pin)
     implementation(projects.feature.settings.appDrawer)
+    implementation(projects.feature.settings.experimental)
     implementation(projects.feature.settings.folder)
     implementation(projects.feature.settings.general)
     implementation(projects.feature.settings.gestures)

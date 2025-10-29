@@ -405,11 +405,6 @@ fun DragScreen(
                     gridItem.gridItemSettings
                 } else {
                     homeSettings.gridItemSettings
-                }.run {
-                    copy(
-                        iconSize = iconSize / 2,
-                        textSize = textSize / 2,
-                    )
                 }
 
                 val textColor = if (gridItem.override) {

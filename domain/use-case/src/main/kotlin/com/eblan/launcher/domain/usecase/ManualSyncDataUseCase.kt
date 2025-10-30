@@ -20,16 +20,13 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.NotificationManagerWrapper
-import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class SyncDataUseCase @Inject constructor(
-    private val userDataRepository: UserDataRepository,
+class ManualSyncDataUseCase @Inject constructor(
     private val updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase,
     private val updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase,
     private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
@@ -39,8 +36,6 @@ class SyncDataUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
-        if (!userDataRepository.userData.first().experimentalSettings.syncData) return
-
         withContext(defaultDispatcher) {
             notificationManagerWrapper.notifySyncData(
                 contentTitle = "Syncing data",

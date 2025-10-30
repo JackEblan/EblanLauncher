@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.settings.HintRow
@@ -81,6 +82,7 @@ fun SettingsRoute(
         onGestures = onGestures,
         onFolder = onFolder,
         onExperimental = onExperimental,
+        onSyncData = viewModel::syncData,
     )
 }
 
@@ -96,6 +98,7 @@ fun SettingsScreen(
     onGestures: () -> Unit,
     onFolder: () -> Unit,
     onExperimental: () -> Unit,
+    onSyncData: () -> Unit,
 ) {
     BackHandler {
         onFinish()
@@ -129,12 +132,14 @@ fun SettingsScreen(
 
                 is SettingsUiState.Success -> {
                     Success(
+                        userData = settingsUiState.userData,
                         onGeneral = onGeneral,
                         onHome = onHome,
                         onAppDrawer = onAppDrawer,
                         onGestures = onGestures,
                         onFolder = onFolder,
                         onExperimental = onExperimental,
+                        onSyncData = onSyncData,
                     )
                 }
             }
@@ -146,12 +151,14 @@ fun SettingsScreen(
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
+    userData: UserData,
     onGeneral: () -> Unit,
     onHome: () -> Unit,
     onAppDrawer: () -> Unit,
     onGestures: () -> Unit,
     onFolder: () -> Unit,
     onExperimental: () -> Unit,
+    onSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -181,6 +188,13 @@ private fun Success(
                 onClick = {
                     context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
                 },
+            )
+        }
+
+        if (!userData.experimentalSettings.syncData) {
+            HintRow(
+                hint = "Sync data",
+                onClick = onSyncData,
             )
         }
 

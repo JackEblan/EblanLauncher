@@ -23,9 +23,9 @@ import android.os.IBinder
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
+import com.eblan.launcher.domain.usecase.AutoSyncDataUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
-import com.eblan.launcher.domain.usecase.SyncDataUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +49,7 @@ class ApplicationInfoService : Service() {
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
 
     @Inject
-    lateinit var syncDataUseCase: SyncDataUseCase
+    lateinit var autoSyncDataUseCase: AutoSyncDataUseCase
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -86,7 +86,7 @@ class ApplicationInfoService : Service() {
         }
 
         serviceScope.launch {
-            syncDataUseCase()
+            autoSyncDataUseCase()
         }
 
         return super.onStartCommand(intent, flags, startId)

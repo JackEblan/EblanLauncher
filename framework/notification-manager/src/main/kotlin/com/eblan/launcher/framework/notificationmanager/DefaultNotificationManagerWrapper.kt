@@ -68,9 +68,11 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@Applicatio
                 context,
                 AndroidNotificationManagerWrapper.CHANNEL_ID,
             ).setSmallIcon(R.drawable.baseline_cached_24)
-                .setContentTitle("Syncing data")
-                .setContentText("Editing grid items may cause unsaved changes").setOngoing(true)
-                .setProgress(0, 0, true).build()
+                .setContentTitle(contentTitle)
+                .setContentText(contentText)
+                .setOngoing(true)
+                .setProgress(0, 0, true)
+                .build()
 
             notificationManager.notify(
                 AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,

@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
+import com.eblan.launcher.service.ManualSyncDataService
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.settings.HintRow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -82,7 +83,6 @@ fun SettingsRoute(
         onGestures = onGestures,
         onFolder = onFolder,
         onExperimental = onExperimental,
-        onSyncData = viewModel::syncData,
     )
 }
 
@@ -98,7 +98,6 @@ fun SettingsScreen(
     onGestures: () -> Unit,
     onFolder: () -> Unit,
     onExperimental: () -> Unit,
-    onSyncData: () -> Unit,
 ) {
     BackHandler {
         onFinish()
@@ -139,7 +138,6 @@ fun SettingsScreen(
                         onGestures = onGestures,
                         onFolder = onFolder,
                         onExperimental = onExperimental,
-                        onSyncData = onSyncData,
                     )
                 }
             }
@@ -158,7 +156,6 @@ private fun Success(
     onGestures: () -> Unit,
     onFolder: () -> Unit,
     onExperimental: () -> Unit,
-    onSyncData: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -194,7 +191,15 @@ private fun Success(
         if (!userData.experimentalSettings.syncData) {
             HintRow(
                 hint = "Sync data",
-                onClick = onSyncData,
+                onClick = {
+                    val intent = Intent(context, ManualSyncDataService::class.java)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(intent)
+                    } else {
+                        context.startService(intent)
+                    }
+                },
             )
         }
 

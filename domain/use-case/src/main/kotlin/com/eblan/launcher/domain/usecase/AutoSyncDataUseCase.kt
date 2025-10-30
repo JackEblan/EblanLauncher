@@ -17,21 +17,31 @@
  */
 package com.eblan.launcher.domain.usecase
 
-import com.eblan.launcher.domain.common.dispatcher.Dispatcher
-import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import com.eblan.launcher.domain.repository.UserDataRepository
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class AutoSyncDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val manualSyncDataUseCase: ManualSyncDataUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    private val notificationManagerWrapper: NotificationManagerWrapper,
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(
+        contentTitle: String,
+        contentText: String,
+    ) {
         if (!userDataRepository.userData.first().experimentalSettings.syncData) return
 
-        manualSyncDataUseCase()
+        notificationManagerWrapper.notifySyncData(
+            contentTitle = contentTitle,
+            contentText = contentText,
+        )
+
+        try {
+            manualSyncDataUseCase()
+        } finally {
+            notificationManagerWrapper.cancelSyncData()
+        }
     }
 }

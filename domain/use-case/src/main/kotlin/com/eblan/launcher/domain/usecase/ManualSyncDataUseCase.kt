@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -32,37 +31,27 @@ class ManualSyncDataUseCase @Inject constructor(
     private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
     private val updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase,
     private val updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase,
-    private val notificationManagerWrapper: NotificationManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         withContext(defaultDispatcher) {
-            notificationManagerWrapper.notifySyncData(
-                contentTitle = "Syncing data",
-                contentText = "Editing grid items may cause unsaved changes",
+            joinAll(
+                launch {
+                    updateEblanApplicationInfosUseCase()
+
+                    updateEblanAppWidgetProviderInfosUseCase()
+                },
+                launch {
+                    updateShortcutInfoGridItemsUseCase()
+                },
+                launch {
+                    updateApplicationInfoGridItemsUseCase()
+
+                    updateWidgetGridItemsUseCase()
+
+                    updateShortcutInfoGridItemsUseCase()
+                },
             )
-
-            try {
-                joinAll(
-                    launch {
-                        updateEblanApplicationInfosUseCase()
-
-                        updateEblanAppWidgetProviderInfosUseCase()
-                    },
-                    launch {
-                        updateShortcutInfoGridItemsUseCase()
-                    },
-                    launch {
-                        updateApplicationInfoGridItemsUseCase()
-
-                        updateWidgetGridItemsUseCase()
-
-                        updateShortcutInfoGridItemsUseCase()
-                    },
-                )
-            } finally {
-                notificationManagerWrapper.cancelSyncData()
-            }
         }
     }
 }

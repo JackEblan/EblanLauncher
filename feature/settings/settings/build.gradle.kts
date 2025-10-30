@@ -27,7 +27,7 @@ android {
 
 dependencies {
     implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
+    implementation(projects.service)
 
     implementation(libs.accompanist.permissions)
 }

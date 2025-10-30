@@ -86,7 +86,10 @@ class ApplicationInfoService : Service() {
         }
 
         serviceScope.launch {
-            autoSyncDataUseCase()
+            autoSyncDataUseCase(
+                contentTitle = "Syncing data",
+                contentText = "This may take a while",
+            )
         }
 
         return super.onStartCommand(intent, flags, startId)

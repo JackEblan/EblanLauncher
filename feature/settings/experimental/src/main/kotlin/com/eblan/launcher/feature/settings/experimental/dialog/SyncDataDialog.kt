@@ -40,6 +40,8 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 @Composable
 fun SyncDataDialog(
     modifier: Modifier = Modifier,
+    syncData: Boolean,
+    onUpdateSyncData: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
@@ -67,8 +69,9 @@ fun SyncDataDialog(
 
             Row {
                 Checkbox(
-                    checked = true,
+                    checked = syncData,
                     onCheckedChange = {
+                        onUpdateSyncData(it)
                     },
                 )
 

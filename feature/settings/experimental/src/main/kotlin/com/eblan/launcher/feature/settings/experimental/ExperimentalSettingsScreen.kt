@@ -128,8 +128,14 @@ private fun Success(
     }
 
     if (showSyncDataDialog) {
-        SyncDataDialog(onDismissRequest = {
-            showSyncDataDialog = false
-        })
+        SyncDataDialog(
+            syncData = experimentalSettings.syncData,
+            onUpdateSyncData = { newSyncData ->
+                onUpdateExperimentalSettings(experimentalSettings.copy(syncData = newSyncData))
+            },
+            onDismissRequest = {
+                showSyncDataDialog = false
+            },
+        )
     }
 }

@@ -48,6 +48,8 @@ class RemovePackageUseCase @Inject constructor(
         packageName: String,
     ) {
         withContext(ioDispatcher) {
+            if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
+
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 

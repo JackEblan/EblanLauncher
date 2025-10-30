@@ -17,10 +17,4 @@
  */
 package com.eblan.launcher.domain.model
 
-data class UserData(
-    val homeSettings: HomeSettings,
-    val appDrawerSettings: AppDrawerSettings,
-    val gestureSettings: GestureSettings,
-    val generalSettings: GeneralSettings,
-    val experimentalSettings: ExperimentalSettings,
-)
+data class ExperimentalSettings(val syncData: Boolean)

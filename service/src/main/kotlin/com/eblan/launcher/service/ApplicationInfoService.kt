@@ -20,35 +20,22 @@ package com.eblan.launcher.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
+import com.eblan.launcher.domain.usecase.AutoSyncDataUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
-import com.eblan.launcher.domain.usecase.UpdateApplicationInfoGridItemsUseCase
-import com.eblan.launcher.domain.usecase.UpdateEblanAppWidgetProviderInfosUseCase
-import com.eblan.launcher.domain.usecase.UpdateEblanApplicationInfosUseCase
-import com.eblan.launcher.domain.usecase.UpdateShortcutInfoGridItemsUseCase
-import com.eblan.launcher.domain.usecase.UpdateWidgetGridItemsUseCase
-import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ApplicationInfoService : Service() {
-    @Inject
-    lateinit var updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase
-
-    @Inject
-    lateinit var updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase
-
     @Inject
     lateinit var addPackageUseCase: AddPackageUseCase
 
@@ -59,19 +46,10 @@ class ApplicationInfoService : Service() {
     lateinit var changePackageUseCase: ChangePackageUseCase
 
     @Inject
-    lateinit var updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase
-
-    @Inject
-    lateinit var updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase
-
-    @Inject
-    lateinit var updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase
-
-    @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
 
     @Inject
-    lateinit var notificationManagerWrapper: AndroidNotificationManagerWrapper
+    lateinit var autoSyncDataUseCase: AutoSyncDataUseCase
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -107,44 +85,8 @@ class ApplicationInfoService : Service() {
             }
         }
 
-        val notification = NotificationCompat.Builder(
-            this,
-            AndroidNotificationManagerWrapper.CHANNEL_ID,
-        )
-            .setSmallIcon(R.drawable.baseline_cached_24)
-            .setContentTitle("Syncing data")
-            .setContentText("Editing grid items may cause unsaved changes")
-            .setOngoing(true)
-            .setProgress(0, 0, true)
-            .build()
-
         serviceScope.launch {
-            notificationManagerWrapper.notify(
-                id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
-                notification = notification,
-            )
-
-            joinAll(
-                launch {
-                    updateEblanApplicationInfosUseCase()
-
-                    updateEblanAppWidgetProviderInfosUseCase()
-                },
-                launch {
-                    updateShortcutInfoGridItemsUseCase()
-                },
-                launch {
-                    updateApplicationInfoGridItemsUseCase()
-
-                    updateWidgetGridItemsUseCase()
-
-                    updateShortcutInfoGridItemsUseCase()
-                },
-            )
-
-            notificationManagerWrapper.cancel(
-                id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
-            )
+            autoSyncDataUseCase()
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -152,10 +94,6 @@ class ApplicationInfoService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        notificationManagerWrapper.cancel(
-            id = AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
-        )
 
         serviceScope.cancel()
     }

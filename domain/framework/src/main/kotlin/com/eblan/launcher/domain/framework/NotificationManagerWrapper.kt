@@ -15,12 +15,13 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.domain.framework
 
-data class UserData(
-    val homeSettings: HomeSettings,
-    val appDrawerSettings: AppDrawerSettings,
-    val gestureSettings: GestureSettings,
-    val generalSettings: GeneralSettings,
-    val experimentalSettings: ExperimentalSettings,
-)
+interface NotificationManagerWrapper {
+    fun notifySyncData(
+        contentTitle: String,
+        contentText: String,
+    )
+
+    fun cancelSyncData()
+}

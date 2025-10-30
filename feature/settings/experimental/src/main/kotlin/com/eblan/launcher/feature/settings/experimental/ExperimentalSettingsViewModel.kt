@@ -15,13 +15,13 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.settings
+package com.eblan.launcher.feature.settings.experimental
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.ManualSyncDataUseCase
-import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
+import com.eblan.launcher.feature.settings.experimental.model.ExperimentalSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -30,22 +30,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
-    userDataRepository: UserDataRepository,
-    private val manualSyncDataUseCase: ManualSyncDataUseCase,
+class ExperimentalSettingsViewModel @Inject constructor(
+    private val userDataRepository: UserDataRepository,
 ) :
     ViewModel() {
-    val settingsUiState = userDataRepository.userData.map(
-        SettingsUiState::Success,
-    ).stateIn(
+    val experimentalSettingsUiState = userDataRepository.userData.map { userData ->
+        ExperimentalSettingsUiState.Success(experimentalSettings = userData.experimentalSettings)
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = SettingsUiState.Loading,
+        initialValue = ExperimentalSettingsUiState.Loading,
     )
 
-    fun syncData() {
+    fun updateExperimentalSettings(experimentalSettings: ExperimentalSettings) {
         viewModelScope.launch {
-            manualSyncDataUseCase()
+            userDataRepository.updateExperimentalSettings(experimentalSettings = experimentalSettings)
         }
     }
 }

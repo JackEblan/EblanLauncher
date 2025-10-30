@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.framework.notificationmanager
 
+import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -29,5 +30,9 @@ internal interface NotificationManagerModule {
 
     @Binds
     @Singleton
-    fun notificationManagerWrapper(impl: DefaultNotificationManagerWrapper): AndroidNotificationManagerWrapper
+    fun androidNotificationManagerWrapper(impl: DefaultNotificationManagerWrapper): AndroidNotificationManagerWrapper
+
+    @Binds
+    @Singleton
+    fun notificationManagerWrapper(impl: DefaultNotificationManagerWrapper): NotificationManagerWrapper
 }

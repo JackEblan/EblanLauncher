@@ -18,6 +18,7 @@
 package com.eblan.launcher.data.datastore.mapper
 
 import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
+import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.DarkThemeConfigProto
 import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.ThemeBrandProto
@@ -37,6 +38,7 @@ import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureAction.LockScreen
@@ -302,4 +304,14 @@ internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto {
         .setSwipeUpProto(swipeUp.toGestureActionProto())
         .setSwipeDownProto(swipeDown.toGestureActionProto())
         .build()
+}
+
+internal fun ExperimentalSettings.toExperimentalSettingsProto(): ExperimentalSettingsProto {
+    return ExperimentalSettingsProto.newBuilder()
+        .setSyncData(syncData)
+        .build()
+}
+
+internal fun ExperimentalSettingsProto.toExperimentalSettings(): ExperimentalSettings {
+    return ExperimentalSettings(syncData = syncData)
 }

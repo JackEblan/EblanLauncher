@@ -164,14 +164,16 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        if (gridItem.override) {
+            Spacer(modifier = Modifier.height(10.dp))
 
-        GridItemSettings(
-            gridItemSettings = gridItem.gridItemSettings,
-            onUpdateGridItemSettings = { gridItemSettings ->
-                onUpdateGridItem(gridItem.copy(gridItemSettings = gridItemSettings))
-            },
-        )
+            GridItemSettings(
+                gridItemSettings = gridItem.gridItemSettings,
+                onUpdateGridItemSettings = { gridItemSettings ->
+                    onUpdateGridItem(gridItem.copy(gridItemSettings = gridItemSettings))
+                },
+            )
+        }
     }
 }
 

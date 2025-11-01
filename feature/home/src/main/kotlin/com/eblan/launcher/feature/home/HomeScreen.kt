@@ -638,7 +638,7 @@ private fun Success(
                     overlayIntSize = overlayIntSize,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
-                    onMoveGridItemsFailed = onCancelGridCache,
+                    onDragCancelAfterMove = onCancelGridCache,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,

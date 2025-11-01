@@ -44,12 +44,12 @@ fun handleDropGridItem(
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
-    onMoveGridItemsFailed: () -> Unit,
+    onDragCancelAfterMove: () -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onUpdateAppWidgetId: (Int) -> Unit,
 ) {
     if (moveGridItemResult == null || !moveGridItemResult.isSuccess) {
-        onMoveGridItemsFailed()
+        onDragCancelAfterMove()
 
         return
     }

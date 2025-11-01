@@ -286,12 +286,12 @@ private fun getMoveNewGridItem(
     return when (val data = gridItem.data) {
         is GridItemData.Widget -> {
             val (checkedColumnSpan, checkedRowSpan) = getWidgetGridItemSpan(
-                cellHeight = cellHeight,
                 cellWidth = cellWidth,
-                minHeight = data.minHeight,
+                cellHeight = cellHeight,
                 minWidth = data.minWidth,
-                targetCellHeight = data.targetCellHeight,
+                minHeight = data.minHeight,
                 targetCellWidth = data.targetCellWidth,
+                targetCellHeight = data.targetCellHeight,
             )
 
             val (checkedMinWidth, checkedMinHeight) = getWidgetGridItemSize(

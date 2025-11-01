@@ -18,6 +18,7 @@
 package com.eblan.launcher.feature.home.screen.drag
 
 import android.appwidget.AppWidgetManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
@@ -48,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
@@ -113,7 +115,7 @@ fun DragScreen(
         movingGridItem: GridItem,
         conflictingGridItem: GridItem?,
     ) -> Unit,
-    onMoveGridItemsFailed: () -> Unit,
+    onDragCancelAfterMove: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
     onDeleteWidgetGridItemCache: (
@@ -123,6 +125,8 @@ fun DragScreen(
     onResetOverlay: () -> Unit,
 ) {
     requireNotNull(gridItemSource)
+
+    val context = LocalContext.current
 
     val appWidgetHostWrapper = LocalAppWidgetHost.current
 
@@ -251,7 +255,15 @@ fun DragScreen(
                     gridItemSource = gridItemSource,
                     onLaunch = appWidgetLauncher::launch,
                     onDragEndAfterMove = onDragEndAfterMove,
-                    onMoveGridItemsFailed = onMoveGridItemsFailed,
+                    onDragCancelAfterMove = {
+                        Toast.makeText(
+                            context,
+                            "Can't place grid item at this position",
+                            Toast.LENGTH_LONG,
+                        ).show()
+
+                        onDragCancelAfterMove()
+                    },
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = { gridItem ->
                         updatedGridItem = gridItem
@@ -267,7 +279,7 @@ fun DragScreen(
             }
 
             Drag.Cancel -> {
-                onMoveGridItemsFailed()
+                onDragCancelAfterMove()
 
                 onResetOverlay()
             }

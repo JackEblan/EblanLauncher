@@ -314,8 +314,8 @@ private fun getMoveNewGridItem(
                 page = targetPage,
                 startColumn = gridX / cellWidth,
                 startRow = gridY / cellHeight,
-                columnSpan = checkedColumnSpan,
-                rowSpan = checkedRowSpan,
+                columnSpan = checkedColumnSpan.coerceIn(1, columns),
+                rowSpan = checkedRowSpan.coerceIn(1, rows),
                 data = newData,
                 associate = associate,
             )

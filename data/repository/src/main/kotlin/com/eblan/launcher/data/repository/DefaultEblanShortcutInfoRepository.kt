@@ -60,20 +60,26 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
     private fun EblanShortcutInfo.asEntity(): EblanShortcutInfoEntity {
         return EblanShortcutInfoEntity(
             shortcutId = shortcutId,
+            serialNumber = serialNumber,
             packageName = packageName,
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
+            shortcutQueryFlag = shortcutQueryFlag,
+            isEnabled = isEnabled,
         )
     }
 
     private fun EblanShortcutInfoEntity.asModel(): EblanShortcutInfo {
         return EblanShortcutInfo(
             shortcutId = shortcutId,
+            serialNumber = serialNumber,
             packageName = packageName,
             shortLabel = shortLabel,
             longLabel = longLabel,
             icon = icon,
+            shortcutQueryFlag = shortcutQueryFlag,
+            isEnabled = isEnabled,
         )
     }
 }

@@ -19,12 +19,16 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eblan.launcher.domain.model.ShortcutQueryFlag
 
 @Entity
 data class EblanShortcutInfoEntity(
     @PrimaryKey val shortcutId: String,
+    val serialNumber: Long,
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,
     val icon: String?,
+    val shortcutQueryFlag: ShortcutQueryFlag,
+    val isEnabled: Boolean,
 )

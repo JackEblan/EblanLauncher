@@ -18,9 +18,12 @@
 package com.eblan.launcher.domain.model
 
 data class EblanShortcutInfo(
+    val serialNumber: Long,
     val shortcutId: String,
     val packageName: String,
     val shortLabel: String,
     val longLabel: String,
     val icon: String?,
+    val shortcutQueryFlag: ShortcutQueryFlag,
+    val isEnabled: Boolean,
 )

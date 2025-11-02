@@ -31,6 +31,7 @@ class ManualSyncDataUseCase @Inject constructor(
     private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
     private val updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase,
     private val updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase,
+    private val updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
@@ -40,14 +41,15 @@ class ManualSyncDataUseCase @Inject constructor(
                     updateEblanApplicationInfosUseCase()
 
                     updateEblanAppWidgetProviderInfosUseCase()
-                },
-                launch {
-                    updateShortcutInfoGridItemsUseCase()
+
+                    updateEblanShortcutInfosUseCase()
                 },
                 launch {
                     updateApplicationInfoGridItemsUseCase()
 
                     updateWidgetGridItemsUseCase()
+
+                    updateShortcutInfoGridItemsUseCase()
 
                     updateShortcutInfoGridItemsUseCase()
                 },

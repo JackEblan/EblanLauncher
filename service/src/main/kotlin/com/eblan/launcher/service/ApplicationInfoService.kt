@@ -25,6 +25,7 @@ import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
 import com.eblan.launcher.domain.usecase.AutoSyncDataUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
+import com.eblan.launcher.domain.usecase.ChangeShortcutsUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,9 @@ class ApplicationInfoService : Service() {
 
     @Inject
     lateinit var changePackageUseCase: ChangePackageUseCase
+
+    @Inject
+    lateinit var changeShortcutsUseCase: ChangeShortcutsUseCase
 
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
@@ -79,6 +83,13 @@ class ApplicationInfoService : Service() {
                         removePackageUseCase(
                             serialNumber = launcherAppsEvent.serialNumber,
                             packageName = launcherAppsEvent.packageName,
+                        )
+                    }
+
+                    is LauncherAppsEvent.ShortcutsChanged -> {
+                        changeShortcutsUseCase(
+                            packageName = launcherAppsEvent.packageName,
+                            launcherAppsShortcutInfos = launcherAppsEvent.launcherAppsShortcutInfos
                         )
                     }
                 }

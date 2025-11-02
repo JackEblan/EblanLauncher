@@ -39,6 +39,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
+import com.eblan.launcher.domain.model.ShortcutQueryFlag
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -47,6 +48,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -113,6 +115,27 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             ) {
                 // TODO: Hide installed applications
             }
+
+            override fun onShortcutsChanged(
+                packageName: String,
+                shortcuts: MutableList<ShortcutInfo>,
+                user: UserHandle,
+            ) {
+                if (hasShortcutHostPermission) {
+                    launch {
+                        val launcherAppsShortcutInfo = shortcuts.map { shortcutInfo ->
+                            shortcutInfo.toLauncherAppsShortcutInfo()
+                        }
+
+                        trySend(
+                            LauncherAppsEvent.ShortcutsChanged(
+                                packageName = packageName,
+                                launcherAppsShortcutInfos = launcherAppsShortcutInfo,
+                            ),
+                        )
+                    }
+                }
+            }
         }
 
         launcherApps.registerCallback(callback, Handler(Looper.getMainLooper()))
@@ -143,6 +166,35 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             if (hasShortcutHostPermission) {
                 val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                     setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    launcherApps.profiles.flatMap { userHandle ->
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)
+                            ?.map { shortcutInfo ->
+                                shortcutInfo.toLauncherAppsShortcutInfo()
+                            } ?: emptyList()
+                    }
+                } else {
+                    launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
+                        shortcutInfo.toLauncherAppsShortcutInfo()
+                    }
+                }
+            } else {
+                null
+            }
+        }
+    }
+
+    override suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>? {
+        return withContext(defaultDispatcher) {
+            if (hasShortcutHostPermission) {
+                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                    setQueryFlags(
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                    )
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -300,6 +352,20 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             androidDrawableWrapper.createByteArray(drawable = drawable)
         }
 
+        val shortcutQueryFlag = when {
+            isPinned -> {
+                ShortcutQueryFlag.Pinned
+            }
+
+            isDynamic -> {
+                ShortcutQueryFlag.Dynamic
+            }
+
+            else -> {
+                ShortcutQueryFlag.Manifest
+            }
+        }
+
         return LauncherAppsShortcutInfo(
             shortcutId = id,
             packageName = `package`,
@@ -309,6 +375,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             isEnabled = isEnabled,
             disabledMessage = disabledMessage?.toString(),
             icon = icon,
+            shortcutQueryFlag = shortcutQueryFlag,
         )
     }
 }

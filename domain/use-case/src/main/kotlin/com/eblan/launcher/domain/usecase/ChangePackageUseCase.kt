@@ -40,6 +40,7 @@ class ChangePackageUseCase @Inject constructor(
     private val updateWidgetGridItemsByPackageNameUseCase: UpdateWidgetGridItemsByPackageNameUseCase,
     private val updateShortcutInfoGridItemsByPackageNameUseCase: UpdateShortcutInfoGridItemsByPackageNameUseCase,
     private val updateIconPackInfoByPackageNameUseCase: UpdateIconPackInfoByPackageNameUseCase,
+    private val updateEblanShortcutInfosByPackageNameUseCase: UpdateEblanShortcutInfosByPackageNameUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -76,6 +77,11 @@ class ChangePackageUseCase @Inject constructor(
             eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
 
             updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
+
+            updateShortcutInfoGridItemsByPackageNameUseCase(
+                serialNumber = serialNumber,
+                packageName = packageName
+            )
 
             updateApplicationInfoGridItemsByPackageNameUseCase(
                 serialNumber = serialNumber,

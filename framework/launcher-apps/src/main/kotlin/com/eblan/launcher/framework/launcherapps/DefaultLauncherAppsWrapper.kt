@@ -170,10 +170,9 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.profiles.flatMap { userHandle ->
-                        launcherApps.getShortcuts(shortcutQuery, userHandle)
-                            ?.map { shortcutInfo ->
-                                shortcutInfo.toLauncherAppsShortcutInfo()
-                            } ?: emptyList()
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                            shortcutInfo.toLauncherAppsShortcutInfo()
+                        } ?: emptyList()
                     }
                 } else {
                     launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
@@ -191,18 +190,15 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             if (hasShortcutHostPermission) {
                 val shortcutQuery = LauncherApps.ShortcutQuery().apply {
                     setQueryFlags(
-                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.profiles.flatMap { userHandle ->
-                        launcherApps.getShortcuts(shortcutQuery, userHandle)
-                            ?.map { shortcutInfo ->
-                                shortcutInfo.toLauncherAppsShortcutInfo()
-                            } ?: emptyList()
+                        launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                            shortcutInfo.toLauncherAppsShortcutInfo()
+                        } ?: emptyList()
                     }
                 } else {
                     launcherApps.getShortcuts(shortcutQuery, myUserHandle())?.map { shortcutInfo ->
@@ -227,6 +223,32 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
                     setPackage(packageName)
 
                     setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                }
+
+                launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->
+                    shortcutInfo.toLauncherAppsShortcutInfo()
+                }
+            } else {
+                null
+            }
+        }
+    }
+
+    override suspend fun getShortcutsByPackageName(
+        serialNumber: Long, packageName: String
+    ): List<LauncherAppsShortcutInfo>? {
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            if (hasShortcutHostPermission && userHandle != null) {
+                val shortcutQuery = LauncherApps.ShortcutQuery().apply {
+                    setPackage(packageName)
+
+                    setQueryFlags(
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                    )
                 }
 
                 launcherApps.getShortcuts(shortcutQuery, userHandle)?.map { shortcutInfo ->

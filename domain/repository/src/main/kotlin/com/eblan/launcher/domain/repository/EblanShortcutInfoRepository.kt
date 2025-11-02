@@ -30,4 +30,8 @@ interface EblanShortcutInfoRepository {
     suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
 
     suspend fun getEblanShortcutInfo(id: String): EblanShortcutInfo?
+
+    suspend fun getEblanShortcutInfoByPackageName(packageName: String): List<EblanShortcutInfo>
+
+    suspend fun deleteEblanShortcutInfoByPackageName(packageName: String)
 }

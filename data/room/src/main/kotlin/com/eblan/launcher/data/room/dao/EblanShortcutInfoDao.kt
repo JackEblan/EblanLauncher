@@ -41,4 +41,10 @@ interface EblanShortcutInfoDao {
 
     @Query("SELECT * FROM EblanShortcutInfoEntity WHERE shortcutId = :id")
     suspend fun getEblanShortcutInfoEntity(id: String): EblanShortcutInfoEntity?
+
+    @Query("SELECT * FROM EblanShortcutInfoEntity WHERE packageName = :packageName")
+    suspend fun getEblanShortcutInfoEntitiesByPackageName(packageName: String): List<EblanShortcutInfoEntity>
+
+    @Query("DELETE FROM EblanShortcutInfoEntity WHERE packageName = :packageName")
+    suspend fun deleteEblanShortcutInfoEntityByPackageName(packageName: String)
 }

@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -41,6 +42,7 @@ class RemovePackageUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
+    private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -98,6 +100,21 @@ class RemovePackageUseCase @Inject constructor(
                 }
             }
 
+            eblanShortcutInfoRepository.getEblanShortcutInfoByPackageName(
+                packageName = packageName,
+            ).forEach { eblanShortcutInfo ->
+                ensureActive()
+
+                val shortcutFile = File(
+                    fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                    eblanShortcutInfo.shortcutId,
+                )
+
+                if (shortcutFile.exists()) {
+                    shortcutFile.delete()
+                }
+            }
+
             eblanApplicationInfoRepository.deleteEblanApplicationInfo(
                 serialNumber = serialNumber,
                 packageName = packageName,
@@ -106,6 +123,8 @@ class RemovePackageUseCase @Inject constructor(
             eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfoByPackageName(
                 packageName = packageName,
             )
+
+            eblanShortcutInfoRepository.deleteEblanShortcutInfoByPackageName(packageName = packageName)
 
             applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
                 serialNumber = serialNumber,

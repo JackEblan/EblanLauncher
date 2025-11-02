@@ -21,7 +21,7 @@
 
     <application>
         <service
-            android:name=".ApplicationInfoService"
+            android:name=".LauncherAppsService"
             android:exported="false"/>
 
         <service
@@ -30,7 +30,7 @@
             android:exported="false"/>
 
         <service
-            android:name=".ManualSyncDataService"
+            android:name=".SyncDataService"
             android:foregroundServiceType="dataSync"
             android:exported="false"/>
 

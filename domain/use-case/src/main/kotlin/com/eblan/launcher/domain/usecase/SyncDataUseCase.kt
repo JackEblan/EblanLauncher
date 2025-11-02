@@ -19,23 +19,28 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class ManualSyncDataUseCase @Inject constructor(
+class SyncDataUseCase @Inject constructor(
     private val updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase,
     private val updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase,
     private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
     private val updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase,
     private val updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase,
     private val updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase,
+    private val userDataRepository: UserDataRepository,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         withContext(defaultDispatcher) {
+            if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
+
             joinAll(
                 launch {
                     updateEblanApplicationInfosUseCase()

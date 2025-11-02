@@ -23,7 +23,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.eblan.launcher.domain.usecase.ManualSyncDataUseCase
+import com.eblan.launcher.domain.usecase.SyncDataUseCase
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -36,9 +36,9 @@ import javax.inject.Inject
 import com.eblan.launcher.framework.notificationmanager.R as NotificationManagerWrapperR
 
 @AndroidEntryPoint
-class ManualSyncDataService : Service() {
+class SyncDataService : Service() {
     @Inject
-    lateinit var manualSyncDataUseCase: ManualSyncDataUseCase
+    lateinit var syncDataUseCase: SyncDataUseCase
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -54,7 +54,7 @@ class ManualSyncDataService : Service() {
         val notification =
             NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
                 .setSmallIcon(NotificationManagerWrapperR.drawable.baseline_cached_24)
-                .setContentTitle("Manual syncing data")
+                .setContentTitle("Syncing data")
                 .setContentText("This may take a while")
                 .setOngoing(true)
                 .setProgress(0, 0, true)
@@ -75,7 +75,7 @@ class ManualSyncDataService : Service() {
 
         serviceScope.launch {
             syncDataJob = launch {
-                manualSyncDataUseCase()
+                syncDataUseCase()
 
                 stopForeground(STOP_FOREGROUND_REMOVE)
 

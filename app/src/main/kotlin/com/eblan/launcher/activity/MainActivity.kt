@@ -18,6 +18,7 @@
 package com.eblan.launcher.activity
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,7 +40,8 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.MainActivityUiState
 import com.eblan.launcher.navigation.MainNavHost
-import com.eblan.launcher.service.ApplicationInfoService
+import com.eblan.launcher.service.LauncherAppsService
+import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalDrawable
@@ -55,7 +57,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var applicationInfoServiceIntent: Intent
+    private lateinit var launcherAppsIntent: Intent
 
     @Inject
     lateinit var androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper
@@ -134,9 +136,17 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        applicationInfoServiceIntent = Intent(this, ApplicationInfoService::class.java)
+        val syncDataIntent = Intent(this, SyncDataService::class.java)
 
-        startService(applicationInfoServiceIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(syncDataIntent)
+        } else {
+            startService(syncDataIntent)
+        }
+
+        launcherAppsIntent = Intent(this, LauncherAppsService::class.java)
+
+        startService(launcherAppsIntent)
 
         androidAppWidgetHostWrapper.startListening()
     }
@@ -144,7 +154,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
 
-        stopService(applicationInfoServiceIntent)
+        stopService(launcherAppsIntent)
 
         androidAppWidgetHostWrapper.stopListening()
     }

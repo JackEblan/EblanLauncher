@@ -23,7 +23,6 @@ import android.os.IBinder
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.usecase.AddPackageUseCase
-import com.eblan.launcher.domain.usecase.AutoSyncDataUseCase
 import com.eblan.launcher.domain.usecase.ChangePackageUseCase
 import com.eblan.launcher.domain.usecase.ChangeShortcutsUseCase
 import com.eblan.launcher.domain.usecase.RemovePackageUseCase
@@ -36,7 +35,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationInfoService : Service() {
+class LauncherAppsService : Service() {
     @Inject
     lateinit var addPackageUseCase: AddPackageUseCase
 
@@ -51,9 +50,6 @@ class ApplicationInfoService : Service() {
 
     @Inject
     lateinit var launcherAppsWrapper: LauncherAppsWrapper
-
-    @Inject
-    lateinit var autoSyncDataUseCase: AutoSyncDataUseCase
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -94,13 +90,6 @@ class ApplicationInfoService : Service() {
                     }
                 }
             }
-        }
-
-        serviceScope.launch {
-            autoSyncDataUseCase(
-                contentTitle = "Syncing data",
-                contentText = "This may take a while",
-            )
         }
 
         return super.onStartCommand(intent, flags, startId)

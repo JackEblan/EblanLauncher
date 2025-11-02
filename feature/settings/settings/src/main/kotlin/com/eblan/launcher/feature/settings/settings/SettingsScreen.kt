@@ -52,7 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.UserData
 import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
-import com.eblan.launcher.service.ManualSyncDataService
+import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.settings.HintRow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -192,7 +192,7 @@ private fun Success(
             HintRow(
                 hint = "Sync data",
                 onClick = {
-                    val intent = Intent(context, ManualSyncDataService::class.java)
+                    val intent = Intent(context, SyncDataService::class.java)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context.startForegroundService(intent)

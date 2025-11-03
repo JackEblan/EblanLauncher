@@ -18,7 +18,6 @@
 package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -283,7 +282,7 @@ private fun ExpandableFloatingActionButton(
     val rotation by animateFloatAsState(targetValue = if (isExpanded) 45f else 0f)
 
     Column(modifier = modifier) {
-        AnimatedVisibility(visible = isExpanded) {
+        if (isExpanded) {
             Column(horizontalAlignment = Alignment.End) {
                 Button(
                     onClick = onCancel,
@@ -306,6 +305,7 @@ private fun ExpandableFloatingActionButton(
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
+
         FloatingActionButton(
             modifier = Modifier.align(Alignment.End),
             onClick = {

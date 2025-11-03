@@ -64,29 +64,31 @@ fun ApplicationInfoGridItemMenu(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
-                    ListItem(
-                        modifier = Modifier.clickable {
-                            onTapShortcutInfo(
-                                eblanShortcutInfo.serialNumber,
-                                eblanShortcutInfo.packageName,
-                                eblanShortcutInfo.shortcutId,
-                            )
-                        },
-                        headlineContent = {
-                            Text(text = eblanShortcutInfo.shortLabel)
-                        },
-                        leadingContent = {
-                            AsyncImage(
-                                model = eblanShortcutInfo.icon,
-                                contentDescription = null,
-                                modifier = Modifier.height(20.dp),
-                            )
-                        },
-                    )
-                }
+                if (eblanShortcutInfosByPackageName.isNotEmpty()) {
+                    eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
+                        ListItem(
+                            modifier = Modifier.clickable {
+                                onTapShortcutInfo(
+                                    eblanShortcutInfo.serialNumber,
+                                    eblanShortcutInfo.packageName,
+                                    eblanShortcutInfo.shortcutId,
+                                )
+                            },
+                            headlineContent = {
+                                Text(text = eblanShortcutInfo.shortLabel)
+                            },
+                            leadingContent = {
+                                AsyncImage(
+                                    model = eblanShortcutInfo.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.height(20.dp),
+                                )
+                            },
+                        )
+                    }
 
-                Spacer(modifier = Modifier.height(5.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
+                }
 
                 Row {
                     IconButton(

@@ -549,6 +549,8 @@ private fun HorizontalPagerScreen(
         pageIndicatorHeight.roundToPx()
     }
 
+    var editGridItemId by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(key1 = drag) {
         if (!isApplicationComponentVisible && drag == Drag.Dragging) {
             onDraggingGridItem()
@@ -566,6 +568,16 @@ private fun HorizontalPagerScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
+    }
+
+    LaunchedEffect(key1 = editGridItemId) {
+        editGridItemId?.let { id ->
+            onUpdatePopupGridItem(null)
+
+            editGridItemId = null
+
+            onEdit(id)
+        }
     }
 
     Column(
@@ -813,7 +825,9 @@ private fun HorizontalPagerScreen(
             width = popupGridItemMenuIntSize.width,
             height = popupGridItemMenuIntSize.height,
             popupGridItemType = popupGridItemType,
-            onEdit = onEdit,
+            onEdit = { id ->
+                editGridItemId = id
+            },
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->

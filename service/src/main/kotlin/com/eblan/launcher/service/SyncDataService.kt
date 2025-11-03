@@ -23,6 +23,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.SyncDataUseCase
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.eblan.launcher.framework.notificationmanager.R as NotificationManagerWrapperR
@@ -39,6 +41,9 @@ import com.eblan.launcher.framework.notificationmanager.R as NotificationManager
 class SyncDataService : Service() {
     @Inject
     lateinit var syncDataUseCase: SyncDataUseCase
+
+    @Inject
+    lateinit var userDataRepository: UserDataRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -75,7 +80,13 @@ class SyncDataService : Service() {
 
         serviceScope.launch {
             syncDataJob = launch {
-                syncDataUseCase()
+                val syncData =
+                    intent?.getBooleanExtra(
+                        SYNC_DATA,
+                        userDataRepository.userData.first().experimentalSettings.syncData,
+                    ) ?: false
+
+                syncDataUseCase(syncData = syncData)
 
                 stopForeground(STOP_FOREGROUND_REMOVE)
 
@@ -90,5 +101,9 @@ class SyncDataService : Service() {
         super.onDestroy()
 
         serviceScope.cancel()
+    }
+
+    companion object {
+        const val SYNC_DATA = "syncData"
     }
 }

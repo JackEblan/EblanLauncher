@@ -26,10 +26,4 @@ interface IconPackManager {
         packageName: String,
         drawableName: String,
     ): ByteArray?
-
-    companion object {
-        const val ICON_PACK_INFO_PACKAGE_NAME = "iconPackInfoPackageName"
-
-        const val ICON_PACK_INFO_LABEL = "label"
-    }
 }

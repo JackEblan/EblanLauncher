@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.GeneralSettings
@@ -254,8 +253,8 @@ private fun Success(
             },
             onUpdateIconPack = { packageName, label ->
                 val intent = Intent(context, IconPackInfoService::class.java).apply {
-                    putExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME, packageName)
-                    putExtra(IconPackManager.ICON_PACK_INFO_LABEL, label)
+                    putExtra(IconPackInfoService.ICON_PACK_INFO_PACKAGE_NAME, packageName)
+                    putExtra(IconPackInfoService.ICON_PACK_INFO_LABEL, label)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

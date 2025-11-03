@@ -17,7 +17,24 @@
  */
 package com.eblan.launcher.domain.model
 
-data class PopupGridItem(
-    val showPopupGridItemMenu: Boolean,
-    val eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
-)
+sealed interface PopupGridItemType {
+    val showPopupGridItemMenu: Boolean
+
+    data class ApplicationInfo(
+        override val showPopupGridItemMenu: Boolean,
+        val eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+        val serialNumber: Long,
+        val componentName: String?,
+    ) : PopupGridItemType
+
+    data class Widget(
+        override val showPopupGridItemMenu: Boolean,
+        val resizeMode: Int,
+    ) : PopupGridItemType
+
+    data class ShortcutInfo(
+        override val showPopupGridItemMenu: Boolean,
+    ) : PopupGridItemType
+
+    data class Folder(override val showPopupGridItemMenu: Boolean) : PopupGridItemType
+}

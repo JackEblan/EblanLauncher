@@ -100,7 +100,8 @@ class RemovePackageUseCase @Inject constructor(
                 }
             }
 
-            eblanShortcutInfoRepository.getEblanShortcutInfoByPackageName(
+            eblanShortcutInfoRepository.getEblanShortcutInfos(
+                serialNumber = serialNumber,
                 packageName = packageName,
             ).forEach { eblanShortcutInfo ->
                 ensureActive()
@@ -124,7 +125,10 @@ class RemovePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            eblanShortcutInfoRepository.deleteEblanShortcutInfoByPackageName(packageName = packageName)
+            eblanShortcutInfoRepository.deleteEblanShortcutInfos(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
 
             applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
                 serialNumber = serialNumber,

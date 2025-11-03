@@ -258,7 +258,6 @@ fun FolderScreen(
                                             ),
                                         )
                                     },
-                                    onLongPressApplicationInfo = {},
                                     onUpdateImageBitmap = { imageBitmap ->
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),

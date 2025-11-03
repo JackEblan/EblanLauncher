@@ -26,7 +26,7 @@ import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.domain.model.PopupGridItem
+import com.eblan.launcher.domain.model.PopupGridItemType
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
@@ -164,9 +164,9 @@ class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    private val _popupGridItem = MutableStateFlow<PopupGridItem?>(null)
+    private val _popupGridItemType = MutableStateFlow<PopupGridItemType?>(null)
 
-    val popupGridItem = _popupGridItem.asStateFlow()
+    val popupGridItem = _popupGridItemType.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -515,16 +515,28 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updatePopupGridItem(
+    fun updateApplicationInfoPopupGridItem(
         showPopupGridItemMenu: Boolean,
         packageName: String?,
+        serialNumber: Long,
+        componentName: String?,
     ) {
         viewModelScope.launch {
-            _popupGridItem.update {
+            _popupGridItemType.update {
                 getEblanShortcutInfosByPackageNameUseCase(
                     showPopupGridItemMenu = showPopupGridItemMenu,
                     packageName = packageName,
+                    serialNumber = serialNumber,
+                    componentName = componentName,
                 )
+            }
+        }
+    }
+
+    fun updatePopupGridItem(popupGridItemType: PopupGridItemType?) {
+        viewModelScope.launch {
+            _popupGridItemType.update {
+                popupGridItemType
             }
         }
     }

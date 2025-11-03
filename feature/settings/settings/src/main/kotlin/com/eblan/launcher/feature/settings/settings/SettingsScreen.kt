@@ -192,7 +192,9 @@ private fun Success(
             HintRow(
                 hint = "Sync data",
                 onClick = {
-                    val intent = Intent(context, SyncDataService::class.java)
+                    val intent = Intent(context, SyncDataService::class.java).apply {
+                        putExtra(SyncDataService.SYNC_DATA, true)
+                    }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context.startForegroundService(intent)

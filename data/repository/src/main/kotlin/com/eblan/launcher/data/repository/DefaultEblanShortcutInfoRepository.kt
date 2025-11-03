@@ -41,10 +41,6 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         eblanShortcutInfoDao.upsertEblanShortcutInfoEntities(entities = entities)
     }
 
-    override suspend fun upsertEblanShortcutInfo(eblanShortcutInfo: EblanShortcutInfo) {
-        eblanShortcutInfoDao.upsertEblanShortcutInfoEntity(entity = eblanShortcutInfo.asEntity())
-    }
-
     override suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>) {
         val entities = eblanShortcutInfos.map { eblanShortcutInfo ->
             eblanShortcutInfo.asEntity()
@@ -53,19 +49,26 @@ class DefaultEblanShortcutInfoRepository @Inject constructor(private val eblanSh
         eblanShortcutInfoDao.deleteEblanShortcutInfoEntities(entities = entities)
     }
 
-    override suspend fun getEblanShortcutInfo(id: String): EblanShortcutInfo? {
-        return eblanShortcutInfoDao.getEblanShortcutInfoEntity(id = id)?.asModel()
+    override suspend fun getEblanShortcutInfos(
+        serialNumber: Long,
+        packageName: String,
+    ): List<EblanShortcutInfo> {
+        return eblanShortcutInfoDao.getEblanShortcutInfoEntities(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        ).map { entity ->
+            entity.asModel()
+        }
     }
 
-    override suspend fun getEblanShortcutInfoByPackageName(packageName: String): List<EblanShortcutInfo> {
-        return eblanShortcutInfoDao.getEblanShortcutInfoEntitiesByPackageName(packageName = packageName)
-            .map { entity ->
-                entity.asModel()
-            }
-    }
-
-    override suspend fun deleteEblanShortcutInfoByPackageName(packageName: String) {
-        eblanShortcutInfoDao.deleteEblanShortcutInfoEntityByPackageName(packageName = packageName)
+    override suspend fun deleteEblanShortcutInfos(
+        serialNumber: Long,
+        packageName: String,
+    ) {
+        eblanShortcutInfoDao.deleteEblanShortcutInfoEntities(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
     }
 
     private fun EblanShortcutInfo.asEntity(): EblanShortcutInfoEntity {

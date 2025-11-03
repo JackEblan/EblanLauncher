@@ -20,7 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
-import com.eblan.launcher.domain.model.PopupGridItem
+import com.eblan.launcher.domain.model.PopupGridItemType
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -34,20 +34,25 @@ class GetEblanShortcutInfosByPackageNameUseCase @Inject constructor(
     suspend operator fun invoke(
         showPopupGridItemMenu: Boolean,
         packageName: String?,
-    ): PopupGridItem? {
+        serialNumber: Long,
+        componentName: String?,
+    ): PopupGridItemType.ApplicationInfo {
         return withContext(defaultDispatcher) {
             val eblanShortcutInfosByPackageName =
                 if (packageName != null && launcherAppsWrapper.hasShortcutHostPermission) {
-                    eblanShortcutInfoRepository.getEblanShortcutInfoByPackageName(
+                    eblanShortcutInfoRepository.getEblanShortcutInfos(
+                        serialNumber = serialNumber,
                         packageName = packageName,
                     )
                 } else {
                     emptyList()
                 }
 
-            PopupGridItem(
+            PopupGridItemType.ApplicationInfo(
                 showPopupGridItemMenu = showPopupGridItemMenu,
                 eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
+                serialNumber = serialNumber,
+                componentName = componentName,
             )
         }
     }

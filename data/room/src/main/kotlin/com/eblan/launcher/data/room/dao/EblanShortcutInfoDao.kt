@@ -33,18 +33,18 @@ interface EblanShortcutInfoDao {
     @Upsert
     suspend fun upsertEblanShortcutInfoEntities(entities: List<EblanShortcutInfoEntity>)
 
-    @Upsert
-    suspend fun upsertEblanShortcutInfoEntity(entity: EblanShortcutInfoEntity)
-
     @Delete
     suspend fun deleteEblanShortcutInfoEntities(entities: List<EblanShortcutInfoEntity>)
 
-    @Query("SELECT * FROM EblanShortcutInfoEntity WHERE shortcutId = :id")
-    suspend fun getEblanShortcutInfoEntity(id: String): EblanShortcutInfoEntity?
+    @Query("SELECT * FROM EblanShortcutInfoEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun getEblanShortcutInfoEntities(
+        serialNumber: Long,
+        packageName: String,
+    ): List<EblanShortcutInfoEntity>
 
-    @Query("SELECT * FROM EblanShortcutInfoEntity WHERE packageName = :packageName")
-    suspend fun getEblanShortcutInfoEntitiesByPackageName(packageName: String): List<EblanShortcutInfoEntity>
-
-    @Query("DELETE FROM EblanShortcutInfoEntity WHERE packageName = :packageName")
-    suspend fun deleteEblanShortcutInfoEntityByPackageName(packageName: String)
+    @Query("DELETE FROM EblanShortcutInfoEntity WHERE serialNumber = :serialNumber AND packageName = :packageName")
+    suspend fun deleteEblanShortcutInfoEntities(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

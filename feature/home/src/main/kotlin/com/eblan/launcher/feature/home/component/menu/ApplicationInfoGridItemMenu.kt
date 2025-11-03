@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -53,7 +55,9 @@ fun ApplicationInfoGridItemMenu(
     ) -> Unit,
 ) {
     Surface(
-        modifier = modifier.width(IntrinsicSize.Max),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .width(IntrinsicSize.Max),
         shape = RoundedCornerShape(30.dp),
         shadowElevation = 2.dp,
         content = {

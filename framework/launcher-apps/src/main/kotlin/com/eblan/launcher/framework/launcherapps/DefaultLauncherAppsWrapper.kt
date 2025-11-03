@@ -235,7 +235,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     override suspend fun getShortcutsByPackageName(
-        serialNumber: Long, packageName: String
+        serialNumber: Long,
+        packageName: String,
     ): List<LauncherAppsShortcutInfo>? {
         return withContext(defaultDispatcher) {
             val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
@@ -246,8 +247,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                     setQueryFlags(
                         LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 

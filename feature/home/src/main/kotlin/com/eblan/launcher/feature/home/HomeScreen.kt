@@ -69,6 +69,7 @@ import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.model.PopupGridItem
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -119,6 +120,8 @@ fun HomeRoute(
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
+    val popupGridItem by viewModel.popupGridItem.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -131,6 +134,7 @@ fun HomeRoute(
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
+        popupGridItem = popupGridItem,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -157,6 +161,7 @@ fun HomeRoute(
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
+        onUpdatePopupGridItem = viewModel::updatePopupGridItem,
     )
 }
 
@@ -173,6 +178,7 @@ fun HomeScreen(
     eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
+    popupGridItem: PopupGridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -235,6 +241,10 @@ fun HomeScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
+    onUpdatePopupGridItem: (
+        showPopupGridItemMenu: Boolean,
+        packageName: String?,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -369,6 +379,7 @@ fun HomeScreen(
                     pinGridItem = pinGridItem,
                     overlayIntOffset = overlayIntOffset,
                     overlayIntSize = overlayIntSize,
+                    popupGridItem = popupGridItem,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -408,6 +419,7 @@ fun HomeScreen(
 
                         overlayImageBitmap = null
                     },
+                    onUpdatePopupGridItem = onUpdatePopupGridItem,
                 )
             }
         }
@@ -440,6 +452,7 @@ private fun Success(
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
+    popupGridItem: PopupGridItem?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -506,6 +519,10 @@ private fun Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdatePopupGridItem: (
+        showPopupGridItemMenu: Boolean,
+        packageName: String?,
+    ) -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
@@ -588,6 +605,7 @@ private fun Success(
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
+                    popupGridItem = popupGridItem,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -614,6 +632,7 @@ private fun Success(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
+                    onUpdatePopupGridItem = onUpdatePopupGridItem,
                 )
             }
 

@@ -80,7 +80,7 @@ class ChangePackageUseCase @Inject constructor(
 
             updateShortcutInfoGridItemsByPackageNameUseCase(
                 serialNumber = serialNumber,
-                packageName = packageName
+                packageName = packageName,
             )
 
             updateApplicationInfoGridItemsByPackageNameUseCase(

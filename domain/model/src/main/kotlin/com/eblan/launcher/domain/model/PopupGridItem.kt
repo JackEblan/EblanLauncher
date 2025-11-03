@@ -15,20 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.entity
+package com.eblan.launcher.domain.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.eblan.launcher.domain.model.ShortcutQueryFlag
-
-@Entity
-data class EblanShortcutInfoEntity(
-    @PrimaryKey val shortcutId: String,
-    val serialNumber: Long,
-    val packageName: String,
-    val shortLabel: String,
-    val longLabel: String,
-    val icon: String?,
-    val shortcutQueryFlag: ShortcutQueryFlag,
-    val isEnabled: Boolean,
+data class PopupGridItem(
+    val showPopupGridItemMenu: Boolean,
+    val eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
 )

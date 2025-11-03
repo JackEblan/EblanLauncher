@@ -26,6 +26,7 @@ import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.model.PopupGridItem
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
@@ -33,6 +34,7 @@ import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosByPackageNameUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
@@ -87,6 +89,7 @@ class HomeViewModel @Inject constructor(
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
+    private val getEblanShortcutInfosByPackageNameUseCase: GetEblanShortcutInfosByPackageNameUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -124,24 +127,21 @@ class HomeViewModel @Inject constructor(
 
     private val _eblanApplicationLabel = MutableStateFlow<String?>(null)
 
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val eblanApplicationInfosByLabel =
+        _eblanApplicationLabel.filterNotNull().debounce(defaultDelay).flatMapLatest { label ->
+            getEblanApplicationInfosByLabelUseCase(label = label)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
+
     private val _eblanAppWidgetProviderInfoLabel = MutableStateFlow<String?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanApplicationInfosByLabel =
-        _eblanApplicationLabel.filterNotNull()
-            .debounce(defaultDelay)
-            .flatMapLatest { label ->
-                getEblanApplicationInfosByLabelUseCase(label = label)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList(),
-            )
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val eblanAppWidgetProviderInfosByLabel =
-        _eblanAppWidgetProviderInfoLabel.filterNotNull()
-            .debounce(defaultDelay)
+        _eblanAppWidgetProviderInfoLabel.filterNotNull().debounce(defaultDelay)
             .flatMapLatest { label ->
                 getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
             }.stateIn(
@@ -163,6 +163,10 @@ class HomeViewModel @Inject constructor(
     private val _pinGridItem = MutableStateFlow<GridItem?>(null)
 
     val pinGridItem = _pinGridItem.asStateFlow()
+
+    private val _popupGridItem = MutableStateFlow<PopupGridItem?>(null)
+
+    val popupGridItem = _popupGridItem.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -508,6 +512,20 @@ class HomeViewModel @Inject constructor(
     fun resetPinGridItem() {
         _pinGridItem.update {
             null
+        }
+    }
+
+    fun updatePopupGridItem(
+        showPopupGridItemMenu: Boolean,
+        packageName: String?,
+    ) {
+        viewModelScope.launch {
+            _popupGridItem.update {
+                getEblanShortcutInfosByPackageNameUseCase(
+                    showPopupGridItemMenu = showPopupGridItemMenu,
+                    packageName = packageName,
+                )
+            }
         }
     }
 }

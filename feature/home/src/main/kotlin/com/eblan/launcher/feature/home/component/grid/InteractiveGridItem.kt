@@ -69,6 +69,7 @@ fun InteractiveGridItemContent(
     ) -> Unit,
     onTapFolderGridItem: () -> Unit,
     onLongPress: () -> Unit,
+    onLongPressApplicationInfo: (String) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -103,6 +104,7 @@ fun InteractiveGridItemContent(
                     )
                 },
                 onLongPress = onLongPress,
+                onLongPressApplicationInfo = onLongPressApplicationInfo,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onResetOverlay = onResetOverlay,
             )
@@ -167,6 +169,7 @@ private fun InteractiveApplicationInfoGridItem(
     iconPackInfoPackageName: String,
     onTap: () -> Unit,
     onLongPress: () -> Unit,
+    onLongPressApplicationInfo: (String) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -212,6 +215,8 @@ private fun InteractiveApplicationInfoGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onLongPress()
+
+                            onLongPressApplicationInfo(data.packageName)
 
                             alpha = 0f
                         }

@@ -50,7 +50,7 @@ class UpdateEblanShortcutInfosByPackageNameUseCase @Inject constructor(
             val newEblanShortcutInfos =
                 launcherAppsWrapper.getShortcutsByPackageName(
                     serialNumber = serialNumber,
-                    packageName = packageName
+                    packageName = packageName,
                 )?.map { launcherAppsShortcutInfo ->
                     ensureActive()
 

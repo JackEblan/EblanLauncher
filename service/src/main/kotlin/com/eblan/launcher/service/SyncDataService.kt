@@ -54,7 +54,9 @@ class SyncDataService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        syncDataJob?.cancel()
+        if (syncDataJob?.isActive ?: false) {
+            return super.onStartCommand(intent, flags, startId)
+        }
 
         val notification =
             NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
@@ -78,20 +80,18 @@ class SyncDataService : Service() {
             )
         }
 
-        serviceScope.launch {
-            syncDataJob = launch {
-                val syncData =
-                    intent?.getBooleanExtra(
-                        SYNC_DATA,
-                        userDataRepository.userData.first().experimentalSettings.syncData,
-                    ) ?: false
+        syncDataJob = serviceScope.launch {
+            val syncData =
+                intent?.getBooleanExtra(
+                    SYNC_DATA,
+                    userDataRepository.userData.first().experimentalSettings.syncData,
+                ) ?: false
 
-                syncDataUseCase(syncData = syncData)
+            syncDataUseCase(syncData = syncData)
 
-                stopForeground(STOP_FOREGROUND_REMOVE)
+            stopForeground(STOP_FOREGROUND_REMOVE)
 
-                stopSelf()
-            }
+            stopSelf()
         }
 
         return super.onStartCommand(intent, flags, startId)

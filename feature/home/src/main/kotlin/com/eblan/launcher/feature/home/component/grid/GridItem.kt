@@ -186,7 +186,7 @@ fun ApplicationInfoGridItem(
             if (settings.isNotificationAccessGranted() && hasNotifications) {
                 Box(
                     modifier = Modifier
-                        .size(10.dp)
+                        .size((gridItemSettings.iconSize * 0.3).dp)
                         .align(Alignment.TopEnd)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
@@ -198,7 +198,7 @@ fun ApplicationInfoGridItem(
             if (data.serialNumber != 0L) {
                 ElevatedCard(
                     modifier = Modifier
-                        .size((gridItemSettings.iconSize * 0.40).dp)
+                        .size((gridItemSettings.iconSize * 0.4).dp)
                         .align(Alignment.BottomEnd),
                 ) {
                     Icon(

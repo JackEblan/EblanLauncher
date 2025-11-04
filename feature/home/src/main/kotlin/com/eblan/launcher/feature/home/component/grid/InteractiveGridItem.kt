@@ -58,6 +58,7 @@ fun InteractiveGridItemContent(
     hasShortcutHostPermission: Boolean,
     drag: Drag,
     iconPackInfoPackageName: String,
+    statusBarNotifications: Map<String, Int>,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String?,
@@ -105,6 +106,7 @@ fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onResetOverlay = onResetOverlay,
+                statusBarNotifications = statusBarNotifications,
             )
         }
 
@@ -165,6 +167,7 @@ private fun InteractiveApplicationInfoGridItem(
     data: GridItemData.ApplicationInfo,
     drag: Drag,
     iconPackInfoPackageName: String,
+    statusBarNotifications: Map<String, Int>,
     onTap: () -> Unit,
     onLongPress: (GridItemData) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -249,6 +252,7 @@ private fun InteractiveApplicationInfoGridItem(
         textColor = textColor,
         gridItemSettings = gridItemSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
+        statusBarNotifications = statusBarNotifications,
     )
 }
 

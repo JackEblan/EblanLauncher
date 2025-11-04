@@ -36,9 +36,11 @@ import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ThemeBrand
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
+import com.eblan.launcher.framework.settings.AndroidSettingsWrapper
 import com.eblan.launcher.model.SettingsActivityUiState
 import com.eblan.launcher.navigation.SettingsNavHost
 import com.eblan.launcher.ui.local.LocalPackageManager
+import com.eblan.launcher.ui.local.LocalSettings
 import com.eblan.launcher.util.handleEdgeToEdge
 import com.eblan.launcher.viewmodel.SettingsActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,12 +53,16 @@ class SettingsActivity : ComponentActivity() {
     @Inject
     lateinit var androidPackageManagerWrapper: AndroidPackageManagerWrapper
 
+    @Inject
+    lateinit var androidSettingsWrapper: AndroidSettingsWrapper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             CompositionLocalProvider(
                 LocalPackageManager provides androidPackageManagerWrapper,
+                LocalSettings provides androidSettingsWrapper,
             ) {
                 val navController = rememberNavController()
 

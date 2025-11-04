@@ -108,6 +108,7 @@ fun PagerScreen(
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
     popupGridItemType: PopupGridItemType?,
+    statusBarNotifications: Map<String, Int>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -289,6 +290,7 @@ fun PagerScreen(
         homeSettings = homeSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
         popupGridItemType = popupGridItemType,
+        statusBarNotifications = statusBarNotifications,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
         onResize = onResize,
@@ -485,6 +487,7 @@ private fun HorizontalPagerScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     popupGridItemType: PopupGridItemType?,
+    statusBarNotifications: Map<String, Int>,
     onTapFolderGridItem: (String) -> Unit,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
@@ -641,6 +644,7 @@ private fun HorizontalPagerScreen(
                         hasShortcutHostPermission = hasShortcutHostPermission,
                         drag = drag,
                         iconPackInfoPackageName = iconPackInfoPackageName,
+                        statusBarNotifications = statusBarNotifications,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -747,6 +751,7 @@ private fun HorizontalPagerScreen(
                     hasShortcutHostPermission = hasShortcutHostPermission,
                     drag = drag,
                     iconPackInfoPackageName = iconPackInfoPackageName,
+                    statusBarNotifications = statusBarNotifications,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 

@@ -19,6 +19,7 @@ package com.eblan.launcher.feature.settings.general
 
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -53,6 +54,7 @@ import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import com.eblan.launcher.service.IconPackInfoService
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
+import com.eblan.launcher.ui.local.LocalSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
@@ -142,6 +144,8 @@ private fun Success(
 ) {
     val context = LocalContext.current
 
+    val settings = LocalSettings.current
+
     var showThemeBrandDialog by remember { mutableStateOf(false) }
 
     var showDarkThemeConfigDialog by remember { mutableStateOf(false) }
@@ -193,15 +197,31 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Spacer(modifier = Modifier.height(10.dp))
+
             SettingsSwitch(
                 checked = generalSettings.dynamicTheme,
                 title = "Dynamic Theme",
                 subtitle = "Dynamic theme",
                 onCheckedChange = { dynamicTheme ->
                     onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
+                },
+            )
+        }
+
+        if (!settings.isNotificationAccessGranted()) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsColumn(
+                title = "Notification Dots",
+                subtitle = "Grant notification access",
+                onClick = {
+                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                    context.startActivity(intent)
                 },
             )
         }

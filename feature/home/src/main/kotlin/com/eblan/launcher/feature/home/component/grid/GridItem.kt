@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -56,6 +57,7 @@ import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalSettings
 import java.io.File
 
 @Composable
@@ -67,6 +69,7 @@ fun GridItemContent(
     iconPackInfoPackageName: String,
     isDragging: Boolean,
     hasShortcutHostPermission: Boolean,
+    statusBarNotifications: Map<String, Int>,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -88,6 +91,7 @@ fun GridItemContent(
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
+                        statusBarNotifications = statusBarNotifications,
                     )
                 }
 
@@ -129,8 +133,11 @@ fun ApplicationInfoGridItem(
     textColor: Color,
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
+    statusBarNotifications: Map<String, Int>,
 ) {
     val context = LocalContext.current
+
+    val settings = LocalSettings.current
 
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -158,6 +165,9 @@ fun ApplicationInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
+    val hasNotifications =
+        statusBarNotifications[data.packageName] != null && statusBarNotifications[data.packageName]!! > 0
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
@@ -172,6 +182,18 @@ fun ApplicationInfoGridItem(
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
             )
+
+            if (settings.isNotificationAccessGranted() && hasNotifications) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .align(Alignment.TopEnd)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape,
+                        ),
+                )
+            }
 
             if (data.serialNumber != 0L) {
                 ElevatedCard(

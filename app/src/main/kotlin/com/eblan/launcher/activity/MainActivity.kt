@@ -34,6 +34,7 @@ import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
+import com.eblan.launcher.framework.settings.AndroidSettingsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
@@ -48,6 +49,7 @@ import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalPinItemRequest
+import com.eblan.launcher.ui.local.LocalSettings
 import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import com.eblan.launcher.util.handleEdgeToEdge
@@ -83,6 +85,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var androidUserManagerWrapper: AndroidUserManagerWrapper
 
+    @Inject
+    lateinit var androidSettingsWrapper: AndroidSettingsWrapper
+
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +103,7 @@ class MainActivity : ComponentActivity() {
                 LocalPackageManager provides androidPackageManagerWrapper,
                 LocalDrawable provides androidDrawableWrapper,
                 LocalUserManager provides androidUserManagerWrapper,
+                LocalSettings provides androidSettingsWrapper,
             ) {
                 val navController = rememberNavController()
 

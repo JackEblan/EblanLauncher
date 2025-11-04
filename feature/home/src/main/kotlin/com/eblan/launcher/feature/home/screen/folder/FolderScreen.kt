@@ -75,6 +75,7 @@ fun FolderScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     folderGridHorizontalPagerState: PagerState,
+    statusBarNotifications: Map<String, Int>,
     onUpdateScreen: (Screen) -> Unit,
     onRemoveLastFolder: () -> Unit,
     onAddFolder: (String) -> Unit,
@@ -208,6 +209,7 @@ fun FolderScreen(
                                     gridItemSettings = homeSettings.gridItemSettings,
                                     textColor = textColor,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
+                                    statusBarNotifications = statusBarNotifications,
                                     onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 

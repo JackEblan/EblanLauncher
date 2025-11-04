@@ -102,6 +102,7 @@ fun DragScreen(
     currentPage: Int,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
+    statusBarNotifications: Map<String, Int>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -388,6 +389,7 @@ fun DragScreen(
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         isDragging = gridItem.id == gridItemSource.gridItem.id,
                         hasShortcutHostPermission = hasShortcutHostPermission,
+                        statusBarNotifications = statusBarNotifications,
                     )
                 },
             )
@@ -435,6 +437,7 @@ fun DragScreen(
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = gridItem.id == gridItemSource.gridItem.id,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    statusBarNotifications = statusBarNotifications,
                 )
             },
         )
@@ -461,6 +464,7 @@ fun DragScreen(
         drag = drag,
         moveGridItemResult = lastMoveGridItemResult,
         gridItemSource = gridItemSource,
+        statusBarNotifications = statusBarNotifications,
     )
 }
 
@@ -487,6 +491,7 @@ private fun AnimatedDropGridItem(
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
     gridItemSource: GridItemSource,
+    statusBarNotifications: Map<String, Int>,
 ) {
     if (drag != Drag.End ||
         moveGridItemResult?.isSuccess != true ||
@@ -674,5 +679,6 @@ private fun AnimatedDropGridItem(
         iconPackInfoPackageName = iconPackInfoPackageName,
         isDragging = false,
         hasShortcutHostPermission = hasShortcutHostPermission,
+        statusBarNotifications = statusBarNotifications,
     )
 }

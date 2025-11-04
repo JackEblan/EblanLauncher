@@ -59,6 +59,7 @@ fun ResizeScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     hasShortcutHostPermission: Boolean,
+    statusBarNotifications: Map<String, Int>,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -144,6 +145,7 @@ fun ResizeScreen(
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    statusBarNotifications = statusBarNotifications,
                 )
             },
         )
@@ -186,6 +188,7 @@ fun ResizeScreen(
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    statusBarNotifications = statusBarNotifications,
                 )
             },
         )

@@ -15,23 +15,19 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.settings
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.feature)
-    alias(libs.plugins.com.eblan.launcher.libraryCompose)
-}
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-android {
-    namespace = "com.eblan.launcher.feature.home"
-}
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface SettingsModule {
 
-dependencies {
-    implementation(projects.common)
-    implementation(projects.domain.framework)
-    implementation(projects.domain.grid)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.settings)
-    implementation(projects.framework.userManager)
-    implementation(projects.service)
+    @Binds
+    @Singleton
+    fun AndroidSettingsWrapper(impl: DefaultSettingsWrapper): AndroidSettingsWrapper
 }

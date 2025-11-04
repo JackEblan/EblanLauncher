@@ -26,8 +26,6 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.GridItemData.Widget
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
-import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -37,10 +35,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class GetPinGridItemUseCase @Inject constructor(
-    private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
-    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
@@ -53,101 +49,108 @@ class GetPinGridItemUseCase @Inject constructor(
 
             when (pinItemRequestType) {
                 is PinItemRequestType.Widget -> {
-                    val eblanAppWidgetProviderInfo =
-                        eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfo(className = pinItemRequestType.className)
-
-                    if (eblanAppWidgetProviderInfo != null) {
-                        val data = Widget(
-                            appWidgetId = 0,
-                            className = eblanAppWidgetProviderInfo.className,
-                            componentName = eblanAppWidgetProviderInfo.componentName,
-                            packageName = eblanAppWidgetProviderInfo.packageName,
-                            serialNumber = pinItemRequestType.serialNumber,
-                            configure = eblanAppWidgetProviderInfo.configure,
-                            minWidth = eblanAppWidgetProviderInfo.minWidth,
-                            minHeight = eblanAppWidgetProviderInfo.minHeight,
-                            resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                            minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                            minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                            maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                            maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                            targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                            targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                            preview = eblanAppWidgetProviderInfo.preview,
-                            label = eblanAppWidgetProviderInfo.label,
-                            icon = eblanAppWidgetProviderInfo.icon,
+                    val preview = pinItemRequestType.preview?.let { byteArray ->
+                        fileManager.getAndUpdateFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                            name = pinItemRequestType.className,
+                            byteArray = byteArray,
                         )
-
-                        GridItem(
-                            id = Uuid.random()
-                                .toHexString(),
-                            folderId = null,
-                            page = homeSettings.initialPage,
-                            startColumn = 0,
-                            startRow = 0,
-                            columnSpan = 1,
-                            rowSpan = 1,
-                            data = data,
-                            associate = Associate.Grid,
-                            override = false,
-                            gridItemSettings = homeSettings.gridItemSettings,
-                        )
-                    } else {
-                        null
                     }
+
+                    val label =
+                        packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
+
+                    val eblanApplicationInfoIcon =
+                        packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
+                            ?.let { byteArray ->
+                                fileManager.getAndUpdateFilePath(
+                                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                                    name = pinItemRequestType.packageName,
+                                    byteArray = byteArray,
+                                )
+                            }
+
+                    val data = Widget(
+                        appWidgetId = 0,
+                        className = pinItemRequestType.className,
+                        componentName = pinItemRequestType.componentName,
+                        packageName = pinItemRequestType.packageName,
+                        serialNumber = pinItemRequestType.serialNumber,
+                        configure = pinItemRequestType.configure,
+                        minWidth = pinItemRequestType.minWidth,
+                        minHeight = pinItemRequestType.minHeight,
+                        resizeMode = pinItemRequestType.resizeMode,
+                        minResizeWidth = pinItemRequestType.minResizeWidth,
+                        minResizeHeight = pinItemRequestType.minResizeHeight,
+                        maxResizeWidth = pinItemRequestType.maxResizeWidth,
+                        maxResizeHeight = pinItemRequestType.maxResizeHeight,
+                        targetCellHeight = pinItemRequestType.targetCellHeight,
+                        targetCellWidth = pinItemRequestType.targetCellWidth,
+                        preview = preview,
+                        label = label,
+                        icon = eblanApplicationInfoIcon,
+                    )
+
+                    GridItem(
+                        id = Uuid.random()
+                            .toHexString(),
+                        folderId = null,
+                        page = homeSettings.initialPage,
+                        startColumn = 0,
+                        startRow = 0,
+                        columnSpan = 1,
+                        rowSpan = 1,
+                        data = data,
+                        associate = Associate.Grid,
+                        override = false,
+                        gridItemSettings = homeSettings.gridItemSettings,
+                    )
                 }
 
                 is PinItemRequestType.ShortcutInfo -> {
-                    val eblanApplicationInfo =
-                        eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = pinItemRequestType.packageName)
-
-                    if (eblanApplicationInfo != null) {
-                        val icon = pinItemRequestType.icon?.let { byteArray ->
-                            fileManager.getAndUpdateFilePath(
-                                directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                                name = pinItemRequestType.shortcutId,
-                                byteArray = byteArray,
-                            )
-                        }
-
-                        val eblanApplicationInfoIcon =
-                            packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
-                                ?.let { byteArray ->
-                                    fileManager.getAndUpdateFilePath(
-                                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                        name = pinItemRequestType.packageName,
-                                        byteArray = byteArray,
-                                    )
-                                }
-
-                        val data = ShortcutInfo(
-                            shortcutId = pinItemRequestType.shortcutId,
-                            packageName = pinItemRequestType.packageName,
-                            serialNumber = pinItemRequestType.serialNumber,
-                            shortLabel = pinItemRequestType.shortLabel,
-                            longLabel = pinItemRequestType.longLabel,
-                            icon = icon,
-                            isEnabled = pinItemRequestType.isEnabled,
-                            disabledMessage = pinItemRequestType.disabledMessage,
-                            eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+                    val icon = pinItemRequestType.icon?.let { byteArray ->
+                        fileManager.getAndUpdateFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                            name = pinItemRequestType.shortcutId,
+                            byteArray = byteArray,
                         )
-
-                        GridItem(
-                            id = pinItemRequestType.shortcutId,
-                            folderId = null,
-                            page = homeSettings.initialPage,
-                            startColumn = 0,
-                            startRow = 0,
-                            columnSpan = 1,
-                            rowSpan = 1,
-                            data = data,
-                            associate = Associate.Grid,
-                            override = false,
-                            gridItemSettings = homeSettings.gridItemSettings,
-                        )
-                    } else {
-                        null
                     }
+
+                    val eblanApplicationInfoIcon =
+                        packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
+                            ?.let { byteArray ->
+                                fileManager.getAndUpdateFilePath(
+                                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                                    name = pinItemRequestType.packageName,
+                                    byteArray = byteArray,
+                                )
+                            }
+
+                    val data = ShortcutInfo(
+                        shortcutId = pinItemRequestType.shortcutId,
+                        packageName = pinItemRequestType.packageName,
+                        serialNumber = pinItemRequestType.serialNumber,
+                        shortLabel = pinItemRequestType.shortLabel,
+                        longLabel = pinItemRequestType.longLabel,
+                        icon = icon,
+                        isEnabled = pinItemRequestType.isEnabled,
+                        disabledMessage = pinItemRequestType.disabledMessage,
+                        eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+                    )
+
+                    GridItem(
+                        id = pinItemRequestType.shortcutId,
+                        folderId = null,
+                        page = homeSettings.initialPage,
+                        startColumn = 0,
+                        startRow = 0,
+                        columnSpan = 1,
+                        rowSpan = 1,
+                        data = data,
+                        associate = Associate.Grid,
+                        override = false,
+                        gridItemSettings = homeSettings.gridItemSettings,
+                    )
                 }
             }
         }

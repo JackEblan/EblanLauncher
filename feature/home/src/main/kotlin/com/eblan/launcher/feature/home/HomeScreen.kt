@@ -861,12 +861,53 @@ private suspend fun handlePinItemRequest(
                     pinItemRequest.getAppWidgetProviderInfo(context)
 
                 if (appWidgetProviderInfo != null) {
-                    onGetPinGridItem(
-                        PinItemRequestType.Widget(
-                            serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                            className = appWidgetProviderInfo.provider.className,
-                        ),
-                    )
+                    val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.let {
+                        drawable.createByteArray(drawable = it)
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        onGetPinGridItem(
+                            PinItemRequestType.Widget(
+                                appWidgetId = 0,
+                                className = appWidgetProviderInfo.provider.className,
+                                componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                packageName = appWidgetProviderInfo.provider.packageName,
+                                serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
+                                configure = appWidgetProviderInfo.configure.flattenToString(),
+                                minWidth = appWidgetProviderInfo.minWidth,
+                                minHeight = appWidgetProviderInfo.minHeight,
+                                resizeMode = appWidgetProviderInfo.resizeMode,
+                                minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                                minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                                maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
+                                maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
+                                targetCellHeight = appWidgetProviderInfo.targetCellHeight,
+                                targetCellWidth = appWidgetProviderInfo.targetCellWidth,
+                                preview = preview
+                            ),
+                        )
+                    } else {
+                        onGetPinGridItem(
+                            PinItemRequestType.Widget(
+                                appWidgetId = 0,
+                                className = appWidgetProviderInfo.provider.className,
+                                componentName = appWidgetProviderInfo.provider.flattenToString(),
+                                packageName = appWidgetProviderInfo.provider.packageName,
+                                serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
+                                configure = appWidgetProviderInfo.configure.flattenToString(),
+                                minWidth = appWidgetProviderInfo.minWidth,
+                                minHeight = appWidgetProviderInfo.minHeight,
+                                resizeMode = appWidgetProviderInfo.resizeMode,
+                                minResizeWidth = appWidgetProviderInfo.minResizeWidth,
+                                minResizeHeight = appWidgetProviderInfo.minResizeHeight,
+                                maxResizeWidth = 0,
+                                maxResizeHeight = 0,
+                                targetCellHeight = 0,
+                                targetCellWidth = 0,
+                                preview = preview
+                            ),
+                        )
+                    }
                 }
             }
 

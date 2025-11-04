@@ -25,29 +25,33 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class ManualSyncDataUseCase @Inject constructor(
+class SyncDataUseCase @Inject constructor(
     private val updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase,
     private val updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase,
     private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
     private val updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase,
     private val updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase,
+    private val updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(syncData: Boolean) {
         withContext(defaultDispatcher) {
+            if (!syncData) return@withContext
+
             joinAll(
                 launch {
                     updateEblanApplicationInfosUseCase()
 
                     updateEblanAppWidgetProviderInfosUseCase()
-                },
-                launch {
-                    updateShortcutInfoGridItemsUseCase()
+
+                    updateEblanShortcutInfosUseCase()
                 },
                 launch {
                     updateApplicationInfoGridItemsUseCase()
 
                     updateWidgetGridItemsUseCase()
+
+                    updateShortcutInfoGridItemsUseCase()
 
                     updateShortcutInfoGridItemsUseCase()
                 },

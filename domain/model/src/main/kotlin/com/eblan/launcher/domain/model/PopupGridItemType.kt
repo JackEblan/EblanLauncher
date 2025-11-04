@@ -17,24 +17,24 @@
  */
 package com.eblan.launcher.domain.model
 
-sealed interface LauncherAppsEvent {
-    data class PackageAdded(
-        val serialNumber: Long,
-        val packageName: String,
-    ) : LauncherAppsEvent
+sealed interface PopupGridItemType {
+    val showPopupGridItemMenu: Boolean
 
-    data class PackageRemoved(
+    data class ApplicationInfo(
+        override val showPopupGridItemMenu: Boolean,
+        val eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
         val serialNumber: Long,
-        val packageName: String,
-    ) : LauncherAppsEvent
+        val componentName: String?,
+    ) : PopupGridItemType
 
-    data class PackageChanged(
-        val serialNumber: Long,
-        val packageName: String,
-    ) : LauncherAppsEvent
+    data class Widget(
+        override val showPopupGridItemMenu: Boolean,
+        val resizeMode: Int,
+    ) : PopupGridItemType
 
-    data class ShortcutsChanged(
-        val packageName: String,
-        val launcherAppsShortcutInfos: List<LauncherAppsShortcutInfo>,
-    ) : LauncherAppsEvent
+    data class ShortcutInfo(
+        override val showPopupGridItemMenu: Boolean,
+    ) : PopupGridItemType
+
+    data class Folder(override val showPopupGridItemMenu: Boolean) : PopupGridItemType
 }

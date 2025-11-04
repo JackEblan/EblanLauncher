@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.feature.home.screen.pager
 
-import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
@@ -57,7 +56,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.window.Popup
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
@@ -69,15 +67,10 @@ import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
+import com.eblan.launcher.domain.model.PopupGridItemType
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
-import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
-import com.eblan.launcher.feature.home.component.menu.GridItemMenu
-import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
-import com.eblan.launcher.feature.home.component.menu.SettingsMenu
-import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvider
-import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -114,6 +107,7 @@ fun PagerScreen(
     iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
+    popupGridItemType: PopupGridItemType?,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -132,6 +126,13 @@ fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateApplicationInfoPopupGridItem: (
+        showPopupGridItemMenu: Boolean,
+        packageName: String?,
+        serialNumber: Long,
+        componentName: String?,
+    ) -> Unit,
+    onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -287,6 +288,7 @@ fun PagerScreen(
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
+        popupGridItemType = popupGridItemType,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
         onResize = onResize,
@@ -303,6 +305,8 @@ fun PagerScreen(
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
+        onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
+        onUpdatePopupGridItem = onUpdatePopupGridItem,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
@@ -480,6 +484,7 @@ private fun HorizontalPagerScreen(
     hasSystemFeatureAppWidgets: Boolean,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    popupGridItemType: PopupGridItemType?,
     onTapFolderGridItem: (String) -> Unit,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
@@ -498,6 +503,13 @@ private fun HorizontalPagerScreen(
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateApplicationInfoPopupGridItem: (
+        showPopupGridItemMenu: Boolean,
+        packageName: String?,
+        serialNumber: Long,
+        componentName: String?,
+    ) -> Unit,
+    onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -506,8 +518,6 @@ private fun HorizontalPagerScreen(
     val dockHeightPx = with(density) {
         dockHeight.roundToPx()
     }
-
-    var showPopupGridItemMenu by remember { mutableStateOf(false) }
 
     var showPopupSettingsMenu by remember { mutableStateOf(false) }
 
@@ -539,11 +549,13 @@ private fun HorizontalPagerScreen(
         pageIndicatorHeight.roundToPx()
     }
 
+    var editGridItemId by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(key1 = drag) {
         if (!isApplicationComponentVisible && drag == Drag.Dragging) {
             onDraggingGridItem()
 
-            showPopupGridItemMenu = false
+            onUpdatePopupGridItem(null)
         }
     }
 
@@ -556,6 +568,16 @@ private fun HorizontalPagerScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
+    }
+
+    LaunchedEffect(key1 = editGridItemId) {
+        editGridItemId?.let { id ->
+            onUpdatePopupGridItem(null)
+
+            editGridItemId = null
+
+            onEdit(id)
+        }
     }
 
     Column(
@@ -657,24 +679,28 @@ private fun HorizontalPagerScreen(
                         onTapFolderGridItem = {
                             onTapFolderGridItem(gridItem.id)
                         },
-                        onLongPress = {
+                        onLongPress = { data ->
                             val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
 
                             val intSize = IntSize(width = width, height = height)
 
-                            popupMenuIntOffset = IntOffset(x = x, y = y)
+                            popupMenuIntOffset = intOffset
 
                             popupGridItemMenuIntSize = IntSize(width = width, height = height)
 
                             onUpdateGridItemOffset(intOffset, intSize)
+
+                            updatePopupGridItem(
+                                data = data,
+                                onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
+                                onUpdatePopupGridItem = onUpdatePopupGridItem,
+                            )
                         },
                         onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
                                 GridItemSource.Existing(gridItem = gridItem),
                                 imageBitmap,
                             )
-
-                            showPopupGridItemMenu = true
                         },
                         onResetOverlay = onResetOverlay,
                     )
@@ -759,7 +785,7 @@ private fun HorizontalPagerScreen(
                     onTapFolderGridItem = {
                         onTapFolderGridItem(gridItem.id)
                     },
-                    onLongPress = {
+                    onLongPress = { data ->
                         val dockY =
                             y + (gridHeight - dockHeightPx)
 
@@ -772,14 +798,18 @@ private fun HorizontalPagerScreen(
                         popupGridItemMenuIntSize = IntSize(width = width, height = height)
 
                         onUpdateGridItemOffset(intOffset, intSize)
+
+                        updatePopupGridItem(
+                            data = data,
+                            onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
+                            onUpdatePopupGridItem = onUpdatePopupGridItem,
+                        )
                     },
                     onUpdateImageBitmap = { imageBitmap ->
                         onLongPressGridItem(
                             GridItemSource.Existing(gridItem = gridItem),
                             imageBitmap,
                         )
-
-                        showPopupGridItemMenu = true
                     },
                     onResetOverlay = onResetOverlay,
                 )
@@ -787,14 +817,17 @@ private fun HorizontalPagerScreen(
         )
     }
 
-    if (showPopupGridItemMenu && gridItemSource?.gridItem != null) {
+    if (popupGridItemType != null && popupGridItemType.showPopupGridItemMenu && gridItemSource?.gridItem != null) {
         PopupGridItemMenu(
             gridItem = gridItemSource.gridItem,
             x = popupMenuIntOffset.x,
             y = popupMenuIntOffset.y,
             width = popupGridItemMenuIntSize.width,
             height = popupGridItemMenuIntSize.height,
-            onEdit = onEdit,
+            popupGridItemType = popupGridItemType,
+            onEdit = { id ->
+                editGridItemId = id
+            },
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->
@@ -810,7 +843,26 @@ private fun HorizontalPagerScreen(
                 )
             },
             onDismissRequest = {
-                showPopupGridItemMenu = false
+                onUpdatePopupGridItem(null)
+            },
+            onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
+                val sourceBoundsX = popupMenuIntOffset.x + leftPadding
+
+                val sourceBoundsY = popupMenuIntOffset.y + topPadding
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    launcherApps.startShortcut(
+                        serialNumber = serialNumber,
+                        packageName = packageName,
+                        id = shortcutId,
+                        sourceBounds = Rect(
+                            sourceBoundsX,
+                            sourceBoundsY,
+                            sourceBoundsX + popupGridItemMenuIntSize.width,
+                            sourceBoundsY + popupGridItemMenuIntSize.height,
+                        ),
+                    )
+                }
             },
         )
     }
@@ -837,163 +889,49 @@ private fun HorizontalPagerScreen(
     }
 }
 
-@Composable
-private fun PopupSettingsMenu(
-    popupSettingsMenuIntOffset: IntOffset,
-    gridItems: List<GridItem>,
-    hasSystemFeatureAppWidgets: Boolean,
-    onSettings: () -> Unit,
-    onEditPage: (List<GridItem>) -> Unit,
-    onWidgets: () -> Unit,
-    onWallpaper: () -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    Popup(
-        popupPositionProvider = SettingsMenuPositionProvider(
-            x = popupSettingsMenuIntOffset.x,
-            y = popupSettingsMenuIntOffset.y,
-        ),
-        onDismissRequest = onDismissRequest,
-    ) {
-        SettingsMenu(
-            hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
-            onSettings = {
-                onSettings()
-
-                onDismissRequest()
-            },
-            onEditPage = {
-                onEditPage(gridItems)
-
-                onDismissRequest()
-            },
-
-            onWidgets = {
-                onWidgets()
-
-                onDismissRequest()
-            },
-            onWallpaper = {
-                onWallpaper()
-
-                onDismissRequest()
-            },
-        )
-    }
-}
-
-@Composable
-private fun PopupGridItemMenu(
-    gridItem: GridItem,
-    x: Int,
-    y: Int,
-    width: Int,
-    height: Int,
-    onEdit: (String) -> Unit,
-    onResize: () -> Unit,
-    onDeleteGridItem: (GridItem) -> Unit,
-    onInfo: (
+private fun updatePopupGridItem(
+    data: GridItemData,
+    onUpdateApplicationInfoPopupGridItem: (
+        showPopupGridItemMenu: Boolean,
+        packageName: String?,
         serialNumber: Long,
         componentName: String?,
     ) -> Unit,
-    onDismissRequest: () -> Unit,
+    onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
 ) {
-    Popup(
-        popupPositionProvider = MenuPositionProvider(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-        ),
-        onDismissRequest = onDismissRequest,
-        content = {
-            when (val data = gridItem.data) {
-                is GridItemData.ApplicationInfo -> {
-                    ApplicationInfoGridItemMenu(
-                        onEdit = {
-                            onEdit(gridItem.id)
+    when (data) {
+        is GridItemData.ApplicationInfo -> {
+            onUpdateApplicationInfoPopupGridItem(
+                true,
+                data.packageName,
+                data.serialNumber,
+                data.componentName,
+            )
+        }
 
-                            onDismissRequest()
-                        },
-                        onResize = {
-                            onResize()
+        is GridItemData.Folder -> {
+            onUpdatePopupGridItem(
+                PopupGridItemType.Folder(
+                    showPopupGridItemMenu = true,
+                ),
+            )
+        }
 
-                            onDismissRequest()
-                        },
-                        onInfo = {
-                            onInfo(
-                                data.serialNumber,
-                                data.componentName,
-                            )
+        is GridItemData.ShortcutInfo -> {
+            onUpdatePopupGridItem(
+                PopupGridItemType.ShortcutInfo(
+                    showPopupGridItemMenu = true,
+                ),
+            )
+        }
 
-                            onDismissRequest()
-                        },
-                        onDelete = {
-                            onDeleteGridItem(gridItem)
-
-                            onDismissRequest()
-                        },
-                    )
-                }
-
-                is GridItemData.ShortcutInfo -> {
-                    GridItemMenu(
-                        onEdit = {
-                            onEdit(gridItem.id)
-
-                            onDismissRequest()
-                        },
-                        onResize = {
-                            onResize()
-
-                            onDismissRequest()
-                        },
-                        onDelete = {
-                            onDeleteGridItem(gridItem)
-
-                            onDismissRequest()
-                        },
-                    )
-                }
-
-                is GridItemData.Folder -> {
-                    GridItemMenu(
-                        onEdit = {
-                            onEdit(gridItem.id)
-
-                            onDismissRequest()
-                        },
-                        onResize = {
-                            onResize()
-
-                            onDismissRequest()
-                        },
-                        onDelete = {
-                            onDeleteGridItem(gridItem)
-
-                            onDismissRequest()
-                        },
-                    )
-                }
-
-                is GridItemData.Widget -> {
-                    val showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
-
-                    WidgetGridItemMenu(
-                        showResize = showResize,
-                        onResize = {
-                            onResize()
-
-                            onDismissRequest()
-                        },
-                        onDelete = {
-                            onDeleteGridItem(gridItem)
-
-                            onDismissRequest()
-                        },
-                    )
-                }
-            }
-        },
-    )
+        is GridItemData.Widget -> {
+            onUpdatePopupGridItem(
+                PopupGridItemType.Widget(
+                    showPopupGridItemMenu = true,
+                    resizeMode = data.resizeMode,
+                ),
+            )
+        }
+    }
 }

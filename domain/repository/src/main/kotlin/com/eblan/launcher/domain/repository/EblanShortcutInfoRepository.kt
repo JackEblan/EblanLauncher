@@ -15,15 +15,25 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.domain.repository
 
-import com.eblan.launcher.domain.model.IconPackInfoComponent
+import com.eblan.launcher.domain.model.EblanShortcutInfo
+import kotlinx.coroutines.flow.Flow
 
-interface IconPackManager {
-    suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent>
+interface EblanShortcutInfoRepository {
+    val eblanShortcutInfos: Flow<List<EblanShortcutInfo>>
 
-    suspend fun loadByteArrayFromIconPack(
+    suspend fun upsertEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
+
+    suspend fun deleteEblanShortcutInfos(eblanShortcutInfos: List<EblanShortcutInfo>)
+
+    suspend fun getEblanShortcutInfos(
+        serialNumber: Long,
         packageName: String,
-        drawableName: String,
-    ): ByteArray?
+    ): List<EblanShortcutInfo>
+
+    suspend fun deleteEblanShortcutInfos(
+        serialNumber: Long,
+        packageName: String,
+    )
 }

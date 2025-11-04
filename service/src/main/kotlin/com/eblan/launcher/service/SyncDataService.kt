@@ -23,7 +23,8 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.eblan.launcher.domain.usecase.ManualSyncDataUseCase
+import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.SyncDataUseCase
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -31,14 +32,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.eblan.launcher.framework.notificationmanager.R as NotificationManagerWrapperR
 
 @AndroidEntryPoint
-class ManualSyncDataService : Service() {
+class SyncDataService : Service() {
     @Inject
-    lateinit var manualSyncDataUseCase: ManualSyncDataUseCase
+    lateinit var syncDataUseCase: SyncDataUseCase
+
+    @Inject
+    lateinit var userDataRepository: UserDataRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -49,12 +54,14 @@ class ManualSyncDataService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        syncDataJob?.cancel()
+        if (syncDataJob?.isActive ?: false) {
+            return super.onStartCommand(intent, flags, startId)
+        }
 
         val notification =
             NotificationCompat.Builder(this, AndroidNotificationManagerWrapper.CHANNEL_ID)
                 .setSmallIcon(NotificationManagerWrapperR.drawable.baseline_cached_24)
-                .setContentTitle("Manual syncing data")
+                .setContentTitle("Syncing data")
                 .setContentText("This may take a while")
                 .setOngoing(true)
                 .setProgress(0, 0, true)
@@ -73,14 +80,18 @@ class ManualSyncDataService : Service() {
             )
         }
 
-        serviceScope.launch {
-            syncDataJob = launch {
-                manualSyncDataUseCase()
+        syncDataJob = serviceScope.launch {
+            val syncData =
+                intent?.getBooleanExtra(
+                    SYNC_DATA,
+                    userDataRepository.userData.first().experimentalSettings.syncData,
+                ) ?: false
 
-                stopForeground(STOP_FOREGROUND_REMOVE)
+            syncDataUseCase(syncData = syncData)
 
-                stopSelf()
-            }
+            stopForeground(STOP_FOREGROUND_REMOVE)
+
+            stopSelf()
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -90,5 +101,9 @@ class ManualSyncDataService : Service() {
         super.onDestroy()
 
         serviceScope.cancel()
+    }
+
+    companion object {
+        const val SYNC_DATA = "syncData"
     }
 }

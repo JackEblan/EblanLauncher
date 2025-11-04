@@ -15,13 +15,15 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.domain.model
 
-interface NotificationManagerWrapper {
-    fun notifySyncData(
-        contentTitle: String,
-        contentText: String,
-    )
-
-    fun cancelSyncData()
-}
+data class EblanShortcutInfo(
+    val serialNumber: Long,
+    val shortcutId: String,
+    val packageName: String,
+    val shortLabel: String,
+    val longLabel: String,
+    val icon: String?,
+    val shortcutQueryFlag: ShortcutQueryFlag,
+    val isEnabled: Boolean,
+)

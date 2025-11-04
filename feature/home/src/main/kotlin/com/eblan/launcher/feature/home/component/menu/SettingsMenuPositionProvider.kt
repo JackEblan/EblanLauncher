@@ -34,9 +34,9 @@ class SettingsMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize,
     ): IntOffset {
-        val x = x.coerceIn(0, windowSize.width)
+        val x = (x - popupContentSize.width).coerceIn(0, windowSize.width)
 
-        val y = y.coerceIn(0, windowSize.height)
+        val y = (y - popupContentSize.height).coerceIn(0, windowSize.height)
 
         return IntOffset(x = x, y = y)
     }

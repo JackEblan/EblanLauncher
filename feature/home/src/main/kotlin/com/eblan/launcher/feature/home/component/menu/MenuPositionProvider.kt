@@ -61,7 +61,7 @@ class MenuPositionProvider(
         val childX = childXInitial.coerceIn(0, windowSize.width - popupContentSize.width)
 
         val topPositionY = y - popupContentSize.height
-        val bottomPositionY = y + (popupContentSize.height + height)
+        val bottomPositionY = y + height
 
         val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
         val childY = childYInitial.coerceIn(0, windowSize.height - popupContentSize.height)

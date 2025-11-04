@@ -15,15 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.data.room.entity
 
-import com.eblan.launcher.domain.model.IconPackInfoComponent
+import androidx.room.Entity
+import com.eblan.launcher.domain.model.ShortcutQueryFlag
 
-interface IconPackManager {
-    suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent>
-
-    suspend fun loadByteArrayFromIconPack(
-        packageName: String,
-        drawableName: String,
-    ): ByteArray?
-}
+@Entity(primaryKeys = ["shortcutId", "serialNumber"])
+data class EblanShortcutInfoEntity(
+    val shortcutId: String,
+    val serialNumber: Long,
+    val packageName: String,
+    val shortLabel: String,
+    val longLabel: String,
+    val icon: String?,
+    val shortcutQueryFlag: ShortcutQueryFlag,
+    val isEnabled: Boolean,
+)

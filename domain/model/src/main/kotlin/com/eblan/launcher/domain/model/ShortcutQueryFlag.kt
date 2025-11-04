@@ -15,15 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.framework
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.IconPackInfoComponent
-
-interface IconPackManager {
-    suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent>
-
-    suspend fun loadByteArrayFromIconPack(
-        packageName: String,
-        drawableName: String,
-    ): ByteArray?
+enum class ShortcutQueryFlag {
+    Pinned,
+    Dynamic,
+    Manifest,
 }

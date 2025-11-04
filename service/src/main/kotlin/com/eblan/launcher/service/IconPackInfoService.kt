@@ -23,7 +23,6 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.usecase.UpdateIconPackInfosUseCase
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,9 +49,9 @@ class IconPackInfoService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val iconPackInfoPackageName =
-            intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_PACKAGE_NAME)
+            intent?.getStringExtra(ICON_PACK_INFO_PACKAGE_NAME)
 
-        val iconPackInfoLabel = intent?.getStringExtra(IconPackManager.ICON_PACK_INFO_LABEL)
+        val iconPackInfoLabel = intent?.getStringExtra(ICON_PACK_INFO_LABEL)
 
         if (iconPackInfoPackageName != null && iconPackInfoLabel != null) {
             iconPackInfoJob?.cancel()
@@ -79,14 +78,12 @@ class IconPackInfoService : Service() {
                 )
             }
 
-            serviceScope.launch {
-                iconPackInfoJob = launch {
-                    updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
+            iconPackInfoJob = serviceScope.launch {
+                updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
 
-                    stopForeground(STOP_FOREGROUND_REMOVE)
+                stopForeground(STOP_FOREGROUND_REMOVE)
 
-                    stopSelf()
-                }
+                stopSelf()
             }
         }
 
@@ -97,5 +94,11 @@ class IconPackInfoService : Service() {
         super.onDestroy()
 
         serviceScope.cancel()
+    }
+
+    companion object {
+        const val ICON_PACK_INFO_PACKAGE_NAME = "iconPackInfoPackageName"
+
+        const val ICON_PACK_INFO_LABEL = "label"
     }
 }

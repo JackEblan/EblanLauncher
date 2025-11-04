@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
@@ -34,6 +35,12 @@ class EditApplicationInfoViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = EditApplicationInfoUiState.Loading,
     )
+
+    fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
+        viewModelScope.launch {
+            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+        }
+    }
 
     private fun getEblanApplicationInfo() {
         viewModelScope.launch {

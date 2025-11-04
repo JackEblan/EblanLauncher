@@ -105,6 +105,7 @@ fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
+    onEditApplicationInfo: (Long, String) -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -169,6 +170,7 @@ fun HomeRoute(
         onResetPinGridItem = viewModel::resetPinGridItem,
         onUpdateApplicationInfoPopupGridItem = viewModel::updateApplicationInfoPopupGridItem,
         onUpdatePopupGridItem = viewModel::updatePopupGridItem,
+        onEditApplicationInfo = onEditApplicationInfo,
     )
 }
 
@@ -255,6 +257,7 @@ fun HomeScreen(
         componentName: String?,
     ) -> Unit,
     onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
+    onEditApplicationInfo: (Long, String) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -462,6 +465,7 @@ fun HomeScreen(
                     },
                     onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
                     onUpdatePopupGridItem = onUpdatePopupGridItem,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
         }
@@ -569,6 +573,7 @@ private fun Success(
         componentName: String?,
     ) -> Unit,
     onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
+    onEditApplicationInfo: (Long, String) -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
@@ -681,6 +686,7 @@ private fun Success(
                     onResetOverlay = onResetOverlay,
                     onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
                     onUpdatePopupGridItem = onUpdatePopupGridItem,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
 

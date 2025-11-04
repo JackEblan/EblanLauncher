@@ -23,4 +23,7 @@ data class EblanApplicationInfo(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    val customLabel: String?,
+    val override: Boolean,
+    val gridItemSettings: GridItemSettings,
 )

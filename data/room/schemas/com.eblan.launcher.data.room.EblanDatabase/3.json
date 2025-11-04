@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "4b25ea6657f532e7226054eccd916093",
+    "identityHash": "c0794d8e366ddb8d468989bb1bcdd26a",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT, `icon` TEXT, `label` TEXT, `customLabel` TEXT, `override` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`packageName`, `serialNumber`))",
         "fields": [
           {
             "fieldPath": "packageName",
@@ -34,6 +34,59 @@
             "fieldPath": "label",
             "columnName": "label",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "customLabel",
+            "columnName": "customLabel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "override",
+            "columnName": "override",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.iconSize",
+            "columnName": "iconSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.textColor",
+            "columnName": "textColor",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.textSize",
+            "columnName": "textSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.showLabel",
+            "columnName": "showLabel",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.singleLineLabel",
+            "columnName": "singleLineLabel",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.horizontalAlignment",
+            "columnName": "horizontalAlignment",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.verticalArrangement",
+            "columnName": "verticalArrangement",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -861,7 +914,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4b25ea6657f532e7226054eccd916093')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c0794d8e366ddb8d468989bb1bcdd26a')"
     ]
   }
 }

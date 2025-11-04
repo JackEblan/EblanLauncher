@@ -31,6 +31,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     onApplicationInfo: () -> Unit,
+    onEdit: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -42,6 +43,14 @@ fun ApplicationInfoMenu(
                     onClick = onApplicationInfo,
                 ) {
                     Icon(imageVector = EblanLauncherIcons.Info, contentDescription = null)
+                }
+            }
+
+            Row {
+                IconButton(
+                    onClick = onEdit,
+                ) {
+                    Icon(imageVector = EblanLauncherIcons.Edit, contentDescription = null)
                 }
             }
         },

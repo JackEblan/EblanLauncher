@@ -44,8 +44,14 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
+            val gridItemSettings =
+                userDataRepository.userData.first().appDrawerSettings.gridItemSettings
+
             val oldEblanApplicationInfos =
                 eblanApplicationInfoRepository.eblanApplicationInfos.first()
+                    .filterNot { eblanApplicationInfo ->
+                        eblanApplicationInfo.override
+                    }
 
             val newEblanApplicationInfos =
                 launcherAppsWrapper.getActivityList().map { eblanLauncherActivityInfo ->
@@ -65,6 +71,9 @@ class UpdateEblanApplicationInfosUseCase @Inject constructor(
                         packageName = eblanLauncherActivityInfo.packageName,
                         icon = icon,
                         label = eblanLauncherActivityInfo.label,
+                        customLabel = null,
+                        override = false,
+                        gridItemSettings = gridItemSettings,
                     )
                 }
 

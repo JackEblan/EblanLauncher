@@ -27,6 +27,9 @@ fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
         componentName = componentName,
         icon = icon,
         label = label,
+        customLabel = customLabel,
+        override = override,
+        gridItemSettings = gridItemSettings,
     )
 }
 
@@ -37,5 +40,8 @@ fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
         componentName = componentName,
         icon = icon,
         label = label,
+        customLabel = customLabel,
+        override = override,
+        gridItemSettings = gridItemSettings,
     )
 }

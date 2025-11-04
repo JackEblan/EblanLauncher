@@ -21,7 +21,6 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -66,17 +65,27 @@ class ChangePackageUseCase @Inject constructor(
 
             val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
-            val eblanApplicationInfo = EblanApplicationInfo(
+            val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(
                 serialNumber = serialNumber,
-                componentName = componentName,
-                packageName = packageName,
-                icon = icon,
-                label = label,
+                packageName = packageName
             )
 
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+            if (eblanApplicationInfo != null) {
+                eblanApplicationInfoRepository.upsertEblanApplicationInfo(
+                    eblanApplicationInfo = eblanApplicationInfo.copy(
+                        componentName = componentName,
+                        icon = icon,
+                        label = label,
+                    )
+                )
+            }
 
             updateEblanAppWidgetProviderInfosByPackageNameUseCase(packageName = packageName)
+
+            updateEblanShortcutInfosByPackageNameUseCase(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
 
             updateShortcutInfoGridItemsByPackageNameUseCase(
                 serialNumber = serialNumber,

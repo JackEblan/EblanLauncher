@@ -17,7 +17,9 @@
  */
 package com.eblan.launcher.data.room.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
+import com.eblan.launcher.domain.model.GridItemSettings
 
 @Entity(primaryKeys = ["packageName", "serialNumber"])
 data class EblanApplicationInfoEntity(
@@ -26,4 +28,7 @@ data class EblanApplicationInfoEntity(
     val componentName: String?,
     val icon: String?,
     val label: String?,
+    val customLabel: String?,
+    val override: Boolean,
+    @Embedded val gridItemSettings: GridItemSettings,
 )

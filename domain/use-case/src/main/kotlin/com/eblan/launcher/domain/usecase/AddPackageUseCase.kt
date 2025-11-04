@@ -55,6 +55,9 @@ class AddPackageUseCase @Inject constructor(
         withContext(defaultDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
+            val gridItemSettings =
+                userDataRepository.userData.first().appDrawerSettings.gridItemSettings
+
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
             val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)
@@ -75,6 +78,9 @@ class AddPackageUseCase @Inject constructor(
                 packageName = packageName,
                 icon = icon,
                 label = label,
+                customLabel = null,
+                override = false,
+                gridItemSettings = gridItemSettings,
             )
 
             eblanApplicationInfoRepository.upsertEblanApplicationInfo(

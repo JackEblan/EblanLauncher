@@ -254,7 +254,7 @@ private fun Success(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
     onFling: suspend () -> Unit,
-    onEditApplicationInfo: (Long, String) -> Unit
+    onEditApplicationInfo: (Long, String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 

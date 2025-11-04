@@ -44,9 +44,7 @@ fun ApplicationInfoMenu(
                 ) {
                     Icon(imageVector = EblanLauncherIcons.Info, contentDescription = null)
                 }
-            }
 
-            Row {
                 IconButton(
                     onClick = onEdit,
                 ) {

@@ -67,7 +67,7 @@ class ChangePackageUseCase @Inject constructor(
 
             val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(
                 serialNumber = serialNumber,
-                packageName = packageName
+                packageName = packageName,
             )
 
             if (eblanApplicationInfo != null) {
@@ -76,7 +76,7 @@ class ChangePackageUseCase @Inject constructor(
                         componentName = componentName,
                         icon = icon,
                         label = label,
-                    )
+                    ),
                 )
             }
 

@@ -889,7 +889,7 @@ private suspend fun handlePinItemRequest(
                                 maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
                                 targetCellHeight = appWidgetProviderInfo.targetCellHeight,
                                 targetCellWidth = appWidgetProviderInfo.targetCellWidth,
-                                preview = preview
+                                preview = preview,
                             ),
                         )
                     } else {
@@ -910,7 +910,7 @@ private suspend fun handlePinItemRequest(
                                 maxResizeHeight = 0,
                                 targetCellHeight = 0,
                                 targetCellWidth = 0,
-                                preview = preview
+                                preview = preview,
                             ),
                         )
                     }

@@ -24,13 +24,13 @@ import com.eblan.launcher.feature.editapplicationinfo.EditApplicationInfoRoute
 
 fun NavController.navigateToEditApplicationInfoScreen(
     serialNumber: Long,
-    packageName: String
+    packageName: String,
 ) {
     navigate(
         EditApplicationInfoRouteData(
             serialNumber = serialNumber,
-            packageName = packageName
-        )
+            packageName = packageName,
+        ),
     )
 }
 

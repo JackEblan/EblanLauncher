@@ -24,11 +24,13 @@ import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 internal class DefaultNotificationManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
-    AndroidNotificationManagerWrapper {
+    AndroidNotificationManagerWrapper, NotificationManagerWrapper {
     private val notificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
@@ -51,5 +53,25 @@ internal class DefaultNotificationManagerWrapper @Inject constructor(@Applicatio
         if (notificationManager.areNotificationsEnabled()) {
             notificationManager.notify(id, notification)
         }
+    }
+
+    override fun notifySyncData() {
+        val notification =
+            NotificationCompat.Builder(context, AndroidNotificationManagerWrapper.CHANNEL_ID)
+                .setSmallIcon(R.drawable.baseline_cached_24)
+                .setContentTitle("Syncing data")
+                .setContentText("This may take a while")
+                .setOngoing(true)
+                .setProgress(0, 0, true)
+                .build()
+
+        notificationManager.notify(
+            AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID,
+            notification,
+        )
+    }
+
+    override fun cancelSyncData() {
+        notificationManager.cancel(AndroidNotificationManagerWrapper.GRID_ITEMS_SYNC_NOTIFICATION_ID)
     }
 }

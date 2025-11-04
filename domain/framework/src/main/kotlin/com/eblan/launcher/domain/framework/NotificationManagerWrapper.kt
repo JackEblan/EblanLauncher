@@ -15,12 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.settings.model
+package com.eblan.launcher.domain.framework
 
-import com.eblan.launcher.domain.model.UserData
+interface NotificationManagerWrapper {
+    fun notifySyncData()
 
-sealed interface SettingsUiState {
-    data object Loading : SettingsUiState
-
-    data class Success(val userData: UserData) : SettingsUiState
+    fun cancelSyncData()
 }

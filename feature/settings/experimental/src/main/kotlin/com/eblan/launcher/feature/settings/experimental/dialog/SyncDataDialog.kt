@@ -19,6 +19,7 @@ package com.eblan.launcher.feature.settings.experimental.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +28,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,7 +44,9 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 fun SyncDataDialog(
     modifier: Modifier = Modifier,
     syncData: Boolean,
+    isDataSyncing: Boolean,
     onUpdateSyncData: (Boolean) -> Unit,
+    onSyncData: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
@@ -59,20 +64,40 @@ fun SyncDataDialog(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Disabling background sync helps save a bit of memory and keeps things lighter, but it also means Eblan Launcher won’t automatically update your apps, widgets, or shortcuts.\n" +
-                    "Your app drawer might show outdated icons, missing widgets, or shortcuts that no longer work.\n" +
-                    "\n" +
-                    "Only turn this off if you rarely change your apps and don’t mind syncing manually from Settings when needed.",
+                text = "Disabling background sync helps save a bit of memory and keeps things lighter, but it also means Eblan Launcher won’t automatically update your apps, widgets, or shortcuts.\n" + "Your app drawer might show outdated icons, missing widgets, or shortcuts that no longer work.\n" + "\n" + "Only turn this off if you rarely change your apps and don’t mind syncing manually from Settings when needed.",
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            if (isDataSyncing) {
+                Row {
+                    CircularProgressIndicator(modifier = Modifier.height(IntrinsicSize.Max))
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(
+                        text = "Syncing Data... Please don't close this dialog",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !syncData && !isDataSyncing,
+                onClick = onSyncData,
+            ) {
+                Text(text = "Sync Data")
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Row {
                 Checkbox(
                     checked = syncData,
-                    onCheckedChange = {
-                        onUpdateSyncData(it)
-                    },
+                    onCheckedChange = onUpdateSyncData,
                 )
 
                 Spacer(modifier = Modifier.width(5.dp))

@@ -17,12 +17,13 @@
  */
 package com.eblan.launcher.feature.settings.settings
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
-import android.os.Build
-import android.provider.Settings
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.TIRAMISU
+import android.provider.Settings.ACTION_HOME_SETTINGS
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,18 +42,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.UserData
-import com.eblan.launcher.feature.settings.settings.model.SettingsUiState
-import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.settings.HintRow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -62,7 +57,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 @Composable
 fun SettingsRoute(
     modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = hiltViewModel(),
     onFinish: () -> Unit,
     onGeneral: () -> Unit,
     onHome: () -> Unit,
@@ -71,11 +65,8 @@ fun SettingsRoute(
     onFolder: () -> Unit,
     onExperimental: () -> Unit,
 ) {
-    val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
-
     SettingsScreen(
         modifier = modifier,
-        settingsUiState = settingsUiState,
         onFinish = onFinish,
         onGeneral = onGeneral,
         onHome = onHome,
@@ -86,11 +77,10 @@ fun SettingsRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    settingsUiState: SettingsUiState,
     onFinish: () -> Unit,
     onGeneral: () -> Unit,
     onHome: () -> Unit,
@@ -99,6 +89,16 @@ fun SettingsScreen(
     onFolder: () -> Unit,
     onExperimental: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val packageManager = LocalPackageManager.current
+
+    val notificationsPermissionState = if (SDK_INT >= TIRAMISU) {
+        rememberPermissionState(permission = POST_NOTIFICATIONS)
+    } else {
+        null
+    }
+
     BackHandler {
         onFinish()
     }
@@ -120,144 +120,82 @@ fun SettingsScreen(
             )
         },
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            when (settingsUiState) {
-                SettingsUiState.Loading -> {
-                }
-
-                is SettingsUiState.Success -> {
-                    Success(
-                        userData = settingsUiState.userData,
-                        onGeneral = onGeneral,
-                        onHome = onHome,
-                        onAppDrawer = onAppDrawer,
-                        onGestures = onGestures,
-                        onFolder = onFolder,
-                        onExperimental = onExperimental,
-                    )
-                }
+            if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
+                HintRow(
+                    hint = "Allow post notification for Eblan Launcher",
+                    onClick = notificationsPermissionState::launchPermissionRequest,
+                )
             }
-        }
-    }
-}
 
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-private fun Success(
-    modifier: Modifier = Modifier,
-    userData: UserData,
-    onGeneral: () -> Unit,
-    onHome: () -> Unit,
-    onAppDrawer: () -> Unit,
-    onGestures: () -> Unit,
-    onFolder: () -> Unit,
-    onExperimental: () -> Unit,
-) {
-    val context = LocalContext.current
+            if (!packageManager.isDefaultLauncher()) {
+                HintRow(
+                    hint = "Set Eblan Launcher as your default launcher",
+                    onClick = {
+                        context.startActivity(Intent(ACTION_HOME_SETTINGS))
+                    },
+                )
+            }
 
-    val packageManager = LocalPackageManager.current
+            Spacer(modifier = Modifier.height(10.dp))
 
-    val notificationsPermissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
-    } else {
-        null
-    }
+            SettingsRow(
+                imageVector = EblanLauncherIcons.Settings,
+                title = "General",
+                subtitle = "Themes, icon packs",
+                onClick = onGeneral,
+            )
 
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .fillMaxSize(),
-    ) {
-        if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
-            HintRow(
-                hint = "Allow post notification for Eblan Launcher",
-                onClick = notificationsPermissionState::launchPermissionRequest,
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsRow(
+                imageVector = EblanLauncherIcons.Home,
+                title = "Home",
+                subtitle = "Grid, icon, dock, and more",
+                onClick = onHome,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsRow(
+                imageVector = EblanLauncherIcons.Apps,
+                title = "App Drawer",
+                subtitle = "Columns and rows count",
+                onClick = onAppDrawer,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsRow(
+                imageVector = EblanLauncherIcons.Folder,
+                title = "Folder",
+                subtitle = "Columns and rows count",
+                onClick = onFolder,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsRow(
+                imageVector = EblanLauncherIcons.Gesture,
+                title = "Gestures",
+                subtitle = "Swipe gesture actions",
+                onClick = onGestures,
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SettingsRow(
+                imageVector = EblanLauncherIcons.DeveloperMode,
+                title = "Experimental",
+                subtitle = "Advanced options for power users",
+                onClick = onExperimental,
             )
         }
-
-        if (!packageManager.isDefaultLauncher()) {
-            HintRow(
-                hint = "Set Eblan Launcher as your default launcher",
-                onClick = {
-                    context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
-                },
-            )
-        }
-
-        if (!userData.experimentalSettings.syncData) {
-            HintRow(
-                hint = "Sync data",
-                onClick = {
-                    val intent = Intent(context, SyncDataService::class.java).apply {
-                        putExtra(SyncDataService.SYNC_DATA, true)
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(intent)
-                    } else {
-                        context.startService(intent)
-                    }
-                },
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsRow(
-            imageVector = EblanLauncherIcons.Settings,
-            title = "General",
-            subtitle = "Themes, icon packs",
-            onClick = onGeneral,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsRow(
-            imageVector = EblanLauncherIcons.Home,
-            title = "Home",
-            subtitle = "Grid, icon, dock, and more",
-            onClick = onHome,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsRow(
-            imageVector = EblanLauncherIcons.Apps,
-            title = "App Drawer",
-            subtitle = "Columns and rows count",
-            onClick = onAppDrawer,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsRow(
-            imageVector = EblanLauncherIcons.Folder,
-            title = "Folder",
-            subtitle = "Columns and rows count",
-            onClick = onFolder,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsRow(
-            imageVector = EblanLauncherIcons.Gesture,
-            title = "Gestures",
-            subtitle = "Swipe gesture actions",
-            onClick = onGestures,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsRow(
-            imageVector = EblanLauncherIcons.DeveloperMode,
-            title = "Experimental",
-            subtitle = "Advanced options for power users",
-            onClick = onExperimental,
-        )
     }
 }
 

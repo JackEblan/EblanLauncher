@@ -18,7 +18,6 @@
 package com.eblan.launcher.activity
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -60,6 +59,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var launcherAppsIntent: Intent
+
+    private lateinit var syncDataIntent: Intent
 
     @Inject
     lateinit var androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper
@@ -142,17 +143,13 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        val syncDataIntent = Intent(this, SyncDataService::class.java)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(syncDataIntent)
-        } else {
-            startService(syncDataIntent)
-        }
-
         launcherAppsIntent = Intent(this, LauncherAppsService::class.java)
 
+        syncDataIntent = Intent(this, SyncDataService::class.java)
+
         startService(launcherAppsIntent)
+
+        startService(syncDataIntent)
 
         androidAppWidgetHostWrapper.startListening()
     }
@@ -161,6 +158,8 @@ class MainActivity : ComponentActivity() {
         super.onStop()
 
         stopService(launcherAppsIntent)
+
+        stopService(syncDataIntent)
 
         androidAppWidgetHostWrapper.stopListening()
     }

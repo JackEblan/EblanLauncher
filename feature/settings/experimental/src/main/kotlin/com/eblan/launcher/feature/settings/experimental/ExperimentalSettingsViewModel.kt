@@ -21,17 +21,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.SyncDataUseCase
 import com.eblan.launcher.feature.settings.experimental.model.ExperimentalSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExperimentalSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
+    private val syncDataUseCase: SyncDataUseCase,
 ) :
     ViewModel() {
     val experimentalSettingsUiState = userDataRepository.userData.map { userData ->
@@ -42,9 +48,37 @@ class ExperimentalSettingsViewModel @Inject constructor(
         initialValue = ExperimentalSettingsUiState.Loading,
     )
 
+    private val _isDataSyncing = MutableStateFlow(false)
+
+    val isDataSyncing = _isDataSyncing.asStateFlow()
+
+    private var syncDataJob: Job? = null
+
     fun updateExperimentalSettings(experimentalSettings: ExperimentalSettings) {
         viewModelScope.launch {
             userDataRepository.updateExperimentalSettings(experimentalSettings = experimentalSettings)
+        }
+    }
+
+    fun syncData() {
+        syncDataJob = viewModelScope.launch {
+            _isDataSyncing.update {
+                true
+            }
+
+            syncDataUseCase(isManualSyncData = true)
+
+            _isDataSyncing.update {
+                false
+            }
+        }
+    }
+
+    fun cancelSyncData() {
+        syncDataJob?.cancel()
+
+        _isDataSyncing.update {
+            false
         }
     }
 }

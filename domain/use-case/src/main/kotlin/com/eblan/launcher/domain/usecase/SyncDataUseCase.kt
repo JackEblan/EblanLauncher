@@ -19,43 +19,64 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.NotificationManagerWrapper
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SyncDataUseCase @Inject constructor(
+    private val userDataRepository: UserDataRepository,
     private val updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase,
     private val updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase,
     private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
     private val updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase,
     private val updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase,
     private val updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase,
+    private val notificationManagerWrapper: NotificationManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(syncData: Boolean) {
+    suspend operator fun invoke(isManualSyncData: Boolean) {
         withContext(defaultDispatcher) {
-            if (!syncData) return@withContext
+            suspend fun syncData() {
+                joinAll(
+                    launch {
+                        updateEblanApplicationInfosUseCase()
 
-            joinAll(
-                launch {
-                    updateEblanApplicationInfosUseCase()
+                        updateEblanAppWidgetProviderInfosUseCase()
 
-                    updateEblanAppWidgetProviderInfosUseCase()
+                        updateEblanShortcutInfosUseCase()
+                    },
+                    launch {
+                        updateApplicationInfoGridItemsUseCase()
 
-                    updateEblanShortcutInfosUseCase()
-                },
-                launch {
-                    updateApplicationInfoGridItemsUseCase()
+                        updateWidgetGridItemsUseCase()
 
-                    updateWidgetGridItemsUseCase()
+                        updateShortcutInfoGridItemsUseCase()
 
-                    updateShortcutInfoGridItemsUseCase()
+                        updateShortcutInfoGridItemsUseCase()
+                    },
+                )
+            }
 
-                    updateShortcutInfoGridItemsUseCase()
-                },
-            )
+            when {
+                isManualSyncData -> {
+                    syncData()
+                }
+
+                userDataRepository.userData.first().experimentalSettings.syncData -> {
+                    try {
+                        notificationManagerWrapper.notifySyncData()
+
+                        syncData()
+                    } finally {
+                        notificationManagerWrapper.cancelSyncData()
+                    }
+                }
+            }
         }
     }
 }

@@ -15,23 +15,8 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.framework.settings
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.feature)
-    alias(libs.plugins.com.eblan.launcher.libraryCompose)
-}
-
-android {
-    namespace = "com.eblan.launcher.feature.home"
-}
-
-dependencies {
-    implementation(projects.common)
-    implementation(projects.domain.framework)
-    implementation(projects.domain.grid)
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-    implementation(projects.framework.settings)
-    implementation(projects.framework.userManager)
-    implementation(projects.service)
+interface AndroidSettingsWrapper {
+    fun isNotificationAccessGranted(): Boolean
 }

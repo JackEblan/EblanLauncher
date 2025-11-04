@@ -29,6 +29,7 @@ dependencies {
     api(projects.framework.drawable)
     api(projects.framework.launcherApps)
     api(projects.framework.packageManager)
+    api(projects.framework.settings)
     api(projects.framework.userManager)
     api(projects.framework.wallpaperManager)
     api(projects.framework.widgetManager)

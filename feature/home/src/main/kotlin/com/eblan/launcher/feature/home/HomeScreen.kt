@@ -18,9 +18,13 @@
 package com.eblan.launcher.feature.home
 
 import android.content.ClipDescription
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
+import android.os.IBinder
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -36,6 +40,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -86,6 +91,7 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
+import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
@@ -274,6 +280,10 @@ fun HomeScreen(
 
     val scope = rememberCoroutineScope()
 
+    var statusBarNotifications by remember {
+        mutableStateOf<Map<String, Int>>(emptyMap())
+    }
+
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
@@ -324,6 +334,32 @@ fun HomeScreen(
             override fun onDrop(event: DragAndDropEvent): Boolean {
                 return true
             }
+        }
+    }
+
+    DisposableEffect(key1 = scope) {
+        val connection = object : ServiceConnection {
+            private var listener: EblanNotificationListenerService? = null
+
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                listener = (service as EblanNotificationListenerService.LocalBinder).getService()
+
+                scope.launch {
+                    listener?.statusBarNotifications?.collect { statusBarNotifications = it }
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) {
+                listener = null
+            }
+        }
+
+        val intent = Intent(context, EblanNotificationListenerService::class.java)
+
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+        onDispose {
+            context.unbindService(connection)
         }
     }
 
@@ -384,6 +420,7 @@ fun HomeScreen(
                     overlayIntOffset = overlayIntOffset,
                     overlayIntSize = overlayIntSize,
                     popupGridItemType = popupGridItemType,
+                    statusBarNotifications = statusBarNotifications,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -458,6 +495,7 @@ private fun Success(
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     popupGridItemType: PopupGridItemType?,
+    statusBarNotifications: Map<String, Int>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -614,6 +652,7 @@ private fun Success(
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
                     popupGridItemType = popupGridItemType,
+                    statusBarNotifications = statusBarNotifications,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -664,6 +703,7 @@ private fun Success(
                     currentPage = currentPage,
                     overlayIntOffset = overlayIntOffset,
                     overlayIntSize = overlayIntSize,
+                    statusBarNotifications = statusBarNotifications,
                     onMoveGridItem = onMoveGridItem,
                     onDragEndAfterMove = onResetGridCacheAfterMove,
                     onDragCancelAfterMove = onCancelGridCache,
@@ -687,6 +727,7 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    statusBarNotifications = statusBarNotifications,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
                     onResizeCancel = onCancelGridCache,
@@ -722,6 +763,7 @@ private fun Success(
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                    statusBarNotifications = statusBarNotifications,
                     onUpdateScreen = onUpdateScreen,
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
@@ -759,6 +801,7 @@ private fun Success(
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     overlayIntOffset = overlayIntOffset,
                     overlayIntSize = overlayIntSize,
+                    statusBarNotifications = statusBarNotifications,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,

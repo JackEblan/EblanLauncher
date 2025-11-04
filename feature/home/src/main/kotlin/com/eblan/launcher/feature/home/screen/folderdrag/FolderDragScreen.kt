@@ -89,6 +89,7 @@ fun FolderDragScreen(
     folderGridHorizontalPagerState: PagerState,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
+    statusBarNotifications: Map<String, Int>,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -266,6 +267,7 @@ fun FolderDragScreen(
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         isDragging = gridItem.id == gridItemSource.gridItem.id,
                         hasShortcutHostPermission = hasShortcutHostPermission,
+                        statusBarNotifications = statusBarNotifications,
                     )
                 },
             )
@@ -298,6 +300,7 @@ fun FolderDragScreen(
         drag = drag,
         moveGridItemResult = lastMoveGridItemResult,
         folderDataById = folderDataById,
+        statusBarNotifications = statusBarNotifications,
     )
 }
 
@@ -321,6 +324,7 @@ private fun AnimatedDropGridItem(
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
     folderDataById: FolderDataById?,
+    statusBarNotifications: Map<String, Int>,
 ) {
     if (drag != Drag.End ||
         moveGridItemResult?.isSuccess != true ||
@@ -464,5 +468,6 @@ private fun AnimatedDropGridItem(
         iconPackInfoPackageName = iconPackInfoPackageName,
         isDragging = false,
         hasShortcutHostPermission = hasShortcutHostPermission,
+        statusBarNotifications = statusBarNotifications,
     )
 }

@@ -18,4 +18,5 @@
 <resources>
     <string name="accessibility_service_label">Eblan Launcher</string>
     <string name="accessibility_service_description">Eblan Launcher gesture actions</string>
+    <string name="notification_listener_service">Eblan Notification Listener Service</string>
 </resources>

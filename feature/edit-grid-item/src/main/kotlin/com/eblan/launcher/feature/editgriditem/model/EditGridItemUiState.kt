@@ -15,9 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit.navigation
+package com.eblan.launcher.feature.editgriditem.model
 
-import kotlinx.serialization.Serializable
+import com.eblan.launcher.domain.model.GridItem
 
-@Serializable
-data class EditRouteData(val id: String)
+sealed interface EditGridItemUiState {
+    data object Loading : EditGridItemUiState
+
+    data class Success(val gridItem: GridItem?) : EditGridItemUiState
+}

@@ -111,7 +111,7 @@ fun PagerScreen(
     statusBarNotifications: Map<String, Int>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -292,7 +292,7 @@ fun PagerScreen(
         popupGridItemType = popupGridItemType,
         statusBarNotifications = statusBarNotifications,
         onTapFolderGridItem = onTapFolderGridItem,
-        onEdit = onEdit,
+        onEditGridItem = onEditGridItem,
         onResize = onResize,
         onSettings = onSettings,
         onEditPage = onEditPage,
@@ -489,7 +489,7 @@ private fun HorizontalPagerScreen(
     popupGridItemType: PopupGridItemType?,
     statusBarNotifications: Map<String, Int>,
     onTapFolderGridItem: (String) -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -579,7 +579,7 @@ private fun HorizontalPagerScreen(
 
             editGridItemId = null
 
-            onEdit(id)
+            onEditGridItem(id)
         }
     }
 

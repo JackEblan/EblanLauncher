@@ -103,7 +103,7 @@ import kotlin.math.roundToInt
 fun HomeRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
@@ -151,7 +151,7 @@ fun HomeRoute(
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
         onCancelGridCache = viewModel::cancelGridCache,
         onCancelFolderDragGridCache = viewModel::cancelFolderDragGridCache,
-        onEdit = onEdit,
+        onEditGridItem = onEditGridItem,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
         onSaveEditPage = viewModel::saveEditPage,
@@ -225,7 +225,7 @@ fun HomeScreen(
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
@@ -430,7 +430,7 @@ fun HomeScreen(
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                     onCancelGridCache = onCancelGridCache,
                     onCancelFolderDragGridCache = onCancelFolderDragGridCache,
-                    onEdit = onEdit,
+                    onEditGridItem = onEditGridItem,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
                     onSaveEditPage = onSaveEditPage,
@@ -535,7 +535,7 @@ private fun Success(
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
@@ -660,7 +660,7 @@ private fun Success(
                             Screen.Drag,
                         )
                     },
-                    onEdit = onEdit,
+                    onEditGridItem = onEditGridItem,
                     onResize = {
                         onShowGridCache(
                             homeData.gridItems,

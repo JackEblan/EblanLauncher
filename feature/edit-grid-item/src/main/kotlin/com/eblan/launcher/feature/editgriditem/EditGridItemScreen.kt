@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit
+package com.eblan.launcher.feature.editgriditem
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,23 +44,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.edit.model.EditUiState
+import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
-fun EditRoute(
+fun EditGridItemRoute(
     modifier: Modifier = Modifier,
-    viewModel: EditViewModel = hiltViewModel(),
+    viewModel: EditGridItemViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
 ) {
-    val editUiState by viewModel.editUiState.collectAsStateWithLifecycle()
+    val editUiState by viewModel.editGridItemUiState.collectAsStateWithLifecycle()
 
-    EditScreen(
+    EditGridItemScreen(
         modifier = modifier,
-        editUiState = editUiState,
+        editGridItemUiState = editUiState,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
     )
@@ -68,9 +68,9 @@ fun EditRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditScreen(
+fun EditGridItemScreen(
     modifier: Modifier = Modifier,
-    editUiState: EditUiState,
+    editGridItemUiState: EditGridItemUiState,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
@@ -78,7 +78,7 @@ fun EditScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Edit")
+                    Text(text = "Edit Grid Item")
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
@@ -96,15 +96,15 @@ fun EditScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            when (editUiState) {
-                EditUiState.Loading -> {
+            when (editGridItemUiState) {
+                EditGridItemUiState.Loading -> {
                 }
 
-                is EditUiState.Success -> {
-                    if (editUiState.gridItem != null) {
+                is EditGridItemUiState.Success -> {
+                    if (editGridItemUiState.gridItem != null) {
                         Success(
                             modifier = modifier,
-                            gridItem = editUiState.gridItem,
+                            gridItem = editGridItemUiState.gridItem,
                             onUpdateGridItem = onUpdateGridItem,
                         )
                     }

@@ -20,8 +20,8 @@ package com.eblan.launcher.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import com.eblan.launcher.feature.edit.navigation.editScreen
-import com.eblan.launcher.feature.edit.navigation.navigateToEditScreen
+import com.eblan.launcher.feature.editgriditem.navigation.editGridItemScreen
+import com.eblan.launcher.feature.editgriditem.navigation.navigateToEditGridItemScreen
 import com.eblan.launcher.feature.home.navigation.HomeRouteData
 import com.eblan.launcher.feature.home.navigation.homeScreen
 
@@ -35,10 +35,10 @@ fun MainNavHost(
         startDestination = HomeRouteData::class,
     ) {
         homeScreen(
-            onEdit = navController::navigateToEditScreen,
+            onEditGridItem = navController::navigateToEditGridItemScreen,
             onSettings = onSettings,
         )
 
-        editScreen(onNavigateUp = navController::navigateUp)
+        editGridItemScreen(onNavigateUp = navController::navigateUp)
     }
 }

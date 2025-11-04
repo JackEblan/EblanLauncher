@@ -40,7 +40,7 @@
             <option value="$PROJECT_DIR$/domain/repository" />
             <option value="$PROJECT_DIR$/domain/use-case" />
             <option value="$PROJECT_DIR$/feature" />
-            <option value="$PROJECT_DIR$/feature/edit" />
+            <option value="$PROJECT_DIR$/feature/edit-grid-item" />
             <option value="$PROJECT_DIR$/feature/home" />
             <option value="$PROJECT_DIR$/feature/pin" />
             <option value="$PROJECT_DIR$/feature/settings" />

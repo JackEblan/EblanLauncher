@@ -93,6 +93,12 @@ class PinActivity : ComponentActivity() {
                 ) {
                     val pinActivityUiState by viewModel.pinActivityUiState.collectAsStateWithLifecycle()
 
+                    val gridItem by viewModel.gridItem.collectAsStateWithLifecycle()
+
+                    val isBoundWidget by viewModel.isBoundWidget.collectAsStateWithLifecycle()
+
+                    val isFinished by viewModel.isFinished.collectAsStateWithLifecycle()
+
                     when (val state = pinActivityUiState) {
                         PinActivityUiState.Loading -> {
                         }
@@ -104,6 +110,9 @@ class PinActivity : ComponentActivity() {
                                 dynamicTheme = state.themeSettings.dynamicTheme,
                             ) {
                                 PinScreen(
+                                    gridItem = gridItem,
+                                    isBoundWidget = isBoundWidget,
+                                    isFinished = isFinished,
                                     pinItemRequest = pinItemRequest,
                                     onDragStart = {
                                         startActivity(homeIntent)
@@ -118,6 +127,12 @@ class PinActivity : ComponentActivity() {
                                             Toast.LENGTH_LONG,
                                         ).show()
                                     },
+                                    onAddPinWidgetToHomeScreen = viewModel::addPinWidgetToHomeScreen,
+                                    onDeleteGridItemCache = viewModel::deleteGridItemCache,
+                                    onUpdateGridItemCache = viewModel::updateGridItemDataCache,
+                                    onAddPinShortcutToHomeScreen = viewModel::addPinShortcutToHomeScreen,
+                                    onDeleteShortcutGridItem = viewModel::deleteGridItemCache,
+                                    onUpdateGridItems = viewModel::updateGridItems,
                                 )
                             }
                         }

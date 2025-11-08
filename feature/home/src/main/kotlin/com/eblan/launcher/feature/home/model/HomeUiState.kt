@@ -19,7 +19,7 @@ package com.eblan.launcher.feature.home.model
 
 import com.eblan.launcher.domain.model.HomeData
 
-sealed interface HomeUiState {
+internal sealed interface HomeUiState {
     data object Loading : HomeUiState
 
     data class Success(

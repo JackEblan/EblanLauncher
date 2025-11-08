@@ -83,7 +83,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import java.io.File
 
 @Composable
-fun EditPageScreen(
+internal fun EditPageScreen(
     modifier: Modifier = Modifier,
     screenHeight: Int,
     pageItems: List<PageItem>,

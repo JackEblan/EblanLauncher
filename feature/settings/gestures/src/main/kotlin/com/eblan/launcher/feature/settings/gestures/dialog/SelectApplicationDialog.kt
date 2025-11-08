@@ -38,7 +38,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 
 @Composable
-fun SelectApplicationDialog(
+internal fun SelectApplicationDialog(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onDismissRequest: () -> Unit,

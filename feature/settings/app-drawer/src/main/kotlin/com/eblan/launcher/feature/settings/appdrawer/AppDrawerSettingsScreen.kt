@@ -52,7 +52,7 @@ import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
-fun AppDrawerSettingsRoute(
+internal fun AppDrawerSettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: AppDrawerSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
@@ -69,7 +69,7 @@ fun AppDrawerSettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppDrawerSettingsScreen(
+internal fun AppDrawerSettingsScreen(
     modifier: Modifier = Modifier,
     appDrawerSettingsUiState: AppDrawerSettingsUiState,
     onNavigateUp: () -> Unit,

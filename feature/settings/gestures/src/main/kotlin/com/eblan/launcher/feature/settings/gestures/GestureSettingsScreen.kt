@@ -51,7 +51,7 @@ import com.eblan.launcher.ui.settings.HintRow
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
-fun GestureSettingsRoute(
+internal fun GestureSettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: GestureSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,

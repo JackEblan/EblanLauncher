@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ExperimentalSettingsViewModel @Inject constructor(
+internal class ExperimentalSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val syncDataUseCase: SyncDataUseCase,
 ) :

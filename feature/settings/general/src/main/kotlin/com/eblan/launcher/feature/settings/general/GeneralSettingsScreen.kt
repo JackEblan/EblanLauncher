@@ -59,7 +59,7 @@ import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
-fun GeneralSettingsRoute(
+internal fun GeneralSettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: GeneralSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
@@ -83,7 +83,7 @@ fun GeneralSettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GeneralSettingsScreen(
+internal fun GeneralSettingsScreen(
     modifier: Modifier = Modifier,
     generalSettingsUiState: GeneralSettingsUiState,
     packageManagerIconPackInfos: List<EblanIconPackInfo>,

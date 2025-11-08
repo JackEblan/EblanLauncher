@@ -48,7 +48,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
-fun GridItemResizeOverlay(
+internal fun GridItemResizeOverlay(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridWidth: Int,

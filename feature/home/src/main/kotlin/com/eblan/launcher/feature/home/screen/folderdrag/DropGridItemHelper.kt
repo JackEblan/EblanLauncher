@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import com.eblan.launcher.domain.model.MoveGridItemResult
 
-fun handleDropFolderGridItem(
+internal fun handleDropFolderGridItem(
     moveGridItemResult: MoveGridItemResult?,
     density: Density,
     dragIntOffset: IntOffset,

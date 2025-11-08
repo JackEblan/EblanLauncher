@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GestureSettingsViewModel @Inject constructor(
+internal class GestureSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     eblanApplicationInfoRepository: EblanApplicationInfoRepository,
 ) :

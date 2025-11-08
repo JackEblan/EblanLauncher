@@ -46,7 +46,7 @@ import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
-fun ResizeScreen(
+internal fun ResizeScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     gridItemCache: GridItemCache,

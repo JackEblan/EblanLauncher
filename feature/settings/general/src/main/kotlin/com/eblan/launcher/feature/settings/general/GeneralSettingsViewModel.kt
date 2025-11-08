@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GeneralSettingsViewModel @Inject constructor(
+internal class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     getPackageManagerEblanIconPackInfosUseCase: GetPackageManagerEblanIconPackInfosUseCase,

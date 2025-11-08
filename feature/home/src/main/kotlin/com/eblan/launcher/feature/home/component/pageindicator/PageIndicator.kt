@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PageIndicator(
+internal fun PageIndicator(
     modifier: Modifier = Modifier,
     pageCount: Int,
     currentPage: Int,

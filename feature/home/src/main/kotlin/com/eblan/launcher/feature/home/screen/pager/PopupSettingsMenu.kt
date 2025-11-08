@@ -32,7 +32,7 @@ import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvid
 import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
 
 @Composable
-fun PopupSettingsMenu(
+internal fun PopupSettingsMenu(
     popupSettingsMenuIntOffset: IntOffset,
     gridItems: List<GridItem>,
     hasSystemFeatureAppWidgets: Boolean,
@@ -77,7 +77,7 @@ fun PopupSettingsMenu(
 }
 
 @Composable
-fun PopupGridItemMenu(
+internal fun PopupGridItemMenu(
     gridItem: GridItem,
     x: Int,
     y: Int,

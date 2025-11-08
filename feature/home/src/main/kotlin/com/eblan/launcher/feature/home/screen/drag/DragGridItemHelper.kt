@@ -35,7 +35,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.PageDirection
 import kotlinx.coroutines.delay
 
-suspend fun handlePageDirection(
+internal suspend fun handlePageDirection(
     currentPage: Int,
     pageDirection: PageDirection?,
     onAnimateScrollToPage: suspend (Int) -> Unit,
@@ -53,7 +53,7 @@ suspend fun handlePageDirection(
     }
 }
 
-suspend fun handleDragGridItem(
+internal suspend fun handleDragGridItem(
     density: Density,
     currentPage: Int,
     drag: Drag,

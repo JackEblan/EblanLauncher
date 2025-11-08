@@ -29,7 +29,7 @@ import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-fun doGestureActions(
+internal fun doGestureActions(
     gestureSettings: GestureSettings,
     swipeUpY: Float,
     swipeDownY: Float,
@@ -48,7 +48,7 @@ fun doGestureActions(
     }
 }
 
-fun resetSwipeOffset(
+internal fun resetSwipeOffset(
     scope: CoroutineScope,
     gestureSettings: GestureSettings,
     swipeDownY: Animatable<Float, AnimationVector1D>,
@@ -68,7 +68,7 @@ fun resetSwipeOffset(
     )
 }
 
-suspend fun handleOnNewIntent(
+internal suspend fun handleOnNewIntent(
     gridHorizontalPagerState: PagerState,
     intent: Intent,
     initialPage: Int,

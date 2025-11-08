@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 
 @Composable
-fun SettingsMenu(
+internal fun SettingsMenu(
     modifier: Modifier = Modifier,
     hasSystemFeatureAppWidgets: Boolean,
     onSettings: () -> Unit,

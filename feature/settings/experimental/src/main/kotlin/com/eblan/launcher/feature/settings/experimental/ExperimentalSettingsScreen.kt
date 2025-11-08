@@ -44,7 +44,7 @@ import com.eblan.launcher.feature.settings.experimental.model.ExperimentalSettin
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
-fun ExperimentalSettingsRoute(
+internal fun ExperimentalSettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: ExperimentalSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
@@ -66,7 +66,7 @@ fun ExperimentalSettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExperimentalSettingsScreen(
+internal fun ExperimentalSettingsScreen(
     modifier: Modifier = Modifier,
     experimentalSettingsUiState: ExperimentalSettingsUiState,
     isDataSyncing: Boolean,

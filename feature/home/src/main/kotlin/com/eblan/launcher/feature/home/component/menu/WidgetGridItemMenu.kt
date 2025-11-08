@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 
 @Composable
-fun WidgetGridItemMenu(
+internal fun WidgetGridItemMenu(
     modifier: Modifier = Modifier,
     showResize: Boolean,
     onResize: () -> Unit,

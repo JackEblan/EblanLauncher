@@ -19,7 +19,7 @@ package com.eblan.launcher.feature.settings.experimental.model
 
 import com.eblan.launcher.domain.model.ExperimentalSettings
 
-sealed interface ExperimentalSettingsUiState {
+internal sealed interface ExperimentalSettingsUiState {
     data object Loading : ExperimentalSettingsUiState
 
     data class Success(val experimentalSettings: ExperimentalSettings) : ExperimentalSettingsUiState

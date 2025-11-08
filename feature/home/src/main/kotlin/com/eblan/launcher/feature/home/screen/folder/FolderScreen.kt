@@ -63,7 +63,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
 @Composable
-fun FolderScreen(
+internal fun FolderScreen(
     modifier: Modifier = Modifier,
     foldersDataById: ArrayDeque<FolderDataById>,
     drag: Drag,

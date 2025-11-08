@@ -20,7 +20,7 @@ package com.eblan.launcher.feature.home.util
 import androidx.compose.ui.graphics.Color
 import com.eblan.launcher.domain.model.TextColor
 
-fun getGridItemTextColor(
+internal fun getGridItemTextColor(
     systemTextColor: TextColor,
     gridItemTextColor: TextColor,
 ): Color {
@@ -39,7 +39,7 @@ fun getGridItemTextColor(
     }
 }
 
-fun getSystemTextColor(textColor: TextColor): Color {
+internal fun getSystemTextColor(textColor: TextColor): Color {
     return when (textColor) {
         TextColor.System -> {
             Color.Unspecified

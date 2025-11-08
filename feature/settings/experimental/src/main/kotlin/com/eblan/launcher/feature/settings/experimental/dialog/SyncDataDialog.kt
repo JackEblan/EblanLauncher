@@ -102,7 +102,7 @@ fun SyncDataDialog(
 
                 Spacer(modifier = Modifier.width(5.dp))
 
-                Text(text = "Sync data", modifier = Modifier.align(Alignment.CenterVertically))
+                Text(text = "Sync data automatically", modifier = Modifier.align(Alignment.CenterVertically))
             }
 
             Spacer(modifier = Modifier.height(10.dp))

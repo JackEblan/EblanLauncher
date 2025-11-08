@@ -33,7 +33,7 @@ import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 
-fun handleDropGridItem(
+internal fun handleDropGridItem(
     moveGridItemResult: MoveGridItemResult?,
     androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper,
     appWidgetManager: AndroidAppWidgetManagerWrapper,
@@ -122,7 +122,7 @@ fun handleDropGridItem(
     }
 }
 
-fun handleAppWidgetLauncherResult(
+internal fun handleAppWidgetLauncherResult(
     result: ActivityResult,
     gridItem: GridItem,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
@@ -142,7 +142,7 @@ fun handleAppWidgetLauncherResult(
     }
 }
 
-fun handleConfigureResult(
+internal fun handleConfigureResult(
     moveGridItemResult: MoveGridItemResult?,
     updatedGridItem: GridItem?,
     resultCode: Int,
@@ -172,7 +172,7 @@ fun handleConfigureResult(
     )
 }
 
-fun handleDeleteAppWidgetId(
+internal fun handleDeleteAppWidgetId(
     gridItem: GridItem,
     appWidgetId: Int,
     deleteAppWidgetId: Boolean,
@@ -190,7 +190,7 @@ fun handleDeleteAppWidgetId(
     }
 }
 
-fun handleBoundWidget(
+internal fun handleBoundWidget(
     gridItemSource: GridItemSource,
     updatedGridItem: GridItem?,
     moveGridItemResult: MoveGridItemResult?,

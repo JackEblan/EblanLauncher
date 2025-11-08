@@ -23,7 +23,7 @@ import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrap
 import kotlinx.coroutines.flow.onStart
 import kotlin.math.absoluteValue
 
-fun calculatePage(
+internal fun calculatePage(
     index: Int,
     infiniteScroll: Boolean,
     pageCount: Int,
@@ -36,7 +36,7 @@ fun calculatePage(
     }
 }
 
-suspend fun handleWallpaperScroll(
+internal suspend fun handleWallpaperScroll(
     horizontalPagerState: PagerState,
     wallpaperScroll: Boolean,
     wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,

@@ -61,7 +61,7 @@ import com.eblan.launcher.ui.local.LocalSettings
 import java.io.File
 
 @Composable
-fun GridItemContent(
+internal fun GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: Color,
@@ -127,7 +127,7 @@ fun GridItemContent(
 }
 
 @Composable
-fun ApplicationInfoGridItem(
+internal fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
     textColor: Color,
@@ -224,39 +224,7 @@ fun ApplicationInfoGridItem(
 }
 
 @Composable
-private fun WidgetGridItem(
-    modifier: Modifier = Modifier,
-    data: GridItemData.Widget,
-) {
-    val appWidgetManager = LocalAppWidgetManager.current
-
-    val appWidgetHost = LocalAppWidgetHost.current
-
-    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
-
-    if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = data.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                    minWidth = data.minWidth,
-                    minHeight = data.minHeight,
-                )
-            },
-            modifier = modifier.fillMaxSize(),
-        )
-    } else {
-        AsyncImage(
-            model = data.preview ?: data.icon,
-            contentDescription = null,
-            modifier = modifier.fillMaxSize(),
-        )
-    }
-}
-
-@Composable
-fun ShortcutInfoGridItem(
+internal fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
     textColor: Color,
@@ -316,7 +284,7 @@ fun ShortcutInfoGridItem(
 }
 
 @Composable
-fun FolderGridItem(
+internal fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
     textColor: Color,
@@ -433,5 +401,37 @@ fun FolderGridItem(
                 overflow = TextOverflow.Ellipsis,
             )
         }
+    }
+}
+
+@Composable
+private fun WidgetGridItem(
+    modifier: Modifier = Modifier,
+    data: GridItemData.Widget,
+) {
+    val appWidgetManager = LocalAppWidgetManager.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
+
+    val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+
+    if (appWidgetInfo != null) {
+        AndroidView(
+            factory = {
+                appWidgetHost.createView(
+                    appWidgetId = data.appWidgetId,
+                    appWidgetProviderInfo = appWidgetInfo,
+                    minWidth = data.minWidth,
+                    minHeight = data.minHeight,
+                )
+            },
+            modifier = modifier.fillMaxSize(),
+        )
+    } else {
+        AsyncImage(
+            model = data.preview ?: data.icon,
+            contentDescription = null,
+            modifier = modifier.fillMaxSize(),
+        )
     }
 }

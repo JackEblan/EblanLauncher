@@ -20,7 +20,7 @@ package com.eblan.launcher.feature.home.model
 import android.content.pm.LauncherApps.PinItemRequest
 import com.eblan.launcher.domain.model.GridItem
 
-sealed interface GridItemSource {
+internal sealed interface GridItemSource {
     val gridItem: GridItem
 
     data class Existing(override val gridItem: GridItem) : GridItemSource

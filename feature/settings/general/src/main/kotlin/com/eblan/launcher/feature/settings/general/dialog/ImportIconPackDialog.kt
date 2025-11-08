@@ -37,7 +37,7 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 
 @Composable
-fun ImportIconPackDialog(
+internal fun ImportIconPackDialog(
     modifier: Modifier = Modifier,
     packageManagerIconPackInfos: List<EblanIconPackInfo>,
     onDismissRequest: () -> Unit,

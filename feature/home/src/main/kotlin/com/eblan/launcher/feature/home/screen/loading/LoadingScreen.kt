@@ -25,7 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
+internal fun LoadingScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }

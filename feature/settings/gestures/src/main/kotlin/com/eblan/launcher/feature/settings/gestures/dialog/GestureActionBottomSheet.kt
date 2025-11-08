@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GestureActionBottomSheet(
+internal fun GestureActionBottomSheet(
     modifier: Modifier = Modifier,
     title: String,
     gestureAction: GestureAction,

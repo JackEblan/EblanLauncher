@@ -61,8 +61,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
@@ -77,18 +75,46 @@ import kotlinx.coroutines.launch
 @Composable
 fun PinScreen(
     modifier: Modifier = Modifier,
-    viewModel: PinViewModel = hiltViewModel(),
+    gridItem: GridItem?,
+    isBoundWidget: Boolean,
+    isFinished: Boolean,
     pinItemRequest: PinItemRequest,
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
     onAddedToHomeScreenToast: (String) -> Unit,
+    onAddPinWidgetToHomeScreen: (
+        serialNumber: Long,
+        className: String,
+        componentName: String,
+        configure: String?,
+        packageName: String,
+        targetCellHeight: Int,
+        targetCellWidth: Int,
+        minWidth: Int,
+        minHeight: Int,
+        resizeMode: Int,
+        minResizeWidth: Int,
+        minResizeHeight: Int,
+        maxResizeWidth: Int,
+        maxResizeHeight: Int,
+        rootWidth: Int,
+        rootHeight: Int,
+    ) -> Unit,
+    onDeleteGridItemCache: (GridItem) -> Unit,
+    onUpdateGridItemCache: (GridItem) -> Unit,
+    onAddPinShortcutToHomeScreen: (
+        serialNumber: Long,
+        id: String,
+        packageName: String,
+        shortLabel: String,
+        longLabel: String,
+        isEnabled: Boolean,
+        disabledMessage: String?,
+        byteArray: ByteArray?,
+    ) -> Unit,
+    onDeleteShortcutGridItem: (GridItem) -> Unit,
+    onUpdateGridItems: () -> Unit,
 ) {
-    val gridItem by viewModel.gridItem.collectAsStateWithLifecycle()
-
-    val isBoundWidget by viewModel.isBoundWidget.collectAsStateWithLifecycle()
-
-    val isFinished by viewModel.isFinished.collectAsStateWithLifecycle()
-
     when (pinItemRequest.requestType) {
         PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
             PinWidgetScreen(
@@ -99,11 +125,11 @@ fun PinScreen(
                 isFinished = isFinished,
                 onDragStart = onDragStart,
                 onFinish = onFinish,
-                onAddWidgetToHomeScreen = viewModel::addPinWidgetToHomeScreen,
-                onDeleteGridItemCache = viewModel::deleteGridItemCache,
                 onAddedToHomeScreenToast = onAddedToHomeScreenToast,
-                onUpdateWidgetGridItemCache = viewModel::updateGridItemDataCache,
-                onUpdateGridItems = viewModel::updateGridItems,
+                onAddPinWidgetToHomeScreen = onAddPinWidgetToHomeScreen,
+                onDeleteGridItemCache = onDeleteGridItemCache,
+                onUpdateGridItemCache = onUpdateGridItemCache,
+                onUpdateGridItems = onUpdateGridItems,
             )
         }
 
@@ -115,10 +141,10 @@ fun PinScreen(
                 isFinished = isFinished,
                 onDragStart = onDragStart,
                 onFinish = onFinish,
-                onAddPinShortcutToHomeScreen = viewModel::addPinShortcutToHomeScreen,
-                onDeleteShortcutGridItem = viewModel::deleteGridItemCache,
                 onAddedToHomeScreenToast = onAddedToHomeScreenToast,
-                onUpdateGridItems = viewModel::updateGridItems,
+                onAddPinShortcutToHomeScreen = onAddPinShortcutToHomeScreen,
+                onDeleteShortcutGridItem = onDeleteShortcutGridItem,
+                onUpdateGridItems = onUpdateGridItems,
             )
         }
     }
@@ -133,6 +159,7 @@ private fun PinShortcutScreen(
     isFinished: Boolean,
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
+    onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinShortcutToHomeScreen: (
         serialNumber: Long,
         id: String,
@@ -144,7 +171,6 @@ private fun PinShortcutScreen(
         byteArray: ByteArray?,
     ) -> Unit,
     onDeleteShortcutGridItem: (GridItem) -> Unit,
-    onAddedToHomeScreenToast: (String) -> Unit,
     onUpdateGridItems: () -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
@@ -240,7 +266,8 @@ private fun PinWidgetScreen(
     isFinished: Boolean,
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
-    onAddWidgetToHomeScreen: (
+    onAddedToHomeScreenToast: (String) -> Unit,
+    onAddPinWidgetToHomeScreen: (
         serialNumber: Long,
         className: String,
         componentName: String,
@@ -259,8 +286,7 @@ private fun PinWidgetScreen(
         rootHeight: Int,
     ) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onAddedToHomeScreenToast: (String) -> Unit,
-    onUpdateWidgetGridItemCache: (GridItem) -> Unit,
+    onUpdateGridItemCache: (GridItem) -> Unit,
     onUpdateGridItems: () -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
@@ -290,7 +316,7 @@ private fun PinWidgetScreen(
             handleAppWidgetLauncherResult(
                 gridItem = gridItem,
                 result = result,
-                onUpdateWidgetGridItem = onUpdateWidgetGridItemCache,
+                onUpdateGridItemCache = onUpdateGridItemCache,
                 onDeleteAppWidgetId = {
                     deleteAppWidgetId = true
                 },
@@ -303,7 +329,7 @@ private fun PinWidgetScreen(
                 appWidgetHostWrapper = appWidgetHostWrapper,
                 appWidgetManager = appWidgetManager,
                 userHandle = appWidgetProviderInfo.profile,
-                onUpdateWidgetGridItem = onUpdateWidgetGridItemCache,
+                onUpdateGridItemCache = onUpdateGridItemCache,
                 onAddedToHomeScreenToast = onAddedToHomeScreenToast,
                 onUpdateAppWidgetId = { newAppWidgetId ->
                     appWidgetId = newAppWidgetId
@@ -349,7 +375,7 @@ private fun PinWidgetScreen(
                     icon = icon,
                     onAdd = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            onAddWidgetToHomeScreen(
+                            onAddPinWidgetToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
@@ -368,7 +394,7 @@ private fun PinWidgetScreen(
                                 this@BoxWithConstraints.constraints.maxHeight,
                             )
                         } else {
-                            onAddWidgetToHomeScreen(
+                            onAddPinWidgetToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
                                 appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),

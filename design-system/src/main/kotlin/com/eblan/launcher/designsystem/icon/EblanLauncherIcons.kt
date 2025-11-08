@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Shortcut
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.filled.Work
 

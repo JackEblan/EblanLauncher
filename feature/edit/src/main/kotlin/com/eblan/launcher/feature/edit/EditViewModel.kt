@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class EditViewModel @Inject constructor(
+internal class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,

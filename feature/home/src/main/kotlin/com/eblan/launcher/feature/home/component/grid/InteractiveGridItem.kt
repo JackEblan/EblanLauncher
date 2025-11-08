@@ -50,7 +50,7 @@ import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import kotlinx.coroutines.launch
 
 @Composable
-fun InteractiveGridItemContent(
+internal fun InteractiveGridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,

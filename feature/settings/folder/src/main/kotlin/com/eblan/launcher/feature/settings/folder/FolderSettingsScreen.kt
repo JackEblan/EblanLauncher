@@ -43,7 +43,7 @@ import com.eblan.launcher.ui.dialog.TwoTextFieldsDialog
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
-fun FolderSettingsRoute(
+internal fun FolderSettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: FolderSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
@@ -60,7 +60,7 @@ fun FolderSettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderSettingsScreen(
+internal fun FolderSettingsScreen(
     modifier: Modifier = Modifier,
     folderSettingsUiState: FolderSettingsUiState,
     onNavigateUp: () -> Unit,

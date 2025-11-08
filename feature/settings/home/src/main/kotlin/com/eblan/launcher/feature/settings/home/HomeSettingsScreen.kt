@@ -52,7 +52,7 @@ import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
-fun HomeSettingsRoute(
+internal fun HomeSettingsRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeSettingsViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
@@ -69,7 +69,7 @@ fun HomeSettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeSettingsScreen(
+internal fun HomeSettingsScreen(
     modifier: Modifier = Modifier,
     homeSettingsUiState: HomeSettingsUiState,
     onNavigateUp: () -> Unit,

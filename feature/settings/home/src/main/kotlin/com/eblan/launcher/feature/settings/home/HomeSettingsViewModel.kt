@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
+internal class HomeSettingsViewModel @Inject constructor(private val userDataRepository: UserDataRepository) :
     ViewModel() {
     val homeSettingsUiState = userDataRepository.userData.map { userData ->
         HomeSettingsUiState.Success(homeSettings = userData.homeSettings)

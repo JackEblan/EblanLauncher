@@ -43,7 +43,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 
 @Composable
-fun SelectIconPackDialog(
+internal fun SelectIconPackDialog(
     modifier: Modifier = Modifier,
     eblanIconPackInfos: List<EblanIconPackInfo>,
     iconPackInfoPackageName: String,

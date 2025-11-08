@@ -55,7 +55,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
 @Composable
-fun SettingsRoute(
+internal fun SettingsRoute(
     modifier: Modifier = Modifier,
     onFinish: () -> Unit,
     onGeneral: () -> Unit,
@@ -79,7 +79,7 @@ fun SettingsRoute(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     modifier: Modifier = Modifier,
     onFinish: () -> Unit,
     onGeneral: () -> Unit,

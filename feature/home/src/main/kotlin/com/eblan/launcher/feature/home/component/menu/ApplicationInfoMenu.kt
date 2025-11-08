@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 
 @Composable
-fun ApplicationInfoMenu(
+internal fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     onApplicationInfo: () -> Unit,
 ) {

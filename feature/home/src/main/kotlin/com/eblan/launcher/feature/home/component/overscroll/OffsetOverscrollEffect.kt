@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
 
-class OffsetOverscrollEffect(
+internal class OffsetOverscrollEffect(
     private val scope: CoroutineScope,
     private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
     private val overscrollOffset: Animatable<Float, AnimationVector1D>,

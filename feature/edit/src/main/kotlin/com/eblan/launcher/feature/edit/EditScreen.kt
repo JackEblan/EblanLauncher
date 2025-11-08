@@ -51,7 +51,7 @@ import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
-fun EditRoute(
+internal fun EditRoute(
     modifier: Modifier = Modifier,
     viewModel: EditViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
@@ -68,7 +68,7 @@ fun EditRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditScreen(
+internal fun EditScreen(
     modifier: Modifier = Modifier,
     editUiState: EditUiState,
     onNavigateUp: () -> Unit,

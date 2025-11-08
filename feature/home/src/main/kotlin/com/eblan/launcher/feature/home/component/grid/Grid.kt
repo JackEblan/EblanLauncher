@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.Density
 import com.eblan.launcher.domain.model.GridItem
 
 @Composable
-fun GridLayout(
+internal fun GridLayout(
     modifier: Modifier = Modifier,
     gridItems: List<GridItem>?,
     columns: Int,

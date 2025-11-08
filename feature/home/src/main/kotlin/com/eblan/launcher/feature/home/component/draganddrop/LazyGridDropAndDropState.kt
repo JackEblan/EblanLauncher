@@ -54,7 +54,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberLazyGridDragAndDropState(
+internal fun rememberLazyGridDragAndDropState(
     gridState: LazyGridState,
     onMove: (
         from: Int,
@@ -80,7 +80,7 @@ fun rememberLazyGridDragAndDropState(
     return state
 }
 
-class LazyGridDragAndDropState(
+internal class LazyGridDragAndDropState(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
     private val onMove: (Int, Int) -> Unit,
@@ -198,7 +198,7 @@ private operator fun Offset.plus(size: Size): Offset {
     return Offset(x + size.width, y + size.height)
 }
 
-fun Modifier.dragContainer(state: LazyGridDragAndDropState): Modifier {
+internal fun Modifier.dragContainer(state: LazyGridDragAndDropState): Modifier {
     return pointerInput(state) {
         detectDragGesturesAfterLongPress(
             onDrag = { change, offset ->
@@ -213,7 +213,7 @@ fun Modifier.dragContainer(state: LazyGridDragAndDropState): Modifier {
 }
 
 @Composable
-fun LazyGridItemScope.DraggableItem(
+internal fun LazyGridItemScope.DraggableItem(
     modifier: Modifier = Modifier,
     state: LazyGridDragAndDropState,
     index: Int,

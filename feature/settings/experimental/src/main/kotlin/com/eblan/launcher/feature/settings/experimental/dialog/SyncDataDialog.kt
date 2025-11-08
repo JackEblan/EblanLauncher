@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
 @Composable
-fun SyncDataDialog(
+internal fun SyncDataDialog(
     modifier: Modifier = Modifier,
     syncData: Boolean,
     isDataSyncing: Boolean,

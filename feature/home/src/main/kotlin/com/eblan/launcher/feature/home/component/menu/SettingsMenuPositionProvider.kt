@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.PopupPositionProvider
 
-class SettingsMenuPositionProvider(
+internal class SettingsMenuPositionProvider(
     private val x: Int,
     private val y: Int,
 ) : PopupPositionProvider {

@@ -22,8 +22,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.LauncherApps.PinItemRequest
-import android.os.Build
 import android.os.IBinder
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
@@ -88,9 +86,6 @@ import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
-import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
-import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
@@ -100,7 +95,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun HomeRoute(
+internal fun HomeRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     onEdit: (String) -> Unit,
@@ -173,7 +168,7 @@ fun HomeRoute(
 }
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeUiState: HomeUiState,
@@ -843,97 +838,5 @@ private fun OverlayImage(
             bitmap = overlayImageBitmap,
             contentDescription = null,
         )
-    }
-}
-
-private suspend fun handlePinItemRequest(
-    pinItemRequest: PinItemRequest?,
-    context: Context,
-    launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    drawable: AndroidDrawableWrapper,
-    userManager: AndroidUserManagerWrapper,
-    onGetPinGridItem: (PinItemRequestType) -> Unit,
-) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null) {
-        when (pinItemRequest.requestType) {
-            PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
-                val appWidgetProviderInfo =
-                    pinItemRequest.getAppWidgetProviderInfo(context)
-
-                if (appWidgetProviderInfo != null) {
-                    val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.let {
-                        drawable.createByteArray(drawable = it)
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        onGetPinGridItem(
-                            PinItemRequestType.Widget(
-                                appWidgetId = 0,
-                                className = appWidgetProviderInfo.provider.className,
-                                componentName = appWidgetProviderInfo.provider.flattenToString(),
-                                packageName = appWidgetProviderInfo.provider.packageName,
-                                serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                configure = appWidgetProviderInfo.configure.flattenToString(),
-                                minWidth = appWidgetProviderInfo.minWidth,
-                                minHeight = appWidgetProviderInfo.minHeight,
-                                resizeMode = appWidgetProviderInfo.resizeMode,
-                                minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                                minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                                maxResizeWidth = appWidgetProviderInfo.maxResizeWidth,
-                                maxResizeHeight = appWidgetProviderInfo.maxResizeHeight,
-                                targetCellHeight = appWidgetProviderInfo.targetCellHeight,
-                                targetCellWidth = appWidgetProviderInfo.targetCellWidth,
-                                preview = preview,
-                            ),
-                        )
-                    } else {
-                        onGetPinGridItem(
-                            PinItemRequestType.Widget(
-                                appWidgetId = 0,
-                                className = appWidgetProviderInfo.provider.className,
-                                componentName = appWidgetProviderInfo.provider.flattenToString(),
-                                packageName = appWidgetProviderInfo.provider.packageName,
-                                serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                configure = appWidgetProviderInfo.configure.flattenToString(),
-                                minWidth = appWidgetProviderInfo.minWidth,
-                                minHeight = appWidgetProviderInfo.minHeight,
-                                resizeMode = appWidgetProviderInfo.resizeMode,
-                                minResizeWidth = appWidgetProviderInfo.minResizeWidth,
-                                minResizeHeight = appWidgetProviderInfo.minResizeHeight,
-                                maxResizeWidth = 0,
-                                maxResizeHeight = 0,
-                                targetCellHeight = 0,
-                                targetCellWidth = 0,
-                                preview = preview,
-                            ),
-                        )
-                    }
-                }
-            }
-
-            PinItemRequest.REQUEST_TYPE_SHORTCUT -> {
-                val shortcutInfo = pinItemRequest.shortcutInfo
-
-                if (shortcutInfo != null) {
-                    onGetPinGridItem(
-                        PinItemRequestType.ShortcutInfo(
-                            serialNumber = userManager.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
-                            shortcutId = shortcutInfo.id,
-                            packageName = shortcutInfo.`package`,
-                            shortLabel = shortcutInfo.shortLabel.toString(),
-                            longLabel = shortcutInfo.longLabel.toString(),
-                            isEnabled = shortcutInfo.isEnabled,
-                            disabledMessage = shortcutInfo.disabledMessage?.toString(),
-                            icon = launcherAppsWrapper.getShortcutIconDrawable(
-                                shortcutInfo = shortcutInfo,
-                                density = 0,
-                            )?.let {
-                                drawable.createByteArray(drawable = it)
-                            },
-                        ),
-                    )
-                }
-            }
-        }
     }
 }

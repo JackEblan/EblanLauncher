@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.feature.home.model
 
-enum class Drag {
+internal enum class Drag {
     Start,
     End,
     Dragging,

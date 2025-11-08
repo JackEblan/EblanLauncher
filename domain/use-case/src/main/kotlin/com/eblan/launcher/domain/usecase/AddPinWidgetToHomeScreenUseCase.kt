@@ -29,6 +29,7 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -41,6 +42,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class AddPinWidgetToHomeScreenUseCase @Inject constructor(
+    private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val fileManager: FileManager,
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
@@ -178,6 +180,12 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 columns = columns,
                 rows = rows,
             )
+
+            if (newGridItem != null) {
+                gridCacheRepository.insertGridItems(gridItems = gridItems)
+
+                gridCacheRepository.insertGridItem(gridItem = newGridItem)
+            }
 
             newGridItem
         }

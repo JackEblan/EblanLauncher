@@ -31,6 +31,7 @@ import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.SettingsMenu
 import com.eblan.launcher.feature.home.component.menu.SettingsMenuPositionProvider
 import com.eblan.launcher.feature.home.component.menu.WidgetGridItemMenu
+import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 
 @Composable
 internal fun PopupSettingsMenu(
@@ -84,7 +85,8 @@ internal fun PopupGridItemMenu(
     y: Int,
     width: Int,
     height: Int,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
+    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    hasShortcutHostPermission: Boolean,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
@@ -109,8 +111,9 @@ internal fun PopupGridItemMenu(
         onDismissRequest = onDismissRequest,
         content = {
             PopupGridItemMenuContent(
-                eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
+                eblanShortcutInfos = eblanShortcutInfos,
                 gridItem = gridItem,
+                hasShortcutHostPermission = hasShortcutHostPermission,
                 onEdit = onEdit,
                 onDismissRequest = onDismissRequest,
                 onResize = onResize,
@@ -125,8 +128,9 @@ internal fun PopupGridItemMenu(
 @Composable
 private fun PopupGridItemMenuContent(
     modifier: Modifier = Modifier,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
+    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     gridItem: GridItem,
+    hasShortcutHostPermission: Boolean,
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onResize: () -> Unit,
@@ -142,7 +146,13 @@ private fun PopupGridItemMenuContent(
         is GridItemData.ApplicationInfo -> {
             ApplicationInfoGridItemMenu(
                 modifier = modifier,
-                eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName ?: emptyList(),
+                eblanShortcutInfosByPackageName = eblanShortcutInfos[
+                    EblanShortcutInfoByGroup(
+                        serialNumber = data.serialNumber,
+                        packageName = data.packageName,
+                    ),
+                ],
+                hasShortcutHostPermission = hasShortcutHostPermission,
                 onEdit = {
                     onEdit(gridItem.id)
 

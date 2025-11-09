@@ -50,13 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
@@ -82,8 +82,8 @@ internal fun HorizontalPagerScreen(
     hasSystemFeatureAppWidgets: Boolean,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     statusBarNotifications: Map<String, Int>,
+    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     onTapFolderGridItem: (String) -> Unit,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
@@ -102,11 +102,6 @@ internal fun HorizontalPagerScreen(
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
-    onGetEblanShortcutInfosByPackageName: (
-        packageName: String,
-        serialNumber: Long,
-    ) -> Unit,
-    onResetEblanShortcutInfosByPackageName: () -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -117,8 +112,6 @@ internal fun HorizontalPagerScreen(
     }
 
     var showPopupGridItemMenu by remember { mutableStateOf(false) }
-
-    var showPopupGridItemWithShortcutsMenu by remember { mutableStateOf(false) }
 
     var showPopupSettingsMenu by remember { mutableStateOf(false) }
 
@@ -178,16 +171,6 @@ internal fun HorizontalPagerScreen(
             editGridItemId = null
 
             onEdit(id)
-        }
-    }
-
-    LaunchedEffect(key1 = eblanShortcutInfosByPackageName) {
-        if (eblanShortcutInfosByPackageName == null) return@LaunchedEffect
-
-        if (eblanShortcutInfosByPackageName.isNotEmpty() && hasShortcutHostPermission) {
-            showPopupGridItemWithShortcutsMenu = true
-        } else {
-            showPopupGridItemMenu = true
         }
     }
 
@@ -302,13 +285,7 @@ internal fun HorizontalPagerScreen(
 
                             onUpdateGridItemOffset(intOffset, intSize)
 
-                            updatePopupGridItem(
-                                data = data,
-                                onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
-                                onUpdatePopupGridItem = {
-                                    showPopupGridItemMenu = true
-                                },
-                            )
+                            showPopupGridItemMenu = true
                         },
                         onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
@@ -414,13 +391,7 @@ internal fun HorizontalPagerScreen(
 
                         onUpdateGridItemOffset(intOffset, intSize)
 
-                        updatePopupGridItem(
-                            data = data,
-                            onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
-                            onUpdatePopupGridItem = {
-                                showPopupGridItemMenu = true
-                            },
-                        )
+                        showPopupGridItemMenu = true
                     },
                     onUpdateImageBitmap = { imageBitmap ->
                         onLongPressGridItem(
@@ -441,7 +412,8 @@ internal fun HorizontalPagerScreen(
             y = popupMenuIntOffset.y,
             width = popupGridItemMenuIntSize.width,
             height = popupGridItemMenuIntSize.height,
-            eblanShortcutInfosByPackageName = emptyList(),
+            eblanShortcutInfos = eblanShortcutInfos,
+            hasShortcutHostPermission = hasShortcutHostPermission,
             onEdit = { id ->
                 editGridItemId = id
             },
@@ -461,60 +433,6 @@ internal fun HorizontalPagerScreen(
             },
             onDismissRequest = {
                 showPopupGridItemMenu = false
-
-                onResetEblanShortcutInfosByPackageName()
-            },
-            onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                val sourceBoundsX = popupMenuIntOffset.x + leftPadding
-
-                val sourceBoundsY = popupMenuIntOffset.y + topPadding
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                    launcherApps.startShortcut(
-                        serialNumber = serialNumber,
-                        packageName = packageName,
-                        id = shortcutId,
-                        sourceBounds = Rect(
-                            sourceBoundsX,
-                            sourceBoundsY,
-                            sourceBoundsX + popupGridItemMenuIntSize.width,
-                            sourceBoundsY + popupGridItemMenuIntSize.height,
-                        ),
-                    )
-                }
-            },
-        )
-    }
-
-    if (showPopupGridItemWithShortcutsMenu && gridItemSource?.gridItem != null) {
-        PopupGridItemMenu(
-            gridItem = gridItemSource.gridItem,
-            x = popupMenuIntOffset.x,
-            y = popupMenuIntOffset.y,
-            width = popupGridItemMenuIntSize.width,
-            height = popupGridItemMenuIntSize.height,
-            eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
-            onEdit = { id ->
-                editGridItemId = id
-            },
-            onResize = onResize,
-            onDeleteGridItem = onDeleteGridItem,
-            onInfo = { serialNumber, componentName ->
-                launcherApps.startAppDetailsActivity(
-                    serialNumber = serialNumber,
-                    componentName = componentName,
-                    sourceBounds = Rect(
-                        popupMenuIntOffset.x,
-                        popupMenuIntOffset.y,
-                        popupMenuIntOffset.x + popupGridItemMenuIntSize.width,
-                        popupMenuIntOffset.y + popupGridItemMenuIntSize.height,
-                    ),
-                )
-            },
-            onDismissRequest = {
-                showPopupGridItemWithShortcutsMenu = false
-
-                onResetEblanShortcutInfosByPackageName()
             },
             onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
                 val sourceBoundsX = popupMenuIntOffset.x + leftPadding
@@ -557,30 +475,5 @@ internal fun HorizontalPagerScreen(
                 showPopupSettingsMenu = false
             },
         )
-    }
-}
-
-private fun updatePopupGridItem(
-    data: GridItemData,
-    onGetEblanShortcutInfosByPackageName: (
-        packageName: String,
-        serialNumber: Long,
-    ) -> Unit,
-    onUpdatePopupGridItem: () -> Unit,
-) {
-    when (data) {
-        is GridItemData.ApplicationInfo -> {
-            onGetEblanShortcutInfosByPackageName(
-                data.packageName,
-                data.serialNumber,
-            )
-        }
-
-        is GridItemData.Folder,
-        is GridItemData.ShortcutInfo,
-        is GridItemData.Widget,
-        -> {
-            onUpdatePopupGridItem()
-        }
     }
 }

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -49,7 +49,7 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 internal fun EblanAppWidgetProviderInfoDockSearchBar(
     modifier: Modifier = Modifier,
     onQueryChange: (String) -> Unit,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -95,7 +95,7 @@ internal fun EblanAppWidgetProviderInfoDockSearchBar(
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(eblanAppWidgetProviderInfosByLabel.keys.toList()) { eblanApplicationInfo ->
                 EblanApplicationInfoItem(
-                    eblanAppWidgetProviderInfoApplicationInfo = eblanApplicationInfo,
+                    eblanAppWidgetProviderInfoByGroup = eblanApplicationInfo,
                     eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosByLabel,
                     drag = drag,
                     onUpdateGridItemOffset = { intOffset, intSize ->

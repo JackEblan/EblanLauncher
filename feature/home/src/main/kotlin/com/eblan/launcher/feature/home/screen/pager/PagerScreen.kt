@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GestureAction
@@ -59,6 +59,7 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.application.DoubleTapApplicationScreen
@@ -86,12 +87,12 @@ internal fun PagerScreen(
     gridItemSource: GridItemSource?,
     homeSettings: HomeSettings,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     statusBarNotifications: Map<String, Int>,
+    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -110,11 +111,6 @@ internal fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
-    onGetEblanShortcutInfosByPackageName: (
-        packageName: String,
-        serialNumber: Long,
-    ) -> Unit,
-    onResetEblanShortcutInfosByPackageName: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -270,8 +266,8 @@ internal fun PagerScreen(
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
-        eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
         statusBarNotifications = statusBarNotifications,
+        eblanShortcutInfos = eblanShortcutInfos,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
         onResize = onResize,
@@ -288,8 +284,6 @@ internal fun PagerScreen(
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
-        onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
-        onResetEblanShortcutInfosByPackageName = onResetEblanShortcutInfosByPackageName,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||

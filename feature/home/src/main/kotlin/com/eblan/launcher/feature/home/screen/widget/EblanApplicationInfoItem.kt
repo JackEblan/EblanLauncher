@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -52,8 +52,8 @@ import kotlin.collections.forEach
 @Composable
 internal fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
-    eblanAppWidgetProviderInfoApplicationInfo: EblanAppWidgetProviderInfoApplicationInfo,
-    eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfoByGroup: EblanAppWidgetProviderInfoByGroup,
+    eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     drag: Drag,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -85,10 +85,10 @@ internal fun EblanApplicationInfoItem(
             .animateContentSize(),
     ) {
         ListItem(
-            headlineContent = { Text(text = eblanAppWidgetProviderInfoApplicationInfo.label.toString()) },
+            headlineContent = { Text(text = eblanAppWidgetProviderInfoByGroup.label.toString()) },
             leadingContent = {
                 AsyncImage(
-                    model = eblanAppWidgetProviderInfoApplicationInfo.icon,
+                    model = eblanAppWidgetProviderInfoByGroup.icon,
                     contentDescription = null,
                     modifier = Modifier.size(40.dp),
                 )
@@ -110,7 +110,7 @@ internal fun EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            eblanAppWidgetProviderInfos[eblanAppWidgetProviderInfoApplicationInfo]?.forEach { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfos[eblanAppWidgetProviderInfoByGroup]?.forEach { eblanAppWidgetProviderInfo ->
                 EblanAppWidgetProviderInfoItem(
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     drag = drag,

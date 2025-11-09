@@ -15,9 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.feature.home.model
 
-data class EblanApplicationComponent(
-    val eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    val eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
+internal data class EblanShortcutInfoByGroup(
+    val serialNumber: Long,
+    val packageName: String,
 )

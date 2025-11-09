@@ -20,7 +20,6 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
-import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -47,6 +46,7 @@ import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterResizeUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsUseCase
 import com.eblan.launcher.domain.usecase.UpdatePageItemsUseCase
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
+import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -89,7 +89,7 @@ internal class HomeViewModel @Inject constructor(
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
-    private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
+    eblanShortcutInfoRepository: EblanShortcutInfoRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -164,10 +164,19 @@ internal class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    private val _eblanShortcutInfosByPackageName =
-        MutableStateFlow<List<EblanShortcutInfo>?>(null)
-
-    val eblanShortcutInfosByPackageName = _eblanShortcutInfosByPackageName.asStateFlow()
+    val eblanShortcutInfos =
+        eblanShortcutInfoRepository.eblanShortcutInfos.map { eblanShortcutInfos ->
+            eblanShortcutInfos.groupBy { eblanShortcutInfo ->
+                EblanShortcutInfoByGroup(
+                    serialNumber = eblanShortcutInfo.serialNumber,
+                    packageName = eblanShortcutInfo.packageName,
+                )
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -510,28 +519,8 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getEblanShortcutInfosByPackageName(
-        packageName: String,
-        serialNumber: Long,
-    ) {
-        viewModelScope.launch {
-            _eblanShortcutInfosByPackageName.update {
-                eblanShortcutInfoRepository.getEblanShortcutInfos(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
-                )
-            }
-        }
-    }
-
     fun resetPinGridItem() {
         _pinGridItem.update {
-            null
-        }
-    }
-
-    fun resetEblanShortcutInfosByPackageName() {
-        _eblanShortcutInfosByPackageName.update {
             null
         }
     }

@@ -43,7 +43,8 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 @Composable
 internal fun ApplicationInfoGridItemMenu(
     modifier: Modifier = Modifier,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
+    hasShortcutHostPermission: Boolean,
     onEdit: () -> Unit,
     onResize: () -> Unit,
     onInfo: () -> Unit,
@@ -64,7 +65,7 @@ internal fun ApplicationInfoGridItemMenu(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                if (eblanShortcutInfosByPackageName.isNotEmpty()) {
+                if (hasShortcutHostPermission && !eblanShortcutInfosByPackageName.isNullOrEmpty()) {
                     eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
                         ListItem(
                             modifier = Modifier.clickable {

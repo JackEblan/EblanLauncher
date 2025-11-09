@@ -22,8 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.PopupGridItemType
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.feature.home.component.menu.ApplicationInfoGridItemMenu
 import com.eblan.launcher.feature.home.component.menu.GridItemMenu
 import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
@@ -83,7 +84,7 @@ internal fun PopupGridItemMenu(
     y: Int,
     width: Int,
     height: Int,
-    popupGridItemType: PopupGridItemType,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
@@ -108,7 +109,7 @@ internal fun PopupGridItemMenu(
         onDismissRequest = onDismissRequest,
         content = {
             PopupGridItemMenuContent(
-                popupGridItemType = popupGridItemType,
+                eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
                 gridItem = gridItem,
                 onEdit = onEdit,
                 onDismissRequest = onDismissRequest,
@@ -124,7 +125,7 @@ internal fun PopupGridItemMenu(
 @Composable
 private fun PopupGridItemMenuContent(
     modifier: Modifier = Modifier,
-    popupGridItemType: PopupGridItemType,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
     gridItem: GridItem,
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -137,11 +138,11 @@ private fun PopupGridItemMenuContent(
         shortcutId: String,
     ) -> Unit,
 ) {
-    when (popupGridItemType) {
-        is PopupGridItemType.ApplicationInfo -> {
+    when (val data = gridItem.data) {
+        is GridItemData.ApplicationInfo -> {
             ApplicationInfoGridItemMenu(
                 modifier = modifier,
-                eblanShortcutInfosByPackageName = popupGridItemType.eblanShortcutInfosByPackageName,
+                eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
                 onEdit = {
                     onEdit(gridItem.id)
 
@@ -154,8 +155,8 @@ private fun PopupGridItemMenuContent(
                 },
                 onInfo = {
                     onInfo(
-                        popupGridItemType.serialNumber,
-                        popupGridItemType.componentName,
+                        data.serialNumber,
+                        data.componentName,
                     )
 
                     onDismissRequest()
@@ -177,7 +178,7 @@ private fun PopupGridItemMenuContent(
             )
         }
 
-        is PopupGridItemType.Folder -> {
+        is GridItemData.Folder -> {
             GridItemMenu(
                 modifier = modifier,
                 onEdit = {
@@ -198,7 +199,7 @@ private fun PopupGridItemMenuContent(
             )
         }
 
-        is PopupGridItemType.ShortcutInfo -> {
+        is GridItemData.ShortcutInfo -> {
             GridItemMenu(
                 modifier = modifier,
                 onEdit = {
@@ -219,8 +220,8 @@ private fun PopupGridItemMenuContent(
             )
         }
 
-        is PopupGridItemType.Widget -> {
-            val showResize = popupGridItemType.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
+        is GridItemData.Widget -> {
+            val showResize = data.resizeMode != AppWidgetProviderInfo.RESIZE_NONE
 
             WidgetGridItemMenu(
                 modifier = modifier,

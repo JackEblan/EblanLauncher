@@ -50,12 +50,12 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
-import com.eblan.launcher.domain.model.PopupGridItemType
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -90,7 +90,7 @@ internal fun PagerScreen(
     iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
-    popupGridItemType: PopupGridItemType?,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
     statusBarNotifications: Map<String, Int>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -110,13 +110,10 @@ internal fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
-    onUpdateApplicationInfoPopupGridItem: (
-        showPopupGridItemMenu: Boolean,
-        packageName: String?,
+    onGetEblanShortcutInfosByPackageName: (
+        packageName: String,
         serialNumber: Long,
-        componentName: String?,
     ) -> Unit,
-    onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -272,7 +269,7 @@ internal fun PagerScreen(
         gridItemSource = gridItemSource,
         homeSettings = homeSettings,
         iconPackInfoPackageName = iconPackInfoPackageName,
-        popupGridItemType = popupGridItemType,
+        eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
         statusBarNotifications = statusBarNotifications,
         onTapFolderGridItem = onTapFolderGridItem,
         onEdit = onEdit,
@@ -290,8 +287,7 @@ internal fun PagerScreen(
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
-        onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
-        onUpdatePopupGridItem = onUpdatePopupGridItem,
+        onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||

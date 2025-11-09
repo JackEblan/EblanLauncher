@@ -20,13 +20,14 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.domain.model.PopupGridItemType
+import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.CachePageItemsUseCase
@@ -34,7 +35,6 @@ import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
-import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosByPackageNameUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
@@ -89,7 +89,7 @@ internal class HomeViewModel @Inject constructor(
     getGridItemsCacheUseCase: GetGridItemsCacheUseCase,
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
-    private val getEblanShortcutInfosByPackageNameUseCase: GetEblanShortcutInfosByPackageNameUseCase,
+    private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -164,9 +164,10 @@ internal class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    private val _popupGridItemType = MutableStateFlow<PopupGridItemType?>(null)
+    private val _eblanShortcutInfosByPackageName =
+        MutableStateFlow<List<EblanShortcutInfo>>(emptyList())
 
-    val popupGridItem = _popupGridItemType.asStateFlow()
+    val eblanShortcutInfosByPackageName = _eblanShortcutInfosByPackageName.asStateFlow()
 
     fun moveGridItem(
         movingGridItem: GridItem,
@@ -515,28 +516,16 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateApplicationInfoPopupGridItem(
-        showPopupGridItemMenu: Boolean,
-        packageName: String?,
+    fun getEblanShortcutInfosByPackageName(
+        packageName: String,
         serialNumber: Long,
-        componentName: String?,
     ) {
         viewModelScope.launch {
-            _popupGridItemType.update {
-                getEblanShortcutInfosByPackageNameUseCase(
-                    showPopupGridItemMenu = showPopupGridItemMenu,
-                    packageName = packageName,
+            _eblanShortcutInfosByPackageName.update {
+                eblanShortcutInfoRepository.getEblanShortcutInfos(
                     serialNumber = serialNumber,
-                    componentName = componentName,
+                    packageName = packageName,
                 )
-            }
-        }
-    }
-
-    fun updatePopupGridItem(popupGridItemType: PopupGridItemType?) {
-        viewModelScope.launch {
-            _popupGridItemType.update {
-                popupGridItemType
             }
         }
     }

@@ -65,6 +65,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -72,7 +73,6 @@ import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.domain.model.PopupGridItemType
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -121,7 +121,7 @@ internal fun HomeRoute(
 
     val pinGridItem by viewModel.pinGridItem.collectAsStateWithLifecycle()
 
-    val popupGridItem by viewModel.popupGridItem.collectAsStateWithLifecycle()
+    val eblanShortcutInfosByPackageName by viewModel.eblanShortcutInfosByPackageName.collectAsStateWithLifecycle()
 
     HomeScreen(
         modifier = modifier,
@@ -135,7 +135,7 @@ internal fun HomeRoute(
         eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
-        popupGridItemType = popupGridItem,
+        eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -162,8 +162,7 @@ internal fun HomeRoute(
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
-        onUpdateApplicationInfoPopupGridItem = viewModel::updateApplicationInfoPopupGridItem,
-        onUpdatePopupGridItem = viewModel::updatePopupGridItem,
+        onGetEblanShortcutInfosByPackageName = viewModel::getEblanShortcutInfosByPackageName,
     )
 }
 
@@ -180,7 +179,7 @@ internal fun HomeScreen(
     eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
-    popupGridItemType: PopupGridItemType?,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -243,13 +242,10 @@ internal fun HomeScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
-    onUpdateApplicationInfoPopupGridItem: (
-        showPopupGridItemMenu: Boolean,
-        packageName: String?,
+    onGetEblanShortcutInfosByPackageName: (
+        packageName: String,
         serialNumber: Long,
-        componentName: String?,
     ) -> Unit,
-    onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -414,7 +410,7 @@ internal fun HomeScreen(
                     pinGridItem = pinGridItem,
                     overlayIntOffset = overlayIntOffset,
                     overlayIntSize = overlayIntSize,
-                    popupGridItemType = popupGridItemType,
+                    eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
                     statusBarNotifications = statusBarNotifications,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
@@ -455,8 +451,7 @@ internal fun HomeScreen(
 
                         overlayImageBitmap = null
                     },
-                    onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
-                    onUpdatePopupGridItem = onUpdatePopupGridItem,
+                    onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
                 )
             }
         }
@@ -489,7 +484,7 @@ private fun Success(
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
-    popupGridItemType: PopupGridItemType?,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
     statusBarNotifications: Map<String, Int>,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -557,13 +552,10 @@ private fun Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
-    onUpdateApplicationInfoPopupGridItem: (
-        showPopupGridItemMenu: Boolean,
-        packageName: String?,
+    onGetEblanShortcutInfosByPackageName: (
+        packageName: String,
         serialNumber: Long,
-        componentName: String?,
     ) -> Unit,
-    onUpdatePopupGridItem: (PopupGridItemType?) -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
@@ -646,7 +638,7 @@ private fun Success(
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     currentPage = currentPage,
-                    popupGridItemType = popupGridItemType,
+                    eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
                     statusBarNotifications = statusBarNotifications,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
@@ -674,8 +666,7 @@ private fun Success(
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
-                    onUpdateApplicationInfoPopupGridItem = onUpdateApplicationInfoPopupGridItem,
-                    onUpdatePopupGridItem = onUpdatePopupGridItem,
+                    onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
                 )
             }
 

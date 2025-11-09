@@ -19,7 +19,6 @@ package com.eblan.launcher.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Shortcut
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -59,5 +58,4 @@ object EblanLauncherIcons {
     val Add = Icons.Default.Add
     val Work = Icons.Default.Work
     val DeveloperMode = Icons.Default.DeveloperMode
-    val Shortcut = Icons.AutoMirrored.Filled.Shortcut
 }

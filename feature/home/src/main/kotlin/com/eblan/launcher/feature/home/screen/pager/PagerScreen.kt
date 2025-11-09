@@ -90,7 +90,7 @@ internal fun PagerScreen(
     iconPackInfoPackageName: String,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     statusBarNotifications: Map<String, Int>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
@@ -114,6 +114,7 @@ internal fun PagerScreen(
         packageName: String,
         serialNumber: Long,
     ) -> Unit,
+    onResetEblanShortcutInfosByPackageName: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -288,6 +289,7 @@ internal fun PagerScreen(
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
         onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
+        onResetEblanShortcutInfosByPackageName = onResetEblanShortcutInfosByPackageName,
     )
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||

@@ -163,6 +163,7 @@ internal fun HomeRoute(
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
         onGetEblanShortcutInfosByPackageName = viewModel::getEblanShortcutInfosByPackageName,
+        onResetEblanShortcutInfosByPackageName = viewModel::resetEblanShortcutInfosByPackageName,
     )
 }
 
@@ -179,7 +180,7 @@ internal fun HomeScreen(
     eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -246,6 +247,7 @@ internal fun HomeScreen(
         packageName: String,
         serialNumber: Long,
     ) -> Unit,
+    onResetEblanShortcutInfosByPackageName: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -452,6 +454,7 @@ internal fun HomeScreen(
                         overlayImageBitmap = null
                     },
                     onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
+                    onResetEblanShortcutInfosByPackageName = onResetEblanShortcutInfosByPackageName,
                 )
             }
         }
@@ -484,7 +487,7 @@ private fun Success(
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     statusBarNotifications: Map<String, Int>,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -556,6 +559,7 @@ private fun Success(
         packageName: String,
         serialNumber: Long,
     ) -> Unit,
+    onResetEblanShortcutInfosByPackageName: () -> Unit,
 ) {
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
@@ -667,6 +671,7 @@ private fun Success(
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
                     onGetEblanShortcutInfosByPackageName = onGetEblanShortcutInfosByPackageName,
+                    onResetEblanShortcutInfosByPackageName = onResetEblanShortcutInfosByPackageName,
                 )
             }
 

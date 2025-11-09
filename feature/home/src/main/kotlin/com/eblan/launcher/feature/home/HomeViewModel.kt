@@ -165,7 +165,7 @@ internal class HomeViewModel @Inject constructor(
     val pinGridItem = _pinGridItem.asStateFlow()
 
     private val _eblanShortcutInfosByPackageName =
-        MutableStateFlow<List<EblanShortcutInfo>>(emptyList())
+        MutableStateFlow<List<EblanShortcutInfo>?>(null)
 
     val eblanShortcutInfosByPackageName = _eblanShortcutInfosByPackageName.asStateFlow()
 
@@ -510,12 +510,6 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetPinGridItem() {
-        _pinGridItem.update {
-            null
-        }
-    }
-
     fun getEblanShortcutInfosByPackageName(
         packageName: String,
         serialNumber: Long,
@@ -527,6 +521,18 @@ internal class HomeViewModel @Inject constructor(
                     packageName = packageName,
                 )
             }
+        }
+    }
+
+    fun resetPinGridItem() {
+        _pinGridItem.update {
+            null
+        }
+    }
+
+    fun resetEblanShortcutInfosByPackageName() {
+        _eblanShortcutInfosByPackageName.update {
+            null
         }
     }
 }

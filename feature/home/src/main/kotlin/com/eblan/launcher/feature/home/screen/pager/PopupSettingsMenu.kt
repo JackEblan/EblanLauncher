@@ -84,7 +84,7 @@ internal fun PopupGridItemMenu(
     y: Int,
     width: Int,
     height: Int,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
@@ -125,7 +125,7 @@ internal fun PopupGridItemMenu(
 @Composable
 private fun PopupGridItemMenuContent(
     modifier: Modifier = Modifier,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>,
+    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     gridItem: GridItem,
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -142,7 +142,7 @@ private fun PopupGridItemMenuContent(
         is GridItemData.ApplicationInfo -> {
             ApplicationInfoGridItemMenu(
                 modifier = modifier,
-                eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName,
+                eblanShortcutInfosByPackageName = eblanShortcutInfosByPackageName ?: emptyList(),
                 onEdit = {
                     onEdit(gridItem.id)
 

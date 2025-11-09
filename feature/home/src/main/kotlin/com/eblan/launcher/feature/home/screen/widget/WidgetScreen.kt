@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
@@ -66,7 +66,7 @@ internal fun WidgetScreen(
     paddingValues: PaddingValues,
     screenHeight: Int,
     drag: Drag,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     appDrawerSettings: AppDrawerSettings,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -144,12 +144,12 @@ private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     isApplicationComponentVisible: Boolean,
-    eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     screenHeight: Int,
     drag: Drag,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoApplicationInfo, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     appDrawerSettings: AppDrawerSettings,
     animatedSwipeUpY: Animatable<Float, AnimationVector1D>,
     overscrollOffset: Animatable<Float, AnimationVector1D>,
@@ -239,7 +239,7 @@ private fun Success(
             ) {
                 items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfo ->
                     EblanApplicationInfoItem(
-                        eblanAppWidgetProviderInfoApplicationInfo = eblanApplicationInfo,
+                        eblanAppWidgetProviderInfoByGroup = eblanApplicationInfo,
                         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                         drag = drag,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,

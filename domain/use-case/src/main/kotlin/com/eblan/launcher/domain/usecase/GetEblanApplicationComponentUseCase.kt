@@ -19,7 +19,7 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoApplicationInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.EblanApplicationComponent
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
@@ -50,7 +50,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
                     eblanAppWidgetProviderInfo.label
                 }.groupBy { eblanAppWidgetProviderInfo ->
-                    EblanAppWidgetProviderInfoApplicationInfo(
+                    EblanAppWidgetProviderInfoByGroup(
                         icon = eblanAppWidgetProviderInfo.icon,
                         label = eblanAppWidgetProviderInfo.label,
                     )

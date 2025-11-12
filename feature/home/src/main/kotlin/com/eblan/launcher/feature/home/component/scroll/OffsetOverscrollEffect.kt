@@ -15,12 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.overscroll
+package com.eblan.launcher.feature.home.component.scroll
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -80,7 +78,10 @@ internal class OffsetOverscrollEffect(
 
         if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
             scope.launch {
-                val newOverscrollValue = overscrollOffset.value + (overscrollDelta.y * overscrollFactor)
+                val overscrollFactor = if (overscrollDelta.y < 0) 0.1f else overscrollFactor
+
+                val newOverscrollValue =
+                    overscrollOffset.value + (overscrollDelta.y * overscrollFactor)
 
                 overscrollOffset.snapTo(newOverscrollValue)
 
@@ -99,30 +100,13 @@ internal class OffsetOverscrollEffect(
         velocity: Velocity,
         performFling: suspend (Velocity) -> Velocity,
     ) {
-        val consumed = performFling(velocity)
-
-        val remaining = velocity - consumed
-
-        overscrollAlpha.snapTo(0f)
-
-        if (overscrollOffset.value <= 0f && remaining.y > 10000f) {
-            overscrollOffset.snapTo(0f)
-
-            onFastFling()
-        } else if (overscrollOffset.value > 500f) {
-            overscrollOffset.snapTo(0f)
-
-            onFling()
-        } else {
-            overscrollOffset.animateTo(
-                targetValue = 0f,
-                initialVelocity = remaining.y,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow,
-                ),
-            )
-        }
+        handleOnFling(
+            remaining = velocity - performFling(velocity),
+            overscrollAlpha = overscrollAlpha,
+            overscrollOffset = overscrollOffset,
+            onFastFling = onFastFling,
+            onFling = onFling,
+        )
     }
 
     override val isInProgress: Boolean

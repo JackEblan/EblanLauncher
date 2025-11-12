@@ -48,7 +48,7 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.feature.home.component.overscroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource

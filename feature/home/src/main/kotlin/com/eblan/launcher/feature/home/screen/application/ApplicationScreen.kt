@@ -190,7 +190,7 @@ private fun Success(
     }
 
     LaunchedEffect(key1 = drag) {
-        if (isApplicationComponentVisible) {
+        if (isApplicationComponentVisible && showPopupApplicationMenu) {
             when (drag) {
                 Drag.Dragging -> {
                     onDraggingGridItem()

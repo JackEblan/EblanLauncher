@@ -22,7 +22,6 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -31,8 +30,6 @@ internal class OffsetNestedScrollConnection(
     private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
     private val overscrollOffset: Animatable<Float, AnimationVector1D>,
     private val overscrollFactor: Float,
-    private val onFling: suspend () -> Unit,
-    private val onFastFling: suspend () -> Unit,
 ) : NestedScrollConnection {
     override fun onPostScroll(
         consumed: Offset,
@@ -58,17 +55,5 @@ internal class OffsetNestedScrollConnection(
         }
 
         return super.onPostScroll(consumed, available, source)
-    }
-
-    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        handleOnFling(
-            remaining = available - consumed,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            onFastFling = onFastFling,
-            onFling = onFling,
-        )
-
-        return super.onPostFling(consumed, available)
     }
 }

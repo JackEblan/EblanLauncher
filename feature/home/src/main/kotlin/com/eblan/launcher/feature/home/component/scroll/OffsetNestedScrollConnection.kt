@@ -19,9 +19,12 @@ package com.eblan.launcher.feature.home.component.scroll
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -30,6 +33,7 @@ internal class OffsetNestedScrollConnection(
     private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
     private val overscrollOffset: Animatable<Float, AnimationVector1D>,
     private val overscrollFactor: Float,
+    private val onFling: suspend () -> Unit,
 ) : NestedScrollConnection {
     override fun onPostScroll(
         consumed: Offset,
@@ -37,23 +41,37 @@ internal class OffsetNestedScrollConnection(
         source: NestedScrollSource,
     ): Offset {
         scope.launch {
-            if (available.y > 0) {
-                val newOverscrollValue =
-                    overscrollOffset.value + (available.y * overscrollFactor)
+            val newOverscrollValue =
+                overscrollOffset.value + (available.y * overscrollFactor)
 
-                overscrollOffset.snapTo(newOverscrollValue)
+            overscrollOffset.snapTo(newOverscrollValue)
 
-                overscrollAlpha.snapTo(newOverscrollValue)
-            } else {
-                val newOverscrollValue =
-                    overscrollOffset.value + (available.y * overscrollFactor)
-
-                overscrollOffset.snapTo(newOverscrollValue)
-
-                overscrollAlpha.snapTo(newOverscrollValue)
-            }
+            overscrollAlpha.snapTo(newOverscrollValue)
         }
 
         return super.onPostScroll(consumed, available, source)
+    }
+
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+        val remaining = available - consumed
+
+        overscrollAlpha.snapTo(0f)
+
+        if (overscrollOffset.value > 500f) {
+            overscrollOffset.snapTo(0f)
+
+            onFling()
+        } else {
+            overscrollOffset.animateTo(
+                targetValue = 0f,
+                initialVelocity = remaining.y,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
+        }
+
+        return super.onPostFling(consumed, available)
     }
 }

@@ -114,6 +114,7 @@ internal fun EblanApplicationInfosPage(
             overscrollAlpha = overscrollAlpha,
             overscrollOffset = overscrollOffset,
             overscrollFactor = appDrawerSettings.overscrollFactor,
+            onFling = onFling,
         )
     }
 

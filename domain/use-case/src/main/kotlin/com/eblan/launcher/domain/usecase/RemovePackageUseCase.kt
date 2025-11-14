@@ -20,13 +20,10 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
-import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
@@ -39,9 +36,6 @@ class RemovePackageUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val userDataRepository: UserDataRepository,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
-    private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
-    private val widgetGridItemRepository: WidgetGridItemRepository,
-    private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
@@ -126,21 +120,6 @@ class RemovePackageUseCase @Inject constructor(
             )
 
             eblanShortcutInfoRepository.deleteEblanShortcutInfos(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
-            applicationInfoGridItemRepository.deleteApplicationInfoGridItem(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
-            widgetGridItemRepository.deleteWidgetGridItem(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
-            shortcutInfoGridItemRepository.deleteShortcutInfoGridItem(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )

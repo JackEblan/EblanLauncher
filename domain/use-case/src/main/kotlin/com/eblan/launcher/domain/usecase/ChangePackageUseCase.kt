@@ -87,26 +87,6 @@ class ChangePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            updateShortcutInfoGridItemsByPackageNameUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
-            updateApplicationInfoGridItemsByPackageNameUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
-            updateWidgetGridItemsByPackageNameUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
-            updateShortcutInfoGridItemsByPackageNameUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-            )
-
             updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }
     }

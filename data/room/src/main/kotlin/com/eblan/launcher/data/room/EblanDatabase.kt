@@ -47,7 +47,7 @@ import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
         FolderGridItemEntity::class,
         EblanIconPackInfoEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 internal abstract class EblanDatabase : RoomDatabase() {

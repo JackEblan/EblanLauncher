@@ -23,8 +23,6 @@ import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -32,9 +30,6 @@ class SyncDataUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val updateEblanApplicationInfosUseCase: UpdateEblanApplicationInfosUseCase,
     private val updateEblanAppWidgetProviderInfosUseCase: UpdateEblanAppWidgetProviderInfosUseCase,
-    private val updateShortcutInfoGridItemsUseCase: UpdateShortcutInfoGridItemsUseCase,
-    private val updateApplicationInfoGridItemsUseCase: UpdateApplicationInfoGridItemsUseCase,
-    private val updateWidgetGridItemsUseCase: UpdateWidgetGridItemsUseCase,
     private val updateEblanShortcutInfosUseCase: UpdateEblanShortcutInfosUseCase,
     private val notificationManagerWrapper: NotificationManagerWrapper,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
@@ -42,24 +37,11 @@ class SyncDataUseCase @Inject constructor(
     suspend operator fun invoke(isManualSyncData: Boolean) {
         withContext(defaultDispatcher) {
             suspend fun syncData() {
-                joinAll(
-                    launch {
-                        updateEblanApplicationInfosUseCase()
+                updateEblanApplicationInfosUseCase()
 
-                        updateEblanAppWidgetProviderInfosUseCase()
+                updateEblanAppWidgetProviderInfosUseCase()
 
-                        updateEblanShortcutInfosUseCase()
-                    },
-                    launch {
-                        updateApplicationInfoGridItemsUseCase()
-
-                        updateWidgetGridItemsUseCase()
-
-                        updateShortcutInfoGridItemsUseCase()
-
-                        updateShortcutInfoGridItemsUseCase()
-                    },
-                )
+                updateEblanShortcutInfosUseCase()
             }
 
             when {

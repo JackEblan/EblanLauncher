@@ -23,6 +23,8 @@ import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -37,11 +39,16 @@ class SyncDataUseCase @Inject constructor(
     suspend operator fun invoke(isManualSyncData: Boolean) {
         withContext(defaultDispatcher) {
             suspend fun syncData() {
-                updateEblanApplicationInfosUseCase()
+                joinAll(
+                    launch {
+                        updateEblanApplicationInfosUseCase()
 
-                updateEblanAppWidgetProviderInfosUseCase()
-
-                updateEblanShortcutInfosUseCase()
+                        updateEblanAppWidgetProviderInfosUseCase()
+                    },
+                    launch {
+                        updateEblanShortcutInfosUseCase()
+                    },
+                )
             }
 
             when {

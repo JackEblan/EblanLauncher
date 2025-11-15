@@ -56,8 +56,6 @@ class SyncDataUseCase @Inject constructor(
                         updateWidgetGridItemsUseCase()
 
                         updateShortcutInfoGridItemsUseCase()
-
-                        updateShortcutInfoGridItemsUseCase()
                     },
                 )
             }

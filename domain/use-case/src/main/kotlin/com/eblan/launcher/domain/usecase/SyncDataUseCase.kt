@@ -47,14 +47,17 @@ class SyncDataUseCase @Inject constructor(
                         updateEblanApplicationInfosUseCase()
 
                         updateEblanAppWidgetProviderInfosUseCase()
-
+                    },
+                    launch {
                         updateEblanShortcutInfosUseCase()
                     },
                     launch {
                         updateApplicationInfoGridItemsUseCase()
-
+                    },
+                    launch {
                         updateWidgetGridItemsUseCase()
-
+                    },
+                    launch {
                         updateShortcutInfoGridItemsUseCase()
                     },
                 )

@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntOffset
@@ -32,7 +31,6 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun DoubleTapApplicationScreen(
@@ -59,10 +57,10 @@ internal fun DoubleTapApplicationScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
-
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = offsetY) {
         offsetY.animateTo(0f)
@@ -71,7 +69,7 @@ internal fun DoubleTapApplicationScreen(
     ApplicationScreen(
         modifier = modifier,
         currentPage = currentPage,
-        offsetY = offsetY.value,
+        offsetY = offsetY,
         isApplicationComponentVisible = isApplicationComponentVisible,
         eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         paddingValues = paddingValues,
@@ -80,18 +78,14 @@ internal fun DoubleTapApplicationScreen(
         eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
         gridItemSource = gridItemSource,
         iconPackInfoPackageName = iconPackInfoPackageName,
+        screenHeight = screenHeight,
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
         onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
         onDismiss = onDismiss,
-        onAnimateDismiss = {
-            scope.launch {
-                offsetY.animateTo(screenHeight.toFloat())
-
-                onDismiss()
-            }
-        },
         onDraggingGridItem = onDraggingGridItem,
         onResetOverlay = onResetOverlay,
+        onVerticalDrag = onVerticalDrag,
+        onDragEnd = onDragEnd,
     )
 }

@@ -30,23 +30,26 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.feature.home.model.Drag
@@ -59,7 +62,7 @@ import kotlin.math.roundToInt
 internal fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    offsetY: Float,
+    offsetY: Animatable<Float, AnimationVector1D>,
     isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
@@ -68,6 +71,7 @@ internal fun ApplicationScreen(
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
+    screenHeight: Int,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -78,21 +82,26 @@ internal fun ApplicationScreen(
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
-    onAnimateDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit
 ) {
-    val overscrollAlpha = remember { Animatable(0f) }
+    val corner by remember {
+        derivedStateOf {
+            val progress = offsetY.value / screenHeight
 
-    val overscrollOffset = remember { Animatable(0f) }
+            (20 * progress).dp
+        }
+    }
 
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY.roundToInt())
+                IntOffset(x = 0, y = offsetY.value.roundToInt())
             }
-            .graphicsLayer(alpha = 1f - (overscrollAlpha.value / 500f))
-            .fillMaxSize(),
+            .fillMaxSize()
+            .clip(RoundedCornerShape(corner)),
     ) {
         when (eblanApplicationComponentUiState) {
             EblanApplicationComponentUiState.Loading -> {
@@ -122,15 +131,15 @@ internal fun ApplicationScreen(
                                 gridItemSource = gridItemSource,
                                 iconPackInfoPackageName = iconPackInfoPackageName,
                                 eblanApplicationInfos = eblanApplicationInfos,
-                                overscrollOffset = overscrollOffset,
-                                overscrollAlpha = overscrollAlpha,
+                                offsetY = offsetY,
                                 onLongPressGridItem = onLongPressGridItem,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                                onAnimateDismiss = onAnimateDismiss,
+                                onDismiss = onDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
                                 onResetOverlay = onResetOverlay,
-                                onFling = onDismiss,
+                                onVerticalDrag = onVerticalDrag,
+                                onDragEnd = onDragEnd,
                             )
                         }
                     }
@@ -153,8 +162,7 @@ private fun Success(
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    overscrollOffset: Animatable<Float, AnimationVector1D>,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    offsetY: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -164,10 +172,11 @@ private fun Success(
         intSize: IntSize,
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
-    onAnimateDismiss: () -> Unit,
+    onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
-    onFling: suspend () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -186,7 +195,7 @@ private fun Success(
     BackHandler {
         showPopupApplicationMenu = false
 
-        onAnimateDismiss()
+        onDismiss()
     }
 
     LaunchedEffect(key1 = drag) {
@@ -215,9 +224,6 @@ private fun Success(
 
     Column(
         modifier = modifier
-            .offset {
-                IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
-            }
             .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
@@ -268,12 +274,9 @@ private fun Success(
                     appDrawerSettings = appDrawerSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    overscrollOffset = overscrollOffset,
-                    overscrollAlpha = overscrollAlpha,
+                    offsetY = offsetY,
                     onLongPressGridItem = onLongPressGridItem,
-                    onAnimateDismiss = onAnimateDismiss,
                     onResetOverlay = onResetOverlay,
-                    onFling = onFling,
                     onLongPress = { intOffset, intSize ->
                         onUpdateGridItemOffset(intOffset, intSize)
 
@@ -284,6 +287,8 @@ private fun Success(
                     onUpdatePopupMenu = {
                         showPopupApplicationMenu = true
                     },
+                    onVerticalDrag = onVerticalDrag,
+                    onDragEnd = onDragEnd,
                 )
             }
         } else {
@@ -295,12 +300,9 @@ private fun Success(
                 appDrawerSettings = appDrawerSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 eblanApplicationInfos = eblanApplicationInfos,
-                overscrollOffset = overscrollOffset,
-                overscrollAlpha = overscrollAlpha,
+                offsetY = offsetY,
                 onLongPressGridItem = onLongPressGridItem,
-                onAnimateDismiss = onAnimateDismiss,
                 onResetOverlay = onResetOverlay,
-                onFling = onFling,
                 onLongPress = { intOffset, intSize ->
                     onUpdateGridItemOffset(intOffset, intSize)
 
@@ -311,6 +313,8 @@ private fun Success(
                 onUpdatePopupMenu = {
                     showPopupApplicationMenu = true
                 },
+                onVerticalDrag = onVerticalDrag,
+                onDragEnd = onDragEnd,
             )
         }
     }

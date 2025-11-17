@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
-import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.scroll.TestOffsetNestedScrollConnection
+import com.eblan.launcher.feature.home.component.scroll.TestOffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 
@@ -62,30 +62,26 @@ internal fun EblanApplicationInfosPage(
     appDrawerSettings: AppDrawerSettings,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    overscrollOffset: Animatable<Float, AnimationVector1D>,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    offsetY: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onAnimateDismiss: () -> Unit,
     onResetOverlay: () -> Unit,
-    onFling: suspend () -> Unit,
     onLongPress: (IntOffset, IntSize) -> Unit,
     onUpdatePopupMenu: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     val density = LocalDensity.current
 
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
-        OffsetOverscrollEffect(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onFling,
-            onFastFling = onAnimateDismiss,
+        TestOffsetOverscrollEffect(
+            offsetY = offsetY,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 
@@ -102,19 +98,16 @@ internal fun EblanApplicationInfosPage(
 
             val totalRows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                    appDrawerSettings.appDrawerColumns
+                        appDrawerSettings.appDrawerColumns
 
             (totalRows * appDrawerRowsHeightPx) > lazyGridState.layoutInfo.viewportSize.height
         }
     }
 
     val nestedScrollConnection = remember(key1 = scope) {
-        OffsetNestedScrollConnection(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onFling,
+        TestOffsetNestedScrollConnection(
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 

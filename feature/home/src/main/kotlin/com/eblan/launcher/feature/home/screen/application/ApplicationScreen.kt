@@ -40,6 +40,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +57,87 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
+import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+
+@Composable
+internal fun DoubleTapApplicationScreen(
+    modifier: Modifier = Modifier,
+    currentPage: Int,
+    isApplicationComponentVisible: Boolean,
+    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    paddingValues: PaddingValues,
+    drag: Drag,
+    appDrawerSettings: AppDrawerSettings,
+    eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
+    gridItemSource: GridItemSource?,
+    iconPackInfoPackageName: String,
+    screenHeight: Int,
+    onLongPressGridItem: (
+        gridItemSource: GridItemSource,
+        imageBitmap: ImageBitmap?,
+    ) -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
+    onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onDraggingGridItem: () -> Unit,
+    onResetOverlay: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    val doubleTapY = remember { Animatable(screenHeight.toFloat()) }
+
+    LaunchedEffect(key1 = Unit) {
+        doubleTapY.animateTo(0f)
+    }
+
+    ApplicationScreen(
+        modifier = modifier,
+        currentPage = currentPage,
+        offsetY = doubleTapY,
+        isApplicationComponentVisible = isApplicationComponentVisible,
+        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+        paddingValues = paddingValues,
+        drag = drag,
+        appDrawerSettings = appDrawerSettings,
+        eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        screenHeight = screenHeight,
+        onLongPressGridItem = onLongPressGridItem,
+        onUpdateGridItemOffset = onUpdateGridItemOffset,
+        onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+        gridItemSource = gridItemSource,
+        onDismiss = {
+            scope.launch {
+                doubleTapY.animateTo(screenHeight.toFloat())
+
+                onDismiss()
+            }
+        },
+        onDraggingGridItem = onDraggingGridItem,
+        onResetOverlay = onResetOverlay,
+        onVerticalDrag = { dragAmount ->
+            scope.launch {
+                doubleTapY.snapTo(doubleTapY.value + dragAmount)
+            }
+        },
+        onDragEnd = { remaining ->
+            scope.launch {
+                handleApplyFling(
+                    offsetY = doubleTapY,
+                    remaining = remaining,
+                    screenHeight = screenHeight,
+                )
+
+                onDismiss()
+            }
+        },
+    )
+}
 
 @Composable
 internal fun ApplicationScreen(
@@ -85,7 +166,7 @@ internal fun ApplicationScreen(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit
+    onDragEnd: (Float) -> Unit,
 ) {
     val corner by remember {
         derivedStateOf {
@@ -176,7 +257,7 @@ private fun Success(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit
+    onDragEnd: (Float) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 

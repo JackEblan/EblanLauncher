@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -63,6 +62,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
+import com.eblan.launcher.feature.home.screen.application.DoubleTapApplicationScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -151,8 +151,6 @@ internal fun PagerScreen(
     val swipeUpY = remember { Animatable(screenHeight.toFloat()) }
 
     val swipeDownY = remember { Animatable(screenHeight.toFloat()) }
-
-    val doubleTapY = remember { Animatable(screenHeight.toFloat()) }
 
     val wallpaperManagerWrapper = LocalWallpaperManager.current
 
@@ -311,7 +309,7 @@ internal fun PagerScreen(
                     handleApplyFling(
                         offsetY = swipeUpY,
                         remaining = remaining,
-                        screenHeight = screenHeight
+                        screenHeight = screenHeight,
                     )
                 }
             },
@@ -353,7 +351,7 @@ internal fun PagerScreen(
                     handleApplyFling(
                         offsetY = swipeDownY,
                         remaining = remaining,
-                        screenHeight = screenHeight
+                        screenHeight = screenHeight,
                     )
                 }
             },
@@ -377,13 +375,8 @@ internal fun PagerScreen(
             }
 
             GestureAction.OpenAppDrawer -> {
-                LaunchedEffect(key1 = Unit) {
-                    doubleTapY.animateTo(0f)
-                }
-
-                ApplicationScreen(
+                DoubleTapApplicationScreen(
                     currentPage = currentPage,
-                    offsetY = doubleTapY,
                     isApplicationComponentVisible = isApplicationComponentVisible,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     paddingValues = paddingValues,
@@ -397,30 +390,10 @@ internal fun PagerScreen(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     gridItemSource = gridItemSource,
                     onDismiss = {
-                        scope.launch {
-                            doubleTapY.animateTo(screenHeight.toFloat())
-
-                            showDoubleTap = false
-                        }
+                        showDoubleTap = false
                     },
                     onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
-                    onVerticalDrag = { dragAmount ->
-                        scope.launch {
-                            doubleTapY.snapTo(doubleTapY.value + dragAmount)
-                        }
-                    },
-                    onDragEnd = { remaining ->
-                        scope.launch {
-                            handleApplyFling(
-                                offsetY = doubleTapY,
-                                remaining = remaining,
-                                screenHeight = screenHeight
-                            )
-
-                            showDoubleTap = false
-                        }
-                    },
                 )
             }
 
@@ -489,13 +462,12 @@ internal fun PagerScreen(
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
-            screenHeight = screenHeight,
             drag = drag,
             eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+            screenHeight = screenHeight,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-            appDrawerSettings = appDrawerSettings,
             onDismiss = {
                 showWidgets = false
             },

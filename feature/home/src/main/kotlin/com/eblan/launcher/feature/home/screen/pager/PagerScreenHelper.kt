@@ -149,7 +149,7 @@ private fun handleGestureAction(
 internal suspend fun handleApplyFling(
     offsetY: Animatable<Float, AnimationVector1D>,
     remaining: Float,
-    screenHeight: Int
+    screenHeight: Int,
 ) {
     if (offsetY.value <= 0f && remaining > 10000f) {
         offsetY.animateTo(screenHeight.toFloat())

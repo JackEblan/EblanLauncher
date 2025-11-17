@@ -98,7 +98,7 @@ internal fun EblanApplicationInfosPage(
 
             val totalRows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                        appDrawerSettings.appDrawerColumns
+                    appDrawerSettings.appDrawerColumns
 
             (totalRows * appDrawerRowsHeightPx) > lazyGridState.layoutInfo.viewportSize.height
         }

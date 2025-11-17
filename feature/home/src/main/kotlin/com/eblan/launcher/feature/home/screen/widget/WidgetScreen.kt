@@ -31,28 +31,32 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import com.eblan.launcher.domain.model.AppDrawerSettings
+import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.scroll.TestOffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
+import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -64,10 +68,9 @@ internal fun WidgetScreen(
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
-    screenHeight: Int,
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
-    appDrawerSettings: AppDrawerSettings,
+    screenHeight: Int,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -81,19 +84,27 @@ internal fun WidgetScreen(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
-    val animatedSwipeUpY = remember { Animatable(screenHeight.toFloat()) }
+    val offsetY = remember { Animatable(screenHeight.toFloat()) }
 
-    val overscrollAlpha = remember { Animatable(0f) }
+    val corner by remember {
+        derivedStateOf {
+            val progress = offsetY.value / screenHeight
 
-    val overscrollOffset = remember { Animatable(0f) }
+            (20 * progress).dp
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        offsetY.animateTo(0f)
+    }
 
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = animatedSwipeUpY.value.roundToInt())
+                IntOffset(x = 0, y = offsetY.value.roundToInt())
             }
-            .graphicsLayer(alpha = 1f - (overscrollAlpha.value / 500f))
-            .fillMaxSize(),
+            .fillMaxSize()
+            .clip(RoundedCornerShape(corner)),
     ) {
         when (eblanApplicationComponentUiState) {
             EblanApplicationComponentUiState.Loading -> {
@@ -117,13 +128,10 @@ internal fun WidgetScreen(
                                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                                 gridItemSettings = gridItemSettings,
                                 paddingValues = paddingValues,
-                                screenHeight = screenHeight,
                                 drag = drag,
                                 eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                                appDrawerSettings = appDrawerSettings,
-                                animatedSwipeUpY = animatedSwipeUpY,
-                                overscrollOffset = overscrollOffset,
-                                overscrollAlpha = overscrollAlpha,
+                                offsetY = offsetY,
+                                screenHeight = screenHeight,
                                 onLongPressGridItem = onLongPressGridItem,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                                 onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
@@ -147,13 +155,10 @@ private fun Success(
     eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
-    screenHeight: Int,
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
-    appDrawerSettings: AppDrawerSettings,
-    animatedSwipeUpY: Animatable<Float, AnimationVector1D>,
-    overscrollOffset: Animatable<Float, AnimationVector1D>,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    offsetY: Animatable<Float, AnimationVector1D>,
+    screenHeight: Int,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -170,18 +175,25 @@ private fun Success(
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
-        OffsetOverscrollEffect(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onDismiss,
-            onFastFling = onDismiss,
-        )
-    }
+        TestOffsetOverscrollEffect(
+            offsetY = offsetY,
+            onVerticalDrag = { dragAmount ->
+                scope.launch {
+                    offsetY.snapTo(offsetY.value + dragAmount)
+                }
+            },
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = offsetY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                    )
 
-    LaunchedEffect(key1 = animatedSwipeUpY) {
-        animatedSwipeUpY.animateTo(0f)
+                    onDismiss()
+                }
+            },
+        )
     }
 
     LaunchedEffect(key1 = drag) {
@@ -202,17 +214,12 @@ private fun Success(
 
     BackHandler {
         scope.launch {
-            animatedSwipeUpY.animateTo(screenHeight.toFloat())
-
             onDismiss()
         }
     }
 
     Column(
         modifier = modifier
-            .offset {
-                IntOffset(x = 0, y = overscrollOffset.value.roundToInt())
-            }
             .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),

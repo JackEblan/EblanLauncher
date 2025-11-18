@@ -18,8 +18,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -63,7 +61,7 @@ import kotlin.math.roundToInt
 internal fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    offsetY: Animatable<Float, AnimationVector1D>,
+    offsetY: () -> Float,
     isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
@@ -90,13 +88,13 @@ internal fun ApplicationScreen(
 ) {
     val alpha by remember {
         derivedStateOf {
-            ((screenHeight - offsetY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
+            ((screenHeight - offsetY()) / (screenHeight / 2)).coerceIn(0f, 1f)
         }
     }
 
     val cornerSize by remember {
         derivedStateOf {
-            val progress = offsetY.value.coerceAtLeast(0f) / screenHeight
+            val progress = offsetY().coerceAtLeast(0f) / screenHeight
 
             (20 * progress).dp
         }
@@ -105,7 +103,7 @@ internal fun ApplicationScreen(
     Surface(
         modifier = modifier
             .offset {
-                IntOffset(x = 0, y = offsetY.value.roundToInt())
+                IntOffset(x = 0, y = offsetY().roundToInt())
             }
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize))
@@ -170,7 +168,7 @@ private fun Success(
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    offsetY: Animatable<Float, AnimationVector1D>,
+    offsetY: () -> Float,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,

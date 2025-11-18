@@ -165,20 +165,23 @@ internal fun PagerScreen(
         }
     }
 
+    val swipeY by remember {
+        derivedStateOf {
+            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+                swipeUpY
+            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+                swipeDownY
+            } else {
+                Animatable(screenHeight.toFloat())
+            }
+        }
+    }
+
     val alpha by remember {
         derivedStateOf {
             val threshold = screenHeight / 2
 
-            val swipeY =
-                if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
-                    swipeUpY.value
-                } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
-                    swipeDownY.value
-                } else {
-                    screenHeight.toFloat()
-                }
-
-            ((swipeY - threshold) / threshold).coerceIn(0f, 1f)
+            ((swipeY.value - threshold) / threshold).coerceIn(0f, 1f)
         }
     }
 
@@ -293,54 +296,14 @@ internal fun PagerScreen(
         onResetOverlay = onResetOverlay,
     )
 
-    if (swipeDownY.value >= screenHeight.toFloat() &&
-        gestureSettings.swipeUp is GestureAction.OpenAppDrawer
-    ) {
-        ApplicationScreen(
-            currentPage = currentPage,
-            offsetY = swipeUpY,
-            isApplicationComponentVisible = isApplicationComponentVisible,
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-            paddingValues = paddingValues,
-            drag = drag,
-            appDrawerSettings = appDrawerSettings,
-            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-            iconPackInfoPackageName = iconPackInfoPackageName,
-            screenHeight = screenHeight,
-            onLongPressGridItem = onLongPressGridItem,
-            onUpdateGridItemOffset = onUpdateGridItemOffset,
-            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-            gridItemSource = gridItemSource,
-            onDismiss = {
-                scope.launch {
-                    swipeUpY.animateTo(screenHeight.toFloat())
-                }
-            },
-            onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay,
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    swipeUpY.snapTo(swipeUpY.value + dragAmount)
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = swipeUpY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                    )
-                }
-            },
-        )
-    }
-
-    if (swipeUpY.value >= screenHeight.toFloat() &&
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer &&
         gestureSettings.swipeDown is GestureAction.OpenAppDrawer
     ) {
         ApplicationScreen(
             currentPage = currentPage,
-            offsetY = swipeDownY,
+            offsetY = {
+                swipeY.value
+            },
             isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
@@ -355,20 +318,20 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             onDismiss = {
                 scope.launch {
-                    swipeDownY.animateTo(screenHeight.toFloat())
+                    swipeY.animateTo(screenHeight.toFloat())
                 }
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
             onVerticalDrag = { dragAmount ->
                 scope.launch {
-                    swipeDownY.snapTo(swipeDownY.value + dragAmount)
+                    swipeY.snapTo(swipeY.value + dragAmount)
                 }
             },
             onDragEnd = { remaining ->
                 scope.launch {
                     handleApplyFling(
-                        offsetY = swipeDownY,
+                        offsetY = swipeY,
                         remaining = remaining,
                         screenHeight = screenHeight,
                     )
@@ -395,13 +358,15 @@ internal fun PagerScreen(
 
             GestureAction.OpenAppDrawer -> {
                 LaunchedEffect(key1 = Unit) {
-                    swipeUpY.animateTo(0f)
+                    swipeY.animateTo(0f)
                 }
 
                 ApplicationScreen(
                     modifier = modifier,
                     currentPage = currentPage,
-                    offsetY = swipeUpY,
+                    offsetY = {
+                        swipeY.value
+                    },
                     isApplicationComponentVisible = isApplicationComponentVisible,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     paddingValues = paddingValues,
@@ -416,7 +381,7 @@ internal fun PagerScreen(
                     gridItemSource = gridItemSource,
                     onDismiss = {
                         scope.launch {
-                            swipeUpY.animateTo(screenHeight.toFloat())
+                            swipeY.animateTo(screenHeight.toFloat())
 
                             showDoubleTap = false
                         }
@@ -425,19 +390,20 @@ internal fun PagerScreen(
                     onResetOverlay = onResetOverlay,
                     onVerticalDrag = { dragAmount ->
                         scope.launch {
-                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+                            swipeY.snapTo(swipeY.value + dragAmount)
                         }
                     },
                     onDragEnd = { remaining ->
                         scope.launch {
                             handleApplyFling(
-                                offsetY = swipeUpY,
+                                offsetY = swipeY,
                                 remaining = remaining,
                                 screenHeight = screenHeight,
+                                onDismiss = {
+                                    showDoubleTap = false
+                                },
                             )
                         }
-
-                        showDoubleTap = false
                     },
                 )
             }

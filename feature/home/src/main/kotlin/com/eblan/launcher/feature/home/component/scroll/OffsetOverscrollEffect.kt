@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.feature.home.component.scroll
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -28,7 +26,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 internal class OffsetOverscrollEffect(
-    private val offsetY: Animatable<Float, AnimationVector1D>,
+    private val offsetY: () -> Float,
     private val onVerticalDrag: (Float) -> Unit,
     private val onDragEnd: (Float) -> Unit,
 ) : OverscrollEffect {
@@ -37,12 +35,12 @@ internal class OffsetOverscrollEffect(
         source: NestedScrollSource,
         performScroll: (Offset) -> Offset,
     ): Offset {
-        val sameDirection = sign(delta.y) == sign(offsetY.value)
+        val sameDirection = sign(delta.y) == sign(offsetY())
 
-        val consumedByPreScroll = if (abs(offsetY.value) > 0.5 && !sameDirection) {
-            val prevOverscrollValue = offsetY.value
+        val consumedByPreScroll = if (abs(offsetY()) > 0.5 && !sameDirection) {
+            val prevOverscrollValue = offsetY()
 
-            val newOverscrollValue = offsetY.value + delta.y
+            val newOverscrollValue = offsetY() + delta.y
 
             if (sign(prevOverscrollValue) != sign(newOverscrollValue)) {
                 onVerticalDrag(0f)
@@ -80,7 +78,7 @@ internal class OffsetOverscrollEffect(
     }
 
     override val isInProgress: Boolean
-        get() = offsetY.value != 0f
+        get() = offsetY() != 0f
 
     override val node: DelegatableNode
         get() = super.node

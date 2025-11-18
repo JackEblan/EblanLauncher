@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.feature.home.screen.application
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -62,7 +59,7 @@ internal fun EblanApplicationInfosPage(
     appDrawerSettings: AppDrawerSettings,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    offsetY: Animatable<Float, AnimationVector1D>,
+    offsetY: () -> Float,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -75,9 +72,7 @@ internal fun EblanApplicationInfosPage(
 ) {
     val density = LocalDensity.current
 
-    val scope = rememberCoroutineScope()
-
-    val overscrollEffect = remember(key1 = scope) {
+    val overscrollEffect = remember {
         OffsetOverscrollEffect(
             offsetY = offsetY,
             onVerticalDrag = onVerticalDrag,
@@ -104,7 +99,7 @@ internal fun EblanApplicationInfosPage(
         }
     }
 
-    val nestedScrollConnection = remember(key1 = scope) {
+    val nestedScrollConnection = remember {
         OffsetNestedScrollConnection(
             onVerticalDrag = onVerticalDrag,
             onDragEnd = onDragEnd,

@@ -150,11 +150,16 @@ internal suspend fun handleApplyFling(
     offsetY: Animatable<Float, AnimationVector1D>,
     remaining: Float,
     screenHeight: Int,
+    onDismiss: () -> Unit = {},
 ) {
     if (offsetY.value <= 0f && remaining > 10000f) {
         offsetY.animateTo(screenHeight.toFloat())
+
+        onDismiss()
     } else if (offsetY.value > 200f) {
         offsetY.animateTo(screenHeight.toFloat())
+
+        onDismiss()
     } else {
         offsetY.animateTo(
             targetValue = 0f,

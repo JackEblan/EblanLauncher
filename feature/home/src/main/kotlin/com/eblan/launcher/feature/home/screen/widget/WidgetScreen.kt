@@ -184,7 +184,9 @@ private fun Success(
 
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
-            offsetY = offsetY,
+            offsetY = {
+                offsetY.value
+            },
             onVerticalDrag = { dragAmount ->
                 scope.launch {
                     offsetY.snapTo(offsetY.value + dragAmount)
@@ -196,9 +198,8 @@ private fun Success(
                         offsetY = offsetY,
                         remaining = remaining,
                         screenHeight = screenHeight,
+                        onDismiss = onDismiss,
                     )
-
-                    onDismiss()
                 }
             },
         )
@@ -222,6 +223,8 @@ private fun Success(
 
     BackHandler {
         scope.launch {
+            offsetY.animateTo(screenHeight.toFloat())
+
             onDismiss()
         }
     }

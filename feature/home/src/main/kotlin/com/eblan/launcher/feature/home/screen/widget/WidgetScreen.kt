@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -95,14 +97,20 @@ internal fun WidgetScreen(
 
     val corner by remember {
         derivedStateOf {
-            val progress = offsetY.value / screenHeight
+            val progress = offsetY.value.coerceAtLeast(0f) / screenHeight
 
             (20 * progress).dp
         }
     }
 
     LaunchedEffect(key1 = Unit) {
-        offsetY.animateTo(0f)
+        offsetY.animateTo(
+            targetValue = 0f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        )
     }
 
     Surface(

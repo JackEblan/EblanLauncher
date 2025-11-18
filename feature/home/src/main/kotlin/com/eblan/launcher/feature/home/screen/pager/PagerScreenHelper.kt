@@ -156,21 +156,31 @@ internal suspend fun handleApplyFling(
         offsetY.animateTo(
             targetValue = screenHeight.toFloat(),
             initialVelocity = remaining,
-            animationSpec = animationSpec,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
         )
 
         onDismiss()
     } else if (offsetY.value > 200f) {
         offsetY.animateTo(
             targetValue = screenHeight.toFloat(),
-            animationSpec = animationSpec,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
         )
 
         onDismiss()
     } else {
         offsetY.animateTo(
             targetValue = 0f,
-            animationSpec = animationSpec,
+            initialVelocity = remaining,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
         )
     }
 }
@@ -190,15 +200,13 @@ private fun CoroutineScope.animateOffset(
 
             swipeY.animateTo(
                 targetValue = targetValue,
-                animationSpec = animationSpec,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
             )
         } else {
             swipeY.snapTo(screenHeight.toFloat())
         }
     }
 }
-
-private val animationSpec = spring<Float>(
-    dampingRatio = Spring.DampingRatioNoBouncy,
-    stiffness = Spring.StiffnessLow,
-)

@@ -390,7 +390,13 @@ internal fun PagerScreen(
 
             GestureAction.OpenAppDrawer -> {
                 LaunchedEffect(key1 = Unit) {
-                    swipeY.animateTo(0f)
+                    swipeY.animateTo(
+                        targetValue = 0f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessLow,
+                        ),
+                    )
                 }
 
                 ApplicationScreen(
@@ -413,7 +419,13 @@ internal fun PagerScreen(
                     gridItemSource = gridItemSource,
                     onDismiss = {
                         scope.launch {
-                            swipeY.animateTo(screenHeight.toFloat())
+                            swipeY.animateTo(
+                                targetValue = screenHeight.toFloat(),
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioNoBouncy,
+                                    stiffness = Spring.StiffnessLow,
+                                ),
+                            )
 
                             showDoubleTap = false
                         }

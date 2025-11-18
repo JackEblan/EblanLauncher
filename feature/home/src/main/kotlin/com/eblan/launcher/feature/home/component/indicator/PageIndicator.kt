@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.pageindicator
+package com.eblan.launcher.feature.home.component.indicator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,16 +40,18 @@ internal fun PageIndicator(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
     ) {
-        repeat(pageCount) { index ->
-            val color = if (currentPage == index) Color.LightGray else Color.DarkGray
+        if (pageCount > 1) {
+            repeat(pageCount) { index ->
+                val color = if (currentPage == index) Color.LightGray else Color.DarkGray
 
-            Box(
-                modifier = Modifier
-                    .padding(2.dp)
-                    .clip(CircleShape)
-                    .background(color)
-                    .size(5.dp),
-            )
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .size(5.dp),
+                )
+            }
         }
     }
 }

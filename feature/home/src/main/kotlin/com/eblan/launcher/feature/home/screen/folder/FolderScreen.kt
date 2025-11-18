@@ -55,7 +55,7 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
-import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
+import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
@@ -278,6 +278,7 @@ internal fun FolderScreen(
                             .fillMaxWidth(),
                         pageCount = folderGridHorizontalPagerState.pageCount,
                         currentPage = folderGridHorizontalPagerState.currentPage,
+                        pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
                     )
                 }
             }

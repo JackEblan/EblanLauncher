@@ -54,7 +54,7 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
-import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
+import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -305,6 +305,7 @@ internal fun HorizontalPagerScreen(
                 .height(pageIndicatorHeight),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
+            pageOffset = gridHorizontalPagerState.currentPageOffsetFraction,
         )
 
         GridLayout(

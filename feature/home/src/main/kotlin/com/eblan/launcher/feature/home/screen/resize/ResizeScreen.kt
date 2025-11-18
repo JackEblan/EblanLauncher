@@ -39,7 +39,7 @@ import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
-import com.eblan.launcher.feature.home.component.pageindicator.PageIndicator
+import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.component.resize.GridItemResizeOverlay
 import com.eblan.launcher.feature.home.component.resize.WidgetGridItemResizeOverlay
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -156,6 +156,7 @@ internal fun ResizeScreen(
                 .fillMaxWidth(),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
+            pageOffset = 0f,
         )
 
         GridLayout(

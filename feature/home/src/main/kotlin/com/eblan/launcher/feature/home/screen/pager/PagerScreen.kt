@@ -21,13 +21,18 @@ import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -39,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
@@ -61,6 +67,7 @@ import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.indicator.Chevron
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
@@ -210,93 +217,110 @@ internal fun PagerScreen(
         }
     }
 
-    HorizontalPagerScreen(
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, dragAmount ->
-                        scope.launch {
-                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+    Box(modifier = modifier.fillMaxSize()) {
+        HorizontalPagerScreen(
+            modifier = Modifier
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { _, dragAmount ->
+                            scope.launch {
+                                swipeUpY.snapTo(swipeUpY.value + dragAmount)
 
-                            swipeDownY.snapTo(swipeDownY.value - dragAmount)
-                        }
-                    },
-                    onDragEnd = {
-                        doGestureActions(
-                            gestureSettings = gestureSettings,
-                            swipeUpY = swipeUpY.value,
-                            swipeDownY = swipeDownY.value,
-                            screenHeight = screenHeight,
-                            onStartMainActivity = { componentName ->
-                                launcherApps.startMainActivity(
-                                    componentName = componentName,
-                                    sourceBounds = Rect(),
-                                )
-                            },
-                            onPerformGlobalAction = { globalAction ->
-                                val intent = Intent(GlobalAction.NAME)
-                                    .putExtra(
-                                        GlobalAction.GLOBAL_ACTION_TYPE,
-                                        globalAction.name,
+                                swipeDownY.snapTo(swipeDownY.value - dragAmount)
+                            }
+                        },
+                        onDragEnd = {
+                            doGestureActions(
+                                gestureSettings = gestureSettings,
+                                swipeUpY = swipeUpY.value,
+                                swipeDownY = swipeDownY.value,
+                                screenHeight = screenHeight,
+                                onStartMainActivity = { componentName ->
+                                    launcherApps.startMainActivity(
+                                        componentName = componentName,
+                                        sourceBounds = Rect(),
                                     )
+                                },
+                                onPerformGlobalAction = { globalAction ->
+                                    val intent = Intent(GlobalAction.NAME)
+                                        .putExtra(
+                                            GlobalAction.GLOBAL_ACTION_TYPE,
+                                            globalAction.name,
+                                        )
 
-                                context.sendBroadcast(intent)
-                            },
-                        )
+                                    context.sendBroadcast(intent)
+                                },
+                            )
 
-                        resetSwipeOffset(
-                            scope = scope,
-                            gestureSettings = gestureSettings,
-                            swipeDownY = swipeDownY,
-                            screenHeight = screenHeight,
-                            swipeUpY = swipeUpY,
-                        )
-                    },
-                    onDragCancel = {
-                        scope.launch {
-                            swipeUpY.animateTo(screenHeight.toFloat())
+                            resetSwipeOffset(
+                                scope = scope,
+                                gestureSettings = gestureSettings,
+                                swipeDownY = swipeDownY,
+                                screenHeight = screenHeight,
+                                swipeUpY = swipeUpY,
+                            )
+                        },
+                        onDragCancel = {
+                            scope.launch {
+                                swipeUpY.animateTo(screenHeight.toFloat())
 
-                            swipeDownY.animateTo(screenHeight.toFloat())
-                        }
-                    },
-                )
-            }
-            .alpha(alpha),
-        gridHorizontalPagerState = gridHorizontalPagerState,
-        currentPage = currentPage,
-        isApplicationComponentVisible = isApplicationComponentVisible,
-        gridItems = gridItems,
-        gridItemsByPage = gridItemsByPage,
-        gridWidth = gridWidth,
-        gridHeight = gridHeight,
-        paddingValues = paddingValues,
-        dockGridItems = dockGridItems,
-        textColor = textColor,
-        drag = drag,
-        hasShortcutHostPermission = hasShortcutHostPermission,
-        hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
-        gridItemSource = gridItemSource,
-        homeSettings = homeSettings,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-        statusBarNotifications = statusBarNotifications,
-        eblanShortcutInfos = eblanShortcutInfos,
-        onTapFolderGridItem = onTapFolderGridItem,
-        onEdit = onEdit,
-        onResize = onResize,
-        onSettings = onSettings,
-        onEditPage = onEditPage,
-        onWidgets = {
-            showWidgets = true
-        },
-        onDoubleTap = {
-            showDoubleTap = true
-        },
-        onLongPressGridItem = onLongPressGridItem,
-        onUpdateGridItemOffset = onUpdateGridItemOffset,
-        onDraggingGridItem = onDraggingGridItem,
-        onDeleteGridItem = onDeleteGridItem,
-        onResetOverlay = onResetOverlay,
-    )
+                                swipeDownY.animateTo(screenHeight.toFloat())
+                            }
+                        },
+                    )
+                }
+                .alpha(alpha),
+            gridHorizontalPagerState = gridHorizontalPagerState,
+            currentPage = currentPage,
+            isApplicationComponentVisible = isApplicationComponentVisible,
+            gridItems = gridItems,
+            gridItemsByPage = gridItemsByPage,
+            gridWidth = gridWidth,
+            gridHeight = gridHeight,
+            paddingValues = paddingValues,
+            dockGridItems = dockGridItems,
+            textColor = textColor,
+            drag = drag,
+            hasShortcutHostPermission = hasShortcutHostPermission,
+            hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
+            gridItemSource = gridItemSource,
+            homeSettings = homeSettings,
+            iconPackInfoPackageName = iconPackInfoPackageName,
+            statusBarNotifications = statusBarNotifications,
+            eblanShortcutInfos = eblanShortcutInfos,
+            onTapFolderGridItem = onTapFolderGridItem,
+            onEdit = onEdit,
+            onResize = onResize,
+            onSettings = onSettings,
+            onEditPage = onEditPage,
+            onWidgets = {
+                showWidgets = true
+            },
+            onDoubleTap = {
+                showDoubleTap = true
+            },
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDraggingGridItem = onDraggingGridItem,
+            onDeleteGridItem = onDeleteGridItem,
+            onResetOverlay = onResetOverlay,
+        )
+
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            visible = (
+                gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
+                    gestureSettings.swipeDown is GestureAction.OpenAppDrawer
+                ) &&
+                gridItems.isEmpty() &&
+                dockGridItems.isEmpty() &&
+                swipeY.value == screenHeight.toFloat(),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Chevron()
+        }
+    }
 
     if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
         gestureSettings.swipeDown is GestureAction.OpenAppDrawer

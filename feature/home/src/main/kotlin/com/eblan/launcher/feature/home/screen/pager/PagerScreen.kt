@@ -22,6 +22,8 @@ import android.graphics.Rect
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -318,7 +320,13 @@ internal fun PagerScreen(
             gridItemSource = gridItemSource,
             onDismiss = {
                 scope.launch {
-                    swipeY.animateTo(screenHeight.toFloat())
+                    swipeY.animateTo(
+                        targetValue = screenHeight.toFloat(),
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessLow,
+                        ),
+                    )
                 }
             },
             onDraggingGridItem = onDraggingGridItem,

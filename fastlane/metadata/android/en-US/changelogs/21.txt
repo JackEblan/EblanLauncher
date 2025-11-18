@@ -1,0 +1,3 @@
+- Improved app drawer gesture animations.
+- Added a swipe indicator for empty home screens.
+- Revamped the page indicator for smoother transitions.

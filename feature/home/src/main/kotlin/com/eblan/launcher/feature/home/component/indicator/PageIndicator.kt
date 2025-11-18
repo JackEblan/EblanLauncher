@@ -44,33 +44,35 @@ fun PageIndicator(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
     ) {
-        repeat(pageCount) { index ->
+        if (pageCount > 1) {
+            repeat(pageCount) { index ->
 
-            val rel = (currentPage + pageOffset) - index
-            val dist = rel.coerceIn(-1f, 1f)
+                val rel = (currentPage + pageOffset) - index
+                val dist = rel.coerceIn(-1f, 1f)
 
-            val baseWidth = 8.dp
-            val baseHeight = 8.dp
-            val activeWidth = 16.dp
+                val baseWidth = 8.dp
+                val baseHeight = 8.dp
+                val activeWidth = 16.dp
 
-            val width = when (dist) {
-                0f -> activeWidth
-                in -1f..0f -> baseWidth + (activeWidth - baseWidth) * (1f + dist)
-                in 0f..1f -> baseWidth + (activeWidth - baseWidth) * (1f - dist)
-                else -> baseWidth
+                val width = when (dist) {
+                    0f -> activeWidth
+                    in -1f..0f -> baseWidth + (activeWidth - baseWidth) * (1f + dist)
+                    in 0f..1f -> baseWidth + (activeWidth - baseWidth) * (1f - dist)
+                    else -> baseWidth
+                }
+
+                val fadeFactor = 1f - abs(dist).coerceIn(0f, 1f)
+                val color = lerp(Color.DarkGray, Color.White, fadeFactor)
+
+                Box(
+                    modifier = Modifier
+                        .padding(3.dp)
+                        .width(width)
+                        .height(baseHeight)
+                        .clip(CircleShape)
+                        .background(color),
+                )
             }
-
-            val fadeFactor = 1f - abs(dist).coerceIn(0f, 1f)
-            val color = lerp(Color.DarkGray, Color.White, fadeFactor)
-
-            Box(
-                modifier = Modifier
-                    .padding(3.dp)
-                    .width(width)
-                    .height(baseHeight)
-                    .clip(CircleShape)
-                    .background(color),
-            )
         }
     }
 }

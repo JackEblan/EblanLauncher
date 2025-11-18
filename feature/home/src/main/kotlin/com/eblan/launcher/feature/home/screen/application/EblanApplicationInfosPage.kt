@@ -62,17 +62,16 @@ internal fun EblanApplicationInfosPage(
     appDrawerSettings: AppDrawerSettings,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    overscrollOffset: Animatable<Float, AnimationVector1D>,
-    overscrollAlpha: Animatable<Float, AnimationVector1D>,
+    offsetY: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onAnimateDismiss: () -> Unit,
     onResetOverlay: () -> Unit,
-    onFling: suspend () -> Unit,
     onLongPress: (IntOffset, IntSize) -> Unit,
     onUpdatePopupMenu: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -80,12 +79,9 @@ internal fun EblanApplicationInfosPage(
 
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onFling,
-            onFastFling = onAnimateDismiss,
+            offsetY = offsetY,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 
@@ -110,11 +106,8 @@ internal fun EblanApplicationInfosPage(
 
     val nestedScrollConnection = remember(key1 = scope) {
         OffsetNestedScrollConnection(
-            scope = scope,
-            overscrollAlpha = overscrollAlpha,
-            overscrollOffset = overscrollOffset,
-            overscrollFactor = appDrawerSettings.overscrollFactor,
-            onFling = onFling,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 

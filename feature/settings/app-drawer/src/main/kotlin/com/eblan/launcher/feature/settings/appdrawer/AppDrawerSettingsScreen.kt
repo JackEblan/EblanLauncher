@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -29,9 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -135,13 +132,6 @@ private fun Success(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        SettingsSlider(
-            appDrawerSettings = appDrawerSettings,
-            onUpdateAppDrawerSettings = onUpdateAppDrawerSettings,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
         GridItemSettings(
             gridItemSettings = appDrawerSettings.gridItemSettings,
             onUpdateGridItemSettings = { gridItemSettings ->
@@ -203,34 +193,6 @@ private fun Success(
                     showGridDialog = false
                 }
             },
-        )
-    }
-}
-
-@Composable
-private fun SettingsSlider(
-    modifier: Modifier = Modifier,
-    appDrawerSettings: AppDrawerSettings,
-    onUpdateAppDrawerSettings: (AppDrawerSettings) -> Unit,
-) {
-    val rangeEnd = 2f
-
-    val steps = (rangeEnd * 10).toInt()
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-    ) {
-        Text(text = "Over Scroll Factor", style = MaterialTheme.typography.bodyLarge)
-
-        Slider(
-            value = appDrawerSettings.overscrollFactor,
-            onValueChange = {
-                onUpdateAppDrawerSettings(appDrawerSettings.copy(overscrollFactor = (it * steps).toInt() / steps.toFloat()))
-            },
-            valueRange = 0f..rangeEnd,
-            steps = steps - 1,
         )
     }
 }

@@ -17,37 +17,21 @@
  */
 package com.eblan.launcher.feature.home.component.scroll
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.unit.Velocity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 internal class OffsetNestedScrollConnection(
-    private val scope: CoroutineScope,
-    private val overscrollAlpha: Animatable<Float, AnimationVector1D>,
-    private val overscrollOffset: Animatable<Float, AnimationVector1D>,
-    private val overscrollFactor: Float,
-    private val onFling: suspend () -> Unit,
+    private val onVerticalDrag: (Float) -> Unit,
+    private val onDragEnd: (Float) -> Unit,
 ) : NestedScrollConnection {
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource,
     ): Offset {
-        scope.launch {
-            val newOverscrollValue =
-                overscrollOffset.value + (available.y * overscrollFactor)
-
-            overscrollOffset.snapTo(newOverscrollValue)
-
-            overscrollAlpha.snapTo(newOverscrollValue)
-        }
+        onVerticalDrag(available.y)
 
         return super.onPostScroll(consumed, available, source)
     }
@@ -55,22 +39,7 @@ internal class OffsetNestedScrollConnection(
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
         val remaining = available - consumed
 
-        overscrollAlpha.snapTo(0f)
-
-        if (overscrollOffset.value > 500f) {
-            overscrollOffset.snapTo(0f)
-
-            onFling()
-        } else {
-            overscrollOffset.animateTo(
-                targetValue = 0f,
-                initialVelocity = remaining.y,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow,
-                ),
-            )
-        }
+        onDragEnd(remaining.y)
 
         return super.onPostFling(consumed, available)
     }

@@ -56,7 +56,7 @@ class GetApplicationThemeUseCase @Inject constructor(
             DarkThemeConfig.System -> {
                 if (colorHints != null) {
                     val hintSupportsDarkTheme =
-                        colorHints.and(wallpaperManagerWrapper.hintSupportsDarkTheme) != 0
+                        colorHints and wallpaperManagerWrapper.hintSupportsDarkTheme != 0
 
                     if (hintSupportsDarkTheme) {
                         ApplicationTheme(

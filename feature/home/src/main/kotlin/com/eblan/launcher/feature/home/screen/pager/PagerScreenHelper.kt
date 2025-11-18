@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
@@ -141,6 +143,27 @@ private fun handleGestureAction(
         GestureAction.None, GestureAction.OpenAppDrawer -> {
             Unit
         }
+    }
+}
+
+internal suspend fun handleApplyFling(
+    offsetY: Animatable<Float, AnimationVector1D>,
+    remaining: Float,
+    screenHeight: Int,
+) {
+    if (offsetY.value <= 0f && remaining > 10000f) {
+        offsetY.animateTo(screenHeight.toFloat())
+    } else if (offsetY.value > 200f) {
+        offsetY.animateTo(screenHeight.toFloat())
+    } else {
+        offsetY.animateTo(
+            targetValue = 0f,
+            initialVelocity = remaining,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+        )
     }
 }
 

@@ -305,6 +305,7 @@ internal fun HorizontalPagerScreen(
                 .height(pageIndicatorHeight),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
+            pageOffset = gridHorizontalPagerState.currentPageOffsetFraction,
         )
 
         GridLayout(

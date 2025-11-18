@@ -388,6 +388,7 @@ internal fun DragScreen(
                 .fillMaxWidth(),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
+            pageOffset = gridHorizontalPagerState.currentPageOffsetFraction,
         )
 
         GridLayout(

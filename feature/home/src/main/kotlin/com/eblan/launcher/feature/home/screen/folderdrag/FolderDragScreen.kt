@@ -269,6 +269,7 @@ internal fun FolderDragScreen(
                 .fillMaxWidth(),
             pageCount = folderGridHorizontalPagerState.pageCount,
             currentPage = folderGridHorizontalPagerState.currentPage,
+            pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
         )
     }
 

@@ -278,6 +278,7 @@ internal fun FolderScreen(
                             .fillMaxWidth(),
                         pageCount = folderGridHorizontalPagerState.pageCount,
                         currentPage = folderGridHorizontalPagerState.currentPage,
+                        pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
                     )
                 }
             }

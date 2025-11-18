@@ -156,6 +156,7 @@ internal fun ResizeScreen(
                 .fillMaxWidth(),
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
+            pageOffset = 0f,
         )
 
         GridLayout(

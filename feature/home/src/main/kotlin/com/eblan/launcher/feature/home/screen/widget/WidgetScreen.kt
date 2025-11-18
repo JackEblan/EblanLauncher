@@ -20,8 +20,8 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -106,9 +106,8 @@ internal fun WidgetScreen(
     LaunchedEffect(key1 = Unit) {
         offsetY.animateTo(
             targetValue = 0f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow,
+            animationSpec = tween(
+                easing = FastOutSlowInEasing
             ),
         )
     }
@@ -231,7 +230,12 @@ private fun Success(
 
     BackHandler {
         scope.launch {
-            offsetY.animateTo(screenHeight.toFloat())
+            offsetY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
 
             onDismiss()
         }

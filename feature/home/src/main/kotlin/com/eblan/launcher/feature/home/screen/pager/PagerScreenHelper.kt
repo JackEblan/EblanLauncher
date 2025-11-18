@@ -20,8 +20,10 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
@@ -156,9 +158,8 @@ internal suspend fun handleApplyFling(
         offsetY.animateTo(
             targetValue = screenHeight.toFloat(),
             initialVelocity = remaining,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow,
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
             ),
         )
 
@@ -166,9 +167,8 @@ internal suspend fun handleApplyFling(
     } else if (offsetY.value > 200f) {
         offsetY.animateTo(
             targetValue = screenHeight.toFloat(),
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow,
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
             ),
         )
 
@@ -200,9 +200,8 @@ private fun CoroutineScope.animateOffset(
 
             swipeY.animateTo(
                 targetValue = targetValue,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessLow,
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
                 ),
             )
         } else {

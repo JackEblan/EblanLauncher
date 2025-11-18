@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -37,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -49,11 +51,14 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
+import com.eblan.launcher.feature.home.component.indicator.Chevron
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
@@ -84,6 +89,9 @@ internal fun HorizontalPagerScreen(
     iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    gestureSettings: GestureSettings,
+    swipeY: Float,
+    screenHeight: Int,
     onTapFolderGridItem: (String) -> Unit,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
@@ -308,7 +316,7 @@ internal fun HorizontalPagerScreen(
             pageOffset = gridHorizontalPagerState.currentPageOffsetFraction,
         )
 
-        GridLayout(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(dockHeight)
@@ -316,10 +324,13 @@ internal fun HorizontalPagerScreen(
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                 ),
-            gridItems = dockGridItems,
-            columns = homeSettings.dockColumns,
-            rows = homeSettings.dockRows,
-            { gridItem ->
+        ) {
+            GridLayout(
+                modifier = Modifier.matchParentSize(),
+                gridItems = dockGridItems,
+                columns = homeSettings.dockColumns,
+                rows = homeSettings.dockRows,
+            ) { gridItem ->
                 val cellWidth = gridWidth / homeSettings.dockColumns
 
                 val cellHeight = dockHeightPx / homeSettings.dockRows
@@ -379,8 +390,7 @@ internal fun HorizontalPagerScreen(
                         onTapFolderGridItem(gridItem.id)
                     },
                     onLongPress = { data ->
-                        val dockY =
-                            y + (gridHeight - dockHeightPx)
+                        val dockY = y + (gridHeight - dockHeightPx)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
 
@@ -402,8 +412,23 @@ internal fun HorizontalPagerScreen(
                     },
                     onResetOverlay = onResetOverlay,
                 )
-            },
-        )
+            }
+
+            if ((
+                    gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
+                        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
+                    ) &&
+                gridItems.isEmpty() &&
+                dockGridItems.isEmpty() &&
+                swipeY == screenHeight.toFloat()
+            ) {
+                Chevron(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .align(Alignment.Center),
+                )
+            }
+        }
     }
 
     if (showPopupGridItemMenu && gridItemSource?.gridItem != null) {

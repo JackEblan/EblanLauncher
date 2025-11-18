@@ -23,7 +23,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun Chevron(
@@ -42,14 +40,14 @@ internal fun Chevron(
     val infiniteTransition = rememberInfiniteTransition(label = "chevron")
 
     val topY by infiniteTransition.animateFloat(
-        initialValue = 178f,
-        targetValue = 178f,
+        initialValue = 105f,
+        targetValue = 105f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = 1100
-                178f at 0
-                138f at 533
-                178f at 1000
+                105f at 0
+                65f at 533
+                105f at 1000
             },
             repeatMode = RepeatMode.Restart,
         ),
@@ -57,14 +55,14 @@ internal fun Chevron(
     )
 
     val middleY by infiniteTransition.animateFloat(
-        initialValue = 251f,
-        targetValue = 251f,
+        initialValue = 178f,
+        targetValue = 178f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = 1100
-                251f at 0
-                211f at 566
-                251f at 1067
+                178f at 0
+                138f at 566
+                178f at 1067
             },
             repeatMode = RepeatMode.Restart,
         ),
@@ -72,21 +70,21 @@ internal fun Chevron(
     )
 
     val bottomY by infiniteTransition.animateFloat(
-        initialValue = 324f,
-        targetValue = 324f,
+        initialValue = 251f,
+        targetValue = 251f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = 1100
-                324f at 0
-                284f at 600
-                324f at 1133
+                251f at 0
+                211f at 600
+                251f at 1133
             },
             repeatMode = RepeatMode.Restart,
         ),
         label = "bottomUp",
     )
 
-    Canvas(modifier = modifier.size(180.dp)) {
+    Canvas(modifier = modifier) {
         val centerX = size.width / 2
 
         fun drawChevronUp(y: Float, color: Color, alpha: Float = 1f) {

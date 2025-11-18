@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.feature.home.component.scroll.TestOffsetNestedScrollConnection
-import com.eblan.launcher.feature.home.component.scroll.TestOffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
+import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 
@@ -78,7 +78,7 @@ internal fun EblanApplicationInfosPage(
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
-        TestOffsetOverscrollEffect(
+        OffsetOverscrollEffect(
             offsetY = offsetY,
             onVerticalDrag = onVerticalDrag,
             onDragEnd = onDragEnd,
@@ -105,7 +105,7 @@ internal fun EblanApplicationInfosPage(
     }
 
     val nestedScrollConnection = remember(key1 = scope) {
-        TestOffsetNestedScrollConnection(
+        OffsetNestedScrollConnection(
             onVerticalDrag = onVerticalDrag,
             onDragEnd = onDragEnd,
         )

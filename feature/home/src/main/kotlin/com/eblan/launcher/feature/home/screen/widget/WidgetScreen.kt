@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.feature.home.component.scroll.TestOffsetOverscrollEffect
+import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -183,7 +183,7 @@ private fun Success(
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
-        TestOffsetOverscrollEffect(
+        OffsetOverscrollEffect(
             offsetY = offsetY,
             onVerticalDrag = { dragAmount ->
                 scope.launch {

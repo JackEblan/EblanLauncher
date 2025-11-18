@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -62,7 +64,6 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
-import com.eblan.launcher.feature.home.screen.application.DoubleTapApplicationScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -164,6 +165,23 @@ internal fun PagerScreen(
         }
     }
 
+    val alpha by remember {
+        derivedStateOf {
+            val threshold = screenHeight / 2
+
+            val swipeY =
+                if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+                    swipeUpY.value
+                } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+                    swipeDownY.value
+                } else {
+                    screenHeight.toFloat()
+                }
+
+            ((swipeY - threshold) / threshold).coerceIn(0f, 1f)
+        }
+    }
+
     DisposableEffect(key1 = scope) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
@@ -237,7 +255,8 @@ internal fun PagerScreen(
                         }
                     },
                 )
-            },
+            }
+            .alpha(alpha),
         gridHorizontalPagerState = gridHorizontalPagerState,
         currentPage = currentPage,
         isApplicationComponentVisible = isApplicationComponentVisible,
@@ -375,8 +394,14 @@ internal fun PagerScreen(
             }
 
             GestureAction.OpenAppDrawer -> {
-                DoubleTapApplicationScreen(
+                LaunchedEffect(key1 = Unit) {
+                    swipeUpY.animateTo(0f)
+                }
+
+                ApplicationScreen(
+                    modifier = modifier,
                     currentPage = currentPage,
+                    offsetY = swipeUpY,
                     isApplicationComponentVisible = isApplicationComponentVisible,
                     eblanApplicationComponentUiState = eblanApplicationComponentUiState,
                     paddingValues = paddingValues,
@@ -390,10 +415,30 @@ internal fun PagerScreen(
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     gridItemSource = gridItemSource,
                     onDismiss = {
-                        showDoubleTap = false
+                        scope.launch {
+                            swipeUpY.animateTo(screenHeight.toFloat())
+
+                            showDoubleTap = false
+                        }
                     },
                     onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
+                    onVerticalDrag = { dragAmount ->
+                        scope.launch {
+                            swipeUpY.snapTo(swipeUpY.value + dragAmount)
+                        }
+                    },
+                    onDragEnd = { remaining ->
+                        scope.launch {
+                            handleApplyFling(
+                                offsetY = swipeUpY,
+                                remaining = remaining,
+                                screenHeight = screenHeight,
+                            )
+                        }
+
+                        showDoubleTap = false
+                    },
                 )
             }
 

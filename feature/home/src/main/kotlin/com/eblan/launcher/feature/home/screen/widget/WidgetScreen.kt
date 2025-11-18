@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntOffset
@@ -86,6 +87,12 @@ internal fun WidgetScreen(
 ) {
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
 
+    val alpha by remember {
+        derivedStateOf {
+            ((screenHeight - offsetY.value) / (screenHeight / 2)).coerceIn(0f, 1f)
+        }
+    }
+
     val corner by remember {
         derivedStateOf {
             val progress = offsetY.value / screenHeight
@@ -104,7 +111,8 @@ internal fun WidgetScreen(
                 IntOffset(x = 0, y = offsetY.value.roundToInt())
             }
             .fillMaxSize()
-            .clip(RoundedCornerShape(corner)),
+            .clip(RoundedCornerShape(corner))
+            .alpha(alpha),
     ) {
         when (eblanApplicationComponentUiState) {
             EblanApplicationComponentUiState.Loading -> {

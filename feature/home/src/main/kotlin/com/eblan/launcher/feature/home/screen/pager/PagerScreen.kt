@@ -298,7 +298,7 @@ internal fun PagerScreen(
         onResetOverlay = onResetOverlay,
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer &&
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
         gestureSettings.swipeDown is GestureAction.OpenAppDrawer
     ) {
         ApplicationScreen(

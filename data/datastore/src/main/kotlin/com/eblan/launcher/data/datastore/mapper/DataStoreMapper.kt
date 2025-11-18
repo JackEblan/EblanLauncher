@@ -78,7 +78,6 @@ internal fun AppDrawerSettingsProto.toAppDrawerSettings(): AppDrawerSettings {
         appDrawerColumns = appDrawerColumns,
         appDrawerRowsHeight = appDrawerRowsHeight,
         gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
-        overscrollFactor = overscrollFactor,
     )
 }
 
@@ -285,7 +284,6 @@ internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProt
         .setAppDrawerColumns(appDrawerColumns)
         .setAppDrawerRowsHeight(appDrawerRowsHeight)
         .setGridItemSettingsProto(gridItemSettingsProto)
-        .setOverscrollFactor(overscrollFactor)
         .build()
 }
 

@@ -43,12 +43,8 @@ import javax.inject.Inject
 class UserDataStore @Inject constructor(private val dataStore: DataStore<UserDataProto>) {
     val userData: Flow<UserData> = dataStore.data.map { userDataProto ->
         UserData(
-            homeSettings = userDataProto
-                .homeSettingsProto
-                .toHomeSettings(),
-            appDrawerSettings = userDataProto
-                .appDrawerSettingsProto
-                .toAppDrawerSettings(),
+            homeSettings = userDataProto.homeSettingsProto.toHomeSettings(),
+            appDrawerSettings = userDataProto.appDrawerSettingsProto.toAppDrawerSettings(),
             gestureSettings = userDataProto.gestureSettingsProto.toGestureSettings(),
             generalSettings = userDataProto.generalSettingsProto.toGeneralSettings(),
             experimentalSettings = userDataProto.experimentalSettingsProto.toExperimentalSettings(),

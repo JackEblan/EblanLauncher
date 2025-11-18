@@ -107,7 +107,7 @@ internal fun WidgetScreen(
         offsetY.animateTo(
             targetValue = 0f,
             animationSpec = tween(
-                easing = FastOutSlowInEasing
+                easing = FastOutSlowInEasing,
             ),
         )
     }

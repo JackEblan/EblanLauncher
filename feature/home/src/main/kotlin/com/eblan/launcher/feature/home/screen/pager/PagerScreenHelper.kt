@@ -21,6 +21,8 @@ import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GestureAction
@@ -57,13 +59,38 @@ internal fun resetSwipeOffset(
     screenHeight: Int,
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
-    scope.animateOffset(
+    fun animateOffset(
+        gestureAction: GestureAction,
+        swipeY: Animatable<Float, AnimationVector1D>,
+        screenHeight: Int,
+    ) {
+        scope.launch {
+            if (gestureAction is GestureAction.OpenAppDrawer) {
+                val targetValue = if (swipeY.value < screenHeight - 200f) {
+                    0f
+                } else {
+                    screenHeight.toFloat()
+                }
+
+                swipeY.animateTo(
+                    targetValue = targetValue,
+                    animationSpec = tween(
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+            } else {
+                swipeY.snapTo(screenHeight.toFloat())
+            }
+        }
+    }
+
+    animateOffset(
         gestureAction = gestureSettings.swipeDown,
         swipeY = swipeDownY,
         screenHeight = screenHeight,
     )
 
-    scope.animateOffset(
+    animateOffset(
         gestureAction = gestureSettings.swipeUp,
         swipeY = swipeUpY,
         screenHeight = screenHeight,
@@ -175,34 +202,10 @@ internal suspend fun handleApplyFling(
         offsetY.animateTo(
             targetValue = 0f,
             initialVelocity = remaining,
-            animationSpec = tween(
-                easing = FastOutSlowInEasing,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessLow,
             ),
         )
-    }
-}
-
-private fun CoroutineScope.animateOffset(
-    gestureAction: GestureAction,
-    swipeY: Animatable<Float, AnimationVector1D>,
-    screenHeight: Int,
-) {
-    launch {
-        if (gestureAction is GestureAction.OpenAppDrawer) {
-            val targetValue = if (swipeY.value < screenHeight - 200f) {
-                0f
-            } else {
-                screenHeight.toFloat()
-            }
-
-            swipeY.animateTo(
-                targetValue = targetValue,
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
-        } else {
-            swipeY.snapTo(screenHeight.toFloat())
-        }
     }
 }

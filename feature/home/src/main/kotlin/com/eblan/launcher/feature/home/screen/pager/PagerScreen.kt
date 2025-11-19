@@ -23,6 +23,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.PaddingValues
@@ -370,8 +372,9 @@ internal fun PagerScreen(
                 LaunchedEffect(key1 = Unit) {
                     swipeY.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(
-                            easing = FastOutSlowInEasing,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessLow,
                         ),
                     )
                 }

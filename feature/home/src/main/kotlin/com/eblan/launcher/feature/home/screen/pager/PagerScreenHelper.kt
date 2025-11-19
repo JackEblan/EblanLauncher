@@ -62,7 +62,6 @@ internal fun resetSwipeOffset(
     fun animateOffset(
         gestureAction: GestureAction,
         swipeY: Animatable<Float, AnimationVector1D>,
-        screenHeight: Int,
     ) {
         scope.launch {
             if (gestureAction is GestureAction.OpenAppDrawer) {
@@ -87,13 +86,11 @@ internal fun resetSwipeOffset(
     animateOffset(
         gestureAction = gestureSettings.swipeDown,
         swipeY = swipeDownY,
-        screenHeight = screenHeight,
     )
 
     animateOffset(
         gestureAction = gestureSettings.swipeUp,
         swipeY = swipeUpY,
-        screenHeight = screenHeight,
     )
 }
 

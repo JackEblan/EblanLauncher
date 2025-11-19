@@ -47,7 +47,6 @@ fun PageIndicator(
     ) {
         if (pageCount > 1) {
             repeat(pageCount) { index ->
-
                 val rel = (currentPage + pageOffset) - index
                 val dist = rel.coerceIn(-1f, 1f)
 

@@ -83,13 +83,13 @@ internal fun Chevron(
     Canvas(modifier = modifier) {
         fun drawChevronUp(
             y: Float,
-            color: Color,
             alpha: Float,
         ) {
             val centerX = size.width / 2
 
+            val size = 50f
+
             val path = Path().apply {
-                val size = 50f
                 moveTo(centerX - size, y + size / 2)
                 lineTo(centerX, y - size / 2)
                 lineTo(centerX + size, y + size / 2)
@@ -102,10 +102,10 @@ internal fun Chevron(
             )
         }
 
-        drawChevronUp(bottomY, color = color, alpha = 1.00f)
+        drawChevronUp(y = bottomY, alpha = 1.00f)
 
-        drawChevronUp(middleY, color = color, alpha = 0.80f)
+        drawChevronUp(y = middleY, alpha = 0.80f)
 
-        drawChevronUp(topY, color = color, alpha = 0.50f)
+        drawChevronUp(y = topY, alpha = 0.50f)
     }
 }

@@ -279,6 +279,7 @@ internal fun FolderScreen(
                         pageCount = folderGridHorizontalPagerState.pageCount,
                         currentPage = folderGridHorizontalPagerState.currentPage,
                         pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
+                        color = getSystemTextColor(textColor = textColor),
                     )
                 }
             }

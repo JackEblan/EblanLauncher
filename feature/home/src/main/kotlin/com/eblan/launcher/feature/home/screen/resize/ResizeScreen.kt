@@ -157,6 +157,7 @@ internal fun ResizeScreen(
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
             pageOffset = 0f,
+            color = getSystemTextColor(textColor = textColor),
         )
 
         GridLayout(

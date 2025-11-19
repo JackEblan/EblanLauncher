@@ -35,10 +35,11 @@ import kotlin.math.abs
 
 @Composable
 fun PageIndicator(
+    modifier: Modifier = Modifier,
     pageCount: Int,
     currentPage: Int,
     pageOffset: Float,
-    modifier: Modifier = Modifier,
+    color: Color,
 ) {
     Row(
         modifier = modifier,
@@ -61,16 +62,19 @@ fun PageIndicator(
                     else -> baseWidth
                 }
 
-                val fadeFactor = 1f - abs(dist).coerceIn(0f, 1f)
-                val color = lerp(Color.DarkGray, Color.White, fadeFactor)
-
                 Box(
                     modifier = Modifier
                         .padding(3.dp)
                         .width(width)
                         .height(baseHeight)
                         .clip(CircleShape)
-                        .background(color),
+                        .background(
+                            color = lerp(
+                                start = color.copy(alpha = 0.5f),
+                                stop = color,
+                                fraction = 1f - abs(dist).coerceIn(0f, 1f),
+                            ),
+                        ),
                 )
             }
         }

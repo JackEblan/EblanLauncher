@@ -389,6 +389,7 @@ internal fun DragScreen(
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
             pageOffset = gridHorizontalPagerState.currentPageOffsetFraction,
+            color = getSystemTextColor(textColor = textColor),
         )
 
         GridLayout(

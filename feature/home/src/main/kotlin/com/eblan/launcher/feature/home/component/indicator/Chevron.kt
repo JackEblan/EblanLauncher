@@ -23,7 +23,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Canvas
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -35,7 +34,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 @Composable
 internal fun Chevron(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primaryContainer,
+    color: Color,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "chevron")
 
@@ -51,7 +50,6 @@ internal fun Chevron(
             },
             repeatMode = RepeatMode.Restart,
         ),
-        label = "topUp",
     )
 
     val middleY by infiniteTransition.animateFloat(
@@ -66,7 +64,6 @@ internal fun Chevron(
             },
             repeatMode = RepeatMode.Restart,
         ),
-        label = "middleUp",
     )
 
     val bottomY by infiniteTransition.animateFloat(
@@ -81,18 +78,21 @@ internal fun Chevron(
             },
             repeatMode = RepeatMode.Restart,
         ),
-        label = "bottomUp",
     )
 
     Canvas(modifier = modifier) {
-        val centerX = size.width / 2
+        fun drawChevronUp(
+            y: Float,
+            color: Color,
+            alpha: Float,
+        ) {
+            val centerX = size.width / 2
 
-        fun drawChevronUp(y: Float, color: Color, alpha: Float = 1f) {
             val path = Path().apply {
-                val size = 58f
-                moveTo(centerX - size, y + size / 2) // bottom-left
-                lineTo(centerX, y - size / 2) // top-center
-                lineTo(centerX + size, y + size / 2) // bottom-right
+                val size = 50f
+                moveTo(centerX - size, y + size / 2)
+                lineTo(centerX, y - size / 2)
+                lineTo(centerX + size, y + size / 2)
             }
 
             drawPath(
@@ -103,7 +103,9 @@ internal fun Chevron(
         }
 
         drawChevronUp(bottomY, color = color, alpha = 1.00f)
+
         drawChevronUp(middleY, color = color, alpha = 0.80f)
+
         drawChevronUp(topY, color = color, alpha = 0.50f)
     }
 }

@@ -21,8 +21,6 @@ import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
 import com.eblan.launcher.domain.model.GestureAction
@@ -177,9 +175,8 @@ internal suspend fun handleApplyFling(
         offsetY.animateTo(
             targetValue = 0f,
             initialVelocity = remaining,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessLow,
+            animationSpec = tween(
+                easing = FastOutSlowInEasing,
             ),
         )
     }

@@ -20,8 +20,10 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -64,6 +66,7 @@ import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -314,6 +317,7 @@ internal fun HorizontalPagerScreen(
             pageCount = homeSettings.pageCount,
             currentPage = currentPage,
             pageOffset = gridHorizontalPagerState.currentPageOffsetFraction,
+            color = getSystemTextColor(textColor = textColor),
         )
 
         Box(
@@ -414,20 +418,14 @@ internal fun HorizontalPagerScreen(
                 )
             }
 
-            if ((
-                    gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
-                        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-                    ) &&
-                gridItems.isEmpty() &&
-                dockGridItems.isEmpty() &&
-                swipeY == screenHeight.toFloat()
-            ) {
-                Chevron(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .align(Alignment.Center),
-                )
-            }
+            Chevron(
+                gestureSettings = gestureSettings,
+                gridItems = gridItems,
+                dockGridItems = dockGridItems,
+                swipeY = swipeY,
+                screenHeight = screenHeight,
+                textColor = textColor,
+            )
         }
     }
 
@@ -500,6 +498,34 @@ internal fun HorizontalPagerScreen(
             onDismissRequest = {
                 showPopupSettingsMenu = false
             },
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.Chevron(
+    modifier: Modifier = Modifier,
+    gestureSettings: GestureSettings,
+    gridItems: List<GridItem>,
+    dockGridItems: List<GridItem>,
+    swipeY: Float,
+    screenHeight: Int,
+    textColor: TextColor,
+) {
+    val visible =
+        (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) &&
+            gridItems.isEmpty() &&
+            dockGridItems.isEmpty() &&
+            swipeY == screenHeight.toFloat()
+
+    AnimatedVisibility(
+        modifier = modifier
+            .matchParentSize()
+            .align(Alignment.Center),
+        visible = visible,
+    ) {
+        Chevron(
+            color = getSystemTextColor(textColor = textColor),
         )
     }
 }

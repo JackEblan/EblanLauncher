@@ -270,6 +270,7 @@ internal fun FolderDragScreen(
             pageCount = folderGridHorizontalPagerState.pageCount,
             currentPage = folderGridHorizontalPagerState.currentPage,
             pageOffset = folderGridHorizontalPagerState.currentPageOffsetFraction,
+            color = getSystemTextColor(textColor = textColor),
         )
     }
 

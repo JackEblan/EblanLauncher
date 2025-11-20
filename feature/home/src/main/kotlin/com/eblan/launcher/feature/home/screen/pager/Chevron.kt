@@ -15,8 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.indicator
+package com.eblan.launcher.feature.home.screen.pager
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -30,9 +31,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.GestureSettings
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.util.getSystemTextColor
 
 @Composable
 internal fun Chevron(
+    modifier: Modifier = Modifier,
+    gestureSettings: GestureSettings,
+    gridItems: List<GridItem>,
+    dockGridItems: List<GridItem>,
+    swipeY: Float,
+    screenHeight: Int,
+    textColor: TextColor,
+) {
+    val visible =
+        (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) &&
+            gridItems.isEmpty() &&
+            dockGridItems.isEmpty() &&
+            swipeY == screenHeight.toFloat()
+
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = visible,
+    ) {
+        Chevron(
+            color = getSystemTextColor(textColor = textColor),
+        )
+    }
+}
+
+@Composable
+private fun Chevron(
     modifier: Modifier = Modifier,
     color: Color,
 ) {

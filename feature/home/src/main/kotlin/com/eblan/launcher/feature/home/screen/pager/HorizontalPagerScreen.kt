@@ -20,10 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -53,14 +51,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.EblanShortcutInfo
-import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
-import com.eblan.launcher.feature.home.component.indicator.Chevron
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
@@ -419,6 +415,9 @@ internal fun HorizontalPagerScreen(
             }
 
             Chevron(
+                modifier = Modifier
+                    .matchParentSize()
+                    .align(Alignment.Center),
                 gestureSettings = gestureSettings,
                 gridItems = gridItems,
                 dockGridItems = dockGridItems,
@@ -498,34 +497,6 @@ internal fun HorizontalPagerScreen(
             onDismissRequest = {
                 showSettingsPopup = false
             },
-        )
-    }
-}
-
-@Composable
-private fun BoxScope.Chevron(
-    modifier: Modifier = Modifier,
-    gestureSettings: GestureSettings,
-    gridItems: List<GridItem>,
-    dockGridItems: List<GridItem>,
-    swipeY: Float,
-    screenHeight: Int,
-    textColor: TextColor,
-) {
-    val visible =
-        (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) &&
-            gridItems.isEmpty() &&
-            dockGridItems.isEmpty() &&
-            swipeY == screenHeight.toFloat()
-
-    AnimatedVisibility(
-        modifier = modifier
-            .matchParentSize()
-            .align(Alignment.Center),
-        visible = visible,
-    ) {
-        Chevron(
-            color = getSystemTextColor(textColor = textColor),
         )
     }
 }

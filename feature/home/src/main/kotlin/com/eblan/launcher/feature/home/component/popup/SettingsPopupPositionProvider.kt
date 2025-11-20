@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.menu
+package com.eblan.launcher.feature.home.component.popup
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -23,11 +23,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.PopupPositionProvider
 
-internal class MenuPositionProvider(
+internal class SettingsPopupPositionProvider(
     private val x: Int,
     private val y: Int,
-    private val width: Int,
-    private val height: Int,
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -35,20 +33,10 @@ internal class MenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize,
     ): IntOffset {
-        val parentCenterX = x + width / 2
+        val x = (x - popupContentSize.width).coerceIn(0, windowSize.width)
 
-        val childXInitial = parentCenterX - popupContentSize.width / 2
+        val y = (y - popupContentSize.height).coerceIn(0, windowSize.height)
 
-        val childX = childXInitial.coerceIn(0, windowSize.width - popupContentSize.width)
-
-        val topPositionY = y - popupContentSize.height
-
-        val bottomPositionY = y + height
-
-        val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
-
-        val childY = childYInitial.coerceIn(0, windowSize.height - popupContentSize.height)
-
-        return IntOffset(x = childX, y = childY)
+        return IntOffset(x = x, y = y)
     }
 }

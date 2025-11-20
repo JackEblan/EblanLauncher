@@ -20,10 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -53,14 +51,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.EblanShortcutInfo
-import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
-import com.eblan.launcher.feature.home.component.indicator.Chevron
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
@@ -122,11 +118,11 @@ internal fun HorizontalPagerScreen(
         dockHeight.roundToPx()
     }
 
-    var showPopupGridItemMenu by remember { mutableStateOf(false) }
+    var showGridItemPopup by remember { mutableStateOf(false) }
 
-    var showPopupSettingsMenu by remember { mutableStateOf(false) }
+    var showSettingsPopup by remember { mutableStateOf(false) }
 
-    var popupSettingsMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+    var settingsPopupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     val launcherApps = LocalLauncherApps.current
 
@@ -136,9 +132,9 @@ internal fun HorizontalPagerScreen(
 
     val view = LocalView.current
 
-    var popupMenuIntOffset by remember { mutableStateOf(IntOffset.Zero) }
+    var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    var popupGridItemMenuIntSize by remember { mutableStateOf(IntSize.Zero) }
+    var popupGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -158,7 +154,7 @@ internal fun HorizontalPagerScreen(
 
     LaunchedEffect(key1 = drag) {
         if (!isApplicationComponentVisible && drag == Drag.Dragging) {
-            showPopupGridItemMenu = false
+            showGridItemPopup = false
 
             onDraggingGridItem()
         }
@@ -177,7 +173,7 @@ internal fun HorizontalPagerScreen(
 
     LaunchedEffect(key1 = editGridItemId) {
         editGridItemId?.let { id ->
-            showPopupGridItemMenu = false
+            showGridItemPopup = false
 
             editGridItemId = null
 
@@ -193,9 +189,9 @@ internal fun HorizontalPagerScreen(
                         onDoubleTap()
                     },
                     onLongPress = { offset ->
-                        popupSettingsMenuIntOffset = offset.round()
+                        settingsPopupIntOffset = offset.round()
 
-                        showPopupSettingsMenu = true
+                        showSettingsPopup = true
                     },
                 )
             }
@@ -290,13 +286,13 @@ internal fun HorizontalPagerScreen(
 
                             val intSize = IntSize(width = width, height = height)
 
-                            popupMenuIntOffset = intOffset
+                            popupIntOffset = intOffset
 
-                            popupGridItemMenuIntSize = IntSize(width = width, height = height)
+                            popupGridItemIntSize = IntSize(width = width, height = height)
 
                             onUpdateGridItemOffset(intOffset, intSize)
 
-                            showPopupGridItemMenu = true
+                            showGridItemPopup = true
                         },
                         onUpdateImageBitmap = { imageBitmap ->
                             onLongPressGridItem(
@@ -400,13 +396,13 @@ internal fun HorizontalPagerScreen(
 
                         val intSize = IntSize(width = width, height = height)
 
-                        popupMenuIntOffset = intOffset
+                        popupIntOffset = intOffset
 
-                        popupGridItemMenuIntSize = IntSize(width = width, height = height)
+                        popupGridItemIntSize = IntSize(width = width, height = height)
 
                         onUpdateGridItemOffset(intOffset, intSize)
 
-                        showPopupGridItemMenu = true
+                        showGridItemPopup = true
                     },
                     onUpdateImageBitmap = { imageBitmap ->
                         onLongPressGridItem(
@@ -419,6 +415,9 @@ internal fun HorizontalPagerScreen(
             }
 
             Chevron(
+                modifier = Modifier
+                    .matchParentSize()
+                    .align(Alignment.Center),
                 gestureSettings = gestureSettings,
                 gridItems = gridItems,
                 dockGridItems = dockGridItems,
@@ -429,13 +428,13 @@ internal fun HorizontalPagerScreen(
         }
     }
 
-    if (showPopupGridItemMenu && gridItemSource?.gridItem != null) {
-        PopupGridItemMenu(
+    if (showGridItemPopup && gridItemSource?.gridItem != null) {
+        GridItemPopup(
             gridItem = gridItemSource.gridItem,
-            x = popupMenuIntOffset.x,
-            y = popupMenuIntOffset.y,
-            width = popupGridItemMenuIntSize.width,
-            height = popupGridItemMenuIntSize.height,
+            x = popupIntOffset.x,
+            y = popupIntOffset.y,
+            width = popupGridItemIntSize.width,
+            height = popupGridItemIntSize.height,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
             onEdit = { id ->
@@ -448,20 +447,20 @@ internal fun HorizontalPagerScreen(
                     serialNumber = serialNumber,
                     componentName = componentName,
                     sourceBounds = Rect(
-                        popupMenuIntOffset.x,
-                        popupMenuIntOffset.y,
-                        popupMenuIntOffset.x + popupGridItemMenuIntSize.width,
-                        popupMenuIntOffset.y + popupGridItemMenuIntSize.height,
+                        popupIntOffset.x,
+                        popupIntOffset.y,
+                        popupIntOffset.x + popupGridItemIntSize.width,
+                        popupIntOffset.y + popupGridItemIntSize.height,
                     ),
                 )
             },
             onDismissRequest = {
-                showPopupGridItemMenu = false
+                showGridItemPopup = false
             },
             onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                val sourceBoundsX = popupMenuIntOffset.x + leftPadding
+                val sourceBoundsX = popupIntOffset.x + leftPadding
 
-                val sourceBoundsY = popupMenuIntOffset.y + topPadding
+                val sourceBoundsY = popupIntOffset.y + topPadding
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                     launcherApps.startShortcut(
@@ -471,8 +470,8 @@ internal fun HorizontalPagerScreen(
                         sourceBounds = Rect(
                             sourceBoundsX,
                             sourceBoundsY,
-                            sourceBoundsX + popupGridItemMenuIntSize.width,
-                            sourceBoundsY + popupGridItemMenuIntSize.height,
+                            sourceBoundsX + popupGridItemIntSize.width,
+                            sourceBoundsY + popupGridItemIntSize.height,
                         ),
                     )
                 }
@@ -480,9 +479,9 @@ internal fun HorizontalPagerScreen(
         )
     }
 
-    if (showPopupSettingsMenu) {
-        PopupSettingsMenu(
-            popupSettingsMenuIntOffset = popupSettingsMenuIntOffset,
+    if (showSettingsPopup) {
+        SettingsPopup(
+            popupSettingsIntOffset = settingsPopupIntOffset,
             gridItems = gridItems,
             hasSystemFeatureAppWidgets = hasSystemFeatureAppWidgets,
             onSettings = onSettings,
@@ -496,36 +495,8 @@ internal fun HorizontalPagerScreen(
                 context.startActivity(chooser)
             },
             onDismissRequest = {
-                showPopupSettingsMenu = false
+                showSettingsPopup = false
             },
-        )
-    }
-}
-
-@Composable
-private fun BoxScope.Chevron(
-    modifier: Modifier = Modifier,
-    gestureSettings: GestureSettings,
-    gridItems: List<GridItem>,
-    dockGridItems: List<GridItem>,
-    swipeY: Float,
-    screenHeight: Int,
-    textColor: TextColor,
-) {
-    val visible =
-        (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) &&
-            gridItems.isEmpty() &&
-            dockGridItems.isEmpty() &&
-            swipeY == screenHeight.toFloat()
-
-    AnimatedVisibility(
-        modifier = modifier
-            .matchParentSize()
-            .align(Alignment.Center),
-        visible = visible,
-    ) {
-        Chevron(
-            color = getSystemTextColor(textColor = textColor),
         )
     }
 }

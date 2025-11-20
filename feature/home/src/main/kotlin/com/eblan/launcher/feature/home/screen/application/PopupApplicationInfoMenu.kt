@@ -19,18 +19,24 @@ package com.eblan.launcher.feature.home.screen.application
 
 import android.graphics.Rect
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.component.menu.ApplicationInfoMenu
-import com.eblan.launcher.feature.home.component.menu.MenuPositionProvider
+import com.eblan.launcher.feature.home.component.popup.GridItemPopupPositionProvider
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
 @Composable
@@ -61,7 +67,7 @@ internal fun PopupApplicationInfoMenu(
     val y = popupMenuIntOffset.y - topPadding
 
     Popup(
-        popupPositionProvider = MenuPositionProvider(
+        popupPositionProvider = GridItemPopupPositionProvider(
             x = x,
             y = y,
             width = popupMenuIntSize.width,
@@ -86,6 +92,27 @@ internal fun PopupApplicationInfoMenu(
                     onDismissRequest()
                 },
             )
+        },
+    )
+}
+
+@Composable
+private fun ApplicationInfoMenu(
+    modifier: Modifier = Modifier,
+    onApplicationInfo: () -> Unit,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row {
+                IconButton(
+                    onClick = onApplicationInfo,
+                ) {
+                    Icon(imageVector = EblanLauncherIcons.Info, contentDescription = null)
+                }
+            }
         },
     )
 }

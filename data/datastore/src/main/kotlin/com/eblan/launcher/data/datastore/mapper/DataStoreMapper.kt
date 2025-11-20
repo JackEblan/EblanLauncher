@@ -19,9 +19,8 @@ package com.eblan.launcher.data.datastore.mapper
 
 import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
 import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettingsProto
-import com.eblan.launcher.data.datastore.proto.general.DarkThemeConfigProto
 import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
-import com.eblan.launcher.data.datastore.proto.general.ThemeBrandProto
+import com.eblan.launcher.data.datastore.proto.general.ThemeProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureActionProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureSettingsProto
 import com.eblan.launcher.data.datastore.proto.gesture.LockScreenProto
@@ -37,7 +36,6 @@ import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
-import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.GestureAction
@@ -53,7 +51,7 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.domain.model.VerticalArrangement
 
 internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
@@ -95,8 +93,7 @@ internal fun GridItemSettingsProto.toGridItemSettings(): GridItemSettings {
 
 internal fun GeneralSettingsProto.toGeneralSettings(): GeneralSettings {
     return GeneralSettings(
-        themeBrand = themeBrandProto.toThemeBrand(),
-        darkThemeConfig = darkThemeConfigProto.toDarkThemeConfig(),
+        theme = themeProto.toDarkThemeConfig(),
         dynamicTheme = dynamicTheme,
         iconPackInfoPackageName = iconPackInfoPackageName,
     )
@@ -210,33 +207,19 @@ internal fun GestureActionProto.toGestureAction(): GestureAction {
     }
 }
 
-internal fun ThemeBrand.toThemeBrandProto(): ThemeBrandProto {
+internal fun Theme.toThemeProto(): ThemeProto {
     return when (this) {
-        ThemeBrand.Green -> ThemeBrandProto.Green
-        ThemeBrand.Purple -> ThemeBrandProto.Purple
+        Theme.System -> ThemeProto.DarkThemeConfigSystem
+        Theme.Light -> ThemeProto.DarkThemeConfigLight
+        Theme.Dark -> ThemeProto.DarkThemeConfigDark
     }
 }
 
-internal fun ThemeBrandProto.toThemeBrand(): ThemeBrand {
+internal fun ThemeProto.toDarkThemeConfig(): Theme {
     return when (this) {
-        ThemeBrandProto.Green, ThemeBrandProto.UNRECOGNIZED -> ThemeBrand.Green
-        ThemeBrandProto.Purple -> ThemeBrand.Purple
-    }
-}
-
-internal fun DarkThemeConfig.toDarkThemeConfigProto(): DarkThemeConfigProto {
-    return when (this) {
-        DarkThemeConfig.System -> DarkThemeConfigProto.DarkThemeConfigSystem
-        DarkThemeConfig.Light -> DarkThemeConfigProto.DarkThemeConfigLight
-        DarkThemeConfig.Dark -> DarkThemeConfigProto.DarkThemeConfigDark
-    }
-}
-
-internal fun DarkThemeConfigProto.toDarkThemeConfig(): DarkThemeConfig {
-    return when (this) {
-        DarkThemeConfigProto.DarkThemeConfigSystem, DarkThemeConfigProto.UNRECOGNIZED -> DarkThemeConfig.System
-        DarkThemeConfigProto.DarkThemeConfigLight -> DarkThemeConfig.Light
-        DarkThemeConfigProto.DarkThemeConfigDark -> DarkThemeConfig.Dark
+        ThemeProto.DarkThemeConfigSystem, ThemeProto.UNRECOGNIZED -> Theme.System
+        ThemeProto.DarkThemeConfigLight -> Theme.Light
+        ThemeProto.DarkThemeConfigDark -> Theme.Dark
     }
 }
 
@@ -289,8 +272,7 @@ internal fun AppDrawerSettings.toAppDrawerSettingsProto(): AppDrawerSettingsProt
 
 internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto {
     return GeneralSettingsProto.newBuilder()
-        .setThemeBrandProto(themeBrand.toThemeBrandProto())
-        .setDarkThemeConfigProto(darkThemeConfig.toDarkThemeConfigProto())
+        .setThemeProto(theme.toThemeProto())
         .setDynamicTheme(dynamicTheme)
         .setIconPackInfoPackageName(iconPackInfoPackageName)
         .build()

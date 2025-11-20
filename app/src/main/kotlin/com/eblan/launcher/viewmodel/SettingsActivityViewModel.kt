@@ -19,9 +19,9 @@ package com.eblan.launcher.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.model.ApplicationTheme
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.model.SettingsActivityUiState
-import com.eblan.launcher.model.ThemeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -34,9 +34,8 @@ class SettingsActivityViewModel @Inject constructor(
 ) : ViewModel() {
     val settingsActivityUiState = userDataRepository.userData.map { userData ->
         SettingsActivityUiState.Success(
-            themeSettings = ThemeSettings(
-                themeBrand = userData.generalSettings.themeBrand,
-                darkThemeConfig = userData.generalSettings.darkThemeConfig,
+            applicationTheme = ApplicationTheme(
+                theme = userData.generalSettings.theme,
                 dynamicTheme = userData.generalSettings.dynamicTheme,
             ),
         )

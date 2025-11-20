@@ -20,8 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.model.ApplicationTheme
-import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -38,8 +37,7 @@ class GetApplicationThemeUseCase @Inject constructor(
             wallpaperManagerWrapper.getColorsChanged(),
         ) { userData, colorHints ->
             getApplicationTheme(
-                themeBrand = userData.generalSettings.themeBrand,
-                darkThemeConfig = userData.generalSettings.darkThemeConfig,
+                theme = userData.generalSettings.theme,
                 dynamicTheme = userData.generalSettings.dynamicTheme,
                 colorHints = colorHints,
             )
@@ -47,43 +45,38 @@ class GetApplicationThemeUseCase @Inject constructor(
     }
 
     private fun getApplicationTheme(
-        themeBrand: ThemeBrand,
-        darkThemeConfig: DarkThemeConfig,
+        theme: Theme,
         dynamicTheme: Boolean,
         colorHints: Int?,
     ): ApplicationTheme {
-        return when (darkThemeConfig) {
-            DarkThemeConfig.System -> {
+        return when (theme) {
+            Theme.System -> {
                 if (colorHints != null) {
                     val hintSupportsDarkTheme =
                         colorHints and wallpaperManagerWrapper.hintSupportsDarkTheme != 0
 
                     if (hintSupportsDarkTheme) {
                         ApplicationTheme(
-                            themeBrand = themeBrand,
-                            darkThemeConfig = DarkThemeConfig.Dark,
+                            theme = Theme.Dark,
                             dynamicTheme = dynamicTheme,
                         )
                     } else {
                         ApplicationTheme(
-                            themeBrand = themeBrand,
-                            darkThemeConfig = DarkThemeConfig.Light,
+                            theme = Theme.Light,
                             dynamicTheme = dynamicTheme,
                         )
                     }
                 } else {
                     ApplicationTheme(
-                        themeBrand = themeBrand,
-                        darkThemeConfig = resourcesWrapper.getSystemTheme(),
+                        theme = resourcesWrapper.getSystemTheme(),
                         dynamicTheme = dynamicTheme,
                     )
                 }
             }
 
-            DarkThemeConfig.Light, DarkThemeConfig.Dark -> {
+            Theme.Light, Theme.Dark -> {
                 ApplicationTheme(
-                    themeBrand = themeBrand,
-                    darkThemeConfig = darkThemeConfig,
+                    theme = theme,
                     dynamicTheme = dynamicTheme,
                 )
             }

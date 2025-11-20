@@ -18,7 +18,6 @@
 package com.eblan.launcher.domain.model
 
 data class ApplicationTheme(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
+    val theme: Theme,
     val dynamicTheme: Boolean,
 )

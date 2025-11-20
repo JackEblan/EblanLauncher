@@ -17,8 +17,8 @@
  */
 package com.eblan.launcher.domain.framework
 
-import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.Theme
 
 interface ResourcesWrapper {
-    fun getSystemTheme(): DarkThemeConfig
+    fun getSystemTheme(): Theme
 }

@@ -45,10 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.GeneralSettings
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.feature.settings.general.dialog.ImportIconPackDialog
 import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
@@ -146,8 +145,6 @@ private fun Success(
 
     val settings = LocalSettings.current
 
-    var showThemeBrandDialog by remember { mutableStateOf(false) }
-
     var showDarkThemeConfigDialog by remember { mutableStateOf(false) }
 
     var showImportIconPackDialog by remember { mutableStateOf(false) }
@@ -180,18 +177,8 @@ private fun Success(
         Spacer(modifier = Modifier.height(10.dp))
 
         SettingsColumn(
-            title = "Theme Brand",
-            subtitle = generalSettings.themeBrand.name,
-            onClick = {
-                showThemeBrandDialog = true
-            },
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SettingsColumn(
-            title = "Dark Theme Config",
-            subtitle = generalSettings.darkThemeConfig.name,
+            title = "Theme",
+            subtitle = generalSettings.theme.name,
             onClick = {
                 showDarkThemeConfigDialog = true
             },
@@ -227,30 +214,11 @@ private fun Success(
         }
     }
 
-    if (showThemeBrandDialog) {
-        RadioOptionsDialog(
-            title = "Theme Brand",
-            options = ThemeBrand.entries,
-            selected = generalSettings.themeBrand,
-            label = {
-                it.name
-            },
-            onDismissRequest = {
-                showThemeBrandDialog = false
-            },
-            onUpdateClick = { themeBrand ->
-                onUpdateGeneralSettings(generalSettings.copy(themeBrand = themeBrand))
-
-                showThemeBrandDialog = false
-            },
-        )
-    }
-
     if (showDarkThemeConfigDialog) {
         RadioOptionsDialog(
-            title = "Dark Theme Config",
-            options = DarkThemeConfig.entries,
-            selected = generalSettings.darkThemeConfig,
+            title = "Theme",
+            options = Theme.entries,
+            selected = generalSettings.theme,
             label = {
                 it.name
             },
@@ -258,7 +226,7 @@ private fun Success(
                 showDarkThemeConfigDialog = false
             },
             onUpdateClick = { darkThemeConfig ->
-                onUpdateGeneralSettings(generalSettings.copy(darkThemeConfig = darkThemeConfig))
+                onUpdateGeneralSettings(generalSettings.copy(theme = darkThemeConfig))
 
                 showDarkThemeConfigDialog = false
             },

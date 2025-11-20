@@ -40,8 +40,6 @@ import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
 import com.eblan.launcher.model.MainActivityUiState
 import com.eblan.launcher.navigation.MainNavHost
-import com.eblan.launcher.service.LauncherAppsService
-import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalDrawable
@@ -58,10 +56,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var launcherAppsIntent: Intent
-
-    private lateinit var syncDataIntent: Intent
-
     @Inject
     lateinit var androidAppWidgetHostWrapper: AndroidAppWidgetHostWrapper
 
@@ -138,29 +132,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        launcherAppsIntent = Intent(this, LauncherAppsService::class.java)
-
-        syncDataIntent = Intent(this, SyncDataService::class.java)
-
-        startService(launcherAppsIntent)
-
-        startService(syncDataIntent)
-
-        androidAppWidgetHostWrapper.startListening()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        stopService(launcherAppsIntent)
-
-        stopService(syncDataIntent)
-
-        androidAppWidgetHostWrapper.stopListening()
     }
 }

@@ -70,9 +70,11 @@ class SyncDataUseCase @Inject constructor(
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(isManualSyncData: Boolean) {
+    suspend operator fun invoke() {
         withContext(defaultDispatcher) {
-            suspend fun syncData() {
+            try {
+                notificationManagerWrapper.notifySyncData()
+
                 joinAll(
                     launch {
                         val launcherAppsActivityInfos = launcherAppsWrapper.getActivityList()
@@ -96,22 +98,8 @@ class SyncDataUseCase @Inject constructor(
                         updateShortcutInfoGridItems(pinnedLauncherAppsShortcutInfos = launcherAppsWrapper.getPinnedShortcuts())
                     },
                 )
-            }
-
-            when {
-                isManualSyncData -> {
-                    syncData()
-                }
-
-                userDataRepository.userData.first().experimentalSettings.syncData -> {
-                    try {
-                        notificationManagerWrapper.notifySyncData()
-
-                        syncData()
-                    } finally {
-                        notificationManagerWrapper.cancelSyncData()
-                    }
-                }
+            } finally {
+                notificationManagerWrapper.cancelSyncData()
             }
         }
     }

@@ -61,6 +61,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
@@ -88,6 +91,9 @@ import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.service.EblanNotificationListenerService
+import com.eblan.launcher.service.LauncherAppsService
+import com.eblan.launcher.service.SyncDataService
+import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalDrawable
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
@@ -548,6 +554,12 @@ private fun Success(
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
+    val context = LocalContext.current
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val appWidgetHost = LocalAppWidgetHost.current
+
     val pinItemRequestWrapper = LocalPinItemRequest.current
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
@@ -599,6 +611,44 @@ private fun Success(
                 homeData.gridItems,
                 Screen.Drag,
             )
+        }
+    }
+
+    DisposableEffect(key1 = lifecycleOwner) {
+        val lifecycleEventObserver = LifecycleEventObserver { _, event ->
+            val launcherAppsIntent = Intent(context, LauncherAppsService::class.java)
+
+            val syncDataIntent = Intent(context, SyncDataService::class.java)
+
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    if (homeData.userData.experimentalSettings.syncData) {
+                        context.startService(launcherAppsIntent)
+
+                        context.startService(syncDataIntent)
+                    }
+
+                    appWidgetHost.startListening()
+                }
+
+                Lifecycle.Event.ON_STOP -> {
+                    if (homeData.userData.experimentalSettings.syncData) {
+                        context.stopService(launcherAppsIntent)
+
+                        context.stopService(syncDataIntent)
+                    }
+
+                    appWidgetHost.stopListening()
+                }
+
+                else -> Unit
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(lifecycleEventObserver)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
         }
     }
 

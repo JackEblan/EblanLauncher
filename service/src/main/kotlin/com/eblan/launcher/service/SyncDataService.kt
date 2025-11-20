@@ -47,7 +47,7 @@ class SyncDataService : Service() {
         syncDataJob?.cancel()
 
         syncDataJob = serviceScope.launch {
-            syncDataUseCase(isManualSyncData = false)
+            syncDataUseCase()
 
             stopSelf()
         }

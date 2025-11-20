@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 class ChangePackageUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
@@ -61,15 +62,12 @@ class ChangePackageUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         serialNumber: Long,
         packageName: String,
     ) {
-        withContext(defaultDispatcher) {
-            ensureActive()
-
+        withContext(ioDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
             val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
@@ -195,90 +193,88 @@ class ChangePackageUseCase @Inject constructor(
     ) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
-        withContext(ioDispatcher) {
-            val oldEblanAppWidgetProviderInfos =
-                eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
-                    packageName = packageName,
-                )
+        val oldEblanAppWidgetProviderInfos =
+            eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
+                packageName = packageName,
+            )
 
-            val newEblanAppWidgetProviderInfos =
-                appWidgetManagerAppWidgetProviderInfos
-                    .filter { appWidgetManagerAppWidgetProviderInfo ->
-                        appWidgetManagerAppWidgetProviderInfo.packageName == packageName
-                    }
-                    .map { appWidgetManagerAppWidgetProviderInfo ->
-                        val label =
-                            packageManagerWrapper.getApplicationLabel(packageName = packageName)
+        val newEblanAppWidgetProviderInfos =
+            appWidgetManagerAppWidgetProviderInfos
+                .filter { appWidgetManagerAppWidgetProviderInfo ->
+                    appWidgetManagerAppWidgetProviderInfo.packageName == packageName
+                }
+                .map { appWidgetManagerAppWidgetProviderInfo ->
+                    val label =
+                        packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
-                        val icon =
-                            packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                                ?.let { byteArray ->
-                                    fileManager.getAndUpdateFilePath(
-                                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                                        name = appWidgetManagerAppWidgetProviderInfo.packageName,
-                                        byteArray = byteArray,
-                                    )
-                                }
-
-                        val preview =
-                            appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
+                    val icon =
+                        packageManagerWrapper.getApplicationIcon(packageName = packageName)
+                            ?.let { byteArray ->
                                 fileManager.getAndUpdateFilePath(
-                                    directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                                    name = appWidgetManagerAppWidgetProviderInfo.className,
+                                    directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                                    name = appWidgetManagerAppWidgetProviderInfo.packageName,
                                     byteArray = byteArray,
                                 )
                             }
 
-                        EblanAppWidgetProviderInfo(
-                            className = appWidgetManagerAppWidgetProviderInfo.className,
-                            componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
-                            configure = appWidgetManagerAppWidgetProviderInfo.configure,
-                            packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
-                            targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
-                            targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
-                            minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
-                            minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
-                            resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
-                            minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
-                            minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
-                            maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
-                            maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
-                            preview = preview,
-                            label = label,
-                            icon = icon,
-                        )
-                    }
+                    val preview =
+                        appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                                name = appWidgetManagerAppWidgetProviderInfo.className,
+                                byteArray = byteArray,
+                            )
+                        }
 
-            if (oldEblanAppWidgetProviderInfos != newEblanAppWidgetProviderInfos) {
-                val eblanAppWidgetProviderInfosToDelete =
-                    oldEblanAppWidgetProviderInfos - newEblanAppWidgetProviderInfos.toSet()
+                    EblanAppWidgetProviderInfo(
+                        className = appWidgetManagerAppWidgetProviderInfo.className,
+                        componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
+                        configure = appWidgetManagerAppWidgetProviderInfo.configure,
+                        packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
+                        targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
+                        targetCellHeight = appWidgetManagerAppWidgetProviderInfo.targetCellHeight,
+                        minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
+                        minHeight = appWidgetManagerAppWidgetProviderInfo.minHeight,
+                        resizeMode = appWidgetManagerAppWidgetProviderInfo.resizeMode,
+                        minResizeWidth = appWidgetManagerAppWidgetProviderInfo.minResizeWidth,
+                        minResizeHeight = appWidgetManagerAppWidgetProviderInfo.minResizeHeight,
+                        maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
+                        maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
+                        preview = preview,
+                        label = label,
+                        icon = icon,
+                    )
+                }
 
-                eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
-                    eblanAppWidgetProviderInfos = newEblanAppWidgetProviderInfos,
+        if (oldEblanAppWidgetProviderInfos != newEblanAppWidgetProviderInfos) {
+            val eblanAppWidgetProviderInfosToDelete =
+                oldEblanAppWidgetProviderInfos - newEblanAppWidgetProviderInfos.toSet()
+
+            eblanAppWidgetProviderInfoRepository.upsertEblanAppWidgetProviderInfos(
+                eblanAppWidgetProviderInfos = newEblanAppWidgetProviderInfos,
+            )
+
+            eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfos(
+                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
+            )
+
+            eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
+                val icon = File(
+                    fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                    eblanAppWidgetProviderInfo.packageName,
                 )
 
-                eblanAppWidgetProviderInfoRepository.deleteEblanAppWidgetProviderInfos(
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
+                val widgetFile = File(
+                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                    eblanAppWidgetProviderInfo.className,
                 )
 
-                eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
-                    val icon = File(
-                        fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        eblanAppWidgetProviderInfo.packageName,
-                    )
+                if (icon.exists()) {
+                    icon.delete()
+                }
 
-                    val widgetFile = File(
-                        fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                        eblanAppWidgetProviderInfo.className,
-                    )
-
-                    if (icon.exists()) {
-                        icon.delete()
-                    }
-
-                    if (widgetFile.exists()) {
-                        widgetFile.delete()
-                    }
+                if (widgetFile.exists()) {
+                    widgetFile.delete()
                 }
             }
         }
@@ -288,63 +284,59 @@ class ChangePackageUseCase @Inject constructor(
         serialNumber: Long,
         packageName: String,
     ) {
-        if (!launcherAppsWrapper.hasShortcutHostPermission) {
-            return
-        }
+        if (!launcherAppsWrapper.hasShortcutHostPermission) return
 
-        withContext(ioDispatcher) {
-            val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
+        val oldEblanShortcutInfos = eblanShortcutInfoRepository.eblanShortcutInfos.first()
 
-            val newEblanShortcutInfos =
-                launcherAppsWrapper.getShortcutsByPackageName(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
-                )?.map { launcherAppsShortcutInfo ->
-                    ensureActive()
+        val newEblanShortcutInfos =
+            launcherAppsWrapper.getShortcutsByPackageName(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )?.map { launcherAppsShortcutInfo ->
+                coroutineContext.ensureActive()
 
-                    val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                            name = launcherAppsShortcutInfo.shortcutId,
-                            byteArray = byteArray,
-                        )
-                    }
-
-                    EblanShortcutInfo(
-                        shortcutId = launcherAppsShortcutInfo.shortcutId,
-                        serialNumber = launcherAppsShortcutInfo.serialNumber,
-                        packageName = launcherAppsShortcutInfo.packageName,
-                        shortLabel = launcherAppsShortcutInfo.shortLabel,
-                        longLabel = launcherAppsShortcutInfo.longLabel,
-                        icon = icon,
-                        shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
-                        isEnabled = launcherAppsShortcutInfo.isEnabled,
+                val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
+                    fileManager.getAndUpdateFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                        name = launcherAppsShortcutInfo.shortcutId,
+                        byteArray = byteArray,
                     )
                 }
 
-            if (newEblanShortcutInfos != null && oldEblanShortcutInfos != newEblanShortcutInfos) {
-                val eblanShortcutInfosToDelete =
-                    oldEblanShortcutInfos - newEblanShortcutInfos.toSet()
+                EblanShortcutInfo(
+                    shortcutId = launcherAppsShortcutInfo.shortcutId,
+                    serialNumber = launcherAppsShortcutInfo.serialNumber,
+                    packageName = launcherAppsShortcutInfo.packageName,
+                    shortLabel = launcherAppsShortcutInfo.shortLabel,
+                    longLabel = launcherAppsShortcutInfo.longLabel,
+                    icon = icon,
+                    shortcutQueryFlag = launcherAppsShortcutInfo.shortcutQueryFlag,
+                    isEnabled = launcherAppsShortcutInfo.isEnabled,
+                )
+            }
 
-                eblanShortcutInfoRepository.upsertEblanShortcutInfos(
-                    eblanShortcutInfos = newEblanShortcutInfos,
+        if (newEblanShortcutInfos != null && oldEblanShortcutInfos != newEblanShortcutInfos) {
+            val eblanShortcutInfosToDelete =
+                oldEblanShortcutInfos - newEblanShortcutInfos.toSet()
+
+            eblanShortcutInfoRepository.upsertEblanShortcutInfos(
+                eblanShortcutInfos = newEblanShortcutInfos,
+            )
+
+            eblanShortcutInfoRepository.deleteEblanShortcutInfos(
+                eblanShortcutInfos = eblanShortcutInfosToDelete,
+            )
+
+            eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
+                coroutineContext.ensureActive()
+
+                val shortcutFile = File(
+                    fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                    eblanShortcutInfo.shortcutId,
                 )
 
-                eblanShortcutInfoRepository.deleteEblanShortcutInfos(
-                    eblanShortcutInfos = eblanShortcutInfosToDelete,
-                )
-
-                eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
-                    ensureActive()
-
-                    val shortcutFile = File(
-                        fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        eblanShortcutInfo.shortcutId,
-                    )
-
-                    if (shortcutFile.exists()) {
-                        shortcutFile.delete()
-                    }
+                if (shortcutFile.exists()) {
+                    shortcutFile.delete()
                 }
             }
         }

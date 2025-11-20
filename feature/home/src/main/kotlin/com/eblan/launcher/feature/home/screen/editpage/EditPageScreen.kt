@@ -19,7 +19,6 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,7 +59,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
@@ -279,8 +277,6 @@ private fun ExpandableFloatingActionButton(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
-    val rotation by animateFloatAsState(targetValue = if (isExpanded) 45f else 0f)
-
     Column(modifier = modifier) {
         if (isExpanded) {
             Column(horizontalAlignment = Alignment.End) {
@@ -313,7 +309,6 @@ private fun ExpandableFloatingActionButton(
             },
         ) {
             Icon(
-                modifier = Modifier.rotate(rotation),
                 imageVector = EblanLauncherIcons.Add,
                 contentDescription = null,
             )

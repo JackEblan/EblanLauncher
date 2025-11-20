@@ -33,8 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
-import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.settings.AndroidSettingsWrapper
 import com.eblan.launcher.model.SettingsActivityUiState
@@ -75,8 +74,7 @@ class SettingsActivity : ComponentActivity() {
                         }
 
                         EblanLauncherTheme(
-                            themeBrand = ThemeBrand.Green,
-                            darkThemeConfig = DarkThemeConfig.System,
+                            theme = Theme.System,
                             dynamicTheme = false,
                         ) {
                             Surface(modifier = Modifier.fillMaxSize()) {
@@ -87,13 +85,12 @@ class SettingsActivity : ComponentActivity() {
 
                     is SettingsActivityUiState.Success -> {
                         SideEffect {
-                            handleEdgeToEdge(darkThemeConfig = state.themeSettings.darkThemeConfig)
+                            handleEdgeToEdge(theme = state.applicationTheme.theme)
                         }
 
                         EblanLauncherTheme(
-                            themeBrand = state.themeSettings.themeBrand,
-                            darkThemeConfig = state.themeSettings.darkThemeConfig,
-                            dynamicTheme = state.themeSettings.dynamicTheme,
+                            theme = state.applicationTheme.theme,
+                            dynamicTheme = state.applicationTheme.dynamicTheme,
                         ) {
                             Surface {
                                 SettingsNavHost(

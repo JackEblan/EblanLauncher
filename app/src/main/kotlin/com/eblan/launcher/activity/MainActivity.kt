@@ -111,12 +111,11 @@ class MainActivity : ComponentActivity() {
 
                     is MainActivityUiState.Success -> {
                         SideEffect {
-                            handleEdgeToEdge(darkThemeConfig = state.applicationTheme.darkThemeConfig)
+                            handleEdgeToEdge(theme = state.applicationTheme.theme)
                         }
 
                         EblanLauncherTheme(
-                            themeBrand = state.applicationTheme.themeBrand,
-                            darkThemeConfig = state.applicationTheme.darkThemeConfig,
+                            theme = state.applicationTheme.theme,
                             dynamicTheme = state.applicationTheme.dynamicTheme,
                         ) {
                             MainNavHost(

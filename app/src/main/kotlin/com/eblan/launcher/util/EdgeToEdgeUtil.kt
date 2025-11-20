@@ -21,15 +21,15 @@ import android.graphics.Color
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import com.eblan.launcher.domain.model.DarkThemeConfig
+import com.eblan.launcher.domain.model.Theme
 
-fun ComponentActivity.handleEdgeToEdge(darkThemeConfig: DarkThemeConfig) {
-    when (darkThemeConfig) {
-        DarkThemeConfig.System -> {
+fun ComponentActivity.handleEdgeToEdge(theme: Theme) {
+    when (theme) {
+        Theme.System -> {
             enableEdgeToEdge()
         }
 
-        DarkThemeConfig.Light -> {
+        Theme.Light -> {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.light(
                     scrim = Color.TRANSPARENT,
@@ -42,7 +42,7 @@ fun ComponentActivity.handleEdgeToEdge(darkThemeConfig: DarkThemeConfig) {
             )
         }
 
-        DarkThemeConfig.Dark -> {
+        Theme.Dark -> {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),
                 navigationBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT),

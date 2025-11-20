@@ -105,9 +105,8 @@ class PinActivity : ComponentActivity() {
 
                         is PinActivityUiState.Success -> {
                             EblanLauncherTheme(
-                                themeBrand = state.themeSettings.themeBrand,
-                                darkThemeConfig = state.themeSettings.darkThemeConfig,
-                                dynamicTheme = state.themeSettings.dynamicTheme,
+                                theme = state.applicationTheme.theme,
+                                dynamicTheme = state.applicationTheme.dynamicTheme,
                             ) {
                                 PinScreen(
                                     gridItem = gridItem,

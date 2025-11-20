@@ -19,9 +19,8 @@ package com.eblan.launcher.data.datastore
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.eblan.launcher.data.datastore.mapper.toDarkThemeConfigProto
 import com.eblan.launcher.data.datastore.mapper.toGestureActionProto
-import com.eblan.launcher.data.datastore.mapper.toThemeBrandProto
+import com.eblan.launcher.data.datastore.mapper.toThemeProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
 import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettingsProto
@@ -32,9 +31,8 @@ import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
-import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.GestureAction
-import com.eblan.launcher.domain.model.ThemeBrand
+import com.eblan.launcher.domain.model.Theme
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
@@ -42,9 +40,7 @@ import javax.inject.Inject
 
 class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     private val defaultGeneralSettingsProto = GeneralSettingsProto.newBuilder().apply {
-        themeBrandProto = ThemeBrand.Green.toThemeBrandProto()
-
-        darkThemeConfigProto = DarkThemeConfig.System.toDarkThemeConfigProto()
+        themeProto = Theme.System.toThemeProto()
 
         dynamicTheme = false
 

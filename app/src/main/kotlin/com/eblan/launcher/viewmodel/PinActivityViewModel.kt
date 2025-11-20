@@ -20,6 +20,7 @@ package com.eblan.launcher.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.model.ApplicationTheme
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
@@ -28,7 +29,6 @@ import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterPinUseCase
 import com.eblan.launcher.model.PinActivityUiState
-import com.eblan.launcher.model.ThemeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,9 +50,8 @@ class PinActivityViewModel @Inject constructor(
 ) : ViewModel() {
     val pinActivityUiState = userDataRepository.userData.map { userData ->
         PinActivityUiState.Success(
-            themeSettings = ThemeSettings(
-                themeBrand = userData.generalSettings.themeBrand,
-                darkThemeConfig = userData.generalSettings.darkThemeConfig,
+            applicationTheme = ApplicationTheme(
+                theme = userData.generalSettings.theme,
                 dynamicTheme = userData.generalSettings.dynamicTheme,
             ),
         )

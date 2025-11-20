@@ -25,9 +25,9 @@ import com.eblan.launcher.domain.framework.ResourcesWrapper
 import com.eblan.launcher.domain.framework.WallpaperManagerWrapper
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.DarkThemeConfig
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
@@ -90,7 +90,7 @@ class GetHomeDataUseCase @Inject constructor(
             val textColor = when (gridItemSettings.textColor) {
                 TextColor.System -> {
                     getTextColorFromWallpaperColors(
-                        darkThemeConfig = userData.generalSettings.darkThemeConfig,
+                        theme = userData.generalSettings.theme,
                         colorHints = colorHints,
                     )
                 }
@@ -111,7 +111,7 @@ class GetHomeDataUseCase @Inject constructor(
     }
 
     private fun getTextColorFromWallpaperColors(
-        darkThemeConfig: DarkThemeConfig,
+        theme: Theme,
         colorHints: Int?,
     ): TextColor {
         return if (colorHints != null) {
@@ -124,21 +124,21 @@ class GetHomeDataUseCase @Inject constructor(
                 TextColor.Light
             }
         } else {
-            getTextColorFromSystemTheme(darkThemeConfig = darkThemeConfig)
+            getTextColorFromSystemTheme(theme = theme)
         }
     }
 
-    private fun getTextColorFromSystemTheme(darkThemeConfig: DarkThemeConfig): TextColor {
-        return when (darkThemeConfig) {
-            DarkThemeConfig.System -> {
-                getTextColorFromSystemTheme(darkThemeConfig = resourcesWrapper.getSystemTheme())
+    private fun getTextColorFromSystemTheme(theme: Theme): TextColor {
+        return when (theme) {
+            Theme.System -> {
+                getTextColorFromSystemTheme(theme = resourcesWrapper.getSystemTheme())
             }
 
-            DarkThemeConfig.Light -> {
+            Theme.Light -> {
                 TextColor.Light
             }
 
-            DarkThemeConfig.Dark -> {
+            Theme.Dark -> {
                 TextColor.Dark
             }
         }

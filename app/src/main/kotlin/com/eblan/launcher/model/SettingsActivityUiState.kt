@@ -17,9 +17,11 @@
  */
 package com.eblan.launcher.model
 
+import com.eblan.launcher.domain.model.ApplicationTheme
+
 sealed interface SettingsActivityUiState {
     data object Loading : SettingsActivityUiState
 
-    data class Success(val themeSettings: ThemeSettings) :
+    data class Success(val applicationTheme: ApplicationTheme) :
         SettingsActivityUiState
 }

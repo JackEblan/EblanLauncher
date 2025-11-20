@@ -15,13 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.model
+package com.eblan.launcher.domain.model
 
-import com.eblan.launcher.domain.model.DarkThemeConfig
-import com.eblan.launcher.domain.model.ThemeBrand
-
-data class ThemeSettings(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val dynamicTheme: Boolean,
-)
+enum class Theme {
+    System,
+    Light,
+    Dark,
+}

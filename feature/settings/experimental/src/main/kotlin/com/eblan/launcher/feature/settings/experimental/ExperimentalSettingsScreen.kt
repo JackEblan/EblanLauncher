@@ -51,15 +51,10 @@ internal fun ExperimentalSettingsRoute(
 ) {
     val experimentalSettingsUiState by viewModel.experimentalSettingsUiState.collectAsStateWithLifecycle()
 
-    val isDataSyncing by viewModel.isDataSyncing.collectAsStateWithLifecycle()
-
     ExperimentalSettingsScreen(
         modifier = modifier,
         experimentalSettingsUiState = experimentalSettingsUiState,
-        isDataSyncing = isDataSyncing,
         onUpdateExperimentalSettings = viewModel::updateExperimentalSettings,
-        onSyncData = viewModel::syncData,
-        onCancelSyncData = viewModel::cancelSyncData,
         onNavigateUp = onNavigateUp,
     )
 }
@@ -69,10 +64,7 @@ internal fun ExperimentalSettingsRoute(
 internal fun ExperimentalSettingsScreen(
     modifier: Modifier = Modifier,
     experimentalSettingsUiState: ExperimentalSettingsUiState,
-    isDataSyncing: Boolean,
     onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
-    onSyncData: () -> Unit,
-    onCancelSyncData: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     Scaffold(
@@ -105,10 +97,7 @@ internal fun ExperimentalSettingsScreen(
                     Success(
                         modifier = modifier,
                         experimentalSettings = experimentalSettingsUiState.experimentalSettings,
-                        isDataSyncing = isDataSyncing,
                         onUpdateExperimentalSettings = onUpdateExperimentalSettings,
-                        onSyncData = onSyncData,
-                        onCancelSyncData = onCancelSyncData,
                     )
                 }
             }
@@ -120,10 +109,7 @@ internal fun ExperimentalSettingsScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     experimentalSettings: ExperimentalSettings,
-    isDataSyncing: Boolean,
     onUpdateExperimentalSettings: (ExperimentalSettings) -> Unit,
-    onSyncData: () -> Unit,
-    onCancelSyncData: () -> Unit,
 ) {
     var showSyncDataDialog by remember { mutableStateOf(false) }
 
@@ -144,16 +130,12 @@ private fun Success(
     if (showSyncDataDialog) {
         SyncDataDialog(
             syncData = experimentalSettings.syncData,
-            isDataSyncing = isDataSyncing,
             onUpdateSyncData = { newSyncData ->
                 onUpdateExperimentalSettings(experimentalSettings.copy(syncData = newSyncData))
             },
             onDismissRequest = {
                 showSyncDataDialog = false
-
-                onCancelSyncData()
             },
-            onSyncData = onSyncData,
         )
     }
 }

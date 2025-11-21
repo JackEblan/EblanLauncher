@@ -1,0 +1,2 @@
+- Removed purple theme
+- Revamped Settings UI

@@ -60,6 +60,10 @@ fun GridItemSettings(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Icon Size",
             subtitle = "${gridItemSettings.iconSize}",
             onClick = {
@@ -68,6 +72,10 @@ fun GridItemSettings(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Text Color",
             subtitle = gridItemSettings.textColor.name,
             onClick = {
@@ -76,6 +84,10 @@ fun GridItemSettings(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Text Size",
             subtitle = "${gridItemSettings.textSize}",
             onClick = {
@@ -84,6 +96,10 @@ fun GridItemSettings(
         )
 
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = gridItemSettings.showLabel,
             title = "Show Label",
             subtitle = "Show label",
@@ -93,6 +109,10 @@ fun GridItemSettings(
         )
 
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = gridItemSettings.singleLineLabel,
             title = "Single Line Label",
             subtitle = "Show single line label",
@@ -102,6 +122,10 @@ fun GridItemSettings(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Horizontal Alignment",
             subtitle = gridItemSettings.horizontalAlignment.name.replace(
                 regex = Regex(pattern = "([a-z])([A-Z])"),
@@ -113,6 +137,10 @@ fun GridItemSettings(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Vertical Arrangement",
             subtitle = gridItemSettings.verticalArrangement.name,
             onClick = {

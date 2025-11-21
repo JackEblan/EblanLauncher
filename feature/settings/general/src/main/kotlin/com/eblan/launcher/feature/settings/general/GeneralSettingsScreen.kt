@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -154,6 +155,10 @@ private fun Success(
             .fillMaxSize(),
     ) {
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Import Icon Pack",
             subtitle = "Import icon pack",
             onClick = {
@@ -162,6 +167,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Select Icon Pack",
             subtitle = generalSettings.iconPackInfoPackageName.ifEmpty { "Default" },
             onClick = {
@@ -170,6 +179,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Theme",
             subtitle = generalSettings.theme.name,
             onClick = {
@@ -179,6 +192,10 @@ private fun Success(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             SettingsSwitch(
+                modifier = Modifier.padding(
+                    horizontal = 10.dp,
+                    vertical = 5.dp,
+                ),
                 checked = generalSettings.dynamicTheme,
                 title = "Dynamic Theme",
                 subtitle = "Dynamic theme",
@@ -190,6 +207,10 @@ private fun Success(
 
         if (!settings.isNotificationAccessGranted()) {
             SettingsColumn(
+                modifier = Modifier.padding(
+                    horizontal = 10.dp,
+                    vertical = 5.dp,
+                ),
                 title = "Notification Dots",
                 subtitle = "Grant notification access",
                 onClick = {

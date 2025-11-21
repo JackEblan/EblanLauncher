@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -126,6 +127,10 @@ private fun Success(
 
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Accessibility Services",
             subtitle = "Grant Eblan Launcher to use Accessibility services",
             onClick = {
@@ -135,6 +140,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Double tap",
             subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
             onClick = {
@@ -143,6 +152,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Swipe up",
             subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
             onClick = {
@@ -151,6 +164,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Swipe down",
             subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
             onClick = {

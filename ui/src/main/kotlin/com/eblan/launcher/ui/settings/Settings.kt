@@ -41,12 +41,7 @@ fun SettingsSwitch(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
+        modifier = modifier.fillMaxWidth(),
         onClick = {
             onCheckedChange(!checked)
         },
@@ -87,12 +82,7 @@ fun SettingsColumn(
     onClick: () -> Unit,
 ) {
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
+        modifier = modifier.fillMaxWidth(),
         onClick = onClick,
     ) {
         Column(

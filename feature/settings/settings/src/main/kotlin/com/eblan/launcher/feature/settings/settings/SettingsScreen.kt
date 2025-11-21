@@ -42,12 +42,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.feature.settings.settings.dialog.SupportDialog
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -97,6 +102,8 @@ internal fun SettingsScreen(
     } else {
         null
     }
+
+    var showSupportDialog by remember { mutableStateOf(true) }
 
     BackHandler {
         onFinish()
@@ -187,6 +194,12 @@ internal fun SettingsScreen(
                 onClick = onExperimental,
             )
         }
+    }
+
+    if (showSupportDialog) {
+        SupportDialog(onDismissRequest = {
+            showSupportDialog = false
+        })
     }
 }
 

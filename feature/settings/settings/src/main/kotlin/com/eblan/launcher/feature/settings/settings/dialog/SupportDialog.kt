@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.experimental.dialog
+package com.eblan.launcher.feature.settings.settings.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,13 +31,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
-import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
-internal fun SyncDataDialog(
+internal fun SupportDialog(
     modifier: Modifier = Modifier,
-    syncData: Boolean,
-    onUpdateSyncData: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
@@ -51,28 +48,22 @@ internal fun SyncDataDialog(
                     start = 15.dp,
                     top = 10.dp,
                 ),
-                text = "Warning",
+                text = "Support Development",
                 style = MaterialTheme.typography.titleLarge,
             )
 
             Text(
                 modifier = Modifier.padding(15.dp),
-                text = "Disabling background sync helps save a bit of memory and keeps things lighter, but it also means Eblan Launcher won’t automatically update your apps, widgets, or shortcuts.\n" +
-                    "Your app drawer might show outdated icons, missing widgets, or shortcuts that no longer work.",
-            )
-
-            SettingsSwitch(
-                modifier = Modifier.padding(horizontal = 15.dp),
-                checked = syncData,
-                title = "Sync Data",
-                subtitle = "Keep data up to date",
-                onCheckedChange = onUpdateSyncData,
+                text = "Thank you for using Eblan Launcher Alpha! I’ve been building this project since January 2025, releasing weekly updates. It’s my most complex project yet, and I pour my heart into it. If you enjoy it, you can support development with a donation or a star on GitHub.",
             )
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(
+                        end = 10.dp,
+                        bottom = 10.dp,
+                    ),
                 horizontalArrangement = Arrangement.End,
             ) {
                 TextButton(

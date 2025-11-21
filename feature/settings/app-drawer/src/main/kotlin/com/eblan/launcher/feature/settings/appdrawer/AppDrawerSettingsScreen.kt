@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -120,6 +121,10 @@ private fun Success(
             .fillMaxSize(),
     ) {
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "App Drawer Grid",
             subtitle = "Number of columns and rows height",
             onClick = {

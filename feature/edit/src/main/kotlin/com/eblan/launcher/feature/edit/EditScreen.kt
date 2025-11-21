@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -151,6 +152,10 @@ private fun Success(
         }
 
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = gridItem.override,
             title = "Override",
             subtitle = "Override the Grid Item Settings",
@@ -179,6 +184,10 @@ private fun EditApplicationInfo(
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Edit Label",
         subtitle = data.label.toString(),
         onClick = {
@@ -229,6 +238,10 @@ private fun EditFolder(
     var showEditPageCountDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Edit Label",
         subtitle = data.label,
         onClick = {
@@ -237,6 +250,10 @@ private fun EditFolder(
     )
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Edit Page Count",
         subtitle = data.pageCount.toString(),
         onClick = {
@@ -320,6 +337,10 @@ private fun EditShortcutInfo(
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Short Label",
         subtitle = data.shortLabel,
         onClick = {

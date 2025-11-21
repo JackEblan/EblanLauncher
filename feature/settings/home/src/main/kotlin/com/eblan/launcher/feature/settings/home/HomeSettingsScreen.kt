@@ -128,6 +128,10 @@ private fun Success(
             .fillMaxSize(),
     ) {
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Grid",
             subtitle = "Number of columns and rows",
             onClick = {
@@ -136,6 +140,10 @@ private fun Success(
         )
 
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
             subtitle = "Seamless loop from last page back to first",
@@ -145,6 +153,10 @@ private fun Success(
         )
 
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = homeSettings.wallpaperScroll,
             title = "Wallpaper Scrolling",
             subtitle = "Scroll wallpaper across pages",
@@ -160,6 +172,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Dock Grid",
             subtitle = "Number of columns and rows",
             onClick = {
@@ -168,6 +184,10 @@ private fun Success(
         )
 
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Dock Height",
             subtitle = "Height of the dock",
             onClick = {

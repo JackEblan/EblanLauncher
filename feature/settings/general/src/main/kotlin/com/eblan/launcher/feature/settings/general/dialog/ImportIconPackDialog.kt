@@ -65,7 +65,6 @@ internal fun ImportIconPackDialog(
                 items(packageManagerIconPackInfos) { eblanIconPackInfo ->
                     ListItem(
                         headlineContent = { Text(text = eblanIconPackInfo.label.toString()) },
-                        supportingContent = { Text(text = eblanIconPackInfo.packageName) },
                         leadingContent = {
                             AsyncImage(
                                 model = eblanIconPackInfo.icon,

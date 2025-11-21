@@ -132,7 +132,7 @@ private fun Success(
                 vertical = 5.dp,
             ),
             title = "Accessibility Services",
-            subtitle = "Perform global actions",
+            subtitle = "Permission to perform global actions",
             onClick = {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 context.startActivity(intent)
@@ -144,7 +144,7 @@ private fun Success(
                 horizontal = 10.dp,
                 vertical = 5.dp,
             ),
-            title = "Double tap",
+            title = "Double Tap",
             subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
             onClick = {
                 showDoubleTapBottomSheet = true
@@ -156,7 +156,7 @@ private fun Success(
                 horizontal = 10.dp,
                 vertical = 5.dp,
             ),
-            title = "Swipe up",
+            title = "Swipe Up",
             subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
             onClick = {
                 showSwipeUpBottomSheet = true
@@ -168,7 +168,7 @@ private fun Success(
                 horizontal = 10.dp,
                 vertical = 5.dp,
             ),
-            title = "Swipe down",
+            title = "Swipe Down",
             subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
             onClick = {
                 showSwipeDownBottomSheet = true

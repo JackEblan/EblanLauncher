@@ -145,7 +145,7 @@ internal fun SettingsScreen(
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Info,
                     title = "Notification",
-                    subtitle = "Allow post notification for Eblan Launcher",
+                    subtitle = "Permission to post notifications",
                     onClick = notificationsPermissionState::launchPermissionRequest,
                 )
             }

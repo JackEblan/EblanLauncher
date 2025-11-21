@@ -21,9 +21,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,7 +45,6 @@ import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionBottomSheet
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
-import com.eblan.launcher.ui.settings.HintRow
 import com.eblan.launcher.ui.settings.SettingsColumn
 
 @Composable
@@ -129,17 +126,24 @@ private fun Success(
     var showSwipeDownBottomSheet by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        HintRow(
-            hint = "Grant Eblan Launcher to use Accessibility services",
+        SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
+            title = "Accessibility Services",
+            subtitle = "Grant Eblan Launcher to use Accessibility services",
             onClick = {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 context.startActivity(intent)
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Double tap",
             subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
             onClick = {
@@ -147,9 +151,11 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Swipe up",
             subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
             onClick = {
@@ -157,9 +163,11 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Swipe down",
             subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
             onClick = {

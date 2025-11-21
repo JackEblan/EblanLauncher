@@ -18,8 +18,6 @@
 package com.eblan.launcher.ui.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,14 +54,16 @@ fun GridItemSettings(
 
     Column(modifier = modifier) {
         Text(
-            modifier = Modifier.padding(5.dp),
+            modifier = Modifier.padding(10.dp),
             text = "Grid Item",
             style = MaterialTheme.typography.bodySmall,
         )
 
-        Spacer(modifier = Modifier.height(5.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Icon Size",
             subtitle = "${gridItemSettings.iconSize}",
             onClick = {
@@ -71,9 +71,11 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Text Color",
             subtitle = gridItemSettings.textColor.name,
             onClick = {
@@ -81,9 +83,11 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Text Size",
             subtitle = "${gridItemSettings.textSize}",
             onClick = {
@@ -91,9 +95,11 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = gridItemSettings.showLabel,
             title = "Show Label",
             subtitle = "Show label",
@@ -102,9 +108,11 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = gridItemSettings.singleLineLabel,
             title = "Single Line Label",
             subtitle = "Show single line label",
@@ -113,9 +121,11 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Horizontal Alignment",
             subtitle = gridItemSettings.horizontalAlignment.name.replace(
                 regex = Regex(pattern = "([a-z])([A-Z])"),
@@ -126,9 +136,11 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Vertical Arrangement",
             subtitle = gridItemSettings.verticalArrangement.name,
             onClick = {

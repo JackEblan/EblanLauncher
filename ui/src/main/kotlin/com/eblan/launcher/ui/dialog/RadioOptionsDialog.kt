@@ -71,7 +71,10 @@ fun <T> RadioOptionsDialog(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(
+                        end = 10.dp,
+                        bottom = 10.dp,
+                    ),
                 horizontalArrangement = Arrangement.End,
             ) {
                 TextButton(onClick = onDismissRequest) {

@@ -22,9 +22,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -157,6 +155,10 @@ private fun Success(
             .fillMaxSize(),
     ) {
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Import Icon Pack",
             subtitle = "Import icon pack",
             onClick = {
@@ -164,9 +166,11 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Select Icon Pack",
             subtitle = generalSettings.iconPackInfoPackageName.ifEmpty { "Default" },
             onClick = {
@@ -174,9 +178,11 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "Theme",
             subtitle = generalSettings.theme.name,
             onClick = {
@@ -185,9 +191,11 @@ private fun Success(
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Spacer(modifier = Modifier.height(10.dp))
-
             SettingsSwitch(
+                modifier = Modifier.padding(
+                    horizontal = 10.dp,
+                    vertical = 5.dp,
+                ),
                 checked = generalSettings.dynamicTheme,
                 title = "Dynamic Theme",
                 subtitle = "Dynamic theme",
@@ -198,9 +206,11 @@ private fun Success(
         }
 
         if (!settings.isNotificationAccessGranted()) {
-            Spacer(modifier = Modifier.height(10.dp))
-
             SettingsColumn(
+                modifier = Modifier.padding(
+                    horizontal = 10.dp,
+                    vertical = 5.dp,
+                ),
                 title = "Notification Dots",
                 subtitle = "Grant notification access",
                 onClick = {

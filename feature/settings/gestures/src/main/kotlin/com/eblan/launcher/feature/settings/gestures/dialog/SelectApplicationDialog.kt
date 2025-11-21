@@ -56,7 +56,6 @@ internal fun SelectApplicationDialog(
                 items(eblanApplicationInfos) { eblanApplicationInfo ->
                     ListItem(
                         headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
-                        supportingContent = { Text(text = eblanApplicationInfo.componentName.toString()) },
                         leadingContent = {
                             AsyncImage(
                                 model = eblanApplicationInfo.icon,
@@ -81,7 +80,10 @@ internal fun SelectApplicationDialog(
             TextButton(
                 modifier = Modifier
                     .align(Alignment.End)
-                    .padding(10.dp),
+                    .padding(
+                        end = 10.dp,
+                        bottom = 10.dp,
+                    ),
                 onClick = onDismissRequest,
             ) {
                 Text(text = "Cancel")

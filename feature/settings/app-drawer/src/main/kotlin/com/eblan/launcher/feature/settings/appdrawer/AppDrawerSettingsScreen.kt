@@ -19,9 +19,7 @@ package com.eblan.launcher.feature.settings.appdrawer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -123,14 +121,16 @@ private fun Success(
             .fillMaxSize(),
     ) {
         SettingsColumn(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             title = "App Drawer Grid",
             subtitle = "Number of columns and rows height",
             onClick = {
                 showGridDialog = true
             },
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         GridItemSettings(
             gridItemSettings = appDrawerSettings.gridItemSettings,

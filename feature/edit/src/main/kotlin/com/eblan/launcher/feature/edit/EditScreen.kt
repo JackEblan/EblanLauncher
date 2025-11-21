@@ -19,9 +19,7 @@ package com.eblan.launcher.feature.edit
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -153,9 +151,11 @@ private fun Success(
             else -> Unit
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsSwitch(
+            modifier = Modifier.padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
             checked = gridItem.override,
             title = "Override",
             subtitle = "Override the Grid Item Settings",
@@ -165,8 +165,6 @@ private fun Success(
         )
 
         if (gridItem.override) {
-            Spacer(modifier = Modifier.height(10.dp))
-
             GridItemSettings(
                 gridItemSettings = gridItem.gridItemSettings,
                 onUpdateGridItemSettings = { gridItemSettings ->
@@ -186,6 +184,10 @@ private fun EditApplicationInfo(
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Edit Label",
         subtitle = data.label.toString(),
         onClick = {
@@ -236,6 +238,10 @@ private fun EditFolder(
     var showEditPageCountDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Edit Label",
         subtitle = data.label,
         onClick = {
@@ -244,6 +250,10 @@ private fun EditFolder(
     )
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Edit Page Count",
         subtitle = data.pageCount.toString(),
         onClick = {
@@ -327,6 +337,10 @@ private fun EditShortcutInfo(
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
+        modifier = Modifier.padding(
+            horizontal = 10.dp,
+            vertical = 5.dp,
+        ),
         title = "Short Label",
         subtitle = data.shortLabel,
         onClick = {

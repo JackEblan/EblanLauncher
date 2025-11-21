@@ -132,7 +132,7 @@ private fun Success(
                 vertical = 5.dp,
             ),
             title = "Accessibility Services",
-            subtitle = "Grant Eblan Launcher to use Accessibility services",
+            subtitle = "Perform global actions",
             onClick = {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 context.startActivity(intent)

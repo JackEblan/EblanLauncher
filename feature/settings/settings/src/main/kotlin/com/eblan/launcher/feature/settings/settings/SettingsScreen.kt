@@ -103,7 +103,7 @@ internal fun SettingsScreen(
         null
     }
 
-    var showSupportDialog by remember { mutableStateOf(true) }
+    var showSupportDialog by remember { mutableStateOf(false) }
 
     BackHandler {
         onFinish()
@@ -132,6 +132,15 @@ internal fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
+            SettingsRow(
+                imageVector = EblanLauncherIcons.Handshake,
+                title = "Support Development",
+                subtitle = "Developer information",
+                onClick = {
+                    showSupportDialog = true
+                },
+            )
+
             if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Info,

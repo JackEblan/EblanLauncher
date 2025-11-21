@@ -56,7 +56,6 @@ internal fun SelectApplicationDialog(
                 items(eblanApplicationInfos) { eblanApplicationInfo ->
                     ListItem(
                         headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
-                        supportingContent = { Text(text = eblanApplicationInfo.componentName.toString()) },
                         leadingContent = {
                             AsyncImage(
                                 model = eblanApplicationInfo.icon,

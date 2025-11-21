@@ -19,9 +19,7 @@ package com.eblan.launcher.feature.settings.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -137,8 +135,6 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsSwitch(
             checked = homeSettings.infiniteScroll,
             title = "Infinite Scrolling",
@@ -147,8 +143,6 @@ private fun Success(
                 onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
             },
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         SettingsSwitch(
             checked = homeSettings.wallpaperScroll,
@@ -159,15 +153,11 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         Text(
-            modifier = Modifier.padding(5.dp),
+            modifier = Modifier.padding(10.dp),
             text = "Dock",
             style = MaterialTheme.typography.bodySmall,
         )
-
-        Spacer(modifier = Modifier.height(5.dp))
 
         SettingsColumn(
             title = "Dock Grid",
@@ -177,8 +167,6 @@ private fun Success(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
             title = "Dock Height",
             subtitle = "Height of the dock",
@@ -186,8 +174,6 @@ private fun Success(
                 showDockHeightDialog = true
             },
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         GridItemSettings(
             gridItemSettings = homeSettings.gridItemSettings,

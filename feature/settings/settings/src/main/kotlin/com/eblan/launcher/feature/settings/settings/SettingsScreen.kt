@@ -23,7 +23,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.provider.Settings.ACTION_HOME_SETTINGS
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,13 +30,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -49,7 +49,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.ui.local.LocalPackageManager
-import com.eblan.launcher.ui.settings.HintRow
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -127,22 +126,24 @@ internal fun SettingsScreen(
                 .padding(paddingValues),
         ) {
             if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
-                HintRow(
-                    hint = "Allow post notification for Eblan Launcher",
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Info,
+                    title = "Notification",
+                    subtitle = "Allow post notification for Eblan Launcher",
                     onClick = notificationsPermissionState::launchPermissionRequest,
                 )
             }
 
             if (!packageManager.isDefaultLauncher()) {
-                HintRow(
-                    hint = "Set Eblan Launcher as your default launcher",
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Info,
+                    title = "Default Launcher",
+                    subtitle = "Choose Eblan Launcher",
                     onClick = {
                         context.startActivity(Intent(ACTION_HOME_SETTINGS))
                     },
                 )
             }
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             SettingsRow(
                 imageVector = EblanLauncherIcons.Settings,
@@ -151,16 +152,12 @@ internal fun SettingsScreen(
                 onClick = onGeneral,
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
             SettingsRow(
                 imageVector = EblanLauncherIcons.Home,
                 title = "Home",
                 subtitle = "Grid, icon, dock, and more",
                 onClick = onHome,
             )
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             SettingsRow(
                 imageVector = EblanLauncherIcons.Apps,
@@ -169,8 +166,6 @@ internal fun SettingsScreen(
                 onClick = onAppDrawer,
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
             SettingsRow(
                 imageVector = EblanLauncherIcons.Folder,
                 title = "Folder",
@@ -178,16 +173,12 @@ internal fun SettingsScreen(
                 onClick = onFolder,
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
             SettingsRow(
                 imageVector = EblanLauncherIcons.Gesture,
                 title = "Gestures",
                 subtitle = "Swipe gesture actions",
                 onClick = onGestures,
             )
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             SettingsRow(
                 imageVector = EblanLauncherIcons.DeveloperMode,
@@ -207,27 +198,41 @@ private fun SettingsRow(
     subtitle: String,
     onClick: () -> Unit,
 ) {
-    Row(
+    ElevatedCard(
         modifier = modifier
-            .clickable(onClick = onClick)
             .fillMaxWidth()
-            .padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(
+                horizontal = 10.dp,
+                vertical = 5.dp,
+            ),
+        onClick = onClick,
     ) {
-        Icon(
-            imageVector = imageVector,
-            contentDescription = null,
-            modifier = Modifier.size(40.dp),
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+            )
 
-        Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(20.dp))
 
-        Column {
-            Text(text = title)
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                )
 
-            Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
-            Text(text = subtitle)
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
     }
 }

@@ -18,8 +18,6 @@
 package com.eblan.launcher.ui.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,12 +54,10 @@ fun GridItemSettings(
 
     Column(modifier = modifier) {
         Text(
-            modifier = Modifier.padding(5.dp),
+            modifier = Modifier.padding(10.dp),
             text = "Grid Item",
             style = MaterialTheme.typography.bodySmall,
         )
-
-        Spacer(modifier = Modifier.height(5.dp))
 
         SettingsColumn(
             title = "Icon Size",
@@ -71,8 +67,6 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
             title = "Text Color",
             subtitle = gridItemSettings.textColor.name,
@@ -81,8 +75,6 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsColumn(
             title = "Text Size",
             subtitle = "${gridItemSettings.textSize}",
@@ -90,8 +82,6 @@ fun GridItemSettings(
                 showTextSizeDialog = true
             },
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         SettingsSwitch(
             checked = gridItemSettings.showLabel,
@@ -102,8 +92,6 @@ fun GridItemSettings(
             },
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
         SettingsSwitch(
             checked = gridItemSettings.singleLineLabel,
             title = "Single Line Label",
@@ -112,8 +100,6 @@ fun GridItemSettings(
                 onUpdateGridItemSettings(gridItemSettings.copy(singleLineLabel = singleLineLabel))
             },
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         SettingsColumn(
             title = "Horizontal Alignment",
@@ -125,8 +111,6 @@ fun GridItemSettings(
                 showHorizontalAlignment = true
             },
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         SettingsColumn(
             title = "Vertical Arrangement",

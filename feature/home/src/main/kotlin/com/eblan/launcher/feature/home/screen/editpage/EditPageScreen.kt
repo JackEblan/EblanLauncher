@@ -63,9 +63,6 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.draganddrop.DraggableItem
-import com.eblan.launcher.feature.home.component.draganddrop.dragContainer
-import com.eblan.launcher.feature.home.component.draganddrop.rememberLazyGridDragAndDropState
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor

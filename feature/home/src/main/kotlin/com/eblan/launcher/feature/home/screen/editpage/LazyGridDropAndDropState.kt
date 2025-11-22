@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.component.draganddrop
+package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring

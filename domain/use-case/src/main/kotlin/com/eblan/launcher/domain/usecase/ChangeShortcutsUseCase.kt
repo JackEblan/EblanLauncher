@@ -37,7 +37,7 @@ class ChangeShortcutsUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         packageName: String,

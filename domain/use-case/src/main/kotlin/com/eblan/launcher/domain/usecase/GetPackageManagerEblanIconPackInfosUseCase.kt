@@ -29,7 +29,7 @@ import javax.inject.Inject
 class GetPackageManagerEblanIconPackInfosUseCase @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(): List<EblanIconPackInfo> {
         return withContext(defaultDispatcher) {

@@ -32,7 +32,7 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val iconPackManager: IconPackManager,
     private val userDataRepository: UserDataRepository,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(packageName: String) {
         withContext(ioDispatcher) {

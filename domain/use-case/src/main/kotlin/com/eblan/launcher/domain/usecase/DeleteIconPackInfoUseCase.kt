@@ -32,7 +32,7 @@ class DeleteIconPackInfoUseCase @Inject constructor(
     private val fileManager: FileManager,
     private val userDataRepository: UserDataRepository,
     private val eblanIconPackInfoRepository: EblanIconPackInfoRepository,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(iconPackInfoPackageName: String) {
         withContext(ioDispatcher) {

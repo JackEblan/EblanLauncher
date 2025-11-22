@@ -35,7 +35,7 @@ class GetGridItemsCacheUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val folderGridCacheRepository: FolderGridCacheRepository,
     private val userDataRepository: UserDataRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<GridItemCache> {
         return combine(

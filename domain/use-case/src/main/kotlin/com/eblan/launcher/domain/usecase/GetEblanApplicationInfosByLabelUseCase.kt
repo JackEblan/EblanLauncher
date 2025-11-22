@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(label: String): Flow<List<EblanApplicationInfo>> {
         return eblanApplicationInfoRepository.eblanApplicationInfos.map { eblanApplicationInfos ->

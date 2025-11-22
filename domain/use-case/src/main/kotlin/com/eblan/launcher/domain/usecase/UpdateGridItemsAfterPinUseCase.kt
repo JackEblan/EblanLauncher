@@ -30,7 +30,7 @@ class UpdateGridItemsAfterPinUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val userDataRepository: UserDataRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
         withContext(defaultDispatcher) {

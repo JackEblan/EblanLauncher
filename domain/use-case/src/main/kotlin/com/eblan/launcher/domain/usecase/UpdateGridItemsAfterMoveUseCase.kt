@@ -36,7 +36,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val userDataRepository: UserDataRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         movingGridItem: GridItem,

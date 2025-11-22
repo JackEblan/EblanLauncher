@@ -41,7 +41,7 @@ class DeleteGridItemUseCase @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val folderGridItemRepository: FolderGridItemRepository,
     private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem) {
         withContext(defaultDispatcher) {

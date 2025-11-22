@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class GetGridItemUseCase @Inject constructor(
     private val getHomeDataUseCase: GetHomeDataUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(id: String): GridItem? {
         return withContext(defaultDispatcher) {

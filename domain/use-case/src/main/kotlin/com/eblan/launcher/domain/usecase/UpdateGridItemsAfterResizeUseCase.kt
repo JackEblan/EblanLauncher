@@ -30,7 +30,7 @@ import javax.inject.Inject
 class UpdateGridItemsAfterResizeUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(resizingGridItem: GridItem) {
         withContext(defaultDispatcher) {

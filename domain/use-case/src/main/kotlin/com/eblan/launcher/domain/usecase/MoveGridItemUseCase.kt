@@ -37,7 +37,7 @@ import javax.inject.Inject
 
 class MoveGridItemUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         movingGridItem: GridItem,

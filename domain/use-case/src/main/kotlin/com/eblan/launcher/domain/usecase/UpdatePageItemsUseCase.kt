@@ -30,7 +30,7 @@ class UpdatePageItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         id: Int,

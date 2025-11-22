@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class CachePageItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItems: List<GridItem>): List<PageItem> {
         return withContext(defaultDispatcher) {

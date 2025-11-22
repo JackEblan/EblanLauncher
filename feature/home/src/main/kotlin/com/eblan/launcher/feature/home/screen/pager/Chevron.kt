@@ -25,7 +25,6 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -64,67 +63,53 @@ internal fun Chevron(
 }
 
 @Composable
-private fun Chevron(
+internal fun Chevron(
     modifier: Modifier = Modifier,
     color: Color,
+    count: Int = 3,
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "chevron")
+    val topY = 105f // Y position of the topmost (lightest) chevron
+    val spacing = 73f // Vertical gap between chevrons
+    val delta = 40f // Distance each chevron moves upward
+    val durationMs = 1100 // Total cycle duration
+    val basePeakTimeMs = 533 // When the first chevron reaches peak (tuned from original)
+    val staggerPerBarMs = 33 // Time offset between consecutive bars
+    val returnDurationMs = 467 // Time from peak back to rest (1000-533 ≈ 467)
+    val infiniteTransition = rememberInfiniteTransition(label = "Chevron")
 
-    val topY by infiniteTransition.animateFloat(
-        initialValue = 105f,
-        targetValue = 105f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = 1100
-                105f at 0
-                65f at 533
-                105f at 1000
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
-    )
+    val chevrons = List(count) { index ->
+        val restY = topY + index * spacing
+        val delayMs = index * staggerPerBarMs
+        val peakAtMs = basePeakTimeMs + delayMs
+        val returnAtMs = peakAtMs + returnDurationMs
 
-    val middleY by infiniteTransition.animateFloat(
-        initialValue = 178f,
-        targetValue = 178f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = 1100
-                178f at 0
-                138f at 566
-                178f at 1067
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
-    )
-
-    val bottomY by infiniteTransition.animateFloat(
-        initialValue = 251f,
-        targetValue = 251f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = 1100
-                251f at 0
-                211f at 600
-                251f at 1133
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
-    )
+        infiniteTransition.animateFloat(
+            initialValue = restY,
+            targetValue = restY,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = durationMs
+                    restY at 0
+                    restY - delta at peakAtMs
+                    restY at returnAtMs.coerceAtMost(durationMs - 1)
+                },
+                repeatMode = RepeatMode.Restart,
+            ),
+            label = "ChevronY_$index",
+        )
+    }
 
     Canvas(modifier = modifier) {
-        fun drawChevronUp(
-            y: Float,
-            alpha: Float,
-        ) {
-            val centerX = size.width / 2
+        val centerX = size.width / 2f
+        val chevronSize = 50f
 
-            val size = 50f
+        chevrons.forEachIndexed { index, y ->
+            val alpha = 1f - (index.toFloat() / count) * 0.5f
 
             val path = Path().apply {
-                moveTo(centerX - size, y + size / 2)
-                lineTo(centerX, y - size / 2)
-                lineTo(centerX + size, y + size / 2)
+                moveTo(centerX - chevronSize, y.value + chevronSize / 2)
+                lineTo(centerX, y.value - chevronSize / 2)
+                lineTo(centerX + chevronSize, y.value + chevronSize / 2)
             }
 
             drawPath(
@@ -133,11 +118,5 @@ private fun Chevron(
                 style = Stroke(width = 30f, cap = StrokeCap.Round),
             )
         }
-
-        drawChevronUp(y = bottomY, alpha = 1.00f)
-
-        drawChevronUp(y = middleY, alpha = 0.80f)
-
-        drawChevronUp(y = topY, alpha = 0.50f)
     }
 }

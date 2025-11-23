@@ -43,7 +43,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionBottomSheet
+import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionDialog
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
 import com.eblan.launcher.ui.settings.SettingsColumn
 
@@ -177,42 +177,42 @@ private fun Success(
     }
 
     if (showDoubleTapBottomSheet) {
-        GestureActionBottomSheet(
+        GestureActionDialog(
             title = "Double Tap",
             gestureAction = gestureSettings.doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = { doubleTap ->
                 onUpdateGestureSettings(gestureSettings.copy(doubleTap = doubleTap))
             },
-            onDismiss = {
+            onDismissRequest = {
                 showDoubleTapBottomSheet = false
             },
         )
     }
 
     if (showSwipeUpBottomSheet) {
-        GestureActionBottomSheet(
+        GestureActionDialog(
             title = "Swipe Up",
             gestureAction = gestureSettings.swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = { swipeUp ->
                 onUpdateGestureSettings(gestureSettings.copy(swipeUp = swipeUp))
             },
-            onDismiss = {
+            onDismissRequest = {
                 showSwipeUpBottomSheet = false
             },
         )
     }
 
     if (showSwipeDownBottomSheet) {
-        GestureActionBottomSheet(
+        GestureActionDialog(
             title = "Swipe Down",
             gestureAction = gestureSettings.swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = { swipeDown ->
                 onUpdateGestureSettings(gestureSettings.copy(swipeDown = swipeDown))
             },
-            onDismiss = {
+            onDismissRequest = {
                 showSwipeDownBottomSheet = false
             },
         )

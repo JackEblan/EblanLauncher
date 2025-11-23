@@ -30,67 +30,57 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.feature.settings.gestures.getGestureActionSubtitle
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun GestureActionBottomSheet(
+internal fun GestureActionDialog(
     modifier: Modifier = Modifier,
     title: String,
     gestureAction: GestureAction,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onUpdateGestureAction: (GestureAction) -> Unit,
-    onDismiss: () -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
-
     var selectedGestureAction by remember { mutableStateOf(gestureAction) }
-
-    val scope = rememberCoroutineScope()
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
-    val options = remember(key1 = selectedGestureAction) {
-        val currentGestureAction = selectedGestureAction
-
-        val openApp = if (currentGestureAction is GestureAction.OpenApp) {
-            GestureAction.OpenApp(componentName = currentGestureAction.componentName)
-        } else {
-            GestureAction.OpenApp(componentName = "app")
+    val gestureActions by remember {
+        derivedStateOf {
+            listOf(
+                GestureAction.None,
+                GestureAction.OpenAppDrawer,
+                GestureAction.OpenNotificationPanel,
+                selectedGestureAction.let { gestureAction ->
+                    if (gestureAction is GestureAction.OpenApp) {
+                        GestureAction.OpenApp(componentName = gestureAction.componentName)
+                    } else {
+                        GestureAction.OpenApp(componentName = "app")
+                    }
+                },
+                GestureAction.LockScreen,
+                GestureAction.OpenQuickSettings,
+                GestureAction.OpenRecents,
+            )
         }
-
-        mutableStateListOf(
-            GestureAction.None,
-            GestureAction.OpenAppDrawer,
-            GestureAction.OpenNotificationPanel,
-            openApp,
-            GestureAction.LockScreen,
-            GestureAction.OpenQuickSettings,
-            GestureAction.OpenRecents,
-        )
     }
 
-    ModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = onDismiss,
-    ) {
+    EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
                 .verticalScroll(rememberScrollState())
@@ -109,7 +99,7 @@ internal fun GestureActionBottomSheet(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                options.forEach { currentGestureAction ->
+                gestureActions.forEach { currentGestureAction ->
                     EblanRadioButton(
                         text = currentGestureAction.getGestureActionSubtitle(),
                         selected = selectedGestureAction == currentGestureAction,
@@ -134,15 +124,7 @@ internal fun GestureActionBottomSheet(
                 horizontalArrangement = Arrangement.End,
             ) {
                 TextButton(
-                    onClick = {
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    onDismiss()
-                                }
-                            }
-                    },
+                    onClick = onDismissRequest,
                 ) {
                     Text("Cancel")
                 }
@@ -153,13 +135,7 @@ internal fun GestureActionBottomSheet(
                     onClick = {
                         onUpdateGestureAction(selectedGestureAction)
 
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    onDismiss()
-                                }
-                            }
+                        onDismissRequest()
                     },
                 ) {
                     Text("Save")
@@ -172,15 +148,12 @@ internal fun GestureActionBottomSheet(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
+                selectedGestureAction = GestureAction.None
+
                 showSelectApplicationDialog = false
             },
             onUpdateGestureAction = { openAppGestureAction ->
                 selectedGestureAction = openAppGestureAction
-
-                val index =
-                    options.indexOfFirst { it is GestureAction.OpenApp }
-
-                options[index] = openAppGestureAction
 
                 showSelectApplicationDialog = false
             },

@@ -68,14 +68,29 @@ class ChangePackageUseCase @Inject constructor(
         withContext(ioDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
+            val icon = packageManagerWrapper.getApplicationIcon(packageName = packageName)
+                ?.let { currentIconByteArray ->
+                    fileManager.getAndUpdateFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                        name = packageName,
+                        byteArray = currentIconByteArray,
+                    )
+                }
+
+            val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
+
             updateEblanApplicationInfoByPackageName(
                 packageName = packageName,
                 serialNumber = serialNumber,
+                label = label,
+                icon = icon,
             )
 
             updateEblanAppWidgetProviderInfosByPackageName(
                 serialNumber = serialNumber,
                 packageName = packageName,
+                label = label,
+                icon = icon,
             )
 
             updateEblanShortcutInfosByPackageName(
@@ -100,20 +115,10 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanApplicationInfoByPackageName(
         packageName: String,
         serialNumber: Long,
+        label: String?,
+        icon: String?,
     ) {
         val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
-
-        val iconByteArray = packageManagerWrapper.getApplicationIcon(packageName = packageName)
-
-        val icon = iconByteArray?.let { currentIconByteArray ->
-            fileManager.getAndUpdateFilePath(
-                directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                name = packageName,
-                byteArray = currentIconByteArray,
-            )
-        }
-
-        val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
         val eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(
             serialNumber = serialNumber,
@@ -141,6 +146,8 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanAppWidgetProviderInfosByPackageName(
         serialNumber: Long,
         packageName: String,
+        label: String?,
+        icon: String?,
     ) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
@@ -183,6 +190,8 @@ class ChangePackageUseCase @Inject constructor(
                         maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                         maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                         preview = preview,
+                        label = label,
+                        icon = icon,
                     )
                 }
 

@@ -199,6 +199,19 @@ class SyncDataUseCase @Inject constructor(
                         )
                     }
 
+                val label =
+                    packageManagerWrapper.getApplicationLabel(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+
+                val icon =
+                    packageManagerWrapper.getApplicationIcon(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
+                        ?.let { byteArray ->
+                            fileManager.getAndUpdateFilePath(
+                                directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                                name = appWidgetManagerAppWidgetProviderInfo.packageName,
+                                byteArray = byteArray,
+                            )
+                        }
+
                 EblanAppWidgetProviderInfo(
                     className = appWidgetManagerAppWidgetProviderInfo.className,
                     serialNumber = appWidgetManagerAppWidgetProviderInfo.serialNumber,
@@ -215,6 +228,8 @@ class SyncDataUseCase @Inject constructor(
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = preview,
+                    label = label,
+                    icon = icon,
                 )
             }
 

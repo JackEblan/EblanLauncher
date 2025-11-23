@@ -47,18 +47,12 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 }
 
             val groupedEblanAppWidgetProviderInfos =
-                eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.packageName
-                }.mapKeys { entry ->
-                    val eblanApplicationInfo =
-                        eblanApplicationInfoRepository.getEblanApplicationInfo(
-                            serialNumber = 0L,
-                            packageName = entry.key,
-                        )
-
+                eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                    eblanAppWidgetProviderInfo.label?.lowercase()
+                }.groupBy { eblanAppWidgetProviderInfo ->
                     EblanAppWidgetProviderInfoByGroup(
-                        icon = eblanApplicationInfo?.icon,
-                        label = eblanApplicationInfo?.label,
+                        icon = eblanAppWidgetProviderInfo.icon,
+                        label = eblanAppWidgetProviderInfo.label,
                     )
                 }
 

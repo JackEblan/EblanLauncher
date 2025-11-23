@@ -29,7 +29,6 @@ import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
@@ -109,7 +108,7 @@ class RemovePackageUseCase @Inject constructor(
         }
     }
 
-    private suspend fun CoroutineScope.deleteEblanApplicationInfoFiles(
+    private suspend fun deleteEblanApplicationInfoFiles(
         packageName: String,
         serialNumber: Long,
     ) {
@@ -119,7 +118,7 @@ class RemovePackageUseCase @Inject constructor(
         val isUnique =
             eblanApplicationInfoRepository.eblanApplicationInfos.first()
                 .none { eblanApplicationInfo ->
-                    ensureActive()
+                    currentCoroutineContext().ensureActive()
 
                     eblanApplicationInfo.packageName == packageName && eblanApplicationInfo.serialNumber != serialNumber
                 }
@@ -147,11 +146,11 @@ class RemovePackageUseCase @Inject constructor(
         }
     }
 
-    private suspend fun CoroutineScope.deleteEblanAppWidgetProviderInfoFiles(packageName: String) {
+    private suspend fun deleteEblanAppWidgetProviderInfoFiles(packageName: String) {
         eblanAppWidgetProviderInfoRepository.getEblanAppWidgetProviderInfosByPackageName(
             packageName = packageName,
         ).forEach { eblanAppWidgetProviderInfo ->
-            ensureActive()
+            currentCoroutineContext().ensureActive()
 
             val widgetFile = File(
                 fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
@@ -164,7 +163,7 @@ class RemovePackageUseCase @Inject constructor(
         }
     }
 
-    private suspend fun CoroutineScope.deleteEblaShortcutInfoFiles(
+    private suspend fun deleteEblaShortcutInfoFiles(
         serialNumber: Long,
         packageName: String,
     ) {
@@ -172,13 +171,13 @@ class RemovePackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { eblanShortcutInfo ->
-            ensureActive()
+            currentCoroutineContext().ensureActive()
 
             val isUnique = eblanShortcutInfoRepository.getEblanShortcutInfos(
                 serialNumber = serialNumber,
                 packageName = packageName,
             ).none { eblanShortcutInfo ->
-                ensureActive()
+                currentCoroutineContext().ensureActive()
 
                 eblanShortcutInfo.packageName == packageName &&
                     eblanShortcutInfo.serialNumber != serialNumber

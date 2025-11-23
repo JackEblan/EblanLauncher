@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "cb9b05fea5637e5d89172337a09a5188",
+    "identityHash": "dc69c045f5678c580550d523fdd5ac39",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -47,7 +47,7 @@
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, PRIMARY KEY(`className`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, PRIMARY KEY(`className`))",
         "fields": [
           {
             "fieldPath": "className",
@@ -135,6 +135,16 @@
           {
             "fieldPath": "preview",
             "columnName": "preview",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
             "affinity": "TEXT"
           }
         ],
@@ -900,7 +910,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb9b05fea5637e5d89172337a09a5188')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dc69c045f5678c580550d523fdd5ac39')"
     ]
   }
 }

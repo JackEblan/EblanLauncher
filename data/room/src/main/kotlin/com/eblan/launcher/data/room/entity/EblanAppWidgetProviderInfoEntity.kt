@@ -37,4 +37,6 @@ data class EblanAppWidgetProviderInfoEntity(
     val maxResizeWidth: Int,
     val maxResizeHeight: Int,
     val preview: String?,
+    val label: String?,
+    val icon: String?,
 )

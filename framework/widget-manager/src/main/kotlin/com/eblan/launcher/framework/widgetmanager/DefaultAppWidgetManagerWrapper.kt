@@ -35,9 +35,9 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
     private val appWidgetManager = AppWidgetManager.getInstance(context)

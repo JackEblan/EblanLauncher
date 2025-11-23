@@ -30,7 +30,7 @@ import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 internal class DefaultDrawableWrapper @Inject constructor(
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : AndroidDrawableWrapper {
     override suspend fun createByteArray(drawable: Drawable): ByteArray? {
         if (drawable is BitmapDrawable) {

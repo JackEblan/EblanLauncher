@@ -53,11 +53,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultLauncherAppsWrapper @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps

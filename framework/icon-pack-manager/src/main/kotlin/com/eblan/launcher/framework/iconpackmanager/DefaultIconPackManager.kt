@@ -36,8 +36,8 @@ import javax.inject.Inject
 
 @SuppressLint("DiscouragedApi")
 internal class DefaultIconPackManager @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:ApplicationContext private val context: Context,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
 ) : IconPackManager {
     override suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent> {

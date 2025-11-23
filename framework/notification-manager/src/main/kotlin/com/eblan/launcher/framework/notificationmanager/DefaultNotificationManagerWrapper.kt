@@ -29,7 +29,7 @@ import com.eblan.launcher.domain.framework.NotificationManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultNotificationManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
+internal class DefaultNotificationManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
     AndroidNotificationManagerWrapper, NotificationManagerWrapper {
     private val notificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager

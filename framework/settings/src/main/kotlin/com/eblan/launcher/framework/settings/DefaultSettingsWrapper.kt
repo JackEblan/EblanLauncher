@@ -22,7 +22,7 @@ import android.provider.Settings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultSettingsWrapper @Inject constructor(@ApplicationContext private val context: Context) : AndroidSettingsWrapper {
+internal class DefaultSettingsWrapper @Inject constructor(@param:ApplicationContext private val context: Context) : AndroidSettingsWrapper {
     override fun isNotificationAccessGranted(): Boolean {
         val enabledNotificationListeners = Settings.Secure.getString(
             context.contentResolver,

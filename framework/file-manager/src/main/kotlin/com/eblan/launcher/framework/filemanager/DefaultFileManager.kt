@@ -31,8 +31,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 internal class DefaultFileManager @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:ApplicationContext private val context: Context,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : FileManager {
     override suspend fun getFilesDirectory(name: String): File {
         return withContext(ioDispatcher) {

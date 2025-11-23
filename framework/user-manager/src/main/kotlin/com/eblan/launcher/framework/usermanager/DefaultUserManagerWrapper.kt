@@ -24,7 +24,7 @@ import android.os.UserManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultUserManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) : AndroidUserManagerWrapper {
+internal class DefaultUserManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) : AndroidUserManagerWrapper {
     private val userManager = context.getSystemService(USER_SERVICE) as UserManager
 
     override fun getSerialNumberForUser(userHandle: UserHandle): Long {

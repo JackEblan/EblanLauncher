@@ -33,8 +33,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class DefaultPackageManagerWrapper @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:ApplicationContext private val context: Context,
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
 ) : PackageManagerWrapper, AndroidPackageManagerWrapper {
 

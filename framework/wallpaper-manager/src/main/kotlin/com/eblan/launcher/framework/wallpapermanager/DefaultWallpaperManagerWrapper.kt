@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
-internal class DefaultWallpaperManagerWrapper @Inject constructor(@ApplicationContext private val context: Context) :
+internal class DefaultWallpaperManagerWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
     WallpaperManagerWrapper, AndroidWallpaperManagerWrapper {
     private val wallpaperManager = WallpaperManager.getInstance(context)
 

@@ -28,7 +28,7 @@ import com.eblan.launcher.framework.widgetmanager.launcher3.LauncherAppWidgetHos
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-internal class DefaultAppWidgetHostWrapper @Inject constructor(@ApplicationContext private val context: Context) :
+internal class DefaultAppWidgetHostWrapper @Inject constructor(@param:ApplicationContext private val context: Context) :
     AppWidgetHostWrapper, AndroidAppWidgetHostWrapper {
     private val appWidgetHost = LauncherAppWidgetHost(context, 2814)
 

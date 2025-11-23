@@ -21,6 +21,7 @@ import com.eblan.launcher.data.repository.DefaultApplicationInfoGridItemReposito
 import com.eblan.launcher.data.repository.DefaultEblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanApplicationInfoRepository
 import com.eblan.launcher.data.repository.DefaultEblanIconPackInfoRepository
+import com.eblan.launcher.data.repository.DefaultEblanShortcutConfigActivityRepository
 import com.eblan.launcher.data.repository.DefaultEblanShortcutInfoRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridCacheRepository
 import com.eblan.launcher.data.repository.DefaultFolderGridItemRepository
@@ -32,6 +33,7 @@ import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
+import com.eblan.launcher.domain.repository.EblanShortcutConfigActivityRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
@@ -91,4 +93,8 @@ internal interface RepositoryModule {
     @Binds
     @Singleton
     fun iconPackRepository(impl: DefaultEblanIconPackInfoRepository): EblanIconPackInfoRepository
+
+    @Binds
+    @Singleton
+    fun eblanShortcutConfigActivityRepository(impl: DefaultEblanShortcutConfigActivityRepository): EblanShortcutConfigActivityRepository
 }

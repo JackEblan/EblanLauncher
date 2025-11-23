@@ -19,6 +19,7 @@ package com.eblan.launcher.domain.model
 
 data class EblanAppWidgetProviderInfo(
     val className: String,
+    val serialNumber: Long,
     val componentName: String,
     val configure: String?,
     val packageName: String,
@@ -32,6 +33,4 @@ data class EblanAppWidgetProviderInfo(
     val maxResizeWidth: Int,
     val maxResizeHeight: Int,
     val preview: String?,
-    val label: String?,
-    val icon: String?,
 )

@@ -112,6 +112,7 @@ internal fun EblanApplicationInfoItem(
 
             eblanAppWidgetProviderInfos[eblanAppWidgetProviderInfoByGroup]?.forEach { eblanAppWidgetProviderInfo ->
                 EblanAppWidgetProviderInfoItem(
+                    eblanAppWidgetProviderInfoByGroup = eblanAppWidgetProviderInfoByGroup,
                     eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,

@@ -29,6 +29,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.AppWidgetManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -37,6 +38,7 @@ import javax.inject.Inject
 internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val userManagerWrapper: AndroidUserManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) :
     AppWidgetManagerWrapper, AndroidAppWidgetManagerWrapper {
@@ -76,12 +78,15 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
     }
 
     private suspend fun AppWidgetProviderInfo.toEblanAppWidgetProviderInfo(): AppWidgetManagerAppWidgetProviderInfo {
+        val serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = profile)
+
         val preview = loadPreviewImage(context, 0)?.let { drawable ->
             androidDrawableWrapper.createByteArray(drawable = drawable)
         }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AppWidgetManagerAppWidgetProviderInfo(
+                serialNumber = serialNumber,
                 className = provider.className,
                 packageName = provider.packageName,
                 componentName = provider.flattenToString(),
@@ -99,6 +104,7 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
             )
         } else {
             AppWidgetManagerAppWidgetProviderInfo(
+                serialNumber = serialNumber,
                 className = provider.className,
                 packageName = provider.packageName,
                 componentName = provider.flattenToString(),

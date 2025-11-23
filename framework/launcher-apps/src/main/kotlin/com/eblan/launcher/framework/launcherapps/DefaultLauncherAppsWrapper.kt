@@ -261,14 +261,32 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getShortcutConfigActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsActivityInfo> {
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && userHandle != null) {
+                launcherApps.getShortcutConfigActivityList(packageName, userHandle)
+                    .map { launcherActivityInfo ->
+                        launcherActivityInfo.toEblanLauncherActivityInfo()
+                    }
+            } else {
+                emptyList()
+            }
+        }
+    }
+
     override fun startMainActivity(
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     ) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-        if (componentName != null && userHandle != null) {
+        if (userHandle != null) {
             launcherApps.startMainActivity(
                 ComponentName.unflattenFromString(componentName),
                 userHandle,
@@ -279,17 +297,15 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     override fun startMainActivity(
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     ) {
-        if (componentName != null) {
-            launcherApps.startMainActivity(
-                ComponentName.unflattenFromString(componentName),
-                myUserHandle(),
-                sourceBounds,
-                Bundle.EMPTY,
-            )
-        }
+        launcherApps.startMainActivity(
+            ComponentName.unflattenFromString(componentName),
+            myUserHandle(),
+            sourceBounds,
+            Bundle.EMPTY,
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -71,6 +71,7 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
     private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
             className = className,
+            serialNumber = serialNumber,
             componentName = componentName,
             configure = configure,
             packageName = packageName,
@@ -84,14 +85,13 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             maxResizeWidth = maxResizeWidth,
             maxResizeHeight = maxResizeHeight,
             preview = preview,
-            label = label,
-            icon = icon,
         )
     }
 
     private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo {
         return EblanAppWidgetProviderInfo(
             className = className,
+            serialNumber = serialNumber,
             componentName = componentName,
             configure = configure,
             packageName = packageName,
@@ -105,8 +105,6 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             maxResizeWidth = maxResizeWidth,
             maxResizeHeight = maxResizeHeight,
             preview = preview,
-            label = label,
-            icon = icon,
         )
     }
 }

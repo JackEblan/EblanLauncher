@@ -42,4 +42,9 @@ interface LauncherAppsWrapper {
         serialNumber: Long,
         packageName: String,
     ): List<LauncherAppsShortcutInfo>?
+
+    suspend fun getShortcutConfigActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsActivityInfo>
 }

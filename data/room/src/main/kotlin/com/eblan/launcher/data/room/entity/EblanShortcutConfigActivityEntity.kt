@@ -20,7 +20,7 @@ package com.eblan.launcher.data.room.entity
 import androidx.room.Entity
 
 @Entity(primaryKeys = ["packageName", "serialNumber"])
-data class EblanApplicationInfoEntity(
+data class EblanShortcutConfigActivityEntity(
     val packageName: String,
     val serialNumber: Long,
     val componentName: String,

@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
@@ -67,6 +68,7 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
+    eblanAppWidgetProviderInfoByGroup: EblanAppWidgetProviderInfoByGroup,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
     onUpdateGridItemOffset: (
@@ -90,7 +92,7 @@ internal fun EblanAppWidgetProviderInfoItem(
     var intSize by remember { mutableStateOf(IntSize.Zero) }
 
     val preview =
-        eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.icon
+        eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfoByGroup.icon
 
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -140,8 +142,8 @@ internal fun EblanAppWidgetProviderInfoItem(
                                         maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
                                         maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
                                         preview = eblanAppWidgetProviderInfo.preview,
-                                        label = eblanAppWidgetProviderInfo.label,
-                                        icon = eblanAppWidgetProviderInfo.icon,
+                                        label = eblanAppWidgetProviderInfoByGroup.label,
+                                        icon = eblanAppWidgetProviderInfoByGroup.icon,
                                         gridItemSettings = gridItemSettings,
                                     ),
                                 ),

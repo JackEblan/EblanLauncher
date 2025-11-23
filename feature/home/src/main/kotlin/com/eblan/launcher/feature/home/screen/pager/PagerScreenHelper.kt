@@ -38,7 +38,7 @@ internal fun doGestureActions(
     swipeUpY: Float,
     swipeDownY: Float,
     screenHeight: Int,
-    onStartMainActivity: (String?) -> Unit,
+    onStartMainActivity: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
     val swipeThreshold = 100f
@@ -140,7 +140,7 @@ internal suspend fun handleOnNewIntent(
 
 private fun handleGestureAction(
     gestureAction: GestureAction,
-    onStartMainActivity: (String?) -> Unit,
+    onStartMainActivity: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
     when (gestureAction) {
@@ -164,9 +164,7 @@ private fun handleGestureAction(
             onPerformGlobalAction(GlobalAction.Recents)
         }
 
-        GestureAction.None, GestureAction.OpenAppDrawer -> {
-            Unit
-        }
+        GestureAction.None, GestureAction.OpenAppDrawer -> Unit
     }
 }
 

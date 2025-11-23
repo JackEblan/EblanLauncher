@@ -17,27 +17,27 @@
  */
 package com.eblan.launcher.domain.repository
 
-import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanShortcutConfigActivity
 import kotlinx.coroutines.flow.Flow
 
-interface EblanApplicationInfoRepository {
-    val eblanApplicationInfos: Flow<List<EblanApplicationInfo>>
+interface EblanShortcutConfigActivityRepository {
+    val eblanShortcutConfigActivities: Flow<List<EblanShortcutConfigActivity>>
 
-    suspend fun upsertEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>)
+    suspend fun upsertEblanShortcutConfigActivities(eblanShortcutConfigActivities: List<EblanShortcutConfigActivity>)
 
-    suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
+    suspend fun upsertEblanShortcutConfigActivity(eblanShortcutConfigActivity: EblanShortcutConfigActivity)
 
-    suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo>
+    suspend fun getEblanShortcutConfigActivity(packageName: String): List<EblanShortcutConfigActivity>
 
-    suspend fun deleteEblanApplicationInfo(
+    suspend fun deleteEblanShortcutConfigActivity(
         serialNumber: Long,
         packageName: String,
     )
 
-    suspend fun deleteEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>)
+    suspend fun deleteEblanShortcutConfigActivities(eblanShortcutConfigActivities: List<EblanShortcutConfigActivity>)
 
-    suspend fun getEblanApplicationInfo(
+    suspend fun getEblanShortcutConfigActivity(
         serialNumber: Long,
         packageName: String,
-    ): EblanApplicationInfo?
+    ): List<EblanShortcutConfigActivity>
 }

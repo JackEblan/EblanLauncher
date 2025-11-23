@@ -15,12 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.entity
+package com.eblan.launcher.domain.model
 
-import androidx.room.Entity
-
-@Entity(primaryKeys = ["packageName", "serialNumber"])
-data class EblanApplicationInfoEntity(
+data class EblanShortcutConfigActivity(
     val packageName: String,
     val serialNumber: Long,
     val componentName: String,

@@ -22,6 +22,7 @@ import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -30,23 +31,36 @@ import javax.inject.Inject
 
 class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(label: String): Flow<Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>> {
         return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
             eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
-                label.isNotBlank() && eblanAppWidgetProviderInfo.label.toString().contains(
+                val eblanApplicationInfo =
+                    eblanApplicationInfoRepository.getEblanApplicationInfo(
+                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
+                        packageName = eblanAppWidgetProviderInfo.packageName,
+                    )
+
+                label.isNotBlank() && eblanApplicationInfo?.label.toString().contains(
                     other = label,
                     ignoreCase = true,
                 )
-            }.sortedBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.label
             }.groupBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.packageName
+            }.mapKeys { entry ->
+                val eblanApplicationInfo =
+                    eblanApplicationInfoRepository.getEblanApplicationInfo(
+                        serialNumber = 0L,
+                        packageName = entry.key,
+                    )
+
                 EblanAppWidgetProviderInfoByGroup(
-                    icon = eblanAppWidgetProviderInfo.icon,
-                    label = eblanAppWidgetProviderInfo.label,
+                    icon = eblanApplicationInfo?.icon,
+                    label = eblanApplicationInfo?.label,
                 )
-            }
+            }.toList().sortedBy { entry -> entry.first.label }.toMap()
         }.flowOn(defaultDispatcher)
     }
 }

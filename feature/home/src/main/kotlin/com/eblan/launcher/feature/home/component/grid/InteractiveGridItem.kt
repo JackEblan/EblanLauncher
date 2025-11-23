@@ -61,7 +61,7 @@ internal fun InteractiveGridItemContent(
     statusBarNotifications: Map<String, Int>,
     onTapApplicationInfo: (
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
     ) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,

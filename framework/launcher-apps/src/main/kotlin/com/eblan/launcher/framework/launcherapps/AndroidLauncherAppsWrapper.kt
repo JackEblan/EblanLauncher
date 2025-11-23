@@ -32,12 +32,12 @@ interface AndroidLauncherAppsWrapper {
 
     fun startMainActivity(
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     )
 
     fun startMainActivity(
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     )
 

@@ -43,7 +43,7 @@ class GetPinGridItemUseCase @Inject constructor(
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
         pinItemRequestType: PinItemRequestType,
-    ): GridItem? {
+    ): GridItem {
         return withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 

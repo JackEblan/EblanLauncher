@@ -23,6 +23,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class EblanAppWidgetProviderInfoEntity(
     @PrimaryKey val className: String,
+    val serialNumber: Long,
     val componentName: String,
     val configure: String?,
     val packageName: String,
@@ -36,6 +37,4 @@ data class EblanAppWidgetProviderInfoEntity(
     val maxResizeWidth: Int,
     val maxResizeHeight: Int,
     val preview: String?,
-    val label: String?,
-    val icon: String?,
 )

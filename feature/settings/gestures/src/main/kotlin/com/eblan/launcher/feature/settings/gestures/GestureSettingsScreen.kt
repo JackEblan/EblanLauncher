@@ -43,7 +43,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionBottomSheet
+import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionDialog
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
 import com.eblan.launcher.ui.settings.SettingsColumn
 
@@ -119,11 +119,11 @@ private fun Success(
 ) {
     val context = LocalContext.current
 
-    var showDoubleTapBottomSheet by remember { mutableStateOf(false) }
+    var showDoubleTapDialog by remember { mutableStateOf(false) }
 
-    var showSwipeUpBottomSheet by remember { mutableStateOf(false) }
+    var showSwipeUpDialog by remember { mutableStateOf(false) }
 
-    var showSwipeDownBottomSheet by remember { mutableStateOf(false) }
+    var showSwipeDownDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
@@ -147,7 +147,7 @@ private fun Success(
             title = "Double Tap",
             subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
             onClick = {
-                showDoubleTapBottomSheet = true
+                showDoubleTapDialog = true
             },
         )
 
@@ -159,7 +159,7 @@ private fun Success(
             title = "Swipe Up",
             subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
             onClick = {
-                showSwipeUpBottomSheet = true
+                showSwipeUpDialog = true
             },
         )
 
@@ -171,49 +171,49 @@ private fun Success(
             title = "Swipe Down",
             subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
             onClick = {
-                showSwipeDownBottomSheet = true
+                showSwipeDownDialog = true
             },
         )
     }
 
-    if (showDoubleTapBottomSheet) {
-        GestureActionBottomSheet(
+    if (showDoubleTapDialog) {
+        GestureActionDialog(
             title = "Double Tap",
             gestureAction = gestureSettings.doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = { doubleTap ->
                 onUpdateGestureSettings(gestureSettings.copy(doubleTap = doubleTap))
             },
-            onDismiss = {
-                showDoubleTapBottomSheet = false
+            onDismissRequest = {
+                showDoubleTapDialog = false
             },
         )
     }
 
-    if (showSwipeUpBottomSheet) {
-        GestureActionBottomSheet(
+    if (showSwipeUpDialog) {
+        GestureActionDialog(
             title = "Swipe Up",
             gestureAction = gestureSettings.swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = { swipeUp ->
                 onUpdateGestureSettings(gestureSettings.copy(swipeUp = swipeUp))
             },
-            onDismiss = {
-                showSwipeUpBottomSheet = false
+            onDismissRequest = {
+                showSwipeUpDialog = false
             },
         )
     }
 
-    if (showSwipeDownBottomSheet) {
-        GestureActionBottomSheet(
+    if (showSwipeDownDialog) {
+        GestureActionDialog(
             title = "Swipe Down",
             gestureAction = gestureSettings.swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
             onUpdateGestureAction = { swipeDown ->
                 onUpdateGestureSettings(gestureSettings.copy(swipeDown = swipeDown))
             },
-            onDismiss = {
-                showSwipeDownBottomSheet = false
+            onDismissRequest = {
+                showSwipeDownDialog = false
             },
         )
     }

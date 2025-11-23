@@ -119,11 +119,11 @@ private fun Success(
 ) {
     val context = LocalContext.current
 
-    var showDoubleTapBottomSheet by remember { mutableStateOf(false) }
+    var showDoubleTapDialog by remember { mutableStateOf(false) }
 
-    var showSwipeUpBottomSheet by remember { mutableStateOf(false) }
+    var showSwipeUpDialog by remember { mutableStateOf(false) }
 
-    var showSwipeDownBottomSheet by remember { mutableStateOf(false) }
+    var showSwipeDownDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
         SettingsColumn(
@@ -147,7 +147,7 @@ private fun Success(
             title = "Double Tap",
             subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
             onClick = {
-                showDoubleTapBottomSheet = true
+                showDoubleTapDialog = true
             },
         )
 
@@ -159,7 +159,7 @@ private fun Success(
             title = "Swipe Up",
             subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
             onClick = {
-                showSwipeUpBottomSheet = true
+                showSwipeUpDialog = true
             },
         )
 
@@ -171,12 +171,12 @@ private fun Success(
             title = "Swipe Down",
             subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
             onClick = {
-                showSwipeDownBottomSheet = true
+                showSwipeDownDialog = true
             },
         )
     }
 
-    if (showDoubleTapBottomSheet) {
+    if (showDoubleTapDialog) {
         GestureActionDialog(
             title = "Double Tap",
             gestureAction = gestureSettings.doubleTap,
@@ -185,12 +185,12 @@ private fun Success(
                 onUpdateGestureSettings(gestureSettings.copy(doubleTap = doubleTap))
             },
             onDismissRequest = {
-                showDoubleTapBottomSheet = false
+                showDoubleTapDialog = false
             },
         )
     }
 
-    if (showSwipeUpBottomSheet) {
+    if (showSwipeUpDialog) {
         GestureActionDialog(
             title = "Swipe Up",
             gestureAction = gestureSettings.swipeUp,
@@ -199,12 +199,12 @@ private fun Success(
                 onUpdateGestureSettings(gestureSettings.copy(swipeUp = swipeUp))
             },
             onDismissRequest = {
-                showSwipeUpBottomSheet = false
+                showSwipeUpDialog = false
             },
         )
     }
 
-    if (showSwipeDownBottomSheet) {
+    if (showSwipeDownDialog) {
         GestureActionDialog(
             title = "Swipe Down",
             gestureAction = gestureSettings.swipeDown,
@@ -213,7 +213,7 @@ private fun Success(
                 onUpdateGestureSettings(gestureSettings.copy(swipeDown = swipeDown))
             },
             onDismissRequest = {
-                showSwipeDownBottomSheet = false
+                showSwipeDownDialog = false
             },
         )
     }

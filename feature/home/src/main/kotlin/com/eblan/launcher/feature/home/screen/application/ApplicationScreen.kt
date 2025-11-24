@@ -746,8 +746,6 @@ private fun EblanApplicationInfosPage(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
 ) {
-    val density = LocalDensity.current
-
     val overscrollEffect = remember {
         OffsetOverscrollEffect(
             offsetY = offsetY,
@@ -762,16 +760,10 @@ private fun EblanApplicationInfosPage(
 
     val canOverscroll by remember(key1 = lazyGridState) {
         derivedStateOf {
-            val appDrawerRowsHeightPx =
-                with(density) {
-                    appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
-                }
+            val lastVisibleIndex =
+                lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
-            val totalRows =
-                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                    appDrawerSettings.appDrawerColumns
-
-            (totalRows * appDrawerRowsHeightPx) > lazyGridState.layoutInfo.viewportSize.height
+            lastVisibleIndex < lazyGridState.layoutInfo.totalItemsCount - 1
         }
     }
 
@@ -978,7 +970,7 @@ private fun ScrollBarThumb(
         derivedStateOf {
             val totalRows =
                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                    appDrawerSettings.appDrawerColumns
+                        appDrawerSettings.appDrawerColumns
 
             val visibleRows =
                 ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
@@ -1071,7 +1063,7 @@ private fun ScrollBarThumb(
                         onVerticalDrag = { change, deltaY ->
                             val totalRows =
                                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                                    appDrawerSettings.appDrawerColumns
+                                        appDrawerSettings.appDrawerColumns
 
                             val visibleRows =
                                 ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()

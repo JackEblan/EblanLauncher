@@ -337,5 +337,7 @@ private fun ResizeOverlay(
                 onResizeEnd = onResizeEnd,
             )
         }
+
+        is GridItemData.ShortcutConfigActivity -> TODO()
     }
 }

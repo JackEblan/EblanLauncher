@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
+import coil3.request.ImageRequest.Builder
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
@@ -121,6 +122,8 @@ internal fun GridItemContent(
                         iconPackInfoPackageName = iconPackInfoPackageName,
                     )
                 }
+
+                is GridItemData.ShortcutConfigActivity -> TODO()
             }
         }
     }
@@ -346,7 +349,7 @@ internal fun FolderGridItem(
                                 }
 
                             AsyncImage(
-                                model = ImageRequest.Builder(context)
+                                model = Builder(context)
                                     .data(icon)
                                     .addLastModifiedToFileCacheKey(true)
                                     .build(),
@@ -379,6 +382,8 @@ internal fun FolderGridItem(
                                 tint = textColor,
                             )
                         }
+
+                        is GridItemData.ShortcutConfigActivity -> TODO()
                     }
                 }
             }

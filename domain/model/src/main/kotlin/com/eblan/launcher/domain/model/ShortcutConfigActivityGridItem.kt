@@ -17,8 +17,20 @@
  */
 package com.eblan.launcher.domain.model
 
-data class UpdateApplicationInfoGridItem(
+data class ShortcutConfigActivityGridItem(
     val id: String,
+    val folderId: String?,
+    val page: Int,
+    val startColumn: Int,
+    val startRow: Int,
+    val columnSpan: Int,
+    val rowSpan: Int,
+    val associate: Associate,
     val componentName: String,
+    val packageName: String,
+    val icon: String?,
     val label: String?,
+    val override: Boolean,
+    val serialNumber: Long,
+    val gridItemSettings: GridItemSettings,
 )

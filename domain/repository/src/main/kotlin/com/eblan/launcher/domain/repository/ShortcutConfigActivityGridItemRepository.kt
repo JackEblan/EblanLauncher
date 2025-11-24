@@ -17,33 +17,33 @@
  */
 package com.eblan.launcher.domain.repository
 
-import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.ShortcutConfigActivityGridItem
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import kotlinx.coroutines.flow.Flow
 
-interface ApplicationInfoGridItemRepository {
+interface ShortcutConfigActivityGridItemRepository {
     val gridItems: Flow<List<GridItem>>
 
-    val applicationInfoGridItems: Flow<List<ApplicationInfoGridItem>>
+    val shortcutConfigActivityGridItems: Flow<List<ShortcutConfigActivityGridItem>>
 
-    suspend fun upsertApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
+    suspend fun upsertShortcutConfigActivityGridItems(shortcutConfigActivityGridItems: List<ShortcutConfigActivityGridItem>)
 
-    suspend fun updateApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem)
+    suspend fun updateShortcutConfigActivityGridItem(shortcutConfigActivityGridItem: ShortcutConfigActivityGridItem)
 
-    suspend fun deleteApplicationInfoGridItems(applicationInfoGridItems: List<ApplicationInfoGridItem>)
+    suspend fun deleteShortcutConfigActivityGridItems(shortcutConfigActivityGridItems: List<ShortcutConfigActivityGridItem>)
 
-    suspend fun deleteApplicationInfoGridItem(applicationInfoGridItem: ApplicationInfoGridItem)
+    suspend fun deleteShortcutConfigActivityGridItem(shortcutConfigActivityGridItem: ShortcutConfigActivityGridItem)
 
-    suspend fun getApplicationInfoGridItems(
+    suspend fun getShortcutConfigActivityGridItems(
         serialNumber: Long,
         packageName: String,
-    ): List<ApplicationInfoGridItem>
+    ): List<ShortcutConfigActivityGridItem>
 
-    suspend fun deleteApplicationInfoGridItem(
+    suspend fun deleteShortcutConfigActivityGridItem(
         serialNumber: Long,
         packageName: String,
     )
 
-    suspend fun updateApplicationInfoGridItems(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>)
+    suspend fun updateShortcutConfigActivityGridItems(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>)
 }

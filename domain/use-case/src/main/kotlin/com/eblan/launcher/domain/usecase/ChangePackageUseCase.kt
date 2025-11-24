@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
+import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
@@ -309,13 +310,13 @@ class ChangePackageUseCase @Inject constructor(
         }
     }
 
-    suspend fun updateApplicationInfoGridItemsByPackageName(
+    private suspend fun updateApplicationInfoGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
         componentName: String?,
         label: String?,
     ) {
-        val applicationInfoGridItems =
+        val updateApplicationInfoGridItems =
             applicationInfoGridItemRepository.getApplicationInfoGridItems(
                 serialNumber = serialNumber,
                 packageName = packageName,
@@ -323,7 +324,8 @@ class ChangePackageUseCase @Inject constructor(
                 applicationInfoGridItem.override
             }.mapNotNull { applicationInfoGridItem ->
                 if (componentName != null) {
-                    applicationInfoGridItem.copy(
+                    UpdateApplicationInfoGridItem(
+                        id = applicationInfoGridItem.id,
                         componentName = componentName,
                         label = label,
                     )
@@ -333,7 +335,7 @@ class ChangePackageUseCase @Inject constructor(
             }
 
         applicationInfoGridItemRepository.updateApplicationInfoGridItems(
-            applicationInfoGridItems = applicationInfoGridItems,
+            updateApplicationInfoGridItems = updateApplicationInfoGridItems,
         )
     }
 

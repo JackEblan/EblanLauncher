@@ -363,7 +363,7 @@ class SyncDataUseCase @Inject constructor(
             }
         }
 
-        applicationInfoGridItemRepository.updateUpdateApplicationInfoGridItems(
+        applicationInfoGridItemRepository.updateApplicationInfoGridItems(
             updateApplicationInfoGridItems = updateApplicationInfoGridItems,
         )
 

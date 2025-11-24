@@ -356,6 +356,8 @@ private fun GridItemPopupContent(
                 },
             )
         }
+
+        is GridItemData.ShortcutConfigActivity -> TODO()
     }
 }
 

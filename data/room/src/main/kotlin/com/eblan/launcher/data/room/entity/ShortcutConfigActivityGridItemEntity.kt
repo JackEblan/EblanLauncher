@@ -15,10 +15,30 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.entity
 
-data class UpdateApplicationInfoGridItem(
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItemSettings
+
+@Entity
+data class ShortcutConfigActivityGridItemEntity(
+    @PrimaryKey
     val id: String,
+    val folderId: String?,
+    val page: Int,
+    val startColumn: Int,
+    val startRow: Int,
+    val columnSpan: Int,
+    val rowSpan: Int,
+    val associate: Associate,
     val componentName: String,
+    val packageName: String,
+    val icon: String?,
     val label: String?,
+    val override: Boolean,
+    val serialNumber: Long,
+    @Embedded val gridItemSettings: GridItemSettings,
 )

@@ -24,10 +24,12 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.ShortcutConfigActivityGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigActivityGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,6 +43,7 @@ class DeleteGridItemUseCase @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val folderGridItemRepository: FolderGridItemRepository,
     private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
+    private val shortcutConfigActivityGridItemRepository: ShortcutConfigActivityGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem) {
@@ -147,6 +150,28 @@ class DeleteGridItemUseCase @Inject constructor(
                             preview = data.preview,
                             label = data.label,
                             icon = data.icon,
+                            override = gridItem.override,
+                            serialNumber = data.serialNumber,
+                            gridItemSettings = gridItem.gridItemSettings,
+                        ),
+                    )
+                }
+
+                is GridItemData.ShortcutConfigActivity -> {
+                    shortcutConfigActivityGridItemRepository.deleteShortcutConfigActivityGridItem(
+                        shortcutConfigActivityGridItem = ShortcutConfigActivityGridItem(
+                            id = gridItem.id,
+                            folderId = gridItem.folderId,
+                            page = gridItem.page,
+                            startColumn = gridItem.startColumn,
+                            startRow = gridItem.startRow,
+                            columnSpan = gridItem.columnSpan,
+                            rowSpan = gridItem.rowSpan,
+                            associate = gridItem.associate,
+                            componentName = data.componentName,
+                            packageName = data.packageName,
+                            icon = data.icon,
+                            label = data.label,
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
                             gridItemSettings = gridItem.gridItemSettings,

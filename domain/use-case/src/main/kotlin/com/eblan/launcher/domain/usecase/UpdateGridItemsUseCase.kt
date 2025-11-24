@@ -23,10 +23,12 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.ShortcutConfigActivityGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigActivityGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,6 +40,7 @@ class UpdateGridItemsUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val shortcutConfigActivityGridItemRepository: ShortcutConfigActivityGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItems: List<GridItem>) {
@@ -49,6 +52,8 @@ class UpdateGridItemsUseCase @Inject constructor(
             val shortcutInfoGridItems = mutableListOf<ShortcutInfoGridItem>()
 
             val folderGridItems = mutableListOf<FolderGridItem>()
+
+            val shortcutConfigActivityGridItems = mutableListOf<ShortcutConfigActivityGridItem>()
 
             gridItems.forEach { gridItem ->
                 when (val data = gridItem.data) {
@@ -152,6 +157,28 @@ class UpdateGridItemsUseCase @Inject constructor(
                             ),
                         )
                     }
+
+                    is GridItemData.ShortcutConfigActivity -> {
+                        shortcutConfigActivityGridItems.add(
+                            ShortcutConfigActivityGridItem(
+                                id = gridItem.id,
+                                folderId = gridItem.folderId,
+                                page = gridItem.page,
+                                startColumn = gridItem.startColumn,
+                                startRow = gridItem.startRow,
+                                columnSpan = gridItem.columnSpan,
+                                rowSpan = gridItem.rowSpan,
+                                associate = gridItem.associate,
+                                componentName = data.componentName,
+                                packageName = data.packageName,
+                                icon = data.icon,
+                                label = data.label,
+                                override = gridItem.override,
+                                serialNumber = data.serialNumber,
+                                gridItemSettings = gridItem.gridItemSettings,
+                            ),
+                        )
+                    }
                 }
             }
 
@@ -164,6 +191,10 @@ class UpdateGridItemsUseCase @Inject constructor(
             shortcutInfoGridItemRepository.upsertShortcutInfoGridItems(shortcutInfoGridItems = shortcutInfoGridItems)
 
             folderGridItemRepository.upsertFolderGridItems(folderGridItems = folderGridItems)
+
+            shortcutConfigActivityGridItemRepository.deleteShortcutConfigActivityGridItems(
+                shortcutConfigActivityGridItems = shortcutConfigActivityGridItems,
+            )
         }
     }
 }

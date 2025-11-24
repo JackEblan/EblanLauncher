@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "1c51ee43853e4749e6789406bf5415ca",
+    "identityHash": "324b4868515af6b7736d87175f953b17",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -708,6 +708,141 @@
         }
       },
       {
+        "tableName": "ShortcutConfigActivityGridItemEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folderId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "page",
+            "columnName": "page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startColumn",
+            "columnName": "startColumn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startRow",
+            "columnName": "startRow",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "columnSpan",
+            "columnName": "columnSpan",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rowSpan",
+            "columnName": "rowSpan",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "associate",
+            "columnName": "associate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componentName",
+            "columnName": "componentName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "override",
+            "columnName": "override",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.iconSize",
+            "columnName": "iconSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.textColor",
+            "columnName": "textColor",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.textSize",
+            "columnName": "textSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.showLabel",
+            "columnName": "showLabel",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.singleLineLabel",
+            "columnName": "singleLineLabel",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.horizontalAlignment",
+            "columnName": "horizontalAlignment",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gridItemSettings.verticalArrangement",
+            "columnName": "verticalArrangement",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
         "tableName": "FolderGridItemEntity",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `label` TEXT NOT NULL, `override` INTEGER NOT NULL, `pageCount` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
@@ -898,7 +1033,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1c51ee43853e4749e6789406bf5415ca')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '324b4868515af6b7736d87175f953b17')"
     ]
   }
 }

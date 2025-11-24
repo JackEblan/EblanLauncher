@@ -156,6 +156,8 @@ internal fun InteractiveGridItemContent(
                 onResetOverlay = onResetOverlay,
             )
         }
+
+        is GridItemData.ShortcutConfigActivity -> TODO()
     }
 }
 

@@ -56,8 +56,5 @@ interface ApplicationInfoGridItemDao {
     )
 
     @Update(entity = ApplicationInfoGridItemEntity::class)
-    suspend fun updateUpdateApplicationInfoGridItemEntities(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>)
-
-    @Update
-    suspend fun updateApplicationInfoGridItemEntities(entities: List<ApplicationInfoGridItemEntity>)
+    suspend fun updateApplicationInfoGridItemEntities(updateApplicationInfoGridItems: List<UpdateApplicationInfoGridItem>)
 }

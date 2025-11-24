@@ -368,6 +368,8 @@ private fun GridItemContent(
                     tint = currentTextColor,
                 )
             }
+
+            is GridItemData.ShortcutConfigActivity -> TODO()
         }
     }
 }

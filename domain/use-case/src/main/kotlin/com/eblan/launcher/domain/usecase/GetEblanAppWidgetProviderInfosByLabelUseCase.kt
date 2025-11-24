@@ -48,17 +48,10 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
                     ignoreCase = true,
                 )
             }.groupBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.packageName
-            }.mapKeys { entry ->
-                val eblanApplicationInfo =
-                    eblanApplicationInfoRepository.getEblanApplicationInfo(
-                        serialNumber = 0L,
-                        packageName = entry.key,
-                    )
-
                 EblanApplicationInfoGroup(
-                    icon = eblanApplicationInfo?.icon,
-                    label = eblanApplicationInfo?.label,
+                    packageName = eblanAppWidgetProviderInfo.packageName,
+                    icon = eblanAppWidgetProviderInfo.icon,
+                    label = eblanAppWidgetProviderInfo.label,
                 )
             }.toList().sortedBy { entry -> entry.first.label }.toMap()
         }.flowOn(defaultDispatcher)

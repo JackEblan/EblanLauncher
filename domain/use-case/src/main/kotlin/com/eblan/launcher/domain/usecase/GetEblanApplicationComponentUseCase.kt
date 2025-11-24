@@ -54,6 +54,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                     eblanAppWidgetProviderInfo.label?.lowercase()
                 }.groupBy { eblanAppWidgetProviderInfo ->
                     EblanApplicationInfoGroup(
+                        packageName = eblanAppWidgetProviderInfo.packageName,
                         icon = eblanAppWidgetProviderInfo.icon,
                         label = eblanAppWidgetProviderInfo.label,
                     )
@@ -65,12 +66,18 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 }.mapValues { entry ->
                     entry.value.sortedBy { eblanShortcutConfigActivity ->
                         eblanShortcutConfigActivity.label?.lowercase()
-                    }.groupBy { eblanShortcutConfigActivity ->
-                        EblanApplicationInfoGroup(
-                            icon = eblanShortcutConfigActivity.icon,
-                            label = eblanShortcutConfigActivity.label,
-                        )
-                    }
+                    }.mapNotNull { activity ->
+                        eblanApplicationInfoRepository.getEblanApplicationInfo(
+                            serialNumber = activity.serialNumber,
+                            packageName = activity.packageName,
+                        )?.let { eblanApplicationInfo ->
+                            EblanApplicationInfoGroup(
+                                packageName = eblanApplicationInfo.packageName,
+                                icon = eblanApplicationInfo.icon,
+                                label = eblanApplicationInfo.label,
+                            ) to activity
+                        }
+                    }.groupBy({ it.first }, { it.second })
                 }
 
             EblanApplicationComponent(

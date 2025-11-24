@@ -97,6 +97,7 @@ internal fun HorizontalPagerScreen(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
+    onShortcutConfigActivities: () -> Unit,
     onDoubleTap: () -> Unit,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -487,6 +488,7 @@ internal fun HorizontalPagerScreen(
             onSettings = onSettings,
             onEditPage = onEditPage,
             onWidgets = onWidgets,
+            onShortcutConfigActivities = onShortcutConfigActivities,
             onWallpaper = {
                 val intent = Intent(Intent.ACTION_SET_WALLPAPER)
 

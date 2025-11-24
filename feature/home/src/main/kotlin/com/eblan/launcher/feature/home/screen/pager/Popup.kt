@@ -58,6 +58,7 @@ internal fun SettingsPopup(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
+    onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -83,6 +84,11 @@ internal fun SettingsPopup(
 
             onWidgets = {
                 onWidgets()
+
+                onDismissRequest()
+            },
+            onShortcutConfigActivities = {
+                onShortcutConfigActivities()
 
                 onDismissRequest()
             },
@@ -149,6 +155,7 @@ private fun SettingsMenu(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onWidgets: () -> Unit,
+    onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
 ) {
     Surface(
@@ -180,6 +187,14 @@ private fun SettingsMenu(
                         onClick = onWidgets,
                     )
                 }
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Shortcut,
+                    title = "Shortcuts",
+                    onClick = onShortcutConfigActivities,
+                )
 
                 Spacer(modifier = Modifier.height(5.dp))
 

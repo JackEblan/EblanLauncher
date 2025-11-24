@@ -66,6 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanShortcutConfigActivity
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
@@ -141,6 +142,7 @@ internal fun HomeRoute(
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
         eblanShortcutInfos = eblanShortcutInfos,
+        eblanShortcutConfigActivitiesByLabel = emptyMap(),
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -184,6 +186,7 @@ internal fun HomeScreen(
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -409,6 +412,7 @@ internal fun HomeScreen(
                     overlayIntSize = overlayIntSize,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
+                    eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -482,6 +486,7 @@ private fun Success(
     overlayIntSize: IntSize,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -676,6 +681,7 @@ private fun Success(
                     currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
+                    eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(

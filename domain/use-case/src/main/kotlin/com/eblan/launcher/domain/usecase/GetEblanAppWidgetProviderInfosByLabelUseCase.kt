@@ -20,7 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,7 +34,7 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>> {
+    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
         return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
             eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
                 val eblanApplicationInfo =
@@ -56,7 +56,7 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
                         packageName = entry.key,
                     )
 
-                EblanAppWidgetProviderInfoByGroup(
+                EblanApplicationInfoGroup(
                     icon = eblanApplicationInfo?.icon,
                     label = eblanApplicationInfo?.label,
                 )

@@ -17,7 +17,7 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanAppWidgetProviderInfoByGroup(
+data class EblanApplicationInfoGroup(
     val icon: String?,
     val label: String?,
 )

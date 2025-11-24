@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -125,7 +126,6 @@ internal fun EblanAppWidgetProviderInfoItem(
                                     gridItem = getWidgetGridItem(
                                         id = Uuid.random().toHexString(),
                                         page = currentPage,
-                                        className = eblanAppWidgetProviderInfo.className,
                                         componentName = eblanAppWidgetProviderInfo.componentName,
                                         configure = eblanAppWidgetProviderInfo.configure,
                                         packageName = eblanAppWidgetProviderInfo.packageName,
@@ -192,7 +192,11 @@ internal fun EblanAppWidgetProviderInfoItem(
                     intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
-                },
+                }
+                .sizeIn(
+                    maxWidth = 200.dp,
+                    maxHeight = 200.dp,
+                ),
             model = preview,
             contentDescription = null,
         )
@@ -214,7 +218,6 @@ private fun getWidgetGridItem(
     page: Int,
     componentName: String,
     configure: String?,
-    className: String,
     packageName: String,
     serialNumber: Long,
     targetCellHeight: Int,
@@ -233,7 +236,6 @@ private fun getWidgetGridItem(
 ): GridItem {
     val data = GridItemData.Widget(
         appWidgetId = 0,
-        className = className,
         componentName = componentName,
         packageName = packageName,
         serialNumber = serialNumber,

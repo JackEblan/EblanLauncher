@@ -120,7 +120,8 @@ class RemovePackageUseCase @Inject constructor(
                 .none { eblanApplicationInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    eblanApplicationInfo.packageName == packageName && eblanApplicationInfo.serialNumber != serialNumber
+                    eblanApplicationInfo.packageName == packageName &&
+                        eblanApplicationInfo.serialNumber != serialNumber
                 }
 
         if (isUnique) {
@@ -154,7 +155,7 @@ class RemovePackageUseCase @Inject constructor(
 
             val widgetFile = File(
                 fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                eblanAppWidgetProviderInfo.className,
+                eblanAppWidgetProviderInfo.componentName.replace("/", "-"),
             )
 
             if (widgetFile.exists()) {

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "dc69c045f5678c580550d523fdd5ac39",
+    "identityHash": "1c51ee43853e4749e6789406bf5415ca",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -47,11 +47,11 @@
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`className` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, PRIMARY KEY(`className`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, PRIMARY KEY(`componentName`))",
         "fields": [
           {
-            "fieldPath": "className",
-            "columnName": "className",
+            "fieldPath": "componentName",
+            "columnName": "componentName",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -59,12 +59,6 @@
             "fieldPath": "serialNumber",
             "columnName": "serialNumber",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "componentName",
-            "columnName": "componentName",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -151,7 +145,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "className"
+            "componentName"
           ]
         }
       },
@@ -352,7 +346,7 @@
       },
       {
         "tableName": "WidgetGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `className` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -410,12 +404,6 @@
           {
             "fieldPath": "packageName",
             "columnName": "packageName",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "className",
-            "columnName": "className",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -868,8 +856,14 @@
       },
       {
         "tableName": "EblanShortcutConfigActivityEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`packageName`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `icon` TEXT, `label` TEXT, PRIMARY KEY(`componentName`, `serialNumber`))",
         "fields": [
+          {
+            "fieldPath": "componentName",
+            "columnName": "componentName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
           {
             "fieldPath": "packageName",
             "columnName": "packageName",
@@ -880,12 +874,6 @@
             "fieldPath": "serialNumber",
             "columnName": "serialNumber",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "componentName",
-            "columnName": "componentName",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -902,7 +890,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "packageName",
+            "componentName",
             "serialNumber"
           ]
         }
@@ -910,7 +898,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dc69c045f5678c580550d523fdd5ac39')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1c51ee43853e4749e6789406bf5415ca')"
     ]
   }
 }

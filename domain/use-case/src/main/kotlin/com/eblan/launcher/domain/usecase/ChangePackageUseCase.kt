@@ -70,7 +70,7 @@ class ChangePackageUseCase @Inject constructor(
 
             val icon = packageManagerWrapper.getApplicationIcon(packageName = packageName)
                 ?.let { currentIconByteArray ->
-                    fileManager.getAndUpdateFilePath(
+                    fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                         name = packageName,
                         byteArray = currentIconByteArray,
@@ -167,17 +167,19 @@ class ChangePackageUseCase @Inject constructor(
                 .map { appWidgetManagerAppWidgetProviderInfo ->
                     val preview =
                         appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                            fileManager.getAndUpdateFilePath(
+                            fileManager.updateAndGetFilePath(
                                 directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                                name = appWidgetManagerAppWidgetProviderInfo.className,
+                                name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
+                                    "/",
+                                    "-",
+                                ),
                                 byteArray = byteArray,
                             )
                         }
 
                     EblanAppWidgetProviderInfo(
-                        className = appWidgetManagerAppWidgetProviderInfo.className,
-                        serialNumber = serialNumber,
                         componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
+                        serialNumber = serialNumber,
                         configure = appWidgetManagerAppWidgetProviderInfo.configure,
                         packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                         targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
@@ -215,7 +217,7 @@ class ChangePackageUseCase @Inject constructor(
 
                 val widgetFile = File(
                     fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                    eblanAppWidgetProviderInfo.className,
+                    eblanAppWidgetProviderInfo.componentName.replace("/", "-"),
                 )
 
                 if (icon.exists()) {
@@ -251,7 +253,7 @@ class ChangePackageUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                    fileManager.getAndUpdateFilePath(
+                    fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                         name = launcherAppsShortcutInfo.shortcutId,
                         byteArray = byteArray,
@@ -362,7 +364,7 @@ class ChangePackageUseCase @Inject constructor(
                 appWidgetManagerAppWidgetProviderInfos
                     .find { appWidgetManagerAppWidgetProviderInfo ->
                         appWidgetManagerAppWidgetProviderInfo.packageName == widgetGridItem.packageName &&
-                            appWidgetManagerAppWidgetProviderInfo.className == widgetGridItem.className &&
+                            appWidgetManagerAppWidgetProviderInfo.componentName == widgetGridItem.componentName &&
                             serialNumber == widgetGridItem.serialNumber
                     }
 
@@ -370,7 +372,6 @@ class ChangePackageUseCase @Inject constructor(
                 updateWidgetGridItems.add(
                     UpdateWidgetGridItem(
                         id = widgetGridItem.id,
-                        className = appWidgetManagerAppWidgetProviderInfo.className,
                         componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
                         configure = appWidgetManagerAppWidgetProviderInfo.configure,
                         minWidth = appWidgetManagerAppWidgetProviderInfo.minWidth,
@@ -426,7 +427,7 @@ class ChangePackageUseCase @Inject constructor(
 
                 if (launcherAppsShortcutInfo != null) {
                     val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                             name = launcherAppsShortcutInfo.shortcutId,
                             byteArray = byteArray,

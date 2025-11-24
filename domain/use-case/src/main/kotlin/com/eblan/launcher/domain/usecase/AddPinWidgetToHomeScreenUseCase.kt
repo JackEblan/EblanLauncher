@@ -54,7 +54,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 ) {
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -96,7 +95,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val previewInferred = File(
                 fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                className,
+                componentName.replace("/", "-"),
             ).absolutePath
 
             val label =
@@ -105,7 +104,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             val icon =
                 packageManagerWrapper.getApplicationIcon(packageName = packageName)
                     ?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = packageName,
                             byteArray = byteArray,
@@ -140,7 +139,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val data = GridItemData.Widget(
                 appWidgetId = 0,
-                className = className,
                 componentName = componentName,
                 packageName = packageName,
                 serialNumber = serialNumber,

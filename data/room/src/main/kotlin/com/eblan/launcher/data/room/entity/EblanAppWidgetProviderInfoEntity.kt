@@ -22,9 +22,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class EblanAppWidgetProviderInfoEntity(
-    @PrimaryKey val className: String,
+    @PrimaryKey val componentName: String,
     val serialNumber: Long,
-    val componentName: String,
     val configure: String?,
     val packageName: String,
     val targetCellWidth: Int,

@@ -79,7 +79,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             }
 
             val icon = byteArray?.let { currentByteArray ->
-                fileManager.getAndUpdateFilePath(
+                fileManager.updateAndGetFilePath(
                     directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                     name = shortcutId,
                     byteArray = currentByteArray,
@@ -89,7 +89,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             val eblanApplicationInfoIcon =
                 packageManagerWrapper.getApplicationIcon(packageName = packageName)
                     ?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = packageName,
                             byteArray = byteArray,

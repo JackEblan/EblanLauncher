@@ -56,7 +56,7 @@ class ChangeShortcutsUseCase @Inject constructor(
                 ensureActive()
 
                 val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                    fileManager.getAndUpdateFilePath(
+                    fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                         name = launcherAppsShortcutInfo.shortcutId,
                         byteArray = byteArray,

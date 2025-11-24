@@ -84,7 +84,6 @@ fun PinScreen(
     onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinWidgetToHomeScreen: (
         serialNumber: Long,
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -269,7 +268,6 @@ private fun PinWidgetScreen(
     onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinWidgetToHomeScreen: (
         serialNumber: Long,
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -377,7 +375,6 @@ private fun PinWidgetScreen(
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             onAddPinWidgetToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
                                 appWidgetProviderInfo.provider.packageName,
@@ -396,7 +393,6 @@ private fun PinWidgetScreen(
                         } else {
                             onAddPinWidgetToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
                                 appWidgetProviderInfo.provider.packageName,

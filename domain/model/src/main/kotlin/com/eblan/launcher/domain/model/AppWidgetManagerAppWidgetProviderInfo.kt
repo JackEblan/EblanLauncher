@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.model
 
 data class AppWidgetManagerAppWidgetProviderInfo(
     val serialNumber: Long,
-    val className: String,
     val packageName: String,
     val componentName: String,
     val configure: String?,
@@ -50,7 +49,6 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         if (minResizeHeight != other.minResizeHeight) return false
         if (maxResizeWidth != other.maxResizeWidth) return false
         if (maxResizeHeight != other.maxResizeHeight) return false
-        if (className != other.className) return false
         if (packageName != other.packageName) return false
         if (componentName != other.componentName) return false
         if (configure != other.configure) return false
@@ -70,7 +68,6 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         result = 31 * result + minResizeHeight
         result = 31 * result + maxResizeWidth
         result = 31 * result + maxResizeHeight
-        result = 31 * result + className.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + componentName.hashCode()
         result = 31 * result + (configure?.hashCode() ?: 0)

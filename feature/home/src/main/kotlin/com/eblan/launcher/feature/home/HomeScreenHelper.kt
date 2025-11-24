@@ -48,7 +48,6 @@ internal suspend fun handlePinItemRequest(
                         onGetPinGridItem(
                             PinItemRequestType.Widget(
                                 appWidgetId = 0,
-                                className = appWidgetProviderInfo.provider.className,
                                 componentName = appWidgetProviderInfo.provider.flattenToString(),
                                 packageName = appWidgetProviderInfo.provider.packageName,
                                 serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
@@ -69,7 +68,6 @@ internal suspend fun handlePinItemRequest(
                         onGetPinGridItem(
                             PinItemRequestType.Widget(
                                 appWidgetId = 0,
-                                className = appWidgetProviderInfo.provider.className,
                                 componentName = appWidgetProviderInfo.provider.flattenToString(),
                                 packageName = appWidgetProviderInfo.provider.packageName,
                                 serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),

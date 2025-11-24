@@ -27,8 +27,6 @@ interface EblanShortcutConfigActivityRepository {
 
     suspend fun upsertEblanShortcutConfigActivity(eblanShortcutConfigActivity: EblanShortcutConfigActivity)
 
-    suspend fun getEblanShortcutConfigActivity(packageName: String): List<EblanShortcutConfigActivity>
-
     suspend fun deleteEblanShortcutConfigActivity(
         serialNumber: Long,
         packageName: String,

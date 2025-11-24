@@ -114,6 +114,26 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getActivityIcon(
+        componentName: String,
+        packageName: String,
+    ): ByteArray? {
+        return withContext(defaultDispatcher) {
+            try {
+                val drawable = ComponentName.unflattenFromString(componentName)
+                    ?.let(packageManager::getActivityIcon)
+
+                if (drawable != null) {
+                    androidDrawableWrapper.createByteArray(drawable = drawable)
+                } else {
+                    null
+                }
+            } catch (_: PackageManager.NameNotFoundException) {
+                getApplicationIcon(packageName = packageName)
+            }
+        }
+    }
+
     override fun isComponentExported(componentName: ComponentName): Boolean {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
             component = componentName

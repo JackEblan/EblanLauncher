@@ -18,9 +18,9 @@
 package com.eblan.launcher.domain.model
 
 data class EblanShortcutConfigActivity(
+    val componentName: String,
     val packageName: String,
     val serialNumber: Long,
-    val componentName: String,
     val icon: String?,
     val label: String?,
 )

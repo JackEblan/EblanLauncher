@@ -17,9 +17,8 @@
  */
 package com.eblan.launcher.data.repository
 
-import com.eblan.launcher.data.repository.mapper.asEntity
-import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.EblanShortcutConfigActivityDao
+import com.eblan.launcher.data.room.entity.EblanShortcutConfigActivityEntity
 import com.eblan.launcher.domain.model.EblanShortcutConfigActivity
 import com.eblan.launcher.domain.repository.EblanShortcutConfigActivityRepository
 import kotlinx.coroutines.flow.map
@@ -44,13 +43,6 @@ internal class DefaultEblanShortcutConfigActivityRepository @Inject constructor(
 
     override suspend fun upsertEblanShortcutConfigActivity(eblanShortcutConfigActivity: EblanShortcutConfigActivity) {
         eblanShortcutConfigActivityDao.upsertEblanShortcutConfigActivityEntity(entity = eblanShortcutConfigActivity.asEntity())
-    }
-
-    override suspend fun getEblanShortcutConfigActivity(packageName: String): List<EblanShortcutConfigActivity> {
-        return eblanShortcutConfigActivityDao.getEblanShortcutConfigActivityEntity(packageName = packageName)
-            .map { entity ->
-                entity.asModel()
-            }
     }
 
     override suspend fun deleteEblanShortcutConfigActivity(
@@ -81,5 +73,25 @@ internal class DefaultEblanShortcutConfigActivityRepository @Inject constructor(
         ).map { entity ->
             entity.asModel()
         }
+    }
+
+    private fun EblanShortcutConfigActivity.asEntity(): EblanShortcutConfigActivityEntity {
+        return EblanShortcutConfigActivityEntity(
+            componentName = componentName,
+            serialNumber = serialNumber,
+            packageName = packageName,
+            icon = icon,
+            label = label,
+        )
+    }
+
+    private fun EblanShortcutConfigActivityEntity.asModel(): EblanShortcutConfigActivity {
+        return EblanShortcutConfigActivity(
+            componentName = componentName,
+            packageName = packageName,
+            serialNumber = serialNumber,
+            icon = icon,
+            label = label,
+        )
     }
 }

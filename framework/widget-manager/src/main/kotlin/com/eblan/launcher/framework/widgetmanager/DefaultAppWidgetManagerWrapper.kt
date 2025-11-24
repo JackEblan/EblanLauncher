@@ -87,7 +87,6 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AppWidgetManagerAppWidgetProviderInfo(
                 serialNumber = serialNumber,
-                className = provider.className,
                 packageName = provider.packageName,
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),
@@ -105,7 +104,6 @@ internal class DefaultAppWidgetManagerWrapper @Inject constructor(
         } else {
             AppWidgetManagerAppWidgetProviderInfo(
                 serialNumber = serialNumber,
-                className = provider.className,
                 packageName = provider.packageName,
                 componentName = provider.flattenToString(),
                 configure = configure?.flattenToString(),

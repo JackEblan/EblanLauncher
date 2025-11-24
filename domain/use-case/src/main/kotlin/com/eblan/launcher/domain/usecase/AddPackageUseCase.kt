@@ -61,7 +61,7 @@ class AddPackageUseCase @Inject constructor(
 
             val icon = packageManagerWrapper.getApplicationIcon(packageName = packageName)
                 ?.let { currentIconByteArray ->
-                    fileManager.getAndUpdateFilePath(
+                    fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                         name = packageName,
                         byteArray = currentIconByteArray,
@@ -132,17 +132,19 @@ class AddPackageUseCase @Inject constructor(
 
                 val preview =
                     appWidgetManagerAppWidgetProviderInfo.preview?.let { currentPreview ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                            name = appWidgetManagerAppWidgetProviderInfo.className,
+                            name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
+                                "/",
+                                "-",
+                            ),
                             byteArray = currentPreview,
                         )
                     }
 
                 EblanAppWidgetProviderInfo(
-                    className = appWidgetManagerAppWidgetProviderInfo.className,
-                    serialNumber = serialNumber,
                     componentName = appWidgetManagerAppWidgetProviderInfo.componentName,
+                    serialNumber = serialNumber,
                     configure = appWidgetManagerAppWidgetProviderInfo.configure,
                     packageName = appWidgetManagerAppWidgetProviderInfo.packageName,
                     targetCellWidth = appWidgetManagerAppWidgetProviderInfo.targetCellWidth,
@@ -171,7 +173,7 @@ class AddPackageUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val icon = launcherAppsShortcutInfo.icon?.let { byteArray ->
-                    fileManager.getAndUpdateFilePath(
+                    fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                         name = launcherAppsShortcutInfo.shortcutId,
                         byteArray = byteArray,
@@ -201,22 +203,22 @@ class AddPackageUseCase @Inject constructor(
         val eblanShortcutConfigActivities = launcherAppsWrapper.getShortcutConfigActivityList(
             serialNumber = serialNumber,
             packageName = packageName,
-        ).map { launcherAppsActivityInfo ->
-            val icon = launcherAppsActivityInfo.icon?.let { currentIconByteArray ->
-                fileManager.getAndUpdateFilePath(
+        ).map { launcherAppsShortcutConfigActivity ->
+            val icon = launcherAppsShortcutConfigActivity.icon?.let { currentIconByteArray ->
+                fileManager.updateAndGetFilePath(
                     directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
-                    name = launcherAppsActivityInfo.packageName,
+                    name = launcherAppsShortcutConfigActivity.packageName,
                     byteArray = currentIconByteArray,
                 )
             }
 
             val label =
-                packageManagerWrapper.getApplicationLabel(packageName = launcherAppsActivityInfo.packageName)
+                packageManagerWrapper.getApplicationLabel(packageName = launcherAppsShortcutConfigActivity.packageName)
 
             EblanShortcutConfigActivity(
-                packageName = launcherAppsActivityInfo.packageName,
-                serialNumber = launcherAppsActivityInfo.serialNumber,
-                componentName = launcherAppsActivityInfo.componentName,
+                componentName = launcherAppsShortcutConfigActivity.componentName,
+                packageName = launcherAppsShortcutConfigActivity.packageName,
+                serialNumber = launcherAppsShortcutConfigActivity.serialNumber,
                 icon = icon,
                 label = label,
             )

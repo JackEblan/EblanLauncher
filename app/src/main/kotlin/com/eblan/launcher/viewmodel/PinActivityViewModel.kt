@@ -101,7 +101,6 @@ class PinActivityViewModel @Inject constructor(
 
     fun addPinWidgetToHomeScreen(
         serialNumber: Long,
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -120,7 +119,6 @@ class PinActivityViewModel @Inject constructor(
         viewModelScope.launch {
             _gridItem.update {
                 addPinWidgetToHomeScreenUseCase(
-                    className = className,
                     componentName = componentName,
                     configure = configure,
                     packageName = packageName,

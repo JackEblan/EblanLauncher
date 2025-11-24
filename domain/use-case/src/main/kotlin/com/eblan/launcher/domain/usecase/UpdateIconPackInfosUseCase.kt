@@ -69,7 +69,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                             drawableName = iconPackInfoComponent.drawable,
                         ) ?: return@mapNotNull null
 
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = iconPackDirectory,
                             name = eblanLauncherActivityInfo.packageName,
                             byteArray = byteArray,

@@ -271,7 +271,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && userHandle != null) {
                 launcherApps.getShortcutConfigActivityList(packageName, userHandle)
                     .map { launcherActivityInfo ->
-                        launcherActivityInfo.toEblanLauncherActivityInfo()
+                        launcherActivityInfo.toEblanShortcutConfigActivityInfo()
                     }
             } else {
                 emptyList()
@@ -373,13 +373,25 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo {
-        val icon = packageManagerWrapper.getApplicationIcon(applicationInfo.packageName)
-
         return LauncherAppsActivityInfo(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
             componentName = componentName.flattenToString(),
             packageName = applicationInfo.packageName,
-            icon = icon,
+            icon = packageManagerWrapper.getApplicationIcon(packageName = applicationInfo.packageName),
+            label = packageManagerWrapper.getApplicationLabel(packageName = applicationInfo.packageName)
+                .toString(),
+        )
+    }
+
+    private suspend fun LauncherActivityInfo.toEblanShortcutConfigActivityInfo(): LauncherAppsActivityInfo {
+        return LauncherAppsActivityInfo(
+            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
+            componentName = componentName.flattenToString(),
+            packageName = applicationInfo.packageName,
+            icon = packageManagerWrapper.getActivityIcon(
+                componentName = componentName.flattenToString(),
+                packageName = applicationInfo.packageName,
+            ),
             label = packageManagerWrapper.getApplicationLabel(applicationInfo.packageName)
                 .toString(),
         )

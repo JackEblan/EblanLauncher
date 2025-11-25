@@ -28,6 +28,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigActivityGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -44,6 +45,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val shortcutConfigActivityGridItemRepository: ShortcutConfigActivityGridItemRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
@@ -69,14 +71,15 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             val initialPage = homeSettings.initialPage
 
             val gridItems = (
-                applicationInfoGridItemRepository.gridItems.first() +
-                    widgetGridItemRepository.gridItems.first() +
-                    shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first()
-                ).filter { gridItem ->
-                gridItem.associate == Associate.Grid &&
-                    gridItem.folderId == null
-            }
+                    applicationInfoGridItemRepository.gridItems.first() +
+                            widgetGridItemRepository.gridItems.first() +
+                            shortcutInfoGridItemRepository.gridItems.first() +
+                            folderGridItemRepository.gridItems.first() +
+                            shortcutConfigActivityGridItemRepository.gridItems.first()
+                    ).filter { gridItem ->
+                    gridItem.associate == Associate.Grid &&
+                            gridItem.folderId == null
+                }
 
             val icon = byteArray?.let { currentByteArray ->
                 fileManager.updateAndGetFilePath(

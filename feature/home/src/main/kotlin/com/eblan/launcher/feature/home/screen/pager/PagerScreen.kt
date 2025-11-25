@@ -527,7 +527,6 @@ internal fun PagerScreen(
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
             eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
-            gridItemSource = gridItemSource,
             screenHeight = screenHeight,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,

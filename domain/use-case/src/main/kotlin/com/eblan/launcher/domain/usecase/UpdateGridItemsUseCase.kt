@@ -192,7 +192,7 @@ class UpdateGridItemsUseCase @Inject constructor(
 
             folderGridItemRepository.upsertFolderGridItems(folderGridItems = folderGridItems)
 
-            shortcutConfigActivityGridItemRepository.deleteShortcutConfigActivityGridItems(
+            shortcutConfigActivityGridItemRepository.upsertShortcutConfigActivityGridItems(
                 shortcutConfigActivityGridItems = shortcutConfigActivityGridItems,
             )
         }

@@ -88,8 +88,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfigActivity
+import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
@@ -102,6 +105,7 @@ import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun ShortcutConfigActivityScreen(
@@ -113,7 +117,6 @@ internal fun ShortcutConfigActivityScreen(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
-    gridItemSource: GridItemSource?,
     screenHeight: Int,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -188,7 +191,6 @@ internal fun ShortcutConfigActivityScreen(
                                 drag = drag,
                                 gridItemSettings = gridItemSettings,
                                 eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
-                                gridItemSource = gridItemSource,
                                 eblanShortcutConfigActivities = eblanShortcutConfigActivities,
                                 screenHeight = screenHeight,
                                 offsetY = offsetY,
@@ -217,7 +219,6 @@ private fun Success(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
-    gridItemSource: GridItemSource?,
     eblanShortcutConfigActivities: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>>,
     screenHeight: Int,
     offsetY: Animatable<Float, AnimationVector1D>,
@@ -667,8 +668,6 @@ private fun EblanShortcutConfigActivityItem(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
 ) {
-    val userManager = LocalUserManager.current
-
     val scope = rememberCoroutineScope()
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -703,7 +702,34 @@ private fun EblanShortcutConfigActivityItem(
 
                             scale.animateTo(1f)
 
-                            // OnLongPressGridItem()
+                            val data =
+                                GridItemData.ShortcutConfigActivity(
+                                    serialNumber = eblanShortcutConfigActivity.serialNumber,
+                                    componentName = eblanShortcutConfigActivity.componentName,
+                                    packageName = eblanShortcutConfigActivity.packageName,
+                                    icon = eblanShortcutConfigActivity.icon,
+                                    label = eblanShortcutConfigActivity.label,
+                                )
+
+                            onLongPressGridItem(
+                                GridItemSource.New(
+                                    gridItem = GridItem(
+                                        id = Uuid.random()
+                                            .toHexString(),
+                                        folderId = null,
+                                        page = currentPage,
+                                        startColumn = -1,
+                                        startRow = -1,
+                                        columnSpan = 1,
+                                        rowSpan = 1,
+                                        data = data,
+                                        associate = Associate.Grid,
+                                        override = false,
+                                        gridItemSettings = gridItemSettings,
+                                    ),
+                                ),
+                                graphicsLayer.toImageBitmap(),
+                            )
 
                             onUpdateGridItemOffset(
                                 intOffset,

@@ -157,7 +157,26 @@ internal fun InteractiveGridItemContent(
             )
         }
 
-        is GridItemData.ShortcutConfigActivity -> TODO()
+        is GridItemData.ShortcutConfigActivity -> {
+            InteractiveShortcutConfigActivityGridItem(
+                modifier = modifier,
+                textColor = currentTextColor,
+                gridItemSettings = gridItemSettings,
+                data = data,
+                drag = drag,
+                iconPackInfoPackageName = iconPackInfoPackageName,
+                statusBarNotifications = statusBarNotifications,
+                onTap = {
+                    onTapApplicationInfo(
+                        data.serialNumber,
+                        data.componentName,
+                    )
+                },
+                onLongPress = onLongPress,
+                onUpdateImageBitmap = onUpdateImageBitmap,
+                onResetOverlay = onResetOverlay
+            )
+        }
     }
 }
 
@@ -538,3 +557,101 @@ private fun InteractiveFolderGridItem(
         iconPackInfoPackageName = iconPackInfoPackageName,
     )
 }
+
+@Composable
+private fun InteractiveShortcutConfigActivityGridItem(
+    modifier: Modifier = Modifier,
+    textColor: Color,
+    gridItemSettings: GridItemSettings,
+    data: GridItemData.ShortcutConfigActivity,
+    drag: Drag,
+    iconPackInfoPackageName: String,
+    statusBarNotifications: Map<String, Int>,
+    onTap: () -> Unit,
+    onLongPress: (GridItemData) -> Unit,
+    onUpdateImageBitmap: (ImageBitmap) -> Unit,
+    onResetOverlay: () -> Unit,
+) {
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val scope = rememberCoroutineScope()
+
+    val scale = remember { Animatable(1f) }
+
+    var alpha by remember { mutableFloatStateOf(1f) }
+
+    LaunchedEffect(key1 = drag) {
+        if (drag == Drag.Cancel || drag == Drag.End) {
+            alpha = 1f
+
+            scale.stop()
+
+            if (scale.value < 1f) {
+                scale.animateTo(1f)
+            }
+
+            onResetOverlay()
+        }
+    }
+
+    ShortcutConfigActivityGridItem(
+        modifier = modifier
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+
+                drawLayer(graphicsLayer)
+            }
+            .pointerInput(key1 = drag) {
+                detectTapGestures(
+                    onLongPress = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                            onLongPress(data)
+
+                            alpha = 0f
+                        }
+                    },
+                    onTap = {
+                        scope.launch {
+                            scale.animateTo(0.5f)
+
+                            scale.animateTo(1f)
+
+                            onTap()
+                        }
+                    },
+                    onPress = {
+                        awaitRelease()
+
+                        scale.stop()
+
+                        alpha = 1f
+
+                        onResetOverlay()
+
+                        if (scale.value < 1f) {
+                            scale.animateTo(1f)
+                        }
+                    },
+                )
+            }
+            .alpha(alpha)
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            ),
+        data = data,
+        textColor = textColor,
+        gridItemSettings = gridItemSettings,
+        iconPackInfoPackageName = iconPackInfoPackageName,
+        statusBarNotifications = statusBarNotifications,
+    )
+}
+

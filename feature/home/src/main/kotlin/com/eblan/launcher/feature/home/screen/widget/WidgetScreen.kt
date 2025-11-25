@@ -17,7 +17,6 @@
  */
 package com.eblan.launcher.feature.home.screen.widget
 
-import android.os.Process
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -91,7 +90,6 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
-import com.eblan.launcher.ui.local.LocalUserManager
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
@@ -484,8 +482,6 @@ private fun EblanAppWidgetProviderInfoItem(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
 ) {
-    val userManager = LocalUserManager.current
-
     val scope = rememberCoroutineScope()
 
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -531,7 +527,7 @@ private fun EblanAppWidgetProviderInfoItem(
                                         componentName = eblanAppWidgetProviderInfo.componentName,
                                         configure = eblanAppWidgetProviderInfo.configure,
                                         packageName = eblanAppWidgetProviderInfo.packageName,
-                                        serialNumber = userManager.getSerialNumberForUser(userHandle = Process.myUserHandle()),
+                                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
                                         targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
                                         targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
                                         minWidth = eblanAppWidgetProviderInfo.minWidth,

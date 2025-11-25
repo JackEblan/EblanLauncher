@@ -99,7 +99,7 @@ internal fun GridItemContent(
                 is GridItemData.Widget -> {
                     WidgetGridItem(
                         modifier = modifier,
-                        data = data,
+                        data = data
                     )
                 }
 
@@ -123,7 +123,16 @@ internal fun GridItemContent(
                     )
                 }
 
-                is GridItemData.ShortcutConfigActivity -> TODO()
+                is GridItemData.ShortcutConfigActivity -> {
+                    ShortcutConfigActivityGridItem(
+                        modifier = modifier,
+                        data = data,
+                        textColor = textColor,
+                        gridItemSettings = gridItemSettings,
+                        iconPackInfoPackageName = iconPackInfoPackageName,
+                        statusBarNotifications = statusBarNotifications
+                    )
+                }
             }
         }
     }
@@ -178,7 +187,7 @@ internal fun ApplicationInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = ImageRequest.Builder(context)
+                model = Builder(context)
                     .data(icon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
@@ -383,7 +392,13 @@ internal fun FolderGridItem(
                             )
                         }
 
-                        is GridItemData.ShortcutConfigActivity -> TODO()
+                        is GridItemData.ShortcutConfigActivity -> {
+                            AsyncImage(
+                                model = currentData.icon,
+                                contentDescription = null,
+                                modifier = gridItemModifier,
+                            )
+                        }
                     }
                 }
             }
@@ -438,5 +453,102 @@ private fun WidgetGridItem(
             contentDescription = null,
             modifier = modifier.fillMaxSize(),
         )
+    }
+}
+
+@Composable
+internal fun ShortcutConfigActivityGridItem(
+    modifier: Modifier = Modifier,
+    data: GridItemData.ShortcutConfigActivity,
+    textColor: Color,
+    gridItemSettings: GridItemSettings,
+    iconPackInfoPackageName: String,
+    statusBarNotifications: Map<String, Int>,
+) {
+    val context = LocalContext.current
+
+    val settings = LocalSettings.current
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+
+    val iconFile = File(iconPackDirectory, data.packageName)
+
+    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
+        iconFile.absolutePath
+    } else {
+        data.icon
+    }
+
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
+    val hasNotifications =
+        statusBarNotifications[data.packageName] != null && statusBarNotifications[data.packageName]!! > 0
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
+    ) {
+        Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
+            AsyncImage(
+                model = Builder(context)
+                    .data(icon)
+                    .addLastModifiedToFileCacheKey(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.matchParentSize(),
+            )
+
+            if (settings.isNotificationAccessGranted() && hasNotifications) {
+                Box(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.3).dp)
+                        .align(Alignment.TopEnd)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape,
+                        ),
+                )
+            }
+
+            if (data.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.4).dp)
+                        .align(Alignment.BottomEnd),
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
+                }
+            }
+        }
+
+        if (gridItemSettings.showLabel) {
+            Text(
+                text = data.label.toString(),
+                color = textColor,
+                textAlign = TextAlign.Center,
+                maxLines = maxLines,
+                fontSize = gridItemSettings.textSize.sp,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }

@@ -709,6 +709,7 @@ private fun EblanShortcutConfigActivityItem(
                                     packageName = eblanShortcutConfigActivity.packageName,
                                     icon = eblanShortcutConfigActivity.icon,
                                     label = eblanShortcutConfigActivity.label,
+                                    uri = "",
                                 )
 
                             onLongPressGridItem(

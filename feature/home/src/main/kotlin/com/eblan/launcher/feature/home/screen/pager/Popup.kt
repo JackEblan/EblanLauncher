@@ -115,7 +115,7 @@ internal fun GridItemPopup(
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
     ) -> Unit,
     onDismissRequest: () -> Unit,
     onTapShortcutInfo: (
@@ -242,7 +242,10 @@ private fun GridItemPopupContent(
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onResize: () -> Unit,
-    onInfo: (Long, String?) -> Unit,
+    onInfo: (
+        serialNumber: Long,
+        componentName: String,
+    ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,

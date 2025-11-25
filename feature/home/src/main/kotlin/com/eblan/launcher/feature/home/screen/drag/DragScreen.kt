@@ -17,7 +17,10 @@
  */
 package com.eblan.launcher.feature.home.screen.drag
 
+import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.content.Intent
+import android.content.pm.LauncherApps
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,7 +80,9 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
+import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -139,6 +144,10 @@ internal fun DragScreen(
 
     val packageManager = LocalPackageManager.current
 
+    val userManager = LocalUserManager.current
+
+    val launcherApps = LocalLauncherApps.current
+
     val view = LocalView.current
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
@@ -168,7 +177,7 @@ internal fun DragScreen(
     val configureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        handleConfigureResult(
+        handleConfigureLauncherResult(
             moveGridItemResult = moveGridItemResult,
             updatedGridItem = updatedGridItem,
             resultCode = result.resultCode,
@@ -192,6 +201,47 @@ internal fun DragScreen(
                 deleteAppWidgetId = true
             },
         )
+    }
+
+    val shortcutConfigActivityLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        requireNotNull(moveGridItemResult)
+
+        if (result.resultCode == Activity.RESULT_OK) {
+            val extras = result.data?.extras
+//            if (extras != null) {
+//                for (key in extras.keySet()) {
+//                    println("key=$key value=${extras.get(key)}")
+//                }
+//            }
+
+            val req = result.data?.getParcelableExtra<LauncherApps.PinItemRequest>(
+                LauncherApps.EXTRA_PIN_ITEM_REQUEST
+            )
+
+            println(req?.requestType)
+            println(req?.shortcutInfo?.id)
+
+            /* TODO: Use this uri and save to the database. Solve any deprecation +
+            *   We can use this uri/intent to start the shortcut activity
+            **/
+
+            val shortcutIntent = result.data?.getParcelableExtra<Intent>(
+                Intent.EXTRA_SHORTCUT_INTENT
+            )?.toUri(Intent.URI_INTENT_SCHEME)
+        }
+    }
+
+    val shortcutConfigActivityIntentSenderLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val pinItemRequest: LauncherApps.PinItemRequest? =
+                result.data?.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
+
+            println(pinItemRequest?.shortcutInfo?.id)
+        }
     }
 
     val lastMoveGridItemResult = remember(key1 = moveGridItemResult) {
@@ -254,17 +304,13 @@ internal fun DragScreen(
                     androidAppWidgetHostWrapper = appWidgetHostWrapper,
                     appWidgetManager = appWidgetManager,
                     gridItemSource = gridItemSource,
-                    onLaunch = appWidgetLauncher::launch,
+                    userManagerWrapper = userManager,
+                    launcherAppsWrapper = launcherApps,
+                    onLaunchWidgetIntent = appWidgetLauncher::launch,
+                    onLaunchShortcutConfigActivity = shortcutConfigActivityLauncher::launch,
+                    onLaunchShortcutConfigActivityIntentSenderRequest = shortcutConfigActivityIntentSenderLauncher::launch,
                     onDragEndAfterMove = onDragEndAfterMove,
-                    onDragCancelAfterMove = {
-                        Toast.makeText(
-                            context,
-                            "Can't place grid item at this position",
-                            Toast.LENGTH_LONG,
-                        ).show()
-
-                        onDragCancelAfterMove()
-                    },
+                    onDragCancelAfterMove = onDragCancelAfterMove,
                     onDeleteGridItemCache = onDeleteGridItemCache,
                     onUpdateGridItemDataCache = { gridItem ->
                         updatedGridItem = gridItem
@@ -273,6 +319,13 @@ internal fun DragScreen(
                     },
                     onUpdateAppWidgetId = { appWidgetId ->
                         lastAppWidgetId = appWidgetId
+                    },
+                    onToast = {
+                        Toast.makeText(
+                            context,
+                            "Can't place grid item at this position",
+                            Toast.LENGTH_LONG,
+                        ).show()
                     },
                 )
 

@@ -164,6 +164,7 @@ class UpdateGridItemUseCase @Inject constructor(
                             label = data.label,
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
+                            uri = data.uri,
                             gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )

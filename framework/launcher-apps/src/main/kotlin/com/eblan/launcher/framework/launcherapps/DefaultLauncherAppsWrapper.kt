@@ -20,6 +20,7 @@ package com.eblan.launcher.framework.launcherapps
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
@@ -247,8 +248,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                     setQueryFlags(
                         LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 
@@ -349,7 +350,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
-    override fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo?, density: Int): Drawable? {
+    override fun getShortcutIconDrawable(
+        shortcutInfo: ShortcutInfo?,
+        density: Int,
+    ): Drawable? {
         return if (shortcutInfo != null) {
             launcherApps.getShortcutIconDrawable(shortcutInfo, density)
         } else {
@@ -359,16 +363,35 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     override fun startAppDetailsActivity(
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     ) {
-        if (componentName != null) {
-            launcherApps.startAppDetailsActivity(
-                ComponentName.unflattenFromString(componentName),
-                userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber),
-                sourceBounds,
-                Bundle.EMPTY,
-            )
+        launcherApps.startAppDetailsActivity(
+            ComponentName.unflattenFromString(componentName),
+            userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber),
+            sourceBounds,
+            Bundle.EMPTY,
+        )
+    }
+
+    override suspend fun getShortcutConfigActivityIntent(
+        serialNumber: Long,
+        packageName: String,
+        componentName: String,
+    ): IntentSender? {
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            val launcherActivityInfo = if (hasShortcutHostPermission && userHandle != null) {
+                launcherApps.getShortcutConfigActivityList(packageName, userHandle)
+                    .find { launcherActivityInfo ->
+                        launcherActivityInfo.componentName.flattenToString() == componentName
+                    }
+            } else {
+                null
+            }
+
+            launcherActivityInfo?.let(launcherApps::getShortcutConfigActivityIntent)
         }
     }
 
@@ -384,16 +407,16 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     private suspend fun LauncherActivityInfo.toEblanShortcutConfigActivityInfo(): LauncherAppsActivityInfo {
+        val icon = getBadgedIcon(0).let { drawable ->
+            androidDrawableWrapper.createByteArray(drawable = drawable)
+        }
+
         return LauncherAppsActivityInfo(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
             componentName = componentName.flattenToString(),
             packageName = applicationInfo.packageName,
-            icon = packageManagerWrapper.getActivityIcon(
-                componentName = componentName.flattenToString(),
-                packageName = applicationInfo.packageName,
-            ),
-            label = packageManagerWrapper.getApplicationLabel(applicationInfo.packageName)
-                .toString(),
+            icon = icon,
+            label = label.toString(),
         )
     }
 

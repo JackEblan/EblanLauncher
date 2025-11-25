@@ -18,6 +18,7 @@
 package com.eblan.launcher.framework.launcherapps
 
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.graphics.Rect
@@ -63,7 +64,13 @@ interface AndroidLauncherAppsWrapper {
 
     fun startAppDetailsActivity(
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     )
+
+    suspend fun getShortcutConfigActivityIntent(
+        serialNumber: Long,
+        packageName: String,
+        componentName: String,
+    ): IntentSender?
 }

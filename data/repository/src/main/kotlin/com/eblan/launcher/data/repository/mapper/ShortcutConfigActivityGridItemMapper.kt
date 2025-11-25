@@ -37,6 +37,7 @@ internal fun ShortcutConfigActivityGridItemEntity.asGridItem(): GridItem {
             packageName = packageName,
             icon = icon,
             label = label,
+            uri = uri,
         ),
         associate = associate,
         override = override,
@@ -60,6 +61,7 @@ internal fun ShortcutConfigActivityGridItemEntity.asModel(): ShortcutConfigActiv
         label = label,
         override = override,
         serialNumber = serialNumber,
+        uri = uri,
         gridItemSettings = gridItemSettings,
     )
 }
@@ -67,7 +69,6 @@ internal fun ShortcutConfigActivityGridItemEntity.asModel(): ShortcutConfigActiv
 internal fun ShortcutConfigActivityGridItem.asEntity(): ShortcutConfigActivityGridItemEntity {
     return ShortcutConfigActivityGridItemEntity(
         id = id,
-        serialNumber = serialNumber,
         folderId = folderId,
         page = page,
         startColumn = startColumn,
@@ -80,6 +81,8 @@ internal fun ShortcutConfigActivityGridItem.asEntity(): ShortcutConfigActivityGr
         icon = icon,
         label = label,
         override = override,
-        gridItemSettings = gridItemSettings,
+        serialNumber = serialNumber,
+        uri = uri,
+        gridItemSettings = gridItemSettings
     )
 }

@@ -68,6 +68,7 @@ internal fun InteractiveGridItemContent(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
+    onTapShortcutConfigActivity: (String) -> Unit,
     onTapFolderGridItem: () -> Unit,
     onLongPress: (GridItemData) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
@@ -167,10 +168,7 @@ internal fun InteractiveGridItemContent(
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 statusBarNotifications = statusBarNotifications,
                 onTap = {
-                    onTapApplicationInfo(
-                        data.serialNumber,
-                        data.componentName,
-                    )
+                    onTapShortcutConfigActivity(data.uri)
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,

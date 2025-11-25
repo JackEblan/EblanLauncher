@@ -433,6 +433,14 @@ internal class HomeViewModel @Inject constructor(
     fun deleteGridItemCache(gridItem: GridItem) {
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
+
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
         }
     }
 

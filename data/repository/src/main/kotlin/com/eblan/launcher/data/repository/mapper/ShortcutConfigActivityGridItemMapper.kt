@@ -83,6 +83,6 @@ internal fun ShortcutConfigActivityGridItem.asEntity(): ShortcutConfigActivityGr
         override = override,
         serialNumber = serialNumber,
         uri = uri,
-        gridItemSettings = gridItemSettings
+        gridItemSettings = gridItemSettings,
     )
 }

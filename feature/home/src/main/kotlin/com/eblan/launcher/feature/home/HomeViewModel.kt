@@ -344,17 +344,11 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCacheAfterMove(
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) {
+    fun resetGridCacheAfterMove(moveGridItemResult: MoveGridItemResult) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            updateGridItemsAfterMoveUseCase(
-                movingGridItem = movingGridItem,
-                conflictingGridItem = conflictingGridItem,
-            )
+            updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
 
             delay(defaultDelay)
 
@@ -426,7 +420,24 @@ internal class HomeViewModel @Inject constructor(
 
     fun updateGridItemDataCache(gridItem: GridItem) {
         viewModelScope.launch {
-            gridCacheRepository.updateGridItemData(id = gridItem.id, data = gridItem.data)
+            gridCacheRepository.updateGridItemData(
+                id = gridItem.id,
+                data = gridItem.data,
+            )
+        }
+    }
+
+    fun updateShortcutConfigActivityGridItemDataCache(
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+    ) {
+        viewModelScope.launch {
+            gridCacheRepository.updateGridItemData(
+                id = gridItem.id,
+                data = gridItem.data,
+            )
+
+            resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)
         }
     }
 

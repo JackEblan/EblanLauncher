@@ -30,6 +30,6 @@ dependencies {
     implementation(projects.domain.common)
     implementation(projects.domain.framework)
     implementation(projects.domain.model)
-    implementation(projects.framework.drawable)
+    implementation(projects.framework.byteArray)
     implementation(projects.framework.userManager)
 }

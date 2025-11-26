@@ -93,7 +93,7 @@ import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.service.LauncherAppsService
 import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
-import com.eblan.launcher.ui.local.LocalDrawable
+import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -169,6 +169,7 @@ internal fun HomeRoute(
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
+        onUpdateShortcutConfigActivityGridItemDataCache = viewModel::updateShortcutConfigActivityGridItemDataCache,
     )
 }
 
@@ -219,10 +220,7 @@ internal fun HomeScreen(
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
-    onResetGridCacheAfterMove: (
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) -> Unit,
+    onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
@@ -249,6 +247,10 @@ internal fun HomeScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
+    onUpdateShortcutConfigActivityGridItemDataCache: (
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -268,7 +270,7 @@ internal fun HomeScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val drawable = LocalDrawable.current
+    val drawable = LocalByteArray.current
 
     val userManager = LocalUserManager.current
 
@@ -452,6 +454,7 @@ internal fun HomeScreen(
 
                         overlayImageBitmap = null
                     },
+                    onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
                 )
             }
         }
@@ -519,10 +522,7 @@ private fun Success(
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
-    onResetGridCacheAfterMove: (
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) -> Unit,
+    onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
@@ -553,6 +553,10 @@ private fun Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateShortcutConfigActivityGridItemDataCache: (
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -738,6 +742,7 @@ private fun Success(
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onResetOverlay = onResetOverlay,
+                    onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
                 )
             }
 

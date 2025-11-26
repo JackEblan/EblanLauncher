@@ -21,7 +21,7 @@ import android.content.Context
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 
@@ -29,7 +29,7 @@ internal suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
     context: Context,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    drawable: AndroidDrawableWrapper,
+    drawable: AndroidByteArrayWrapper,
     userManager: AndroidUserManagerWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {

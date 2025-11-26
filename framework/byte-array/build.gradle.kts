@@ -15,19 +15,16 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.drawable
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+plugins {
+    alias(libs.plugins.com.eblan.launcher.library)
+    alias(libs.plugins.com.eblan.launcher.hilt)
+}
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal interface DrawableModule {
+android {
+    namespace = "com.eblan.launcher.framework.bytearray"
+}
 
-    @Binds
-    @Singleton
-    fun androidDrawableWrapper(impl: DefaultDrawableWrapper): AndroidDrawableWrapper
+dependencies {
+    implementation(projects.domain.common)
 }

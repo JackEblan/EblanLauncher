@@ -19,7 +19,6 @@ package com.eblan.launcher.feature.home.screen.drag
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.content.Intent
 import android.content.pm.LauncherApps
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -49,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -80,6 +80,7 @@ import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -117,10 +118,7 @@ internal fun DragScreen(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
-    onDragEndAfterMove: (
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) -> Unit,
+    onDragEndAfterMove: (MoveGridItemResult) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateGridItemDataCache: (GridItem) -> Unit,
@@ -129,6 +127,10 @@ internal fun DragScreen(
         appWidgetId: Int,
     ) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateShortcutConfigActivityGridItemDataCache: (
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+    ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
 
@@ -148,7 +150,11 @@ internal fun DragScreen(
 
     val launcherApps = LocalLauncherApps.current
 
+    val byteArray = LocalByteArray.current
+
     val view = LocalView.current
+
+    val scope = rememberCoroutineScope()
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
@@ -156,7 +162,7 @@ internal fun DragScreen(
 
     var deleteAppWidgetId by remember { mutableStateOf(false) }
 
-    var updatedGridItem by remember { mutableStateOf<GridItem?>(null) }
+    var updatedWidgetGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     val dockHeight = homeSettings.dockHeight.dp
 
@@ -179,7 +185,7 @@ internal fun DragScreen(
     ) { result ->
         handleConfigureLauncherResult(
             moveGridItemResult = moveGridItemResult,
-            updatedGridItem = updatedGridItem,
+            updatedGridItem = updatedWidgetGridItem,
             resultCode = result.resultCode,
             onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
             onDragEndAfterMove = onDragEndAfterMove,
@@ -192,8 +198,8 @@ internal fun DragScreen(
         handleAppWidgetLauncherResult(
             result = result,
             gridItem = gridItemSource.gridItem,
-            onUpdateGridItemDataCache = { gridItem ->
-                updatedGridItem = gridItem
+            onUpdateWidgetGridItemDataCache = { gridItem ->
+                updatedWidgetGridItem = gridItem
 
                 onUpdateGridItemDataCache(gridItem)
             },
@@ -206,30 +212,14 @@ internal fun DragScreen(
     val shortcutConfigActivityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        requireNotNull(moveGridItemResult)
-
-        if (result.resultCode == Activity.RESULT_OK) {
-            val extras = result.data?.extras
-//            if (extras != null) {
-//                for (key in extras.keySet()) {
-//                    println("key=$key value=${extras.get(key)}")
-//                }
-//            }
-
-            val req = result.data?.getParcelableExtra<LauncherApps.PinItemRequest>(
-                LauncherApps.EXTRA_PIN_ITEM_REQUEST
+        scope.launch {
+            handleShortcutConfigActivityLauncherResult(
+                androidByteArrayWrapper = byteArray,
+                moveGridItemResult = moveGridItemResult,
+                result = result,
+                gridItemSource = gridItemSource,
+                onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
             )
-
-            println(req?.requestType)
-            println(req?.shortcutInfo?.id)
-
-            /* TODO: Use this uri and save to the database. Solve any deprecation +
-            *   We can use this uri/intent to start the shortcut activity
-            **/
-
-            val shortcutIntent = result.data?.getParcelableExtra<Intent>(
-                Intent.EXTRA_SHORTCUT_INTENT
-            )?.toUri(Intent.URI_INTENT_SCHEME)
         }
     }
 
@@ -312,8 +302,8 @@ internal fun DragScreen(
                     onDragEndAfterMove = onDragEndAfterMove,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateGridItemDataCache = { gridItem ->
-                        updatedGridItem = gridItem
+                    onUpdateWidgetGridItemDataCache = { gridItem ->
+                        updatedWidgetGridItem = gridItem
 
                         onUpdateGridItemDataCache(gridItem)
                     },
@@ -351,10 +341,10 @@ internal fun DragScreen(
         )
     }
 
-    LaunchedEffect(key1 = updatedGridItem) {
+    LaunchedEffect(key1 = updatedWidgetGridItem) {
         handleBoundWidget(
             gridItemSource = gridItemSource,
-            updatedGridItem = updatedGridItem,
+            updatedWidgetGridItem = updatedWidgetGridItem,
             moveGridItemResult = moveGridItemResult,
             packageManager = packageManager,
             onConfigure = configureLauncher::launch,

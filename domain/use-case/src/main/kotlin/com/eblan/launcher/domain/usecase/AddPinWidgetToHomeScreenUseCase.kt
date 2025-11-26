@@ -86,15 +86,15 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             val dockHeight = homeSettings.dockHeight
 
             val gridItems = (
-                    applicationInfoGridItemRepository.gridItems.first() +
-                            widgetGridItemRepository.gridItems.first() +
-                            shortcutInfoGridItemRepository.gridItems.first() +
-                            folderGridItemRepository.gridItems.first() +
-                            shortcutConfigActivityGridItemRepository.gridItems.first()
-                    ).filter { gridItem ->
-                    gridItem.associate == Associate.Grid &&
-                            gridItem.folderId == null
-                }
+                applicationInfoGridItemRepository.gridItems.first() +
+                    widgetGridItemRepository.gridItems.first() +
+                    shortcutInfoGridItemRepository.gridItems.first() +
+                    folderGridItemRepository.gridItems.first() +
+                    shortcutConfigActivityGridItemRepository.gridItems.first()
+                ).filter { gridItem ->
+                gridItem.associate == Associate.Grid &&
+                    gridItem.folderId == null
+            }
 
             val previewInferred = File(
                 fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),

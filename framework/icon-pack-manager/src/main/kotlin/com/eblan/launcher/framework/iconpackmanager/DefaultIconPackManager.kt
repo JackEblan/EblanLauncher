@@ -24,7 +24,7 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.isActive
@@ -38,7 +38,7 @@ import javax.inject.Inject
 internal class DefaultIconPackManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
 ) : IconPackManager {
     override suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent> {
         return withContext(ioDispatcher) {
@@ -107,7 +107,7 @@ internal class DefaultIconPackManager @Inject constructor(
             val id = resources.getIdentifier(drawableName, "drawable", packageName)
 
             if (id > 0) {
-                androidDrawableWrapper.createByteArray(
+                androidByteArrayWrapper.createByteArray(
                     drawable = resources.getDrawable(
                         id,
                         packageContext.theme,

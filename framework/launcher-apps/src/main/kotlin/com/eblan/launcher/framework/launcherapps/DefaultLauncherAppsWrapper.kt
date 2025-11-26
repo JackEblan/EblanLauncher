@@ -41,7 +41,7 @@ import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutQueryFlag
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -56,7 +56,7 @@ import javax.inject.Inject
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
-    private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
@@ -248,8 +248,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
                     setQueryFlags(
                         LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED,
                     )
                 }
 
@@ -408,7 +408,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     private suspend fun LauncherActivityInfo.toEblanShortcutConfigActivityInfo(): LauncherAppsActivityInfo {
         val icon = getBadgedIcon(0).let { drawable ->
-            androidDrawableWrapper.createByteArray(drawable = drawable)
+            androidByteArrayWrapper.createByteArray(drawable = drawable)
         }
 
         return LauncherAppsActivityInfo(
@@ -423,7 +423,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {
         val icon = getShortcutIconDrawable(this, 0)?.let { drawable ->
-            androidDrawableWrapper.createByteArray(drawable = drawable)
+            androidByteArrayWrapper.createByteArray(drawable = drawable)
         }
 
         val shortcutQueryFlag = when {

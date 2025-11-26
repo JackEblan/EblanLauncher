@@ -172,7 +172,7 @@ internal fun InteractiveGridItemContent(
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
-                onResetOverlay = onResetOverlay
+                onResetOverlay = onResetOverlay,
             )
         }
     }
@@ -652,4 +652,3 @@ private fun InteractiveShortcutConfigActivityGridItem(
         statusBarNotifications = statusBarNotifications,
     )
 }
-

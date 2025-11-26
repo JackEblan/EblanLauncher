@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
 import coil3.request.ImageRequest.Builder
 import coil3.request.addLastModifiedToFileCacheKey
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
@@ -99,7 +98,7 @@ internal fun GridItemContent(
                 is GridItemData.Widget -> {
                     WidgetGridItem(
                         modifier = modifier,
-                        data = data
+                        data = data,
                     )
                 }
 
@@ -130,7 +129,7 @@ internal fun GridItemContent(
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        statusBarNotifications = statusBarNotifications
+                        statusBarNotifications = statusBarNotifications,
                     )
                 }
             }

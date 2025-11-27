@@ -130,6 +130,8 @@ internal fun HomeRoute(
 
     val eblanShortcutInfos by viewModel.eblanShortcutInfos.collectAsStateWithLifecycle()
 
+    val eblanShortcutConfigsByLabel by viewModel.eblanShortcutConfigsByLabel.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -143,7 +145,7 @@ internal fun HomeRoute(
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
         eblanShortcutInfos = eblanShortcutInfos,
-        eblanShortcutConfigActivitiesByLabel = emptyMap(),
+        eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -167,6 +169,7 @@ internal fun HomeRoute(
         onAddFolder = viewModel::addFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
+        onGetEblanShortcutConfigsByLabel = viewModel::getEblanShortcutConfigsByLabel,
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
@@ -189,7 +192,7 @@ internal fun HomeScreen(
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -246,6 +249,7 @@ internal fun HomeScreen(
     onAddFolder: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
@@ -422,7 +426,7 @@ internal fun HomeScreen(
                     overlayIntSize = overlayIntSize,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
-                    eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
+                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -454,6 +458,7 @@ internal fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = {
                         overlayIntOffset = IntOffset.Zero
@@ -498,7 +503,7 @@ private fun Success(
     overlayIntSize: IntSize,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -560,6 +565,7 @@ private fun Success(
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
     onUpdateShortcutConfigGridItemDataCache: (
@@ -700,7 +706,7 @@ private fun Success(
                     currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
-                    eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
+                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -725,6 +731,7 @@ private fun Success(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
                 )

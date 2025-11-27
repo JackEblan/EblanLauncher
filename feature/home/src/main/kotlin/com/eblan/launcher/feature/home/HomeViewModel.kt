@@ -158,11 +158,11 @@ internal class HomeViewModel @Inject constructor(
                 initialValue = emptyMap(),
             )
 
-    private val _eblanShortcutConfigLabel = MutableStateFlow<String?>(null)
+    private val _eblanShortcutConfigsLabel = MutableStateFlow<String?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val eblanShortcutConfigByLabel =
-        _eblanShortcutConfigLabel.filterNotNull().debounce(defaultDelay)
+    val eblanShortcutConfigsByLabel =
+        _eblanShortcutConfigsLabel.filterNotNull().debounce(defaultDelay)
             .flatMapLatest { label ->
                 getEblanShortcutConfigByLabelUseCase(label = label)
             }.stateIn(
@@ -551,6 +551,12 @@ internal class HomeViewModel @Inject constructor(
 
     fun getEblanAppWidgetProviderInfosByLabel(label: String) {
         _eblanAppWidgetProviderInfoLabel.update {
+            label
+        }
+    }
+
+    fun getEblanShortcutConfigsByLabel(label: String) {
+        _eblanShortcutConfigsLabel.update {
             label
         }
     }

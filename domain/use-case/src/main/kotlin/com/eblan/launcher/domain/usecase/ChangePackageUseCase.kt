@@ -63,7 +63,7 @@ class ChangePackageUseCase @Inject constructor(
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val updateEblanShortcutConfigActivitiesUseCase: UpdateEblanShortcutConfigActivitiesUseCase,
+    private val updateEblanShortcutConfigsUseCase: UpdateEblanShortcutConfigsUseCase,
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
@@ -118,7 +118,7 @@ class ChangePackageUseCase @Inject constructor(
                 icon = icon,
             )
 
-            updateEblanShortcutConfigActivitiesUseCase(
+            updateEblanShortcutConfigsUseCase(
                 serialNumber = serialNumber,
                 packageName = packageName,
                 icon = icon,

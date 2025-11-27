@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-class UpdateEblanShortcutConfigActivitiesUseCase @Inject constructor(
+class UpdateEblanShortcutConfigsUseCase @Inject constructor(
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val fileManager: FileManager,
     private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
@@ -79,7 +79,7 @@ class UpdateEblanShortcutConfigActivitiesUseCase @Inject constructor(
                 }
 
             if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
-                val eblanShortcutConfigActivitiesToDelete =
+                val eblanShortcutConfigsToDelete =
                     oldEblanShortcutConfigs - newEblanShortcutConfigs.toSet()
 
                 eblanShortcutConfigRepository.upsertEblanShortcutConfigs(
@@ -90,7 +90,7 @@ class UpdateEblanShortcutConfigActivitiesUseCase @Inject constructor(
                     eblanShortcutConfigs = oldEblanShortcutConfigs,
                 )
 
-                eblanShortcutConfigActivitiesToDelete.forEach { eblanShortcutConfigToDelete ->
+                eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
                     currentCoroutineContext().ensureActive()
 
                     val isUnique =

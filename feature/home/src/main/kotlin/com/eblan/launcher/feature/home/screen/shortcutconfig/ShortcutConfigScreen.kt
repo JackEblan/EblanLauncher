@@ -46,6 +46,7 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -115,7 +116,7 @@ internal fun ShortcutConfigScreen(
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     screenHeight: Int,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -125,7 +126,7 @@ internal fun ShortcutConfigScreen(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
@@ -170,14 +171,14 @@ internal fun ShortcutConfigScreen(
             }
 
             is EblanApplicationComponentUiState.Success -> {
-                val eblanShortcutConfigActivities =
+                val eblanShortcutConfigs =
                     eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutConfigs
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     when {
-                        eblanShortcutConfigActivities.isEmpty() -> {
+                        eblanShortcutConfigs.isEmpty() -> {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
 
@@ -189,13 +190,13 @@ internal fun ShortcutConfigScreen(
                                 paddingValues = paddingValues,
                                 drag = drag,
                                 gridItemSettings = gridItemSettings,
-                                eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
-                                eblanShortcutConfigActivities = eblanShortcutConfigActivities,
+                                eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
+                                eblanShortcutConfigs = eblanShortcutConfigs,
                                 screenHeight = screenHeight,
                                 offsetY = offsetY,
                                 onLongPressGridItem = onLongPressGridItem,
                                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                                onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                                 onDismiss = onDismiss,
                                 onDraggingGridItem = onDraggingGridItem,
                                 onResetOverlay = onResetOverlay,
@@ -217,8 +218,8 @@ private fun Success(
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
-    eblanShortcutConfigActivities: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
+    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     screenHeight: Int,
     offsetY: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
@@ -229,14 +230,14 @@ private fun Success(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onGetEblanApplicationInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
-            eblanShortcutConfigActivities.keys.size
+            eblanShortcutConfigs.keys.size
         },
     )
 
@@ -271,8 +272,8 @@ private fun Success(
     ) {
         EblanShortcutConfigDockSearchBar(
             modifier = modifier,
-            onQueryChange = onGetEblanApplicationInfosByLabel,
-            eblanShortcutConfigActivitiesByLabel = eblanShortcutConfigActivitiesByLabel,
+            onQueryChange = onGetEblanShortcutConfigsByLabel,
+            eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
             drag = drag,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onLongPressGridItem = onLongPressGridItem,
@@ -281,10 +282,10 @@ private fun Success(
             onResetOverlay = onResetOverlay,
         )
 
-        if (eblanShortcutConfigActivities.keys.size > 1) {
+        if (eblanShortcutConfigs.keys.size > 1) {
             EblanShortcutConfigTabRow(
                 currentPage = horizontalPagerState.currentPage,
-                eblanShortcutConfigActivities = eblanShortcutConfigActivities,
+                eblanShortcutConfigs = eblanShortcutConfigs,
                 onAnimateScrollToPage = horizontalPagerState::animateScrollToPage,
             )
 
@@ -293,13 +294,13 @@ private fun Success(
                 state = horizontalPagerState,
             ) { index ->
 
-                EblanShortcutConfigActivitiesPage(
+                EblanShortcutConfigsPage(
                     index = index,
                     currentPage = currentPage,
                     paddingValues = paddingValues,
                     drag = drag,
                     gridItemSettings = gridItemSettings,
-                    eblanShortcutConfigActivities = eblanShortcutConfigActivities,
+                    eblanShortcutConfigs = eblanShortcutConfigs,
                     offsetY = offsetY,
                     screenHeight = screenHeight,
                     isApplicationComponentVisible = isApplicationComponentVisible,
@@ -311,13 +312,13 @@ private fun Success(
                 )
             }
         } else {
-            EblanShortcutConfigActivitiesPage(
+            EblanShortcutConfigsPage(
                 index = 0,
                 currentPage = currentPage,
                 paddingValues = paddingValues,
                 drag = drag,
                 gridItemSettings = gridItemSettings,
-                eblanShortcutConfigActivities = eblanShortcutConfigActivities,
+                eblanShortcutConfigs = eblanShortcutConfigs,
                 offsetY = offsetY,
                 screenHeight = screenHeight,
                 isApplicationComponentVisible = isApplicationComponentVisible,
@@ -336,7 +337,7 @@ private fun Success(
 private fun EblanShortcutConfigDockSearchBar(
     modifier: Modifier = Modifier,
     onQueryChange: (String) -> Unit,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     drag: Drag,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -380,11 +381,11 @@ private fun EblanShortcutConfigDockSearchBar(
         onExpandedChange = { expanded = it },
     ) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(eblanShortcutConfigActivitiesByLabel.keys.toList()) { eblanApplicationInfoGroup ->
+            items(eblanShortcutConfigsByLabel.keys.toList()) { eblanApplicationInfoGroup ->
                 EblanApplicationInfoItem(
                     modifier = modifier,
                     eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanShortcutConfigActivities = eblanShortcutConfigActivitiesByLabel,
+                    eblanShortcutConfigs = eblanShortcutConfigsByLabel,
                     drag = drag,
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         focusManager.clearFocus()
@@ -408,13 +409,13 @@ private fun EblanShortcutConfigDockSearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun EblanShortcutConfigTabRow(
     currentPage: Int,
-    eblanShortcutConfigActivities: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     onAnimateScrollToPage: suspend (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
     SecondaryTabRow(selectedTabIndex = currentPage) {
-        eblanShortcutConfigActivities.keys.forEachIndexed { index, serialNumber ->
+        eblanShortcutConfigs.keys.forEachIndexed { index, serialNumber ->
             Tab(
                 selected = currentPage == index,
                 onClick = {
@@ -435,14 +436,14 @@ private fun EblanShortcutConfigTabRow(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun EblanShortcutConfigActivitiesPage(
+private fun EblanShortcutConfigsPage(
     modifier: Modifier = Modifier,
     index: Int,
     currentPage: Int,
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
-    eblanShortcutConfigActivities: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+    eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
     offsetY: Animatable<Float, AnimationVector1D>,
     screenHeight: Int,
     isApplicationComponentVisible: Boolean,
@@ -482,7 +483,7 @@ private fun EblanShortcutConfigActivitiesPage(
 
     val lazyListState = rememberLazyListState()
 
-    val serialNumber = eblanShortcutConfigActivities.keys.toList()[index]
+    val serialNumber = eblanShortcutConfigs.keys.toList()[index]
 
     val canOverscroll by remember(key1 = lazyListState) {
         derivedStateOf {
@@ -555,11 +556,11 @@ private fun EblanShortcutConfigActivitiesPage(
                 rememberOverscrollEffect()
             },
         ) {
-            items(eblanShortcutConfigActivities[serialNumber].orEmpty().keys.toList()) { eblanApplicationInfoGroup ->
+            items(eblanShortcutConfigs[serialNumber].orEmpty().keys.toList()) { eblanApplicationInfoGroup ->
                 EblanApplicationInfoItem(
                     modifier = modifier,
                     eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanShortcutConfigActivities = eblanShortcutConfigActivities[serialNumber].orEmpty(),
+                    eblanShortcutConfigs = eblanShortcutConfigs[serialNumber].orEmpty(),
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
@@ -576,7 +577,7 @@ private fun EblanShortcutConfigActivitiesPage(
 private fun EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
-    eblanShortcutConfigActivities: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
+    eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     drag: Drag,
     onUpdateGridItemOffset: (
         intOffset: IntOffset,
@@ -633,7 +634,7 @@ private fun EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            eblanShortcutConfigActivities[eblanApplicationInfoGroup]?.forEach { eblanShortcutConfig ->
+            eblanShortcutConfigs[eblanApplicationInfoGroup]?.forEach { eblanShortcutConfig ->
                 EblanShortcutConfigItem(
                     modifier = modifier,
                     eblanShortcutConfig = eblanShortcutConfig,
@@ -701,24 +702,22 @@ private fun EblanShortcutConfigItem(
 
                             scale.animateTo(1f)
 
-                            val data =
-                                GridItemData.ShortcutConfig(
-                                    serialNumber = eblanShortcutConfig.serialNumber,
-                                    componentName = eblanShortcutConfig.componentName,
-                                    packageName = eblanShortcutConfig.packageName,
-                                    activityLabel = eblanShortcutConfig.activityLabel,
-                                    activityIcon = eblanShortcutConfig.activityIcon,
-                                    applicationIcon = eblanShortcutConfig.activityIcon,
-                                    applicationLabel = eblanShortcutConfig.activityLabel,
-                                    uri = null,
-                                    uriIcon = null,
-                                )
+                            val data = GridItemData.ShortcutConfig(
+                                serialNumber = eblanShortcutConfig.serialNumber,
+                                componentName = eblanShortcutConfig.componentName,
+                                packageName = eblanShortcutConfig.packageName,
+                                activityLabel = eblanShortcutConfig.activityLabel,
+                                activityIcon = eblanShortcutConfig.activityIcon,
+                                applicationIcon = eblanShortcutConfig.activityIcon,
+                                applicationLabel = eblanShortcutConfig.activityLabel,
+                                uri = null,
+                                uriIcon = null,
+                            )
 
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
-                                        id = Uuid.random()
-                                            .toHexString(),
+                                        id = Uuid.random().toHexString(),
                                         folderId = null,
                                         page = currentPage,
                                         startColumn = -1,
@@ -765,7 +764,7 @@ private fun EblanShortcutConfigItem(
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AsyncImage(
+        Box(
             modifier = Modifier
                 .drawWithContent {
                     graphicsLayer.record {
@@ -778,10 +777,28 @@ private fun EblanShortcutConfigItem(
                     intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
-                },
-            model = eblanShortcutConfig.activityIcon,
-            contentDescription = null,
-        )
+                }
+                .size(gridItemSettings.iconSize.dp),
+        ) {
+            AsyncImage(
+                model = eblanShortcutConfig.activityIcon,
+                contentDescription = null,
+            )
+
+            if (eblanShortcutConfig.serialNumber != 0L) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .size((gridItemSettings.iconSize * 0.40).dp)
+                        .align(Alignment.BottomEnd),
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Work,
+                        contentDescription = null,
+                        modifier = Modifier.padding(2.dp),
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 

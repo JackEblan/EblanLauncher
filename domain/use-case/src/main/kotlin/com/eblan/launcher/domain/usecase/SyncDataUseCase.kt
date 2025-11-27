@@ -67,7 +67,7 @@ class SyncDataUseCase @Inject constructor(
     private val applicationInfoGridItemRepository: ApplicationInfoGridItemRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val updateEblanShortcutConfigActivitiesUseCase: UpdateEblanShortcutConfigActivitiesUseCase,
+    private val updateEblanShortcutConfigsUseCase: UpdateEblanShortcutConfigsUseCase,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke() {
@@ -123,7 +123,7 @@ class SyncDataUseCase @Inject constructor(
                     )
                 }
 
-                updateEblanShortcutConfigActivitiesUseCase(
+                updateEblanShortcutConfigsUseCase(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
                     icon = applicationIcon,

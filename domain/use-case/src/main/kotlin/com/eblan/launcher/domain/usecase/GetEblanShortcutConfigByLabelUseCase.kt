@@ -19,31 +19,31 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
+import com.eblan.launcher.domain.model.EblanShortcutConfig
+import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
-    private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
+class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
+    private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
-        return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
-            eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
-                label.isNotBlank() && eblanAppWidgetProviderInfo.label.toString().contains(
+    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>> {
+        return eblanShortcutConfigRepository.eblanShortcutConfigs.map { eblanShortcutConfigs ->
+            eblanShortcutConfigs.filter { eblanShortcutConfig ->
+                label.isNotBlank() && eblanShortcutConfig.activityLabel.toString().contains(
                     other = label,
                     ignoreCase = true,
                 )
             }.groupBy { eblanAppWidgetProviderInfo ->
                 EblanApplicationInfoGroup(
                     packageName = eblanAppWidgetProviderInfo.packageName,
-                    icon = eblanAppWidgetProviderInfo.icon,
-                    label = eblanAppWidgetProviderInfo.label,
+                    icon = eblanAppWidgetProviderInfo.activityIcon,
+                    label = eblanAppWidgetProviderInfo.activityLabel,
                 )
             }.toList().sortedBy { entry -> entry.first.label }.toMap()
         }.flowOn(defaultDispatcher)

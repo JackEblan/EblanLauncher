@@ -15,10 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.entity
 
-data class EblanApplicationComponent(
-    val eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    val eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
-    val eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
+import androidx.room.Entity
+
+@Entity(primaryKeys = ["componentName", "serialNumber"])
+data class EblanShortcutConfigEntity(
+    val componentName: String,
+    val packageName: String,
+    val serialNumber: Long,
+    val activityIcon: String?,
+    val activityLabel: String?,
+    val applicationIcon: String?,
+    val applicationLabel: String?,
 )

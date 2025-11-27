@@ -112,17 +112,10 @@ class SyncDataUseCase @Inject constructor(
             eblanApplicationInfoRepository.eblanApplicationInfos.first()
 
         val newEblanApplicationInfos =
-            launcherAppsActivityInfos.onEach { launcherAppsActivityInfo ->
+            launcherAppsActivityInfos.map { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                updateEblanShortcutConfigActivitiesUseCase(
-                    serialNumber = launcherAppsActivityInfo.serialNumber,
-                    packageName = launcherAppsActivityInfo.packageName,
-                )
-            }.map { launcherAppsActivityInfo ->
-                currentCoroutineContext().ensureActive()
-
-                val icon = launcherAppsActivityInfo.icon?.let { byteArray ->
+                val applicationIcon = launcherAppsActivityInfo.applicationIcon?.let { byteArray ->
                     fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                         name = launcherAppsActivityInfo.packageName,
@@ -130,12 +123,19 @@ class SyncDataUseCase @Inject constructor(
                     )
                 }
 
+                updateEblanShortcutConfigActivitiesUseCase(
+                    serialNumber = launcherAppsActivityInfo.serialNumber,
+                    packageName = launcherAppsActivityInfo.packageName,
+                    icon = applicationIcon,
+                    label = launcherAppsActivityInfo.applicationLabel,
+                )
+
                 EblanApplicationInfo(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = icon,
-                    label = launcherAppsActivityInfo.label,
+                    icon = applicationIcon,
+                    label = launcherAppsActivityInfo.applicationLabel,
                 )
             }
 
@@ -355,7 +355,7 @@ class SyncDataUseCase @Inject constructor(
                     UpdateApplicationInfoGridItem(
                         id = applicationInfoGridItem.id,
                         componentName = launcherAppsActivityInfo.componentName,
-                        label = launcherAppsActivityInfo.label,
+                        label = launcherAppsActivityInfo.applicationLabel,
                     ),
                 )
             } else {

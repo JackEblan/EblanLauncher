@@ -360,7 +360,7 @@ private fun GridItemPopupContent(
             )
         }
 
-        is GridItemData.ShortcutConfigActivity -> {
+        is GridItemData.ShortcutConfig -> {
             ShortcutConfigActivityGridItemMenu(
                 modifier = modifier,
                 onResize = {

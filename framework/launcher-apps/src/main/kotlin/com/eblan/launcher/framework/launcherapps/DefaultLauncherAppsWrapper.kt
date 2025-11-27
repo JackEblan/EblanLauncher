@@ -272,7 +272,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && userHandle != null) {
                 launcherApps.getShortcutConfigActivityList(packageName, userHandle)
                     .map { launcherActivityInfo ->
-                        launcherActivityInfo.toEblanShortcutConfigActivityInfo()
+                        launcherActivityInfo.toEblanLauncherActivityInfo()
                     }
             } else {
                 emptyList()
@@ -402,23 +402,13 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
             componentName = componentName.flattenToString(),
             packageName = applicationInfo.packageName,
-            icon = packageManagerWrapper.getApplicationIcon(packageName = applicationInfo.packageName),
-            label = packageManagerWrapper.getApplicationLabel(packageName = applicationInfo.packageName)
+            activityIcon = getIcon(0).let { drawable ->
+                androidByteArrayWrapper.createByteArray(drawable = drawable)
+            },
+            activityLabel = label.toString(),
+            applicationIcon = packageManagerWrapper.getApplicationIcon(packageName = applicationInfo.packageName),
+            applicationLabel = packageManagerWrapper.getApplicationLabel(packageName = applicationInfo.packageName)
                 .toString(),
-        )
-    }
-
-    private suspend fun LauncherActivityInfo.toEblanShortcutConfigActivityInfo(): LauncherAppsActivityInfo {
-        val icon = getIcon(0).let { drawable ->
-            androidByteArrayWrapper.createByteArray(drawable = drawable)
-        }
-
-        return LauncherAppsActivityInfo(
-            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
-            componentName = componentName.flattenToString(),
-            packageName = applicationInfo.packageName,
-            icon = icon,
-            label = label.toString(),
         )
     }
 

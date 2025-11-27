@@ -15,9 +15,17 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.entity
 
-data class ShortcutConfigActivityGridItem(
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItemSettings
+
+@Entity
+data class ShortcutConfigGridItemEntity(
+    @PrimaryKey
     val id: String,
     val folderId: String?,
     val page: Int,
@@ -28,11 +36,13 @@ data class ShortcutConfigActivityGridItem(
     val associate: Associate,
     val componentName: String,
     val packageName: String,
-    val icon: String?,
-    val label: String?,
+    val activityIcon: String?,
+    val activityLabel: String?,
+    val applicationIcon: String?,
+    val applicationLabel: String?,
     val override: Boolean,
     val serialNumber: Long,
     val uri: String?,
     val uriIcon: String?,
-    val gridItemSettings: GridItemSettings,
+    @Embedded val gridItemSettings: GridItemSettings,
 )

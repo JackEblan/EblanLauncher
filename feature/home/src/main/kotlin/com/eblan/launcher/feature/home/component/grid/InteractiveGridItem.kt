@@ -158,7 +158,7 @@ internal fun InteractiveGridItemContent(
             )
         }
 
-        is GridItemData.ShortcutConfigActivity -> {
+        is GridItemData.ShortcutConfig -> {
             InteractiveShortcutConfigActivityGridItem(
                 modifier = modifier,
                 textColor = currentTextColor,
@@ -558,7 +558,7 @@ private fun InteractiveShortcutConfigActivityGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    data: GridItemData.ShortcutConfigActivity,
+    data: GridItemData.ShortcutConfig,
     drag: Drag,
     onTap: () -> Unit,
     onLongPress: (GridItemData) -> Unit,

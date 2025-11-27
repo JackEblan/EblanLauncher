@@ -369,7 +369,7 @@ private fun GridItemContent(
                 )
             }
 
-            is GridItemData.ShortcutConfigActivity -> TODO()
+            is GridItemData.ShortcutConfig -> TODO()
         }
     }
 }

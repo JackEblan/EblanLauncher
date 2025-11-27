@@ -66,7 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.model.EblanShortcutConfigActivity
+import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
@@ -189,7 +189,7 @@ internal fun HomeScreen(
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
+    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -253,7 +253,7 @@ internal fun HomeScreen(
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
-        data: GridItemData.ShortcutConfigActivity,
+        data: GridItemData.ShortcutConfig,
     ) -> Unit,
     onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
@@ -498,7 +498,7 @@ private fun Success(
     overlayIntSize: IntSize,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
+    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -566,7 +566,7 @@ private fun Success(
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
-        data: GridItemData.ShortcutConfigActivity,
+        data: GridItemData.ShortcutConfig,
     ) -> Unit,
     onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,

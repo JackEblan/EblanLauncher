@@ -36,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -120,7 +119,7 @@ internal fun GridItemContent(
                     )
                 }
 
-                is GridItemData.ShortcutConfigActivity -> {
+                is GridItemData.ShortcutConfig -> {
                     ShortcutConfigActivityGridItem(
                         modifier = modifier,
                         data = data,
@@ -382,9 +381,9 @@ internal fun FolderGridItem(
                             )
                         }
 
-                        is GridItemData.ShortcutConfigActivity -> {
+                        is GridItemData.ShortcutConfig -> {
                             AsyncImage(
-                                model = currentData.icon,
+                                model = currentData.applicationIcon,
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )
@@ -449,7 +448,7 @@ private fun WidgetGridItem(
 @Composable
 internal fun ShortcutConfigActivityGridItem(
     modifier: Modifier = Modifier,
-    data: GridItemData.ShortcutConfigActivity,
+    data: GridItemData.ShortcutConfig,
     textColor: Color,
     gridItemSettings: GridItemSettings,
 ) {
@@ -477,7 +476,7 @@ internal fun ShortcutConfigActivityGridItem(
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
                 model = Builder(context)
-                    .data(data.uriIcon ?: data.icon)
+                    .data(data.uriIcon ?: data.applicationIcon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
@@ -501,7 +500,7 @@ internal fun ShortcutConfigActivityGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = data.label.toString(),
+                text = data.applicationLabel.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

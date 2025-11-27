@@ -38,6 +38,7 @@ import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.GetEblanShortcutConfigByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
@@ -96,6 +97,7 @@ internal class HomeViewModel @Inject constructor(
     eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
+    getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -150,6 +152,19 @@ internal class HomeViewModel @Inject constructor(
         _eblanAppWidgetProviderInfoLabel.filterNotNull().debounce(defaultDelay)
             .flatMapLatest { label ->
                 getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyMap(),
+            )
+
+    private val _eblanShortcutConfigActivityLabel = MutableStateFlow<String?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val eblanShortcutConfigActivityByLabel =
+        _eblanShortcutConfigActivityLabel.filterNotNull().debounce(defaultDelay)
+            .flatMapLatest { label ->
+                getEblanShortcutConfigByLabelUseCase(label = label)
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -437,7 +452,7 @@ internal class HomeViewModel @Inject constructor(
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
-        data: GridItemData.ShortcutConfigActivity,
+        data: GridItemData.ShortcutConfig,
     ) {
         viewModelScope.launch {
             val uriIcon = byteArray?.let { currentByteArray ->

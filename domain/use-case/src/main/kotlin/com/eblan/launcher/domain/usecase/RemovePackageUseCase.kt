@@ -23,8 +23,9 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
-import com.eblan.launcher.domain.repository.EblanShortcutConfigActivityRepository
+import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -45,7 +46,8 @@ class RemovePackageUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
-    private val eblanShortcutConfigActivityRepository: EblanShortcutConfigActivityRepository,
+    private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -86,7 +88,7 @@ class RemovePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            eblanShortcutConfigActivityRepository.deleteEblanShortcutConfigActivity(
+            eblanShortcutConfigRepository.deleteEblanShortcutConfig(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
@@ -201,13 +203,31 @@ class RemovePackageUseCase @Inject constructor(
         serialNumber: Long,
         packageName: String,
     ) {
-        eblanShortcutConfigActivityRepository.getEblanShortcutConfigActivity(
+        shortcutConfigGridItemRepository.getShortcutConfigGridItems(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        ).forEach { shortcutConfigGridItem ->
+            val uriIcon = shortcutConfigGridItem.uriIcon
+
+            if (uriIcon != null) {
+                val uriIconFile = File(
+                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
+                    uriIcon,
+                )
+
+                if (uriIconFile.exists()) {
+                    uriIconFile.delete()
+                }
+            }
+        }
+
+        eblanShortcutConfigRepository.getEblanShortcutConfig(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { eblanShortcutConfigActivity ->
             currentCoroutineContext().ensureActive()
 
-            val isUnique = eblanShortcutConfigActivityRepository.getEblanShortcutConfigActivity(
+            val isUnique = eblanShortcutConfigRepository.getEblanShortcutConfig(
                 serialNumber = serialNumber,
                 packageName = packageName,
             ).none { eblanShortcutConfigActivity ->

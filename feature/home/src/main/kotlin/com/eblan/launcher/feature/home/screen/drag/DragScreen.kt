@@ -131,7 +131,7 @@ internal fun DragScreen(
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
-        data: GridItemData.ShortcutConfigActivity,
+        data: GridItemData.ShortcutConfig,
     ) -> Unit,
     onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,

@@ -22,10 +22,10 @@ import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.EblanIconPackInfoDao
-import com.eblan.launcher.data.room.dao.EblanShortcutConfigActivityDao
+import com.eblan.launcher.data.room.dao.EblanShortcutConfigDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
 import com.eblan.launcher.data.room.dao.FolderGridItemDao
-import com.eblan.launcher.data.room.dao.ShortcutConfigActivityGridItemDao
+import com.eblan.launcher.data.room.dao.ShortcutConfigGridItemDao
 import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
 import com.eblan.launcher.data.room.dao.WidgetGridItemDao
 import dagger.Module
@@ -80,11 +80,11 @@ internal object DaoModule {
 
     @Provides
     @Singleton
-    fun eblanShortcutConfigActivityDao(eblanDatabase: EblanDatabase): EblanShortcutConfigActivityDao =
-        eblanDatabase.eblanShortcutConfigActivityDao()
+    fun eblanShortcutConfigDao(eblanDatabase: EblanDatabase): EblanShortcutConfigDao =
+        eblanDatabase.eblanShortcutConfigDao()
 
     @Provides
     @Singleton
-    fun shortcutConfigActivityGridItemDao(eblanDatabase: EblanDatabase): ShortcutConfigActivityGridItemDao =
-        eblanDatabase.shortcutConfigActivityGridItemDao()
+    fun shortcutConfigGridItemDao(eblanDatabase: EblanDatabase): ShortcutConfigGridItemDao =
+        eblanDatabase.shortcutConfigGridItemDao()
 }

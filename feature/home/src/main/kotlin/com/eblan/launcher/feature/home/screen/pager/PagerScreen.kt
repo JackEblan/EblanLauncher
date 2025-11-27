@@ -56,7 +56,7 @@ import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
-import com.eblan.launcher.domain.model.EblanShortcutConfigActivity
+import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
@@ -69,7 +69,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
-import com.eblan.launcher.feature.home.screen.shortcutconfigactivity.ShortcutConfigActivityScreen
+import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
@@ -100,7 +100,7 @@ internal fun PagerScreen(
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfigActivity>>,
+    eblanShortcutConfigActivitiesByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
     onEdit: (String) -> Unit,
@@ -519,7 +519,7 @@ internal fun PagerScreen(
     }
 
     if (showShortcutConfigActivities) {
-        ShortcutConfigActivityScreen(
+        ShortcutConfigScreen(
             currentPage = currentPage,
             isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,

@@ -17,10 +17,12 @@
  */
 package com.eblan.launcher.domain.model
 
-data class EblanShortcutConfigActivity(
+data class EblanShortcutConfig(
     val componentName: String,
     val packageName: String,
     val serialNumber: Long,
-    val icon: String?,
-    val label: String?,
+    val activityIcon: String?,
+    val activityLabel: String?,
+    val applicationIcon: String?,
+    val applicationLabel: String?,
 )

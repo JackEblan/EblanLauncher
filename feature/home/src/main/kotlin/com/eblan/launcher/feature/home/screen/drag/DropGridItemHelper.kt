@@ -82,7 +82,7 @@ internal suspend fun handleDropGridItem(
                     )
                 }
 
-                is GridItemData.ShortcutConfigActivity -> {
+                is GridItemData.ShortcutConfig -> {
                     onDragEndShortcutConfigActivity(
                         gridItem = gridItemSource.gridItem,
                         data = data,
@@ -248,7 +248,7 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
-        data: GridItemData.ShortcutConfigActivity,
+        data: GridItemData.ShortcutConfig,
     ) -> Unit,
 ) {
     requireNotNull(moveGridItemResult)
@@ -280,7 +280,7 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
         }
     }?.toUri(Intent.URI_INTENT_SCHEME)
 
-    val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfigActivity)
+    val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfig)
         ?: error("Expected GridItemData.ShortcutConfigActivity")
 
     onUpdateShortcutConfigActivityGridItemDataCache(
@@ -458,7 +458,7 @@ private fun bindPinWidget(
 
 private suspend fun onDragEndShortcutConfigActivity(
     gridItem: GridItem,
-    data: GridItemData.ShortcutConfigActivity,
+    data: GridItemData.ShortcutConfig,
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     onLaunchShortcutConfigActivityIntent: (Intent) -> Unit,

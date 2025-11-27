@@ -66,12 +66,14 @@ sealed interface GridItemData {
         val pageCount: Int,
     ) : GridItemData
 
-    data class ShortcutConfigActivity(
+    data class ShortcutConfig(
         val serialNumber: Long,
         val componentName: String,
         val packageName: String,
-        val icon: String?,
-        val label: String?,
+        val activityIcon: String?,
+        val activityLabel: String?,
+        val applicationIcon: String?,
+        val applicationLabel: String?,
         val uri: String?,
         val uriIcon: String?,
     ) : GridItemData

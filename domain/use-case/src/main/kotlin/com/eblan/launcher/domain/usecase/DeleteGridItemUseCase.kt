@@ -24,12 +24,12 @@ import com.eblan.launcher.domain.model.ApplicationInfoGridItem
 import com.eblan.launcher.domain.model.FolderGridItem
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.ShortcutConfigActivityGridItem
+import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
-import com.eblan.launcher.domain.repository.ShortcutConfigActivityGridItemRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -43,7 +43,7 @@ class DeleteGridItemUseCase @Inject constructor(
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val folderGridItemRepository: FolderGridItemRepository,
     private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
-    private val shortcutConfigActivityGridItemRepository: ShortcutConfigActivityGridItemRepository,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem) {
@@ -157,9 +157,9 @@ class DeleteGridItemUseCase @Inject constructor(
                     )
                 }
 
-                is GridItemData.ShortcutConfigActivity -> {
-                    shortcutConfigActivityGridItemRepository.deleteShortcutConfigActivityGridItem(
-                        shortcutConfigActivityGridItem = ShortcutConfigActivityGridItem(
+                is GridItemData.ShortcutConfig -> {
+                    shortcutConfigGridItemRepository.deleteShortcutConfigGridItem(
+                        shortcutConfigGridItem = ShortcutConfigGridItem(
                             id = gridItem.id,
                             folderId = gridItem.folderId,
                             page = gridItem.page,
@@ -170,8 +170,10 @@ class DeleteGridItemUseCase @Inject constructor(
                             associate = gridItem.associate,
                             componentName = data.componentName,
                             packageName = data.packageName,
-                            icon = data.icon,
-                            label = data.label,
+                            activityIcon = data.activityIcon,
+                            activityLabel = data.activityLabel,
+                            applicationIcon = data.applicationIcon,
+                            applicationLabel = data.applicationLabel,
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
                             uri = data.uri,

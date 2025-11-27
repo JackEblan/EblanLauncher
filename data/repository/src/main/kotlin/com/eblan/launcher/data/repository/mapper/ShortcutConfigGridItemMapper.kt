@@ -17,12 +17,12 @@
  */
 package com.eblan.launcher.data.repository.mapper
 
-import com.eblan.launcher.data.room.entity.ShortcutConfigActivityGridItemEntity
+import com.eblan.launcher.data.room.entity.ShortcutConfigGridItemEntity
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.domain.model.ShortcutConfigActivityGridItem
+import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 
-internal fun ShortcutConfigActivityGridItemEntity.asGridItem(): GridItem {
+internal fun ShortcutConfigGridItemEntity.asGridItem(): GridItem {
     return GridItem(
         id = id,
         folderId = folderId,
@@ -31,12 +31,14 @@ internal fun ShortcutConfigActivityGridItemEntity.asGridItem(): GridItem {
         startRow = startRow,
         columnSpan = columnSpan,
         rowSpan = rowSpan,
-        data = GridItemData.ShortcutConfigActivity(
+        data = GridItemData.ShortcutConfig(
             serialNumber = serialNumber,
             componentName = componentName,
             packageName = packageName,
-            icon = icon,
-            label = label,
+            activityIcon = activityIcon,
+            activityLabel = activityLabel,
+            applicationIcon = applicationIcon,
+            applicationLabel = applicationLabel,
             uri = uri,
             uriIcon = uriIcon,
         ),
@@ -46,8 +48,8 @@ internal fun ShortcutConfigActivityGridItemEntity.asGridItem(): GridItem {
     )
 }
 
-internal fun ShortcutConfigActivityGridItemEntity.asModel(): ShortcutConfigActivityGridItem {
-    return ShortcutConfigActivityGridItem(
+internal fun ShortcutConfigGridItemEntity.asModel(): ShortcutConfigGridItem {
+    return ShortcutConfigGridItem(
         id = id,
         folderId = folderId,
         page = page,
@@ -58,8 +60,10 @@ internal fun ShortcutConfigActivityGridItemEntity.asModel(): ShortcutConfigActiv
         associate = associate,
         componentName = componentName,
         packageName = packageName,
-        icon = icon,
-        label = label,
+        activityIcon = activityIcon,
+        activityLabel = activityLabel,
+        applicationIcon = applicationIcon,
+        applicationLabel = applicationLabel,
         override = override,
         serialNumber = serialNumber,
         uri = uri,
@@ -68,8 +72,8 @@ internal fun ShortcutConfigActivityGridItemEntity.asModel(): ShortcutConfigActiv
     )
 }
 
-internal fun ShortcutConfigActivityGridItem.asEntity(): ShortcutConfigActivityGridItemEntity {
-    return ShortcutConfigActivityGridItemEntity(
+internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity {
+    return ShortcutConfigGridItemEntity(
         id = id,
         folderId = folderId,
         page = page,
@@ -80,8 +84,10 @@ internal fun ShortcutConfigActivityGridItem.asEntity(): ShortcutConfigActivityGr
         associate = associate,
         componentName = componentName,
         packageName = packageName,
-        icon = icon,
-        label = label,
+        activityIcon = activityIcon,
+        activityLabel = activityLabel,
+        applicationIcon = applicationIcon,
+        applicationLabel = applicationLabel,
         override = override,
         serialNumber = serialNumber,
         uri = uri,

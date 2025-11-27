@@ -26,8 +26,10 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.AppWidgetManagerAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.ShortcutConfigGridItem
 import com.eblan.launcher.domain.model.ShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateApplicationInfoGridItem
+import com.eblan.launcher.domain.model.UpdateShortcutConfigGridItem
 import com.eblan.launcher.domain.model.UpdateShortcutInfoGridItem
 import com.eblan.launcher.domain.model.UpdateWidgetGridItem
 import com.eblan.launcher.domain.model.WidgetGridItem
@@ -35,6 +37,7 @@ import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -45,6 +48,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import kotlin.collections.forEach
 
 class ChangePackageUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
@@ -60,6 +64,7 @@ class ChangePackageUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val updateEblanShortcutConfigActivitiesUseCase: UpdateEblanShortcutConfigActivitiesUseCase,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -69,16 +74,18 @@ class ChangePackageUseCase @Inject constructor(
         withContext(ioDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
-            val icon = packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                ?.let { currentIconByteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = packageName,
-                        byteArray = currentIconByteArray,
-                    )
-                }
+            val icon =
+                packageManagerWrapper.getApplicationIcon(packageName = packageName)
+                    ?.let { currentIconByteArray ->
+                        fileManager.updateAndGetFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            name = packageName,
+                            byteArray = currentIconByteArray,
+                        )
+                    }
 
-            val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
+            val label =
+                packageManagerWrapper.getApplicationLabel(packageName = packageName)
 
             updateEblanApplicationInfoByPackageName(
                 packageName = packageName,
@@ -104,9 +111,18 @@ class ChangePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
+            updateShortcutConfigGridItemsByPackageName(
+                serialNumber = serialNumber,
+                packageName = packageName,
+                label = label,
+                icon = icon,
+            )
+
             updateEblanShortcutConfigActivitiesUseCase(
                 serialNumber = serialNumber,
                 packageName = packageName,
+                icon = icon,
+                label = label,
             )
 
             updateIconPackInfoByPackageNameUseCase(packageName = packageName)
@@ -457,5 +473,88 @@ class ChangePackageUseCase @Inject constructor(
 
             shortcutInfoGridItemRepository.deleteShortcutInfoGridItems(shortcutInfoGridItems = deleteShortcutInfoGridItems)
         }
+    }
+
+    private suspend fun updateShortcutConfigGridItemsByPackageName(
+        serialNumber: Long,
+        packageName: String,
+        label: String?,
+        icon: String?,
+    ) {
+        val updateShortcutConfigGridItems =
+            mutableListOf<UpdateShortcutConfigGridItem>()
+
+        val deleteShortcutConfigGridItems =
+            mutableListOf<ShortcutConfigGridItem>()
+
+        val shortcutConfigGridItems =
+            shortcutConfigGridItemRepository.getShortcutConfigGridItems(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
+
+        val eblanShortcutConfigs = launcherAppsWrapper.getShortcutConfigActivityList(
+            serialNumber = serialNumber,
+            packageName = packageName,
+        )
+
+        shortcutConfigGridItems.filterNot { shortcutConfigGridItem ->
+            shortcutConfigGridItem.override
+        }.forEach { shortcutConfigGridItem ->
+            val launcherAppsActivityInfo =
+                eblanShortcutConfigs.find { launcherAppsShortcutInfo ->
+                    launcherAppsShortcutInfo.componentName == shortcutConfigGridItem.componentName &&
+                        launcherAppsShortcutInfo.serialNumber == shortcutConfigGridItem.serialNumber
+                }
+
+            if (launcherAppsActivityInfo != null) {
+                val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
+                    fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
+                        name = launcherAppsActivityInfo.componentName.replace(
+                            "/",
+                            "-",
+                        ),
+                        byteArray = byteArray,
+                    )
+                }
+
+                updateShortcutConfigGridItems.add(
+                    UpdateShortcutConfigGridItem(
+                        id = shortcutConfigGridItem.id,
+                        componentName = launcherAppsActivityInfo.componentName,
+                        activityLabel = launcherAppsActivityInfo.activityLabel,
+                        activityIcon = activityIcon,
+                        applicationLabel = label,
+                        applicationIcon = icon,
+                    ),
+                )
+            } else {
+                deleteShortcutConfigGridItems.add(shortcutConfigGridItem)
+            }
+        }
+
+        deleteShortcutConfigGridItems.forEach { shortcutConfigActivityGridItem ->
+            val uriIcon = shortcutConfigActivityGridItem.uriIcon
+
+            if (uriIcon != null) {
+                val uriIconFile = File(
+                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
+                    uriIcon,
+                )
+
+                if (uriIconFile.exists()) {
+                    uriIconFile.delete()
+                }
+            }
+        }
+
+        shortcutConfigGridItemRepository.updateShortcutConfigGridItems(
+            updateShortcutConfigGridItems = updateShortcutConfigGridItems,
+        )
+
+        shortcutConfigGridItemRepository.deleteShortcutConfigGridItems(
+            shortcutConfigGridItems = shortcutConfigGridItems,
+        )
     }
 }

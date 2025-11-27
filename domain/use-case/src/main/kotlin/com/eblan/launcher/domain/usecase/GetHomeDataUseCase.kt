@@ -30,7 +30,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
-import com.eblan.launcher.domain.repository.ShortcutConfigActivityGridItemRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -45,7 +45,7 @@ class GetHomeDataUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
-    private val shortcutConfigActivityGridItemRepository: ShortcutConfigActivityGridItemRepository,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val userDataRepository: UserDataRepository,
     private val launcherAppsWrapper: LauncherAppsWrapper,
     private val wallpaperManagerWrapper: WallpaperManagerWrapper,
@@ -59,7 +59,7 @@ class GetHomeDataUseCase @Inject constructor(
             widgetGridItemRepository.gridItems,
             shortcutInfoGridItemRepository.gridItems,
             folderGridItemRepository.gridItems,
-            shortcutConfigActivityGridItemRepository.gridItems,
+            shortcutConfigGridItemRepository.gridItems,
         ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems, shortcutConfigActivityGridItems ->
             (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems + shortcutConfigActivityGridItems)
                 .filterNot { gridItem ->

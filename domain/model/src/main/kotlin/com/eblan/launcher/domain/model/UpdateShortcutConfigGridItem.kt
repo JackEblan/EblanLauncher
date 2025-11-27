@@ -15,15 +15,13 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.data.room.entity
+package com.eblan.launcher.domain.model
 
-import androidx.room.Entity
-
-@Entity(primaryKeys = ["componentName", "serialNumber"])
-data class EblanShortcutConfigActivityEntity(
+data class UpdateShortcutConfigGridItem(
+    val id: String,
     val componentName: String,
-    val packageName: String,
-    val serialNumber: Long,
-    val icon: String?,
-    val label: String?,
+    val activityLabel: String?,
+    val activityIcon: String?,
+    val applicationLabel: String?,
+    val applicationIcon: String?,
 )

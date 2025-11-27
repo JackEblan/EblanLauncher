@@ -301,6 +301,7 @@ private fun ResizeOverlay(
         is GridItemData.ApplicationInfo,
         is GridItemData.ShortcutInfo,
         is GridItemData.Folder,
+        is GridItemData.ShortcutConfigActivity,
         -> {
             GridItemResizeOverlay(
                 gridItem = gridItem,
@@ -337,7 +338,5 @@ private fun ResizeOverlay(
                 onResizeEnd = onResizeEnd,
             )
         }
-
-        is GridItemData.ShortcutConfigActivity -> TODO()
     }
 }

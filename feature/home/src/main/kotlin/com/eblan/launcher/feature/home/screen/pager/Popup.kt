@@ -360,7 +360,21 @@ private fun GridItemPopupContent(
             )
         }
 
-        is GridItemData.ShortcutConfigActivity -> TODO()
+        is GridItemData.ShortcutConfigActivity -> {
+            ShortcutConfigActivityGridItemMenu(
+                modifier = modifier,
+                onResize = {
+                    onResize()
+
+                    onDismissRequest()
+                },
+                onDelete = {
+                    onDeleteGridItem(gridItem)
+
+                    onDismissRequest()
+                },
+            )
+        }
     }
 }
 
@@ -502,6 +516,40 @@ private fun WidgetGridItemMenu(
                             contentDescription = null,
                         )
                     }
+                }
+
+                IconButton(
+                    onClick = onDelete,
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Delete,
+                        contentDescription = null,
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun ShortcutConfigActivityGridItemMenu(
+    modifier: Modifier = Modifier,
+    onResize: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row {
+                IconButton(
+                    onClick = onResize,
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Resize,
+                        contentDescription = null,
+                    )
                 }
 
                 IconButton(

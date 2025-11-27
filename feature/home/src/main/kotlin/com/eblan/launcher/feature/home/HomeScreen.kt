@@ -278,7 +278,7 @@ internal fun HomeScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val drawable = LocalByteArray.current
+    val byteArrayWrapper = LocalByteArray.current
 
     val userManager = LocalUserManager.current
 
@@ -306,7 +306,7 @@ internal fun HomeScreen(
                         pinItemRequest = pinItemRequest,
                         context = context,
                         launcherAppsWrapper = launcherApps,
-                        drawable = drawable,
+                        byteArrayWrapper = byteArrayWrapper,
                         userManager = userManager,
                         onGetPinGridItem = onGetPinGridItem,
                     )

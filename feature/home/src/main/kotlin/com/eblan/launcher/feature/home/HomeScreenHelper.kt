@@ -29,7 +29,7 @@ internal suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
     context: Context,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    drawable: AndroidByteArrayWrapper,
+    byteArrayWrapper: AndroidByteArrayWrapper,
     userManager: AndroidUserManagerWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
@@ -41,7 +41,7 @@ internal suspend fun handlePinItemRequest(
 
                 if (appWidgetProviderInfo != null) {
                     val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.let {
-                        drawable.createByteArray(drawable = it)
+                        byteArrayWrapper.createByteArray(drawable = it)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -105,7 +105,7 @@ internal suspend fun handlePinItemRequest(
                                 shortcutInfo = shortcutInfo,
                                 density = 0,
                             )?.let {
-                                drawable.createByteArray(drawable = it)
+                                byteArrayWrapper.createByteArray(drawable = it)
                             },
                         ),
                     )

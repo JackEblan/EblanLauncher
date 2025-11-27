@@ -176,7 +176,7 @@ private fun PinShortcutScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val drawable = LocalByteArray.current
+    val byteArrayWrapper = LocalByteArray.current
 
     val shortcutInfo = pinItemRequest.shortcutInfo
 
@@ -236,7 +236,7 @@ private fun PinShortcutScreen(
                                 shortcutInfo.isEnabled,
                                 shortcutInfo.disabledMessage?.toString(),
                                 icon?.let {
-                                    drawable.createByteArray(drawable = it)
+                                    byteArrayWrapper.createByteArray(drawable = it)
                                 },
                             )
                         }

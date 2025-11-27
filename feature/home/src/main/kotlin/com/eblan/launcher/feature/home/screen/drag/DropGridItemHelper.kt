@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.pm.LauncherApps
 import android.content.pm.LauncherApps.PinItemRequest
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.os.Process
 import androidx.activity.result.ActivityResult
@@ -168,7 +169,7 @@ internal fun handleConfigureLauncherResult(
     requireNotNull(updatedGridItem)
 
     val data = (updatedGridItem.data as? GridItemData.Widget)
-        ?: error("Expected GridItemData as Widget")
+        ?: error("Expected GridItemData.Widget")
 
     if (resultCode == Activity.RESULT_OK) {
         onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedGridItem))
@@ -291,7 +292,7 @@ internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
 ) {
     requireNotNull(moveGridItemResult)
 
-    if (result.resultCode == Activity.RESULT_CANCELED) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || result.resultCode == Activity.RESULT_CANCELED) {
         onDeleteGridItemCache(gridItemSource.gridItem)
 
         return
@@ -347,12 +348,11 @@ private fun onDragEndWidget(
 
     val provider = ComponentName.unflattenFromString(data.componentName)
 
-    val bindAppWidgetIdIfAllowed = appWidgetManager.bindAppWidgetIdIfAllowed(
-        appWidgetId = appWidgetId,
-        provider = provider,
-    )
-
-    if (bindAppWidgetIdIfAllowed) {
+    if (appWidgetManager.bindAppWidgetIdIfAllowed(
+            appWidgetId = appWidgetId,
+            provider = provider,
+        )
+    ) {
         val newData = data.copy(appWidgetId = appWidgetId)
 
         onUpdateWidgetGridItemDataCache(gridItem.copy(data = newData))
@@ -374,7 +374,8 @@ private fun onDragEndPinShortcut(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
 ) {
-    if (pinItemRequest != null &&
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+        pinItemRequest != null &&
         pinItemRequest.isValid &&
         pinItemRequest.accept()
     ) {
@@ -420,7 +421,8 @@ private fun bindPinWidget(
         putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     }
 
-    if (pinItemRequest.isValid &&
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+        pinItemRequest.isValid &&
         pinItemRequest.accept(extras)
     ) {
         onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedGridItem))
@@ -453,7 +455,7 @@ private suspend fun onDragEndShortcutConfigActivity(
         }
     } else {
         val shortcutConfigActivityIntent = launcherAppsWrapper.getShortcutConfigActivityIntent(
-            serialNumber = serialNumber,
+            serialNumber = data.serialNumber,
             packageName = data.packageName,
             componentName = data.componentName,
         )

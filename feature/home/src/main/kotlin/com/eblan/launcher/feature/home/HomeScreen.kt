@@ -170,8 +170,8 @@ internal fun HomeRoute(
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
-        onUpdateShortcutConfigActivityGridItemDataCache = viewModel::updateShortcutConfigActivityGridItemDataCache,
-        onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = viewModel::updateShortcutConfigActivityIntoShortcutInfoGridItem,
+        onUpdateShortcutConfigGridItemDataCache = viewModel::updateShortcutConfigGridItemDataCache,
+        onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
     )
 }
 
@@ -249,13 +249,13 @@ internal fun HomeScreen(
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
-    onUpdateShortcutConfigActivityGridItemDataCache: (
+    onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
         data: GridItemData.ShortcutConfig,
     ) -> Unit,
-    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
@@ -462,8 +462,8 @@ internal fun HomeScreen(
 
                         overlayImageBitmap = null
                     },
-                    onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
-                    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = onUpdateShortcutConfigActivityIntoShortcutInfoGridItem,
+                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
             }
         }
@@ -562,13 +562,13 @@ private fun Success(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
-    onUpdateShortcutConfigActivityGridItemDataCache: (
+    onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
         data: GridItemData.ShortcutConfig,
     ) -> Unit,
-    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
@@ -757,8 +757,8 @@ private fun Success(
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onResetOverlay = onResetOverlay,
-                    onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
-                    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = onUpdateShortcutConfigActivityIntoShortcutInfoGridItem,
+                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
             }
 

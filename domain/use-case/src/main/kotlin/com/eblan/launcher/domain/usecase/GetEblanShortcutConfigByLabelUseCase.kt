@@ -34,7 +34,9 @@ class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
 ) {
     operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>> {
         return eblanShortcutConfigRepository.eblanShortcutConfigs.map { eblanShortcutConfigs ->
-            eblanShortcutConfigs.filter { eblanShortcutConfig ->
+            eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                eblanShortcutConfig.applicationLabel?.lowercase()
+            }.filter { eblanShortcutConfig ->
                 label.isNotBlank() && eblanShortcutConfig.activityLabel.toString().contains(
                     other = label,
                     ignoreCase = true,
@@ -45,7 +47,7 @@ class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
                     icon = eblanAppWidgetProviderInfo.activityIcon,
                     label = eblanAppWidgetProviderInfo.activityLabel,
                 )
-            }.toList().sortedBy { entry -> entry.first.label }.toMap()
+            }
         }.flowOn(defaultDispatcher)
     }
 }

@@ -127,13 +127,13 @@ internal fun DragScreen(
         appWidgetId: Int,
     ) -> Unit,
     onResetOverlay: () -> Unit,
-    onUpdateShortcutConfigActivityGridItemDataCache: (
+    onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
         data: GridItemData.ShortcutConfig,
     ) -> Unit,
-    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
@@ -215,26 +215,26 @@ internal fun DragScreen(
         )
     }
 
-    val shortcutConfigActivityLauncher = rememberLauncherForActivityResult(
+    val shortcutConfigLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         scope.launch {
-            handleShortcutConfigActivityLauncherResult(
+            handleShortcutConfigLauncherResult(
                 androidByteArrayWrapper = byteArray,
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,
-                onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
+                onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
             )
         }
     }
 
-    val shortcutConfigActivityIntentSenderLauncher = rememberLauncherForActivityResult(
+    val shortcutConfigIntentSenderLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult(),
     ) { result ->
         scope.launch {
-            handleShortcutConfigActivityIntentSenderLauncherResult(
+            handleShortcutConfigIntentSenderLauncherResult(
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 userManagerWrapper = userManager,
@@ -242,7 +242,7 @@ internal fun DragScreen(
                 byteArrayWrapper = byteArray,
                 gridItemSource = gridItemSource,
                 onDeleteGridItemCache = onDeleteGridItemCache,
-                onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = onUpdateShortcutConfigActivityIntoShortcutInfoGridItem,
+                onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
             )
         }
     }
@@ -310,8 +310,8 @@ internal fun DragScreen(
                     userManagerWrapper = userManager,
                     launcherAppsWrapper = launcherApps,
                     onLaunchWidgetIntent = appWidgetLauncher::launch,
-                    onLaunchShortcutConfigActivity = shortcutConfigActivityLauncher::launch,
-                    onLaunchShortcutConfigActivityIntentSenderRequest = shortcutConfigActivityIntentSenderLauncher::launch,
+                    onLaunchShortcutConfigIntent = shortcutConfigLauncher::launch,
+                    onLaunchShortcutConfigIntentSenderRequest = shortcutConfigIntentSenderLauncher::launch,
                     onDragEndAfterMove = onDragEndAfterMove,
                     onDragCancelAfterMove = onDragCancelAfterMove,
                     onDeleteGridItemCache = onDeleteGridItemCache,

@@ -279,7 +279,7 @@ internal fun HorizontalPagerScreen(
                                 )
                             }
                         },
-                        onTapShortcutConfigActivity = { uri ->
+                        onTapShortcutConfig = { uri ->
                             context.startActivity(Intent.parseUri(uri, 0))
                         },
                         onTapFolderGridItem = {
@@ -390,7 +390,7 @@ internal fun HorizontalPagerScreen(
                             )
                         }
                     },
-                    onTapShortcutConfigActivity = { uri ->
+                    onTapShortcutConfig = { uri ->
                         context.startActivity(Intent.parseUri(uri, 0))
                     },
                     onTapFolderGridItem = {

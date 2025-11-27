@@ -69,7 +69,7 @@ class RemovePackageUseCase @Inject constructor(
                 packageName = packageName,
             )
 
-            deleteEblanShortcutConfigActivityFiles(
+            deleteEblanShortcutConfigFiles(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
@@ -199,7 +199,7 @@ class RemovePackageUseCase @Inject constructor(
         }
     }
 
-    private suspend fun deleteEblanShortcutConfigActivityFiles(
+    private suspend fun deleteEblanShortcutConfigFiles(
         serialNumber: Long,
         packageName: String,
     ) {
@@ -224,23 +224,23 @@ class RemovePackageUseCase @Inject constructor(
         eblanShortcutConfigRepository.getEblanShortcutConfig(
             serialNumber = serialNumber,
             packageName = packageName,
-        ).forEach { eblanShortcutConfigActivity ->
+        ).forEach { eblanShortcutConfig ->
             currentCoroutineContext().ensureActive()
 
             val isUnique = eblanShortcutConfigRepository.getEblanShortcutConfig(
                 serialNumber = serialNumber,
                 packageName = packageName,
-            ).none { eblanShortcutConfigActivity ->
+            ).none { eblanShortcutConfig ->
                 currentCoroutineContext().ensureActive()
 
-                eblanShortcutConfigActivity.packageName == packageName &&
-                    eblanShortcutConfigActivity.serialNumber != serialNumber
+                eblanShortcutConfig.packageName == packageName &&
+                    eblanShortcutConfig.serialNumber != serialNumber
             }
 
             if (isUnique) {
                 val shortcutFile = File(
                     fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
-                    eblanShortcutConfigActivity.componentName,
+                    eblanShortcutConfig.componentName,
                 )
 
                 if (shortcutFile.exists()) {

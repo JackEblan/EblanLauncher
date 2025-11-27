@@ -361,7 +361,7 @@ private fun GridItemPopupContent(
         }
 
         is GridItemData.ShortcutConfig -> {
-            ShortcutConfigActivityGridItemMenu(
+            ShortcutConfigGridItemMenu(
                 modifier = modifier,
                 onResize = {
                     onResize()
@@ -532,7 +532,7 @@ private fun WidgetGridItemMenu(
 }
 
 @Composable
-private fun ShortcutConfigActivityGridItemMenu(
+private fun ShortcutConfigGridItemMenu(
     modifier: Modifier = Modifier,
     onResize: () -> Unit,
     onDelete: () -> Unit,

@@ -68,7 +68,7 @@ interface AndroidLauncherAppsWrapper {
         sourceBounds: Rect,
     )
 
-    suspend fun getShortcutConfigActivityIntent(
+    suspend fun getShortcutConfigIntent(
         serialNumber: Long,
         packageName: String,
         componentName: String,

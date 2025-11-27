@@ -51,8 +51,8 @@ internal suspend fun handleDropGridItem(
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
     onDeleteGridItemCache: (GridItem) -> Unit,
     onLaunchWidgetIntent: (Intent) -> Unit,
-    onLaunchShortcutConfigActivity: (Intent) -> Unit,
-    onLaunchShortcutConfigActivityIntentSenderRequest: (IntentSenderRequest) -> Unit,
+    onLaunchShortcutConfigIntent: (Intent) -> Unit,
+    onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
     onDragCancelAfterMove: () -> Unit,
     onUpdateWidgetGridItemDataCache: (GridItem) -> Unit,
@@ -83,13 +83,13 @@ internal suspend fun handleDropGridItem(
                 }
 
                 is GridItemData.ShortcutConfig -> {
-                    onDragEndShortcutConfigActivity(
+                    onDragEndShortcutConfig(
                         gridItem = gridItemSource.gridItem,
                         data = data,
                         userManagerWrapper = userManagerWrapper,
                         launcherAppsWrapper = launcherAppsWrapper,
-                        onLaunchShortcutConfigActivityIntent = onLaunchShortcutConfigActivity,
-                        onLaunchShortcutConfigActivityIntentSenderRequest = onLaunchShortcutConfigActivityIntentSenderRequest,
+                        onLaunchShortcutConfigIntent = onLaunchShortcutConfigIntent,
+                        onLaunchShortcutConfigIntentSenderRequest = onLaunchShortcutConfigIntentSenderRequest,
                         onDeleteGridItemCache = onDeleteGridItemCache,
                     )
                 }
@@ -238,13 +238,13 @@ internal fun handleBoundWidget(
 }
 
 @Suppress("DEPRECATION")
-internal suspend fun handleShortcutConfigActivityLauncherResult(
+internal suspend fun handleShortcutConfigLauncherResult(
     androidByteArrayWrapper: AndroidByteArrayWrapper,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     gridItemSource: GridItemSource,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateShortcutConfigActivityGridItemDataCache: (
+    onUpdateShortcutConfigGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
@@ -281,9 +281,9 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
     }?.toUri(Intent.URI_INTENT_SCHEME)
 
     val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfig)
-        ?: error("Expected GridItemData.ShortcutConfigActivity")
+        ?: error("Expected GridItemData.ShortcutConfig")
 
-    onUpdateShortcutConfigActivityGridItemDataCache(
+    onUpdateShortcutConfigGridItemDataCache(
         icon,
         moveGridItemResult,
         gridItemSource.gridItem,
@@ -292,7 +292,7 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
 }
 
 @Suppress("DEPRECATION")
-internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
+internal suspend fun handleShortcutConfigIntentSenderLauncherResult(
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     userManagerWrapper: AndroidUserManagerWrapper,
@@ -300,7 +300,7 @@ internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
     byteArrayWrapper: AndroidByteArrayWrapper,
     gridItemSource: GridItemSource,
     onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
@@ -349,7 +349,7 @@ internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
             },
         )
 
-        onUpdateShortcutConfigActivityIntoShortcutInfoGridItem(
+        onUpdateShortcutConfigIntoShortcutInfoGridItem(
             moveGridItemResult,
             pinItemRequestType,
         )
@@ -456,13 +456,13 @@ private fun bindPinWidget(
     }
 }
 
-private suspend fun onDragEndShortcutConfigActivity(
+private suspend fun onDragEndShortcutConfig(
     gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
     userManagerWrapper: AndroidUserManagerWrapper,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    onLaunchShortcutConfigActivityIntent: (Intent) -> Unit,
-    onLaunchShortcutConfigActivityIntentSenderRequest: (IntentSenderRequest) -> Unit,
+    onLaunchShortcutConfigIntent: (Intent) -> Unit,
+    onLaunchShortcutConfigIntentSenderRequest: (IntentSenderRequest) -> Unit,
     onDeleteGridItemCache: (GridItem) -> Unit,
 ) {
     val serialNumber =
@@ -474,23 +474,23 @@ private suspend fun onDragEndShortcutConfigActivity(
         )
 
         try {
-            onLaunchShortcutConfigActivityIntent(intent)
+            onLaunchShortcutConfigIntent(intent)
         } catch (_: ActivityNotFoundException) {
             onDeleteGridItemCache(gridItem)
         }
     } else {
-        val shortcutConfigActivityIntent = launcherAppsWrapper.getShortcutConfigActivityIntent(
+        val shortcutConfigIntent = launcherAppsWrapper.getShortcutConfigIntent(
             serialNumber = data.serialNumber,
             packageName = data.packageName,
             componentName = data.componentName,
         )
 
-        if (shortcutConfigActivityIntent != null) {
+        if (shortcutConfigIntent != null) {
             val intentSenderRequest = IntentSenderRequest
-                .Builder(shortcutConfigActivityIntent)
+                .Builder(shortcutConfigIntent)
                 .build()
 
-            onLaunchShortcutConfigActivityIntentSenderRequest(intentSenderRequest)
+            onLaunchShortcutConfigIntentSenderRequest(intentSenderRequest)
         } else {
             onDeleteGridItemCache(gridItem)
         }

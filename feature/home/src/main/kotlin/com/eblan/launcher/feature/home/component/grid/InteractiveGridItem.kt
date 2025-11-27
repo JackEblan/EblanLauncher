@@ -68,7 +68,7 @@ internal fun InteractiveGridItemContent(
         packageName: String,
         shortcutId: String,
     ) -> Unit,
-    onTapShortcutConfigActivity: (String) -> Unit,
+    onTapShortcutConfig: (String) -> Unit,
     onTapFolderGridItem: () -> Unit,
     onLongPress: (GridItemData) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
@@ -159,14 +159,14 @@ internal fun InteractiveGridItemContent(
         }
 
         is GridItemData.ShortcutConfig -> {
-            InteractiveShortcutConfigActivityGridItem(
+            InteractiveShortcutConfigGridItem(
                 modifier = modifier,
                 textColor = currentTextColor,
                 gridItemSettings = gridItemSettings,
                 data = data,
                 drag = drag,
                 onTap = {
-                    data.uri?.let(onTapShortcutConfigActivity)
+                    data.uri?.let(onTapShortcutConfig)
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -554,7 +554,7 @@ private fun InteractiveFolderGridItem(
 }
 
 @Composable
-private fun InteractiveShortcutConfigActivityGridItem(
+private fun InteractiveShortcutConfigGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
@@ -587,7 +587,7 @@ private fun InteractiveShortcutConfigActivityGridItem(
         }
     }
 
-    ShortcutConfigActivityGridItem(
+    ShortcutConfigGridItem(
         modifier = modifier
             .drawWithContent {
                 graphicsLayer.record {

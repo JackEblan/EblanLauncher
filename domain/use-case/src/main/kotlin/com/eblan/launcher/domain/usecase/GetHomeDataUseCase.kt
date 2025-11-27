@@ -60,8 +60,8 @@ class GetHomeDataUseCase @Inject constructor(
             shortcutInfoGridItemRepository.gridItems,
             folderGridItemRepository.gridItems,
             shortcutConfigGridItemRepository.gridItems,
-        ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems, shortcutConfigActivityGridItems ->
-            (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems + shortcutConfigActivityGridItems)
+        ) { applicationInfoGridItems, widgetGridItems, shortcutInfoGridItems, folderGridItems, shortcutConfigGridItems ->
+            (applicationInfoGridItems + widgetGridItems + shortcutInfoGridItems + folderGridItems + shortcutConfigGridItems)
                 .filterNot { gridItem ->
                     gridItem.folderId != null
                 }

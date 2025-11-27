@@ -120,7 +120,7 @@ internal fun GridItemContent(
                 }
 
                 is GridItemData.ShortcutConfig -> {
-                    ShortcutConfigActivityGridItem(
+                    ShortcutConfigGridItem(
                         modifier = modifier,
                         data = data,
                         textColor = textColor,
@@ -446,7 +446,7 @@ private fun WidgetGridItem(
 }
 
 @Composable
-internal fun ShortcutConfigActivityGridItem(
+internal fun ShortcutConfigGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutConfig,
     textColor: Color,

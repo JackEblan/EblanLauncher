@@ -249,7 +249,7 @@ internal fun FolderScreen(
                                             )
                                         }
                                     },
-                                    onTapShortcutConfigActivity = { uri ->
+                                    onTapShortcutConfig = { uri ->
                                         context.startActivity(Intent.parseUri(uri, 0))
                                     },
                                     onTapFolderGridItem = {

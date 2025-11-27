@@ -534,8 +534,8 @@ class ChangePackageUseCase @Inject constructor(
             }
         }
 
-        deleteShortcutConfigGridItems.forEach { shortcutConfigActivityGridItem ->
-            val uriIcon = shortcutConfigActivityGridItem.uriIcon
+        deleteShortcutConfigGridItems.forEach { shortcutConfigGridItem ->
+            val uriIcon = shortcutConfigGridItem.uriIcon
 
             if (uriIcon != null) {
                 val uriIconFile = File(

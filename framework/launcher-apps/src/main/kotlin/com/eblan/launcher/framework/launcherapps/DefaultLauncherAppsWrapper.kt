@@ -374,7 +374,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         )
     }
 
-    override suspend fun getShortcutConfigActivityIntent(
+    override suspend fun getShortcutConfigIntent(
         serialNumber: Long,
         packageName: String,
         componentName: String,

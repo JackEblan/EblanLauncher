@@ -61,27 +61,18 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 }
 
             val groupedEblanShortcutConfigs =
-                eblanShortcutConfigs.groupBy { eblanShortcutConfigActivity ->
-                    eblanShortcutConfigActivity.serialNumber
+                eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                    eblanShortcutConfig.applicationLabel?.lowercase()
+                }.groupBy { eblanShortcutConfig ->
+                    eblanShortcutConfig.serialNumber
                 }.mapValues { entry ->
-                    entry.value.mapNotNull { eblanShortcutConfigActivity ->
+                    entry.value.groupBy { eblanShortcutConfig ->
                         EblanApplicationInfoGroup(
-                            packageName = eblanShortcutConfigActivity.packageName,
-                            icon = eblanShortcutConfigActivity.activityIcon,
-                            label = eblanShortcutConfigActivity.activityLabel,
-                        ) to eblanShortcutConfigActivity
-
-                        eblanApplicationInfoRepository.getEblanApplicationInfo(
-                            serialNumber = eblanShortcutConfigActivity.serialNumber,
-                            packageName = eblanShortcutConfigActivity.packageName,
-                        )?.let { eblanApplicationInfo ->
-                            EblanApplicationInfoGroup(
-                                packageName = eblanApplicationInfo.packageName,
-                                icon = eblanApplicationInfo.icon,
-                                label = eblanApplicationInfo.label,
-                            ) to eblanShortcutConfigActivity
-                        }
-                    }.sortedBy { it.first.label }.groupBy({ it.first }, { it.second })
+                            packageName = eblanShortcutConfig.packageName,
+                            icon = eblanShortcutConfig.applicationIcon,
+                            label = eblanShortcutConfig.applicationLabel,
+                        )
+                    }
                 }
 
             EblanApplicationComponent(

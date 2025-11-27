@@ -264,7 +264,7 @@ private fun InteractiveApplicationInfoGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            ),
+            ).fillMaxSize(),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,
@@ -379,7 +379,7 @@ private fun InteractiveShortcutInfoGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    val defaultAlpha = if (hasShortcutHostPermission) 1f else 0.3f
+    val defaultAlpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
     var alpha by remember { mutableFloatStateOf(defaultAlpha) }
 
@@ -437,7 +437,7 @@ private fun InteractiveShortcutInfoGridItem(
 
                         scale.stop()
 
-                        alpha = 1f
+                        alpha = defaultAlpha
 
                         onResetOverlay()
 
@@ -451,11 +451,10 @@ private fun InteractiveShortcutInfoGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            ),
+            ).fillMaxSize(),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,
-        hasShortcutHostPermission = hasShortcutHostPermission,
     )
 }
 
@@ -546,7 +545,7 @@ private fun InteractiveFolderGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            ),
+            ).fillMaxSize(),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,
@@ -640,7 +639,7 @@ private fun InteractiveShortcutConfigActivityGridItem(
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
-            ),
+            ).fillMaxSize(),
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,

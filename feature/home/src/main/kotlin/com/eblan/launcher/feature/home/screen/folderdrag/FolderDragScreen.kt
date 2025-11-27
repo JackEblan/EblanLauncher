@@ -84,7 +84,6 @@ internal fun FolderDragScreen(
     folderDataById: FolderDataById?,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
-    hasShortcutHostPermission: Boolean,
     moveGridItemResult: MoveGridItemResult?,
     folderGridHorizontalPagerState: PagerState,
     overlayIntOffset: IntOffset,
@@ -266,7 +265,6 @@ internal fun FolderDragScreen(
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         isDragging = gridItem.id == gridItemSource.gridItem.id,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
                         statusBarNotifications = statusBarNotifications,
                     )
                 },
@@ -297,7 +295,6 @@ internal fun FolderDragScreen(
         overlayIntSize = overlayIntSize,
         textColor = textColor,
         iconPackInfoPackageName = iconPackInfoPackageName,
-        hasShortcutHostPermission = hasShortcutHostPermission,
         gridItemSettings = homeSettings.gridItemSettings,
         drag = drag,
         moveGridItemResult = lastMoveGridItemResult,
@@ -321,7 +318,6 @@ private fun AnimatedDropGridItem(
     overlayIntSize: IntSize,
     textColor: TextColor,
     iconPackInfoPackageName: String,
-    hasShortcutHostPermission: Boolean,
     gridItemSettings: GridItemSettings,
     drag: Drag,
     moveGridItemResult: MoveGridItemResult?,
@@ -469,7 +465,6 @@ private fun AnimatedDropGridItem(
         gridItemSettings = animatedGridItemSettings.value,
         iconPackInfoPackageName = iconPackInfoPackageName,
         isDragging = false,
-        hasShortcutHostPermission = hasShortcutHostPermission,
         statusBarNotifications = statusBarNotifications,
     )
 }

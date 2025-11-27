@@ -224,6 +224,7 @@ internal fun DragScreen(
                 moveGridItemResult = moveGridItemResult,
                 result = result,
                 gridItemSource = gridItemSource,
+                onDeleteGridItemCache = onDeleteGridItemCache,
                 onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
             )
         }
@@ -443,7 +444,6 @@ internal fun DragScreen(
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         isDragging = gridItem.id == gridItemSource.gridItem.id,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
                         statusBarNotifications = statusBarNotifications,
                     )
                 },
@@ -493,7 +493,6 @@ internal fun DragScreen(
                     gridItemSettings = gridItemSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = gridItem.id == gridItemSource.gridItem.id,
-                    hasShortcutHostPermission = hasShortcutHostPermission,
                     statusBarNotifications = statusBarNotifications,
                 )
             },
@@ -735,7 +734,6 @@ private fun AnimatedDropGridItem(
         gridItemSettings = animatedGridItemSettings.value,
         iconPackInfoPackageName = iconPackInfoPackageName,
         isDragging = false,
-        hasShortcutHostPermission = hasShortcutHostPermission,
         statusBarNotifications = statusBarNotifications,
     )
 }

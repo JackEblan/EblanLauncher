@@ -237,11 +237,13 @@ internal fun handleBoundWidget(
     }
 }
 
+@Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigActivityLauncherResult(
     androidByteArrayWrapper: AndroidByteArrayWrapper,
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     gridItemSource: GridItemSource,
+    onDeleteGridItemCache: (GridItem) -> Unit,
     onUpdateShortcutConfigActivityGridItemDataCache: (
         byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
@@ -251,30 +253,30 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
 ) {
     requireNotNull(moveGridItemResult)
 
-    if (result.resultCode == Activity.RESULT_OK) {
-        val icon =
-            result.data?.getParcelableExtra<Bitmap?>(Intent.EXTRA_SHORTCUT_ICON)?.let { bitmap ->
-                androidByteArrayWrapper.createByteArray(bitmap = bitmap)
-            }
+    if (result.resultCode == Activity.RESULT_CANCELED) {
+        onDeleteGridItemCache(gridItemSource.gridItem)
 
-        val uri = result.data?.getParcelableExtra<Intent>(
-            Intent.EXTRA_SHORTCUT_INTENT,
-        )?.toUri(Intent.URI_INTENT_SCHEME)
-
-        if (uri != null) {
-            val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfigActivity)
-                ?: error("Expected GridItemData.ShortcutConfigActivity")
-
-            val newData = data.copy(uri = uri)
-
-            onUpdateShortcutConfigActivityGridItemDataCache(
-                icon,
-                moveGridItemResult,
-                gridItemSource.gridItem,
-                newData,
-            )
-        }
+        return
     }
+
+    val icon =
+        result.data?.getParcelableCompat<Bitmap?>(Intent.EXTRA_SHORTCUT_ICON)?.let { bitmap ->
+            androidByteArrayWrapper.createByteArray(bitmap = bitmap)
+        }
+
+    val uri = result.data?.getParcelableCompat<Intent>(
+        Intent.EXTRA_SHORTCUT_INTENT,
+    )?.toUri(Intent.URI_INTENT_SCHEME)
+
+    val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfigActivity)
+        ?: error("Expected GridItemData.ShortcutConfigActivity")
+
+    onUpdateShortcutConfigActivityGridItemDataCache(
+        icon,
+        moveGridItemResult,
+        gridItemSource.gridItem,
+        data.copy(uri = uri),
+    )
 }
 
 internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
@@ -292,14 +294,16 @@ internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
 ) {
     requireNotNull(moveGridItemResult)
 
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || result.resultCode == Activity.RESULT_CANCELED) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+        result.resultCode == Activity.RESULT_CANCELED
+    ) {
         onDeleteGridItemCache(gridItemSource.gridItem)
 
         return
     }
 
     val pinItemRequest =
-        result.data?.getParcelableExtra<PinItemRequest?>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
+        result.data?.getParcelableCompat<PinItemRequest?>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
 
     val shortcutInfo = pinItemRequest?.shortcutInfo
 
@@ -469,5 +473,14 @@ private suspend fun onDragEndShortcutConfigActivity(
         } else {
             onDeleteGridItemCache(gridItem)
         }
+    }
+}
+
+private inline fun <reified T> Intent.getParcelableCompat(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(key, T::class.java)
+    } else {
+        @Suppress("DEPRECATION")
+        getParcelableExtra(key) as? T
     }
 }

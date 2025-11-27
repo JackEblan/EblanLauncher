@@ -68,7 +68,6 @@ internal fun GridItemContent(
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
     isDragging: Boolean,
-    hasShortcutHostPermission: Boolean,
     statusBarNotifications: Map<String, Int>,
 ) {
     key(gridItem.id) {
@@ -108,7 +107,6 @@ internal fun GridItemContent(
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
-                        hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 }
 
@@ -178,7 +176,7 @@ internal fun ApplicationInfoGridItem(
         statusBarNotifications[data.packageName] != null && statusBarNotifications[data.packageName]!! > 0
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -238,7 +236,6 @@ internal fun ShortcutInfoGridItem(
     data: GridItemData.ShortcutInfo,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    hasShortcutHostPermission: Boolean,
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -254,12 +251,8 @@ internal fun ShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val alpha = if (hasShortcutHostPermission || data.isEnabled) 1f else 0.5f
-
     Column(
-        modifier = modifier
-            .alpha(alpha)
-            .fillMaxSize(),
+        modifier = modifier,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -317,7 +310,7 @@ internal fun FolderGridItem(
     }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -442,13 +435,13 @@ private fun WidgetGridItem(
                     minHeight = data.minHeight,
                 )
             },
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier,
         )
     } else {
         AsyncImage(
             model = data.preview ?: data.icon,
             contentDescription = null,
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier,
         )
     }
 }
@@ -477,7 +470,7 @@ internal fun ShortcutConfigActivityGridItem(
     }
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {

@@ -64,9 +64,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                 eblanShortcutConfigActivities.groupBy { eblanShortcutConfigActivity ->
                     eblanShortcutConfigActivity.serialNumber
                 }.mapValues { entry ->
-                    entry.value.sortedBy { eblanShortcutConfigActivity ->
-                        eblanShortcutConfigActivity.label?.lowercase()
-                    }.mapNotNull { activity ->
+                    entry.value.mapNotNull { activity ->
                         eblanApplicationInfoRepository.getEblanApplicationInfo(
                             serialNumber = activity.serialNumber,
                             packageName = activity.packageName,
@@ -77,7 +75,7 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
                                 label = eblanApplicationInfo.label,
                             ) to activity
                         }
-                    }.groupBy({ it.first }, { it.second })
+                    }.sortedBy { it.first.label }.groupBy({ it.first }, { it.second })
                 }
 
             EblanApplicationComponent(

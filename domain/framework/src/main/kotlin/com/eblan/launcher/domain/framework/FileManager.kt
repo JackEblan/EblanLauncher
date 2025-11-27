@@ -44,5 +44,7 @@ interface FileManager {
         const val ICON_PACKS_DIR = "iconpacks"
 
         const val SHORTCUT_CONFIG_ACTIVITIES_DIR = "shortcutconfigactivities"
+
+        const val URIS_DIR = "uris"
     }
 }

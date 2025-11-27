@@ -379,10 +379,12 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         packageName: String,
         componentName: String,
     ): IntentSender? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !hasShortcutHostPermission) return null
+
         return withContext(defaultDispatcher) {
             val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-            val launcherActivityInfo = if (hasShortcutHostPermission && userHandle != null) {
+            val launcherActivityInfo = if (userHandle != null) {
                 launcherApps.getShortcutConfigActivityList(packageName, userHandle)
                     .find { launcherActivityInfo ->
                         launcherActivityInfo.componentName.flattenToString() == componentName
@@ -407,7 +409,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     private suspend fun LauncherActivityInfo.toEblanShortcutConfigActivityInfo(): LauncherAppsActivityInfo {
-        val icon = getBadgedIcon(0).let { drawable ->
+        val icon = getIcon(0).let { drawable ->
             androidByteArrayWrapper.createByteArray(drawable = drawable)
         }
 

@@ -71,6 +71,7 @@ import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
@@ -170,6 +171,7 @@ internal fun HomeRoute(
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
         onUpdateShortcutConfigActivityGridItemDataCache = viewModel::updateShortcutConfigActivityGridItemDataCache,
+        onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = viewModel::updateShortcutConfigActivityIntoShortcutInfoGridItem,
     )
 }
 
@@ -248,8 +250,14 @@ internal fun HomeScreen(
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
     onUpdateShortcutConfigActivityGridItemDataCache: (
+        byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
+        data: GridItemData.ShortcutConfigActivity,
+    ) -> Unit,
+    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -455,6 +463,7 @@ internal fun HomeScreen(
                         overlayImageBitmap = null
                     },
                     onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
+                    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = onUpdateShortcutConfigActivityIntoShortcutInfoGridItem,
                 )
             }
         }
@@ -554,8 +563,14 @@ private fun Success(
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
     onUpdateShortcutConfigActivityGridItemDataCache: (
+        byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
+        data: GridItemData.ShortcutConfigActivity,
+    ) -> Unit,
+    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -743,6 +758,7 @@ private fun Success(
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onResetOverlay = onResetOverlay,
                     onUpdateShortcutConfigActivityGridItemDataCache = onUpdateShortcutConfigActivityGridItemDataCache,
+                    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = onUpdateShortcutConfigActivityIntoShortcutInfoGridItem,
                 )
             }
 

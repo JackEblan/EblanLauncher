@@ -38,6 +38,7 @@ internal fun ShortcutConfigActivityGridItemEntity.asGridItem(): GridItem {
             icon = icon,
             label = label,
             uri = uri,
+            uriIcon = uriIcon,
         ),
         associate = associate,
         override = override,
@@ -62,6 +63,7 @@ internal fun ShortcutConfigActivityGridItemEntity.asModel(): ShortcutConfigActiv
         override = override,
         serialNumber = serialNumber,
         uri = uri,
+        uriIcon = uriIcon,
         gridItemSettings = gridItemSettings,
     )
 }
@@ -83,6 +85,7 @@ internal fun ShortcutConfigActivityGridItem.asEntity(): ShortcutConfigActivityGr
         override = override,
         serialNumber = serialNumber,
         uri = uri,
+        uriIcon = uriIcon,
         gridItemSettings = gridItemSettings,
     )
 }

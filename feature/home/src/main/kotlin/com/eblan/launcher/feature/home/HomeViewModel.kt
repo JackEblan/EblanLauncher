@@ -20,9 +20,13 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
@@ -90,6 +94,8 @@ internal class HomeViewModel @Inject constructor(
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
     eblanShortcutInfoRepository: EblanShortcutInfoRepository,
+    private val fileManager: FileManager,
+    private val packageManagerWrapper: PackageManagerWrapper,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -428,13 +434,23 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun updateShortcutConfigActivityGridItemDataCache(
+        byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
+        data: GridItemData.ShortcutConfigActivity,
     ) {
         viewModelScope.launch {
+            val uriIcon = byteArray?.let { currentByteArray ->
+                fileManager.updateAndGetFilePath(
+                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
+                    gridItem.id,
+                    currentByteArray,
+                )
+            }
+
             gridCacheRepository.updateGridItemData(
                 id = gridItem.id,
-                data = gridItem.data,
+                data = data.copy(uriIcon = uriIcon),
             )
 
             resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)
@@ -541,6 +557,53 @@ internal class HomeViewModel @Inject constructor(
     fun resetPinGridItem() {
         _pinGridItem.update {
             null
+        }
+    }
+
+    fun updateShortcutConfigActivityIntoShortcutInfoGridItem(
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) {
+        viewModelScope.launch {
+            gridCacheRepository.deleteGridItem(gridItem = moveGridItemResult.movingGridItem)
+
+            val icon = pinItemRequestType.icon?.let { byteArray ->
+                fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                    name = pinItemRequestType.shortcutId,
+                    byteArray = byteArray,
+                )
+            }
+
+            val eblanApplicationInfoIcon =
+                packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
+                    ?.let { byteArray ->
+                        fileManager.updateAndGetFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            name = pinItemRequestType.packageName,
+                            byteArray = byteArray,
+                        )
+                    }
+
+            val data = ShortcutInfo(
+                shortcutId = pinItemRequestType.shortcutId,
+                packageName = pinItemRequestType.packageName,
+                serialNumber = pinItemRequestType.serialNumber,
+                shortLabel = pinItemRequestType.shortLabel,
+                longLabel = pinItemRequestType.longLabel,
+                icon = icon,
+                isEnabled = pinItemRequestType.isEnabled,
+                disabledMessage = pinItemRequestType.disabledMessage,
+                eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+            )
+
+            gridCacheRepository.insertGridItem(
+                gridItem = moveGridItemResult.movingGridItem.copy(
+                    data = data,
+                ),
+            )
+
+            resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)
         }
     }
 }

@@ -32,6 +32,7 @@ data class ShortcutConfigActivityGridItem(
     val label: String?,
     val override: Boolean,
     val serialNumber: Long,
-    val uri: String,
+    val uri: String?,
+    val uriIcon: String?,
     val gridItemSettings: GridItemSettings,
 )

@@ -22,9 +22,9 @@ import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.content.pm.LauncherApps.PinItemRequest
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Bundle
 import android.os.Process
 import androidx.activity.result.ActivityResult
@@ -32,6 +32,7 @@ import androidx.activity.result.IntentSenderRequest
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -240,12 +241,16 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
     gridItemSource: GridItemSource,
-    onUpdateShortcutConfigActivityGridItemDataCache: (MoveGridItemResult, GridItem) -> Unit,
+    onUpdateShortcutConfigActivityGridItemDataCache: (
+        byteArray: ByteArray?,
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+        data: GridItemData.ShortcutConfigActivity,
+    ) -> Unit,
 ) {
     requireNotNull(moveGridItemResult)
 
     if (result.resultCode == Activity.RESULT_OK) {
-        // TODO this should update the icon and write it to cache after shortcut created
         val icon =
             result.data?.getParcelableExtra<Bitmap?>(Intent.EXTRA_SHORTCUT_ICON)?.let { bitmap ->
                 androidByteArrayWrapper.createByteArray(bitmap = bitmap)
@@ -262,10 +267,68 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
             val newData = data.copy(uri = uri)
 
             onUpdateShortcutConfigActivityGridItemDataCache(
+                icon,
                 moveGridItemResult,
-                gridItemSource.gridItem.copy(data = newData),
+                gridItemSource.gridItem,
+                newData,
             )
         }
+    }
+}
+
+internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
+    moveGridItemResult: MoveGridItemResult?,
+    result: ActivityResult,
+    userManagerWrapper: AndroidUserManagerWrapper,
+    launcherAppsWrapper: AndroidLauncherAppsWrapper,
+    byteArrayWrapper: AndroidByteArrayWrapper,
+    gridItemSource: GridItemSource,
+    onDeleteGridItemCache: (GridItem) -> Unit,
+    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
+) {
+    requireNotNull(moveGridItemResult)
+
+    if (result.resultCode == Activity.RESULT_CANCELED) {
+        onDeleteGridItemCache(gridItemSource.gridItem)
+
+        return
+    }
+
+    val pinItemRequest =
+        result.data?.getParcelableExtra<PinItemRequest?>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
+
+    val shortcutInfo = pinItemRequest?.shortcutInfo
+
+    if (pinItemRequest != null &&
+        shortcutInfo != null &&
+        pinItemRequest.isValid &&
+        pinItemRequest.accept()
+    ) {
+        val pinItemRequestType = PinItemRequestType.ShortcutInfo(
+            serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = shortcutInfo.userHandle),
+            shortcutId = shortcutInfo.id,
+            packageName = shortcutInfo.`package`,
+            shortLabel = shortcutInfo.shortLabel.toString(),
+            longLabel = shortcutInfo.longLabel.toString(),
+            isEnabled = shortcutInfo.isEnabled,
+            disabledMessage = shortcutInfo.disabledMessage?.toString(),
+            icon = launcherAppsWrapper.getShortcutIconDrawable(
+                shortcutInfo = shortcutInfo,
+                density = 0,
+            )?.let {
+                byteArrayWrapper.createByteArray(drawable = it)
+            },
+        )
+
+        onUpdateShortcutConfigActivityIntoShortcutInfoGridItem(
+            moveGridItemResult,
+            pinItemRequestType,
+        )
+    } else {
+        onDeleteGridItemCache(gridItemSource.gridItem)
     }
 }
 
@@ -311,7 +374,7 @@ private fun onDragEndPinShortcut(
     onDeleteGridItemCache: (GridItem) -> Unit,
     onDragEndAfterMove: (MoveGridItemResult) -> Unit,
 ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest != null &&
+    if (pinItemRequest != null &&
         pinItemRequest.isValid &&
         pinItemRequest.accept()
     ) {
@@ -357,11 +420,9 @@ private fun bindPinWidget(
         putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     }
 
-    val bindPinWidget =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && pinItemRequest.isValid &&
-                pinItemRequest.accept(extras)
-
-    if (bindPinWidget) {
+    if (pinItemRequest.isValid &&
+        pinItemRequest.accept(extras)
+    ) {
         onDragEndAfterMove(moveGridItemResult.copy(movingGridItem = updatedGridItem))
     } else {
         onDeleteGridItemCache(updatedGridItem)

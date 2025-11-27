@@ -17,9 +17,7 @@
  */
 package com.eblan.launcher.feature.home.screen.drag
 
-import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.content.pm.LauncherApps
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -64,9 +62,11 @@ import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
+import com.eblan.launcher.domain.model.PinItemRequestType
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
@@ -128,8 +128,14 @@ internal fun DragScreen(
     ) -> Unit,
     onResetOverlay: () -> Unit,
     onUpdateShortcutConfigActivityGridItemDataCache: (
+        byteArray: ByteArray?,
         moveGridItemResult: MoveGridItemResult,
         gridItem: GridItem,
+        data: GridItemData.ShortcutConfigActivity,
+    ) -> Unit,
+    onUpdateShortcutConfigActivityIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
     ) -> Unit,
 ) {
     requireNotNull(gridItemSource)
@@ -226,11 +232,17 @@ internal fun DragScreen(
     val shortcutConfigActivityIntentSenderLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult(),
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val pinItemRequest: LauncherApps.PinItemRequest? =
-                result.data?.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
-
-            println(pinItemRequest?.shortcutInfo?.id)
+        scope.launch {
+            handleShortcutConfigActivityIntentSenderLauncherResult(
+                moveGridItemResult = moveGridItemResult,
+                result = result,
+                userManagerWrapper = userManager,
+                launcherAppsWrapper = launcherApps,
+                byteArrayWrapper = byteArray,
+                gridItemSource = gridItemSource,
+                onDeleteGridItemCache = onDeleteGridItemCache,
+                onUpdateShortcutConfigActivityIntoShortcutInfoGridItem = onUpdateShortcutConfigActivityIntoShortcutInfoGridItem,
+            )
         }
     }
 

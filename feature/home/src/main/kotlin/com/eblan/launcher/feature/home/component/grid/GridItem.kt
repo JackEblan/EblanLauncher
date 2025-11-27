@@ -128,8 +128,6 @@ internal fun GridItemContent(
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
-                        iconPackInfoPackageName = iconPackInfoPackageName,
-                        statusBarNotifications = statusBarNotifications,
                     )
                 }
             }
@@ -156,10 +154,10 @@ internal fun ApplicationInfoGridItem(
 
     val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
 
-    val iconFile = File(iconPackDirectory, data.packageName)
+    val iconPackFile = File(iconPackDirectory, data.packageName)
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-        iconFile.absolutePath
+    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+        iconPackFile.absolutePath
     } else {
         data.icon
     }
@@ -461,26 +459,10 @@ internal fun ShortcutConfigActivityGridItem(
     data: GridItemData.ShortcutConfigActivity,
     textColor: Color,
     gridItemSettings: GridItemSettings,
-    iconPackInfoPackageName: String,
-    statusBarNotifications: Map<String, Int>,
 ) {
     val context = LocalContext.current
 
-    val settings = LocalSettings.current
-
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
-
-    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
-
-    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
-
-    val iconFile = File(iconPackDirectory, data.packageName)
-
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-        iconFile.absolutePath
-    } else {
-        data.icon
-    }
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -494,9 +476,6 @@ internal fun ShortcutConfigActivityGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    val hasNotifications =
-        statusBarNotifications[data.packageName] != null && statusBarNotifications[data.packageName]!! > 0
-
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
@@ -505,24 +484,12 @@ internal fun ShortcutConfigActivityGridItem(
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
                 model = Builder(context)
-                    .data(icon)
+                    .data(data.uriIcon ?: data.icon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
             )
-
-            if (settings.isNotificationAccessGranted() && hasNotifications) {
-                Box(
-                    modifier = Modifier
-                        .size((gridItemSettings.iconSize * 0.3).dp)
-                        .align(Alignment.TopEnd)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape,
-                        ),
-                )
-            }
 
             if (data.serialNumber != 0L) {
                 ElevatedCard(

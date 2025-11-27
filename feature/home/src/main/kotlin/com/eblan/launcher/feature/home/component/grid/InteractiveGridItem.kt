@@ -165,10 +165,8 @@ internal fun InteractiveGridItemContent(
                 gridItemSettings = gridItemSettings,
                 data = data,
                 drag = drag,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                statusBarNotifications = statusBarNotifications,
                 onTap = {
-                    onTapShortcutConfigActivity(data.uri)
+                    data.uri?.let(onTapShortcutConfigActivity)
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
@@ -563,8 +561,6 @@ private fun InteractiveShortcutConfigActivityGridItem(
     gridItemSettings: GridItemSettings,
     data: GridItemData.ShortcutConfigActivity,
     drag: Drag,
-    iconPackInfoPackageName: String,
-    statusBarNotifications: Map<String, Int>,
     onTap: () -> Unit,
     onLongPress: (GridItemData) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
@@ -648,7 +644,5 @@ private fun InteractiveShortcutConfigActivityGridItem(
         data = data,
         textColor = textColor,
         gridItemSettings = gridItemSettings,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-        statusBarNotifications = statusBarNotifications,
     )
 }

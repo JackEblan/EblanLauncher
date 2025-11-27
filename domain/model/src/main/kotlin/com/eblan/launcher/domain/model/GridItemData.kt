@@ -72,6 +72,7 @@ sealed interface GridItemData {
         val packageName: String,
         val icon: String?,
         val label: String?,
-        val uri: String,
+        val uri: String?,
+        val uriIcon: String?,
     ) : GridItemData
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "d967fa9509761391f55f0d87d91bd67e",
+    "identityHash": "0390823d6dfb463d093de6a08b584b8e",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -897,7 +897,7 @@
       },
       {
         "tableName": "ShortcutConfigActivityGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `uri` TEXT NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `uri` TEXT, `uriIcon` TEXT, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -983,8 +983,12 @@
           {
             "fieldPath": "uri",
             "columnName": "uri",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "uriIcon",
+            "columnName": "uriIcon",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "gridItemSettings.iconSize",
@@ -1039,7 +1043,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd967fa9509761391f55f0d87d91bd67e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0390823d6dfb463d093de6a08b584b8e')"
     ]
   }
 }

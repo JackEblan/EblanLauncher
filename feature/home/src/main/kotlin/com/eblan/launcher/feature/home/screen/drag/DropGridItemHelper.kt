@@ -259,14 +259,26 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
         return
     }
 
-    val icon =
-        result.data?.getParcelableCompat<Bitmap?>(Intent.EXTRA_SHORTCUT_ICON)?.let { bitmap ->
-            androidByteArrayWrapper.createByteArray(bitmap = bitmap)
+    val icon = result.data?.let { intent ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON, Bitmap::class.java)
+        } else {
+            intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
         }
+    }?.let { bitmap ->
+        androidByteArrayWrapper.createByteArray(bitmap = bitmap)
+    }
 
-    val uri = result.data?.getParcelableCompat<Intent>(
-        Intent.EXTRA_SHORTCUT_INTENT,
-    )?.toUri(Intent.URI_INTENT_SCHEME)
+    val uri = result.data?.let { intent ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(
+                Intent.EXTRA_SHORTCUT_INTENT,
+                Intent::class.java,
+            )
+        } else {
+            intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT)
+        }
+    }?.toUri(Intent.URI_INTENT_SCHEME)
 
     val data = (gridItemSource.gridItem.data as? GridItemData.ShortcutConfigActivity)
         ?: error("Expected GridItemData.ShortcutConfigActivity")
@@ -279,6 +291,7 @@ internal suspend fun handleShortcutConfigActivityLauncherResult(
     )
 }
 
+@Suppress("DEPRECATION")
 internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
     moveGridItemResult: MoveGridItemResult?,
     result: ActivityResult,
@@ -302,8 +315,16 @@ internal suspend fun handleShortcutConfigActivityIntentSenderLauncherResult(
         return
     }
 
-    val pinItemRequest =
-        result.data?.getParcelableCompat<PinItemRequest?>(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
+    val pinItemRequest = result.data?.let { intent ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(
+                LauncherApps.EXTRA_PIN_ITEM_REQUEST,
+                PinItemRequest::class.java,
+            )
+        } else {
+            intent.getParcelableExtra(LauncherApps.EXTRA_PIN_ITEM_REQUEST)
+        }
+    }
 
     val shortcutInfo = pinItemRequest?.shortcutInfo
 
@@ -473,14 +494,5 @@ private suspend fun onDragEndShortcutConfigActivity(
         } else {
             onDeleteGridItemCache(gridItem)
         }
-    }
-}
-
-private inline fun <reified T> Intent.getParcelableCompat(key: String): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelableExtra(key, T::class.java)
-    } else {
-        @Suppress("DEPRECATION")
-        getParcelableExtra(key) as? T
     }
 }

@@ -42,7 +42,7 @@ internal class DefaultFileManager @Inject constructor(
         }
     }
 
-    override suspend fun getAndUpdateFilePath(
+    override suspend fun updateAndGetFilePath(
         directory: File,
         name: String,
         byteArray: ByteArray,
@@ -61,7 +61,8 @@ internal class DefaultFileManager @Inject constructor(
                     }
 
                     file.absolutePath
-                } catch (_: IOException) {
+                } catch (e: IOException) {
+                    e.printStackTrace()
                     null
                 }
             }
@@ -92,7 +93,8 @@ internal class DefaultFileManager @Inject constructor(
                 FileInputStream(file).use { fis ->
                     fis.readBytes()
                 }
-            } catch (_: IOException) {
+            } catch (e: IOException) {
+                e.printStackTrace()
                 null
             }
         } else {

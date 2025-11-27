@@ -15,10 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.drawable
+package com.eblan.launcher.domain.model
 
-import android.graphics.drawable.Drawable
-
-interface AndroidDrawableWrapper {
-    suspend fun createByteArray(drawable: Drawable): ByteArray?
-}
+data class EblanApplicationInfoGroup(
+    val packageName: String,
+    val icon: String?,
+    val label: String?,
+)

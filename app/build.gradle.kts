@@ -60,7 +60,7 @@ dependencies {
     implementation(projects.feature.settings.gestures)
     implementation(projects.feature.settings.home)
     implementation(projects.feature.settings.settings)
-    implementation(projects.framework.drawable)
+    implementation(projects.framework.byteArray)
     implementation(projects.framework.fileManager)
     implementation(projects.framework.iconPackManager)
     implementation(projects.framework.launcherApps)

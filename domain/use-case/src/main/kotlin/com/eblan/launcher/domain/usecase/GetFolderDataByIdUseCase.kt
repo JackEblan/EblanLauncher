@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -36,6 +37,7 @@ class GetFolderDataByIdUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
@@ -47,7 +49,8 @@ class GetFolderDataByIdUseCase @Inject constructor(
                 applicationInfoGridItemRepository.gridItems.first() +
                     widgetGridItemRepository.gridItems.first() +
                     shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first()
+                    folderGridItemRepository.gridItems.first() +
+                    shortcutConfigGridItemRepository.gridItems.first()
                 ).filter { gridItem ->
                 gridItem.folderId == id && isGridItemSpanWithinBounds(
                     gridItem = gridItem,

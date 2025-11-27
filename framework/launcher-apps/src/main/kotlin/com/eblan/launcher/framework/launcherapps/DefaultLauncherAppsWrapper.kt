@@ -20,6 +20,7 @@ package com.eblan.launcher.framework.launcherapps
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
@@ -40,7 +41,7 @@ import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.model.LauncherAppsEvent
 import com.eblan.launcher.domain.model.LauncherAppsShortcutInfo
 import com.eblan.launcher.domain.model.ShortcutQueryFlag
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -55,7 +56,7 @@ import javax.inject.Inject
 internal class DefaultLauncherAppsWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val packageManagerWrapper: PackageManagerWrapper,
-    private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
     private val userManagerWrapper: AndroidUserManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) : LauncherAppsWrapper, AndroidLauncherAppsWrapper {
@@ -261,14 +262,32 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getShortcutConfigActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsActivityInfo> {
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && userHandle != null) {
+                launcherApps.getShortcutConfigActivityList(packageName, userHandle)
+                    .map { launcherActivityInfo ->
+                        launcherActivityInfo.toEblanLauncherActivityInfo()
+                    }
+            } else {
+                emptyList()
+            }
+        }
+    }
+
     override fun startMainActivity(
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     ) {
         val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
 
-        if (componentName != null && userHandle != null) {
+        if (userHandle != null) {
             launcherApps.startMainActivity(
                 ComponentName.unflattenFromString(componentName),
                 userHandle,
@@ -279,17 +298,15 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     override fun startMainActivity(
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     ) {
-        if (componentName != null) {
-            launcherApps.startMainActivity(
-                ComponentName.unflattenFromString(componentName),
-                myUserHandle(),
-                sourceBounds,
-                Bundle.EMPTY,
-            )
-        }
+        launcherApps.startMainActivity(
+            ComponentName.unflattenFromString(componentName),
+            myUserHandle(),
+            sourceBounds,
+            Bundle.EMPTY,
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -333,7 +350,10 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
-    override fun getShortcutIconDrawable(shortcutInfo: ShortcutInfo?, density: Int): Drawable? {
+    override fun getShortcutIconDrawable(
+        shortcutInfo: ShortcutInfo?,
+        density: Int,
+    ): Drawable? {
         return if (shortcutInfo != null) {
             launcherApps.getShortcutIconDrawable(shortcutInfo, density)
         } else {
@@ -343,28 +363,51 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
 
     override fun startAppDetailsActivity(
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
         sourceBounds: Rect,
     ) {
-        if (componentName != null) {
-            launcherApps.startAppDetailsActivity(
-                ComponentName.unflattenFromString(componentName),
-                userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber),
-                sourceBounds,
-                Bundle.EMPTY,
-            )
+        launcherApps.startAppDetailsActivity(
+            ComponentName.unflattenFromString(componentName),
+            userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber),
+            sourceBounds,
+            Bundle.EMPTY,
+        )
+    }
+
+    override suspend fun getShortcutConfigIntent(
+        serialNumber: Long,
+        packageName: String,
+        componentName: String,
+    ): IntentSender? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !hasShortcutHostPermission) return null
+
+        return withContext(defaultDispatcher) {
+            val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+            val launcherActivityInfo = if (userHandle != null) {
+                launcherApps.getShortcutConfigActivityList(packageName, userHandle)
+                    .find { launcherActivityInfo ->
+                        launcherActivityInfo.componentName.flattenToString() == componentName
+                    }
+            } else {
+                null
+            }
+
+            launcherActivityInfo?.let(launcherApps::getShortcutConfigActivityIntent)
         }
     }
 
     private suspend fun LauncherActivityInfo.toEblanLauncherActivityInfo(): LauncherAppsActivityInfo {
-        val icon = packageManagerWrapper.getApplicationIcon(applicationInfo.packageName)
-
         return LauncherAppsActivityInfo(
             serialNumber = userManagerWrapper.getSerialNumberForUser(userHandle = user),
             componentName = componentName.flattenToString(),
             packageName = applicationInfo.packageName,
-            icon = icon,
-            label = packageManagerWrapper.getApplicationLabel(applicationInfo.packageName)
+            activityIcon = getIcon(0).let { drawable ->
+                androidByteArrayWrapper.createByteArray(drawable = drawable)
+            },
+            activityLabel = label.toString(),
+            applicationIcon = packageManagerWrapper.getApplicationIcon(packageName = applicationInfo.packageName),
+            applicationLabel = packageManagerWrapper.getApplicationLabel(packageName = applicationInfo.packageName)
                 .toString(),
         )
     }
@@ -372,7 +415,7 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     private suspend fun ShortcutInfo.toLauncherAppsShortcutInfo(): LauncherAppsShortcutInfo {
         val icon = getShortcutIconDrawable(this, 0)?.let { drawable ->
-            androidDrawableWrapper.createByteArray(drawable = drawable)
+            androidByteArrayWrapper.createByteArray(drawable = drawable)
         }
 
         val shortcutQueryFlag = when {

@@ -30,6 +30,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -49,12 +50,12 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -88,7 +89,8 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 applicationInfoGridItemRepository.gridItems.first() +
                     widgetGridItemRepository.gridItems.first() +
                     shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first()
+                    folderGridItemRepository.gridItems.first() +
+                    shortcutConfigGridItemRepository.gridItems.first()
                 ).filter { gridItem ->
                 gridItem.associate == Associate.Grid &&
                     gridItem.folderId == null
@@ -96,7 +98,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val previewInferred = File(
                 fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                className,
+                componentName.replace("/", "-"),
             ).absolutePath
 
             val label =
@@ -105,7 +107,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
             val icon =
                 packageManagerWrapper.getApplicationIcon(packageName = packageName)
                     ?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = packageName,
                             byteArray = byteArray,
@@ -140,7 +142,6 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
 
             val data = GridItemData.Widget(
                 appWidgetId = 0,
-                className = className,
                 componentName = componentName,
                 packageName = packageName,
                 serialNumber = serialNumber,

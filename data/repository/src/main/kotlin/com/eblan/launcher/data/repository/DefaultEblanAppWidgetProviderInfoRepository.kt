@@ -49,11 +49,6 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
         eblanAppWidgetProviderInfoDao.deleteEblanAppWidgetProviderInfoEntities(entities = entities)
     }
 
-    override suspend fun getEblanAppWidgetProviderInfo(className: String): EblanAppWidgetProviderInfo? {
-        return eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntity(className = className)
-            ?.asModel()
-    }
-
     override suspend fun getEblanAppWidgetProviderInfosByPackageName(packageName: String): List<EblanAppWidgetProviderInfo> {
         return eblanAppWidgetProviderInfoDao.getEblanAppWidgetProviderInfoEntitiesByPackageName(
             packageName = packageName,
@@ -70,8 +65,8 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
 
     private fun EblanAppWidgetProviderInfo.asEntity(): EblanAppWidgetProviderInfoEntity {
         return EblanAppWidgetProviderInfoEntity(
-            className = className,
             componentName = componentName,
+            serialNumber = serialNumber,
             configure = configure,
             packageName = packageName,
             targetCellWidth = targetCellWidth,
@@ -91,8 +86,8 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
 
     private fun EblanAppWidgetProviderInfoEntity.asModel(): EblanAppWidgetProviderInfo {
         return EblanAppWidgetProviderInfo(
-            className = className,
             componentName = componentName,
+            serialNumber = serialNumber,
             configure = configure,
             packageName = packageName,
             targetCellWidth = targetCellWidth,

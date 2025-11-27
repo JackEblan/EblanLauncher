@@ -18,7 +18,7 @@
 package com.eblan.launcher.ui.local
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
@@ -52,8 +52,8 @@ val LocalPackageManager = staticCompositionLocalOf<AndroidPackageManagerWrapper>
     error("No AndroidPackageManager provided")
 }
 
-val LocalDrawable = staticCompositionLocalOf<AndroidDrawableWrapper> {
-    error("No DrawableWrapper provided")
+val LocalByteArray = staticCompositionLocalOf<AndroidByteArrayWrapper> {
+    error("No AndroidByteArrayWrapper provided")
 }
 
 val LocalUserManager = staticCompositionLocalOf<AndroidUserManagerWrapper> {

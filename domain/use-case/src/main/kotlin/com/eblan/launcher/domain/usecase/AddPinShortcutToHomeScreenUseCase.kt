@@ -28,6 +28,7 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.FolderGridItemRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.repository.WidgetGridItemRepository
@@ -44,6 +45,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
     private val folderGridItemRepository: FolderGridItemRepository,
+    private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
     private val packageManagerWrapper: PackageManagerWrapper,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
@@ -72,14 +74,15 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 applicationInfoGridItemRepository.gridItems.first() +
                     widgetGridItemRepository.gridItems.first() +
                     shortcutInfoGridItemRepository.gridItems.first() +
-                    folderGridItemRepository.gridItems.first()
+                    folderGridItemRepository.gridItems.first() +
+                    shortcutConfigGridItemRepository.gridItems.first()
                 ).filter { gridItem ->
                 gridItem.associate == Associate.Grid &&
                     gridItem.folderId == null
             }
 
             val icon = byteArray?.let { currentByteArray ->
-                fileManager.getAndUpdateFilePath(
+                fileManager.updateAndGetFilePath(
                     directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
                     name = shortcutId,
                     byteArray = currentByteArray,
@@ -89,7 +92,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
             val eblanApplicationInfoIcon =
                 packageManagerWrapper.getApplicationIcon(packageName = packageName)
                     ?.let { byteArray ->
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
                             name = packageName,
                             byteArray = byteArray,

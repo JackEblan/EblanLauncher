@@ -58,6 +58,7 @@ internal fun SettingsPopup(
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onWidgets: () -> Unit,
+    onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
@@ -86,6 +87,11 @@ internal fun SettingsPopup(
 
                 onDismissRequest()
             },
+            onShortcutConfigActivities = {
+                onShortcutConfigActivities()
+
+                onDismissRequest()
+            },
             onWallpaper = {
                 onWallpaper()
 
@@ -109,7 +115,7 @@ internal fun GridItemPopup(
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (
         serialNumber: Long,
-        componentName: String?,
+        componentName: String,
     ) -> Unit,
     onDismissRequest: () -> Unit,
     onTapShortcutInfo: (
@@ -149,6 +155,7 @@ private fun SettingsMenu(
     onSettings: () -> Unit,
     onEditPage: () -> Unit,
     onWidgets: () -> Unit,
+    onShortcutConfigActivities: () -> Unit,
     onWallpaper: () -> Unit,
 ) {
     Surface(
@@ -180,6 +187,14 @@ private fun SettingsMenu(
                         onClick = onWidgets,
                     )
                 }
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                PopupMenuRow(
+                    imageVector = EblanLauncherIcons.Shortcut,
+                    title = "Shortcuts",
+                    onClick = onShortcutConfigActivities,
+                )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
@@ -227,7 +242,10 @@ private fun GridItemPopupContent(
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onResize: () -> Unit,
-    onInfo: (Long, String?) -> Unit,
+    onInfo: (
+        serialNumber: Long,
+        componentName: String,
+    ) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -329,6 +347,22 @@ private fun GridItemPopupContent(
             WidgetGridItemMenu(
                 modifier = modifier,
                 showResize = showResize,
+                onResize = {
+                    onResize()
+
+                    onDismissRequest()
+                },
+                onDelete = {
+                    onDeleteGridItem(gridItem)
+
+                    onDismissRequest()
+                },
+            )
+        }
+
+        is GridItemData.ShortcutConfig -> {
+            ShortcutConfigGridItemMenu(
+                modifier = modifier,
                 onResize = {
                     onResize()
 
@@ -482,6 +516,40 @@ private fun WidgetGridItemMenu(
                             contentDescription = null,
                         )
                     }
+                }
+
+                IconButton(
+                    onClick = onDelete,
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Delete,
+                        contentDescription = null,
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun ShortcutConfigGridItemMenu(
+    modifier: Modifier = Modifier,
+    onResize: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(30.dp),
+        shadowElevation = 2.dp,
+        content = {
+            Row {
+                IconButton(
+                    onClick = onResize,
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Resize,
+                        contentDescription = null,
+                    )
                 }
 
                 IconButton(

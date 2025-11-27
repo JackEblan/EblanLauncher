@@ -23,6 +23,7 @@ import com.eblan.launcher.domain.grid.findAvailableRegionByPage
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,10 +39,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) {
+    suspend operator fun invoke(moveGridItemResult: MoveGridItemResult) {
         withContext(defaultDispatcher) {
             val homeSettings = userDataRepository.userData.first().homeSettings
 
@@ -51,7 +49,10 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
 
             val gridItems = gridCacheRepository.gridItemsCache.first().toMutableList()
 
-            val movingIndex = gridItems.indexOfFirst { it.id == movingGridItem.id }
+            val conflictingGridItem = moveGridItemResult.conflictingGridItem
+
+            val movingIndex =
+                gridItems.indexOfFirst { it.id == moveGridItemResult.movingGridItem.id }
 
             if (movingIndex != -1 && conflictingGridItem != null) {
                 groupConflictingGridItemsIntoFolder(

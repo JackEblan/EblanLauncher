@@ -36,7 +36,6 @@ data class WidgetGridItemEntity(
     val associate: Associate,
     val appWidgetId: Int,
     val packageName: String,
-    val className: String,
     val componentName: String,
     val configure: String?,
     val minWidth: Int,

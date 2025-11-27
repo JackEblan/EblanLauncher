@@ -19,10 +19,11 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.EblanApplicationComponent
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -32,14 +33,16 @@ import javax.inject.Inject
 class GetEblanApplicationComponentUseCase @Inject constructor(
     private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
+    private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     operator fun invoke(): Flow<EblanApplicationComponent> {
         return combine(
             eblanApplicationInfoRepository.eblanApplicationInfos,
             eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos,
-        ) { eblanApplicationInfos, eblanAppWidgetProviderInfos ->
-            val sortedEblanApplicationInfos =
+            eblanShortcutConfigRepository.eblanShortcutConfigs,
+        ) { eblanApplicationInfos, eblanAppWidgetProviderInfos, eblanShortcutConfigs ->
+            val groupedEblanApplicationInfos =
                 eblanApplicationInfos.sortedBy { eblanApplicationInfo ->
                     eblanApplicationInfo.label?.lowercase()
                 }.groupBy { eblanApplicationInfo ->
@@ -48,17 +51,34 @@ class GetEblanApplicationComponentUseCase @Inject constructor(
 
             val groupedEblanAppWidgetProviderInfos =
                 eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
-                    eblanAppWidgetProviderInfo.label
+                    eblanAppWidgetProviderInfo.label?.lowercase()
                 }.groupBy { eblanAppWidgetProviderInfo ->
-                    EblanAppWidgetProviderInfoByGroup(
+                    EblanApplicationInfoGroup(
+                        packageName = eblanAppWidgetProviderInfo.packageName,
                         icon = eblanAppWidgetProviderInfo.icon,
                         label = eblanAppWidgetProviderInfo.label,
                     )
                 }
 
+            val groupedEblanShortcutConfigs =
+                eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
+                    eblanShortcutConfig.applicationLabel?.lowercase()
+                }.groupBy { eblanShortcutConfig ->
+                    eblanShortcutConfig.serialNumber
+                }.mapValues { entry ->
+                    entry.value.groupBy { eblanShortcutConfig ->
+                        EblanApplicationInfoGroup(
+                            packageName = eblanShortcutConfig.packageName,
+                            icon = eblanShortcutConfig.applicationIcon,
+                            label = eblanShortcutConfig.applicationLabel,
+                        )
+                    }
+                }
+
             EblanApplicationComponent(
-                eblanApplicationInfos = sortedEblanApplicationInfos,
+                eblanApplicationInfos = groupedEblanApplicationInfos,
                 eblanAppWidgetProviderInfos = groupedEblanAppWidgetProviderInfos,
+                eblanShortcutConfigs = groupedEblanShortcutConfigs,
             )
         }.flowOn(defaultDispatcher)
     }

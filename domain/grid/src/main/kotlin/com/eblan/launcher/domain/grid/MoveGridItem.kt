@@ -19,8 +19,8 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 
 suspend fun resolveConflicts(
     gridItems: MutableList<GridItem>,
@@ -30,7 +30,7 @@ suspend fun resolveConflicts(
     rows: Int,
 ): Boolean {
     for ((index, gridItem) in gridItems.withIndex()) {
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
 
         val isOverlapping = gridItem.id != movingGridItem.id &&
             rectanglesOverlap(moving = movingGridItem, other = gridItem)

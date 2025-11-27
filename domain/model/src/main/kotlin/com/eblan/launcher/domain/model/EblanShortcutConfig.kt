@@ -15,16 +15,14 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.domain.model
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.library)
-    alias(libs.plugins.com.eblan.launcher.hilt)
-}
-
-android {
-    namespace = "com.eblan.launcher.framework.drawable"
-}
-
-dependencies {
-    implementation(projects.domain.common)
-}
+data class EblanShortcutConfig(
+    val componentName: String,
+    val packageName: String,
+    val serialNumber: Long,
+    val activityIcon: String?,
+    val activityLabel: String?,
+    val applicationIcon: String?,
+    val applicationLabel: String?,
+)

@@ -19,5 +19,6 @@ package com.eblan.launcher.domain.model
 
 data class EblanApplicationComponent(
     val eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    val eblanAppWidgetProviderInfos: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
+    val eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
+    val eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
 )

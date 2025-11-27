@@ -20,7 +20,7 @@ package com.eblan.launcher.domain.usecase
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -32,17 +32,18 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
     private val eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    operator fun invoke(label: String): Flow<Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>> {
+    operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
         return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
-            eblanAppWidgetProviderInfos.filter { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.label?.lowercase()
+            }.filter { eblanAppWidgetProviderInfo ->
                 label.isNotBlank() && eblanAppWidgetProviderInfo.label.toString().contains(
                     other = label,
                     ignoreCase = true,
                 )
-            }.sortedBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.label
             }.groupBy { eblanAppWidgetProviderInfo ->
-                EblanAppWidgetProviderInfoByGroup(
+                EblanApplicationInfoGroup(
+                    packageName = eblanAppWidgetProviderInfo.packageName,
                     icon = eblanAppWidgetProviderInfo.icon,
                     label = eblanAppWidgetProviderInfo.label,
                 )

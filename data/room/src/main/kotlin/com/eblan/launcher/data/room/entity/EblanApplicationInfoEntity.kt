@@ -23,7 +23,7 @@ import androidx.room.Entity
 data class EblanApplicationInfoEntity(
     val packageName: String,
     val serialNumber: Long,
-    val componentName: String?,
+    val componentName: String,
     val icon: String?,
     val label: String?,
 )

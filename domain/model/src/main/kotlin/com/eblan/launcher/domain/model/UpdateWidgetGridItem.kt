@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.model
 
 data class UpdateWidgetGridItem(
     val id: String,
-    val className: String,
     val componentName: String,
     val configure: String?,
     val minWidth: Int,

@@ -42,7 +42,10 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     suspend operator fun invoke(iconPackInfoPackageName: String) {
         withContext(ioDispatcher) {
             val eblanApplicationInfo =
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = iconPackInfoPackageName)
+                eblanApplicationInfoRepository.getEblanApplicationInfo(
+                    serialNumber = 0L,
+                    packageName = iconPackInfoPackageName,
+                )
 
             if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
                 val appFilter =
@@ -66,7 +69,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                             drawableName = iconPackInfoComponent.drawable,
                         ) ?: return@mapNotNull null
 
-                        fileManager.getAndUpdateFilePath(
+                        fileManager.updateAndGetFilePath(
                             directory = iconPackDirectory,
                             name = eblanLauncherActivityInfo.packageName,
                             byteArray = byteArray,

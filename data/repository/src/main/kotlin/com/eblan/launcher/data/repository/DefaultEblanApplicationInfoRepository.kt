@@ -46,9 +46,11 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
     }
 
-    override suspend fun getEblanApplicationInfo(packageName: String): EblanApplicationInfo? {
-        return eblanApplicationInfoDao.getEblanApplicationInfoEntity(packageName = packageName)
-            ?.asModel()
+    override suspend fun getEblanApplicationInfosByPackageName(packageName: String): List<EblanApplicationInfo> {
+        return eblanApplicationInfoDao.getEblanApplicationInfoEntitiesByPackageName(packageName = packageName)
+            .map { entity ->
+                entity.asModel()
+            }
     }
 
     override suspend fun deleteEblanApplicationInfo(

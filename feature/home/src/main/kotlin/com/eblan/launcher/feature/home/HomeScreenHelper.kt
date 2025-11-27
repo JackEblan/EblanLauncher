@@ -21,7 +21,7 @@ import android.content.Context
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import com.eblan.launcher.domain.model.PinItemRequestType
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 
@@ -29,7 +29,7 @@ internal suspend fun handlePinItemRequest(
     pinItemRequest: PinItemRequest?,
     context: Context,
     launcherAppsWrapper: AndroidLauncherAppsWrapper,
-    drawable: AndroidDrawableWrapper,
+    byteArrayWrapper: AndroidByteArrayWrapper,
     userManager: AndroidUserManagerWrapper,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
 ) {
@@ -41,14 +41,13 @@ internal suspend fun handlePinItemRequest(
 
                 if (appWidgetProviderInfo != null) {
                     val preview = appWidgetProviderInfo.loadPreviewImage(context, 0)?.let {
-                        drawable.createByteArray(drawable = it)
+                        byteArrayWrapper.createByteArray(drawable = it)
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         onGetPinGridItem(
                             PinItemRequestType.Widget(
                                 appWidgetId = 0,
-                                className = appWidgetProviderInfo.provider.className,
                                 componentName = appWidgetProviderInfo.provider.flattenToString(),
                                 packageName = appWidgetProviderInfo.provider.packageName,
                                 serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
@@ -69,7 +68,6 @@ internal suspend fun handlePinItemRequest(
                         onGetPinGridItem(
                             PinItemRequestType.Widget(
                                 appWidgetId = 0,
-                                className = appWidgetProviderInfo.provider.className,
                                 componentName = appWidgetProviderInfo.provider.flattenToString(),
                                 packageName = appWidgetProviderInfo.provider.packageName,
                                 serialNumber = userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
@@ -107,7 +105,7 @@ internal suspend fun handlePinItemRequest(
                                 shortcutInfo = shortcutInfo,
                                 density = 0,
                             )?.let {
-                                drawable.createByteArray(drawable = it)
+                                byteArrayWrapper.createByteArray(drawable = it)
                             },
                         ),
                     )

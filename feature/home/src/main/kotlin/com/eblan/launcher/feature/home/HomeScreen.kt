@@ -64,12 +64,14 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfoByGroup
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeData
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
@@ -92,7 +94,7 @@ import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.service.LauncherAppsService
 import com.eblan.launcher.service.SyncDataService
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
-import com.eblan.launcher.ui.local.LocalDrawable
+import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -128,6 +130,8 @@ internal fun HomeRoute(
 
     val eblanShortcutInfos by viewModel.eblanShortcutInfos.collectAsStateWithLifecycle()
 
+    val eblanShortcutConfigsByLabel by viewModel.eblanShortcutConfigsByLabel.collectAsStateWithLifecycle()
+
     HomeScreen(
         modifier = modifier,
         screen = screen,
@@ -141,6 +145,7 @@ internal fun HomeRoute(
         gridItemsCache = gridItemsCache,
         pinGridItem = pinGridItem,
         eblanShortcutInfos = eblanShortcutInfos,
+        eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
         onMoveGridItem = viewModel::moveGridItem,
         onMoveFolderGridItem = viewModel::moveFolderGridItem,
         onResizeGridItem = viewModel::resizeGridItem,
@@ -164,9 +169,12 @@ internal fun HomeRoute(
         onAddFolder = viewModel::addFolder,
         onGetEblanApplicationInfosByLabel = viewModel::getEblanApplicationInfosByLabel,
         onGetEblanAppWidgetProviderInfosByLabel = viewModel::getEblanAppWidgetProviderInfosByLabel,
+        onGetEblanShortcutConfigsByLabel = viewModel::getEblanShortcutConfigsByLabel,
         onDeleteGridItem = viewModel::deleteGridItem,
         onGetPinGridItem = viewModel::getPinGridItem,
         onResetPinGridItem = viewModel::resetPinGridItem,
+        onUpdateShortcutConfigGridItemDataCache = viewModel::updateShortcutConfigGridItemDataCache,
+        onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
     )
 }
 
@@ -180,10 +188,11 @@ internal fun HomeScreen(
     pageItems: List<PageItem>,
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemsCache: GridItemCache,
     pinGridItem: GridItem?,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -216,10 +225,7 @@ internal fun HomeScreen(
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
-    onResetGridCacheAfterMove: (
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) -> Unit,
+    onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
@@ -243,9 +249,20 @@ internal fun HomeScreen(
     onAddFolder: (String) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onGetPinGridItem: (PinItemRequestType) -> Unit,
     onResetPinGridItem: () -> Unit,
+    onUpdateShortcutConfigGridItemDataCache: (
+        byteArray: ByteArray?,
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+        data: GridItemData.ShortcutConfig,
+    ) -> Unit,
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -265,7 +282,7 @@ internal fun HomeScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val drawable = LocalDrawable.current
+    val byteArrayWrapper = LocalByteArray.current
 
     val userManager = LocalUserManager.current
 
@@ -293,7 +310,7 @@ internal fun HomeScreen(
                         pinItemRequest = pinItemRequest,
                         context = context,
                         launcherAppsWrapper = launcherApps,
-                        drawable = drawable,
+                        byteArrayWrapper = byteArrayWrapper,
                         userManager = userManager,
                         onGetPinGridItem = onGetPinGridItem,
                     )
@@ -409,6 +426,7 @@ internal fun HomeScreen(
                     overlayIntSize = overlayIntSize,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
+                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     onMoveGridItem = onMoveGridItem,
                     onMoveFolderGridItem = onMoveFolderGridItem,
                     onResizeGridItem = onResizeGridItem,
@@ -440,6 +458,7 @@ internal fun HomeScreen(
                     },
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = {
                         overlayIntOffset = IntOffset.Zero
@@ -448,6 +467,8 @@ internal fun HomeScreen(
 
                         overlayImageBitmap = null
                     },
+                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
             }
         }
@@ -475,13 +496,14 @@ private fun Success(
     drag: Drag,
     foldersDataById: ArrayDeque<FolderDataById>,
     eblanApplicationInfosByLabel: List<EblanApplicationInfo>,
-    eblanAppWidgetProviderInfosByLabel: Map<EblanAppWidgetProviderInfoByGroup, List<EblanAppWidgetProviderInfo>>,
+    eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemCache: GridItemCache,
     pinGridItem: GridItem?,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     statusBarNotifications: Map<String, Int>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
+    eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -514,10 +536,7 @@ private fun Success(
         screen: Screen,
     ) -> Unit,
     onResetGridCacheAfterResize: (GridItem) -> Unit,
-    onResetGridCacheAfterMove: (
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) -> Unit,
+    onResetGridCacheAfterMove: (MoveGridItemResult) -> Unit,
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
@@ -546,8 +565,19 @@ private fun Success(
     ) -> Unit,
     onGetEblanApplicationInfosByLabel: (String) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
+    onGetEblanShortcutConfigsByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateShortcutConfigGridItemDataCache: (
+        byteArray: ByteArray?,
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+        data: GridItemData.ShortcutConfig,
+    ) -> Unit,
+    onUpdateShortcutConfigIntoShortcutInfoGridItem: (
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -676,6 +706,7 @@ private fun Success(
                     currentPage = currentPage,
                     statusBarNotifications = statusBarNotifications,
                     eblanShortcutInfos = eblanShortcutInfos,
+                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     onTapFolderGridItem = onShowFolder,
                     onDraggingGridItem = {
                         onShowGridCache(
@@ -700,6 +731,7 @@ private fun Success(
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
                 )
@@ -732,6 +764,8 @@ private fun Success(
                     onUpdateGridItemDataCache = onUpdateGridItemDataCache,
                     onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
                     onResetOverlay = onResetOverlay,
+                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                 )
             }
 
@@ -747,7 +781,6 @@ private fun Success(
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     statusBarNotifications = statusBarNotifications,
                     onResizeGridItem = onResizeGridItem,
                     onResizeEnd = onResetGridCacheAfterResize,
@@ -817,7 +850,6 @@ private fun Success(
                     paddingValues = paddingValues,
                     homeSettings = homeData.userData.homeSettings,
                     iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
                     moveGridItemResult = movedGridItemResult,
                     folderGridHorizontalPagerState = folderGridHorizontalPagerState,
                     overlayIntOffset = overlayIntOffset,

@@ -57,7 +57,7 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
                     drawableName = iconPackInfoComponent.drawable,
                 ) ?: return@withContext
 
-                fileManager.getAndUpdateFilePath(
+                fileManager.updateAndGetFilePath(
                     directory = iconPackDirectory,
                     name = packageName,
                     byteArray = byteArray,

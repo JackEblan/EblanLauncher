@@ -26,7 +26,7 @@ import android.content.pm.ResolveInfo
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.framework.drawable.AndroidDrawableWrapper
+import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -35,7 +35,7 @@ import javax.inject.Inject
 internal class DefaultPackageManagerWrapper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
-    private val androidDrawableWrapper: AndroidDrawableWrapper,
+    private val androidByteArrayWrapper: AndroidByteArrayWrapper,
 ) : PackageManagerWrapper, AndroidPackageManagerWrapper {
 
     private val packageManager = context.packageManager
@@ -46,7 +46,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
     override suspend fun getApplicationIcon(packageName: String): ByteArray? {
         return withContext(defaultDispatcher) {
             try {
-                androidDrawableWrapper.createByteArray(
+                androidByteArrayWrapper.createByteArray(
                     drawable = packageManager.getApplicationIcon(
                         packageName,
                     ),
@@ -111,6 +111,26 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
             resolveInfos.map { resolveInfo ->
                 resolveInfo.activityInfo.packageName
             }.distinct()
+        }
+    }
+
+    override suspend fun getActivityIcon(
+        componentName: String,
+        packageName: String,
+    ): ByteArray? {
+        return withContext(defaultDispatcher) {
+            try {
+                val drawable = ComponentName.unflattenFromString(componentName)
+                    ?.let(packageManager::getActivityIcon)
+
+                if (drawable != null) {
+                    androidByteArrayWrapper.createByteArray(drawable = drawable)
+                } else {
+                    null
+                }
+            } catch (_: PackageManager.NameNotFoundException) {
+                getApplicationIcon(packageName = packageName)
+            }
         }
     }
 

@@ -19,7 +19,7 @@ package com.eblan.launcher.domain.model
 
 data class EblanApplicationInfo(
     val serialNumber: Long,
-    val componentName: String?,
+    val componentName: String,
     val packageName: String,
     val icon: String?,
     val label: String?,

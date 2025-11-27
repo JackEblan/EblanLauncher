@@ -65,7 +65,7 @@ import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
-import com.eblan.launcher.ui.local.LocalDrawable
+import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
@@ -84,7 +84,6 @@ fun PinScreen(
     onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinWidgetToHomeScreen: (
         serialNumber: Long,
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -177,7 +176,7 @@ private fun PinShortcutScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    val drawable = LocalDrawable.current
+    val byteArrayWrapper = LocalByteArray.current
 
     val shortcutInfo = pinItemRequest.shortcutInfo
 
@@ -237,7 +236,7 @@ private fun PinShortcutScreen(
                                 shortcutInfo.isEnabled,
                                 shortcutInfo.disabledMessage?.toString(),
                                 icon?.let {
-                                    drawable.createByteArray(drawable = it)
+                                    byteArrayWrapper.createByteArray(drawable = it)
                                 },
                             )
                         }
@@ -269,7 +268,6 @@ private fun PinWidgetScreen(
     onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinWidgetToHomeScreen: (
         serialNumber: Long,
-        className: String,
         componentName: String,
         configure: String?,
         packageName: String,
@@ -377,7 +375,6 @@ private fun PinWidgetScreen(
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             onAddPinWidgetToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
                                 appWidgetProviderInfo.provider.packageName,
@@ -396,7 +393,6 @@ private fun PinWidgetScreen(
                         } else {
                             onAddPinWidgetToHomeScreen(
                                 userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                appWidgetProviderInfo.provider.className,
                                 appWidgetProviderInfo.provider.flattenToString(),
                                 appWidgetProviderInfo.configure.flattenToString(),
                                 appWidgetProviderInfo.provider.packageName,

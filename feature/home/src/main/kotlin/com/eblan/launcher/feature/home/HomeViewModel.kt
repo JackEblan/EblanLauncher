@@ -20,9 +20,13 @@ package com.eblan.launcher.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
+import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
+import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
@@ -34,6 +38,7 @@ import com.eblan.launcher.domain.usecase.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
+import com.eblan.launcher.domain.usecase.GetEblanShortcutConfigByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
@@ -90,6 +95,9 @@ internal class HomeViewModel @Inject constructor(
     private val deleteGridItemUseCase: DeleteGridItemUseCase,
     private val getPinGridItemUseCase: GetPinGridItemUseCase,
     eblanShortcutInfoRepository: EblanShortcutInfoRepository,
+    private val fileManager: FileManager,
+    private val packageManagerWrapper: PackageManagerWrapper,
+    getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -144,6 +152,19 @@ internal class HomeViewModel @Inject constructor(
         _eblanAppWidgetProviderInfoLabel.filterNotNull().debounce(defaultDelay)
             .flatMapLatest { label ->
                 getEblanAppWidgetProviderInfosByLabelUseCase(label = label)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyMap(),
+            )
+
+    private val _eblanShortcutConfigsLabel = MutableStateFlow<String?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val eblanShortcutConfigsByLabel =
+        _eblanShortcutConfigsLabel.filterNotNull().debounce(defaultDelay)
+            .flatMapLatest { label ->
+                getEblanShortcutConfigByLabelUseCase(label = label)
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -344,17 +365,11 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetGridCacheAfterMove(
-        movingGridItem: GridItem,
-        conflictingGridItem: GridItem?,
-    ) {
+    fun resetGridCacheAfterMove(moveGridItemResult: MoveGridItemResult) {
         viewModelScope.launch {
             moveGridItemJob?.cancelAndJoin()
 
-            updateGridItemsAfterMoveUseCase(
-                movingGridItem = movingGridItem,
-                conflictingGridItem = conflictingGridItem,
-            )
+            updateGridItemsAfterMoveUseCase(moveGridItemResult = moveGridItemResult)
 
             delay(defaultDelay)
 
@@ -426,13 +441,48 @@ internal class HomeViewModel @Inject constructor(
 
     fun updateGridItemDataCache(gridItem: GridItem) {
         viewModelScope.launch {
-            gridCacheRepository.updateGridItemData(id = gridItem.id, data = gridItem.data)
+            gridCacheRepository.updateGridItemData(
+                id = gridItem.id,
+                data = gridItem.data,
+            )
+        }
+    }
+
+    fun updateShortcutConfigGridItemDataCache(
+        byteArray: ByteArray?,
+        moveGridItemResult: MoveGridItemResult,
+        gridItem: GridItem,
+        data: GridItemData.ShortcutConfig,
+    ) {
+        viewModelScope.launch {
+            val uriIcon = byteArray?.let { currentByteArray ->
+                fileManager.updateAndGetFilePath(
+                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
+                    gridItem.id,
+                    currentByteArray,
+                )
+            }
+
+            gridCacheRepository.updateGridItemData(
+                id = gridItem.id,
+                data = data.copy(uriIcon = uriIcon),
+            )
+
+            resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)
         }
     }
 
     fun deleteGridItemCache(gridItem: GridItem) {
         viewModelScope.launch {
             gridCacheRepository.deleteGridItem(gridItem = gridItem)
+
+            updateGridItemsUseCase(gridItems = gridCacheRepository.gridItemsCache.first())
+
+            delay(defaultDelay)
+
+            _screen.update {
+                Screen.Pager
+            }
         }
     }
 
@@ -505,6 +555,12 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
+    fun getEblanShortcutConfigsByLabel(label: String) {
+        _eblanShortcutConfigsLabel.update {
+            label
+        }
+    }
+
     fun deleteGridItem(gridItem: GridItem) {
         viewModelScope.launch {
             deleteGridItemUseCase(gridItem = gridItem)
@@ -522,6 +578,53 @@ internal class HomeViewModel @Inject constructor(
     fun resetPinGridItem() {
         _pinGridItem.update {
             null
+        }
+    }
+
+    fun updateShortcutConfigIntoShortcutInfoGridItem(
+        moveGridItemResult: MoveGridItemResult,
+        pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) {
+        viewModelScope.launch {
+            gridCacheRepository.deleteGridItem(gridItem = moveGridItemResult.movingGridItem)
+
+            val icon = pinItemRequestType.icon?.let { byteArray ->
+                fileManager.updateAndGetFilePath(
+                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
+                    name = pinItemRequestType.shortcutId,
+                    byteArray = byteArray,
+                )
+            }
+
+            val eblanApplicationInfoIcon =
+                packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
+                    ?.let { byteArray ->
+                        fileManager.updateAndGetFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            name = pinItemRequestType.packageName,
+                            byteArray = byteArray,
+                        )
+                    }
+
+            val data = ShortcutInfo(
+                shortcutId = pinItemRequestType.shortcutId,
+                packageName = pinItemRequestType.packageName,
+                serialNumber = pinItemRequestType.serialNumber,
+                shortLabel = pinItemRequestType.shortLabel,
+                longLabel = pinItemRequestType.longLabel,
+                icon = icon,
+                isEnabled = pinItemRequestType.isEnabled,
+                disabledMessage = pinItemRequestType.disabledMessage,
+                eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+            )
+
+            gridCacheRepository.insertGridItem(
+                gridItem = moveGridItemResult.movingGridItem.copy(
+                    data = data,
+                ),
+            )
+
+            resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)
         }
     }
 }

@@ -21,7 +21,7 @@ sealed interface GridItemData {
 
     data class ApplicationInfo(
         val serialNumber: Long,
-        val componentName: String?,
+        val componentName: String,
         val packageName: String,
         val icon: String?,
         val label: String?,
@@ -29,7 +29,6 @@ sealed interface GridItemData {
 
     data class Widget(
         val appWidgetId: Int,
-        val className: String,
         val componentName: String,
         val packageName: String,
         val serialNumber: Long,
@@ -65,5 +64,17 @@ sealed interface GridItemData {
         val label: String,
         val gridItems: List<GridItem>,
         val pageCount: Int,
+    ) : GridItemData
+
+    data class ShortcutConfig(
+        val serialNumber: Long,
+        val componentName: String,
+        val packageName: String,
+        val activityIcon: String?,
+        val activityLabel: String?,
+        val applicationIcon: String?,
+        val applicationLabel: String?,
+        val uri: String?,
+        val uriIcon: String?,
     ) : GridItemData
 }

@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.home.screen.folder
 
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -91,6 +93,8 @@ internal fun FolderScreen(
     onResetOverlay: () -> Unit,
 ) {
     val density = LocalDensity.current
+
+    val context = LocalContext.current
 
     val launcherApps = LocalLauncherApps.current
 
@@ -244,6 +248,9 @@ internal fun FolderScreen(
                                                 ),
                                             )
                                         }
+                                    },
+                                    onTapShortcutConfig = { uri ->
+                                        context.startActivity(Intent.parseUri(uri, 0))
                                     },
                                     onTapFolderGridItem = {
                                         onAddFolder(gridItem.id)

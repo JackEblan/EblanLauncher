@@ -67,9 +67,7 @@ internal fun SelectApplicationDialog(
                             .clickable {
                                 val componentName = eblanApplicationInfo.componentName
 
-                                if (componentName != null) {
-                                    onUpdateGestureAction(GestureAction.OpenApp(componentName = componentName))
-                                }
+                                onUpdateGestureAction(GestureAction.OpenApp(componentName = componentName))
                             }
                             .fillMaxWidth()
                             .padding(10.dp),

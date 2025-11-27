@@ -23,16 +23,20 @@ import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
 import com.eblan.launcher.data.room.dao.EblanAppWidgetProviderInfoDao
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.data.room.dao.EblanIconPackInfoDao
+import com.eblan.launcher.data.room.dao.EblanShortcutConfigDao
 import com.eblan.launcher.data.room.dao.EblanShortcutInfoDao
 import com.eblan.launcher.data.room.dao.FolderGridItemDao
+import com.eblan.launcher.data.room.dao.ShortcutConfigGridItemDao
 import com.eblan.launcher.data.room.dao.ShortcutInfoGridItemDao
 import com.eblan.launcher.data.room.dao.WidgetGridItemDao
 import com.eblan.launcher.data.room.entity.ApplicationInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.EblanAppWidgetProviderInfoEntity
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.data.room.entity.EblanIconPackInfoEntity
+import com.eblan.launcher.data.room.entity.EblanShortcutConfigEntity
 import com.eblan.launcher.data.room.entity.EblanShortcutInfoEntity
 import com.eblan.launcher.data.room.entity.FolderGridItemEntity
+import com.eblan.launcher.data.room.entity.ShortcutConfigGridItemEntity
 import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
 
@@ -46,8 +50,10 @@ import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
         ShortcutInfoGridItemEntity::class,
         FolderGridItemEntity::class,
         EblanIconPackInfoEntity::class,
+        EblanShortcutConfigEntity::class,
+        ShortcutConfigGridItemEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 internal abstract class EblanDatabase : RoomDatabase() {
@@ -66,6 +72,10 @@ internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun folderGridItemDao(): FolderGridItemDao
 
     abstract fun eblanIconPackInfoDao(): EblanIconPackInfoDao
+
+    abstract fun eblanShortcutConfigDao(): EblanShortcutConfigDao
+
+    abstract fun shortcutConfigGridItemDao(): ShortcutConfigGridItemDao
 
     companion object {
         const val DATABASE_NAME = "Eblan.db"

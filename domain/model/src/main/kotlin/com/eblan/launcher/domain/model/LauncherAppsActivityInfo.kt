@@ -21,8 +21,10 @@ data class LauncherAppsActivityInfo(
     val serialNumber: Long,
     val componentName: String,
     val packageName: String,
-    val icon: ByteArray?,
-    val label: String,
+    val activityIcon: ByteArray?,
+    val activityLabel: String,
+    val applicationIcon: ByteArray?,
+    val applicationLabel: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -33,8 +35,10 @@ data class LauncherAppsActivityInfo(
         if (serialNumber != other.serialNumber) return false
         if (componentName != other.componentName) return false
         if (packageName != other.packageName) return false
-        if (!icon.contentEquals(other.icon)) return false
-        if (label != other.label) return false
+        if (!activityIcon.contentEquals(other.activityIcon)) return false
+        if (activityLabel != other.activityLabel) return false
+        if (!applicationIcon.contentEquals(other.applicationIcon)) return false
+        if (applicationLabel != other.applicationLabel) return false
 
         return true
     }
@@ -43,8 +47,10 @@ data class LauncherAppsActivityInfo(
         var result = serialNumber.hashCode()
         result = 31 * result + componentName.hashCode()
         result = 31 * result + packageName.hashCode()
-        result = 31 * result + (icon?.contentHashCode() ?: 0)
-        result = 31 * result + label.hashCode()
+        result = 31 * result + (activityIcon?.contentHashCode() ?: 0)
+        result = 31 * result + activityLabel.hashCode()
+        result = 31 * result + (applicationIcon?.contentHashCode() ?: 0)
+        result = 31 * result + applicationLabel.hashCode()
         return result
     }
 }

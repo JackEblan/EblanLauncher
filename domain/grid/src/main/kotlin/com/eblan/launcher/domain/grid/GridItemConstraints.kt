@@ -19,8 +19,8 @@ package com.eblan.launcher.domain.grid
 
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.ResolveDirection
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 
 fun isGridItemSpanWithinBounds(
     gridItem: GridItem,
@@ -133,7 +133,7 @@ suspend fun findAvailableRegionByPage(
 ): GridItem? {
     for (page in 0 until pageCount) {
         for (row in 0..(rows - gridItem.rowSpan)) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
 
             for (column in 0..(columns - gridItem.columnSpan)) {
                 val candidateGridItem = gridItem.copy(

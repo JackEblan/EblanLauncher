@@ -15,19 +15,13 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.framework.drawable
+package com.eblan.launcher.framework.bytearray
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 
-@Module
-@InstallIn(SingletonComponent::class)
-internal interface DrawableModule {
+interface AndroidByteArrayWrapper {
+    suspend fun createByteArray(drawable: Drawable): ByteArray?
 
-    @Binds
-    @Singleton
-    fun androidDrawableWrapper(impl: DefaultDrawableWrapper): AndroidDrawableWrapper
+    suspend fun createByteArray(bitmap: Bitmap?): ByteArray?
 }

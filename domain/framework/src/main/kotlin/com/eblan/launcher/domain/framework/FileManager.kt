@@ -22,7 +22,7 @@ import java.io.File
 interface FileManager {
     suspend fun getFilesDirectory(name: String): File
 
-    suspend fun getAndUpdateFilePath(
+    suspend fun updateAndGetFilePath(
         directory: File,
         name: String,
         byteArray: ByteArray,
@@ -42,5 +42,9 @@ interface FileManager {
         const val SHORTCUTS_DIR = "shortcuts"
 
         const val ICON_PACKS_DIR = "iconpacks"
+
+        const val SHORTCUT_CONFIG_ACTIVITIES_DIR = "shortcutconfigactivities"
+
+        const val URIS_DIR = "uris"
     }
 }

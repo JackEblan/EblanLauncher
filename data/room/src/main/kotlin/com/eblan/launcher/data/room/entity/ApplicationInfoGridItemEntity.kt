@@ -34,7 +34,7 @@ data class ApplicationInfoGridItemEntity(
     val columnSpan: Int,
     val rowSpan: Int,
     val associate: Associate,
-    val componentName: String?,
+    val componentName: String,
     val packageName: String,
     val icon: String?,
     val label: String?,

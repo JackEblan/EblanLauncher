@@ -33,15 +33,16 @@ class GetPackageManagerEblanIconPackInfosUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): List<EblanIconPackInfo> {
         return withContext(defaultDispatcher) {
-            packageManagerWrapper.getIconPackInfoByPackageNames().mapNotNull { packageName ->
-                eblanApplicationInfoRepository.getEblanApplicationInfo(packageName = packageName)
-                    ?.let { eblanApplicationInfo ->
-                        EblanIconPackInfo(
-                            packageName = eblanApplicationInfo.packageName,
-                            icon = eblanApplicationInfo.icon,
-                            label = eblanApplicationInfo.label,
-                        )
-                    }
+            packageManagerWrapper.getIconPackInfoByPackageNames().flatMap { packageName ->
+                eblanApplicationInfoRepository.getEblanApplicationInfosByPackageName(
+                    packageName = packageName,
+                ).map { eblanApplicationInfo ->
+                    EblanIconPackInfo(
+                        packageName = eblanApplicationInfo.packageName,
+                        icon = eblanApplicationInfo.icon,
+                        label = eblanApplicationInfo.label,
+                    )
+                }
             }
         }
     }

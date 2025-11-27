@@ -20,7 +20,6 @@ package com.eblan.launcher.domain.model
 sealed interface PinItemRequestType {
     data class Widget(
         val appWidgetId: Int,
-        val className: String,
         val componentName: String,
         val packageName: String,
         val serialNumber: Long,
@@ -53,7 +52,6 @@ sealed interface PinItemRequestType {
             if (maxResizeHeight != other.maxResizeHeight) return false
             if (targetCellHeight != other.targetCellHeight) return false
             if (targetCellWidth != other.targetCellWidth) return false
-            if (className != other.className) return false
             if (componentName != other.componentName) return false
             if (packageName != other.packageName) return false
             if (configure != other.configure) return false
@@ -74,7 +72,6 @@ sealed interface PinItemRequestType {
             result = 31 * result + maxResizeHeight
             result = 31 * result + targetCellHeight
             result = 31 * result + targetCellWidth
-            result = 31 * result + className.hashCode()
             result = 31 * result + componentName.hashCode()
             result = 31 * result + packageName.hashCode()
             result = 31 * result + (configure?.hashCode() ?: 0)

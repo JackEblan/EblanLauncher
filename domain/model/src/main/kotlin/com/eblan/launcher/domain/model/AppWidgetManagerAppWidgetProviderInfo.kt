@@ -18,7 +18,7 @@
 package com.eblan.launcher.domain.model
 
 data class AppWidgetManagerAppWidgetProviderInfo(
-    val className: String,
+    val serialNumber: Long,
     val packageName: String,
     val componentName: String,
     val configure: String?,
@@ -39,6 +39,7 @@ data class AppWidgetManagerAppWidgetProviderInfo(
 
         other as AppWidgetManagerAppWidgetProviderInfo
 
+        if (serialNumber != other.serialNumber) return false
         if (targetCellWidth != other.targetCellWidth) return false
         if (targetCellHeight != other.targetCellHeight) return false
         if (minWidth != other.minWidth) return false
@@ -48,7 +49,6 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         if (minResizeHeight != other.minResizeHeight) return false
         if (maxResizeWidth != other.maxResizeWidth) return false
         if (maxResizeHeight != other.maxResizeHeight) return false
-        if (className != other.className) return false
         if (packageName != other.packageName) return false
         if (componentName != other.componentName) return false
         if (configure != other.configure) return false
@@ -58,7 +58,8 @@ data class AppWidgetManagerAppWidgetProviderInfo(
     }
 
     override fun hashCode(): Int {
-        var result = targetCellWidth
+        var result = serialNumber.hashCode()
+        result = 31 * result + targetCellWidth
         result = 31 * result + targetCellHeight
         result = 31 * result + minWidth
         result = 31 * result + minHeight
@@ -67,7 +68,6 @@ data class AppWidgetManagerAppWidgetProviderInfo(
         result = 31 * result + minResizeHeight
         result = 31 * result + maxResizeWidth
         result = 31 * result + maxResizeHeight
-        result = 31 * result + className.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + componentName.hashCode()
         result = 31 * result + (configure?.hashCode() ?: 0)

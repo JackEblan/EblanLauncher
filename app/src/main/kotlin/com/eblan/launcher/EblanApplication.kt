@@ -61,11 +61,12 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
             val androidVersion = "Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})"
 
             val appVersion = try {
-                val pInfo = packageManager.getPackageInfo(packageName, 0)
+                val packageInfo = packageManager.getPackageInfo(packageName, 0)
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    "${pInfo.versionName} (${pInfo.longVersionCode})"
+                    "${packageInfo.versionName} (${packageInfo.longVersionCode})"
                 } else {
-                    pInfo.versionCode
+                    packageInfo.versionCode
                 }
             } catch (_: Exception) {
                 "Unknown"
@@ -77,6 +78,7 @@ class EblanApplication : Application(), Thread.UncaughtExceptionHandler {
                 appendLine("OS: $androidVersion")
                 appendLine("App: $appVersion")
                 appendLine("Time: ${java.util.Date()}")
+                appendLine("GitHub: https://github.com/JackEblan/EblanLauncher")
                 appendLine()
                 appendLine(Log.getStackTraceString(throwable))
             }

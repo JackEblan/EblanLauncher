@@ -440,9 +440,9 @@ internal fun PagerScreen(
             GestureAction.OpenNotificationPanel -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
-                            GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.Notifications.name,
-                        )
+                        GlobalAction.GLOBAL_ACTION_TYPE,
+                        GlobalAction.Notifications.name,
+                    )
 
                     context.sendBroadcast(intent)
 
@@ -453,9 +453,9 @@ internal fun PagerScreen(
             GestureAction.LockScreen -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
-                            GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.LockScreen.name,
-                        )
+                        GlobalAction.GLOBAL_ACTION_TYPE,
+                        GlobalAction.LockScreen.name,
+                    )
 
                     context.sendBroadcast(intent)
 
@@ -466,9 +466,9 @@ internal fun PagerScreen(
             GestureAction.OpenQuickSettings -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
-                            GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.QuickSettings.name,
-                        )
+                        GlobalAction.GLOBAL_ACTION_TYPE,
+                        GlobalAction.QuickSettings.name,
+                    )
 
                     context.sendBroadcast(intent)
 
@@ -479,9 +479,9 @@ internal fun PagerScreen(
             GestureAction.OpenRecents -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
-                            GlobalAction.GLOBAL_ACTION_TYPE,
-                            GlobalAction.Recents.name,
-                        )
+                        GlobalAction.GLOBAL_ACTION_TYPE,
+                        GlobalAction.Recents.name,
+                    )
 
                     context.sendBroadcast(intent)
 

@@ -17,10 +17,8 @@
  */
 package com.eblan.launcher.activity
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,12 +38,12 @@ class ActionActivity : ComponentActivity() {
         // TODO This is just a sample code
         val bitmap = ContextCompat.getDrawable(
             this,
-            R.drawable.outline_apps_24
+            R.drawable.outline_apps_24,
         )?.let { drawable ->
             Bitmap.createBitmap(
                 drawable.intrinsicWidth,
                 drawable.intrinsicHeight,
-                Bitmap.Config.ARGB_8888
+                Bitmap.Config.ARGB_8888,
             ).also { bitmap ->
                 val canvas = Canvas(bitmap)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)

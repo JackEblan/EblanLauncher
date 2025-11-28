@@ -209,8 +209,6 @@ internal fun PagerScreen(
                     windowToken = view.windowToken,
                 )
             }
-
-            handleCreateShortcutIntent(intent = intent)
         }
 
         activity.addOnNewIntentListener(listener)
@@ -244,11 +242,10 @@ internal fun PagerScreen(
                                 )
                             },
                             onPerformGlobalAction = { globalAction ->
-                                val intent = Intent(GlobalAction.NAME)
-                                    .putExtra(
-                                        GlobalAction.GLOBAL_ACTION_TYPE,
-                                        globalAction.name,
-                                    )
+                                val intent = Intent(GlobalAction.NAME).putExtra(
+                                    GlobalAction.GLOBAL_ACTION_TYPE,
+                                    globalAction.name,
+                                )
 
                                 context.sendBroadcast(intent)
                             },
@@ -314,9 +311,7 @@ internal fun PagerScreen(
         onResetOverlay = onResetOverlay,
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer ||
-        gestureSettings.swipeDown is GestureAction.OpenAppDrawer
-    ) {
+    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
             offsetY = {
@@ -444,8 +439,7 @@ internal fun PagerScreen(
 
             GestureAction.OpenNotificationPanel -> {
                 SideEffect {
-                    val intent = Intent(GlobalAction.NAME)
-                        .putExtra(
+                    val intent = Intent(GlobalAction.NAME).putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
                             GlobalAction.Notifications.name,
                         )
@@ -458,8 +452,7 @@ internal fun PagerScreen(
 
             GestureAction.LockScreen -> {
                 SideEffect {
-                    val intent = Intent(GlobalAction.NAME)
-                        .putExtra(
+                    val intent = Intent(GlobalAction.NAME).putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
                             GlobalAction.LockScreen.name,
                         )
@@ -472,8 +465,7 @@ internal fun PagerScreen(
 
             GestureAction.OpenQuickSettings -> {
                 SideEffect {
-                    val intent = Intent(GlobalAction.NAME)
-                        .putExtra(
+                    val intent = Intent(GlobalAction.NAME).putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
                             GlobalAction.QuickSettings.name,
                         )
@@ -486,8 +478,7 @@ internal fun PagerScreen(
 
             GestureAction.OpenRecents -> {
                 SideEffect {
-                    val intent = Intent(GlobalAction.NAME)
-                        .putExtra(
+                    val intent = Intent(GlobalAction.NAME).putExtra(
                             GlobalAction.GLOBAL_ACTION_TYPE,
                             GlobalAction.Recents.name,
                         )

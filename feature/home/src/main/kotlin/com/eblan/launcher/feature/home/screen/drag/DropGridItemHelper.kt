@@ -261,7 +261,10 @@ internal suspend fun handleShortcutConfigLauncherResult(
 
     val icon = result.data?.let { intent ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON, Bitmap::class.java)
+            intent.getParcelableExtra(
+                Intent.EXTRA_SHORTCUT_ICON,
+                Bitmap::class.java,
+            )
         } else {
             intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
         }
@@ -421,7 +424,9 @@ private fun configureComponent(
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
-    if (configureComponent != null && packageManager.isComponentExported(componentName = configureComponent)) {
+    if (configureComponent != null &&
+        packageManager.isComponentExported(componentName = configureComponent)
+    ) {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
 
         intent.component = configureComponent

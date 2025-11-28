@@ -138,9 +138,6 @@ internal suspend fun handleActionMainIntent(
     }
 }
 
-internal fun handleCreateShortcutIntent(intent: Intent) {
-}
-
 private fun handleGestureAction(
     gestureAction: GestureAction,
     onStartMainActivity: (String) -> Unit,

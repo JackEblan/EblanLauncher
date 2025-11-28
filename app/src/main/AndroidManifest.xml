@@ -29,7 +29,7 @@
         android:theme="@style/Theme.EblanLauncher"
         tools:targetApi="31">
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/Theme.EblanLauncher.Wallpaper"
@@ -46,7 +46,7 @@
         </activity>
 
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name=".activity.settings.SettingsActivity"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -56,7 +56,7 @@
         </activity>
 
         <activity
-            android:name=".activity.PinActivity"
+            android:name=".activity.pin.PinActivity"
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
             android:exported="false"
@@ -71,7 +71,7 @@
         </activity>
 
         <activity
-            android:name=".activity.ActionActivity"
+            android:name=".activity.action.ActionActivity"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/action_name">

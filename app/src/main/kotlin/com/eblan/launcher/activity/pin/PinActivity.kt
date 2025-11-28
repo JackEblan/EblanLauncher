@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.activity
+package com.eblan.launcher.activity.pin
 
 import android.content.Intent
 import android.os.Build
@@ -43,7 +43,6 @@ import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
-import com.eblan.launcher.viewmodel.PinActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -93,15 +92,8 @@ class PinActivity : ComponentActivity() {
                 ) {
                     val pinActivityUiState by viewModel.pinActivityUiState.collectAsStateWithLifecycle()
 
-                    val gridItem by viewModel.gridItem.collectAsStateWithLifecycle()
-
-                    val isBoundWidget by viewModel.isBoundWidget.collectAsStateWithLifecycle()
-
-                    val isFinished by viewModel.isFinished.collectAsStateWithLifecycle()
-
                     when (val state = pinActivityUiState) {
-                        PinActivityUiState.Loading -> {
-                        }
+                        PinActivityUiState.Loading -> {}
 
                         is PinActivityUiState.Success -> {
                             EblanLauncherTheme(
@@ -109,9 +101,6 @@ class PinActivity : ComponentActivity() {
                                 dynamicTheme = state.applicationTheme.dynamicTheme,
                             ) {
                                 PinScreen(
-                                    gridItem = gridItem,
-                                    isBoundWidget = isBoundWidget,
-                                    isFinished = isFinished,
                                     pinItemRequest = pinItemRequest,
                                     onDragStart = {
                                         startActivity(homeIntent)
@@ -119,19 +108,6 @@ class PinActivity : ComponentActivity() {
                                         finish()
                                     },
                                     onFinish = ::finish,
-                                    onAddedToHomeScreenToast = { message ->
-                                        Toast.makeText(
-                                            applicationContext,
-                                            message,
-                                            Toast.LENGTH_LONG,
-                                        ).show()
-                                    },
-                                    onAddPinWidgetToHomeScreen = viewModel::addPinWidgetToHomeScreen,
-                                    onDeleteGridItemCache = viewModel::deleteGridItemCache,
-                                    onUpdateGridItemCache = viewModel::updateGridItemDataCache,
-                                    onAddPinShortcutToHomeScreen = viewModel::addPinShortcutToHomeScreen,
-                                    onDeleteShortcutGridItem = viewModel::deleteGridItemCache,
-                                    onUpdateGridItems = viewModel::updateGridItems,
                                 )
                             }
                         }

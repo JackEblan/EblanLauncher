@@ -15,52 +15,32 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.viewmodel
+package com.eblan.launcher.feature.pin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
-import com.eblan.launcher.domain.model.ApplicationTheme
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterPinUseCase
-import com.eblan.launcher.model.PinActivityUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PinActivityViewModel @Inject constructor(
-    userDataRepository: UserDataRepository,
+class PinScreenViewModel @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
     private val addPinShortcutToHomeScreenUseCase: AddPinShortcutToHomeScreenUseCase,
     private val addPinWidgetToHomeScreenUseCase: AddPinWidgetToHomeScreenUseCase,
     private val appWidgetHostWrapper: AppWidgetHostWrapper,
     private val updateGridItemsAfterPinUseCase: UpdateGridItemsAfterPinUseCase,
 ) : ViewModel() {
-    val pinActivityUiState = userDataRepository.userData.map { userData ->
-        PinActivityUiState.Success(
-            applicationTheme = ApplicationTheme(
-                theme = userData.generalSettings.theme,
-                dynamicTheme = userData.generalSettings.dynamicTheme,
-            ),
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = PinActivityUiState.Loading,
-    )
-
     private val _gridItem = MutableStateFlow<GridItem?>(null)
 
     val gridItem = _gridItem.asStateFlow()

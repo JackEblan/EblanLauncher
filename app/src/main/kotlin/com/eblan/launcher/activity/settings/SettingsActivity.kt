@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.activity
+package com.eblan.launcher.activity.settings
 
 import android.content.Intent
 import android.os.Bundle
@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.eblan.launcher.activity.main.MainActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
@@ -41,7 +42,6 @@ import com.eblan.launcher.navigation.SettingsNavHost
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalSettings
 import com.eblan.launcher.util.handleEdgeToEdge
-import com.eblan.launcher.viewmodel.SettingsActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

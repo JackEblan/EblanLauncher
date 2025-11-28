@@ -94,7 +94,7 @@ internal fun resetSwipeOffset(
     )
 }
 
-internal suspend fun handleOnNewIntent(
+internal suspend fun handleActionMainIntent(
     gridHorizontalPagerState: PagerState,
     intent: Intent,
     initialPage: Int,
@@ -136,6 +136,9 @@ internal suspend fun handleOnNewIntent(
             yOffset = 0f,
         )
     }
+}
+
+internal fun handleCreateShortcutIntent(intent: Intent) {
 }
 
 private fun handleGestureAction(

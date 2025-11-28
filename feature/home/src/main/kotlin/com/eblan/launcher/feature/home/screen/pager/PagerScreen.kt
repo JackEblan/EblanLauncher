@@ -198,7 +198,7 @@ internal fun PagerScreen(
     DisposableEffect(key1 = scope) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
-                handleOnNewIntent(
+                handleActionMainIntent(
                     gridHorizontalPagerState = gridHorizontalPagerState,
                     intent = intent,
                     initialPage = homeSettings.initialPage,
@@ -209,6 +209,8 @@ internal fun PagerScreen(
                     windowToken = view.windowToken,
                 )
             }
+
+            handleCreateShortcutIntent(intent = intent)
         }
 
         activity.addOnNewIntentListener(listener)

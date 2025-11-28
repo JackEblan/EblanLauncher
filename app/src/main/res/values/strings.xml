@@ -17,4 +17,5 @@
   -->
 <resources>
     <string name="app_name">Eblan Launcher</string>
+    <string name="action_name">Eblan Action</string>
 </resources>

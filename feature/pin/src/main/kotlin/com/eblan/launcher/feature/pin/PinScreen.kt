@@ -227,6 +227,8 @@ private fun PinShortcutScreen(
                         )
 
                         onDragStart()
+
+                        onFinish()
                     },
                 )
             }
@@ -402,6 +404,8 @@ private fun PinWidgetScreen(
                     )
 
                     onDragStart()
+
+                    onFinish()
                 },
             )
         }

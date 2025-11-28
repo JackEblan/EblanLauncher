@@ -259,6 +259,13 @@ internal suspend fun handleShortcutConfigLauncherResult(
         return
     }
 
+    val extras = result.data?.extras
+    if (extras != null) {
+        for (key in extras.keySet()) {
+            println("IntentKeys, Key: $key Value: ${extras[key]}")
+        }
+    }
+
     val icon = result.data?.let { intent ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(

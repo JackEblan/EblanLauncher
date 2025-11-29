@@ -34,4 +34,6 @@ dependencies {
     implementation(projects.framework.settings)
     implementation(projects.framework.userManager)
     implementation(projects.service)
+
+    implementation(libs.accompanist.permissions)
 }

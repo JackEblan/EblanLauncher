@@ -69,6 +69,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         wallpaperScroll = false
         folderColumns = 5
         folderRows = 5
+        setupWizard = true
         gridItemSettingsProto = defaultGridItemSettingsProto
     }.build()
 

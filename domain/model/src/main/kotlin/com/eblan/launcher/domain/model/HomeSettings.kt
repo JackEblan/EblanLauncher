@@ -29,5 +29,6 @@ data class HomeSettings(
     val wallpaperScroll: Boolean,
     val folderColumns: Int,
     val folderRows: Int,
+    val setupWizard: Boolean,
     val gridItemSettings: GridItemSettings,
 )

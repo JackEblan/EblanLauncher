@@ -67,6 +67,7 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
         wallpaperScroll = wallpaperScroll,
         folderColumns = folderColumns,
         folderRows = folderRows,
+        setupWizard = setupWizard,
         gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
     )
 }

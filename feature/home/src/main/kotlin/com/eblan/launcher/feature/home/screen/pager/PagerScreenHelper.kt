@@ -25,7 +25,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -33,7 +33,7 @@ import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal fun doGestureActions(
+internal fun doEblanActions(
     gestureSettings: GestureSettings,
     swipeUpY: Float,
     swipeDownY: Float,
@@ -44,11 +44,19 @@ internal fun doGestureActions(
     val swipeThreshold = 100f
 
     if (swipeUpY < screenHeight - swipeThreshold) {
-        handleGestureAction(gestureSettings.swipeUp, onStartMainActivity, onPerformGlobalAction)
+        handleEblanAction(
+            eblanAction = gestureSettings.swipeUp,
+            onStartMainActivity = onStartMainActivity,
+            onPerformGlobalAction = onPerformGlobalAction,
+        )
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
-        handleGestureAction(gestureSettings.swipeDown, onStartMainActivity, onPerformGlobalAction)
+        handleEblanAction(
+            eblanAction = gestureSettings.swipeDown,
+            onStartMainActivity = onStartMainActivity,
+            onPerformGlobalAction = onPerformGlobalAction,
+        )
     }
 }
 
@@ -60,11 +68,11 @@ internal fun resetSwipeOffset(
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
     fun animateOffset(
-        gestureAction: GestureAction,
+        eblanAction: EblanAction,
         swipeY: Animatable<Float, AnimationVector1D>,
     ) {
         scope.launch {
-            if (gestureAction is GestureAction.OpenAppDrawer) {
+            if (eblanAction is EblanAction.OpenAppDrawer) {
                 val targetValue = if (swipeY.value < screenHeight - 200f) {
                     0f
                 } else {
@@ -84,12 +92,12 @@ internal fun resetSwipeOffset(
     }
 
     animateOffset(
-        gestureAction = gestureSettings.swipeDown,
+        eblanAction = gestureSettings.swipeDown,
         swipeY = swipeDownY,
     )
 
     animateOffset(
-        gestureAction = gestureSettings.swipeUp,
+        eblanAction = gestureSettings.swipeUp,
         swipeY = swipeUpY,
     )
 }
@@ -139,40 +147,40 @@ internal suspend fun handleActionMainIntent(
 }
 
 internal fun handleEblanActionIntent(intent: Intent) {
-    if (intent.action != GestureAction.ACTION) return
+    if (intent.action != EblanAction.ACTION) return
 
-    val gestureAction = intent.getStringExtra(GestureAction.NAME)
+    val eblanAction = intent.getStringExtra(EblanAction.NAME)
 
-    println(gestureAction)
+    println(eblanAction)
 }
 
-private fun handleGestureAction(
-    gestureAction: GestureAction,
+private fun handleEblanAction(
+    eblanAction: EblanAction,
     onStartMainActivity: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
-    when (gestureAction) {
-        is GestureAction.OpenApp -> {
-            onStartMainActivity(gestureAction.componentName)
+    when (eblanAction) {
+        is EblanAction.OpenApp -> {
+            onStartMainActivity(eblanAction.componentName)
         }
 
-        GestureAction.OpenNotificationPanel -> {
+        EblanAction.OpenNotificationPanel -> {
             onPerformGlobalAction(GlobalAction.Notifications)
         }
 
-        GestureAction.LockScreen -> {
+        EblanAction.LockScreen -> {
             onPerformGlobalAction(GlobalAction.LockScreen)
         }
 
-        GestureAction.OpenQuickSettings -> {
+        EblanAction.OpenQuickSettings -> {
             onPerformGlobalAction(GlobalAction.QuickSettings)
         }
 
-        GestureAction.OpenRecents -> {
+        EblanAction.OpenRecents -> {
             onPerformGlobalAction(GlobalAction.Recents)
         }
 
-        GestureAction.None, GestureAction.OpenAppDrawer -> Unit
+        EblanAction.None, EblanAction.OpenAppDrawer -> Unit
     }
 }
 

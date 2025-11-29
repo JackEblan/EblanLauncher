@@ -42,7 +42,7 @@ import com.eblan.launcher.activity.main.MainActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.feature.action.ActionScreen
 import com.eblan.launcher.model.ActivityUiState
@@ -105,20 +105,20 @@ class ActionActivity : ComponentActivity() {
 
     @Suppress("DEPRECATION")
     @OptIn(ExperimentalUuidApi::class)
-    private suspend fun createShortcutResult(gestureAction: GestureAction) {
+    private suspend fun createShortcutResult(eblanAction: EblanAction) {
         withContext(defaultDispatcher) {
-            val json = Json.encodeToString(gestureAction)
+            val json = Json.encodeToString(eblanAction)
 
             val shortcutId = Uuid.random().toHexString()
 
-            val shortcutName = when (gestureAction) {
-                GestureAction.LockScreen -> "Lock Screen"
-                GestureAction.None -> "None"
-                is GestureAction.OpenApp -> "Open ${gestureAction.componentName}"
-                GestureAction.OpenAppDrawer -> "Open App Drawer"
-                GestureAction.OpenNotificationPanel -> "Open Notification Panel"
-                GestureAction.OpenQuickSettings -> "Open Quick Settings"
-                GestureAction.OpenRecents -> "Open Recents"
+            val shortcutName = when (eblanAction) {
+                EblanAction.LockScreen -> "Lock Screen"
+                EblanAction.None -> "None"
+                is EblanAction.OpenApp -> "Open ${eblanAction.componentName}"
+                EblanAction.OpenAppDrawer -> "Open App Drawer"
+                EblanAction.OpenNotificationPanel -> "Open Notification Panel"
+                EblanAction.OpenQuickSettings -> "Open Quick Settings"
+                EblanAction.OpenRecents -> "Open Recents"
             }
 
             val bitmap = ContextCompat.getDrawable(
@@ -136,8 +136,8 @@ class ActionActivity : ComponentActivity() {
             }
 
             val shortcutIntent = Intent(applicationContext, MainActivity::class.java).apply {
-                action = GestureAction.ACTION
-                putExtra(GestureAction.NAME, json)
+                action = EblanAction.ACTION
+                putExtra(EblanAction.NAME, json)
             }
 
             val legacyExtras = Intent().apply {

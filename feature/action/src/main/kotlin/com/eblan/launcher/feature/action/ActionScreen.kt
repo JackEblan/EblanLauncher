@@ -23,8 +23,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,37 +38,37 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionScreen(
     modifier: Modifier = Modifier,
-    onUpdateEblanAction: suspend (GestureAction) -> Unit,
+    onUpdateEblanAction: suspend (EblanAction) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
-    var selectedGestureAction by remember {
-        mutableStateOf<GestureAction>(GestureAction.None)
+    var selectedEblanAction by remember {
+        mutableStateOf<EblanAction>(EblanAction.None)
     }
 
-    val gestureActions by remember {
+    val eblanActions by remember {
         derivedStateOf {
             listOf(
-                GestureAction.None,
-                GestureAction.OpenAppDrawer,
-                GestureAction.OpenNotificationPanel,
-                selectedGestureAction.let { gestureAction ->
-                    if (gestureAction is GestureAction.OpenApp) {
-                        GestureAction.OpenApp(componentName = gestureAction.componentName)
+                EblanAction.None,
+                EblanAction.OpenAppDrawer,
+                EblanAction.OpenNotificationPanel,
+                selectedEblanAction.let { eblanAction ->
+                    if (eblanAction is EblanAction.OpenApp) {
+                        EblanAction.OpenApp(componentName = eblanAction.componentName)
                     } else {
-                        GestureAction.OpenApp(componentName = "app")
+                        EblanAction.OpenApp(componentName = "app")
                     }
                 },
-                GestureAction.LockScreen,
-                GestureAction.OpenQuickSettings,
-                GestureAction.OpenRecents,
+                EblanAction.LockScreen,
+                EblanAction.OpenQuickSettings,
+                EblanAction.OpenRecents,
             )
         }
     }
@@ -80,37 +80,36 @@ fun ActionScreen(
     }) { paddingValues ->
         Box(
             modifier = modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            LazyColumn(modifier = Modifier.matchParentSize()) {
-                items(gestureActions) { gestureAction ->
-                    Row(
-                        modifier = Modifier
-                            .clickable {
-                                scope.launch {
-                                    onUpdateEblanAction(gestureAction)
-                                }
+            eblanActions.forEach { eblanAction ->
+                Row(
+                    modifier = Modifier
+                        .clickable {
+                            scope.launch {
+                                onUpdateEblanAction(eblanAction)
                             }
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                    ) {
-                        Text(text = gestureAction.getGestureActionSubtitle())
-                    }
+                        }
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                ) {
+                    Text(text = eblanAction.getEblanActionSubtitle())
                 }
             }
         }
     }
 }
 
-private fun GestureAction.getGestureActionSubtitle(): String {
+private fun EblanAction.getEblanActionSubtitle(): String {
     return when (this) {
-        GestureAction.None -> "None"
-        is GestureAction.OpenApp -> "Open $componentName"
-        GestureAction.OpenAppDrawer -> "Open app drawer"
-        GestureAction.OpenNotificationPanel -> "Open notification panel"
-        GestureAction.LockScreen -> "Lock screen"
-        GestureAction.OpenQuickSettings -> "Open quick settings"
-        GestureAction.OpenRecents -> "Open recents"
+        EblanAction.None -> "None"
+        is EblanAction.OpenApp -> "Open $componentName"
+        EblanAction.OpenAppDrawer -> "Open App Drawer"
+        EblanAction.OpenNotificationPanel -> "Open Notification Panel"
+        EblanAction.LockScreen -> "Lock Screen"
+        EblanAction.OpenQuickSettings -> "Open Quick Settings"
+        EblanAction.OpenRecents -> "Open Recents"
     }
 }

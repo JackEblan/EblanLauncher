@@ -20,27 +20,27 @@ package com.eblan.launcher.domain.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface GestureAction {
+sealed interface EblanAction {
     @Serializable
-    data object None : GestureAction
+    data object None : EblanAction
 
     @Serializable
-    data object OpenAppDrawer : GestureAction
+    data object OpenAppDrawer : EblanAction
 
     @Serializable
-    data object OpenNotificationPanel : GestureAction
+    data object OpenNotificationPanel : EblanAction
 
     @Serializable
-    data class OpenApp(val componentName: String) : GestureAction
+    data class OpenApp(val componentName: String) : EblanAction
 
     @Serializable
-    data object LockScreen : GestureAction
+    data object LockScreen : EblanAction
 
     @Serializable
-    data object OpenQuickSettings : GestureAction
+    data object OpenQuickSettings : EblanAction
 
     @Serializable
-    data object OpenRecents : GestureAction
+    data object OpenRecents : EblanAction
 
     companion object {
         const val ACTION = "com.eblan.launcher.EBLAN_ACTION"

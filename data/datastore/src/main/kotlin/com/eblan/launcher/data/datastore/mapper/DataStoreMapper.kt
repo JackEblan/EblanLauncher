@@ -21,7 +21,7 @@ import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
 import com.eblan.launcher.data.datastore.proto.experimental.ExperimentalSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.GeneralSettingsProto
 import com.eblan.launcher.data.datastore.proto.general.ThemeProto
-import com.eblan.launcher.data.datastore.proto.gesture.GestureActionProto
+import com.eblan.launcher.data.datastore.proto.gesture.EblanActionProto
 import com.eblan.launcher.data.datastore.proto.gesture.GestureSettingsProto
 import com.eblan.launcher.data.datastore.proto.gesture.LockScreenProto
 import com.eblan.launcher.data.datastore.proto.gesture.NoneProto
@@ -36,16 +36,16 @@ import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanAction.LockScreen
+import com.eblan.launcher.domain.model.EblanAction.None
+import com.eblan.launcher.domain.model.EblanAction.OpenApp
+import com.eblan.launcher.domain.model.EblanAction.OpenAppDrawer
+import com.eblan.launcher.domain.model.EblanAction.OpenNotificationPanel
+import com.eblan.launcher.domain.model.EblanAction.OpenQuickSettings
+import com.eblan.launcher.domain.model.EblanAction.OpenRecents
 import com.eblan.launcher.domain.model.ExperimentalSettings
 import com.eblan.launcher.domain.model.GeneralSettings
-import com.eblan.launcher.domain.model.GestureAction
-import com.eblan.launcher.domain.model.GestureAction.LockScreen
-import com.eblan.launcher.domain.model.GestureAction.None
-import com.eblan.launcher.domain.model.GestureAction.OpenApp
-import com.eblan.launcher.domain.model.GestureAction.OpenAppDrawer
-import com.eblan.launcher.domain.model.GestureAction.OpenNotificationPanel
-import com.eblan.launcher.domain.model.GestureAction.OpenQuickSettings
-import com.eblan.launcher.domain.model.GestureAction.OpenRecents
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
@@ -147,33 +147,33 @@ internal fun VerticalArrangementProto.toVerticalArrangement(): VerticalArrangeme
     }
 }
 
-internal fun GestureAction.toGestureActionProto(): GestureActionProto {
+internal fun EblanAction.toEblanActionProto(): EblanActionProto {
     return when (this) {
-        None -> GestureActionProto.newBuilder()
+        None -> EblanActionProto.newBuilder()
             .setNoneProto(NoneProto.getDefaultInstance())
             .build()
 
-        is OpenAppDrawer -> GestureActionProto.newBuilder()
+        is OpenAppDrawer -> EblanActionProto.newBuilder()
             .setOpenAppDrawerProto(OpenAppDrawerProto.getDefaultInstance())
             .build()
 
-        is OpenNotificationPanel -> GestureActionProto.newBuilder()
+        is OpenNotificationPanel -> EblanActionProto.newBuilder()
             .setOpenNotificationPanelProto(OpenNotificationPanelProto.getDefaultInstance())
             .build()
 
-        is OpenApp -> GestureActionProto.newBuilder()
+        is OpenApp -> EblanActionProto.newBuilder()
             .setOpenAppProto(OpenAppProto.newBuilder().setComponentName(componentName))
             .build()
 
-        LockScreen -> GestureActionProto.newBuilder()
+        LockScreen -> EblanActionProto.newBuilder()
             .setLockScreenProto(LockScreenProto.getDefaultInstance())
             .build()
 
-        OpenQuickSettings -> GestureActionProto.newBuilder()
+        OpenQuickSettings -> EblanActionProto.newBuilder()
             .setOpenQuickSettingsProto(OpenQuickSettingsProto.getDefaultInstance())
             .build()
 
-        OpenRecents -> GestureActionProto.newBuilder()
+        OpenRecents -> EblanActionProto.newBuilder()
             .setOpenRecentsProto(OpenRecentsProto.getDefaultInstance())
             .build()
     }
@@ -181,29 +181,29 @@ internal fun GestureAction.toGestureActionProto(): GestureActionProto {
 
 internal fun GestureSettingsProto.toGestureSettings(): GestureSettings {
     return GestureSettings(
-        doubleTap = doubleTapProto.toGestureAction(),
-        swipeUp = swipeUpProto.toGestureAction(),
-        swipeDown = swipeDownProto.toGestureAction(),
+        doubleTap = doubleTapProto.toEblanAction(),
+        swipeUp = swipeUpProto.toEblanAction(),
+        swipeDown = swipeDownProto.toEblanAction(),
     )
 }
 
-internal fun GestureActionProto.toGestureAction(): GestureAction {
+internal fun EblanActionProto.toEblanAction(): EblanAction {
     return when (typeCase) {
-        GestureActionProto.TypeCase.NONEPROTO -> None
+        EblanActionProto.TypeCase.NONEPROTO -> None
 
-        GestureActionProto.TypeCase.OPENAPPDRAWERPROTO -> OpenAppDrawer
+        EblanActionProto.TypeCase.OPENAPPDRAWERPROTO -> OpenAppDrawer
 
-        GestureActionProto.TypeCase.OPENNOTIFICATIONPANELPROTO -> OpenNotificationPanel
+        EblanActionProto.TypeCase.OPENNOTIFICATIONPANELPROTO -> OpenNotificationPanel
 
-        GestureActionProto.TypeCase.OPENAPPPROTO ->
+        EblanActionProto.TypeCase.OPENAPPPROTO ->
             OpenApp(openAppProto.componentName)
 
-        GestureActionProto.TypeCase.LOCKSCREENPROTO -> LockScreen
-        GestureActionProto.TypeCase.OPENQUICKSETTINGSPROTO -> OpenQuickSettings
-        GestureActionProto.TypeCase.OPENRECENTSPROTO -> OpenRecents
+        EblanActionProto.TypeCase.LOCKSCREENPROTO -> LockScreen
+        EblanActionProto.TypeCase.OPENQUICKSETTINGSPROTO -> OpenQuickSettings
+        EblanActionProto.TypeCase.OPENRECENTSPROTO -> OpenRecents
 
-        GestureActionProto.TypeCase.TYPE_NOT_SET, null ->
-            error("GestureActionProto type not set")
+        EblanActionProto.TypeCase.TYPE_NOT_SET, null ->
+            error("EblanActionProto type not set")
     }
 }
 
@@ -280,9 +280,9 @@ internal fun GeneralSettings.toGeneralSettingsProto(): GeneralSettingsProto {
 
 internal fun GestureSettings.toGestureSettingsProto(): GestureSettingsProto {
     return GestureSettingsProto.newBuilder()
-        .setDoubleTapProto(doubleTap.toGestureActionProto())
-        .setSwipeUpProto(swipeUp.toGestureActionProto())
-        .setSwipeDownProto(swipeDown.toGestureActionProto())
+        .setDoubleTapProto(doubleTap.toEblanActionProto())
+        .setSwipeUpProto(swipeUp.toEblanActionProto())
+        .setSwipeDownProto(swipeDown.toEblanActionProto())
         .build()
 }
 

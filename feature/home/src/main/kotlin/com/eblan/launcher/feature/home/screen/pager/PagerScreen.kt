@@ -58,7 +58,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
@@ -177,9 +177,9 @@ internal fun PagerScreen(
 
     val swipeY by remember {
         derivedStateOf {
-            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is GestureAction.OpenAppDrawer) {
+            if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is EblanAction.OpenAppDrawer) {
                 swipeUpY
-            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+            } else if (swipeDownY.value < screenHeight.toFloat() && gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
                 swipeDownY
             } else {
                 Animatable(screenHeight.toFloat())
@@ -232,7 +232,7 @@ internal fun PagerScreen(
                         }
                     },
                     onDragEnd = {
-                        doGestureActions(
+                        doEblanActions(
                             gestureSettings = gestureSettings,
                             swipeUpY = swipeUpY.value,
                             swipeDownY = swipeDownY.value,
@@ -313,7 +313,7 @@ internal fun PagerScreen(
         onResetOverlay = onResetOverlay,
     )
 
-    if (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) {
+    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
             offsetY = {
@@ -361,14 +361,14 @@ internal fun PagerScreen(
     }
 
     if (showApplicationInfos) {
-        when (val gestureAction = gestureSettings.doubleTap) {
-            GestureAction.None -> {
+        when (val eblanAction = gestureSettings.doubleTap) {
+            EblanAction.None -> {
             }
 
-            is GestureAction.OpenApp -> {
+            is EblanAction.OpenApp -> {
                 SideEffect {
                     launcherApps.startMainActivity(
-                        componentName = gestureAction.componentName,
+                        componentName = eblanAction.componentName,
                         sourceBounds = Rect(),
                     )
 
@@ -376,7 +376,7 @@ internal fun PagerScreen(
                 }
             }
 
-            GestureAction.OpenAppDrawer -> {
+            EblanAction.OpenAppDrawer -> {
                 LaunchedEffect(key1 = Unit) {
                     swipeY.animateTo(
                         targetValue = 0f,
@@ -439,7 +439,7 @@ internal fun PagerScreen(
                 )
             }
 
-            GestureAction.OpenNotificationPanel -> {
+            EblanAction.OpenNotificationPanel -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
                         GlobalAction.GLOBAL_ACTION_TYPE,
@@ -452,7 +452,7 @@ internal fun PagerScreen(
                 }
             }
 
-            GestureAction.LockScreen -> {
+            EblanAction.LockScreen -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
                         GlobalAction.GLOBAL_ACTION_TYPE,
@@ -465,7 +465,7 @@ internal fun PagerScreen(
                 }
             }
 
-            GestureAction.OpenQuickSettings -> {
+            EblanAction.OpenQuickSettings -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
                         GlobalAction.GLOBAL_ACTION_TYPE,
@@ -478,7 +478,7 @@ internal fun PagerScreen(
                 }
             }
 
-            GestureAction.OpenRecents -> {
+            EblanAction.OpenRecents -> {
                 SideEffect {
                     val intent = Intent(GlobalAction.NAME).putExtra(
                         GlobalAction.GLOBAL_ACTION_TYPE,

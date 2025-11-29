@@ -3,7 +3,7 @@ syntax = "proto3";
 option java_package = "com.eblan.launcher.data.datastore.proto.gesture";
 option java_multiple_files = true;
 
-message GestureActionProto {
+message EblanActionProto {
   oneof type {
     NoneProto noneProto = 1;
 

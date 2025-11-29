@@ -19,7 +19,7 @@ package com.eblan.launcher.data.datastore
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.eblan.launcher.data.datastore.mapper.toGestureActionProto
+import com.eblan.launcher.data.datastore.mapper.toEblanActionProto
 import com.eblan.launcher.data.datastore.mapper.toThemeProto
 import com.eblan.launcher.data.datastore.proto.UserDataProto
 import com.eblan.launcher.data.datastore.proto.appdrawer.AppDrawerSettingsProto
@@ -31,7 +31,7 @@ import com.eblan.launcher.data.datastore.proto.home.HomeSettingsProto
 import com.eblan.launcher.data.datastore.proto.home.HorizontalAlignmentProto
 import com.eblan.launcher.data.datastore.proto.home.TextColorProto
 import com.eblan.launcher.data.datastore.proto.home.VerticalArrangementProto
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.Theme
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -79,11 +79,11 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
     }.build()
 
     private val defaultGestureSettingsProto = GestureSettingsProto.newBuilder().apply {
-        doubleTapProto = GestureAction.None.toGestureActionProto()
+        doubleTapProto = EblanAction.None.toEblanActionProto()
 
-        swipeUpProto = GestureAction.OpenAppDrawer.toGestureActionProto()
+        swipeUpProto = EblanAction.OpenAppDrawer.toEblanActionProto()
 
-        swipeDownProto = GestureAction.None.toGestureActionProto()
+        swipeDownProto = EblanAction.None.toEblanActionProto()
     }.build()
 
     private val defaultExperimentalSettings = ExperimentalSettingsProto.newBuilder().apply {

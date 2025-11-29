@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.eblan.launcher.R
 import com.eblan.launcher.activity.main.MainActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
@@ -95,7 +94,10 @@ class ActionActivity : ComponentActivity() {
                         dynamicTheme = state.applicationTheme.dynamicTheme,
                     ) {
                         Surface {
-                            ActionScreen(onUpdateEblanAction = ::createShortcutResult)
+                            ActionScreen(
+                                onUpdateEblanAction = ::createShortcutResult,
+                                onFinish = ::finish,
+                            )
                         }
                     }
                 }
@@ -105,7 +107,10 @@ class ActionActivity : ComponentActivity() {
 
     @Suppress("DEPRECATION")
     @OptIn(ExperimentalUuidApi::class)
-    private suspend fun createShortcutResult(eblanAction: EblanAction) {
+    private suspend fun createShortcutResult(
+        resId: Int,
+        eblanAction: EblanAction,
+    ) {
         withContext(defaultDispatcher) {
             val json = Json.encodeToString(eblanAction)
 
@@ -123,7 +128,7 @@ class ActionActivity : ComponentActivity() {
 
             val bitmap = ContextCompat.getDrawable(
                 applicationContext,
-                R.drawable.outline_apps_24,
+                resId,
             )?.let { drawable ->
                 createBitmap(
                     width = drawable.intrinsicWidth,
@@ -155,7 +160,7 @@ class ActionActivity : ComponentActivity() {
                         .setLongLabel(shortcutName).setIcon(
                             Icon.createWithResource(
                                 applicationContext,
-                                R.drawable.outline_apps_24,
+                                resId,
                             ),
                         ).setIntent(shortcutIntent).build()
 

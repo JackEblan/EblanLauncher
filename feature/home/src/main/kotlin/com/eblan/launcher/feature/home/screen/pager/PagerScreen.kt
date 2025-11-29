@@ -34,7 +34,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,12 +52,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.util.Consumer
 import com.eblan.launcher.domain.model.AppDrawerSettings
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
-import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.domain.model.GridItem
@@ -127,7 +126,9 @@ internal fun PagerScreen(
 
     val launcherApps = LocalLauncherApps.current
 
-    var showApplicationInfos by remember { mutableStateOf(false) }
+    var hasDoubleTap by remember { mutableStateOf(false) }
+
+    var showAppDrawer by remember { mutableStateOf(false) }
 
     var showWidgets by remember { mutableStateOf(false) }
 
@@ -195,6 +196,20 @@ internal fun PagerScreen(
         }
     }
 
+    LaunchedEffect(key1 = hasDoubleTap) {
+        handleHasDoubleTap(
+            hasDoubleTap = hasDoubleTap,
+            gestureSettings = gestureSettings,
+            launcherApps = launcherApps,
+            context = context,
+            onShowAppDrawer = {
+                showAppDrawer = true
+            },
+        )
+
+        hasDoubleTap = false
+    }
+
     DisposableEffect(key1 = scope) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
@@ -209,7 +224,26 @@ internal fun PagerScreen(
                     windowToken = view.windowToken,
                 )
 
-                handleEblanActionIntent(intent = intent)
+                handleEblanActionIntent(
+                    intent = intent,
+                    onStartMainActivity = { componentName ->
+                        launcherApps.startMainActivity(
+                            componentName = componentName,
+                            sourceBounds = Rect(),
+                        )
+                    },
+                    onPerformGlobalAction = { globalAction ->
+                        val intent = Intent(GlobalAction.NAME).putExtra(
+                            GlobalAction.GLOBAL_ACTION_TYPE,
+                            globalAction.name,
+                        )
+
+                        context.sendBroadcast(intent)
+                    },
+                    onOpenAppDrawer = {
+                        showAppDrawer = true
+                    },
+                )
             }
         }
 
@@ -304,7 +338,7 @@ internal fun PagerScreen(
             showShortcutConfigActivities = true
         },
         onDoubleTap = {
-            showApplicationInfos = true
+            hasDoubleTap = true
         },
         onLongPressGridItem = onLongPressGridItem,
         onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -313,7 +347,9 @@ internal fun PagerScreen(
         onResetOverlay = onResetOverlay,
     )
 
-    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
+    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer ||
+        gestureSettings.swipeDown is EblanAction.OpenAppDrawer
+    ) {
         ApplicationScreen(
             currentPage = currentPage,
             offsetY = {
@@ -360,137 +396,66 @@ internal fun PagerScreen(
         )
     }
 
-    if (showApplicationInfos) {
-        when (val eblanAction = gestureSettings.doubleTap) {
-            EblanAction.None -> {
-            }
+    if (showAppDrawer) {
+        LaunchedEffect(key1 = Unit) {
+            swipeY.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
+        }
 
-            is EblanAction.OpenApp -> {
-                SideEffect {
-                    launcherApps.startMainActivity(
-                        componentName = eblanAction.componentName,
-                        sourceBounds = Rect(),
-                    )
-
-                    showApplicationInfos = false
-                }
-            }
-
-            EblanAction.OpenAppDrawer -> {
-                LaunchedEffect(key1 = Unit) {
+        ApplicationScreen(
+            currentPage = currentPage,
+            offsetY = {
+                swipeY.value
+            },
+            isApplicationComponentVisible = isApplicationComponentVisible,
+            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            paddingValues = paddingValues,
+            drag = drag,
+            appDrawerSettings = appDrawerSettings,
+            eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+            iconPackInfoPackageName = iconPackInfoPackageName,
+            screenHeight = screenHeight,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+            gridItemSource = gridItemSource,
+            onDismiss = {
+                scope.launch {
                     swipeY.animateTo(
-                        targetValue = 0f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessLow,
+                        targetValue = screenHeight.toFloat(),
+                        animationSpec = tween(
+                            easing = FastOutSlowInEasing,
                         ),
                     )
+
+                    showAppDrawer = false
                 }
-
-                ApplicationScreen(
-                    modifier = modifier,
-                    currentPage = currentPage,
-                    offsetY = {
-                        swipeY.value
-                    },
-                    isApplicationComponentVisible = isApplicationComponentVisible,
-                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    paddingValues = paddingValues,
-                    drag = drag,
-                    appDrawerSettings = appDrawerSettings,
-                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                    iconPackInfoPackageName = iconPackInfoPackageName,
-                    screenHeight = screenHeight,
-                    onLongPressGridItem = onLongPressGridItem,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                    gridItemSource = gridItemSource,
-                    onDismiss = {
-                        scope.launch {
-                            swipeY.animateTo(
-                                targetValue = screenHeight.toFloat(),
-                                animationSpec = tween(
-                                    easing = FastOutSlowInEasing,
-                                ),
-                            )
-
-                            showApplicationInfos = false
-                        }
-                    },
-                    onDraggingGridItem = onDraggingGridItem,
-                    onResetOverlay = onResetOverlay,
-                    onVerticalDrag = { dragAmount ->
-                        scope.launch {
-                            swipeY.snapTo(swipeY.value + dragAmount)
-                        }
-                    },
-                    onDragEnd = { remaining ->
-                        scope.launch {
-                            handleApplyFling(
-                                offsetY = swipeY,
-                                remaining = remaining,
-                                screenHeight = screenHeight,
-                                onDismiss = {
-                                    showApplicationInfos = false
-                                },
-                            )
-                        }
-                    },
-                )
-            }
-
-            EblanAction.OpenNotificationPanel -> {
-                SideEffect {
-                    val intent = Intent(GlobalAction.NAME).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.Notifications.name,
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
+            onVerticalDrag = { dragAmount ->
+                scope.launch {
+                    swipeY.snapTo(swipeY.value + dragAmount)
+                }
+            },
+            onDragEnd = { remaining ->
+                scope.launch {
+                    handleApplyFling(
+                        offsetY = swipeY,
+                        remaining = remaining,
+                        screenHeight = screenHeight,
+                        onDismiss = {
+                            showAppDrawer = false
+                        },
                     )
-
-                    context.sendBroadcast(intent)
-
-                    showApplicationInfos = false
                 }
-            }
-
-            EblanAction.LockScreen -> {
-                SideEffect {
-                    val intent = Intent(GlobalAction.NAME).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.LockScreen.name,
-                    )
-
-                    context.sendBroadcast(intent)
-
-                    showApplicationInfos = false
-                }
-            }
-
-            EblanAction.OpenQuickSettings -> {
-                SideEffect {
-                    val intent = Intent(GlobalAction.NAME).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.QuickSettings.name,
-                    )
-
-                    context.sendBroadcast(intent)
-
-                    showApplicationInfos = false
-                }
-            }
-
-            EblanAction.OpenRecents -> {
-                SideEffect {
-                    val intent = Intent(GlobalAction.NAME).putExtra(
-                        GlobalAction.GLOBAL_ACTION_TYPE,
-                        GlobalAction.Recents.name,
-                    )
-
-                    context.sendBroadcast(intent)
-
-                    showApplicationInfos = false
-                }
-            }
-        }
+            },
+        )
     }
 
     if (showWidgets) {

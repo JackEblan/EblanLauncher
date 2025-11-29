@@ -42,8 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.designsystem.component.EblanRadioButton
-import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.feature.settings.gestures.getEblanActionSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)

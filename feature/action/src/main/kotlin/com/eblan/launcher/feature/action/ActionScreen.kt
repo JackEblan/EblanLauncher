@@ -18,7 +18,7 @@
 package com.eblan.launcher.feature.action
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,7 +78,7 @@ fun ActionScreen(
             Text(text = "Eblan Action")
         })
     }) { paddingValues ->
-        Box(
+        Column(
             modifier = modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize()

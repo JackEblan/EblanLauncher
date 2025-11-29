@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.model.ApplicationTheme
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.model.PinActivityUiState
+import com.eblan.launcher.model.ActivityUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -32,8 +32,8 @@ import javax.inject.Inject
 class PinActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
-    val pinActivityUiState = userDataRepository.userData.map { userData ->
-        PinActivityUiState.Success(
+    val activityUiState = userDataRepository.userData.map { userData ->
+        ActivityUiState.Success(
             applicationTheme = ApplicationTheme(
                 theme = userData.generalSettings.theme,
                 dynamicTheme = userData.generalSettings.dynamicTheme,
@@ -42,6 +42,6 @@ class PinActivityViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = PinActivityUiState.Loading,
+        initialValue = ActivityUiState.Loading,
     )
 }

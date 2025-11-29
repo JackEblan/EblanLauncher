@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "e43b3f1faa34a5576bcc409f21bb87da",
+    "identityHash": "685ae538531c9e7553cd16f78dbca33e",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
@@ -907,7 +907,7 @@
       },
       {
         "tableName": "ShortcutConfigGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `activityIcon` TEXT, `activityLabel` TEXT, `applicationIcon` TEXT, `applicationLabel` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `uri` TEXT, `uriIcon` TEXT, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `activityIcon` TEXT, `activityLabel` TEXT, `applicationIcon` TEXT, `applicationLabel` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `shortcutIntentName` TEXT, `shortcutIntentIcon` TEXT, `shortcutIntentUri` TEXT, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1001,13 +1001,18 @@
             "notNull": true
           },
           {
-            "fieldPath": "uri",
-            "columnName": "uri",
+            "fieldPath": "shortcutIntentName",
+            "columnName": "shortcutIntentName",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "uriIcon",
-            "columnName": "uriIcon",
+            "fieldPath": "shortcutIntentIcon",
+            "columnName": "shortcutIntentIcon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shortcutIntentUri",
+            "columnName": "shortcutIntentUri",
             "affinity": "TEXT"
           },
           {
@@ -1063,7 +1068,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e43b3f1faa34a5576bcc409f21bb87da')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '685ae538531c9e7553cd16f78dbca33e')"
     ]
   }
 }

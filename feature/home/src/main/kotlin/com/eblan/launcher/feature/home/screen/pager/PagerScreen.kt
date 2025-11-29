@@ -208,6 +208,8 @@ internal fun PagerScreen(
                     infiniteScroll = homeSettings.infiniteScroll,
                     windowToken = view.windowToken,
                 )
+
+                handleEblanActionIntent(intent = intent)
             }
         }
 

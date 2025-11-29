@@ -455,9 +455,9 @@ internal class HomeViewModel @Inject constructor(
         data: GridItemData.ShortcutConfig,
     ) {
         viewModelScope.launch {
-            val uriIcon = byteArray?.let { currentByteArray ->
+            val shortcutIntentIcon = byteArray?.let { currentByteArray ->
                 fileManager.updateAndGetFilePath(
-                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
+                    fileManager.getFilesDirectory(FileManager.SHORTCUT_INTENT_ICONS_DIR),
                     gridItem.id,
                     currentByteArray,
                 )
@@ -465,7 +465,7 @@ internal class HomeViewModel @Inject constructor(
 
             gridCacheRepository.updateGridItemData(
                 id = gridItem.id,
-                data = data.copy(uriIcon = uriIcon),
+                data = data.copy(shortcutIntentIcon = shortcutIntentIcon),
             )
 
             resetGridCacheAfterMove(moveGridItemResult = moveGridItemResult)

@@ -207,12 +207,12 @@ class RemovePackageUseCase @Inject constructor(
             serialNumber = serialNumber,
             packageName = packageName,
         ).forEach { shortcutConfigGridItem ->
-            val uriIcon = shortcutConfigGridItem.uriIcon
+            val shortcutIntentIcon = shortcutConfigGridItem.shortcutIntentIcon
 
-            if (uriIcon != null) {
+            if (shortcutIntentIcon != null) {
                 val uriIconFile = File(
-                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
-                    uriIcon,
+                    fileManager.getFilesDirectory(FileManager.SHORTCUT_INTENT_ICONS_DIR),
+                    shortcutIntentIcon,
                 )
 
                 if (uriIconFile.exists()) {
@@ -239,7 +239,7 @@ class RemovePackageUseCase @Inject constructor(
 
             if (isUnique) {
                 val shortcutFile = File(
-                    fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
+                    fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
                     eblanShortcutConfig.componentName,
                 )
 

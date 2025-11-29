@@ -710,8 +710,9 @@ private fun EblanShortcutConfigItem(
                                 activityIcon = eblanShortcutConfig.activityIcon,
                                 applicationIcon = eblanShortcutConfig.activityIcon,
                                 applicationLabel = eblanShortcutConfig.activityLabel,
-                                uri = null,
-                                uriIcon = null,
+                                shortcutIntentName = null,
+                                shortcutIntentIcon = null,
+                                shortcutIntentUri = null,
                             )
 
                             onLongPressGridItem(

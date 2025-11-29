@@ -58,7 +58,7 @@ class UpdateEblanShortcutConfigsUseCase @Inject constructor(
 
                     val activityIcon = launcherAppsInfo.activityIcon?.let { byteArray ->
                         fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
+                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
                             name = launcherAppsInfo.componentName.replace(
                                 "/",
                                 "-",
@@ -101,7 +101,7 @@ class UpdateEblanShortcutConfigsUseCase @Inject constructor(
 
                     if (isUnique) {
                         val icon = File(
-                            fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
+                            fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
                             eblanShortcutConfigToDelete.componentName,
                         )
 

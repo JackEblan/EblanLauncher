@@ -20,7 +20,6 @@ package com.eblan.launcher.activity.pin
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,7 +35,7 @@ import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
-import com.eblan.launcher.model.PinActivityUiState
+import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalByteArray
@@ -90,12 +89,12 @@ class PinActivity : ComponentActivity() {
                     LocalByteArray provides androidByteArrayWrapper,
                     LocalUserManager provides androidUserManagerWrapper,
                 ) {
-                    val pinActivityUiState by viewModel.pinActivityUiState.collectAsStateWithLifecycle()
+                    val activityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 
-                    when (val state = pinActivityUiState) {
-                        PinActivityUiState.Loading -> {}
+                    when (val state = activityUiState) {
+                        ActivityUiState.Loading -> {}
 
-                        is PinActivityUiState.Success -> {
+                        is ActivityUiState.Success -> {
                             EblanLauncherTheme(
                                 theme = state.applicationTheme.theme,
                                 dynamicTheme = state.applicationTheme.dynamicTheme,

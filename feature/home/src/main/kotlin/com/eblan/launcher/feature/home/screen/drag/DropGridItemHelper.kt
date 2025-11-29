@@ -266,6 +266,8 @@ internal suspend fun handleShortcutConfigLauncherResult(
         }
     }
 
+    val name = result.data?.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
+
     val icon = result.data?.let { intent ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(
@@ -279,7 +281,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
         androidByteArrayWrapper.createByteArray(bitmap = bitmap)
     }
 
-    val uri = result.data?.let { intent ->
+    val shortcutIntentUri = result.data?.let { intent ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(
                 Intent.EXTRA_SHORTCUT_INTENT,
@@ -297,7 +299,10 @@ internal suspend fun handleShortcutConfigLauncherResult(
         icon,
         moveGridItemResult,
         gridItemSource.gridItem,
-        data.copy(uri = uri),
+        data.copy(
+            shortcutIntentName = name,
+            shortcutIntentUri = shortcutIntentUri,
+        ),
     )
 }
 

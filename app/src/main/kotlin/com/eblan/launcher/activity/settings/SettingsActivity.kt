@@ -37,7 +37,7 @@ import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.domain.model.Theme
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import com.eblan.launcher.framework.settings.AndroidSettingsWrapper
-import com.eblan.launcher.model.SettingsActivityUiState
+import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.navigation.SettingsNavHost
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalSettings
@@ -65,10 +65,10 @@ class SettingsActivity : ComponentActivity() {
             ) {
                 val navController = rememberNavController()
 
-                val settingsActivityUiState by viewModel.settingsActivityUiState.collectAsStateWithLifecycle()
+                val activityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 
-                when (val state = settingsActivityUiState) {
-                    SettingsActivityUiState.Loading -> {
+                when (val state = activityUiState) {
+                    ActivityUiState.Loading -> {
                         SideEffect {
                             enableEdgeToEdge()
                         }
@@ -83,7 +83,7 @@ class SettingsActivity : ComponentActivity() {
                         }
                     }
 
-                    is SettingsActivityUiState.Success -> {
+                    is ActivityUiState.Success -> {
                         SideEffect {
                             handleEdgeToEdge(theme = state.applicationTheme.theme)
                         }

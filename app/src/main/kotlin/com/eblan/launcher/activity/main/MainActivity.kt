@@ -39,7 +39,7 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
-import com.eblan.launcher.model.MainActivityUiState
+import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
@@ -102,14 +102,14 @@ class MainActivity : ComponentActivity() {
             ) {
                 val navController = rememberNavController()
 
-                val mainActivityUiState by viewModel.mainActivityUiState.collectAsStateWithLifecycle()
+                val mainActivityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 
                 when (val state = mainActivityUiState) {
-                    MainActivityUiState.Loading -> {
+                    ActivityUiState.Loading -> {
                         enableEdgeToEdge()
                     }
 
-                    is MainActivityUiState.Success -> {
+                    is ActivityUiState.Success -> {
                         SideEffect {
                             handleEdgeToEdge(theme = state.applicationTheme.theme)
                         }

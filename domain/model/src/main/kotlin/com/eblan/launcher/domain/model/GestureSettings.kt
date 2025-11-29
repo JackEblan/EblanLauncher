@@ -22,19 +22,3 @@ data class GestureSettings(
     val swipeUp: GestureAction,
     val swipeDown: GestureAction,
 )
-
-sealed interface GestureAction {
-    data object None : GestureAction
-
-    data object OpenAppDrawer : GestureAction
-
-    data object OpenNotificationPanel : GestureAction
-
-    data class OpenApp(val componentName: String) : GestureAction
-
-    data object LockScreen : GestureAction
-
-    data object OpenQuickSettings : GestureAction
-
-    data object OpenRecents : GestureAction
-}

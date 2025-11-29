@@ -138,6 +138,14 @@ internal suspend fun handleActionMainIntent(
     }
 }
 
+internal fun handleEblanActionIntent(intent: Intent) {
+    if (intent.action != GestureAction.ACTION) return
+
+    val gestureAction = intent.getStringExtra(GestureAction.NAME)
+
+    println(gestureAction)
+}
+
 private fun handleGestureAction(
     gestureAction: GestureAction,
     onStartMainActivity: (String) -> Unit,

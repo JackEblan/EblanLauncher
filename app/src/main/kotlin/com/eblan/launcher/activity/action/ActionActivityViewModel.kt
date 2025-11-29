@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.activity.settings
+package com.eblan.launcher.activity.action
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsActivityViewModel @Inject constructor(
+class ActionActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
 ) : ViewModel() {
     val activityUiState = userDataRepository.userData.map { userData ->

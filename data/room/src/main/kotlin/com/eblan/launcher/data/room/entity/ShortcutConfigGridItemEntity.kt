@@ -42,7 +42,8 @@ data class ShortcutConfigGridItemEntity(
     val applicationLabel: String?,
     val override: Boolean,
     val serialNumber: Long,
-    val uri: String?,
-    val uriIcon: String?,
+    val shortcutIntentName: String?,
+    val shortcutIntentIcon: String?,
+    val shortcutIntentUri: String?,
     @Embedded val gridItemSettings: GridItemSettings,
 )

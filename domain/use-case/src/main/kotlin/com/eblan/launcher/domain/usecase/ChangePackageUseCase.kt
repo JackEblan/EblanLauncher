@@ -510,7 +510,7 @@ class ChangePackageUseCase @Inject constructor(
             if (launcherAppsActivityInfo != null) {
                 val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
                     fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
+                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
                         name = launcherAppsActivityInfo.componentName.replace(
                             "/",
                             "-",
@@ -535,12 +535,12 @@ class ChangePackageUseCase @Inject constructor(
         }
 
         deleteShortcutConfigGridItems.forEach { shortcutConfigGridItem ->
-            val uriIcon = shortcutConfigGridItem.uriIcon
+            val shortcutIntentIcon = shortcutConfigGridItem.shortcutIntentIcon
 
-            if (uriIcon != null) {
+            if (shortcutIntentIcon != null) {
                 val uriIconFile = File(
-                    fileManager.getFilesDirectory(FileManager.URIS_DIR),
-                    uriIcon,
+                    fileManager.getFilesDirectory(FileManager.SHORTCUT_INTENT_ICONS_DIR),
+                    shortcutIntentIcon,
                 )
 
                 if (uriIconFile.exists()) {

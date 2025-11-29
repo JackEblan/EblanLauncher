@@ -206,7 +206,7 @@ class AddPackageUseCase @Inject constructor(
         ).map { launcherAppsActivityInfo ->
             val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
                 fileManager.updateAndGetFilePath(
-                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIG_ACTIVITIES_DIR),
+                    directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
                     name = launcherAppsActivityInfo.componentName.replace("/", "-"),
                     byteArray = byteArray,
                 )

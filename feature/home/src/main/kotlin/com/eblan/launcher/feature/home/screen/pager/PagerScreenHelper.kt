@@ -17,7 +17,10 @@
  */
 package com.eblan.launcher.feature.home.screen.pager
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
+import android.os.IBinder
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -25,15 +28,17 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.PagerState
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GlobalAction
 import com.eblan.launcher.feature.home.util.calculatePage
+import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
-internal fun doGestureActions(
+internal fun doEblanActions(
     gestureSettings: GestureSettings,
     swipeUpY: Float,
     swipeDownY: Float,
@@ -41,14 +46,52 @@ internal fun doGestureActions(
     onStartMainActivity: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
 ) {
+    fun handleEblanAction(
+        eblanAction: EblanAction,
+        onStartMainActivity: (String) -> Unit,
+        onPerformGlobalAction: (GlobalAction) -> Unit,
+    ) {
+        when (eblanAction) {
+            is EblanAction.OpenApp -> {
+                onStartMainActivity(eblanAction.componentName)
+            }
+
+            EblanAction.OpenNotificationPanel -> {
+                onPerformGlobalAction(GlobalAction.Notifications)
+            }
+
+            EblanAction.LockScreen -> {
+                onPerformGlobalAction(GlobalAction.LockScreen)
+            }
+
+            EblanAction.OpenQuickSettings -> {
+                onPerformGlobalAction(GlobalAction.QuickSettings)
+            }
+
+            EblanAction.OpenRecents -> {
+                onPerformGlobalAction(GlobalAction.Recents)
+            }
+
+            EblanAction.OpenAppDrawer, EblanAction.None -> Unit
+        }
+    }
+
     val swipeThreshold = 100f
 
     if (swipeUpY < screenHeight - swipeThreshold) {
-        handleGestureAction(gestureSettings.swipeUp, onStartMainActivity, onPerformGlobalAction)
+        handleEblanAction(
+            eblanAction = gestureSettings.swipeUp,
+            onStartMainActivity = onStartMainActivity,
+            onPerformGlobalAction = onPerformGlobalAction,
+        )
     }
 
     if (swipeDownY < screenHeight - swipeThreshold) {
-        handleGestureAction(gestureSettings.swipeDown, onStartMainActivity, onPerformGlobalAction)
+        handleEblanAction(
+            eblanAction = gestureSettings.swipeDown,
+            onStartMainActivity = onStartMainActivity,
+            onPerformGlobalAction = onPerformGlobalAction,
+        )
     }
 }
 
@@ -60,11 +103,11 @@ internal fun resetSwipeOffset(
     swipeUpY: Animatable<Float, AnimationVector1D>,
 ) {
     fun animateOffset(
-        gestureAction: GestureAction,
+        eblanAction: EblanAction,
         swipeY: Animatable<Float, AnimationVector1D>,
     ) {
         scope.launch {
-            if (gestureAction is GestureAction.OpenAppDrawer) {
+            if (eblanAction is EblanAction.OpenAppDrawer) {
                 val targetValue = if (swipeY.value < screenHeight - 200f) {
                     0f
                 } else {
@@ -84,17 +127,17 @@ internal fun resetSwipeOffset(
     }
 
     animateOffset(
-        gestureAction = gestureSettings.swipeDown,
+        eblanAction = gestureSettings.swipeDown,
         swipeY = swipeDownY,
     )
 
     animateOffset(
-        gestureAction = gestureSettings.swipeUp,
+        eblanAction = gestureSettings.swipeUp,
         swipeY = swipeUpY,
     )
 }
 
-internal suspend fun handleOnNewIntent(
+internal suspend fun handleActionMainIntent(
     gridHorizontalPagerState: PagerState,
     intent: Intent,
     initialPage: Int,
@@ -102,7 +145,7 @@ internal suspend fun handleOnNewIntent(
     wallpaperManagerWrapper: AndroidWallpaperManagerWrapper,
     pageCount: Int,
     infiniteScroll: Boolean,
-    windowToken: android.os.IBinder,
+    windowToken: IBinder,
 ) {
     if (intent.action != Intent.ACTION_MAIN &&
         !intent.hasCategory(Intent.CATEGORY_HOME)
@@ -138,33 +181,44 @@ internal suspend fun handleOnNewIntent(
     }
 }
 
-private fun handleGestureAction(
-    gestureAction: GestureAction,
+internal fun handleEblanActionIntent(
+    intent: Intent,
     onStartMainActivity: (String) -> Unit,
     onPerformGlobalAction: (GlobalAction) -> Unit,
+    onOpenAppDrawer: () -> Unit,
 ) {
-    when (gestureAction) {
-        is GestureAction.OpenApp -> {
-            onStartMainActivity(gestureAction.componentName)
+    if (intent.action != EblanAction.ACTION) return
+
+    val eblanAction = intent.getStringExtra(EblanAction.NAME)?.let { eblanAction ->
+        Json.decodeFromString<EblanAction>(eblanAction)
+    }
+
+    when (eblanAction) {
+        is EblanAction.OpenApp -> {
+            onStartMainActivity(eblanAction.componentName)
         }
 
-        GestureAction.OpenNotificationPanel -> {
+        EblanAction.OpenNotificationPanel -> {
             onPerformGlobalAction(GlobalAction.Notifications)
         }
 
-        GestureAction.LockScreen -> {
+        EblanAction.LockScreen -> {
             onPerformGlobalAction(GlobalAction.LockScreen)
         }
 
-        GestureAction.OpenQuickSettings -> {
+        EblanAction.OpenQuickSettings -> {
             onPerformGlobalAction(GlobalAction.QuickSettings)
         }
 
-        GestureAction.OpenRecents -> {
+        EblanAction.OpenRecents -> {
             onPerformGlobalAction(GlobalAction.Recents)
         }
 
-        GestureAction.None, GestureAction.OpenAppDrawer -> Unit
+        EblanAction.OpenAppDrawer -> {
+            onOpenAppDrawer()
+        }
+
+        EblanAction.None, null -> Unit
     }
 }
 
@@ -202,5 +256,66 @@ internal suspend fun handleApplyFling(
                 stiffness = Spring.StiffnessLow,
             ),
         )
+    }
+}
+
+internal fun handleHasDoubleTap(
+    hasDoubleTap: Boolean,
+    gestureSettings: GestureSettings,
+    launcherApps: AndroidLauncherAppsWrapper,
+    context: Context,
+    onShowAppDrawer: () -> Unit,
+) {
+    if (!hasDoubleTap) return
+
+    when (val eblanAction = gestureSettings.doubleTap) {
+        EblanAction.None -> {}
+
+        is EblanAction.OpenApp -> {
+            launcherApps.startMainActivity(
+                componentName = eblanAction.componentName,
+                sourceBounds = Rect(),
+            )
+        }
+
+        EblanAction.OpenAppDrawer -> {
+            onShowAppDrawer()
+        }
+
+        EblanAction.OpenNotificationPanel -> {
+            val intent = Intent(GlobalAction.NAME).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.Notifications.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanAction.LockScreen -> {
+            val intent = Intent(GlobalAction.NAME).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.LockScreen.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanAction.OpenQuickSettings -> {
+            val intent = Intent(GlobalAction.NAME).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.QuickSettings.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
+
+        EblanAction.OpenRecents -> {
+            val intent = Intent(GlobalAction.NAME).putExtra(
+                GlobalAction.GLOBAL_ACTION_TYPE,
+                GlobalAction.Recents.name,
+            )
+
+            context.sendBroadcast(intent)
+        }
     }
 }

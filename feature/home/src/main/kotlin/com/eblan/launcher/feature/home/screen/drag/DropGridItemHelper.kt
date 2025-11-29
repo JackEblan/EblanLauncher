@@ -259,9 +259,21 @@ internal suspend fun handleShortcutConfigLauncherResult(
         return
     }
 
+    val extras = result.data?.extras
+    if (extras != null) {
+        for (key in extras.keySet()) {
+            println("IntentKeys, Key: $key Value: ${extras[key]}")
+        }
+    }
+
+    val name = result.data?.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
+
     val icon = result.data?.let { intent ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON, Bitmap::class.java)
+            intent.getParcelableExtra(
+                Intent.EXTRA_SHORTCUT_ICON,
+                Bitmap::class.java,
+            )
         } else {
             intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
         }
@@ -269,7 +281,7 @@ internal suspend fun handleShortcutConfigLauncherResult(
         androidByteArrayWrapper.createByteArray(bitmap = bitmap)
     }
 
-    val uri = result.data?.let { intent ->
+    val shortcutIntentUri = result.data?.let { intent ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(
                 Intent.EXTRA_SHORTCUT_INTENT,
@@ -287,7 +299,10 @@ internal suspend fun handleShortcutConfigLauncherResult(
         icon,
         moveGridItemResult,
         gridItemSource.gridItem,
-        data.copy(uri = uri),
+        data.copy(
+            shortcutIntentName = name,
+            shortcutIntentUri = shortcutIntentUri,
+        ),
     )
 }
 
@@ -421,7 +436,9 @@ private fun configureComponent(
 ) {
     val configureComponent = configure?.let(ComponentName::unflattenFromString)
 
-    if (configureComponent != null && packageManager.isComponentExported(componentName = configureComponent)) {
+    if (configureComponent != null &&
+        packageManager.isComponentExported(componentName = configureComponent)
+    ) {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
 
         intent.component = configureComponent

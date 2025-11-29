@@ -74,7 +74,8 @@ sealed interface GridItemData {
         val activityLabel: String?,
         val applicationIcon: String?,
         val applicationLabel: String?,
-        val uri: String?,
-        val uriIcon: String?,
+        val shortcutIntentName: String?,
+        val shortcutIntentIcon: String?,
+        val shortcutIntentUri: String?,
     ) : GridItemData
 }

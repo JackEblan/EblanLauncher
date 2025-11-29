@@ -29,11 +29,11 @@
         android:theme="@style/Theme.EblanLauncher"
         tools:targetApi="31">
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/Theme.EblanLauncher.Wallpaper">
+            android:theme="@style/Theme.EblanLauncher.Wallpaper"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,7 +46,7 @@
         </activity>
 
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name=".activity.settings.SettingsActivity"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -56,16 +56,27 @@
         </activity>
 
         <activity
-            android:name=".activity.PinActivity"
-            android:taskAffinity=""
+            android:name=".activity.pin.PinActivity"
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
             android:exported="false"
+            android:taskAffinity=""
             android:theme="@style/PinActivityTheme">
             <intent-filter>
                 <action android:name="android.content.pm.action.CONFIRM_PIN_APPWIDGET" />
                 <action android:name="android.content.pm.action.CONFIRM_PIN_SHORTCUT" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.action.ActionActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/action_name">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

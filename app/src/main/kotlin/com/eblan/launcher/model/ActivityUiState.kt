@@ -19,8 +19,8 @@ package com.eblan.launcher.model
 
 import com.eblan.launcher.domain.model.ApplicationTheme
 
-sealed interface MainActivityUiState {
-    data object Loading : MainActivityUiState
+sealed interface ActivityUiState {
+    data object Loading : ActivityUiState
 
-    data class Success(val applicationTheme: ApplicationTheme) : MainActivityUiState
+    data class Success(val applicationTheme: ApplicationTheme) : ActivityUiState
 }

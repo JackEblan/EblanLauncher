@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.eblan.launcher.domain.model.GestureAction
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.TextColor
@@ -47,7 +47,7 @@ internal fun Chevron(
     textColor: TextColor,
 ) {
     val visible =
-        (gestureSettings.swipeUp is GestureAction.OpenAppDrawer || gestureSettings.swipeDown is GestureAction.OpenAppDrawer) &&
+        (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) &&
             gridItems.isEmpty() &&
             dockGridItems.isEmpty() &&
             swipeY == screenHeight.toFloat()

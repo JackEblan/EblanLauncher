@@ -15,12 +15,11 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.activity
+package com.eblan.launcher.activity.pin
 
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,14 +35,13 @@ import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
-import com.eblan.launcher.model.PinActivityUiState
+import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
-import com.eblan.launcher.viewmodel.PinActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -91,27 +89,17 @@ class PinActivity : ComponentActivity() {
                     LocalByteArray provides androidByteArrayWrapper,
                     LocalUserManager provides androidUserManagerWrapper,
                 ) {
-                    val pinActivityUiState by viewModel.pinActivityUiState.collectAsStateWithLifecycle()
+                    val activityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 
-                    val gridItem by viewModel.gridItem.collectAsStateWithLifecycle()
+                    when (val state = activityUiState) {
+                        ActivityUiState.Loading -> {}
 
-                    val isBoundWidget by viewModel.isBoundWidget.collectAsStateWithLifecycle()
-
-                    val isFinished by viewModel.isFinished.collectAsStateWithLifecycle()
-
-                    when (val state = pinActivityUiState) {
-                        PinActivityUiState.Loading -> {
-                        }
-
-                        is PinActivityUiState.Success -> {
+                        is ActivityUiState.Success -> {
                             EblanLauncherTheme(
                                 theme = state.applicationTheme.theme,
                                 dynamicTheme = state.applicationTheme.dynamicTheme,
                             ) {
                                 PinScreen(
-                                    gridItem = gridItem,
-                                    isBoundWidget = isBoundWidget,
-                                    isFinished = isFinished,
                                     pinItemRequest = pinItemRequest,
                                     onDragStart = {
                                         startActivity(homeIntent)
@@ -119,19 +107,6 @@ class PinActivity : ComponentActivity() {
                                         finish()
                                     },
                                     onFinish = ::finish,
-                                    onAddedToHomeScreenToast = { message ->
-                                        Toast.makeText(
-                                            applicationContext,
-                                            message,
-                                            Toast.LENGTH_LONG,
-                                        ).show()
-                                    },
-                                    onAddPinWidgetToHomeScreen = viewModel::addPinWidgetToHomeScreen,
-                                    onDeleteGridItemCache = viewModel::deleteGridItemCache,
-                                    onUpdateGridItemCache = viewModel::updateGridItemDataCache,
-                                    onAddPinShortcutToHomeScreen = viewModel::addPinShortcutToHomeScreen,
-                                    onDeleteShortcutGridItem = viewModel::deleteGridItemCache,
-                                    onUpdateGridItems = viewModel::updateGridItems,
                                 )
                             }
                         }

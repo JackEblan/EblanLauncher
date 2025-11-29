@@ -166,8 +166,9 @@ class UpdateGridItemUseCase @Inject constructor(
                             applicationLabel = data.applicationLabel,
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
-                            uri = data.uri,
-                            uriIcon = data.uriIcon,
+                            shortcutIntentName = data.shortcutIntentName,
+                            shortcutIntentIcon = data.shortcutIntentIcon,
+                            shortcutIntentUri = data.shortcutIntentUri,
                             gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )

@@ -22,6 +22,7 @@ import android.content.ClipData
 import android.content.pm.LauncherApps.PinItemRequest
 import android.os.Build
 import android.view.View
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -34,10 +35,13 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +65,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
@@ -75,45 +81,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun PinScreen(
     modifier: Modifier = Modifier,
-    gridItem: GridItem?,
-    isBoundWidget: Boolean,
-    isFinished: Boolean,
+    viewModel: PinScreenViewModel = hiltViewModel(),
     pinItemRequest: PinItemRequest,
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
-    onAddedToHomeScreenToast: (String) -> Unit,
-    onAddPinWidgetToHomeScreen: (
-        serialNumber: Long,
-        componentName: String,
-        configure: String?,
-        packageName: String,
-        targetCellHeight: Int,
-        targetCellWidth: Int,
-        minWidth: Int,
-        minHeight: Int,
-        resizeMode: Int,
-        minResizeWidth: Int,
-        minResizeHeight: Int,
-        maxResizeWidth: Int,
-        maxResizeHeight: Int,
-        rootWidth: Int,
-        rootHeight: Int,
-    ) -> Unit,
-    onDeleteGridItemCache: (GridItem) -> Unit,
-    onUpdateGridItemCache: (GridItem) -> Unit,
-    onAddPinShortcutToHomeScreen: (
-        serialNumber: Long,
-        id: String,
-        packageName: String,
-        shortLabel: String,
-        longLabel: String,
-        isEnabled: Boolean,
-        disabledMessage: String?,
-        byteArray: ByteArray?,
-    ) -> Unit,
-    onDeleteShortcutGridItem: (GridItem) -> Unit,
-    onUpdateGridItems: () -> Unit,
 ) {
+    val gridItem by viewModel.gridItem.collectAsStateWithLifecycle()
+
+    val isBoundWidget by viewModel.isBoundWidget.collectAsStateWithLifecycle()
+
+    val isFinished by viewModel.isFinished.collectAsStateWithLifecycle()
+
     when (pinItemRequest.requestType) {
         PinItemRequest.REQUEST_TYPE_APPWIDGET -> {
             PinWidgetScreen(
@@ -124,11 +102,10 @@ fun PinScreen(
                 isFinished = isFinished,
                 onDragStart = onDragStart,
                 onFinish = onFinish,
-                onAddedToHomeScreenToast = onAddedToHomeScreenToast,
-                onAddPinWidgetToHomeScreen = onAddPinWidgetToHomeScreen,
-                onDeleteGridItemCache = onDeleteGridItemCache,
-                onUpdateGridItemCache = onUpdateGridItemCache,
-                onUpdateGridItems = onUpdateGridItems,
+                onAddPinWidgetToHomeScreen = viewModel::addPinWidgetToHomeScreen,
+                onDeleteGridItemCache = viewModel::deleteGridItemCache,
+                onUpdateGridItemCache = viewModel::updateGridItemDataCache,
+                onUpdateGridItems = viewModel::updateGridItems,
             )
         }
 
@@ -140,10 +117,9 @@ fun PinScreen(
                 isFinished = isFinished,
                 onDragStart = onDragStart,
                 onFinish = onFinish,
-                onAddedToHomeScreenToast = onAddedToHomeScreenToast,
-                onAddPinShortcutToHomeScreen = onAddPinShortcutToHomeScreen,
-                onDeleteShortcutGridItem = onDeleteShortcutGridItem,
-                onUpdateGridItems = onUpdateGridItems,
+                onAddPinShortcutToHomeScreen = viewModel::addPinShortcutToHomeScreen,
+                onDeleteShortcutGridItem = viewModel::deleteGridItemCache,
+                onUpdateGridItems = viewModel::updateGridItems,
             )
         }
     }
@@ -158,7 +134,6 @@ private fun PinShortcutScreen(
     isFinished: Boolean,
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
-    onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinShortcutToHomeScreen: (
         serialNumber: Long,
         id: String,
@@ -182,6 +157,8 @@ private fun PinShortcutScreen(
 
     val userManager = LocalUserManager.current
 
+    val context = LocalContext.current
+
     val scope = rememberCoroutineScope()
 
     if (shortcutInfo != null) {
@@ -196,13 +173,15 @@ private fun PinShortcutScreen(
             if (gridItem == null) return@LaunchedEffect
 
             if (pinItemRequest.isValid && pinItemRequest.accept()) {
-                onAddedToHomeScreenToast(
+                Toast.makeText(
+                    context,
                     """
                 ${gridItem.page}
                 ${gridItem.startRow}
                 ${gridItem.startColumn}
                     """.trimIndent(),
-                )
+                    Toast.LENGTH_LONG,
+                ).show()
 
                 onUpdateGridItems()
             } else {
@@ -248,6 +227,8 @@ private fun PinShortcutScreen(
                         )
 
                         onDragStart()
+
+                        onFinish()
                     },
                 )
             }
@@ -265,7 +246,6 @@ private fun PinWidgetScreen(
     isFinished: Boolean,
     onDragStart: () -> Unit,
     onFinish: () -> Unit,
-    onAddedToHomeScreenToast: (String) -> Unit,
     onAddPinWidgetToHomeScreen: (
         serialNumber: Long,
         componentName: String,
@@ -296,6 +276,8 @@ private fun PinWidgetScreen(
     val userManager = LocalUserManager.current
 
     val context = LocalContext.current
+
+    val paddingValues = WindowInsets.safeDrawing.asPaddingValues()
 
     val appWidgetProviderInfo = pinItemRequest.getAppWidgetProviderInfo(context)
 
@@ -328,7 +310,13 @@ private fun PinWidgetScreen(
                 appWidgetManager = appWidgetManager,
                 userHandle = appWidgetProviderInfo.profile,
                 onUpdateGridItemCache = onUpdateGridItemCache,
-                onAddedToHomeScreenToast = onAddedToHomeScreenToast,
+                onAddedToHomeScreenToast = { message ->
+                    Toast.makeText(
+                        context,
+                        message,
+                        Toast.LENGTH_LONG,
+                    ).show()
+                },
                 onUpdateAppWidgetId = { newAppWidgetId ->
                     appWidgetId = newAppWidgetId
                 },
@@ -362,64 +350,64 @@ private fun PinWidgetScreen(
             }
         }
 
-        Scaffold(containerColor = Color.Transparent) { paddingValues ->
-            BoxWithConstraints(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-            ) {
-                PinBottomSheet(
-                    label = appWidgetProviderInfo.loadLabel(context.packageManager),
-                    icon = icon,
-                    onAdd = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            onAddPinWidgetToHomeScreen(
-                                userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                appWidgetProviderInfo.provider.flattenToString(),
-                                appWidgetProviderInfo.configure.flattenToString(),
-                                appWidgetProviderInfo.provider.packageName,
-                                appWidgetProviderInfo.targetCellHeight,
-                                appWidgetProviderInfo.targetCellWidth,
-                                appWidgetProviderInfo.minWidth,
-                                appWidgetProviderInfo.minHeight,
-                                appWidgetProviderInfo.resizeMode,
-                                appWidgetProviderInfo.minResizeWidth,
-                                appWidgetProviderInfo.minResizeHeight,
-                                appWidgetProviderInfo.maxResizeWidth,
-                                appWidgetProviderInfo.maxResizeHeight,
-                                this@BoxWithConstraints.constraints.maxWidth,
-                                this@BoxWithConstraints.constraints.maxHeight,
-                            )
-                        } else {
-                            onAddPinWidgetToHomeScreen(
-                                userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
-                                appWidgetProviderInfo.provider.flattenToString(),
-                                appWidgetProviderInfo.configure.flattenToString(),
-                                appWidgetProviderInfo.provider.packageName,
-                                0,
-                                0,
-                                appWidgetProviderInfo.minWidth,
-                                appWidgetProviderInfo.minHeight,
-                                appWidgetProviderInfo.resizeMode,
-                                appWidgetProviderInfo.minResizeWidth,
-                                appWidgetProviderInfo.minResizeHeight,
-                                0,
-                                0,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
-                            )
-                        }
-                    },
-                    onFinish = onFinish,
-                    onLongPress = {
-                        pinItemRequestWrapper.updatePinItemRequest(
-                            pinItemRequest = pinItemRequest,
+        BoxWithConstraints(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        ) {
+            PinBottomSheet(
+                label = appWidgetProviderInfo.loadLabel(context.packageManager),
+                icon = icon,
+                onAdd = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        onAddPinWidgetToHomeScreen(
+                            userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
+                            appWidgetProviderInfo.provider.flattenToString(),
+                            appWidgetProviderInfo.configure.flattenToString(),
+                            appWidgetProviderInfo.provider.packageName,
+                            appWidgetProviderInfo.targetCellHeight,
+                            appWidgetProviderInfo.targetCellWidth,
+                            appWidgetProviderInfo.minWidth,
+                            appWidgetProviderInfo.minHeight,
+                            appWidgetProviderInfo.resizeMode,
+                            appWidgetProviderInfo.minResizeWidth,
+                            appWidgetProviderInfo.minResizeHeight,
+                            appWidgetProviderInfo.maxResizeWidth,
+                            appWidgetProviderInfo.maxResizeHeight,
+                            this@BoxWithConstraints.constraints.maxWidth,
+                            this@BoxWithConstraints.constraints.maxHeight,
                         )
+                    } else {
+                        onAddPinWidgetToHomeScreen(
+                            userManager.getSerialNumberForUser(userHandle = appWidgetProviderInfo.profile),
+                            appWidgetProviderInfo.provider.flattenToString(),
+                            appWidgetProviderInfo.configure.flattenToString(),
+                            appWidgetProviderInfo.provider.packageName,
+                            0,
+                            0,
+                            appWidgetProviderInfo.minWidth,
+                            appWidgetProviderInfo.minHeight,
+                            appWidgetProviderInfo.resizeMode,
+                            appWidgetProviderInfo.minResizeWidth,
+                            appWidgetProviderInfo.minResizeHeight,
+                            0,
+                            0,
+                            constraints.maxWidth,
+                            constraints.maxHeight,
+                        )
+                    }
+                },
+                onFinish = onFinish,
+                onLongPress = {
+                    pinItemRequestWrapper.updatePinItemRequest(
+                        pinItemRequest = pinItemRequest,
+                    )
 
-                        onDragStart()
-                    },
-                )
-            }
+                    onDragStart()
+
+                    onFinish()
+                },
+            )
         }
     }
 }
@@ -446,6 +434,7 @@ private fun PinBottomSheet(
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
+
                 onFinish()
             },
             sheetState = sheetState,
@@ -503,6 +492,7 @@ private fun PinBottomSheet(
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
                                     showBottomSheet = false
+
                                     onFinish()
                                 }
                             }

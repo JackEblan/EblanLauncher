@@ -40,10 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.GestureAction
 import com.eblan.launcher.domain.model.GestureSettings
-import com.eblan.launcher.feature.settings.gestures.dialog.GestureActionDialog
+import com.eblan.launcher.feature.settings.gestures.dialog.EblanActionDialog
 import com.eblan.launcher.feature.settings.gestures.model.GesturesSettingsUiState
 import com.eblan.launcher.ui.settings.SettingsColumn
 
@@ -145,7 +145,7 @@ private fun Success(
                 vertical = 5.dp,
             ),
             title = "Double Tap",
-            subtitle = gestureSettings.doubleTap.getGestureActionSubtitle(),
+            subtitle = gestureSettings.doubleTap.getEblanActionSubtitle(),
             onClick = {
                 showDoubleTapDialog = true
             },
@@ -157,7 +157,7 @@ private fun Success(
                 vertical = 5.dp,
             ),
             title = "Swipe Up",
-            subtitle = gestureSettings.swipeUp.getGestureActionSubtitle(),
+            subtitle = gestureSettings.swipeUp.getEblanActionSubtitle(),
             onClick = {
                 showSwipeUpDialog = true
             },
@@ -169,7 +169,7 @@ private fun Success(
                 vertical = 5.dp,
             ),
             title = "Swipe Down",
-            subtitle = gestureSettings.swipeDown.getGestureActionSubtitle(),
+            subtitle = gestureSettings.swipeDown.getEblanActionSubtitle(),
             onClick = {
                 showSwipeDownDialog = true
             },
@@ -177,11 +177,11 @@ private fun Success(
     }
 
     if (showDoubleTapDialog) {
-        GestureActionDialog(
+        EblanActionDialog(
             title = "Double Tap",
-            gestureAction = gestureSettings.doubleTap,
+            eblanAction = gestureSettings.doubleTap,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = { doubleTap ->
+            onUpdateEblanAction = { doubleTap ->
                 onUpdateGestureSettings(gestureSettings.copy(doubleTap = doubleTap))
             },
             onDismissRequest = {
@@ -191,11 +191,11 @@ private fun Success(
     }
 
     if (showSwipeUpDialog) {
-        GestureActionDialog(
+        EblanActionDialog(
             title = "Swipe Up",
-            gestureAction = gestureSettings.swipeUp,
+            eblanAction = gestureSettings.swipeUp,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = { swipeUp ->
+            onUpdateEblanAction = { swipeUp ->
                 onUpdateGestureSettings(gestureSettings.copy(swipeUp = swipeUp))
             },
             onDismissRequest = {
@@ -205,11 +205,11 @@ private fun Success(
     }
 
     if (showSwipeDownDialog) {
-        GestureActionDialog(
+        EblanActionDialog(
             title = "Swipe Down",
-            gestureAction = gestureSettings.swipeDown,
+            eblanAction = gestureSettings.swipeDown,
             eblanApplicationInfos = eblanApplicationInfos,
-            onUpdateGestureAction = { swipeDown ->
+            onUpdateEblanAction = { swipeDown ->
                 onUpdateGestureSettings(gestureSettings.copy(swipeDown = swipeDown))
             },
             onDismissRequest = {
@@ -219,14 +219,14 @@ private fun Success(
     }
 }
 
-fun GestureAction.getGestureActionSubtitle(): String {
+fun EblanAction.getEblanActionSubtitle(): String {
     return when (this) {
-        GestureAction.None -> "None"
-        is GestureAction.OpenApp -> "Open $componentName"
-        GestureAction.OpenAppDrawer -> "Open app drawer"
-        GestureAction.OpenNotificationPanel -> "Open notification panel"
-        GestureAction.LockScreen -> "Lock screen"
-        GestureAction.OpenQuickSettings -> "Open quick settings"
-        GestureAction.OpenRecents -> "Open recents"
+        EblanAction.None -> "None"
+        is EblanAction.OpenApp -> "Open $componentName"
+        EblanAction.OpenAppDrawer -> "Open app drawer"
+        EblanAction.OpenNotificationPanel -> "Open notification panel"
+        EblanAction.LockScreen -> "Lock screen"
+        EblanAction.OpenQuickSettings -> "Open quick settings"
+        EblanAction.OpenRecents -> "Open recents"
     }
 }

@@ -42,40 +42,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.designsystem.component.EblanRadioButton
+import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfo
-import com.eblan.launcher.domain.model.GestureAction
-import com.eblan.launcher.feature.settings.gestures.getGestureActionSubtitle
+import com.eblan.launcher.feature.settings.gestures.getEblanActionSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun GestureActionDialog(
+internal fun EblanActionDialog(
     modifier: Modifier = Modifier,
     title: String,
-    gestureAction: GestureAction,
+    eblanAction: EblanAction,
     eblanApplicationInfos: List<EblanApplicationInfo>,
-    onUpdateGestureAction: (GestureAction) -> Unit,
+    onUpdateEblanAction: (EblanAction) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    var selectedGestureAction by remember { mutableStateOf(gestureAction) }
+    var selectedEblanAction by remember { mutableStateOf(eblanAction) }
 
     var showSelectApplicationDialog by remember { mutableStateOf(false) }
 
-    val gestureActions by remember {
+    val eblanActions by remember {
         derivedStateOf {
             listOf(
-                GestureAction.None,
-                GestureAction.OpenAppDrawer,
-                GestureAction.OpenNotificationPanel,
-                selectedGestureAction.let { gestureAction ->
-                    if (gestureAction is GestureAction.OpenApp) {
-                        GestureAction.OpenApp(componentName = gestureAction.componentName)
+                EblanAction.None,
+                EblanAction.OpenAppDrawer,
+                EblanAction.OpenNotificationPanel,
+                selectedEblanAction.let { eblanAction ->
+                    if (eblanAction is EblanAction.OpenApp) {
+                        EblanAction.OpenApp(componentName = eblanAction.componentName)
                     } else {
-                        GestureAction.OpenApp(componentName = "app")
+                        EblanAction.OpenApp(componentName = "app")
                     }
                 },
-                GestureAction.LockScreen,
-                GestureAction.OpenQuickSettings,
-                GestureAction.OpenRecents,
+                EblanAction.LockScreen,
+                EblanAction.OpenQuickSettings,
+                EblanAction.OpenRecents,
             )
         }
     }
@@ -99,16 +99,16 @@ internal fun GestureActionDialog(
                     .selectableGroup()
                     .fillMaxWidth(),
             ) {
-                gestureActions.forEach { currentGestureAction ->
+                eblanActions.forEach { currentEblanAction ->
                     EblanRadioButton(
-                        text = currentGestureAction.getGestureActionSubtitle(),
-                        selected = selectedGestureAction == currentGestureAction,
+                        text = currentEblanAction.getEblanActionSubtitle(),
+                        selected = selectedEblanAction == currentEblanAction,
                         onClick = {
-                            if (currentGestureAction is GestureAction.OpenApp) {
+                            if (currentEblanAction is EblanAction.OpenApp) {
                                 showSelectApplicationDialog = true
                             }
 
-                            selectedGestureAction = currentGestureAction
+                            selectedEblanAction = currentEblanAction
                         },
                     )
                 }
@@ -133,7 +133,7 @@ internal fun GestureActionDialog(
 
                 TextButton(
                     onClick = {
-                        onUpdateGestureAction(selectedGestureAction)
+                        onUpdateEblanAction(selectedEblanAction)
 
                         onDismissRequest()
                     },
@@ -148,12 +148,12 @@ internal fun GestureActionDialog(
         SelectApplicationDialog(
             eblanApplicationInfos = eblanApplicationInfos,
             onDismissRequest = {
-                selectedGestureAction = GestureAction.None
+                selectedEblanAction = EblanAction.None
 
                 showSelectApplicationDialog = false
             },
-            onUpdateGestureAction = { openAppGestureAction ->
-                selectedGestureAction = openAppGestureAction
+            onUpdateEblanAction = { openAppEblanAction ->
+                selectedEblanAction = openAppEblanAction
 
                 showSelectApplicationDialog = false
             },

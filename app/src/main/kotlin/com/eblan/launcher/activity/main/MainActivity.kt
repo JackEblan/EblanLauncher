@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.activity
+package com.eblan.launcher.activity.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -28,6 +28,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.eblan.launcher.activity.settings.SettingsActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
@@ -38,7 +39,7 @@ import com.eblan.launcher.framework.usermanager.AndroidUserManagerWrapper
 import com.eblan.launcher.framework.wallpapermanager.AndroidWallpaperManagerWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetHostWrapper
 import com.eblan.launcher.framework.widgetmanager.AndroidAppWidgetManagerWrapper
-import com.eblan.launcher.model.MainActivityUiState
+import com.eblan.launcher.model.ActivityUiState
 import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
@@ -50,7 +51,6 @@ import com.eblan.launcher.ui.local.LocalSettings
 import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import com.eblan.launcher.util.handleEdgeToEdge
-import com.eblan.launcher.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -102,14 +102,14 @@ class MainActivity : ComponentActivity() {
             ) {
                 val navController = rememberNavController()
 
-                val mainActivityUiState by viewModel.mainActivityUiState.collectAsStateWithLifecycle()
+                val mainActivityUiState by viewModel.activityUiState.collectAsStateWithLifecycle()
 
                 when (val state = mainActivityUiState) {
-                    MainActivityUiState.Loading -> {
+                    ActivityUiState.Loading -> {
                         enableEdgeToEdge()
                     }
 
-                    is MainActivityUiState.Success -> {
+                    is ActivityUiState.Success -> {
                         SideEffect {
                             handleEdgeToEdge(theme = state.applicationTheme.theme)
                         }

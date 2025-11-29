@@ -468,6 +468,12 @@ internal fun ShortcutConfigGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
+    val label = when {
+        data.shortcutIntentName != null -> data.shortcutIntentName
+        data.activityLabel != null -> data.activityLabel
+        else -> data.applicationLabel
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = horizontalAlignment,
@@ -476,7 +482,7 @@ internal fun ShortcutConfigGridItem(
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
                 model = Builder(context)
-                    .data(data.uriIcon ?: data.applicationIcon)
+                    .data(data.shortcutIntentIcon ?: data.applicationIcon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
@@ -500,7 +506,7 @@ internal fun ShortcutConfigGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = data.applicationLabel.toString(),
+                text = label.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

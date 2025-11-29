@@ -166,7 +166,7 @@ internal fun InteractiveGridItemContent(
                 data = data,
                 drag = drag,
                 onTap = {
-                    data.uri?.let(onTapShortcutConfig)
+                    data.shortcutIntentUri?.let(onTapShortcutConfig)
                 },
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,

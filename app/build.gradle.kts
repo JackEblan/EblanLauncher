@@ -50,6 +50,7 @@ dependencies {
     implementation(projects.domain.model)
     implementation(projects.domain.useCase)
     implementation(projects.domain.repository)
+    implementation(projects.feature.action)
     implementation(projects.feature.edit)
     implementation(projects.feature.home)
     implementation(projects.feature.pin)

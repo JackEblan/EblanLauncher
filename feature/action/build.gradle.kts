@@ -15,13 +15,19 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.model
 
-import com.eblan.launcher.domain.model.ApplicationTheme
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+}
 
-sealed interface PinActivityUiState {
-    data object Loading : PinActivityUiState
+android {
+    namespace = "com.eblan.launcher.feature.action"
+}
 
-    data class Success(val applicationTheme: ApplicationTheme) :
-        PinActivityUiState
+dependencies {
+    implementation(projects.common)
+    implementation(projects.domain.framework)
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
 }

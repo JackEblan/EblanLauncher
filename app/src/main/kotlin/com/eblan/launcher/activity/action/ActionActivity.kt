@@ -24,6 +24,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.activity.main.MainActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
@@ -130,12 +132,29 @@ class ActionActivity : ComponentActivity() {
                 applicationContext,
                 resId,
             )?.let { drawable ->
+                val typedValue = TypedValue()
+
+                theme.resolveAttribute(
+                    android.R.attr.colorPrimary,
+                    typedValue,
+                    true,
+                )
+
+                DrawableCompat.setTint(drawable, typedValue.data)
+
                 createBitmap(
                     width = drawable.intrinsicWidth,
                     height = drawable.intrinsicHeight,
                 ).also { bitmap ->
                     val canvas = Canvas(bitmap)
-                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+
+                    drawable.setBounds(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
+                    )
+
                     drawable.draw(canvas)
                 }
             }
@@ -156,8 +175,7 @@ class ActionActivity : ComponentActivity() {
 
                 if (shortcutManager.isRequestPinShortcutSupported) {
                     val shortcut = ShortcutInfo.Builder(applicationContext, shortcutId)
-                        .setShortLabel(shortcutName)
-                        .setLongLabel(shortcutName).setIcon(
+                        .setShortLabel(shortcutName).setLongLabel(shortcutName).setIcon(
                             Icon.createWithResource(
                                 applicationContext,
                                 resId,

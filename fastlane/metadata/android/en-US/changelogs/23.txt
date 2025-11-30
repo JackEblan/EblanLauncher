@@ -1,0 +1,3 @@
+- Added Shortcuts
+- Added Eblan Actions shortcut
+- Bug fixes and stability improvements

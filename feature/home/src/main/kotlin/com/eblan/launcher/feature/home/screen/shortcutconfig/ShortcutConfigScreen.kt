@@ -44,7 +44,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -171,39 +170,24 @@ internal fun ShortcutConfigScreen(
             }
 
             is EblanApplicationComponentUiState.Success -> {
-                val eblanShortcutConfigs =
-                    eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutConfigs
-
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    when {
-                        eblanShortcutConfigs.isEmpty() -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-
-                        else -> {
-                            Success(
-                                modifier = modifier,
-                                currentPage = currentPage,
-                                isApplicationComponentVisible = isApplicationComponentVisible,
-                                paddingValues = paddingValues,
-                                drag = drag,
-                                gridItemSettings = gridItemSettings,
-                                eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-                                eblanShortcutConfigs = eblanShortcutConfigs,
-                                screenHeight = screenHeight,
-                                offsetY = offsetY,
-                                onLongPressGridItem = onLongPressGridItem,
-                                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                                onDismiss = onDismiss,
-                                onDraggingGridItem = onDraggingGridItem,
-                                onResetOverlay = onResetOverlay,
-                            )
-                        }
-                    }
-                }
+                Success(
+                    modifier = modifier,
+                    currentPage = currentPage,
+                    isApplicationComponentVisible = isApplicationComponentVisible,
+                    paddingValues = paddingValues,
+                    drag = drag,
+                    gridItemSettings = gridItemSettings,
+                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
+                    eblanShortcutConfigs = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutConfigs,
+                    screenHeight = screenHeight,
+                    offsetY = offsetY,
+                    onLongPressGridItem = onLongPressGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+                    onDismiss = onDismiss,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
+                )
             }
         }
     }
@@ -483,7 +467,12 @@ private fun EblanShortcutConfigsPage(
 
     val lazyListState = rememberLazyListState()
 
-    val serialNumber = eblanShortcutConfigs.keys.toList()[index]
+    val serialNumber = eblanShortcutConfigs.keys.toList().getOrElse(
+        index = index,
+        defaultValue = {
+            0
+        },
+    )
 
     val canOverscroll by remember(key1 = lazyListState) {
         derivedStateOf {

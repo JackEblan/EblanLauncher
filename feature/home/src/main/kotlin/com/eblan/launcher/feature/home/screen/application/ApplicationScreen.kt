@@ -53,7 +53,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -185,41 +184,26 @@ internal fun ApplicationScreen(
             }
 
             is EblanApplicationComponentUiState.Success -> {
-                val eblanApplicationInfos =
-                    eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos
-
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    when {
-                        eblanApplicationInfos.isEmpty() -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-
-                        else -> {
-                            Success(
-                                currentPage = currentPage,
-                                isApplicationComponentVisible = isApplicationComponentVisible,
-                                paddingValues = paddingValues,
-                                drag = drag,
-                                appDrawerSettings = appDrawerSettings,
-                                eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                                gridItemSource = gridItemSource,
-                                iconPackInfoPackageName = iconPackInfoPackageName,
-                                eblanApplicationInfos = eblanApplicationInfos,
-                                offsetY = offsetY,
-                                onLongPressGridItem = onLongPressGridItem,
-                                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                                onDismiss = onDismiss,
-                                onDraggingGridItem = onDraggingGridItem,
-                                onResetOverlay = onResetOverlay,
-                                onVerticalDrag = onVerticalDrag,
-                                onDragEnd = onDragEnd,
-                            )
-                        }
-                    }
-                }
+                Success(
+                    currentPage = currentPage,
+                    isApplicationComponentVisible = isApplicationComponentVisible,
+                    paddingValues = paddingValues,
+                    drag = drag,
+                    appDrawerSettings = appDrawerSettings,
+                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                    gridItemSource = gridItemSource,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
+                    offsetY = offsetY,
+                    onLongPressGridItem = onLongPressGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                    onDismiss = onDismiss,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
+                    onVerticalDrag = onVerticalDrag,
+                    onDragEnd = onDragEnd,
+                )
             }
         }
     }
@@ -756,7 +740,12 @@ private fun EblanApplicationInfosPage(
 
     val lazyGridState = rememberLazyGridState()
 
-    val serialNumber = eblanApplicationInfos.keys.toList()[index]
+    val serialNumber = eblanApplicationInfos.keys.toList().getOrElse(
+        index = index,
+        defaultValue = {
+            0
+        },
+    )
 
     val canOverscroll by remember(key1 = lazyGridState) {
         derivedStateOf {

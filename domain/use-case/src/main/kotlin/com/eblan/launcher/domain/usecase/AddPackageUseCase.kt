@@ -27,6 +27,7 @@ import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.EblanShortcutConfig
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
@@ -59,30 +60,33 @@ class AddPackageUseCase @Inject constructor(
         withContext(defaultDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
-            val icon = packageManagerWrapper.getApplicationIcon(packageName = packageName)
-                ?.let { currentIconByteArray ->
-                    fileManager.updateAndGetFilePath(
-                        directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = packageName,
-                        byteArray = currentIconByteArray,
-                    )
-                }
-
-            val label = packageManagerWrapper.getApplicationLabel(packageName = packageName)
-
-            addEblanApplicationInfo(
+            launcherAppsWrapper.getActivityList(
                 serialNumber = serialNumber,
                 packageName = packageName,
-                label = label,
-                icon = icon,
-            )
+            ).forEach { launcherAppsActivityInfo ->
+                val icon = launcherAppsActivityInfo.applicationIcon
+                    ?.let { byteArray ->
+                        fileManager.updateAndGetFilePath(
+                            directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
+                            name = packageName,
+                            byteArray = byteArray,
+                        )
+                    }
 
-            addEblanAppWidgetProviderInfos(
-                serialNumber = serialNumber,
-                packageName = packageName,
-                label = label,
-                icon = icon,
-            )
+                addEblanApplicationInfo(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                    launcherAppsActivityInfo = launcherAppsActivityInfo,
+                    icon = icon,
+                )
+
+                addEblanAppWidgetProviderInfos(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                    launcherAppsActivityInfo = launcherAppsActivityInfo,
+                    icon = icon,
+                )
+            }
 
             addEblanShortcutInfos()
 
@@ -98,22 +102,20 @@ class AddPackageUseCase @Inject constructor(
     private suspend fun addEblanApplicationInfo(
         serialNumber: Long,
         packageName: String,
-        label: String?,
+        launcherAppsActivityInfo: LauncherAppsActivityInfo,
         icon: String?,
     ) {
         val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
         if (componentName != null) {
-            val eblanApplicationInfo = EblanApplicationInfo(
-                serialNumber = serialNumber,
-                componentName = componentName,
-                packageName = packageName,
-                icon = icon,
-                label = label,
-            )
-
             eblanApplicationInfoRepository.upsertEblanApplicationInfo(
-                eblanApplicationInfo = eblanApplicationInfo,
+                eblanApplicationInfo = EblanApplicationInfo(
+                    serialNumber = serialNumber,
+                    componentName = componentName,
+                    packageName = packageName,
+                    icon = icon,
+                    label = launcherAppsActivityInfo.applicationLabel,
+                ),
             )
         }
     }
@@ -121,7 +123,7 @@ class AddPackageUseCase @Inject constructor(
     private suspend fun addEblanAppWidgetProviderInfos(
         serialNumber: Long,
         packageName: String,
-        label: String?,
+        launcherAppsActivityInfo: LauncherAppsActivityInfo,
         icon: String?,
     ) {
         val eblanAppWidgetProviderInfos = appWidgetManagerWrapper.getInstalledProviders()
@@ -157,7 +159,7 @@ class AddPackageUseCase @Inject constructor(
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = preview,
-                    label = label,
+                    label = launcherAppsActivityInfo.applicationLabel,
                     icon = icon,
                 )
             }

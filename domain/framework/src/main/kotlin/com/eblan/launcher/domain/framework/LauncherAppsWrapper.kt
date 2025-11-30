@@ -29,6 +29,11 @@ interface LauncherAppsWrapper {
 
     suspend fun getActivityList(): List<LauncherAppsActivityInfo>
 
+    suspend fun getActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsActivityInfo>
+
     suspend fun getPinnedShortcuts(): List<LauncherAppsShortcutInfo>?
 
     suspend fun getShortcuts(): List<LauncherAppsShortcutInfo>?

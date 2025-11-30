@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -159,36 +158,23 @@ internal fun WidgetScreen(
             }
 
             is EblanApplicationComponentUiState.Success -> {
-                val eblanAppWidgetProviderInfos =
-                    eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    when {
-                        eblanAppWidgetProviderInfos.isEmpty() -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-
-                        else -> {
-                            Success(
-                                currentPage = currentPage,
-                                isApplicationComponentVisible = isApplicationComponentVisible,
-                                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                                gridItemSettings = gridItemSettings,
-                                paddingValues = paddingValues,
-                                drag = drag,
-                                eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                                offsetY = offsetY,
-                                screenHeight = screenHeight,
-                                onLongPressGridItem = onLongPressGridItem,
-                                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                                onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                                onDismiss = onDismiss,
-                                onDraggingGridItem = onDraggingGridItem,
-                                onResetOverlay = onResetOverlay,
-                            )
-                        }
-                    }
-                }
+                Success(
+                    currentPage = currentPage,
+                    isApplicationComponentVisible = isApplicationComponentVisible,
+                    eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
+                    gridItemSettings = gridItemSettings,
+                    paddingValues = paddingValues,
+                    drag = drag,
+                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                    offsetY = offsetY,
+                    screenHeight = screenHeight,
+                    onLongPressGridItem = onLongPressGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onDismiss = onDismiss,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onResetOverlay = onResetOverlay,
+                )
             }
         }
     }

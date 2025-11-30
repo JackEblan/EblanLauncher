@@ -74,8 +74,11 @@ class ChangePackageUseCase @Inject constructor(
         withContext(ioDispatcher) {
             if (!userDataRepository.userData.first().experimentalSettings.syncData) return@withContext
 
-            val icon =
-                packageManagerWrapper.getApplicationIcon(packageName = packageName)
+            launcherAppsWrapper.getActivityList(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            ).forEach { launcherAppsActivityInfo ->
+                val icon = launcherAppsActivityInfo.applicationIcon
                     ?.let { currentIconByteArray ->
                         fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
@@ -84,22 +87,34 @@ class ChangePackageUseCase @Inject constructor(
                         )
                     }
 
-            val label =
-                packageManagerWrapper.getApplicationLabel(packageName = packageName)
+                updateEblanApplicationInfoByPackageName(
+                    packageName = packageName,
+                    serialNumber = serialNumber,
+                    label = launcherAppsActivityInfo.applicationLabel,
+                    icon = icon,
+                )
 
-            updateEblanApplicationInfoByPackageName(
-                packageName = packageName,
-                serialNumber = serialNumber,
-                label = label,
-                icon = icon,
-            )
+                updateEblanAppWidgetProviderInfosByPackageName(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                    label = launcherAppsActivityInfo.applicationLabel,
+                    icon = icon,
+                )
 
-            updateEblanAppWidgetProviderInfosByPackageName(
-                serialNumber = serialNumber,
-                packageName = packageName,
-                label = label,
-                icon = icon,
-            )
+                updateShortcutConfigGridItemsByPackageName(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                    label = launcherAppsActivityInfo.applicationLabel,
+                    icon = icon,
+                )
+
+                updateEblanShortcutConfigsUseCase(
+                    serialNumber = serialNumber,
+                    packageName = packageName,
+                    icon = icon,
+                    label = launcherAppsActivityInfo.applicationLabel,
+                )
+            }
 
             updateEblanShortcutInfosByPackageName(
                 serialNumber = serialNumber,
@@ -109,20 +124,6 @@ class ChangePackageUseCase @Inject constructor(
             updateShortcutInfoGridItemsByPackageName(
                 serialNumber = serialNumber,
                 packageName = packageName,
-            )
-
-            updateShortcutConfigGridItemsByPackageName(
-                serialNumber = serialNumber,
-                packageName = packageName,
-                label = label,
-                icon = icon,
-            )
-
-            updateEblanShortcutConfigsUseCase(
-                serialNumber = serialNumber,
-                packageName = packageName,
-                icon = icon,
-                label = label,
             )
 
             updateIconPackInfoByPackageNameUseCase(packageName = packageName)

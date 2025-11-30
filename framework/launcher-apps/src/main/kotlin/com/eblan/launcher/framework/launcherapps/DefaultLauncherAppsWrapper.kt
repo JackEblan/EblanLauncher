@@ -162,6 +162,17 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
         }
     }
 
+    override suspend fun getActivityList(
+        serialNumber: Long,
+        packageName: String,
+    ): List<LauncherAppsActivityInfo> {
+        val userHandle = userManagerWrapper.getUserForSerialNumber(serialNumber = serialNumber)
+
+        return launcherApps.getActivityList(packageName, userHandle).map { launcherActivityInfo ->
+            launcherActivityInfo.toEblanLauncherActivityInfo()
+        }
+    }
+
     override suspend fun getPinnedShortcuts(): List<LauncherAppsShortcutInfo>? {
         return withContext(defaultDispatcher) {
             if (hasShortcutHostPermission) {

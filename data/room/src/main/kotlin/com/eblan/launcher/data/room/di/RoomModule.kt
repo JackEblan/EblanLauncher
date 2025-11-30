@@ -40,5 +40,10 @@ internal object RoomModule {
         EblanDatabase::class.java,
         EblanDatabase.DATABASE_NAME,
     ).addMigrations(Migration3To4())
-        .fallbackToDestructiveMigrationFrom(dropAllTables = true, 1, 2).build()
+        .fallbackToDestructiveMigrationFrom(
+            dropAllTables = true,
+            1,
+            2,
+            3,
+        ).build()
 }

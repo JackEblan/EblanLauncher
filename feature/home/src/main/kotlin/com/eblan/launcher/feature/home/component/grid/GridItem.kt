@@ -175,7 +175,7 @@ internal fun ApplicationInfoGridItem(
         statusBarNotifications[data.packageName] != null && statusBarNotifications[data.packageName]!! > 0
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -251,7 +251,7 @@ internal fun ShortcutInfoGridItem(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -309,7 +309,7 @@ internal fun FolderGridItem(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -440,7 +440,7 @@ private fun WidgetGridItem(
         AsyncImage(
             model = data.preview ?: data.icon,
             contentDescription = null,
-            modifier = modifier,
+            modifier = modifier.fillMaxSize(),
         )
     }
 }
@@ -475,7 +475,7 @@ internal fun ShortcutConfigGridItem(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {

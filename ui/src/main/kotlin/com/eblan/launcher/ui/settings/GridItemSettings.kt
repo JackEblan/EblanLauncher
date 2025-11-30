@@ -18,7 +18,10 @@
 package com.eblan.launcher.ui.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,99 +57,89 @@ fun GridItemSettings(
 
     Column(modifier = modifier) {
         Text(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(15.dp),
             text = "Grid Item",
             style = MaterialTheme.typography.bodySmall,
         )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Icon Size",
-            subtitle = "${gridItemSettings.iconSize}",
-            onClick = {
-                showIconSizeDialog = true
-            },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            SettingsColumn(
+                title = "Icon Size",
+                subtitle = "${gridItemSettings.iconSize}",
+                onClick = {
+                    showIconSizeDialog = true
+                },
+            )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Text Color",
-            subtitle = gridItemSettings.textColor.name,
-            onClick = {
-                showTextColorDialog = true
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Text Size",
-            subtitle = "${gridItemSettings.textSize}",
-            onClick = {
-                showTextSizeDialog = true
-            },
-        )
+            SettingsColumn(
+                title = "Text Color",
+                subtitle = gridItemSettings.textColor.name,
+                onClick = {
+                    showTextColorDialog = true
+                },
+            )
 
-        SettingsSwitch(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            checked = gridItemSettings.showLabel,
-            title = "Show Label",
-            subtitle = "Show label",
-            onCheckedChange = { showLabel ->
-                onUpdateGridItemSettings(gridItemSettings.copy(showLabel = showLabel))
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        SettingsSwitch(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            checked = gridItemSettings.singleLineLabel,
-            title = "Single Line Label",
-            subtitle = "Show single line label",
-            onCheckedChange = { singleLineLabel ->
-                onUpdateGridItemSettings(gridItemSettings.copy(singleLineLabel = singleLineLabel))
-            },
-        )
+            SettingsColumn(
+                title = "Text Size",
+                subtitle = "${gridItemSettings.textSize}",
+                onClick = {
+                    showTextSizeDialog = true
+                },
+            )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Horizontal Alignment",
-            subtitle = gridItemSettings.horizontalAlignment.name.replace(
-                regex = Regex(pattern = "([a-z])([A-Z])"),
-                replacement = "$1 $2",
-            ),
-            onClick = {
-                showHorizontalAlignment = true
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Vertical Arrangement",
-            subtitle = gridItemSettings.verticalArrangement.name,
-            onClick = {
-                showVerticalArrangement = true
-            },
-        )
+            SettingsSwitch(
+                checked = gridItemSettings.showLabel,
+                title = "Show Label",
+                subtitle = "Show label",
+                onCheckedChange = { showLabel ->
+                    onUpdateGridItemSettings(gridItemSettings.copy(showLabel = showLabel))
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsSwitch(
+                checked = gridItemSettings.singleLineLabel,
+                title = "Single Line Label",
+                subtitle = "Show single line label",
+                onCheckedChange = { singleLineLabel ->
+                    onUpdateGridItemSettings(gridItemSettings.copy(singleLineLabel = singleLineLabel))
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Horizontal Alignment",
+                subtitle = gridItemSettings.horizontalAlignment.name.replace(
+                    regex = Regex(pattern = "([a-z])([A-Z])"),
+                    replacement = "$1 $2",
+                ),
+                onClick = {
+                    showHorizontalAlignment = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Vertical Arrangement",
+                subtitle = gridItemSettings.verticalArrangement.name,
+                onClick = {
+                    showVerticalArrangement = true
+                },
+            )
+        }
     }
 
     if (showIconSizeDialog) {

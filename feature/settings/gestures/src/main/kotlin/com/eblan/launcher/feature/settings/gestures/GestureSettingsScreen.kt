@@ -20,10 +20,12 @@ package com.eblan.launcher.feature.settings.gestures
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -125,55 +127,51 @@ private fun Success(
 
     var showSwipeDownDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Accessibility Services",
-            subtitle = "Perform global actions",
-            onClick = {
-                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                context.startActivity(intent)
-            },
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            SettingsColumn(
+                title = "Accessibility Services",
+                subtitle = "Perform global actions",
+                onClick = {
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    context.startActivity(intent)
+                },
+            )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Double Tap",
-            subtitle = gestureSettings.doubleTap.getEblanActionSubtitle(),
-            onClick = {
-                showDoubleTapDialog = true
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Swipe Up",
-            subtitle = gestureSettings.swipeUp.getEblanActionSubtitle(),
-            onClick = {
-                showSwipeUpDialog = true
-            },
-        )
+            SettingsColumn(
+                title = "Double Tap",
+                subtitle = gestureSettings.doubleTap.getEblanActionSubtitle(),
+                onClick = {
+                    showDoubleTapDialog = true
+                },
+            )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Swipe Down",
-            subtitle = gestureSettings.swipeDown.getEblanActionSubtitle(),
-            onClick = {
-                showSwipeDownDialog = true
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Swipe Up",
+                subtitle = gestureSettings.swipeUp.getEblanActionSubtitle(),
+                onClick = {
+                    showSwipeUpDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Swipe Down",
+                subtitle = gestureSettings.swipeDown.getEblanActionSubtitle(),
+                onClick = {
+                    showSwipeDownDialog = true
+                },
+            )
+        }
     }
 
     if (showDoubleTapDialog) {

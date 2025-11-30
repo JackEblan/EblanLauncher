@@ -369,7 +369,13 @@ private fun GridItemContent(
                 )
             }
 
-            is GridItemData.ShortcutConfig -> TODO()
+            is GridItemData.ShortcutConfig -> {
+                AsyncImage(
+                    model = data.shortcutIntentIcon ?: data.activityIcon,
+                    contentDescription = null,
+                    modifier = modifier,
+                )
+            }
         }
     }
 }

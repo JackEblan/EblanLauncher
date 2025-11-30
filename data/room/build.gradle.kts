@@ -25,6 +25,10 @@ plugins {
 android {
     namespace = "com.eblan.launcher.data.room"
 
+    defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
     sourceSets {
         getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
@@ -35,4 +39,13 @@ dependencies {
     implementation(projects.domain.repository)
 
     implementation(libs.kotlinx.serialization.json)
+
+    androidTestImplementation(kotlin("test"))
+    androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.ext.junit.ktx)
+    androidTestImplementation(libs.room.testing)
+
+
 }

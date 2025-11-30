@@ -20,6 +20,7 @@ package com.eblan.launcher.data.room.di
 import android.content.Context
 import androidx.room.Room
 import com.eblan.launcher.data.room.EblanDatabase
+import com.eblan.launcher.data.room.migration.Migration3To4
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,5 +39,11 @@ internal object RoomModule {
         context,
         EblanDatabase::class.java,
         EblanDatabase.DATABASE_NAME,
-    ).fallbackToDestructiveMigration(dropAllTables = true).build()
+    ).addMigrations(Migration3To4())
+        .fallbackToDestructiveMigrationFrom(
+            dropAllTables = true,
+            1,
+            2,
+            3,
+        ).build()
 }

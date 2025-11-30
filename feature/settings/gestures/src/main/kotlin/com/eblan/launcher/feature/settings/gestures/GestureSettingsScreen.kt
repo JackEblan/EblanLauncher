@@ -132,7 +132,7 @@ private fun Success(
                 vertical = 5.dp,
             ),
             title = "Accessibility Services",
-            subtitle = "Permission to perform global actions",
+            subtitle = "Perform global actions",
             onClick = {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 context.startActivity(intent)

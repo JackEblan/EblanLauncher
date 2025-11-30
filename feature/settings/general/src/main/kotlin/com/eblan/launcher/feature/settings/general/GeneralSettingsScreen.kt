@@ -212,7 +212,7 @@ private fun Success(
                     vertical = 5.dp,
                 ),
                 title = "Notification Dots",
-                subtitle = "Grant notification access",
+                subtitle = "Show notification dots",
                 onClick = {
                     val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
 

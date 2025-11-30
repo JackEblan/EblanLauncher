@@ -144,8 +144,8 @@ internal fun SettingsScreen(
             if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
                 SettingsRow(
                     imageVector = EblanLauncherIcons.Info,
-                    title = "Notification",
-                    subtitle = "Permission to post notifications",
+                    title = "Notifications",
+                    subtitle = "Post notifications",
                     onClick = notificationsPermissionState::launchPermissionRequest,
                 )
             }

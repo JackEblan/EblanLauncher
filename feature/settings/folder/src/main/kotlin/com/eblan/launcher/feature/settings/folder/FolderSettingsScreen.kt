@@ -18,9 +18,10 @@
 package com.eblan.launcher.feature.settings.folder
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -112,18 +113,20 @@ private fun Success(
 ) {
     var showGridDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Folder Grid",
-            subtitle = "Number of columns and rows",
-            onClick = {
-                showGridDialog = true
-            },
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            SettingsColumn(
+                title = "Folder Grid",
+                subtitle = "Number of columns and rows",
+                onClick = {
+                    showGridDialog = true
+                },
+            )
+        }
     }
 
     if (showGridDialog) {

@@ -21,12 +21,14 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -149,78 +151,72 @@ private fun Success(
 
     var selectIconPackDialog by remember { mutableStateOf(false) }
 
-    Column(
+    Box(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Import Icon Pack",
-            subtitle = "Import icon pack",
-            onClick = {
-                showImportIconPackDialog = true
-            },
-        )
-
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Select Icon Pack",
-            subtitle = generalSettings.iconPackInfoPackageName.ifEmpty { "Default" },
-            onClick = {
-                selectIconPackDialog = true
-            },
-        )
-
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Theme",
-            subtitle = generalSettings.theme.name,
-            onClick = {
-                showDarkThemeConfigDialog = true
-            },
-        )
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            SettingsSwitch(
-                modifier = Modifier.padding(
-                    horizontal = 10.dp,
-                    vertical = 5.dp,
-                ),
-                checked = generalSettings.dynamicTheme,
-                title = "Dynamic Theme",
-                subtitle = "Dynamic theme",
-                onCheckedChange = { dynamicTheme ->
-                    onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
-                },
-            )
-        }
-
-        if (!settings.isNotificationAccessGranted()) {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
             SettingsColumn(
-                modifier = Modifier.padding(
-                    horizontal = 10.dp,
-                    vertical = 5.dp,
-                ),
-                title = "Notification Dots",
-                subtitle = "Show notification dots",
+                title = "Import Icon Pack",
+                subtitle = "Import icon pack",
                 onClick = {
-                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                    context.startActivity(intent)
+                    showImportIconPackDialog = true
                 },
             )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Select Icon Pack",
+                subtitle = generalSettings.iconPackInfoPackageName.ifEmpty { "Default" },
+                onClick = {
+                    selectIconPackDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Theme",
+                subtitle = generalSettings.theme.name,
+                onClick = {
+                    showDarkThemeConfigDialog = true
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                SettingsSwitch(
+                    checked = generalSettings.dynamicTheme,
+                    title = "Dynamic Theme",
+                    subtitle = "Dynamic theme",
+                    onCheckedChange = { dynamicTheme ->
+                        onUpdateGeneralSettings(generalSettings.copy(dynamicTheme = dynamicTheme))
+                    },
+                )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
+
+            if (!settings.isNotificationAccessGranted()) {
+                SettingsColumn(
+                    title = "Notification Dots",
+                    subtitle = "Show notification dots",
+                    onClick = {
+                        val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                        context.startActivity(intent)
+                    },
+                )
+            }
         }
     }
 

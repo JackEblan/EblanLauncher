@@ -20,10 +20,13 @@ package com.eblan.launcher.feature.settings.home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -127,73 +130,71 @@ private fun Success(
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Grid",
-            subtitle = "Number of columns and rows",
-            onClick = {
-                showGridDialog = true
-            },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            SettingsColumn(
+                title = "Grid",
+                subtitle = "Number of columns and rows",
+                onClick = {
+                    showGridDialog = true
+                },
+            )
 
-        SettingsSwitch(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            checked = homeSettings.infiniteScroll,
-            title = "Infinite Scrolling",
-            subtitle = "Seamless loop from last page back to first",
-            onCheckedChange = { infiniteScroll ->
-                onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        SettingsSwitch(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            checked = homeSettings.wallpaperScroll,
-            title = "Wallpaper Scrolling",
-            subtitle = "Scroll wallpaper across pages",
-            onCheckedChange = { wallpaperScroll ->
-                onUpdateHomeSettings(homeSettings.copy(wallpaperScroll = wallpaperScroll))
-            },
-        )
+            SettingsSwitch(
+                checked = homeSettings.infiniteScroll,
+                title = "Infinite Scrolling",
+                subtitle = "Seamless loop from last page back to first",
+                onCheckedChange = { infiniteScroll ->
+                    onUpdateHomeSettings(homeSettings.copy(infiniteScroll = infiniteScroll))
+                },
+            )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsSwitch(
+                checked = homeSettings.wallpaperScroll,
+                title = "Wallpaper Scrolling",
+                subtitle = "Scroll wallpaper across pages",
+                onCheckedChange = { wallpaperScroll ->
+                    onUpdateHomeSettings(homeSettings.copy(wallpaperScroll = wallpaperScroll))
+                },
+            )
+        }
 
         Text(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(15.dp),
             text = "Dock",
             style = MaterialTheme.typography.bodySmall,
         )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Dock Grid",
-            subtitle = "Number of columns and rows",
-            onClick = {
-                showDockGridDialog = true
-            },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            SettingsColumn(
+                title = "Dock Grid",
+                subtitle = "Number of columns and rows",
+                onClick = {
+                    showDockGridDialog = true
+                },
+            )
 
-        SettingsColumn(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            title = "Dock Height",
-            subtitle = "Height of the dock",
-            onClick = {
-                showDockHeightDialog = true
-            },
-        )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Dock Height",
+                subtitle = "Height of the dock",
+                onClick = {
+                    showDockHeightDialog = true
+                },
+            )
+        }
 
         GridItemSettings(
             gridItemSettings = homeSettings.gridItemSettings,

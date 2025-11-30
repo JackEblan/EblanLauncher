@@ -23,6 +23,8 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.provider.Settings.ACTION_HOME_SETTINGS
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +37,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -126,82 +129,104 @@ internal fun SettingsScreen(
             )
         },
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            SettingsRow(
-                imageVector = EblanLauncherIcons.Handshake,
-                title = "Support Development",
-                subtitle = "Developer information",
-                onClick = {
-                    showSupportDialog = true
-                },
-            )
-
-            if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp),
+            ) {
                 SettingsRow(
-                    imageVector = EblanLauncherIcons.Info,
-                    title = "Notifications",
-                    subtitle = "Post notifications",
-                    onClick = notificationsPermissionState::launchPermissionRequest,
-                )
-            }
-
-            if (!packageManager.isDefaultLauncher()) {
-                SettingsRow(
-                    imageVector = EblanLauncherIcons.Info,
-                    title = "Default Launcher",
-                    subtitle = "Choose Eblan Launcher",
+                    imageVector = EblanLauncherIcons.Handshake,
+                    title = "Support Development",
+                    subtitle = "Developer information",
                     onClick = {
-                        context.startActivity(Intent(ACTION_HOME_SETTINGS))
+                        showSupportDialog = true
                     },
                 )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
+                    SettingsRow(
+                        imageVector = EblanLauncherIcons.Info,
+                        title = "Notifications",
+                        subtitle = "Post notifications",
+                        onClick = notificationsPermissionState::launchPermissionRequest,
+                    )
+
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                }
+
+                if (!packageManager.isDefaultLauncher()) {
+                    SettingsRow(
+                        imageVector = EblanLauncherIcons.Info,
+                        title = "Default Launcher",
+                        subtitle = "Choose Eblan Launcher",
+                        onClick = {
+                            context.startActivity(Intent(ACTION_HOME_SETTINGS))
+                        },
+                    )
+
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                }
+
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Settings,
+                    title = "General",
+                    subtitle = "Themes, icon packs",
+                    onClick = onGeneral,
+                )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Home,
+                    title = "Home",
+                    subtitle = "Grid, icon, dock, and more",
+                    onClick = onHome,
+                )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Apps,
+                    title = "App Drawer",
+                    subtitle = "Columns and rows count",
+                    onClick = onAppDrawer,
+                )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Folder,
+                    title = "Folder",
+                    subtitle = "Columns and rows count",
+                    onClick = onFolder,
+                )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.Gesture,
+                    title = "Gestures",
+                    subtitle = "Swipe gesture actions",
+                    onClick = onGestures,
+                )
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                SettingsRow(
+                    imageVector = EblanLauncherIcons.DeveloperMode,
+                    title = "Experimental",
+                    subtitle = "Advanced options for power users",
+                    onClick = onExperimental,
+                )
             }
-
-            SettingsRow(
-                imageVector = EblanLauncherIcons.Settings,
-                title = "General",
-                subtitle = "Themes, icon packs",
-                onClick = onGeneral,
-            )
-
-            SettingsRow(
-                imageVector = EblanLauncherIcons.Home,
-                title = "Home",
-                subtitle = "Grid, icon, dock, and more",
-                onClick = onHome,
-            )
-
-            SettingsRow(
-                imageVector = EblanLauncherIcons.Apps,
-                title = "App Drawer",
-                subtitle = "Columns and rows count",
-                onClick = onAppDrawer,
-            )
-
-            SettingsRow(
-                imageVector = EblanLauncherIcons.Folder,
-                title = "Folder",
-                subtitle = "Columns and rows count",
-                onClick = onFolder,
-            )
-
-            SettingsRow(
-                imageVector = EblanLauncherIcons.Gesture,
-                title = "Gestures",
-                subtitle = "Swipe gesture actions",
-                onClick = onGestures,
-            )
-
-            SettingsRow(
-                imageVector = EblanLauncherIcons.DeveloperMode,
-                title = "Experimental",
-                subtitle = "Advanced options for power users",
-                onClick = onExperimental,
-            )
         }
     }
 
@@ -220,41 +245,32 @@ private fun SettingsRow(
     subtitle: String,
     onClick: () -> Unit,
 ) {
-    ElevatedCard(
+    Row(
         modifier = modifier
+            .clickable(onClick = onClick)
             .fillMaxWidth()
-            .padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-        onClick = onClick,
+            .padding(15.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = null,
+        Icon(
+            imageVector = imageVector,
+            contentDescription = null,
+        )
+
+        Spacer(modifier = Modifier.width(20.dp))
+
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
             )
 
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

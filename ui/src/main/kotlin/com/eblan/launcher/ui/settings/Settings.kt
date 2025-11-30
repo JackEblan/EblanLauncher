@@ -17,13 +17,13 @@
  */
 package com.eblan.launcher.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -40,37 +40,33 @@ fun SettingsSwitch(
     subtitle: String,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        onClick = {
-            onCheckedChange(!checked)
-        },
+    Row(
+        modifier = modifier
+            .clickable(onClick = {
+                onCheckedChange(!checked)
+            })
+            .fillMaxWidth()
+            .padding(15.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+            )
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+        )
     }
 }
 
@@ -81,26 +77,22 @@ fun SettingsColumn(
     subtitle: String,
     onClick: () -> Unit,
 ) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        onClick = onClick,
+    Column(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .fillMaxWidth()
+            .padding(15.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-            )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+        )
 
-            Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+        )
     }
 }

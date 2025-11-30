@@ -20,10 +20,13 @@ package com.eblan.launcher.feature.edit
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -123,46 +126,50 @@ private fun Success(
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                EditApplicationInfo(
-                    gridItem = gridItem,
-                    data = data,
-                    onUpdateGridItem = onUpdateGridItem,
-                )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 15.dp),
+        ) {
+            when (val data = gridItem.data) {
+                is GridItemData.ApplicationInfo -> {
+                    EditApplicationInfo(
+                        gridItem = gridItem,
+                        data = data,
+                        onUpdateGridItem = onUpdateGridItem,
+                    )
+                }
+
+                is GridItemData.Folder -> {
+                    EditFolder(
+                        gridItem = gridItem,
+                        data = data,
+                        onUpdateGridItem = onUpdateGridItem,
+                    )
+                }
+
+                is GridItemData.ShortcutInfo -> {
+                    EditShortcutInfo(
+                        gridItem = gridItem,
+                        data = data,
+                        onUpdateGridItem = onUpdateGridItem,
+                    )
+                }
+
+                else -> Unit
             }
 
-            is GridItemData.Folder -> {
-                EditFolder(
-                    gridItem = gridItem,
-                    data = data,
-                    onUpdateGridItem = onUpdateGridItem,
-                )
-            }
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-            is GridItemData.ShortcutInfo -> {
-                EditShortcutInfo(
-                    gridItem = gridItem,
-                    data = data,
-                    onUpdateGridItem = onUpdateGridItem,
-                )
-            }
-
-            else -> Unit
+            SettingsSwitch(
+                checked = gridItem.override,
+                title = "Override",
+                subtitle = "Override the Grid Item Settings",
+                onCheckedChange = {
+                    onUpdateGridItem(gridItem.copy(override = it))
+                },
+            )
         }
-
-        SettingsSwitch(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 5.dp,
-            ),
-            checked = gridItem.override,
-            title = "Override",
-            subtitle = "Override the Grid Item Settings",
-            onCheckedChange = {
-                onUpdateGridItem(gridItem.copy(override = it))
-            },
-        )
 
         if (gridItem.override) {
             GridItemSettings(
@@ -184,10 +191,6 @@ private fun EditApplicationInfo(
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
-        modifier = Modifier.padding(
-            horizontal = 10.dp,
-            vertical = 5.dp,
-        ),
         title = "Edit Label",
         subtitle = data.label.toString(),
         onClick = {
@@ -238,10 +241,6 @@ private fun EditFolder(
     var showEditPageCountDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
-        modifier = Modifier.padding(
-            horizontal = 10.dp,
-            vertical = 5.dp,
-        ),
         title = "Edit Label",
         subtitle = data.label,
         onClick = {
@@ -249,11 +248,9 @@ private fun EditFolder(
         },
     )
 
+    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
     SettingsColumn(
-        modifier = Modifier.padding(
-            horizontal = 10.dp,
-            vertical = 5.dp,
-        ),
         title = "Edit Page Count",
         subtitle = data.pageCount.toString(),
         onClick = {
@@ -337,10 +334,6 @@ private fun EditShortcutInfo(
     var showEditLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
-        modifier = Modifier.padding(
-            horizontal = 10.dp,
-            vertical = 5.dp,
-        ),
         title = "Short Label",
         subtitle = data.shortLabel,
         onClick = {

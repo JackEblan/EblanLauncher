@@ -44,6 +44,5 @@ internal object RoomModule {
             dropAllTables = true,
             1,
             2,
-            3,
         ).build()
 }

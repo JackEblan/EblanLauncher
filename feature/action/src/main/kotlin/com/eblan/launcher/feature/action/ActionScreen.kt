@@ -18,6 +18,7 @@
 package com.eblan.launcher.feature.action
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,46 +42,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAction
+import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.feature.action.model.ActionUiState
+import com.eblan.launcher.ui.dialog.SelectApplicationDialog
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionScreen(
     modifier: Modifier = Modifier,
+    viewModel: ActionViewModel = hiltViewModel(),
     onUpdateEblanAction: suspend (
         resId: Int,
         eblanAction: EblanAction,
     ) -> Unit,
     onFinish: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
+    val actionUiState by viewModel.actionUiState.collectAsStateWithLifecycle()
 
-    var selectedEblanAction by remember {
-        mutableStateOf<EblanAction>(EblanAction.None)
-    }
+    ActionScreen(
+        modifier = modifier,
+        actionUiState = actionUiState,
+        onUpdateEblanAction = onUpdateEblanAction,
+        onFinish = onFinish,
+    )
+}
 
-    val eblanActions by remember {
-        derivedStateOf {
-            listOf(
-                R.drawable.adb_24px to EblanAction.None,
-                R.drawable.outline_apps_24 to EblanAction.OpenAppDrawer,
-                R.drawable.notification_settings_24px to EblanAction.OpenNotificationPanel,
-                R.drawable.adb_24px to selectedEblanAction.let { eblanAction ->
-                    if (eblanAction is EblanAction.OpenApp) {
-                        EblanAction.OpenApp(componentName = eblanAction.componentName)
-                    } else {
-                        EblanAction.OpenApp(componentName = "app")
-                    }
-                },
-                R.drawable.lock_24px to EblanAction.LockScreen,
-                R.drawable.settings_24px to EblanAction.OpenQuickSettings,
-                R.drawable.preview_24px to EblanAction.OpenRecents,
-            )
-        }
-    }
-
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ActionScreen(
+    modifier: Modifier = Modifier,
+    actionUiState: ActionUiState,
+    onUpdateEblanAction: suspend (
+        resId: Int,
+        eblanAction: EblanAction,
+    ) -> Unit,
+    onFinish: () -> Unit,
+) {
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "Eblan Action")
@@ -94,44 +94,109 @@ fun ActionScreen(
             }
         })
     }) { paddingValues ->
-        Column(
+        Box(
             modifier = modifier
-                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            eblanActions.forEach { (resId, eblanAction) ->
-                ListItem(
-                    modifier = Modifier
-                        .clickable {
-                            scope.launch {
+            when (actionUiState) {
+                ActionUiState.Loading -> {
+                }
+
+                is ActionUiState.Success -> {
+                    Success(
+                        eblanApplicationInfos = actionUiState.eblanApplicationInfos,
+                        onUpdateEblanAction = onUpdateEblanAction,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Success(
+    modifier: Modifier = Modifier,
+    eblanApplicationInfos: List<EblanApplicationInfo>,
+    onUpdateEblanAction: suspend (
+        resId: Int,
+        eblanAction: EblanAction,
+    ) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+
+    var showSelectApplicationDialog by remember { mutableStateOf(false) }
+
+    val eblanActions = listOf(
+        R.drawable.adb_24px to EblanAction.None,
+        R.drawable.outline_apps_24 to EblanAction.OpenAppDrawer,
+        R.drawable.notification_settings_24px to EblanAction.OpenNotificationPanel,
+        R.drawable.adb_24px to EblanAction.OpenApp(componentName = ""),
+        R.drawable.lock_24px to EblanAction.LockScreen,
+        R.drawable.settings_24px to EblanAction.OpenQuickSettings,
+        R.drawable.preview_24px to EblanAction.OpenRecents,
+    )
+
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxSize(),
+    ) {
+        eblanActions.forEach { (resId, eblanAction) ->
+            ListItem(
+                modifier = Modifier
+                    .clickable {
+                        scope.launch {
+                            if (eblanAction is EblanAction.OpenApp) {
+                                showSelectApplicationDialog = true
+                            } else {
                                 onUpdateEblanAction(
                                     resId,
                                     eblanAction,
                                 )
                             }
                         }
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    headlineContent = {
-                        Text(text = eblanAction.getEblanActionSubtitle())
-                    },
-                    leadingContent = {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(resId),
-                            contentDescription = null,
-                        )
-                    },
-                )
-            }
+                    }
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                headlineContent = {
+                    Text(text = eblanAction.getEblanActionSubtitle())
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(resId),
+                        contentDescription = null,
+                    )
+                },
+            )
         }
+    }
+
+    if (showSelectApplicationDialog) {
+        SelectApplicationDialog(
+            eblanApplicationInfos = eblanApplicationInfos,
+            onDismissRequest = {
+                showSelectApplicationDialog = false
+            },
+            onUpdateEblanAction = { openAppEblanAction ->
+                showSelectApplicationDialog = false
+
+                scope.launch {
+                    onUpdateEblanAction(
+                        R.drawable.adb_24px,
+                        openAppEblanAction,
+                    )
+                }
+            },
+        )
     }
 }
 
 private fun EblanAction.getEblanActionSubtitle(): String {
     return when (this) {
         EblanAction.None -> "None"
-        is EblanAction.OpenApp -> "Open $componentName"
+        is EblanAction.OpenApp -> "Open app"
         EblanAction.OpenAppDrawer -> "Open app drawer"
         EblanAction.OpenNotificationPanel -> "Open notification panel"
         EblanAction.LockScreen -> "Lock screen"

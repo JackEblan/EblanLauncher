@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.gestures.dialog
+package com.eblan.launcher.ui.dialog
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -38,7 +38,7 @@ import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 @Composable
-internal fun SelectApplicationDialog(
+fun SelectApplicationDialog(
     modifier: Modifier = Modifier,
     eblanApplicationInfos: List<EblanApplicationInfo>,
     onDismissRequest: () -> Unit,

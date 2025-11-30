@@ -45,6 +45,7 @@ import com.eblan.launcher.designsystem.component.EblanRadioButton
 import com.eblan.launcher.domain.model.EblanAction
 import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.feature.settings.gestures.getEblanActionSubtitle
+import com.eblan.launcher.ui.dialog.SelectApplicationDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

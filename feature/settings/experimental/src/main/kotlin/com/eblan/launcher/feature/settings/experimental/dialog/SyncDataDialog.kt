@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -61,13 +62,18 @@ internal fun SyncDataDialog(
                     "Your app drawer might show outdated icons, missing widgets, or shortcuts that no longer work.",
             )
 
-            SettingsSwitch(
-                modifier = Modifier.padding(horizontal = 15.dp),
-                checked = syncData,
-                title = "Sync Data",
-                subtitle = "Keep data up to date",
-                onCheckedChange = onUpdateSyncData,
-            )
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp),
+            ) {
+                SettingsSwitch(
+                    checked = syncData,
+                    title = "Sync Data",
+                    subtitle = "Keep data up to date",
+                    onCheckedChange = onUpdateSyncData,
+                )
+            }
 
             Row(
                 modifier = Modifier

@@ -18,7 +18,7 @@
 
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.geto.disableUnnecessaryAndroidTests
+import com.eblan.launcher.disableUnnecessaryAndroidTests
 import com.eblan.launcher.configureKotlinAndroid
 import com.eblan.launcher.libs
 import org.gradle.api.Plugin

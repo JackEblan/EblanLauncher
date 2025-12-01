@@ -26,6 +26,7 @@ import android.content.pm.ResolveInfo
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -88,7 +89,7 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         return defaultLauncherPackage == context.packageName
     }
 
-    override suspend fun getIconPackInfoByPackageNames(): List<String> {
+    override suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo> {
         val intents = listOf(
             Intent("app.lawnchair.icons.THEMED_ICON"),
             Intent("org.adw.ActivityStarter.THEMES"),
@@ -109,7 +110,17 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
             }
 
             resolveInfos.map { resolveInfo ->
-                resolveInfo.activityInfo.packageName
+                PackageManagerIconPackInfo(
+                    packageName = resolveInfo.activityInfo.applicationInfo.packageName,
+                    icon = resolveInfo.activityInfo.applicationInfo.loadIcon(packageManager)
+                        .let { drawable ->
+                            androidByteArrayWrapper.createByteArray(
+                                drawable = drawable,
+                            )
+                        },
+                    label = resolveInfo.activityInfo.applicationInfo.loadLabel(packageManager)
+                        .toString(),
+                )
             }.distinct()
         }
     }

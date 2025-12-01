@@ -34,12 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
-import com.eblan.launcher.domain.model.EblanIconPackInfo
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 
 @Composable
 internal fun ImportIconPackDialog(
     modifier: Modifier = Modifier,
-    packageManagerIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onDismissRequest: () -> Unit,
     onUpdateIconPack: (
         packageName: String,
@@ -62,12 +62,12 @@ internal fun ImportIconPackDialog(
                     fill = false,
                 ),
             ) {
-                items(packageManagerIconPackInfos) { eblanIconPackInfo ->
+                items(packageManagerIconPackInfos) { packageManagerIconPackInfo ->
                     ListItem(
-                        headlineContent = { Text(text = eblanIconPackInfo.label.toString()) },
+                        headlineContent = { Text(text = packageManagerIconPackInfo.label) },
                         leadingContent = {
                             AsyncImage(
-                                model = eblanIconPackInfo.icon,
+                                model = packageManagerIconPackInfo.icon,
                                 contentDescription = null,
                                 modifier = Modifier.size(40.dp),
                             )
@@ -75,8 +75,8 @@ internal fun ImportIconPackDialog(
                         modifier = Modifier
                             .clickable {
                                 onUpdateIconPack(
-                                    eblanIconPackInfo.packageName,
-                                    eblanIconPackInfo.label.toString(),
+                                    packageManagerIconPackInfo.packageName,
+                                    packageManagerIconPackInfo.label,
                                 )
                             }
                             .fillMaxWidth()

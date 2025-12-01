@@ -63,9 +63,9 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                     folderRows = folderRows,
                     movingIndex = movingIndex,
                 )
-            } else {
-                updateGridItemsUseCase(gridItems = gridItems)
             }
+
+            updateGridItemsUseCase(gridItems = gridItems)
         }
     }
 
@@ -188,7 +188,5 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                 }
             }
         }
-
-        updateGridItemsUseCase(gridItems = gridItems)
     }
 }

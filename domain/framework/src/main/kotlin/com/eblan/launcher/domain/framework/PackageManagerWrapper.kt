@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.domain.framework
 
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+
 interface PackageManagerWrapper {
     val hasSystemFeatureAppWidgets: Boolean
 
@@ -26,7 +28,7 @@ interface PackageManagerWrapper {
 
     fun getComponentName(packageName: String): String?
 
-    suspend fun getIconPackInfoByPackageNames(): List<String>
+    suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
 
     suspend fun getActivityIcon(
         componentName: String,

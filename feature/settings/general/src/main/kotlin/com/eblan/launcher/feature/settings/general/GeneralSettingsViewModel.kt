@@ -19,12 +19,12 @@ package com.eblan.launcher.feature.settings.general
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eblan.launcher.domain.model.EblanIconPackInfo
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GeneralSettings
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
-import com.eblan.launcher.domain.usecase.GetPackageManagerEblanIconPackInfosUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,8 +40,8 @@ import javax.inject.Inject
 internal class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     eblanIconPackInfoRepository: EblanIconPackInfoRepository,
-    getPackageManagerEblanIconPackInfosUseCase: GetPackageManagerEblanIconPackInfosUseCase,
     private val deleteIconPackInfosUseCase: DeleteIconPackInfoUseCase,
+    packageManagerWrapper: PackageManagerWrapper,
 ) :
     ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
@@ -52,11 +52,12 @@ internal class GeneralSettingsViewModel @Inject constructor(
         initialValue = GeneralSettingsUiState.Loading,
     )
 
-    private val _packageManagerEblanIconPackInfos = MutableStateFlow(emptyList<EblanIconPackInfo>())
+    private val _packageManagerIconPackInfos =
+        MutableStateFlow(emptyList<PackageManagerIconPackInfo>())
 
-    val packageManagerEblanIconPackInfos = _packageManagerEblanIconPackInfos.onStart {
-        _packageManagerEblanIconPackInfos.update {
-            getPackageManagerEblanIconPackInfosUseCase()
+    val packageManagerIconPackInfos = _packageManagerIconPackInfos.onStart {
+        _packageManagerIconPackInfos.update {
+            packageManagerWrapper.getIconPackInfos()
         }
     }.stateIn(
         scope = viewModelScope,

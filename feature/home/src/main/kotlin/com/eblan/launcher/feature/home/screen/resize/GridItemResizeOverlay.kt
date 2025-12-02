@@ -44,7 +44,6 @@ import com.eblan.launcher.domain.grid.resizeGridItemWithPixels
 import com.eblan.launcher.domain.model.Anchor
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.feature.home.model.Drag
-import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
@@ -62,12 +61,14 @@ internal fun GridItemResizeOverlay(
     width: Int,
     height: Int,
     color: Color,
+    lastGridItem: GridItem?,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -250,15 +251,15 @@ internal fun GridItemResizeOverlay(
                 gridItem = resizingGridItem,
                 columns = columns,
                 rows = rows,
-            )
+            ) && resizingGridItem != lastGridItem
         ) {
-            delay(100L)
-
             onResizeGridItem(
                 resizingGridItem,
                 columns,
                 rows,
             )
+
+            onUpdateGridItem(resizingGridItem)
         }
     }
 

@@ -170,6 +170,8 @@ internal fun DragScreen(
 
     var updatedWidgetGridItem by remember { mutableStateOf<GridItem?>(null) }
 
+    var lastGridItem by remember { mutableStateOf<GridItem?>(null) }
+
     val dockHeight = homeSettings.dockHeight.dp
 
     val gridHorizontalPagerPaddingDp = 50.dp
@@ -280,10 +282,14 @@ internal fun DragScreen(
             isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
+            lastGridItem = lastGridItem,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
             onMoveGridItem = onMoveGridItem,
+            onUpdateGridItem = { gridItem ->
+                lastGridItem = gridItem
+            },
         )
     }
 

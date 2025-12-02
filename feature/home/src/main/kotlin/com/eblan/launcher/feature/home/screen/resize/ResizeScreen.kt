@@ -27,6 +27,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
@@ -104,6 +108,8 @@ internal fun ResizeScreen(
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()
     }
+
+    var lastGridItem by remember { mutableStateOf<GridItem?>(null) }
 
     BackHandler {
         onResizeCancel()
@@ -222,8 +228,12 @@ internal fun ResizeScreen(
                 width = width,
                 height = height,
                 textColor = textColor,
+                lastGridItem = lastGridItem,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
+                onUpdateGridItem = { gridItem ->
+                    lastGridItem = gridItem
+                },
             )
         }
 
@@ -257,8 +267,12 @@ internal fun ResizeScreen(
                 width = width,
                 height = height,
                 textColor = textColor,
+                lastGridItem = lastGridItem,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
+                onUpdateGridItem = { gridItem ->
+                    lastGridItem = gridItem
+                },
             )
         }
     }
@@ -278,12 +292,14 @@ private fun ResizeOverlay(
     width: Int,
     height: Int,
     textColor: TextColor,
+    lastGridItem: GridItem?,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
         rows: Int,
     ) -> Unit,
     onResizeEnd: (GridItem) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
 ) {
     val currentTextColor = if (gridItem.override) {
         getGridItemTextColor(
@@ -313,8 +329,10 @@ private fun ResizeOverlay(
                 width = width,
                 height = height,
                 color = currentTextColor,
+                lastGridItem = lastGridItem,
                 onResizeGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
+                onUpdateGridItem = onUpdateGridItem,
             )
         }
 
@@ -331,8 +349,10 @@ private fun ResizeOverlay(
                 width = width,
                 height = height,
                 color = currentTextColor,
+                lastGridItem = lastGridItem,
                 onResizeWidgetGridItem = onResizeGridItem,
                 onResizeEnd = onResizeEnd,
+                onUpdateGridItem = onUpdateGridItem,
             )
         }
     }

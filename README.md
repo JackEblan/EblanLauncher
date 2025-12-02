@@ -21,6 +21,11 @@ Lightweight, fast, customizable, and secure Android launcher
 > This is an Alpha Stage Build. Expect bugs, instability, and incomplete features.
 
 ## About The Project
+<div align = "center">
+  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I01OJG21)
+
+</div>
 
 Most Android launchers are just forks of AOSP’s Launcher3. I wanted to try something
 different—building from scratch while welcoming new developers and applying solid coding principles

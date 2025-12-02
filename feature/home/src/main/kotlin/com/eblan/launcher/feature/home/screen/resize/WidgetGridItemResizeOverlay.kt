@@ -139,8 +139,6 @@ internal fun WidgetGridItemResizeOverlay(
         .background(color = color, shape = CircleShape)
 
     LaunchedEffect(key1 = currentWidth, key2 = currentHeight) {
-        delay(100L)
-
         val allowedWidth = if (data.minResizeWidth > 0 && currentWidth <= data.minResizeWidth) {
             data.minResizeWidth
         } else if (data.maxResizeWidth in 1..<currentWidth) {
@@ -219,6 +217,8 @@ internal fun WidgetGridItemResizeOverlay(
                 rows = rows,
             )
         ) {
+            delay(100L)
+
             onResizeWidgetGridItem(
                 resizingGridItem,
                 columns,

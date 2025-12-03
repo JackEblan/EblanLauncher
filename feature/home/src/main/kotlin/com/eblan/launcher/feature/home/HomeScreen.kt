@@ -89,6 +89,7 @@ import com.eblan.launcher.feature.home.screen.folderdrag.FolderDragScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.PagerScreen
 import com.eblan.launcher.feature.home.screen.resize.ResizeScreen
+import com.eblan.launcher.feature.home.screen.setupwizard.SetupWizardScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.service.LauncherAppsService
@@ -406,70 +407,74 @@ internal fun HomeScreen(
         when (homeUiState) {
             HomeUiState.Loading -> {}
             is HomeUiState.Success -> {
-                Success(
-                    screen = screen,
-                    homeData = homeUiState.homeData,
-                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    pageItems = pageItems,
-                    movedGridItemResult = movedGridItemResult,
-                    screenWidth = this@BoxWithConstraints.constraints.maxWidth,
-                    screenHeight = this@BoxWithConstraints.constraints.maxHeight,
-                    paddingValues = paddingValues,
-                    dragIntOffset = dragIntOffset,
-                    drag = drag,
-                    foldersDataById = foldersDataById,
-                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    gridItemCache = gridItemsCache,
-                    pinGridItem = pinGridItem,
-                    overlayIntOffset = overlayIntOffset,
-                    overlayIntSize = overlayIntSize,
-                    statusBarNotifications = statusBarNotifications,
-                    eblanShortcutInfos = eblanShortcutInfos,
-                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-                    onMoveGridItem = onMoveGridItem,
-                    onMoveFolderGridItem = onMoveFolderGridItem,
-                    onResizeGridItem = onResizeGridItem,
-                    onShowGridCache = onShowGridCache,
-                    onShowFolderGridCache = onShowFolderGridCache,
-                    onResetGridCacheAfterResize = onResetGridCacheAfterResize,
-                    onResetGridCacheAfterMove = onResetGridCacheAfterMove,
-                    onCancelGridCache = onCancelGridCache,
-                    onCancelFolderDragGridCache = onCancelFolderDragGridCache,
-                    onEdit = onEdit,
-                    onSettings = onSettings,
-                    onEditPage = onEditPage,
-                    onSaveEditPage = onSaveEditPage,
-                    onUpdateScreen = onUpdateScreen,
-                    onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
-                    onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                    onShowFolder = onShowFolder,
-                    onRemoveLastFolder = onRemoveLastFolder,
-                    onAddFolder = onAddFolder,
-                    onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
-                    onUpdateGridItemImageBitmap = { imageBitmap ->
-                        overlayImageBitmap = imageBitmap
-                    },
-                    onUpdateGridItemOffset = { intOffset, intSize ->
-                        overlayIntOffset = intOffset
+                if (homeUiState.homeData.userData.homeSettings.setupWizard) {
+                    SetupWizardScreen(paddingValues = paddingValues)
+                } else {
+                    Success(
+                        screen = screen,
+                        homeData = homeUiState.homeData,
+                        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                        pageItems = pageItems,
+                        movedGridItemResult = movedGridItemResult,
+                        screenWidth = this@BoxWithConstraints.constraints.maxWidth,
+                        screenHeight = this@BoxWithConstraints.constraints.maxHeight,
+                        paddingValues = paddingValues,
+                        dragIntOffset = dragIntOffset,
+                        drag = drag,
+                        foldersDataById = foldersDataById,
+                        eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                        eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                        gridItemCache = gridItemsCache,
+                        pinGridItem = pinGridItem,
+                        overlayIntOffset = overlayIntOffset,
+                        overlayIntSize = overlayIntSize,
+                        statusBarNotifications = statusBarNotifications,
+                        eblanShortcutInfos = eblanShortcutInfos,
+                        eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
+                        onMoveGridItem = onMoveGridItem,
+                        onMoveFolderGridItem = onMoveFolderGridItem,
+                        onResizeGridItem = onResizeGridItem,
+                        onShowGridCache = onShowGridCache,
+                        onShowFolderGridCache = onShowFolderGridCache,
+                        onResetGridCacheAfterResize = onResetGridCacheAfterResize,
+                        onResetGridCacheAfterMove = onResetGridCacheAfterMove,
+                        onCancelGridCache = onCancelGridCache,
+                        onCancelFolderDragGridCache = onCancelFolderDragGridCache,
+                        onEdit = onEdit,
+                        onSettings = onSettings,
+                        onEditPage = onEditPage,
+                        onSaveEditPage = onSaveEditPage,
+                        onUpdateScreen = onUpdateScreen,
+                        onDeleteGridItemCache = onDeleteGridItemCache,
+                        onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                        onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+                        onShowFolder = onShowFolder,
+                        onRemoveLastFolder = onRemoveLastFolder,
+                        onAddFolder = onAddFolder,
+                        onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                        onUpdateGridItemImageBitmap = { imageBitmap ->
+                            overlayImageBitmap = imageBitmap
+                        },
+                        onUpdateGridItemOffset = { intOffset, intSize ->
+                            overlayIntOffset = intOffset
 
-                        overlayIntSize = intSize
-                    },
-                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                    onDeleteGridItem = onDeleteGridItem,
-                    onResetOverlay = {
-                        overlayIntOffset = IntOffset.Zero
+                            overlayIntSize = intSize
+                        },
+                        onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                        onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                        onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+                        onDeleteGridItem = onDeleteGridItem,
+                        onResetOverlay = {
+                            overlayIntOffset = IntOffset.Zero
 
-                        overlayIntSize = IntSize.Zero
+                            overlayIntSize = IntSize.Zero
 
-                        overlayImageBitmap = null
-                    },
-                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
-                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
-                )
+                            overlayImageBitmap = null
+                        },
+                        onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                        onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+                    )
+                }
             }
         }
 

@@ -17,5 +17,6 @@ message HomeSettingsProto {
   bool wallpaperScroll = 9;
   int32 folderColumns = 10;
   int32 folderRows = 11;
-  GridItemSettingsProto gridItemSettingsProto = 12;
+  bool setupWizard = 12;
+  GridItemSettingsProto gridItemSettingsProto = 13;
 }

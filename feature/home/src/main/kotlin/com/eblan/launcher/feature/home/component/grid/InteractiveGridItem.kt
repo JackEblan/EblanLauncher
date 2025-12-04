@@ -70,7 +70,7 @@ internal fun InteractiveGridItemContent(
     ) -> Unit,
     onTapShortcutConfig: (String) -> Unit,
     onTapFolderGridItem: () -> Unit,
-    onLongPress: (GridItemData) -> Unit,
+    onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -186,7 +186,7 @@ private fun InteractiveApplicationInfoGridItem(
     iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
     onTap: () -> Unit,
-    onLongPress: (GridItemData) -> Unit,
+    onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -231,7 +231,7 @@ private fun InteractiveApplicationInfoGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress(data)
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -279,7 +279,7 @@ private fun InteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Widget,
     drag: Drag,
-    onLongPress: (GridItemData) -> Unit,
+    onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -328,7 +328,7 @@ private fun InteractiveWidgetGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress(data)
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -370,7 +370,7 @@ private fun InteractiveShortcutInfoGridItem(
     drag: Drag,
     hasShortcutHostPermission: Boolean,
     onTap: () -> Unit,
-    onLongPress: (GridItemData) -> Unit,
+    onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -419,7 +419,7 @@ private fun InteractiveShortcutInfoGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress(data)
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -471,7 +471,7 @@ private fun InteractiveFolderGridItem(
     drag: Drag,
     iconPackInfoPackageName: String,
     onTap: () -> Unit,
-    onLongPress: (GridItemData) -> Unit,
+    onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -516,7 +516,7 @@ private fun InteractiveFolderGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress(data)
+                            onLongPress()
 
                             alpha = 0f
                         }
@@ -566,7 +566,7 @@ private fun InteractiveShortcutConfigGridItem(
     data: GridItemData.ShortcutConfig,
     drag: Drag,
     onTap: () -> Unit,
-    onLongPress: (GridItemData) -> Unit,
+    onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
 ) {
@@ -611,7 +611,7 @@ private fun InteractiveShortcutConfigGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress(data)
+                            onLongPress()
 
                             alpha = 0f
                         }

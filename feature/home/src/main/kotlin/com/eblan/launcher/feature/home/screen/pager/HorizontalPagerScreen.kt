@@ -151,8 +151,6 @@ internal fun HorizontalPagerScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    var editGridItemId by remember { mutableStateOf<String?>(null) }
-
     LaunchedEffect(key1 = drag) {
         if (!isApplicationComponentVisible && drag == Drag.Dragging) {
             showGridItemPopup = false
@@ -170,16 +168,6 @@ internal fun HorizontalPagerScreen(
             infiniteScroll = homeSettings.infiniteScroll,
             windowToken = view.windowToken,
         )
-    }
-
-    LaunchedEffect(key1 = editGridItemId) {
-        editGridItemId?.let { id ->
-            showGridItemPopup = false
-
-            editGridItemId = null
-
-            onEdit(id)
-        }
     }
 
     Column(
@@ -285,14 +273,14 @@ internal fun HorizontalPagerScreen(
                         onTapFolderGridItem = {
                             onTapFolderGridItem(gridItem.id)
                         },
-                        onLongPress = { data ->
+                        onLongPress = {
                             val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
 
                             val intSize = IntSize(width = width, height = height)
 
                             popupIntOffset = intOffset
 
-                            popupGridItemIntSize = IntSize(width = width, height = height)
+                            popupGridItemIntSize = intSize
 
                             onUpdateGridItemOffset(intOffset, intSize)
 
@@ -396,7 +384,7 @@ internal fun HorizontalPagerScreen(
                     onTapFolderGridItem = {
                         onTapFolderGridItem(gridItem.id)
                     },
-                    onLongPress = { data ->
+                    onLongPress = {
                         val dockY = y + (gridHeight - dockHeightPx)
 
                         val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
@@ -405,7 +393,7 @@ internal fun HorizontalPagerScreen(
 
                         popupIntOffset = intOffset
 
-                        popupGridItemIntSize = IntSize(width = width, height = height)
+                        popupGridItemIntSize = intSize
 
                         onUpdateGridItemOffset(intOffset, intSize)
 
@@ -445,7 +433,9 @@ internal fun HorizontalPagerScreen(
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
             onEdit = { id ->
-                editGridItemId = id
+                showGridItemPopup = false
+
+                onEdit(id)
             },
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,

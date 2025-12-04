@@ -91,6 +91,8 @@ internal class OffsetOverscrollEffect(
     ) {
         val remaining = velocity - performFling(velocity)
 
+        overscrollOffset.snapTo(0f)
+
         onDragEnd(remaining.y)
     }
 

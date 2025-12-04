@@ -1,0 +1,2 @@
+- Refactor: Encapsulate overscroll logic within OffsetOverscrollEffect
+- Refactor: Optimize icon pack discovery and introduce PackageManagerIconPackInfo

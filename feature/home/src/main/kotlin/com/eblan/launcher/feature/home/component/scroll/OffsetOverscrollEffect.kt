@@ -17,37 +17,50 @@
  */
 package com.eblan.launcher.feature.home.component.scroll
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.unit.Velocity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
 
 internal class OffsetOverscrollEffect(
-    private val offsetY: () -> Float,
+    private val scope: CoroutineScope,
     private val onVerticalDrag: (Float) -> Unit,
     private val onDragEnd: (Float) -> Unit,
 ) : OverscrollEffect {
+    private val overscrollOffset = Animatable(0f)
+
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
         performScroll: (Offset) -> Offset,
     ): Offset {
-        val sameDirection = sign(delta.y) == sign(offsetY())
+        val sameDirection = sign(delta.y) == sign(overscrollOffset.value)
 
-        val consumedByPreScroll = if (abs(offsetY()) > 0.5 && !sameDirection) {
-            val prevOverscrollValue = offsetY()
+        val consumedByPreScroll = if (abs(overscrollOffset.value) > 0.5 && !sameDirection) {
+            val prevOverscrollValue = overscrollOffset.value
 
-            val newOverscrollValue = offsetY() + delta.y
+            val newOverscrollValue = overscrollOffset.value + delta.y
 
             if (sign(prevOverscrollValue) != sign(newOverscrollValue)) {
-                onVerticalDrag(0f)
+                scope.launch {
+                    onVerticalDrag(0f)
+
+                    overscrollOffset.snapTo(0f)
+                }
 
                 Offset(x = 0f, y = delta.y + prevOverscrollValue)
             } else {
-                onVerticalDrag(delta.y)
+                scope.launch {
+                    onVerticalDrag(delta.y)
+
+                    overscrollOffset.snapTo(newOverscrollValue)
+                }
 
                 delta.copy(x = 0f)
             }
@@ -62,7 +75,11 @@ internal class OffsetOverscrollEffect(
         val overscrollDelta = leftForScroll - consumedByScroll
 
         if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
-            onVerticalDrag(overscrollDelta.y)
+            scope.launch {
+                onVerticalDrag(overscrollDelta.y)
+
+                overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y)
+            }
         }
 
         return consumedByPreScroll + consumedByScroll
@@ -78,7 +95,7 @@ internal class OffsetOverscrollEffect(
     }
 
     override val isInProgress: Boolean
-        get() = offsetY() != 0f
+        get() = overscrollOffset.value != 0f
 
     override val node: DelegatableNode
         get() = super.node

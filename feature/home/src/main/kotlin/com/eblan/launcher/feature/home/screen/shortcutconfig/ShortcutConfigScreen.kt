@@ -20,7 +20,6 @@ package com.eblan.launcher.feature.home.screen.shortcutconfig
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -130,6 +129,8 @@ internal fun ShortcutConfigScreen(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
 
     val alpha by remember {
@@ -153,6 +154,19 @@ internal fun ShortcutConfigScreen(
                 easing = FastOutSlowInEasing,
             ),
         )
+    }
+
+    BackHandler {
+        scope.launch {
+            offsetY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
+
+            onDismiss()
+        }
     }
 
     Surface(
@@ -179,14 +193,26 @@ internal fun ShortcutConfigScreen(
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                     eblanShortcutConfigs = eblanApplicationComponentUiState.eblanApplicationComponent.eblanShortcutConfigs,
-                    screenHeight = screenHeight,
-                    offsetY = offsetY,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                    onDismiss = onDismiss,
                     onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
+                    onVerticalDrag = { dragAmount ->
+                        scope.launch {
+                            offsetY.snapTo(offsetY.value + dragAmount)
+                        }
+                    },
+                    onDragEnd = { remaining ->
+                        scope.launch {
+                            handleApplyFling(
+                                offsetY = offsetY,
+                                remaining = remaining,
+                                screenHeight = screenHeight,
+                                onDismiss = onDismiss,
+                            )
+                        }
+                    },
                 )
             }
         }
@@ -204,8 +230,6 @@ private fun Success(
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    screenHeight: Int,
-    offsetY: Animatable<Float, AnimationVector1D>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -215,19 +239,16 @@ private fun Success(
         intSize: IntSize,
     ) -> Unit,
     onGetEblanShortcutConfigsByLabel: (String) -> Unit,
-    onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
             eblanShortcutConfigs.keys.size
         },
     )
-
-    BackHandler {
-        onDismiss()
-    }
 
     LaunchedEffect(key1 = drag) {
         if (isApplicationComponentVisible) {
@@ -277,7 +298,6 @@ private fun Success(
                 modifier = Modifier.fillMaxSize(),
                 state = horizontalPagerState,
             ) { index ->
-
                 EblanShortcutConfigsPage(
                     index = index,
                     currentPage = currentPage,
@@ -285,14 +305,13 @@ private fun Success(
                     drag = drag,
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigs = eblanShortcutConfigs,
-                    offsetY = offsetY,
-                    screenHeight = screenHeight,
                     isApplicationComponentVisible = isApplicationComponentVisible,
                     onLongPressGridItem = onLongPressGridItem,
                     onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onDismiss = onDismiss,
                     onDraggingGridItem = onDraggingGridItem,
+                    onVerticalDrag = onVerticalDrag,
+                    onDragEnd = onDragEnd,
                 )
             }
         } else {
@@ -303,14 +322,13 @@ private fun Success(
                 drag = drag,
                 gridItemSettings = gridItemSettings,
                 eblanShortcutConfigs = eblanShortcutConfigs,
-                offsetY = offsetY,
-                screenHeight = screenHeight,
                 isApplicationComponentVisible = isApplicationComponentVisible,
                 onLongPressGridItem = onLongPressGridItem,
                 onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onDismiss = onDismiss,
                 onDraggingGridItem = onDraggingGridItem,
+                onVerticalDrag = onVerticalDrag,
+                onDragEnd = onDragEnd,
             )
         }
     }
@@ -428,8 +446,6 @@ private fun EblanShortcutConfigsPage(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    offsetY: Animatable<Float, AnimationVector1D>,
-    screenHeight: Int,
     isApplicationComponentVisible: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
@@ -437,31 +453,17 @@ private fun EblanShortcutConfigsPage(
     ) -> Unit,
     onResetOverlay: () -> Unit,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
-    onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
-    val overscrollEffect = remember(key1 = scope) {
+    val overscrollEffect = remember {
         OffsetOverscrollEffect(
-            offsetY = {
-                offsetY.value
-            },
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    offsetY.snapTo(offsetY.value + dragAmount)
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = offsetY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = onDismiss,
-                    )
-                }
-            },
+            scope = scope,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 
@@ -488,21 +490,8 @@ private fun EblanShortcutConfigsPage(
 
     val nestedScrollConnection = remember {
         OffsetNestedScrollConnection(
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    offsetY.snapTo(offsetY.value + dragAmount)
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = offsetY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = onDismiss,
-                    )
-                }
-            },
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 

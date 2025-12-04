@@ -194,7 +194,6 @@ internal fun ApplicationScreen(
                     gridItemSource = gridItemSource,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
-                    offsetY = offsetY,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -222,7 +221,6 @@ private fun Success(
     gridItemSource: GridItemSource?,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    offsetY: () -> Float,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -334,7 +332,6 @@ private fun Success(
                     appDrawerSettings = appDrawerSettings,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     eblanApplicationInfos = eblanApplicationInfos,
-                    offsetY = offsetY,
                     onLongPressGridItem = onLongPressGridItem,
                     onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = { intOffset, intSize ->
@@ -360,7 +357,6 @@ private fun Success(
                 appDrawerSettings = appDrawerSettings,
                 iconPackInfoPackageName = iconPackInfoPackageName,
                 eblanApplicationInfos = eblanApplicationInfos,
-                offsetY = offsetY,
                 onLongPressGridItem = onLongPressGridItem,
                 onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = { intOffset, intSize ->
@@ -716,7 +712,6 @@ private fun EblanApplicationInfosPage(
     appDrawerSettings: AppDrawerSettings,
     iconPackInfoPackageName: String,
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
-    offsetY: () -> Float,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -730,9 +725,11 @@ private fun EblanApplicationInfosPage(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
 ) {
-    val overscrollEffect = remember {
+    val scope = rememberCoroutineScope()
+
+    val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
-            offsetY = offsetY,
+            scope = scope,
             onVerticalDrag = onVerticalDrag,
             onDragEnd = onDragEnd,
         )

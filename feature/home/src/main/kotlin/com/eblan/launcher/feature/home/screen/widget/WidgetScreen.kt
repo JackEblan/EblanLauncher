@@ -20,11 +20,9 @@ package com.eblan.launcher.feature.home.screen.widget
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -118,6 +116,8 @@ internal fun WidgetScreen(
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
     val offsetY = remember { Animatable(screenHeight.toFloat()) }
 
     val alpha by remember {
@@ -143,6 +143,19 @@ internal fun WidgetScreen(
         )
     }
 
+    BackHandler {
+        scope.launch {
+            offsetY.animateTo(
+                targetValue = screenHeight.toFloat(),
+                animationSpec = tween(
+                    easing = FastOutSlowInEasing,
+                ),
+            )
+
+            onDismiss()
+        }
+    }
+
     Surface(
         modifier = modifier
             .offset {
@@ -166,14 +179,26 @@ internal fun WidgetScreen(
                     paddingValues = paddingValues,
                     drag = drag,
                     eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    offsetY = offsetY,
-                    screenHeight = screenHeight,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onDismiss = onDismiss,
                     onDraggingGridItem = onDraggingGridItem,
                     onResetOverlay = onResetOverlay,
+                    onVerticalDrag = { dragAmount ->
+                        scope.launch {
+                            offsetY.snapTo(offsetY.value + dragAmount)
+                        }
+                    },
+                    onDragEnd = { remaining ->
+                        scope.launch {
+                            handleApplyFling(
+                                offsetY = offsetY,
+                                remaining = remaining,
+                                screenHeight = screenHeight,
+                                onDismiss = onDismiss,
+                            )
+                        }
+                    },
                 )
             }
         }
@@ -190,8 +215,6 @@ private fun Success(
     paddingValues: PaddingValues,
     drag: Drag,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
-    offsetY: Animatable<Float, AnimationVector1D>,
-    screenHeight: Int,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -201,32 +224,18 @@ private fun Success(
         intSize: IntSize,
     ) -> Unit,
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
-    onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
+    onVerticalDrag: (Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
-            offsetY = {
-                offsetY.value
-            },
-            onVerticalDrag = { dragAmount ->
-                scope.launch {
-                    offsetY.snapTo(offsetY.value + dragAmount)
-                }
-            },
-            onDragEnd = { remaining ->
-                scope.launch {
-                    handleApplyFling(
-                        offsetY = offsetY,
-                        remaining = remaining,
-                        screenHeight = screenHeight,
-                        onDismiss = onDismiss,
-                    )
-                }
-            },
+            scope = scope,
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
         )
     }
 
@@ -243,19 +252,6 @@ private fun Success(
 
                 else -> Unit
             }
-        }
-    }
-
-    BackHandler {
-        scope.launch {
-            offsetY.animateTo(
-                targetValue = screenHeight.toFloat(),
-                animationSpec = tween(
-                    easing = FastOutSlowInEasing,
-                ),
-            )
-
-            onDismiss()
         }
     }
 
@@ -279,24 +275,22 @@ private fun Success(
             onResetOverlay = onResetOverlay,
         )
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
-                overscrollEffect = overscrollEffect,
-            ) {
-                items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfoGroup ->
-                    EblanApplicationInfoItem(
-                        eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                        drag = drag,
-                        onUpdateGridItemOffset = onUpdateGridItemOffset,
-                        onLongPressGridItem = onLongPressGridItem,
-                        currentPage = currentPage,
-                        gridItemSettings = gridItemSettings,
-                        onResetOverlay = onResetOverlay,
-                    )
-                }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
+            overscrollEffect = overscrollEffect,
+        ) {
+            items(eblanAppWidgetProviderInfos.keys.toList()) { eblanApplicationInfoGroup ->
+                EblanApplicationInfoItem(
+                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    drag = drag,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onLongPressGridItem = onLongPressGridItem,
+                    currentPage = currentPage,
+                    gridItemSettings = gridItemSettings,
+                    onResetOverlay = onResetOverlay,
+                )
             }
         }
     }
@@ -474,8 +468,7 @@ private fun EblanAppWidgetProviderInfoItem(
 
     var intSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val preview =
-        eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.icon
+    val preview = eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.icon
 
     val graphicsLayer = rememberGraphicsLayer()
 

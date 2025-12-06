@@ -188,13 +188,17 @@ private fun EditApplicationInfo(
     data: GridItemData.ApplicationInfo,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
+    val icon = data.customIcon ?: data.icon
+
+    val label = data.customLabel ?: data.label
+
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
     var showCustomLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
         title = "Custom Icon",
-        subtitle = data.customIcon.toString(),
+        subtitle = icon.toString(),
         onClick = {
             showCustomLabelDialog = true
         },
@@ -202,14 +206,14 @@ private fun EditApplicationInfo(
 
     SettingsColumn(
         title = "Custom Label",
-        subtitle = data.customLabel.toString(),
+        subtitle = label.toString(),
         onClick = {
             showCustomLabelDialog = true
         },
     )
 
     if (showCustomLabelDialog) {
-        var value by remember { mutableStateOf(data.label.toString()) }
+        var value by remember { mutableStateOf(label.toString()) }
 
         var isError by remember { mutableStateOf(false) }
 
@@ -341,24 +345,26 @@ private fun EditShortcutInfo(
     data: GridItemData.ShortcutInfo,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
-    var showEditLabelDialog by remember { mutableStateOf(false) }
+    val shortLabel = data.customShortLabel ?: data.shortLabel
+
+    var showCustomShortLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
-        title = "Short Label",
-        subtitle = data.shortLabel,
+        title = "Custom Short Label",
+        subtitle = shortLabel,
         onClick = {
-            showEditLabelDialog = true
+            showCustomShortLabelDialog = true
         },
     )
 
-    if (showEditLabelDialog) {
-        var value by remember { mutableStateOf(data.shortLabel) }
+    if (showCustomShortLabelDialog) {
+        var value by remember { mutableStateOf(shortLabel) }
 
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Label",
-            textFieldTitle = "Label",
+            title = "Custom Short Label",
+            textFieldTitle = "Custom Short Label",
             value = value,
             isError = isError,
             keyboardType = KeyboardType.Text,
@@ -366,15 +372,15 @@ private fun EditShortcutInfo(
                 value = it
             },
             onDismissRequest = {
-                showEditLabelDialog = false
+                showCustomShortLabelDialog = false
             },
             onUpdateClick = {
                 if (value.isNotBlank()) {
-                    val newData = data.copy(shortLabel = value)
+                    val newData = data.copy(customShortLabel = value)
 
                     onUpdateGridItem(gridItem.copy(data = newData))
 
-                    showEditLabelDialog = false
+                    showCustomShortLabelDialog = false
                 } else {
                     isError = true
                 }

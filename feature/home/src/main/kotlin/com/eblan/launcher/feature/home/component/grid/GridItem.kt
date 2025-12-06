@@ -159,17 +159,9 @@ internal fun ApplicationInfoGridItem(
         data.icon
     }
 
-    val customIcon = if (!data.customIcon.isNullOrBlank()) {
-        data.customIcon
-    } else {
-        icon
-    }
+    val customIcon = data.customIcon ?: icon
 
-    val customLabel = if (!data.customLabel.isNullOrBlank()) {
-        data.customLabel
-    } else {
-        data.label
-    }
+    val customLabel = data.customLabel ?: data.label
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
@@ -248,6 +240,10 @@ internal fun ShortcutInfoGridItem(
     textColor: Color,
     gridItemSettings: GridItemSettings,
 ) {
+    val customIcon = data.customIcon ?: data.icon
+
+    val customShortLabel = data.customShortLabel ?: data.shortLabel
+
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
@@ -269,7 +265,7 @@ internal fun ShortcutInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = data.icon,
+                model = customIcon,
                 modifier = Modifier.matchParentSize(),
                 contentDescription = null,
             )
@@ -285,7 +281,7 @@ internal fun ShortcutInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = data.shortLabel,
+                text = customShortLabel.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

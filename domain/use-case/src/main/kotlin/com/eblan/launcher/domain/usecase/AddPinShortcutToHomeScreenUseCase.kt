@@ -110,7 +110,7 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 disabledMessage = disabledMessage,
                 eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                 customIcon = null,
-                customLabel = null,
+                customShortLabel = null,
             )
 
             val gridItem = GridItem(

@@ -60,7 +60,7 @@ sealed interface GridItemData {
         val disabledMessage: String?,
         val eblanApplicationInfoIcon: String?,
         val customIcon: String?,
-        val customLabel: String?,
+        val customShortLabel: String?,
     ) : GridItemData
 
     data class Folder(

@@ -156,7 +156,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 disabledMessage = data.disabledMessage,
                                 eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
                                 customIcon = data.customIcon,
-                                customLabel = data.customLabel,
+                                customShortLabel = data.customShortLabel,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )

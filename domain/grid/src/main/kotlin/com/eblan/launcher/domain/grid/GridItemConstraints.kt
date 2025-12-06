@@ -33,7 +33,10 @@ fun isGridItemSpanWithinBounds(
         gridItem.startRow + gridItem.rowSpan <= rows
 }
 
-fun rectanglesOverlap(moving: GridItem, other: GridItem): Boolean {
+fun rectanglesOverlap(
+    moving: GridItem,
+    other: GridItem,
+): Boolean {
     val movingLeft = moving.startColumn
     val movingRight = moving.startColumn + moving.columnSpan
     val movingTop = moving.startRow
@@ -142,14 +145,14 @@ suspend fun findAvailableRegionByPage(
                     startRow = row,
                 )
 
-                val overlaps = gridItems.any { otherGridItem ->
+                val isFree = gridItems.none { otherGridItem ->
                     otherGridItem.page == page && rectanglesOverlap(
                         moving = candidateGridItem,
                         other = otherGridItem,
                     )
                 }
 
-                if (!overlaps) {
+                if (isFree) {
                     return candidateGridItem
                 }
             }

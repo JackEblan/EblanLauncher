@@ -106,14 +106,14 @@ private fun moveGridItemToRight(
         newStartRow = moving.startRow + moving.rowSpan
     }
 
-    if (newStartRow + conflicting.rowSpan > rows) {
-        return null
+    return if (newStartRow + conflicting.rowSpan <= rows) {
+        conflicting.copy(
+            startColumn = newStartColumn,
+            startRow = newStartRow,
+        )
+    } else {
+        null
     }
-
-    return conflicting.copy(
-        startColumn = newStartColumn,
-        startRow = newStartRow,
-    )
 }
 
 private fun moveGridItemToLeft(
@@ -130,16 +130,15 @@ private fun moveGridItemToLeft(
         newStartRow = moving.startRow - 1
     }
 
-    if (newStartRow < 0) {
-        return null
+    return if (
+        newStartRow >= 0 &&
+        newStartRow + conflicting.rowSpan <= rows
+    ) {
+        conflicting.copy(
+            startColumn = newStartColumn,
+            startRow = newStartRow,
+        )
+    } else {
+        null
     }
-
-    if (newStartRow + conflicting.rowSpan > rows) {
-        return null
-    }
-
-    return conflicting.copy(
-        startColumn = newStartColumn,
-        startRow = newStartRow,
-    )
 }

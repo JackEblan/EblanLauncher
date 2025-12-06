@@ -388,11 +388,12 @@ private fun onDragEndWidget(
 
     val provider = ComponentName.unflattenFromString(data.componentName)
 
-    if (appWidgetManager.bindAppWidgetIdIfAllowed(
-            appWidgetId = appWidgetId,
-            provider = provider,
-        )
-    ) {
+    val bindAppWidgetIdIfAllowed = appWidgetManager.bindAppWidgetIdIfAllowed(
+        appWidgetId = appWidgetId,
+        provider = provider,
+    )
+
+    if (bindAppWidgetIdIfAllowed) {
         val newData = data.copy(appWidgetId = appWidgetId)
 
         onUpdateWidgetGridItemDataCache(gridItem.copy(data = newData))

@@ -53,7 +53,7 @@ import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
         EblanShortcutConfigEntity::class,
         ShortcutConfigGridItemEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 internal abstract class EblanDatabase : RoomDatabase() {

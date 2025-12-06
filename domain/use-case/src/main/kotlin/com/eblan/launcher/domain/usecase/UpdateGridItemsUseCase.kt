@@ -74,6 +74,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 label = data.label,
                                 override = gridItem.override,
                                 serialNumber = data.serialNumber,
+                                customIcon = data.customIcon,
+                                customLabel = data.customLabel,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
@@ -152,8 +154,10 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 serialNumber = data.serialNumber,
                                 isEnabled = data.isEnabled,
                                 disabledMessage = data.disabledMessage,
-                                gridItemSettings = gridItem.gridItemSettings,
                                 eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
+                                customIcon = data.customIcon,
+                                customLabel = data.customLabel,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }

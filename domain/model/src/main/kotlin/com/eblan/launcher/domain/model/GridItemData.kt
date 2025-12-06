@@ -25,6 +25,8 @@ sealed interface GridItemData {
         val packageName: String,
         val icon: String?,
         val label: String?,
+        val customIcon: String?,
+        val customLabel: String?,
     ) : GridItemData
 
     data class Widget(
@@ -57,6 +59,8 @@ sealed interface GridItemData {
         val isEnabled: Boolean,
         val disabledMessage: String?,
         val eblanApplicationInfoIcon: String?,
+        val customIcon: String?,
+        val customLabel: String?,
     ) : GridItemData
 
     data class Folder(

@@ -51,7 +51,7 @@ dependencies {
     implementation(projects.domain.useCase)
     implementation(projects.domain.repository)
     implementation(projects.feature.action)
-    implementation(projects.feature.edit)
+    implementation(projects.feature.editGridItem)
     implementation(projects.feature.home)
     implementation(projects.feature.pin)
     implementation(projects.feature.settings.appDrawer)

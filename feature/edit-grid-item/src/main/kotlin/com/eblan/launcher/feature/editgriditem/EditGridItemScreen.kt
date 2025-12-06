@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit
+package com.eblan.launcher.feature.editgriditem
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,23 +45,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.edit.model.EditUiState
+import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
 
 @Composable
-internal fun EditRoute(
+internal fun EditGridItemRoute(
     modifier: Modifier = Modifier,
-    viewModel: EditViewModel = hiltViewModel(),
+    viewModel: EditGridItemViewModel = hiltViewModel(),
     onNavigateUp: () -> Unit,
 ) {
-    val editUiState by viewModel.editUiState.collectAsStateWithLifecycle()
+    val editUiState by viewModel.editGridItemUiState.collectAsStateWithLifecycle()
 
-    EditScreen(
+    EditGridItemScreen(
         modifier = modifier,
-        editUiState = editUiState,
+        editGridItemUiState = editUiState,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
     )
@@ -69,9 +69,9 @@ internal fun EditRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun EditScreen(
+internal fun EditGridItemScreen(
     modifier: Modifier = Modifier,
-    editUiState: EditUiState,
+    editGridItemUiState: EditGridItemUiState,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
@@ -79,7 +79,7 @@ internal fun EditScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Edit")
+                    Text(text = "Edit Grid Item")
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
@@ -97,15 +97,15 @@ internal fun EditScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            when (editUiState) {
-                EditUiState.Loading -> {
+            when (editGridItemUiState) {
+                EditGridItemUiState.Loading -> {
                 }
 
-                is EditUiState.Success -> {
-                    if (editUiState.gridItem != null) {
+                is EditGridItemUiState.Success -> {
+                    if (editGridItemUiState.gridItem != null) {
                         Success(
                             modifier = modifier,
-                            gridItem = editUiState.gridItem,
+                            gridItem = editGridItemUiState.gridItem,
                             onUpdateGridItem = onUpdateGridItem,
                         )
                     }
@@ -188,24 +188,34 @@ private fun EditApplicationInfo(
     data: GridItemData.ApplicationInfo,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
-    var showEditLabelDialog by remember { mutableStateOf(false) }
+    var showCustomIconDialog by remember { mutableStateOf(false) }
+
+    var showCustomLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
-        title = "Edit Label",
-        subtitle = data.label.toString(),
+        title = "Custom Icon",
+        subtitle = data.customIcon.toString(),
         onClick = {
-            showEditLabelDialog = true
+            showCustomLabelDialog = true
         },
     )
 
-    if (showEditLabelDialog) {
+    SettingsColumn(
+        title = "Custom Label",
+        subtitle = data.customLabel.toString(),
+        onClick = {
+            showCustomLabelDialog = true
+        },
+    )
+
+    if (showCustomLabelDialog) {
         var value by remember { mutableStateOf(data.label.toString()) }
 
         var isError by remember { mutableStateOf(false) }
 
         SingleTextFieldDialog(
-            title = "Label",
-            textFieldTitle = "Label",
+            title = "Custom Label",
+            textFieldTitle = "Custom Label",
             value = value,
             isError = isError,
             keyboardType = KeyboardType.Text,
@@ -213,15 +223,15 @@ private fun EditApplicationInfo(
                 value = it
             },
             onDismissRequest = {
-                showEditLabelDialog = false
+                showCustomLabelDialog = false
             },
             onUpdateClick = {
                 if (value.isNotBlank()) {
-                    val newData = data.copy(label = value)
+                    val newData = data.copy(customLabel = value)
 
                     onUpdateGridItem(gridItem.copy(data = newData))
 
-                    showEditLabelDialog = false
+                    showCustomLabelDialog = false
                 } else {
                     isError = true
                 }

@@ -135,6 +135,8 @@ class GetPinGridItemUseCase @Inject constructor(
                         isEnabled = pinItemRequestType.isEnabled,
                         disabledMessage = pinItemRequestType.disabledMessage,
                         eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+                        customIcon = null,
+                        customLabel = null,
                     )
 
                     GridItem(

@@ -159,6 +159,18 @@ internal fun ApplicationInfoGridItem(
         data.icon
     }
 
+    val customIcon = if (!data.customIcon.isNullOrBlank()) {
+        data.customIcon
+    } else {
+        icon
+    }
+
+    val customLabel = if (!data.customLabel.isNullOrBlank()) {
+        data.customLabel
+    } else {
+        data.label
+    }
+
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
         HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
@@ -182,7 +194,7 @@ internal fun ApplicationInfoGridItem(
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
                 model = Builder(context)
-                    .data(icon)
+                    .data(customIcon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
@@ -218,7 +230,7 @@ internal fun ApplicationInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = data.label.toString(),
+                text = customLabel.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

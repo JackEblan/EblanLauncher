@@ -66,6 +66,8 @@ class DeleteGridItemUseCase @Inject constructor(
                             label = data.label,
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
+                            customIcon = data.customIcon,
+                            customLabel = data.customLabel,
                             gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )
@@ -115,8 +117,10 @@ class DeleteGridItemUseCase @Inject constructor(
                             serialNumber = data.serialNumber,
                             isEnabled = data.isEnabled,
                             disabledMessage = data.disabledMessage,
-                            gridItemSettings = gridItem.gridItemSettings,
+                            customIcon = data.customIcon,
+                            customLabel = data.customLabel,
                             eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
+                            gridItemSettings = gridItem.gridItemSettings,
                         ),
                     )
                 }

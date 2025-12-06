@@ -89,6 +89,37 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         return defaultLauncherPackage == context.packageName
     }
 
+    override suspend fun getActivityIcon(
+        componentName: String,
+        packageName: String,
+    ): ByteArray? {
+        return withContext(defaultDispatcher) {
+            try {
+                val drawable = ComponentName.unflattenFromString(componentName)
+                    ?.let(packageManager::getActivityIcon)
+
+                if (drawable != null) {
+                    androidByteArrayWrapper.createByteArray(drawable = drawable)
+                } else {
+                    null
+                }
+            } catch (_: PackageManager.NameNotFoundException) {
+                getApplicationIcon(packageName = packageName)
+            }
+        }
+    }
+
+    override fun isComponentExported(componentName: ComponentName): Boolean {
+        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
+            component = componentName
+        }
+
+        val activityInfo =
+            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
+
+        return activityInfo != null && activityInfo.exported
+    }
+
     override suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo> {
         val intents = listOf(
             Intent("app.lawnchair.icons.THEMED_ICON"),
@@ -123,36 +154,5 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                 )
             }.distinct()
         }
-    }
-
-    override suspend fun getActivityIcon(
-        componentName: String,
-        packageName: String,
-    ): ByteArray? {
-        return withContext(defaultDispatcher) {
-            try {
-                val drawable = ComponentName.unflattenFromString(componentName)
-                    ?.let(packageManager::getActivityIcon)
-
-                if (drawable != null) {
-                    androidByteArrayWrapper.createByteArray(drawable = drawable)
-                } else {
-                    null
-                }
-            } catch (_: PackageManager.NameNotFoundException) {
-                getApplicationIcon(packageName = packageName)
-            }
-        }
-    }
-
-    override fun isComponentExported(componentName: ComponentName): Boolean {
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-            component = componentName
-        }
-
-        val activityInfo =
-            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
-
-        return activityInfo != null && activityInfo.exported
     }
 }

@@ -22,10 +22,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
+import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,11 +42,13 @@ internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
+    androidPackageManagerWrapper: AndroidPackageManagerWrapper,
 ) :
     ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
-    private val _editGridItemUiState = MutableStateFlow<EditGridItemUiState>(EditGridItemUiState.Loading)
+    private val _editGridItemUiState =
+        MutableStateFlow<EditGridItemUiState>(EditGridItemUiState.Loading)
 
     val editGridItemUiState = _editGridItemUiState.onStart {
         getGridItem()
@@ -52,6 +56,19 @@ internal class EditGridItemViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = EditGridItemUiState.Loading,
+    )
+
+    private val _packageManagerIconPackInfos =
+        MutableStateFlow(emptyList<PackageManagerIconPackInfo>())
+
+    val packageManagerIconPackInfos = _packageManagerIconPackInfos.onStart {
+        _packageManagerIconPackInfos.update {
+            androidPackageManagerWrapper.getIconPackInfos()
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList(),
     )
 
     fun updateGridItem(gridItem: GridItem) {

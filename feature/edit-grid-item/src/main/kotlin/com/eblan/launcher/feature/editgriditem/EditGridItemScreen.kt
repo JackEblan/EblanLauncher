@@ -17,11 +17,18 @@
  */
 package com.eblan.launcher.feature.editgriditem
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
@@ -29,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,14 +45,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
 import com.eblan.launcher.ui.settings.GridItemSettings
@@ -59,9 +70,12 @@ internal fun EditGridItemRoute(
 ) {
     val editUiState by viewModel.editGridItemUiState.collectAsStateWithLifecycle()
 
+    val packageManagerIconPackInfos by viewModel.packageManagerIconPackInfos.collectAsStateWithLifecycle()
+
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
     )
@@ -72,6 +86,7 @@ internal fun EditGridItemRoute(
 internal fun EditGridItemScreen(
     modifier: Modifier = Modifier,
     editGridItemUiState: EditGridItemUiState,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
@@ -106,6 +121,7 @@ internal fun EditGridItemScreen(
                         Success(
                             modifier = modifier,
                             gridItem = editGridItemUiState.gridItem,
+                            packageManagerIconPackInfos = packageManagerIconPackInfos,
                             onUpdateGridItem = onUpdateGridItem,
                         )
                     }
@@ -119,6 +135,7 @@ internal fun EditGridItemScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
     Column(
@@ -136,6 +153,7 @@ private fun Success(
                     EditApplicationInfo(
                         gridItem = gridItem,
                         data = data,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         onUpdateGridItem = onUpdateGridItem,
                     )
                 }
@@ -194,18 +212,16 @@ private fun Success(
 private fun EditApplicationInfo(
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
     var showCustomLabelDialog by remember { mutableStateOf(false) }
 
-    SettingsColumn(
-        title = "Custom Icon",
-        subtitle = data.customIcon.toString(),
-        onClick = {
-            showCustomIconDialog = true
-        },
+    CustomIcon(
+        data = data,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
     )
 
     HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -462,5 +478,104 @@ private fun EditShortcutConfig(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun CustomIcon(
+    modifier: Modifier = Modifier,
+    data: GridItemData.ApplicationInfo,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column {
+                Text(text = "Custom Icon")
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(text = data.customIcon.toString())
+            }
+
+            IconButton(onClick = {
+                expanded = !expanded
+            }) {
+                Icon(
+                    imageVector = if (expanded) {
+                        EblanLauncherIcons.ArrowDropUp
+                    } else {
+                        EblanLauncherIcons.ArrowDropDown
+                    },
+                    contentDescription = null,
+                )
+            }
+        }
+
+        if (expanded) {
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsColumn(
+                title = "Gallery",
+                subtitle = "Pick icons from your gallery",
+                onClick = {},
+            )
+
+            packageManagerIconPackInfos.forEach { packageManagerIconPackInfo ->
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                IconPackItem(
+                    icon = packageManagerIconPackInfo.icon,
+                    title = packageManagerIconPackInfo.label,
+                    subtitle = packageManagerIconPackInfo.packageName,
+                    onClick = {},
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IconPackItem(
+    modifier: Modifier = Modifier,
+    icon: ByteArray?,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .fillMaxWidth()
+            .padding(15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            modifier = Modifier.size(40.dp),
+            model = icon,
+            contentDescription = null,
+        )
+
+        Spacer(modifier = Modifier.width(20.dp))
+
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }

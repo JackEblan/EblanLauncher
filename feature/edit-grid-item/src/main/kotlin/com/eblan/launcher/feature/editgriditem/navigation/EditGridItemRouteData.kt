@@ -15,17 +15,9 @@
  *   limitations under the License.
  *
  */
+package com.eblan.launcher.feature.editgriditem.navigation
 
-plugins {
-    alias(libs.plugins.com.eblan.launcher.feature)
-    alias(libs.plugins.com.eblan.launcher.libraryCompose)
-}
+import kotlinx.serialization.Serializable
 
-android {
-    namespace = "com.eblan.launcher.feature.edit"
-}
-
-dependencies {
-    implementation(projects.domain.repository)
-    implementation(projects.domain.useCase)
-}
+@Serializable
+data class EditGridItemRouteData(val id: String)

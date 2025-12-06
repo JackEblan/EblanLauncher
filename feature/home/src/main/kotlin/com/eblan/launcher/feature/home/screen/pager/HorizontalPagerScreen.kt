@@ -92,7 +92,7 @@ internal fun HorizontalPagerScreen(
     swipeY: Float,
     screenHeight: Int,
     onTapFolderGridItem: (String) -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -435,7 +435,7 @@ internal fun HorizontalPagerScreen(
             onEdit = { id ->
                 showGridItemPopup = false
 
-                onEdit(id)
+                onEditGridItem(id)
             },
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,

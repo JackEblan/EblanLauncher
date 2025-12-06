@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit
+package com.eblan.launcher.feature.editgriditem
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -24,8 +24,8 @@ import androidx.navigation.toRoute
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
-import com.eblan.launcher.feature.edit.model.EditUiState
-import com.eblan.launcher.feature.edit.navigation.EditRouteData
+import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
+import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,22 +36,22 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class EditViewModel @Inject constructor(
+internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
 ) :
     ViewModel() {
-    private val editRouteData = savedStateHandle.toRoute<EditRouteData>()
+    private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
-    private val _editUiState = MutableStateFlow<EditUiState>(EditUiState.Loading)
+    private val _editGridItemUiState = MutableStateFlow<EditGridItemUiState>(EditGridItemUiState.Loading)
 
-    val editUiState = _editUiState.onStart {
+    val editGridItemUiState = _editGridItemUiState.onStart {
         getGridItem()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = EditUiState.Loading,
+        initialValue = EditGridItemUiState.Loading,
     )
 
     fun updateGridItem(gridItem: GridItem) {
@@ -64,9 +64,9 @@ internal class EditViewModel @Inject constructor(
 
     private fun getGridItem() {
         viewModelScope.launch {
-            _editUiState.update {
-                EditUiState.Success(
-                    gridItem = getGridItemUseCase(id = editRouteData.id),
+            _editGridItemUiState.update {
+                EditGridItemUiState.Success(
+                    gridItem = getGridItemUseCase(id = editGridItemRouteData.id),
                 )
             }
         }

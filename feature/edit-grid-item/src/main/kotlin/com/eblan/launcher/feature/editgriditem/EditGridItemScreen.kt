@@ -156,6 +156,14 @@ private fun Success(
                     )
                 }
 
+                is GridItemData.ShortcutConfig -> {
+                    EditShortcutConfig(
+                        gridItem = gridItem,
+                        data = data,
+                        onUpdateGridItem = onUpdateGridItem,
+                    )
+                }
+
                 else -> Unit
             }
 
@@ -188,32 +196,30 @@ private fun EditApplicationInfo(
     data: GridItemData.ApplicationInfo,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
-    val icon = data.customIcon ?: data.icon
-
-    val label = data.customLabel ?: data.label
-
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
     var showCustomLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
         title = "Custom Icon",
-        subtitle = icon.toString(),
+        subtitle = data.customIcon.toString(),
         onClick = {
-            showCustomLabelDialog = true
+            showCustomIconDialog = true
         },
     )
 
+    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
     SettingsColumn(
         title = "Custom Label",
-        subtitle = label.toString(),
+        subtitle = data.customLabel.toString(),
         onClick = {
             showCustomLabelDialog = true
         },
     )
 
     if (showCustomLabelDialog) {
-        var value by remember { mutableStateOf(label.toString()) }
+        var value by remember { mutableStateOf(data.customLabel.toString()) }
 
         var isError by remember { mutableStateOf(false) }
 
@@ -227,6 +233,10 @@ private fun EditApplicationInfo(
                 value = it
             },
             onDismissRequest = {
+                val newData = data.copy(customLabel = null)
+
+                onUpdateGridItem(gridItem.copy(data = newData))
+
                 showCustomLabelDialog = false
             },
             onUpdateClick = {
@@ -345,20 +355,18 @@ private fun EditShortcutInfo(
     data: GridItemData.ShortcutInfo,
     onUpdateGridItem: (GridItem) -> Unit,
 ) {
-    val shortLabel = data.customShortLabel ?: data.shortLabel
-
     var showCustomShortLabelDialog by remember { mutableStateOf(false) }
 
     SettingsColumn(
         title = "Custom Short Label",
-        subtitle = shortLabel,
+        subtitle = data.customShortLabel.toString(),
         onClick = {
             showCustomShortLabelDialog = true
         },
     )
 
     if (showCustomShortLabelDialog) {
-        var value by remember { mutableStateOf(shortLabel) }
+        var value by remember { mutableStateOf(data.customShortLabel.toString()) }
 
         var isError by remember { mutableStateOf(false) }
 
@@ -372,6 +380,10 @@ private fun EditShortcutInfo(
                 value = it
             },
             onDismissRequest = {
+                val newData = data.copy(customShortLabel = null)
+
+                onUpdateGridItem(gridItem.copy(data = newData))
+
                 showCustomShortLabelDialog = false
             },
             onUpdateClick = {
@@ -381,6 +393,70 @@ private fun EditShortcutInfo(
                     onUpdateGridItem(gridItem.copy(data = newData))
 
                     showCustomShortLabelDialog = false
+                } else {
+                    isError = true
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun EditShortcutConfig(
+    gridItem: GridItem,
+    data: GridItemData.ShortcutConfig,
+    onUpdateGridItem: (GridItem) -> Unit,
+) {
+    var showShortcutIntentIconDialog by remember { mutableStateOf(false) }
+
+    var showShortcutIntentNameDialog by remember { mutableStateOf(false) }
+
+    SettingsColumn(
+        title = "Shortcut Intent Icon",
+        subtitle = data.shortcutIntentIcon.toString(),
+        onClick = {
+            showShortcutIntentIconDialog = true
+        },
+    )
+
+    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+    SettingsColumn(
+        title = "Shortcut Intent Name",
+        subtitle = data.shortcutIntentName.toString(),
+        onClick = {
+            showShortcutIntentNameDialog = true
+        },
+    )
+
+    if (showShortcutIntentNameDialog) {
+        var value by remember { mutableStateOf(data.shortcutIntentName.toString()) }
+
+        var isError by remember { mutableStateOf(false) }
+
+        SingleTextFieldDialog(
+            title = "Shortcut Intent Name",
+            textFieldTitle = "Shortcut Intent Name",
+            value = value,
+            isError = isError,
+            keyboardType = KeyboardType.Text,
+            onValueChange = {
+                value = it
+            },
+            onDismissRequest = {
+                val newData = data.copy(shortcutIntentName = null)
+
+                onUpdateGridItem(gridItem.copy(data = newData))
+
+                showShortcutIntentNameDialog = false
+            },
+            onUpdateClick = {
+                if (value.isNotBlank()) {
+                    val newData = data.copy(shortcutIntentName = value)
+
+                    onUpdateGridItem(gridItem.copy(data = newData))
+
+                    showShortcutIntentNameDialog = false
                 } else {
                     isError = true
                 }

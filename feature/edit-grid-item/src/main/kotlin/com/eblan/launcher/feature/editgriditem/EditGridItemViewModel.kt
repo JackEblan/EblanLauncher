@@ -22,14 +22,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.eblan.launcher.domain.framework.IconPackManager
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,8 +46,8 @@ internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
-    eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     private val iconPackManager: IconPackManager,
+    packageManagerWrapper: PackageManagerWrapper,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
@@ -60,7 +62,14 @@ internal class EditGridItemViewModel @Inject constructor(
         initialValue = EditGridItemUiState.Loading,
     )
 
-    val eblanIconPackInfos = eblanIconPackInfoRepository.eblanIconPackInfos.stateIn(
+    private val _packageManagerIconPackInfos =
+        MutableStateFlow(emptyList<PackageManagerIconPackInfo>())
+
+    val packageManagerIconPackInfos = _packageManagerIconPackInfos.onStart {
+        _packageManagerIconPackInfos.update {
+            packageManagerWrapper.getIconPackInfos()
+        }
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList(),
@@ -71,6 +80,8 @@ internal class EditGridItemViewModel @Inject constructor(
 
     val iconPackInfoComponents = _iconPackInfoComponents.asStateFlow()
 
+    private var iconPackInfoComponentsJob: Job? = null
+
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
             updateGridItemUseCase(gridItem = gridItem)
@@ -80,7 +91,7 @@ internal class EditGridItemViewModel @Inject constructor(
     }
 
     fun updateIconPackInfoPackageName(packageName: String) {
-        viewModelScope.launch {
+        iconPackInfoComponentsJob = viewModelScope.launch {
             _iconPackInfoComponents.update {
                 iconPackManager.parseAppFilter(packageName = packageName)
             }
@@ -88,6 +99,8 @@ internal class EditGridItemViewModel @Inject constructor(
     }
 
     fun resetIconPackInfoPackageName() {
+        iconPackInfoComponentsJob?.cancel()
+
         _iconPackInfoComponents.update {
             emptyList()
         }

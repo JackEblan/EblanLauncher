@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -62,34 +63,46 @@ internal fun IconPackInfoFilesDialog(
                 style = MaterialTheme.typography.titleLarge,
             )
 
-            LazyVerticalGrid(
-                modifier = Modifier.weight(
-                    weight = 1f,
-                    fill = false,
-                ),
-                columns = GridCells.Fixed(4),
-            ) {
-                items(iconPackInfoComponents) { iconPackInfoComponent ->
-                    println(iconPackInfoComponent)
-                    var drawable by remember { mutableStateOf<Drawable?>(null) }
-
-                    LaunchedEffect(key1 = iconPackInfoComponent) {
-                        drawable = iconPackManager.loadDrawableFromIconPack(
-                            packageName = iconPackInfoPackageName.toString(),
-                            drawableName = iconPackInfoComponent.drawable
-                        )
-                    }
-
-                    AsyncImage(
-                        model = drawable,
-                        contentDescription = null,
+            when {
+                iconPackInfoComponents.isEmpty() -> {
+                    CircularProgressIndicator(
                         modifier = Modifier
-                            .clickable {
-                                onUpdateIconPackInfoFile(iconPackInfoComponent.component)
-                            }
-                            .size(40.dp)
-                            .padding(2.dp),
+                            .align(Alignment.CenterHorizontally)
+                            .padding(10.dp),
                     )
+                }
+
+                else -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.weight(
+                            weight = 1f,
+                            fill = false,
+                        ),
+                        columns = GridCells.Fixed(5),
+                    ) {
+                        items(iconPackInfoComponents) { iconPackInfoComponent ->
+                            println(iconPackInfoComponent)
+                            var drawable by remember { mutableStateOf<Drawable?>(null) }
+
+                            LaunchedEffect(key1 = iconPackInfoComponent) {
+                                drawable = iconPackManager.loadDrawableFromIconPack(
+                                    packageName = iconPackInfoPackageName.toString(),
+                                    drawableName = iconPackInfoComponent.drawable,
+                                )
+                            }
+
+                            AsyncImage(
+                                model = drawable,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .clickable {
+                                        onUpdateIconPackInfoFile(iconPackInfoComponent.component)
+                                    }
+                                    .size(40.dp)
+                                    .padding(2.dp),
+                            )
+                        }
+                    }
                 }
             }
 

@@ -52,10 +52,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.feature.editgriditem.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
@@ -71,14 +71,14 @@ internal fun EditGridItemRoute(
 ) {
     val editUiState by viewModel.editGridItemUiState.collectAsStateWithLifecycle()
 
-    val eblanIconPackInfos by viewModel.eblanIconPackInfos.collectAsStateWithLifecycle()
+    val packageManagerIconPackInfos by viewModel.packageManagerIconPackInfos.collectAsStateWithLifecycle()
 
     val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
-        eblanIconPackInfos = eblanIconPackInfos,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         iconPackInfoComponents = iconPackInfoComponents,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
@@ -92,7 +92,7 @@ internal fun EditGridItemRoute(
 internal fun EditGridItemScreen(
     modifier: Modifier = Modifier,
     editGridItemUiState: EditGridItemUiState,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
@@ -150,7 +150,7 @@ internal fun EditGridItemScreen(
                         Success(
                             modifier = modifier,
                             gridItem = editGridItemUiState.gridItem,
-                            eblanIconPackInfos = eblanIconPackInfos,
+                            packageManagerIconPackInfos = packageManagerIconPackInfos,
                             iconPackInfoComponents = iconPackInfoComponents,
                             onUpdateGridItem = onUpdateGridItem,
                             onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
@@ -167,7 +167,7 @@ internal fun EditGridItemScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -188,7 +188,7 @@ private fun Success(
                     EditApplicationInfo(
                         gridItem = gridItem,
                         data = data,
-                        eblanIconPackInfos = eblanIconPackInfos,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         iconPackInfoComponents = iconPackInfoComponents,
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
@@ -208,7 +208,7 @@ private fun Success(
                     EditShortcutInfo(
                         gridItem = gridItem,
                         data = data,
-                        eblanIconPackInfos = eblanIconPackInfos,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         iconPackInfoComponents = iconPackInfoComponents,
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
@@ -220,7 +220,7 @@ private fun Success(
                     EditShortcutConfig(
                         gridItem = gridItem,
                         data = data,
-                        eblanIconPackInfos = eblanIconPackInfos,
+                        packageManagerIconPackInfos = packageManagerIconPackInfos,
                         iconPackInfoComponents = iconPackInfoComponents,
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
@@ -258,7 +258,7 @@ private fun Success(
 private fun EditApplicationInfo(
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -274,7 +274,7 @@ private fun EditApplicationInfo(
 
     CustomIcon(
         customIcon = data.customIcon,
-        eblanIconPackInfos = eblanIconPackInfos,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onUpdateIconPackInfoPackageName = { packageName, label ->
             iconPackInfoPackageName = packageName
 
@@ -447,7 +447,7 @@ private fun EditFolder(
 private fun EditShortcutInfo(
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -463,7 +463,7 @@ private fun EditShortcutInfo(
 
     CustomIcon(
         customIcon = data.customIcon,
-        eblanIconPackInfos = eblanIconPackInfos,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onUpdateIconPackInfoPackageName = { packageName, label ->
             iconPackInfoLabel = label
 
@@ -539,7 +539,7 @@ private fun EditShortcutInfo(
 private fun EditShortcutConfig(
     gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -555,7 +555,7 @@ private fun EditShortcutConfig(
 
     CustomIcon(
         customIcon = data.shortcutIntentIcon,
-        eblanIconPackInfos = eblanIconPackInfos,
+        packageManagerIconPackInfos = packageManagerIconPackInfos,
         onUpdateIconPackInfoPackageName = { packageName, label ->
             iconPackInfoPackageName = packageName
 
@@ -633,7 +633,7 @@ private fun EditShortcutConfig(
 private fun CustomIcon(
     modifier: Modifier = Modifier,
     customIcon: String?,
-    eblanIconPackInfos: List<EblanIconPackInfo>,
+    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onUpdateIconPackInfoPackageName: (
         packageName: String,
         label: String?,
@@ -686,7 +686,7 @@ private fun CustomIcon(
             }
         }
 
-        if (expanded && eblanIconPackInfos.isNotEmpty()) {
+        if (expanded && packageManagerIconPackInfos.isNotEmpty()) {
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
@@ -695,17 +695,17 @@ private fun CustomIcon(
                 onClick = {},
             )
 
-            eblanIconPackInfos.forEach { eblanIconPackInfo ->
+            packageManagerIconPackInfos.forEach { packageManagerIconPackInfo ->
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
                 IconPackItem(
-                    icon = eblanIconPackInfo.icon,
-                    label = eblanIconPackInfo.label,
-                    packageName = eblanIconPackInfo.packageName,
+                    icon = packageManagerIconPackInfo.icon,
+                    label = packageManagerIconPackInfo.label,
+                    packageName = packageManagerIconPackInfo.packageName,
                     onClick = {
                         onUpdateIconPackInfoPackageName(
-                            eblanIconPackInfo.packageName,
-                            eblanIconPackInfo.label,
+                            packageManagerIconPackInfo.packageName,
+                            packageManagerIconPackInfo.label,
                         )
                     },
                 )
@@ -717,7 +717,7 @@ private fun CustomIcon(
 @Composable
 private fun IconPackItem(
     modifier: Modifier = Modifier,
-    icon: String?,
+    icon: ByteArray?,
     label: String?,
     packageName: String,
     onClick: () -> Unit,

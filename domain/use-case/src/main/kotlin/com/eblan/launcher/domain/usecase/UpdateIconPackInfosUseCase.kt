@@ -102,9 +102,9 @@ class UpdateIconPackInfosUseCase @Inject constructor(
     ) {
         val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
             iconPackInfoComponent.component.contains(launcherAppsActivityInfo.componentName) ||
-                    iconPackInfoComponent.component.contains(
-                        launcherAppsActivityInfo.packageName
-                    )
+                iconPackInfoComponent.component.contains(
+                    launcherAppsActivityInfo.packageName,
+                )
         } ?: return
 
         val byteArray = iconPackManager.loadByteArrayFromIconPack(

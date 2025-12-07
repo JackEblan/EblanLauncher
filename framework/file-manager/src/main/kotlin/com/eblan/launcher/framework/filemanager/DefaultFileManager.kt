@@ -87,17 +87,6 @@ internal class DefaultFileManager @Inject constructor(
         }
     }
 
-    override suspend fun getFiles(
-        directory: File,
-        name: String,
-    ): List<String> {
-        return withContext(ioDispatcher) {
-            File(directory, name).listFiles()?.map { file ->
-                file.absolutePath
-            } ?: emptyList()
-        }
-    }
-
     private fun readFileBytes(file: File): ByteArray? {
         return if (file.exists()) {
             try {

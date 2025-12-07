@@ -275,11 +275,7 @@ private fun Success(
 
                 selectIconPackDialog = false
             },
-            onDeleteEblanIconPackInfo = { eblanIconPackInfo ->
-                onDeleteEblanIconPackInfo(eblanIconPackInfo.packageName)
-
-                selectIconPackDialog = false
-            },
+            onDeleteEblanIconPackInfo = onDeleteEblanIconPackInfo,
             onReset = {
                 onUpdateGeneralSettings(generalSettings.copy(iconPackInfoPackageName = ""))
 

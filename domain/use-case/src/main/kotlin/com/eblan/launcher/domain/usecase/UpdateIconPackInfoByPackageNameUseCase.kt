@@ -67,7 +67,7 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
 
         val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
             iconPackInfoComponent.component.contains(componentName) ||
-                    iconPackInfoComponent.component.contains(packageName)
+                iconPackInfoComponent.component.contains(packageName)
         } ?: return
 
         val byteArray = iconPackManager.loadByteArrayFromIconPack(

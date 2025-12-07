@@ -51,11 +51,19 @@ internal class DefaultIconPackManager @Inject constructor(
 
                 val resources = packageContext.resources
 
-                val xmlId = resources.getIdentifier("appfilter", "xml", packageName)
+                val xmlId = resources.getIdentifier(
+                    "appfilter",
+                    "xml",
+                    packageName,
+                )
 
-                val rawId = resources.getIdentifier("appfilter", "raw", packageName)
+                val rawId = resources.getIdentifier(
+                    "appfilter",
+                    "raw",
+                    packageName,
+                )
 
-                val input = when {
+                val autoCloseable = when {
                     xmlId != 0 -> {
                         resources.getXml(xmlId)
                     }
@@ -69,19 +77,19 @@ internal class DefaultIconPackManager @Inject constructor(
                     }
                 }
 
-                input.use { source ->
-                    when (source) {
+                autoCloseable.use { autoCloseable ->
+                    when (autoCloseable) {
                         is XmlResourceParser -> {
                             parseXml(
                                 packageName = packageName,
-                                xmlPullParser = source,
+                                xmlPullParser = autoCloseable,
                             )
                         }
 
                         is InputStream -> {
                             val xmlPullParser = XmlPullParserFactory.newInstance().newPullParser()
 
-                            xmlPullParser.setInput(source.reader())
+                            xmlPullParser.setInput(autoCloseable.reader())
 
                             parseXml(
                                 packageName = packageName,
@@ -129,7 +137,7 @@ internal class DefaultIconPackManager @Inject constructor(
 
     override suspend fun loadDrawableFromIconPack(
         packageName: String,
-        drawableName: String
+        drawableName: String,
     ): Drawable? {
         return withContext(ioDispatcher) {
             val packageContext =
@@ -152,7 +160,7 @@ internal class DefaultIconPackManager @Inject constructor(
 
     private suspend fun parseXml(
         packageName: String,
-        xmlPullParser: XmlPullParser
+        xmlPullParser: XmlPullParser,
     ): List<IconPackInfoComponent> {
         val packageContext =
             context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY)

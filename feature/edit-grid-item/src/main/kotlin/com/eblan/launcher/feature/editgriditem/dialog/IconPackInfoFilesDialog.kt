@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +43,9 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.domain.model.IconPackInfoComponent
+import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalIconPackManager
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun IconPackInfoFilesDialog(
@@ -51,8 +54,12 @@ internal fun IconPackInfoFilesDialog(
     iconPackInfoPackageName: String?,
     iconPackInfoLabel: String?,
     onDismissRequest: () -> Unit,
-    onUpdateIconPackInfoFile: (String) -> Unit,
+    onUpdateIconPackInfoFile: (ByteArray) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
+    val byteArray = LocalByteArray.current
+
     val iconPackManager = LocalIconPackManager.current
 
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
@@ -81,7 +88,6 @@ internal fun IconPackInfoFilesDialog(
                         columns = GridCells.Fixed(5),
                     ) {
                         items(iconPackInfoComponents) { iconPackInfoComponent ->
-                            println(iconPackInfoComponent)
                             var drawable by remember { mutableStateOf<Drawable?>(null) }
 
                             LaunchedEffect(key1 = iconPackInfoComponent) {
@@ -96,7 +102,19 @@ internal fun IconPackInfoFilesDialog(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .clickable {
-                                        onUpdateIconPackInfoFile(iconPackInfoComponent.component)
+                                        scope.launch {
+                                            val byteArray = drawable?.let { currentDrawable ->
+                                                byteArray.createByteArray(
+                                                    drawable = currentDrawable,
+                                                )
+                                            }
+
+                                            if (byteArray != null) {
+                                                onUpdateIconPackInfoFile(byteArray)
+                                            }
+
+                                            onDismissRequest()
+                                        }
                                     }
                                     .size(40.dp)
                                     .padding(2.dp),

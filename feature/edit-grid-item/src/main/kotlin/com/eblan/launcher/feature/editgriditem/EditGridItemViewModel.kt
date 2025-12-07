@@ -21,12 +21,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
+import com.eblan.launcher.domain.usecase.RestoreGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
@@ -48,6 +51,8 @@ internal class EditGridItemViewModel @Inject constructor(
     private val updateGridItemUseCase: UpdateGridItemUseCase,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
+    private val fileManager: FileManager,
+    private val restoreGridItemUseCase: RestoreGridItemUseCase,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
@@ -75,8 +80,7 @@ internal class EditGridItemViewModel @Inject constructor(
         initialValue = emptyList(),
     )
 
-    private val _iconPackInfoComponents =
-        MutableStateFlow(emptyList<IconPackInfoComponent>())
+    private val _iconPackInfoComponents = MutableStateFlow(emptyList<IconPackInfoComponent>())
 
     val iconPackInfoComponents = _iconPackInfoComponents.asStateFlow()
 
@@ -87,6 +91,14 @@ internal class EditGridItemViewModel @Inject constructor(
             updateGridItemUseCase(gridItem = gridItem)
 
             getGridItem()
+        }
+    }
+
+    fun restoreGridItem(gridItem: GridItem) {
+        viewModelScope.launch {
+            updateGridItem(
+                gridItem = restoreGridItemUseCase(gridItem = gridItem),
+            )
         }
     }
 
@@ -103,6 +115,24 @@ internal class EditGridItemViewModel @Inject constructor(
 
         _iconPackInfoComponents.update {
             emptyList()
+        }
+    }
+
+    fun updateIconPackInfoFile(
+        byteArray: ByteArray,
+        gridItem: GridItem,
+        data: GridItemData.ApplicationInfo,
+    ) {
+        viewModelScope.launch {
+            val customIcon = fileManager.updateAndGetFilePath(
+                directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                name = gridItem.id,
+                byteArray = byteArray,
+            )
+
+            val newData = data.copy(customIcon = customIcon)
+
+            updateGridItem(gridItem = gridItem.copy(data = newData))
         }
     }
 

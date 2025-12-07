@@ -84,6 +84,8 @@ internal fun EditGridItemRoute(
         onUpdateGridItem = viewModel::updateGridItem,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
         onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
+        onUpdateIconPackInfoFile = viewModel::updateIconPackInfoFile,
+        onRestoreGridItem = viewModel::restoreGridItem,
     )
 }
 
@@ -98,6 +100,12 @@ internal fun EditGridItemScreen(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onUpdateIconPackInfoFile: (
+        byteArray: ByteArray,
+        gridItem: GridItem,
+        data: GridItemData.ApplicationInfo,
+    ) -> Unit,
+    onRestoreGridItem: (GridItem) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -120,10 +128,7 @@ internal fun EditGridItemScreen(
                             }
 
                             is EditGridItemUiState.Success -> {
-                                restoreGridItem(
-                                    editGridItemUiState = editGridItemUiState,
-                                    onUpdateGridItem = onUpdateGridItem,
-                                )
+                                editGridItemUiState.gridItem?.let(onRestoreGridItem)
                             }
                         }
                     }) {
@@ -155,6 +160,7 @@ internal fun EditGridItemScreen(
                             onUpdateGridItem = onUpdateGridItem,
                             onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                             onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                            onUpdateIconPackInfoFile = onUpdateIconPackInfoFile,
                         )
                     }
                 }
@@ -172,6 +178,11 @@ private fun Success(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onUpdateIconPackInfoFile: (
+        byteArray: ByteArray,
+        gridItem: GridItem,
+        data: GridItemData.ApplicationInfo,
+    ) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -193,6 +204,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onUpdateIconPackInfoFile = onUpdateIconPackInfoFile,
                     )
                 }
 
@@ -213,6 +225,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onUpdateIconPackInfoFile = onUpdateIconPackInfoFile,
                     )
                 }
 
@@ -225,6 +238,7 @@ private fun Success(
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
+                        onUpdateIconPackInfoFile = onUpdateIconPackInfoFile,
                     )
                 }
 
@@ -263,6 +277,11 @@ private fun EditApplicationInfo(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onUpdateIconPackInfoFile: (
+        byteArray: ByteArray,
+        gridItem: GridItem,
+        data: GridItemData.ApplicationInfo,
+    ) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -306,12 +325,12 @@ private fun EditApplicationInfo(
 
                 showCustomIconDialog = false
             },
-            onUpdateIconPackInfoFile = { iconPackInfoFile ->
-                val newData = data.copy(customIcon = iconPackInfoFile)
-
-                onUpdateGridItem(gridItem.copy(data = newData))
-
-                showCustomIconDialog = false
+            onUpdateIconPackInfoFile = { byteArray ->
+                onUpdateIconPackInfoFile(
+                    byteArray,
+                    gridItem,
+                    data,
+                )
             },
         )
     }
@@ -452,6 +471,11 @@ private fun EditShortcutInfo(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onUpdateIconPackInfoFile: (
+        byteArray: ByteArray,
+        gridItem: GridItem,
+        data: GridItemData.ApplicationInfo,
+    ) -> Unit,
 ) {
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
@@ -493,12 +517,7 @@ private fun EditShortcutInfo(
 
                 showCustomIconDialog = false
             },
-            onUpdateIconPackInfoFile = { iconPackInfoFile ->
-                val newData = data.copy(customIcon = iconPackInfoFile)
-
-                onUpdateGridItem(gridItem.copy(data = newData))
-
-                showCustomIconDialog = false
+            onUpdateIconPackInfoFile = { byteArray ->
             },
         )
     }
@@ -544,6 +563,11 @@ private fun EditShortcutConfig(
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
+    onUpdateIconPackInfoFile: (
+        byteArray: ByteArray,
+        gridItem: GridItem,
+        data: GridItemData.ApplicationInfo,
+    ) -> Unit,
 ) {
     var showShortcutIntentIconDialog by remember { mutableStateOf(false) }
 
@@ -587,12 +611,7 @@ private fun EditShortcutConfig(
 
                 showShortcutIntentIconDialog = false
             },
-            onUpdateIconPackInfoFile = { iconPackInfoFile ->
-                val newData = data.copy(shortcutIntentIcon = iconPackInfoFile)
-
-                onUpdateGridItem(gridItem.copy(data = newData))
-
-                showShortcutIntentIconDialog = false
+            onUpdateIconPackInfoFile = { byteArray ->
             },
         )
     }
@@ -648,22 +667,6 @@ private fun CustomIcon(
                 .padding(15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (customIcon != null) {
-                AsyncImage(
-                    modifier = Modifier.size(40.dp),
-                    model = customIcon,
-                    contentDescription = null,
-                )
-            } else {
-                Icon(
-                    modifier = Modifier.size(40.dp),
-                    imageVector = EblanLauncherIcons.Image,
-                    contentDescription = null,
-                )
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = "Custom Icon")
 
@@ -749,73 +752,6 @@ private fun IconPackItem(
                 text = packageName,
                 style = MaterialTheme.typography.bodyMedium,
             )
-        }
-    }
-}
-
-private fun restoreGridItem(
-    editGridItemUiState: EditGridItemUiState.Success,
-    onUpdateGridItem: (GridItem) -> Unit,
-) {
-    editGridItemUiState.gridItem?.let { gridItem ->
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                val newData = data.copy(
-                    customIcon = null,
-                    customLabel = null,
-                )
-
-                onUpdateGridItem(
-                    gridItem.copy(
-                        override = false,
-                        data = newData,
-                    ),
-                )
-            }
-
-            is GridItemData.Folder -> {
-                onUpdateGridItem(
-                    gridItem.copy(
-                        override = false,
-                    ),
-                )
-            }
-
-            is GridItemData.ShortcutConfig -> {
-                val newData = data.copy(
-                    shortcutIntentIcon = null,
-                    shortcutIntentName = null,
-                )
-
-                onUpdateGridItem(
-                    gridItem.copy(
-                        override = false,
-                        data = newData,
-                    ),
-                )
-            }
-
-            is GridItemData.ShortcutInfo -> {
-                val newData = data.copy(
-                    customIcon = null,
-                    customShortLabel = null,
-                )
-
-                onUpdateGridItem(
-                    gridItem.copy(
-                        override = false,
-                        data = newData,
-                    ),
-                )
-            }
-
-            is GridItemData.Widget -> {
-                onUpdateGridItem(
-                    gridItem.copy(
-                        override = false,
-                    ),
-                )
-            }
         }
     }
 }

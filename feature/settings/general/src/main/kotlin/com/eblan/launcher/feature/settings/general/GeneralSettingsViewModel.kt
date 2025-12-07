@@ -19,13 +19,13 @@ package com.eblan.launcher.feature.settings.general
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
 import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
-import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,9 +41,8 @@ internal class GeneralSettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
     eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     private val deleteIconPackInfosUseCase: DeleteIconPackInfoUseCase,
-    androidPackageManagerWrapper: AndroidPackageManagerWrapper,
-) :
-    ViewModel() {
+    packageManagerWrapper: PackageManagerWrapper,
+) : ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
         GeneralSettingsUiState.Success(generalSettings = userData.generalSettings)
     }.stateIn(
@@ -57,7 +56,7 @@ internal class GeneralSettingsViewModel @Inject constructor(
 
     val packageManagerIconPackInfos = _packageManagerIconPackInfos.onStart {
         _packageManagerIconPackInfos.update {
-            androidPackageManagerWrapper.getIconPackInfos()
+            packageManagerWrapper.getIconPackInfos()
         }
     }.stateIn(
         scope = viewModelScope,

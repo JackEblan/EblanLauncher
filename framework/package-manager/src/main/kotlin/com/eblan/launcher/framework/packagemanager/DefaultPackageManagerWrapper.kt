@@ -109,17 +109,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         }
     }
 
-    override fun isComponentExported(componentName: ComponentName): Boolean {
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-            component = componentName
-        }
-
-        val activityInfo =
-            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
-
-        return activityInfo != null && activityInfo.exported
-    }
-
     override suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo> {
         val intents = listOf(
             Intent("app.lawnchair.icons.THEMED_ICON"),
@@ -154,5 +143,16 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                 )
             }.distinct()
         }
+    }
+
+    override fun isComponentExported(componentName: ComponentName): Boolean {
+        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
+            component = componentName
+        }
+
+        val activityInfo =
+            intent.resolveActivityInfo(packageManager, PackageManager.MATCH_DEFAULT_ONLY)
+
+        return activityInfo != null && activityInfo.exported
     }
 }

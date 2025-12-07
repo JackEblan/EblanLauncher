@@ -32,4 +32,6 @@ interface PackageManagerWrapper {
         componentName: String,
         packageName: String,
     ): ByteArray?
+
+    suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
 }

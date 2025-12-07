@@ -37,11 +37,11 @@ import com.eblan.launcher.designsystem.component.EblanDialogContainer
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 
 @Composable
-internal fun ImportIconPackDialog(
+internal fun ImportIconPackInfoDialog(
     modifier: Modifier = Modifier,
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     onDismissRequest: () -> Unit,
-    onUpdateIconPack: (
+    onUpdateIconPackInfo: (
         packageName: String,
         label: String,
     ) -> Unit,
@@ -74,7 +74,7 @@ internal fun ImportIconPackDialog(
                         },
                         modifier = Modifier
                             .clickable {
-                                onUpdateIconPack(
+                                onUpdateIconPackInfo(
                                     packageManagerIconPackInfo.packageName,
                                     packageManagerIconPackInfo.label,
                                 )

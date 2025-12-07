@@ -34,6 +34,11 @@ interface FileManager {
         byteArray: ByteArray,
     ): String?
 
+    suspend fun getFiles(
+        directory: File,
+        name: String,
+    ): List<String>
+
     companion object {
         const val ICONS_DIR = "icons"
 

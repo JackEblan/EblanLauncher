@@ -49,8 +49,8 @@ import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.model.Theme
-import com.eblan.launcher.feature.settings.general.dialog.ImportIconPackDialog
-import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackDialog
+import com.eblan.launcher.feature.settings.general.dialog.ImportIconPackInfoDialog
+import com.eblan.launcher.feature.settings.general.dialog.SelectIconPackInfoDialog
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import com.eblan.launcher.service.IconPackInfoService
 import com.eblan.launcher.ui.dialog.RadioOptionsDialog
@@ -241,12 +241,12 @@ private fun Success(
     }
 
     if (showImportIconPackDialog) {
-        ImportIconPackDialog(
+        ImportIconPackInfoDialog(
             packageManagerIconPackInfos = packageManagerIconPackInfos,
             onDismissRequest = {
                 showImportIconPackDialog = false
             },
-            onUpdateIconPack = { packageName, label ->
+            onUpdateIconPackInfo = { packageName, label ->
                 val intent = Intent(context, IconPackInfoService::class.java).apply {
                     putExtra(IconPackInfoService.ICON_PACK_INFO_PACKAGE_NAME, packageName)
                     putExtra(IconPackInfoService.ICON_PACK_INFO_LABEL, label)
@@ -264,7 +264,7 @@ private fun Success(
     }
 
     if (selectIconPackDialog) {
-        SelectIconPackDialog(
+        SelectIconPackInfoDialog(
             eblanIconPackInfos = eblanIconPackInfos,
             iconPackInfoPackageName = generalSettings.iconPackInfoPackageName,
             onDismissRequest = {

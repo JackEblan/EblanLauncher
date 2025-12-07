@@ -21,16 +21,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
+import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
-import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -42,9 +43,9 @@ internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
-    androidPackageManagerWrapper: AndroidPackageManagerWrapper,
-) :
-    ViewModel() {
+    eblanIconPackInfoRepository: EblanIconPackInfoRepository,
+    private val fileManager: FileManager,
+) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
     private val _editGridItemUiState =
@@ -58,24 +59,39 @@ internal class EditGridItemViewModel @Inject constructor(
         initialValue = EditGridItemUiState.Loading,
     )
 
-    private val _packageManagerIconPackInfos =
-        MutableStateFlow(emptyList<PackageManagerIconPackInfo>())
-
-    val packageManagerIconPackInfos = _packageManagerIconPackInfos.onStart {
-        _packageManagerIconPackInfos.update {
-            androidPackageManagerWrapper.getIconPackInfos()
-        }
-    }.stateIn(
+    val eblanIconPackInfos = eblanIconPackInfoRepository.eblanIconPackInfos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyList(),
     )
+
+    private val _iconPackInfoFiles =
+        MutableStateFlow(emptyList<String>())
+
+    val iconPackInfoFiles = _iconPackInfoFiles.asStateFlow()
 
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
             updateGridItemUseCase(gridItem = gridItem)
 
             getGridItem()
+        }
+    }
+
+    fun updateIconPackInfoPackageName(packageName: String) {
+        viewModelScope.launch {
+            _iconPackInfoFiles.update {
+                fileManager.getFiles(
+                    directory = fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
+                    name = packageName,
+                )
+            }
+        }
+    }
+
+    fun resetIconPackInfoPackageName() {
+        _iconPackInfoFiles.update {
+            emptyList()
         }
     }
 

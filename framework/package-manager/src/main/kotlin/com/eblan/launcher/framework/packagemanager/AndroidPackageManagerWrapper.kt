@@ -18,12 +18,9 @@
 package com.eblan.launcher.framework.packagemanager
 
 import android.content.ComponentName
-import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 
 interface AndroidPackageManagerWrapper {
     fun isDefaultLauncher(): Boolean
 
     fun isComponentExported(componentName: ComponentName): Boolean
-
-    suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
 }

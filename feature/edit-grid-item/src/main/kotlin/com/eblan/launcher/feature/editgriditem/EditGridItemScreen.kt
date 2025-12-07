@@ -112,6 +112,26 @@ internal fun EditGridItemScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = {
+                        when (editGridItemUiState) {
+                            EditGridItemUiState.Loading -> {
+                            }
+
+                            is EditGridItemUiState.Success -> {
+                                restoreGridItem(
+                                    editGridItemUiState = editGridItemUiState,
+                                    onUpdateGridItem = onUpdateGridItem,
+                                )
+                            }
+                        }
+                    }) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Restore,
+                            contentDescription = null,
+                        )
+                    }
+                },
             )
         },
     ) { paddingValues ->
@@ -305,11 +325,7 @@ private fun EditApplicationInfo(
                 value = it
             },
             onDismissRequest = {
-                val newData = data.copy(customLabel = null)
-
-                onUpdateGridItem(gridItem.copy(data = newData))
-
-                showCustomLabelDialog = false
+                showCustomLabelDialog
             },
             onUpdateClick = {
                 if (value.isNotBlank()) {
@@ -493,10 +509,6 @@ private fun EditShortcutInfo(
                 value = it
             },
             onDismissRequest = {
-                val newData = data.copy(customShortLabel = null)
-
-                onUpdateGridItem(gridItem.copy(data = newData))
-
                 showCustomShortLabelDialog = false
             },
             onUpdateClick = {
@@ -586,10 +598,6 @@ private fun EditShortcutConfig(
                 value = it
             },
             onDismissRequest = {
-                val newData = data.copy(shortcutIntentName = null)
-
-                onUpdateGridItem(gridItem.copy(data = newData))
-
                 showShortcutIntentNameDialog = false
             },
             onUpdateClick = {
@@ -626,11 +634,19 @@ private fun CustomIcon(
                 .padding(15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AsyncImage(
-                modifier = Modifier.size(40.dp),
-                model = customIcon,
-                contentDescription = null,
-            )
+            if (customIcon != null) {
+                AsyncImage(
+                    modifier = Modifier.size(40.dp),
+                    model = customIcon,
+                    contentDescription = null,
+                )
+            } else {
+                Icon(
+                    modifier = Modifier.size(40.dp),
+                    imageVector = EblanLauncherIcons.Image,
+                    contentDescription = null,
+                )
+            }
 
             Spacer(modifier = Modifier.width(10.dp))
 
@@ -657,14 +673,6 @@ private fun CustomIcon(
         }
 
         if (expanded && eblanIconPackInfos.isNotEmpty()) {
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsColumn(
-                title = "Reset",
-                subtitle = "Reset to default icon",
-                onClick = {},
-            )
-
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             SettingsColumn(
@@ -727,6 +735,73 @@ private fun IconPackItem(
                 text = packageName,
                 style = MaterialTheme.typography.bodyMedium,
             )
+        }
+    }
+}
+
+private fun restoreGridItem(
+    editGridItemUiState: EditGridItemUiState.Success,
+    onUpdateGridItem: (GridItem) -> Unit,
+) {
+    editGridItemUiState.gridItem?.let { gridItem ->
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                val newData = data.copy(
+                    customIcon = null,
+                    customLabel = null,
+                )
+
+                onUpdateGridItem(
+                    gridItem.copy(
+                        override = false,
+                        data = newData,
+                    ),
+                )
+            }
+
+            is GridItemData.Folder -> {
+                onUpdateGridItem(
+                    gridItem.copy(
+                        override = false,
+                    ),
+                )
+            }
+
+            is GridItemData.ShortcutConfig -> {
+                val newData = data.copy(
+                    shortcutIntentIcon = null,
+                    shortcutIntentName = null,
+                )
+
+                onUpdateGridItem(
+                    gridItem.copy(
+                        override = false,
+                        data = newData,
+                    ),
+                )
+            }
+
+            is GridItemData.ShortcutInfo -> {
+                val newData = data.copy(
+                    customIcon = null,
+                    customShortLabel = null,
+                )
+
+                onUpdateGridItem(
+                    gridItem.copy(
+                        override = false,
+                        data = newData,
+                    ),
+                )
+            }
+
+            is GridItemData.Widget -> {
+                onUpdateGridItem(
+                    gridItem.copy(
+                        override = false,
+                    ),
+                )
+            }
         }
     }
 }

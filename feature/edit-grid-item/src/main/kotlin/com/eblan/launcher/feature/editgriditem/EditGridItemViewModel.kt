@@ -21,8 +21,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.usecase.GetGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
@@ -44,7 +45,7 @@ internal class EditGridItemViewModel @Inject constructor(
     private val getGridItemUseCase: GetGridItemUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
     eblanIconPackInfoRepository: EblanIconPackInfoRepository,
-    private val fileManager: FileManager,
+    private val iconPackManager: IconPackManager,
 ) : ViewModel() {
     private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
 
@@ -65,10 +66,10 @@ internal class EditGridItemViewModel @Inject constructor(
         initialValue = emptyList(),
     )
 
-    private val _iconPackInfoFiles =
-        MutableStateFlow(emptyList<String>())
+    private val _iconPackInfoComponents =
+        MutableStateFlow(emptyList<IconPackInfoComponent>())
 
-    val iconPackInfoFiles = _iconPackInfoFiles.asStateFlow()
+    val iconPackInfoComponents = _iconPackInfoComponents.asStateFlow()
 
     fun updateGridItem(gridItem: GridItem) {
         viewModelScope.launch {
@@ -80,17 +81,14 @@ internal class EditGridItemViewModel @Inject constructor(
 
     fun updateIconPackInfoPackageName(packageName: String) {
         viewModelScope.launch {
-            _iconPackInfoFiles.update {
-                fileManager.getFiles(
-                    directory = fileManager.getFilesDirectory(FileManager.ICON_PACKS_DIR),
-                    name = packageName,
-                )
+            _iconPackInfoComponents.update {
+                iconPackManager.parseAppFilter(packageName = packageName)
             }
         }
     }
 
     fun resetIconPackInfoPackageName() {
-        _iconPackInfoFiles.update {
+        _iconPackInfoComponents.update {
             emptyList()
         }
     }

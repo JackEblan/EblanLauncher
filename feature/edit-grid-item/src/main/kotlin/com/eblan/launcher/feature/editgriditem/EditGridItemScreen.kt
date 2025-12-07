@@ -55,6 +55,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.feature.editgriditem.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
@@ -72,13 +73,13 @@ internal fun EditGridItemRoute(
 
     val eblanIconPackInfos by viewModel.eblanIconPackInfos.collectAsStateWithLifecycle()
 
-    val iconPackInfoFiles by viewModel.iconPackInfoFiles.collectAsStateWithLifecycle()
+    val iconPackInfoComponents by viewModel.iconPackInfoComponents.collectAsStateWithLifecycle()
 
     EditGridItemScreen(
         modifier = modifier,
         editGridItemUiState = editUiState,
         eblanIconPackInfos = eblanIconPackInfos,
-        iconPackInfoFiles = iconPackInfoFiles,
+        iconPackInfoComponents = iconPackInfoComponents,
         onNavigateUp = onNavigateUp,
         onUpdateGridItem = viewModel::updateGridItem,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
@@ -92,7 +93,7 @@ internal fun EditGridItemScreen(
     modifier: Modifier = Modifier,
     editGridItemUiState: EditGridItemUiState,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    iconPackInfoFiles: List<String>,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
     onNavigateUp: () -> Unit,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
@@ -150,7 +151,7 @@ internal fun EditGridItemScreen(
                             modifier = modifier,
                             gridItem = editGridItemUiState.gridItem,
                             eblanIconPackInfos = eblanIconPackInfos,
-                            iconPackInfoFiles = iconPackInfoFiles,
+                            iconPackInfoComponents = iconPackInfoComponents,
                             onUpdateGridItem = onUpdateGridItem,
                             onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                             onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -167,7 +168,7 @@ private fun Success(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    iconPackInfoFiles: List<String>,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -188,7 +189,7 @@ private fun Success(
                         gridItem = gridItem,
                         data = data,
                         eblanIconPackInfos = eblanIconPackInfos,
-                        iconPackInfoFiles = iconPackInfoFiles,
+                        iconPackInfoComponents = iconPackInfoComponents,
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -208,7 +209,7 @@ private fun Success(
                         gridItem = gridItem,
                         data = data,
                         eblanIconPackInfos = eblanIconPackInfos,
-                        iconPackInfoFiles = iconPackInfoFiles,
+                        iconPackInfoComponents = iconPackInfoComponents,
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -220,7 +221,7 @@ private fun Success(
                         gridItem = gridItem,
                         data = data,
                         eblanIconPackInfos = eblanIconPackInfos,
-                        iconPackInfoFiles = iconPackInfoFiles,
+                        iconPackInfoComponents = iconPackInfoComponents,
                         onUpdateGridItem = onUpdateGridItem,
                         onUpdateIconPackInfoPackageName = onUpdateIconPackInfoPackageName,
                         onResetIconPackInfoPackageName = onResetIconPackInfoPackageName,
@@ -258,7 +259,7 @@ private fun EditApplicationInfo(
     gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    iconPackInfoFiles: List<String>,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -267,12 +268,16 @@ private fun EditApplicationInfo(
 
     var showCustomLabelDialog by remember { mutableStateOf(false) }
 
+    var iconPackInfoPackageName by remember { mutableStateOf<String?>(null) }
+
     var iconPackInfoLabel by remember { mutableStateOf<String?>(null) }
 
     CustomIcon(
         customIcon = data.customIcon,
         eblanIconPackInfos = eblanIconPackInfos,
         onUpdateIconPackInfoPackageName = { packageName, label ->
+            iconPackInfoPackageName = packageName
+
             iconPackInfoLabel = label
 
             showCustomIconDialog = true
@@ -293,7 +298,8 @@ private fun EditApplicationInfo(
 
     if (showCustomIconDialog) {
         IconPackInfoFilesDialog(
-            iconPackInfoFiles = iconPackInfoFiles,
+            iconPackInfoComponents = iconPackInfoComponents,
+            iconPackInfoPackageName = iconPackInfoPackageName,
             iconPackInfoLabel = iconPackInfoLabel,
             onDismissRequest = {
                 onResetIconPackInfoPackageName()
@@ -442,7 +448,7 @@ private fun EditShortcutInfo(
     gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    iconPackInfoFiles: List<String>,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -450,6 +456,8 @@ private fun EditShortcutInfo(
     var showCustomIconDialog by remember { mutableStateOf(false) }
 
     var showCustomShortLabelDialog by remember { mutableStateOf(false) }
+
+    var iconPackInfoPackageName by remember { mutableStateOf<String?>(null) }
 
     var iconPackInfoLabel by remember { mutableStateOf<String?>(null) }
 
@@ -477,7 +485,8 @@ private fun EditShortcutInfo(
 
     if (showCustomIconDialog) {
         IconPackInfoFilesDialog(
-            iconPackInfoFiles = iconPackInfoFiles,
+            iconPackInfoComponents = iconPackInfoComponents,
+            iconPackInfoPackageName = iconPackInfoPackageName,
             iconPackInfoLabel = iconPackInfoLabel,
             onDismissRequest = {
                 onResetIconPackInfoPackageName()
@@ -531,7 +540,7 @@ private fun EditShortcutConfig(
     gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
     eblanIconPackInfos: List<EblanIconPackInfo>,
-    iconPackInfoFiles: List<String>,
+    iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateGridItem: (GridItem) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
@@ -540,12 +549,16 @@ private fun EditShortcutConfig(
 
     var showShortcutIntentNameDialog by remember { mutableStateOf(false) }
 
+    var iconPackInfoPackageName by remember { mutableStateOf<String?>(null) }
+
     var iconPackInfoLabel by remember { mutableStateOf<String?>(null) }
 
     CustomIcon(
         customIcon = data.shortcutIntentIcon,
         eblanIconPackInfos = eblanIconPackInfos,
         onUpdateIconPackInfoPackageName = { packageName, label ->
+            iconPackInfoPackageName = packageName
+
             iconPackInfoLabel = label
 
             showShortcutIntentIconDialog = true
@@ -566,7 +579,8 @@ private fun EditShortcutConfig(
 
     if (showShortcutIntentIconDialog) {
         IconPackInfoFilesDialog(
-            iconPackInfoFiles = iconPackInfoFiles,
+            iconPackInfoComponents = iconPackInfoComponents,
+            iconPackInfoPackageName = iconPackInfoPackageName,
             iconPackInfoLabel = iconPackInfoLabel,
             onDismissRequest = {
                 onResetIconPackInfoPackageName()

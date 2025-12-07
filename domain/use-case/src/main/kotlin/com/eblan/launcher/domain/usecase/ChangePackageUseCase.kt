@@ -114,6 +114,11 @@ class ChangePackageUseCase @Inject constructor(
                     icon = icon,
                     label = launcherAppsActivityInfo.applicationLabel,
                 )
+
+                updateIconPackInfoByPackageNameUseCase(
+                    packageName = launcherAppsActivityInfo.packageName,
+                    componentName = launcherAppsActivityInfo.componentName,
+                )
             }
 
             updateEblanShortcutInfosByPackageName(
@@ -125,8 +130,6 @@ class ChangePackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
-
-            updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }
     }
 
@@ -310,7 +313,7 @@ class ChangePackageUseCase @Inject constructor(
                         currentCoroutineContext().ensureActive()
 
                         newEblanShortcutInfo.packageName == packageName &&
-                            newEblanShortcutInfo.serialNumber != serialNumber
+                                newEblanShortcutInfo.serialNumber != serialNumber
                     }
 
                 if (isUnique) {
@@ -383,8 +386,8 @@ class ChangePackageUseCase @Inject constructor(
                 appWidgetManagerAppWidgetProviderInfos
                     .find { appWidgetManagerAppWidgetProviderInfo ->
                         appWidgetManagerAppWidgetProviderInfo.packageName == widgetGridItem.packageName &&
-                            appWidgetManagerAppWidgetProviderInfo.componentName == widgetGridItem.componentName &&
-                            serialNumber == widgetGridItem.serialNumber
+                                appWidgetManagerAppWidgetProviderInfo.componentName == widgetGridItem.componentName &&
+                                serialNumber == widgetGridItem.serialNumber
                     }
 
             if (appWidgetManagerAppWidgetProviderInfo != null) {
@@ -441,7 +444,7 @@ class ChangePackageUseCase @Inject constructor(
                 val launcherAppsShortcutInfo =
                     launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
                         launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                            launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                                launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsShortcutInfo != null) {
@@ -505,7 +508,7 @@ class ChangePackageUseCase @Inject constructor(
             val launcherAppsActivityInfo =
                 eblanShortcutConfigs.find { launcherAppsShortcutInfo ->
                     launcherAppsShortcutInfo.componentName == shortcutConfigGridItem.componentName &&
-                        launcherAppsShortcutInfo.serialNumber == shortcutConfigGridItem.serialNumber
+                            launcherAppsShortcutInfo.serialNumber == shortcutConfigGridItem.serialNumber
                 }
 
             if (launcherAppsActivityInfo != null) {

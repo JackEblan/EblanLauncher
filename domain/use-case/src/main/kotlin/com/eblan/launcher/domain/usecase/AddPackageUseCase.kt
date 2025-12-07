@@ -86,6 +86,11 @@ class AddPackageUseCase @Inject constructor(
                     launcherAppsActivityInfo = launcherAppsActivityInfo,
                     icon = icon,
                 )
+
+                updateIconPackInfoByPackageNameUseCase(
+                    packageName = launcherAppsActivityInfo.packageName,
+                    componentName = launcherAppsActivityInfo.componentName,
+                )
             }
 
             addEblanShortcutInfos()
@@ -94,8 +99,6 @@ class AddPackageUseCase @Inject constructor(
                 serialNumber = serialNumber,
                 packageName = packageName,
             )
-
-            updateIconPackInfoByPackageNameUseCase(packageName = packageName)
         }
     }
 

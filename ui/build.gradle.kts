@@ -27,6 +27,7 @@ android {
 
 dependencies {
     api(projects.framework.byteArray)
+    api(projects.framework.iconPackManager)
     api(projects.framework.launcherApps)
     api(projects.framework.packageManager)
     api(projects.framework.settings)

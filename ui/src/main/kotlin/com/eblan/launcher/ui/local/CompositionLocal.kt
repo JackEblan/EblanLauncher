@@ -19,6 +19,7 @@ package com.eblan.launcher.ui.local
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.iconpackmanager.AndroidIconPackManager
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
@@ -62,4 +63,8 @@ val LocalUserManager = staticCompositionLocalOf<AndroidUserManagerWrapper> {
 
 val LocalSettings = staticCompositionLocalOf<AndroidSettingsWrapper> {
     error("No AndroidSettingsWrapper provided")
+}
+
+val LocalIconPackManager = staticCompositionLocalOf<AndroidIconPackManager> {
+    error("No AndroidIconPackManager provided")
 }

@@ -114,12 +114,7 @@ internal fun EditApplicationInfoScreen(
 
                             is EditApplicationInfoUiState.Success -> {
                                 editApplicationInfoUiState.eblanApplicationInfo?.let { eblanApplicationInfo ->
-                                    onRestoreEblanApplicationInfo(
-                                        eblanApplicationInfo.copy(
-                                            customIcon = null,
-                                            customLabel = null,
-                                        ),
-                                    )
+                                    onRestoreEblanApplicationInfo(eblanApplicationInfo)
                                 }
                             }
                         }

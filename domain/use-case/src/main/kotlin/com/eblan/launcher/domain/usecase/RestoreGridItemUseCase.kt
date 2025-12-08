@@ -27,14 +27,18 @@ import java.io.File
 import javax.inject.Inject
 
 class RestoreGridItemUseCase @Inject constructor(
-    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem): GridItem {
-        return withContext(defaultDispatcher) {
+        return withContext(ioDispatcher) {
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
                     data.customIcon?.let { customIcon ->
-                        File(customIcon).delete()
+                        val customIconFile = File(customIcon)
+
+                        if (customIconFile.exists()) {
+                            File(customIcon).delete()
+                        }
                     }
 
                     val newData = data.copy(
@@ -47,7 +51,11 @@ class RestoreGridItemUseCase @Inject constructor(
 
                 is GridItemData.ShortcutConfig -> {
                     data.customIcon?.let { customIcon ->
-                        File(customIcon).delete()
+                        val customIconFile = File(customIcon)
+
+                        if (customIconFile.exists()) {
+                            File(customIcon).delete()
+                        }
                     }
 
                     val newData = data.copy(
@@ -60,7 +68,11 @@ class RestoreGridItemUseCase @Inject constructor(
 
                 is GridItemData.ShortcutInfo -> {
                     data.customIcon?.let { customIcon ->
-                        File(customIcon).delete()
+                        val customIconFile = File(customIcon)
+
+                        if (customIconFile.exists()) {
+                            File(customIcon).delete()
+                        }
                     }
 
                     val newData = data.copy(

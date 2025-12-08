@@ -28,6 +28,7 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.usecase.RestoreEblanApplicationInfoUseCase
 import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
 import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +40,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,6 +49,7 @@ internal class EditApplicationInfoViewModel @Inject constructor(
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
     private val fileManager: FileManager,
+    private val restoreEblanApplicationInfoUseCase: RestoreEblanApplicationInfoUseCase,
 ) : ViewModel() {
     private val editApplicationInfoRouteData =
         savedStateHandle.toRoute<EditApplicationInfoRouteData>()
@@ -128,11 +129,11 @@ internal class EditApplicationInfoViewModel @Inject constructor(
 
     fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
-            eblanApplicationInfo.customIcon?.let { customIcon ->
-                File(customIcon).delete()
-            }
-
-            updateEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
+            updateEblanApplicationInfo(
+                eblanApplicationInfo = restoreEblanApplicationInfoUseCase(
+                    eblanApplicationInfo = eblanApplicationInfo,
+                ),
+            )
         }
     }
 

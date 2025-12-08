@@ -30,15 +30,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,7 +54,6 @@ import com.eblan.launcher.ui.edit.CustomIcon
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun EditGridItemRoute(
@@ -102,11 +98,6 @@ internal fun EditGridItemScreen(
     ) -> Unit,
     onRestoreGridItem: (GridItem) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
-    val hostState = remember {
-        SnackbarHostState()
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -137,11 +128,7 @@ internal fun EditGridItemScreen(
                                             onRestoreGridItem(gridItem)
                                         }
 
-                                        else -> {
-                                            scope.launch {
-                                                hostState.showSnackbar("Nothing to restore")
-                                            }
-                                        }
+                                        else -> Unit
                                     }
                                 }
                             }
@@ -154,9 +141,6 @@ internal fun EditGridItemScreen(
                     }
                 },
             )
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = hostState)
         },
     ) { paddingValues ->
         Box(

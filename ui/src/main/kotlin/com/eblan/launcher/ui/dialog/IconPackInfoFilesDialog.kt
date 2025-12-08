@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.editgriditem.dialog
+package com.eblan.launcher.ui.dialog
 
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.clickable
@@ -48,13 +48,13 @@ import com.eblan.launcher.ui.local.LocalIconPackManager
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun IconPackInfoFilesDialog(
+fun IconPackInfoFilesDialog(
     modifier: Modifier = Modifier,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     iconPackInfoPackageName: String?,
     iconPackInfoLabel: String?,
     onDismissRequest: () -> Unit,
-    onUpdateIconPackInfoFile: (ByteArray) -> Unit,
+    onUpdateByteArray: (ByteArray) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -110,7 +110,7 @@ internal fun IconPackInfoFilesDialog(
                                             }
 
                                             if (byteArray != null) {
-                                                onUpdateIconPackInfoFile(byteArray)
+                                                onUpdateByteArray(byteArray)
                                             }
 
                                             onDismissRequest()

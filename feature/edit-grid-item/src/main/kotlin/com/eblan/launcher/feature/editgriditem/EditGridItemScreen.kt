@@ -17,21 +17,11 @@
  */
 package com.eblan.launcher.feature.editgriditem
 
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
@@ -39,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -51,22 +40,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
-import com.eblan.launcher.feature.editgriditem.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
+import com.eblan.launcher.ui.dialog.IconPackInfoFilesDialog
 import com.eblan.launcher.ui.dialog.SingleTextFieldDialog
+import com.eblan.launcher.ui.edit.CustomIcon
 import com.eblan.launcher.ui.settings.GridItemSettings
 import com.eblan.launcher.ui.settings.SettingsColumn
 import com.eblan.launcher.ui.settings.SettingsSwitch
@@ -364,7 +351,7 @@ private fun EditApplicationInfo(
 
                 showCustomIconDialog = false
             },
-            onUpdateIconPackInfoFile = { byteArray ->
+            onUpdateByteArray = { byteArray ->
                 onUpdateGridItemCustomIcon(
                     byteArray,
                     gridItem,
@@ -388,7 +375,7 @@ private fun EditApplicationInfo(
                 value = it
             },
             onDismissRequest = {
-                showCustomLabelDialog
+                showCustomLabelDialog = false
             },
             onUpdateClick = {
                 if (value.isNotBlank()) {
@@ -476,7 +463,7 @@ private fun EditFolder(
 
                 showCustomIconDialog = false
             },
-            onUpdateIconPackInfoFile = { byteArray ->
+            onUpdateByteArray = { byteArray ->
                 onUpdateGridItemCustomIcon(
                     byteArray,
                     gridItem,
@@ -613,7 +600,7 @@ private fun EditShortcutInfo(
 
                 showCustomIconDialog = false
             },
-            onUpdateIconPackInfoFile = { byteArray ->
+            onUpdateByteArray = { byteArray ->
                 onUpdateGridItemCustomIcon(
                     byteArray,
                     gridItem,
@@ -715,7 +702,7 @@ private fun EditShortcutConfig(
 
                 showCustomIconDialog = false
             },
-            onUpdateIconPackInfoFile = { byteArray ->
+            onUpdateByteArray = { byteArray ->
                 onUpdateGridItemCustomIcon(
                     byteArray,
                     gridItem,
@@ -753,129 +740,5 @@ private fun EditShortcutConfig(
                 }
             },
         )
-    }
-}
-
-@Composable
-private fun CustomIcon(
-    modifier: Modifier = Modifier,
-    customIcon: String?,
-    packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
-    onUpdateIconPackInfoPackageName: (
-        packageName: String,
-        label: String?,
-    ) -> Unit,
-    onUpdateUri: (String) -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-
-    val pickMedia =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) {
-                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-                context.contentResolver.takePersistableUriPermission(uri, flag)
-
-                onUpdateUri(uri.toString())
-            }
-        }
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(15.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = "Custom Icon")
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(text = customIcon ?: "None")
-            }
-
-            IconButton(onClick = {
-                expanded = !expanded
-            }) {
-                Icon(
-                    imageVector = if (expanded) {
-                        EblanLauncherIcons.ArrowDropUp
-                    } else {
-                        EblanLauncherIcons.ArrowDropDown
-                    },
-                    contentDescription = null,
-                )
-            }
-        }
-
-        if (expanded && packageManagerIconPackInfos.isNotEmpty()) {
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            SettingsColumn(
-                title = "Gallery",
-                subtitle = "Pick icons from your gallery",
-                onClick = {
-                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
-            )
-
-            packageManagerIconPackInfos.forEach { packageManagerIconPackInfo ->
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-                IconPackItem(
-                    icon = packageManagerIconPackInfo.icon,
-                    label = packageManagerIconPackInfo.label,
-                    packageName = packageManagerIconPackInfo.packageName,
-                    onClick = {
-                        onUpdateIconPackInfoPackageName(
-                            packageManagerIconPackInfo.packageName,
-                            packageManagerIconPackInfo.label,
-                        )
-                    },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun IconPackItem(
-    modifier: Modifier = Modifier,
-    icon: ByteArray?,
-    label: String?,
-    packageName: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .fillMaxWidth()
-            .padding(15.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        AsyncImage(
-            modifier = Modifier.size(40.dp),
-            model = icon,
-            contentDescription = null,
-        )
-
-        Spacer(modifier = Modifier.width(20.dp))
-
-        Column {
-            Text(
-                text = label.toString(),
-                style = MaterialTheme.typography.titleMedium,
-            )
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Text(
-                text = packageName,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
     }
 }

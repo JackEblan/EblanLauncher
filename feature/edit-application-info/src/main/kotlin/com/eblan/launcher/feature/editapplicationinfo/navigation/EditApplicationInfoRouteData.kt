@@ -15,25 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.navigation
+package com.eblan.launcher.feature.editapplicationinfo.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.home.HomeRoute
+import kotlinx.serialization.Serializable
 
-fun NavGraphBuilder.homeScreen(
-    onEditGridItem: (String) -> Unit,
-    onSettings: () -> Unit,
-    onEditApplicationInfo: (
-        serialNumber: Long,
-        packageName: String,
-    ) -> Unit,
-) {
-    composable<HomeRouteData> {
-        HomeRoute(
-            onEditGridItem = onEditGridItem,
-            onSettings = onSettings,
-            onEditApplicationInfo = onEditApplicationInfo,
-        )
-    }
-}
+@Serializable
+data class EditApplicationInfoRouteData(
+    val serialNumber: Long,
+    val packageName: String,
+)

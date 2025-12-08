@@ -15,25 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.navigation
+package com.eblan.launcher.feature.editapplicationinfo.model
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.home.HomeRoute
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 
-fun NavGraphBuilder.homeScreen(
-    onEditGridItem: (String) -> Unit,
-    onSettings: () -> Unit,
-    onEditApplicationInfo: (
-        serialNumber: Long,
-        packageName: String,
-    ) -> Unit,
-) {
-    composable<HomeRouteData> {
-        HomeRoute(
-            onEditGridItem = onEditGridItem,
-            onSettings = onSettings,
-            onEditApplicationInfo = onEditApplicationInfo,
-        )
-    }
+internal sealed interface EditApplicationInfoUiState {
+    data object Loading : EditApplicationInfoUiState
+
+    data class Success(val eblanApplicationInfo: EblanApplicationInfo?) : EditApplicationInfoUiState
 }

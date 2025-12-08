@@ -21,6 +21,7 @@ import com.eblan.launcher.data.repository.mapper.asEntity
 import com.eblan.launcher.data.repository.mapper.asModel
 import com.eblan.launcher.data.room.dao.EblanApplicationInfoDao
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -33,14 +34,6 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
                 entity.asModel()
             }
         }
-
-    override suspend fun upsertEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>) {
-        val entities = eblanApplicationInfos.map { eblanApplicationInfo ->
-            eblanApplicationInfo.asEntity()
-        }
-
-        eblanApplicationInfoDao.upsertEblanApplicationInfoEntities(entities = entities)
-    }
 
     override suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         eblanApplicationInfoDao.upsertEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
@@ -79,5 +72,13 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
             serialNumber = serialNumber,
             packageName = packageName,
         )?.asModel()
+    }
+
+    override suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>) {
+        eblanApplicationInfoDao.upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
+    }
+
+    override suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>) {
+        eblanApplicationInfoDao.deleteSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
     }
 }

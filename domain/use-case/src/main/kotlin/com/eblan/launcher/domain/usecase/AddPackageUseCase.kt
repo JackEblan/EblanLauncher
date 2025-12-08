@@ -118,6 +118,8 @@ class AddPackageUseCase @Inject constructor(
                     packageName = packageName,
                     icon = icon,
                     label = launcherAppsActivityInfo.applicationLabel,
+                    customIcon = null,
+                    customLabel = null,
                 ),
             )
         }

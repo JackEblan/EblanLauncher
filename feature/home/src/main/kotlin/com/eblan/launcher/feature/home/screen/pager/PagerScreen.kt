@@ -119,6 +119,10 @@ internal fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -393,6 +397,7 @@ internal fun PagerScreen(
                     )
                 }
             },
+            onEditApplicationInfo = onEditApplicationInfo,
         )
     }
 
@@ -455,6 +460,7 @@ internal fun PagerScreen(
                     )
                 }
             },
+            onEditApplicationInfo = onEditApplicationInfo,
         )
     }
 

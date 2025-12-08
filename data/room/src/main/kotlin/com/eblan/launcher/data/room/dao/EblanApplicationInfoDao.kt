@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
+import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -52,4 +53,10 @@ interface EblanApplicationInfoDao {
         serialNumber: Long,
         packageName: String,
     ): EblanApplicationInfoEntity?
+
+    @Upsert(entity = EblanApplicationInfoEntity::class)
+    suspend fun upsertSyncEblanApplicationInfoEntities(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
+
+    @Delete(entity = EblanApplicationInfoEntity::class)
+    suspend fun deleteSyncEblanApplicationInfoEntities(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 }

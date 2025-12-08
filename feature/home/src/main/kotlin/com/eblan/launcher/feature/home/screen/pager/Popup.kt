@@ -265,9 +265,9 @@ private fun GridItemPopupContent(
                 ],
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 onEdit = {
-                    onEdit(gridItem.id)
-
                     onDismissRequest()
+
+                    onEdit(gridItem.id)
                 },
                 onResize = {
                     onResize()

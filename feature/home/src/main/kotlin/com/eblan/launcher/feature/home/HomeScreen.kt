@@ -107,6 +107,10 @@ internal fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -175,6 +179,7 @@ internal fun HomeRoute(
         onResetPinGridItem = viewModel::resetPinGridItem,
         onUpdateShortcutConfigGridItemDataCache = viewModel::updateShortcutConfigGridItemDataCache,
         onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
+        onEditApplicationInfo = onEditApplicationInfo,
     )
 }
 
@@ -262,6 +267,10 @@ internal fun HomeScreen(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -469,6 +478,7 @@ internal fun HomeScreen(
                     },
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
         }
@@ -577,6 +587,10 @@ private fun Success(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -734,6 +748,7 @@ private fun Success(
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
 

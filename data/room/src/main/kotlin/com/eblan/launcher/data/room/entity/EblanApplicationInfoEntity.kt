@@ -26,4 +26,6 @@ data class EblanApplicationInfoEntity(
     val componentName: String,
     val icon: String?,
     val label: String?,
+    val customIcon: String?,
+    val customLabel: String?,
 )

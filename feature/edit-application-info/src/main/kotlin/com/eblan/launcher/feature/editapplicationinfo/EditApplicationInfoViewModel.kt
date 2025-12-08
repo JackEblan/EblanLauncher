@@ -15,23 +15,21 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.editgriditem
+package com.eblan.launcher.feature.editapplicationinfo
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
-import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
-import com.eblan.launcher.domain.usecase.GetGridItemUseCase
-import com.eblan.launcher.domain.usecase.RestoreGridItemUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemCustomIconUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
-import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
-import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.feature.editapplicationinfo.model.EditApplicationInfoUiState
+import com.eblan.launcher.feature.editapplicationinfo.navigation.EditApplicationInfoRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,26 +42,25 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class EditGridItemViewModel @Inject constructor(
+internal class EditApplicationInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getGridItemUseCase: GetGridItemUseCase,
-    private val updateGridItemUseCase: UpdateGridItemUseCase,
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
-    private val restoreGridItemUseCase: RestoreGridItemUseCase,
-    private val updateGridItemCustomIconUseCase: UpdateGridItemCustomIconUseCase,
+    private val fileManager: FileManager,
 ) : ViewModel() {
-    private val editGridItemRouteData = savedStateHandle.toRoute<EditGridItemRouteData>()
+    private val editApplicationInfoRouteData =
+        savedStateHandle.toRoute<EditApplicationInfoRouteData>()
 
-    private val _editGridItemUiState =
-        MutableStateFlow<EditGridItemUiState>(EditGridItemUiState.Loading)
+    private val _editApplicationInfoUiState =
+        MutableStateFlow<EditApplicationInfoUiState>(EditApplicationInfoUiState.Loading)
 
-    val editGridItemUiState = _editGridItemUiState.onStart {
-        getGridItem()
+    val editApplicationInfoUiState = _editApplicationInfoUiState.onStart {
+        getApplicationInfo()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = EditGridItemUiState.Loading,
+        initialValue = EditApplicationInfoUiState.Loading,
     )
 
     private val _packageManagerIconPackInfos =
@@ -85,19 +82,11 @@ internal class EditGridItemViewModel @Inject constructor(
 
     private var iconPackInfoComponentsJob: Job? = null
 
-    fun updateGridItem(gridItem: GridItem) {
+    fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
         viewModelScope.launch {
-            updateGridItemUseCase(gridItem = gridItem)
+            eblanApplicationInfoRepository.upsertEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
 
-            getGridItem()
-        }
-    }
-
-    fun restoreGridItem(gridItem: GridItem) {
-        viewModelScope.launch {
-            updateGridItem(
-                gridItem = restoreGridItemUseCase(gridItem = gridItem),
-            )
+            getApplicationInfo()
         }
     }
 
@@ -117,25 +106,33 @@ internal class EditGridItemViewModel @Inject constructor(
         }
     }
 
-    fun updateGridItemCustomIcon(
+    fun updateEblanApplicationInfoCustomIcon(
         byteArray: ByteArray,
-        gridItem: GridItem,
+        eblanApplicationInfo: EblanApplicationInfo,
     ) {
         viewModelScope.launch {
-            updateGridItem(
-                gridItem = updateGridItemCustomIconUseCase(
-                    gridItem = gridItem,
-                    byteArray = byteArray,
+            val customIcon = fileManager.updateAndGetFilePath(
+                directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                name = eblanApplicationInfo.packageName,
+                byteArray = byteArray,
+            )
+
+            updateEblanApplicationInfo(
+                eblanApplicationInfo = eblanApplicationInfo.copy(
+                    customIcon = customIcon,
                 ),
             )
         }
     }
 
-    private fun getGridItem() {
+    private fun getApplicationInfo() {
         viewModelScope.launch {
-            _editGridItemUiState.update {
-                EditGridItemUiState.Success(
-                    gridItem = getGridItemUseCase(id = editGridItemRouteData.id),
+            _editApplicationInfoUiState.update {
+                EditApplicationInfoUiState.Success(
+                    eblanApplicationInfo = eblanApplicationInfoRepository.getEblanApplicationInfo(
+                        serialNumber = editApplicationInfoRouteData.serialNumber,
+                        packageName = editApplicationInfoRouteData.packageName,
+                    ),
                 )
             }
         }

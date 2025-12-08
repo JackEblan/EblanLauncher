@@ -432,11 +432,7 @@ internal fun HorizontalPagerScreen(
             height = popupGridItemIntSize.height,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
-            onEdit = { id ->
-                showGridItemPopup = false
-
-                onEditGridItem(id)
-            },
+            onEdit = onEditGridItem,
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->

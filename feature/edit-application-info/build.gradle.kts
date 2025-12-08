@@ -15,25 +15,18 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.home.HomeRoute
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+}
 
-fun NavGraphBuilder.homeScreen(
-    onEditGridItem: (String) -> Unit,
-    onSettings: () -> Unit,
-    onEditApplicationInfo: (
-        serialNumber: Long,
-        packageName: String,
-    ) -> Unit,
-) {
-    composable<HomeRouteData> {
-        HomeRoute(
-            onEditGridItem = onEditGridItem,
-            onSettings = onSettings,
-            onEditApplicationInfo = onEditApplicationInfo,
-        )
-    }
+android {
+    namespace = "com.eblan.launcher.feature.editapplicationinfo"
+}
+
+dependencies {
+    implementation(projects.domain.framework)
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
 }

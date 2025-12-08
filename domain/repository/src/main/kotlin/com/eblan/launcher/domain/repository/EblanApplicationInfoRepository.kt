@@ -18,12 +18,11 @@
 package com.eblan.launcher.domain.repository
 
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
 import kotlinx.coroutines.flow.Flow
 
 interface EblanApplicationInfoRepository {
     val eblanApplicationInfos: Flow<List<EblanApplicationInfo>>
-
-    suspend fun upsertEblanApplicationInfos(eblanApplicationInfos: List<EblanApplicationInfo>)
 
     suspend fun upsertEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 
@@ -40,4 +39,8 @@ interface EblanApplicationInfoRepository {
         serialNumber: Long,
         packageName: String,
     ): EblanApplicationInfo?
+
+    suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
+
+    suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 }

@@ -69,6 +69,7 @@ internal fun EditApplicationInfoRoute(
         iconPackInfoComponents = iconPackInfoComponents,
         onUpdateEblanApplicationInfo = viewModel::updateEblanApplicationInfo,
         onUpdateIconPackInfoPackageName = viewModel::updateIconPackInfoPackageName,
+        onRestoreEblanApplicationInfo = viewModel::restoreEblanApplicationInfo,
         onResetIconPackInfoPackageName = viewModel::resetIconPackInfoPackageName,
         onUpdateGridItemCustomIcon = viewModel::updateEblanApplicationInfoCustomIcon,
     )
@@ -83,6 +84,7 @@ internal fun EditApplicationInfoScreen(
     packageManagerIconPackInfos: List<PackageManagerIconPackInfo>,
     iconPackInfoComponents: List<IconPackInfoComponent>,
     onUpdateEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
+    onRestoreEblanApplicationInfo: (EblanApplicationInfo) -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
     onResetIconPackInfoPackageName: () -> Unit,
     onUpdateGridItemCustomIcon: (
@@ -112,7 +114,7 @@ internal fun EditApplicationInfoScreen(
 
                             is EditApplicationInfoUiState.Success -> {
                                 editApplicationInfoUiState.eblanApplicationInfo?.let { eblanApplicationInfo ->
-                                    onUpdateEblanApplicationInfo(
+                                    onRestoreEblanApplicationInfo(
                                         eblanApplicationInfo.copy(
                                             customIcon = null,
                                             customLabel = null,

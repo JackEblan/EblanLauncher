@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -122,6 +123,16 @@ internal class EditApplicationInfoViewModel @Inject constructor(
                     customIcon = customIcon,
                 ),
             )
+        }
+    }
+
+    fun restoreEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
+        viewModelScope.launch {
+            eblanApplicationInfo.customIcon?.let { customIcon ->
+                File(customIcon).delete()
+            }
+
+            updateEblanApplicationInfo(eblanApplicationInfo = eblanApplicationInfo)
         }
     }
 

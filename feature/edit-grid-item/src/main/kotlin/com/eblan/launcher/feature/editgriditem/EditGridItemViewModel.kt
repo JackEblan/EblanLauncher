@@ -26,7 +26,7 @@ import com.eblan.launcher.domain.framework.PackageManagerWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
-import com.eblan.launcher.domain.usecase.GetGridItemUseCase
+import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
 import com.eblan.launcher.domain.usecase.RestoreGridItemUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemCustomIconUseCase
 import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
@@ -37,6 +37,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -46,7 +47,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class EditGridItemViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getGridItemUseCase: GetGridItemUseCase,
+    private val getHomeDataUseCase: GetHomeDataUseCase,
     private val updateGridItemUseCase: UpdateGridItemUseCase,
     private val iconPackManager: IconPackManager,
     packageManagerWrapper: PackageManagerWrapper,
@@ -133,9 +134,13 @@ internal class EditGridItemViewModel @Inject constructor(
 
     private fun getGridItem() {
         viewModelScope.launch {
+            val gridItem = getHomeDataUseCase().first().gridItems.find { gridItem ->
+                gridItem.id == editGridItemRouteData.id
+            }
+
             _editGridItemUiState.update {
                 EditGridItemUiState.Success(
-                    gridItem = getGridItemUseCase(id = editGridItemRouteData.id),
+                    gridItem = gridItem,
                 )
             }
         }

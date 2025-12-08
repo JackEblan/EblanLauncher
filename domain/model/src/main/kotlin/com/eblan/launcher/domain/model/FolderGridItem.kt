@@ -29,5 +29,6 @@ data class FolderGridItem(
     val label: String,
     val override: Boolean,
     val pageCount: Int,
+    val icon: String?,
     val gridItemSettings: GridItemSettings,
 )

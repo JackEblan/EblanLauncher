@@ -361,12 +361,20 @@ private fun GridItemContent(
             }
 
             is GridItemData.Folder -> {
-                Icon(
-                    imageVector = EblanLauncherIcons.Folder,
-                    contentDescription = null,
-                    modifier = modifier,
-                    tint = currentTextColor,
-                )
+                if (data.icon != null) {
+                    AsyncImage(
+                        model = data.icon,
+                        contentDescription = null,
+                        modifier = modifier,
+                    )
+                } else {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Folder,
+                        contentDescription = null,
+                        modifier = modifier,
+                        tint = currentTextColor,
+                    )
+                }
             }
 
             is GridItemData.ShortcutConfig -> {

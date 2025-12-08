@@ -19,54 +19,67 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 
-class RestoreGridItemUseCase @Inject constructor(
+class UpdateGridItemCustomIconUseCase @Inject constructor(
+    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(gridItem: GridItem): GridItem {
+    suspend operator fun invoke(
+        gridItem: GridItem,
+        byteArray: ByteArray,
+    ): GridItem {
         return withContext(defaultDispatcher) {
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    data.customIcon?.let { customIcon ->
-                        File(customIcon).delete()
-                    }
-
-                    val newData = data.copy(
-                        customIcon = null,
-                        customLabel = null,
+                    val customIcon = fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                        name = gridItem.id,
+                        byteArray = byteArray,
                     )
+
+                    val newData = data.copy(customIcon = customIcon)
+
+                    gridItem.copy(data = newData)
+                }
+
+                is GridItemData.Folder -> {
+                    val icon = fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                        name = gridItem.id,
+                        byteArray = byteArray,
+                    )
+
+                    val newData = data.copy(icon = icon)
 
                     gridItem.copy(data = newData)
                 }
 
                 is GridItemData.ShortcutConfig -> {
-                    data.customIcon?.let { customIcon ->
-                        File(customIcon).delete()
-                    }
-
-                    val newData = data.copy(
-                        customIcon = null,
-                        customLabel = null,
+                    val customIcon = fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                        name = gridItem.id,
+                        byteArray = byteArray,
                     )
+
+                    val newData = data.copy(customIcon = customIcon)
 
                     gridItem.copy(data = newData)
                 }
 
                 is GridItemData.ShortcutInfo -> {
-                    data.customIcon?.let { customIcon ->
-                        File(customIcon).delete()
-                    }
-
-                    val newData = data.copy(
-                        customIcon = null,
-                        customShortLabel = null,
+                    val customIcon = fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
+                        name = gridItem.id,
+                        byteArray = byteArray,
                     )
+
+                    val newData = data.copy(customIcon = customIcon)
 
                     gridItem.copy(data = newData)
                 }

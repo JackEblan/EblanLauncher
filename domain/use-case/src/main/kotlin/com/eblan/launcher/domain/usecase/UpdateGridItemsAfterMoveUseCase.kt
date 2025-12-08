@@ -147,6 +147,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         label = "Unknown",
                         gridItems = emptyList(),
                         pageCount = pageCount,
+                        icon = null,
                     )
 
                     gridItems[conflictingIndex] = firstGridItem
@@ -167,6 +168,7 @@ class UpdateGridItemsAfterMoveUseCase @Inject constructor(
                         label = "Unknown",
                         gridItems = emptyList(),
                         pageCount = newPageCount,
+                        icon = null,
                     )
 
                     gridItems[conflictingIndex] = firstGridItem

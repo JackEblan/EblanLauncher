@@ -46,4 +46,10 @@ data class FolderGridItemWrapperEntity(
         entityColumn = "folderId",
     )
     val folders: List<FolderGridItemEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "folderId",
+    )
+    val shortcutConfigs: List<ShortcutConfigGridItemEntity>,
 )

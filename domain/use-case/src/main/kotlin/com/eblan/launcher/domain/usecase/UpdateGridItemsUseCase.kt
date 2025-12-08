@@ -95,6 +95,7 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 label = data.label,
                                 override = gridItem.override,
                                 pageCount = data.pageCount,
+                                icon = data.icon,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
@@ -184,6 +185,8 @@ class UpdateGridItemsUseCase @Inject constructor(
                                 shortcutIntentName = data.shortcutIntentName,
                                 shortcutIntentIcon = data.shortcutIntentIcon,
                                 shortcutIntentUri = data.shortcutIntentUri,
+                                customIcon = data.customIcon,
+                                customLabel = data.customLabel,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )

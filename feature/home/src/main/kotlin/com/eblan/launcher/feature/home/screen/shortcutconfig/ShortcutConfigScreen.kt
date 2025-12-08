@@ -691,6 +691,8 @@ private fun EblanShortcutConfigItem(
                                 shortcutIntentName = null,
                                 shortcutIntentIcon = null,
                                 shortcutIntentUri = null,
+                                customIcon = null,
+                                customLabel = null,
                             )
 
                             onLongPressGridItem(

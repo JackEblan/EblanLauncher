@@ -37,5 +37,7 @@ data class ShortcutConfigGridItem(
     val shortcutIntentName: String?,
     val shortcutIntentIcon: String?,
     val shortcutIntentUri: String?,
+    val customIcon: String?,
+    val customLabel: String?,
     val gridItemSettings: GridItemSettings,
 )

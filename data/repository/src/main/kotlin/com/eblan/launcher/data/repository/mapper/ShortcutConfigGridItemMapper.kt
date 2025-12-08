@@ -42,6 +42,8 @@ internal fun ShortcutConfigGridItemEntity.asGridItem(): GridItem {
             shortcutIntentName = shortcutIntentName,
             shortcutIntentIcon = shortcutIntentIcon,
             shortcutIntentUri = shortcutIntentUri,
+            customIcon = customIcon,
+            customLabel = customLabel,
         ),
         associate = associate,
         override = override,
@@ -70,6 +72,8 @@ internal fun ShortcutConfigGridItemEntity.asModel(): ShortcutConfigGridItem {
         shortcutIntentName = shortcutIntentName,
         shortcutIntentIcon = shortcutIntentIcon,
         shortcutIntentUri = shortcutIntentUri,
+        customIcon = customIcon,
+        customLabel = customLabel,
         gridItemSettings = gridItemSettings,
     )
 }
@@ -95,6 +99,8 @@ internal fun ShortcutConfigGridItem.asEntity(): ShortcutConfigGridItemEntity {
         shortcutIntentName = shortcutIntentName,
         shortcutIntentIcon = shortcutIntentIcon,
         shortcutIntentUri = shortcutIntentUri,
+        customIcon = customIcon,
+        customLabel = customLabel,
         gridItemSettings = gridItemSettings,
     )
 }

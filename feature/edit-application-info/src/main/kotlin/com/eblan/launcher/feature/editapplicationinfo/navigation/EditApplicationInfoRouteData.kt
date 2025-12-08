@@ -15,9 +15,12 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit.navigation
+package com.eblan.launcher.feature.editapplicationinfo.navigation
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class EditRouteData(val id: String)
+data class EditApplicationInfoRouteData(
+    val serialNumber: Long,
+    val packageName: String,
+)

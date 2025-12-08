@@ -92,7 +92,7 @@ internal fun HorizontalPagerScreen(
     swipeY: Float,
     screenHeight: Int,
     onTapFolderGridItem: (String) -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -432,11 +432,7 @@ internal fun HorizontalPagerScreen(
             height = popupGridItemIntSize.height,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
-            onEdit = { id ->
-                showGridItemPopup = false
-
-                onEdit(id)
-            },
+            onEdit = onEditGridItem,
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->

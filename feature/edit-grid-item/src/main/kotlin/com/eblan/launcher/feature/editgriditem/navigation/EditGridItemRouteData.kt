@@ -15,21 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit.navigation
+package com.eblan.launcher.feature.editgriditem.navigation
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.eblan.launcher.feature.edit.EditRoute
+import kotlinx.serialization.Serializable
 
-fun NavController.navigateToEditScreen(id: String) {
-    navigate(EditRouteData(id = id))
-}
-
-fun NavGraphBuilder.editScreen(
-    onNavigateUp: () -> Unit,
-) {
-    composable<EditRouteData> {
-        EditRoute(onNavigateUp = onNavigateUp)
-    }
-}
+@Serializable
+data class EditGridItemRouteData(val id: String)

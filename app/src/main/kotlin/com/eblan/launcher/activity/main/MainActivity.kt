@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.eblan.launcher.activity.settings.SettingsActivity
 import com.eblan.launcher.designsystem.theme.EblanLauncherTheme
 import com.eblan.launcher.framework.bytearray.AndroidByteArrayWrapper
+import com.eblan.launcher.framework.iconpackmanager.AndroidIconPackManager
 import com.eblan.launcher.framework.launcherapps.AndroidLauncherAppsWrapper
 import com.eblan.launcher.framework.launcherapps.PinItemRequestWrapper
 import com.eblan.launcher.framework.packagemanager.AndroidPackageManagerWrapper
@@ -44,6 +45,7 @@ import com.eblan.launcher.navigation.MainNavHost
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalByteArray
+import com.eblan.launcher.ui.local.LocalIconPackManager
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPackageManager
 import com.eblan.launcher.ui.local.LocalPinItemRequest
@@ -83,6 +85,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var androidSettingsWrapper: AndroidSettingsWrapper
 
+    @Inject
+    lateinit var androidIconPackManager: AndroidIconPackManager
+
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,6 +104,7 @@ class MainActivity : ComponentActivity() {
                 LocalByteArray provides androidByteArrayWrapper,
                 LocalUserManager provides androidUserManagerWrapper,
                 LocalSettings provides androidSettingsWrapper,
+                LocalIconPackManager provides androidIconPackManager,
             ) {
                 val navController = rememberNavController()
 

@@ -259,13 +259,6 @@ internal suspend fun handleShortcutConfigLauncherResult(
         return
     }
 
-    val extras = result.data?.extras
-    if (extras != null) {
-        for (key in extras.keySet()) {
-            println("IntentKeys, Key: $key Value: ${extras[key]}")
-        }
-    }
-
     val name = result.data?.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
 
     val icon = result.data?.let { intent ->

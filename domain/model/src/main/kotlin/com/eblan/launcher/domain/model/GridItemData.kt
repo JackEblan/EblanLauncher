@@ -25,6 +25,8 @@ sealed interface GridItemData {
         val packageName: String,
         val icon: String?,
         val label: String?,
+        val customIcon: String?,
+        val customLabel: String?,
     ) : GridItemData
 
     data class Widget(
@@ -57,6 +59,8 @@ sealed interface GridItemData {
         val isEnabled: Boolean,
         val disabledMessage: String?,
         val eblanApplicationInfoIcon: String?,
+        val customIcon: String?,
+        val customShortLabel: String?,
     ) : GridItemData
 
     data class Folder(
@@ -64,6 +68,7 @@ sealed interface GridItemData {
         val label: String,
         val gridItems: List<GridItem>,
         val pageCount: Int,
+        val icon: String?,
     ) : GridItemData
 
     data class ShortcutConfig(
@@ -77,5 +82,7 @@ sealed interface GridItemData {
         val shortcutIntentName: String?,
         val shortcutIntentIcon: String?,
         val shortcutIntentUri: String?,
+        val customIcon: String?,
+        val customLabel: String?,
     ) : GridItemData
 }

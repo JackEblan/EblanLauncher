@@ -28,10 +28,10 @@ interface PackageManagerWrapper {
 
     fun getComponentName(packageName: String): String?
 
-    suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
-
     suspend fun getActivityIcon(
         componentName: String,
         packageName: String,
     ): ByteArray?
+
+    suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo>
 }

@@ -34,35 +34,51 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(packageName: String) {
+    suspend operator fun invoke(
+        packageName: String,
+        componentName: String,
+    ) {
         withContext(ioDispatcher) {
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
             if (iconPackInfoPackageName.isNotEmpty()) {
-                val iconPackDirectory = File(
-                    fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-                    iconPackInfoPackageName,
-                ).apply { if (!exists()) mkdirs() }
-
-                val appFilter =
-                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
-
-                val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
-                    iconPackInfoComponent.component.contains(packageName)
-                } ?: return@withContext
-
-                val byteArray = iconPackManager.loadByteArrayFromIconPack(
-                    packageName = iconPackInfoPackageName,
-                    drawableName = iconPackInfoComponent.drawable,
-                ) ?: return@withContext
-
-                fileManager.updateAndGetFilePath(
-                    directory = iconPackDirectory,
-                    name = packageName,
-                    byteArray = byteArray,
+                cacheIconPackFile(
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    componentName = componentName,
+                    packageName = packageName,
                 )
             }
         }
+    }
+
+    private suspend fun cacheIconPackFile(
+        iconPackInfoPackageName: String,
+        componentName: String,
+        packageName: String,
+    ) {
+        val iconPackDirectory = File(
+            fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+            iconPackInfoPackageName,
+        ).apply { if (!exists()) mkdirs() }
+
+        val appFilter =
+            iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+
+        val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
+            iconPackInfoComponent.component.contains(componentName) ||
+                iconPackInfoComponent.component.contains(packageName)
+        } ?: return
+
+        val byteArray = iconPackManager.loadByteArrayFromIconPack(
+            packageName = iconPackInfoPackageName,
+            drawableName = iconPackInfoComponent.drawable,
+        ) ?: return
+
+        fileManager.updateAndGetFilePath(
+            directory = iconPackDirectory,
+            name = componentName,
+            byteArray = byteArray,
+        )
     }
 }

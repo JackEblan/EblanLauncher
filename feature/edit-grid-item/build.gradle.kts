@@ -22,10 +22,10 @@ plugins {
 }
 
 android {
-    namespace = "com.eblan.launcher.feature.edit"
+    namespace = "com.eblan.launcher.feature.editgriditem"
 }
 
 dependencies {
-    implementation(projects.domain.repository)
+    implementation(projects.domain.framework)
     implementation(projects.domain.useCase)
 }

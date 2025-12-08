@@ -89,6 +89,26 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
         return defaultLauncherPackage == context.packageName
     }
 
+    override suspend fun getActivityIcon(
+        componentName: String,
+        packageName: String,
+    ): ByteArray? {
+        return withContext(defaultDispatcher) {
+            try {
+                val drawable = ComponentName.unflattenFromString(componentName)
+                    ?.let(packageManager::getActivityIcon)
+
+                if (drawable != null) {
+                    androidByteArrayWrapper.createByteArray(drawable = drawable)
+                } else {
+                    null
+                }
+            } catch (_: PackageManager.NameNotFoundException) {
+                getApplicationIcon(packageName = packageName)
+            }
+        }
+    }
+
     override suspend fun getIconPackInfos(): List<PackageManagerIconPackInfo> {
         val intents = listOf(
             Intent("app.lawnchair.icons.THEMED_ICON"),
@@ -122,26 +142,6 @@ internal class DefaultPackageManagerWrapper @Inject constructor(
                         .toString(),
                 )
             }.distinct()
-        }
-    }
-
-    override suspend fun getActivityIcon(
-        componentName: String,
-        packageName: String,
-    ): ByteArray? {
-        return withContext(defaultDispatcher) {
-            try {
-                val drawable = ComponentName.unflattenFromString(componentName)
-                    ?.let(packageManager::getActivityIcon)
-
-                if (drawable != null) {
-                    androidByteArrayWrapper.createByteArray(drawable = drawable)
-                } else {
-                    null
-                }
-            } catch (_: PackageManager.NameNotFoundException) {
-                getApplicationIcon(packageName = packageName)
-            }
         }
     }
 

@@ -56,11 +56,16 @@ internal fun FolderGridItemWrapperEntity.asFolderGridItemData(): GridItemData.Fo
         folderGridItemEntity.asGridItem()
     }
 
+    val shortcutConfigs = shortcutConfigs.map { shortcutConfigGridItemEntity ->
+        shortcutConfigGridItemEntity.asGridItem()
+    }
+
     return GridItemData.Folder(
         id = folderGridItemEntity.id,
         label = folderGridItemEntity.label,
-        gridItems = applicationInfos + widgets + shortcutInfos + folders,
+        gridItems = applicationInfos + widgets + shortcutInfos + folders + shortcutConfigs,
         pageCount = folderGridItemEntity.pageCount,
+        icon = folderGridItemEntity.icon,
     )
 }
 
@@ -79,6 +84,7 @@ internal fun FolderGridItemEntity.asGridItem(): GridItem {
             label = label,
             gridItems = emptyList(),
             pageCount = pageCount,
+            icon = icon,
         ),
         associate = associate,
         override = override,
@@ -99,6 +105,7 @@ internal fun FolderGridItem.asEntity(): FolderGridItemEntity {
         label = label,
         override = override,
         pageCount = pageCount,
+        icon = icon,
         gridItemSettings = gridItemSettings,
     )
 }

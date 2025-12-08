@@ -30,5 +30,9 @@ internal interface IconPackManagerModule {
 
     @Binds
     @Singleton
-    fun fileManager(impl: DefaultIconPackManager): IconPackManager
+    fun iconPackManager(impl: DefaultIconPackManager): IconPackManager
+
+    @Binds
+    @Singleton
+    fun androidIconPackManager(impl: DefaultIconPackManager): AndroidIconPackManager
 }

@@ -43,13 +43,13 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanIconPackInfo
 
 @Composable
-internal fun SelectIconPackDialog(
+internal fun SelectIconPackInfoDialog(
     modifier: Modifier = Modifier,
     eblanIconPackInfos: List<EblanIconPackInfo>,
     iconPackInfoPackageName: String,
     onDismissRequest: () -> Unit,
     onUpdateIconPackInfoPackageName: (String) -> Unit,
-    onDeleteEblanIconPackInfo: (EblanIconPackInfo) -> Unit,
+    onDeleteEblanIconPackInfo: (String) -> Unit,
     onReset: () -> Unit,
 ) {
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
@@ -111,7 +111,7 @@ internal fun SelectIconPackDialog(
                                 trailingContent = {
                                     IconButton(
                                         onClick = {
-                                            onDeleteEblanIconPackInfo(eblanIconPackInfo)
+                                            onDeleteEblanIconPackInfo(eblanIconPackInfo.packageName)
                                         },
                                         enabled = iconPackInfoPackageName != eblanIconPackInfo.packageName,
                                     ) {

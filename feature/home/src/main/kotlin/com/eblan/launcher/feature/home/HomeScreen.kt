@@ -105,8 +105,12 @@ import kotlin.math.roundToInt
 internal fun HomeRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
@@ -156,7 +160,7 @@ internal fun HomeRoute(
         onResetGridCacheAfterMoveFolder = viewModel::resetGridCacheAfterMoveFolder,
         onCancelGridCache = viewModel::cancelGridCache,
         onCancelFolderDragGridCache = viewModel::cancelFolderDragGridCache,
-        onEdit = onEdit,
+        onEditGridItem = onEditGridItem,
         onSettings = onSettings,
         onEditPage = viewModel::showPageCache,
         onSaveEditPage = viewModel::saveEditPage,
@@ -175,6 +179,7 @@ internal fun HomeRoute(
         onResetPinGridItem = viewModel::resetPinGridItem,
         onUpdateShortcutConfigGridItemDataCache = viewModel::updateShortcutConfigGridItemDataCache,
         onUpdateShortcutConfigIntoShortcutInfoGridItem = viewModel::updateShortcutConfigIntoShortcutInfoGridItem,
+        onEditApplicationInfo = onEditApplicationInfo,
     )
 }
 
@@ -229,7 +234,7 @@ internal fun HomeScreen(
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
@@ -262,6 +267,10 @@ internal fun HomeScreen(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -436,7 +445,7 @@ internal fun HomeScreen(
                     onResetGridCacheAfterMove = onResetGridCacheAfterMove,
                     onCancelGridCache = onCancelGridCache,
                     onCancelFolderDragGridCache = onCancelFolderDragGridCache,
-                    onEdit = onEdit,
+                    onEditGridItem = onEditGridItem,
                     onSettings = onSettings,
                     onEditPage = onEditPage,
                     onSaveEditPage = onSaveEditPage,
@@ -469,6 +478,7 @@ internal fun HomeScreen(
                     },
                     onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                     onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
         }
@@ -540,7 +550,7 @@ private fun Success(
     onResetGridCacheAfterMoveFolder: () -> Unit,
     onCancelGridCache: () -> Unit,
     onCancelFolderDragGridCache: () -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
     onSaveEditPage: (
@@ -577,6 +587,10 @@ private fun Success(
     onUpdateShortcutConfigIntoShortcutInfoGridItem: (
         moveGridItemResult: MoveGridItemResult,
         pinItemRequestType: PinItemRequestType.ShortcutInfo,
+    ) -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
     ) -> Unit,
 ) {
     val context = LocalContext.current
@@ -714,7 +728,7 @@ private fun Success(
                             Screen.Drag,
                         )
                     },
-                    onEdit = onEdit,
+                    onEditGridItem = onEditGridItem,
                     onResize = {
                         onShowGridCache(
                             homeData.gridItems,
@@ -734,6 +748,7 @@ private fun Success(
                     onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
                     onDeleteGridItem = onDeleteGridItem,
                     onResetOverlay = onResetOverlay,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
 

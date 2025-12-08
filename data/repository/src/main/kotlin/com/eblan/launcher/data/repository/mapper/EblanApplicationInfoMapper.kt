@@ -27,6 +27,8 @@ fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
         componentName = componentName,
         icon = icon,
         label = label,
+        customIcon = customIcon,
+        customLabel = customLabel,
     )
 }
 
@@ -37,5 +39,7 @@ fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
         componentName = componentName,
         icon = icon,
         label = label,
+        customIcon = customIcon,
+        customLabel = customLabel,
     )
 }

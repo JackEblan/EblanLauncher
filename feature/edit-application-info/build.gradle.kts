@@ -15,12 +15,18 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.edit.model
 
-import com.eblan.launcher.domain.model.GridItem
+plugins {
+    alias(libs.plugins.com.eblan.launcher.feature)
+    alias(libs.plugins.com.eblan.launcher.libraryCompose)
+}
 
-internal sealed interface EditUiState {
-    data object Loading : EditUiState
+android {
+    namespace = "com.eblan.launcher.feature.editapplicationinfo"
+}
 
-    data class Success(val gridItem: GridItem?) : EditUiState
+dependencies {
+    implementation(projects.domain.framework)
+    implementation(projects.domain.repository)
+    implementation(projects.domain.useCase)
 }

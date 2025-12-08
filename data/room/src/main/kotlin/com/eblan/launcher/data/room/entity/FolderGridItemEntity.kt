@@ -37,5 +37,6 @@ data class FolderGridItemEntity(
     val label: String,
     val override: Boolean,
     val pageCount: Int,
+    val icon: String?,
     @Embedded val gridItemSettings: GridItemSettings,
 )

@@ -102,7 +102,7 @@ internal fun PagerScreen(
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     onTapFolderGridItem: (String) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onEdit: (String) -> Unit,
+    onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
     onSettings: () -> Unit,
     onEditPage: (List<GridItem>) -> Unit,
@@ -119,6 +119,10 @@ internal fun PagerScreen(
     onGetEblanAppWidgetProviderInfosByLabel: (String) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -327,7 +331,7 @@ internal fun PagerScreen(
         swipeY = swipeY.value,
         screenHeight = screenHeight,
         onTapFolderGridItem = onTapFolderGridItem,
-        onEdit = onEdit,
+        onEditGridItem = onEditGridItem,
         onResize = onResize,
         onSettings = onSettings,
         onEditPage = onEditPage,
@@ -393,6 +397,7 @@ internal fun PagerScreen(
                     )
                 }
             },
+            onEditApplicationInfo = onEditApplicationInfo,
         )
     }
 
@@ -455,6 +460,7 @@ internal fun PagerScreen(
                     )
                 }
             },
+            onEditApplicationInfo = onEditApplicationInfo,
         )
     }
 

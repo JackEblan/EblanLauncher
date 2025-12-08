@@ -159,6 +159,10 @@ internal fun ApplicationInfoGridItem(
         data.icon
     }
 
+    val customIcon = data.customIcon ?: icon
+
+    val customLabel = data.customLabel ?: data.label
+
     val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
         HorizontalAlignment.Start -> Alignment.Start
         HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
@@ -181,9 +185,7 @@ internal fun ApplicationInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context)
-                    .data(icon)
-                    .addLastModifiedToFileCacheKey(true)
+                model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
@@ -218,7 +220,7 @@ internal fun ApplicationInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = data.label.toString(),
+                text = customLabel.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
@@ -250,6 +252,10 @@ internal fun ShortcutInfoGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
+    val customIcon = data.customIcon ?: data.icon
+
+    val customShortLabel = data.customShortLabel ?: data.shortLabel
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
@@ -257,7 +263,7 @@ internal fun ShortcutInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = data.icon,
+                model = customIcon,
                 modifier = Modifier.matchParentSize(),
                 contentDescription = null,
             )
@@ -273,7 +279,7 @@ internal fun ShortcutInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = data.shortLabel,
+                text = customShortLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
@@ -347,10 +353,8 @@ internal fun FolderGridItem(
                                 }
 
                             AsyncImage(
-                                model = Builder(context)
-                                    .data(icon)
-                                    .addLastModifiedToFileCacheKey(true)
-                                    .build(),
+                                model = Builder(context).data(icon)
+                                    .addLastModifiedToFileCacheKey(true).build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )
@@ -373,17 +377,31 @@ internal fun FolderGridItem(
                         }
 
                         is GridItemData.Folder -> {
-                            Icon(
-                                imageVector = EblanLauncherIcons.Folder,
-                                contentDescription = null,
-                                modifier = gridItemModifier,
-                                tint = textColor,
-                            )
+                            if (currentData.icon != null) {
+                                AsyncImage(
+                                    model = currentData.icon,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = EblanLauncherIcons.Folder,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                    tint = textColor,
+                                )
+                            }
                         }
 
                         is GridItemData.ShortcutConfig -> {
+                            val icon = when {
+                                currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
+                                currentData.activityIcon != null -> currentData.activityIcon
+                                else -> currentData.applicationIcon
+                            }
+
                             AsyncImage(
-                                model = currentData.applicationIcon,
+                                model = currentData.customIcon ?: icon,
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )
@@ -391,6 +409,12 @@ internal fun FolderGridItem(
                     }
                 }
             }
+        } else if (data.icon != null) {
+            AsyncImage(
+                model = data.icon,
+                contentDescription = null,
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+            )
         } else {
             Icon(
                 imageVector = EblanLauncherIcons.Folder,
@@ -468,11 +492,21 @@ internal fun ShortcutConfigGridItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
+    val icon = when {
+        data.shortcutIntentIcon != null -> data.shortcutIntentIcon
+        data.activityIcon != null -> data.activityIcon
+        else -> data.applicationIcon
+    }
+
     val label = when {
         data.shortcutIntentName != null -> data.shortcutIntentName
         data.activityLabel != null -> data.activityLabel
         else -> data.applicationLabel
     }
+
+    val customIcon = data.customIcon ?: icon
+
+    val customLabel = data.customLabel ?: label
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -481,9 +515,7 @@ internal fun ShortcutConfigGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context)
-                    .data(data.shortcutIntentIcon ?: data.applicationIcon)
-                    .addLastModifiedToFileCacheKey(true)
+                model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
@@ -506,7 +538,7 @@ internal fun ShortcutConfigGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = label.toString(),
+                text = customLabel.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

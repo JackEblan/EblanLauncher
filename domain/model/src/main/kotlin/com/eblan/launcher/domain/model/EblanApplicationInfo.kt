@@ -23,4 +23,6 @@ data class EblanApplicationInfo(
     val packageName: String,
     val icon: String?,
     val label: String?,
+    val customIcon: String?,
+    val customLabel: String?,
 )

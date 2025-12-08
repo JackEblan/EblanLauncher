@@ -19,23 +19,29 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.GridItem
+import com.eblan.launcher.domain.model.EblanApplicationInfo
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
-class GetGridItemUseCase @Inject constructor(
-    private val getHomeDataUseCase: GetHomeDataUseCase,
-    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+class RestoreEblanApplicationInfoUseCase @Inject constructor(
+    @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(id: String): GridItem? {
-        return withContext(defaultDispatcher) {
-            val gridItems = getHomeDataUseCase().first().gridItems
+    suspend operator fun invoke(eblanApplicationInfo: EblanApplicationInfo): EblanApplicationInfo {
+        return withContext(ioDispatcher) {
+            eblanApplicationInfo.customIcon?.let { customIcon ->
+                val customIconFile = File(customIcon)
 
-            gridItems.find { gridItem ->
-                gridItem.id == id
+                if (customIconFile.exists()) {
+                    File(customIcon).delete()
+                }
             }
+
+            eblanApplicationInfo.copy(
+                customIcon = null,
+                customLabel = null,
+            )
         }
     }
 }

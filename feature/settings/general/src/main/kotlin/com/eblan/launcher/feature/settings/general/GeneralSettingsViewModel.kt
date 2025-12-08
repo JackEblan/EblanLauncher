@@ -42,8 +42,7 @@ internal class GeneralSettingsViewModel @Inject constructor(
     eblanIconPackInfoRepository: EblanIconPackInfoRepository,
     private val deleteIconPackInfosUseCase: DeleteIconPackInfoUseCase,
     packageManagerWrapper: PackageManagerWrapper,
-) :
-    ViewModel() {
+) : ViewModel() {
     val generalSettingsUiState = userDataRepository.userData.map { userData ->
         GeneralSettingsUiState.Success(generalSettings = userData.generalSettings)
     }.stateIn(

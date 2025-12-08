@@ -90,13 +90,12 @@ class ChangeShortcutsUseCase @Inject constructor(
                 eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
                     ensureActive()
 
-                    val shortcutFile = File(
-                        fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        eblanShortcutInfo.shortcutId,
-                    )
+                    eblanShortcutInfo.icon?.let { icon ->
+                        val iconFile = File(icon)
 
-                    if (shortcutFile.exists()) {
-                        shortcutFile.delete()
+                        if (iconFile.exists()) {
+                            iconFile.delete()
+                        }
                     }
                 }
             }

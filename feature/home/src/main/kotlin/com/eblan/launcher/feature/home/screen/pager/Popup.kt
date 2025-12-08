@@ -265,9 +265,9 @@ private fun GridItemPopupContent(
                 ],
                 hasShortcutHostPermission = hasShortcutHostPermission,
                 onEdit = {
-                    onEdit(gridItem.id)
-
                     onDismissRequest()
+
+                    onEdit(gridItem.id)
                 },
                 onResize = {
                     onResize()
@@ -299,28 +299,7 @@ private fun GridItemPopupContent(
             )
         }
 
-        is GridItemData.Folder -> {
-            GridItemMenu(
-                modifier = modifier,
-                onEdit = {
-                    onEdit(gridItem.id)
-
-                    onDismissRequest()
-                },
-                onResize = {
-                    onResize()
-
-                    onDismissRequest()
-                },
-                onDelete = {
-                    onDeleteGridItem(gridItem)
-
-                    onDismissRequest()
-                },
-            )
-        }
-
-        is GridItemData.ShortcutInfo -> {
+        is GridItemData.Folder, is GridItemData.ShortcutInfo, is GridItemData.ShortcutConfig -> {
             GridItemMenu(
                 modifier = modifier,
                 onEdit = {
@@ -347,22 +326,6 @@ private fun GridItemPopupContent(
             WidgetGridItemMenu(
                 modifier = modifier,
                 showResize = showResize,
-                onResize = {
-                    onResize()
-
-                    onDismissRequest()
-                },
-                onDelete = {
-                    onDeleteGridItem(gridItem)
-
-                    onDismissRequest()
-                },
-            )
-        }
-
-        is GridItemData.ShortcutConfig -> {
-            ShortcutConfigGridItemMenu(
-                modifier = modifier,
                 onResize = {
                     onResize()
 
@@ -516,40 +479,6 @@ private fun WidgetGridItemMenu(
                             contentDescription = null,
                         )
                     }
-                }
-
-                IconButton(
-                    onClick = onDelete,
-                ) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Delete,
-                        contentDescription = null,
-                    )
-                }
-            }
-        },
-    )
-}
-
-@Composable
-private fun ShortcutConfigGridItemMenu(
-    modifier: Modifier = Modifier,
-    onResize: () -> Unit,
-    onDelete: () -> Unit,
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
-        shadowElevation = 2.dp,
-        content = {
-            Row {
-                IconButton(
-                    onClick = onResize,
-                ) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Resize,
-                        contentDescription = null,
-                    )
                 }
 
                 IconButton(

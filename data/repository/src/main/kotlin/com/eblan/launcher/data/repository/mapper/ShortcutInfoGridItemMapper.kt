@@ -41,6 +41,8 @@ internal fun ShortcutInfoGridItemEntity.asGridItem(): GridItem {
             isEnabled = isEnabled,
             disabledMessage = disabledMessage,
             eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+            customIcon = customIcon,
+            customShortLabel = customShortLabel,
         ),
         associate = associate,
         override = override,
@@ -68,6 +70,8 @@ internal fun ShortcutInfoGridItemEntity.asModel(): ShortcutInfoGridItem {
         isEnabled = isEnabled,
         disabledMessage = disabledMessage,
         gridItemSettings = gridItemSettings,
+        customIcon = customIcon,
+        customShortLabel = customShortLabel,
         eblanApplicationInfoIcon = eblanApplicationInfoIcon,
     )
 }
@@ -93,5 +97,7 @@ internal fun ShortcutInfoGridItem.asEntity(): ShortcutInfoGridItemEntity {
         isEnabled = isEnabled,
         disabledMessage = disabledMessage,
         eblanApplicationInfoIcon = eblanApplicationInfoIcon,
+        customIcon = customIcon,
+        customShortLabel = customShortLabel,
     )
 }

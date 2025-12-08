@@ -36,5 +36,7 @@ data class ShortcutInfoGridItem(
     val isEnabled: Boolean,
     val disabledMessage: String?,
     val eblanApplicationInfoIcon: String?,
+    val customIcon: String?,
+    val customShortLabel: String?,
     val gridItemSettings: GridItemSettings,
 )

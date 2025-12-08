@@ -37,6 +37,8 @@ internal fun ApplicationInfoGridItemEntity.asGridItem(): GridItem {
             packageName = packageName,
             icon = icon,
             label = label,
+            customIcon = customIcon,
+            customLabel = customLabel,
         ),
         associate = associate,
         override = override,
@@ -60,6 +62,8 @@ internal fun ApplicationInfoGridItemEntity.asModel(): ApplicationInfoGridItem {
         label = label,
         override = override,
         serialNumber = serialNumber,
+        customIcon = customIcon,
+        customLabel = customLabel,
         gridItemSettings = gridItemSettings,
     )
 }
@@ -79,6 +83,8 @@ internal fun ApplicationInfoGridItem.asEntity(): ApplicationInfoGridItemEntity {
         packageName = packageName,
         icon = icon,
         label = label,
+        customIcon = customIcon,
+        customLabel = customLabel,
         override = override,
         gridItemSettings = gridItemSettings,
     )

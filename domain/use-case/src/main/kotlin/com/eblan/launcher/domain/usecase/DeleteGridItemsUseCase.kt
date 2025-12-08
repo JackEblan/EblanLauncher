@@ -74,6 +74,8 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 label = data.label,
                                 override = gridItem.override,
                                 serialNumber = data.serialNumber,
+                                customIcon = data.customIcon,
+                                customLabel = data.customLabel,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
@@ -98,6 +100,7 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 label = data.label,
                                 override = gridItem.override,
                                 pageCount = data.pageCount,
+                                icon = data.icon,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
@@ -157,8 +160,10 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 serialNumber = data.serialNumber,
                                 isEnabled = data.isEnabled,
                                 disabledMessage = data.disabledMessage,
-                                gridItemSettings = gridItem.gridItemSettings,
+                                customIcon = data.customIcon,
+                                customShortLabel = data.customShortLabel,
                                 eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
+                                gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )
                     }
@@ -185,6 +190,8 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 shortcutIntentName = data.shortcutIntentName,
                                 shortcutIntentIcon = data.shortcutIntentIcon,
                                 shortcutIntentUri = data.shortcutIntentUri,
+                                customIcon = data.customIcon,
+                                customLabel = data.customLabel,
                                 gridItemSettings = gridItem.gridItemSettings,
                             ),
                         )

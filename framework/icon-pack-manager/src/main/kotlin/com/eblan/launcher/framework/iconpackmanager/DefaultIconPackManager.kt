@@ -20,6 +20,7 @@ package com.eblan.launcher.framework.iconpackmanager
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.XmlResourceParser
+import android.graphics.drawable.Drawable
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.framework.IconPackManager
@@ -39,7 +40,7 @@ internal class DefaultIconPackManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val androidByteArrayWrapper: AndroidByteArrayWrapper,
-) : IconPackManager {
+) : IconPackManager, AndroidIconPackManager {
     override suspend fun parseAppFilter(packageName: String): List<IconPackInfoComponent> {
         return withContext(ioDispatcher) {
             try {
@@ -50,11 +51,19 @@ internal class DefaultIconPackManager @Inject constructor(
 
                 val resources = packageContext.resources
 
-                val xmlId = resources.getIdentifier("appfilter", "xml", packageName)
+                val xmlId = resources.getIdentifier(
+                    "appfilter",
+                    "xml",
+                    packageName,
+                )
 
-                val rawId = resources.getIdentifier("appfilter", "raw", packageName)
+                val rawId = resources.getIdentifier(
+                    "appfilter",
+                    "raw",
+                    packageName,
+                )
 
-                val input = when {
+                val autoCloseable = when {
                     xmlId != 0 -> {
                         resources.getXml(xmlId)
                     }
@@ -68,18 +77,24 @@ internal class DefaultIconPackManager @Inject constructor(
                     }
                 }
 
-                input.use { source ->
-                    when (source) {
+                autoCloseable.use { autoCloseable ->
+                    when (autoCloseable) {
                         is XmlResourceParser -> {
-                            parseXml(xmlPullParser = source)
+                            parseXml(
+                                packageName = packageName,
+                                xmlPullParser = autoCloseable,
+                            )
                         }
 
                         is InputStream -> {
                             val xmlPullParser = XmlPullParserFactory.newInstance().newPullParser()
 
-                            xmlPullParser.setInput(source.reader())
+                            xmlPullParser.setInput(autoCloseable.reader())
 
-                            parseXml(xmlPullParser = xmlPullParser)
+                            parseXml(
+                                packageName = packageName,
+                                xmlPullParser = xmlPullParser,
+                            )
                         }
 
                         else -> {
@@ -89,6 +104,7 @@ internal class DefaultIconPackManager @Inject constructor(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+
                 emptyList()
             }
         }
@@ -119,7 +135,38 @@ internal class DefaultIconPackManager @Inject constructor(
         }
     }
 
-    private suspend fun parseXml(xmlPullParser: XmlPullParser): List<IconPackInfoComponent> {
+    override suspend fun loadDrawableFromIconPack(
+        packageName: String,
+        drawableName: String,
+    ): Drawable? {
+        return withContext(ioDispatcher) {
+            val packageContext =
+                context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY)
+
+            val resources = packageContext.resources
+
+            val id = resources.getIdentifier(drawableName, "drawable", packageName)
+
+            if (id > 0) {
+                resources.getDrawable(
+                    id,
+                    packageContext.theme,
+                )
+            } else {
+                null
+            }
+        }
+    }
+
+    private suspend fun parseXml(
+        packageName: String,
+        xmlPullParser: XmlPullParser,
+    ): List<IconPackInfoComponent> {
+        val packageContext =
+            context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY)
+
+        val resources = packageContext.resources
+
         val iconPackInfoComponents = mutableListOf<IconPackInfoComponent>()
 
         var eventType = xmlPullParser.eventType
@@ -132,12 +179,16 @@ internal class DefaultIconPackManager @Inject constructor(
                     val drawable = xmlPullParser.getAttributeValue(null, "drawable")
 
                     if (!component.isNullOrBlank() && !drawable.isNullOrBlank()) {
-                        iconPackInfoComponents.add(
-                            IconPackInfoComponent(
-                                component = component,
-                                drawable = drawable,
-                            ),
-                        )
+                        val resId = resources.getIdentifier(drawable, "drawable", packageName)
+
+                        if (resId > 0) {
+                            iconPackInfoComponents.add(
+                                IconPackInfoComponent(
+                                    component = component,
+                                    drawable = drawable,
+                                ),
+                            )
+                        }
                     }
                 }
 
@@ -145,6 +196,8 @@ internal class DefaultIconPackManager @Inject constructor(
             }
         }
 
-        return iconPackInfoComponents
+        return iconPackInfoComponents.distinctBy { iconPackInfoComponent ->
+            iconPackInfoComponent.drawable
+        }
     }
 }

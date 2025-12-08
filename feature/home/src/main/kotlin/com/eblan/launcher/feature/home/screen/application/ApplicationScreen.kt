@@ -154,6 +154,10 @@ internal fun ApplicationScreen(
     onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val alpha by remember {
         derivedStateOf {
@@ -202,6 +206,7 @@ internal fun ApplicationScreen(
                     onResetOverlay = onResetOverlay,
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
+                    onEditApplicationInfo = onEditApplicationInfo,
                 )
             }
         }
@@ -235,6 +240,10 @@ private fun Success(
     onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -384,6 +393,7 @@ private fun Success(
             onDismissRequest = {
                 showPopupApplicationMenu = false
             },
+            onEditApplicationInfo = onEditApplicationInfo,
         )
     }
 }
@@ -536,6 +546,10 @@ private fun EblanApplicationInfoItem(
         paddingValues.calculateTopPadding().roundToPx()
     }
 
+    val customIcon = eblanApplicationInfo.customIcon ?: icon
+
+    val customLabel = eblanApplicationInfo.customLabel ?: eblanApplicationInfo.label
+
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Cancel || drag == Drag.End) {
             alpha = 1f
@@ -587,6 +601,8 @@ private fun EblanApplicationInfoItem(
                                     packageName = eblanApplicationInfo.packageName,
                                     icon = eblanApplicationInfo.icon,
                                     label = eblanApplicationInfo.label,
+                                    customIcon = null,
+                                    customLabel = null,
                                 )
 
                             onLongPressGridItem(
@@ -664,7 +680,7 @@ private fun EblanApplicationInfoItem(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(icon)
+                    .data(customIcon)
                     .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
@@ -690,7 +706,7 @@ private fun EblanApplicationInfoItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = eblanApplicationInfo.label.toString(),
+                text = customLabel.toString(),
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
@@ -852,6 +868,10 @@ private fun PopupApplicationInfoMenu(
     gridItem: GridItem?,
     popupMenuIntSize: IntSize,
     onDismissRequest: () -> Unit,
+    onEditApplicationInfo: (
+        serialNumber: Long,
+        packageName: String,
+    ) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -896,6 +916,14 @@ private fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
+                onEdit = {
+                    onDismissRequest()
+
+                    onEditApplicationInfo(
+                        applicationInfo.serialNumber,
+                        applicationInfo.packageName,
+                    )
+                },
             )
         },
     )
@@ -905,6 +933,7 @@ private fun PopupApplicationInfoMenu(
 private fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     onApplicationInfo: () -> Unit,
+    onEdit: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -915,7 +944,19 @@ private fun ApplicationInfoMenu(
                 IconButton(
                     onClick = onApplicationInfo,
                 ) {
-                    Icon(imageVector = EblanLauncherIcons.Info, contentDescription = null)
+                    Icon(
+                        imageVector = EblanLauncherIcons.Info,
+                        contentDescription = null,
+                    )
+                }
+
+                IconButton(
+                    onClick = onEdit,
+                ) {
+                    Icon(
+                        imageVector = EblanLauncherIcons.Edit,
+                        contentDescription = null,
+                    )
                 }
             }
         },

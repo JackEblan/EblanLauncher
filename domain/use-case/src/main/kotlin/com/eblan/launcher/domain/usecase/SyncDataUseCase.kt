@@ -156,13 +156,12 @@ class SyncDataUseCase @Inject constructor(
                 }
 
                 if (isUnique) {
-                    val icon = File(
-                        fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        eblanApplicationInfoToDelete.packageName,
-                    )
+                    eblanApplicationInfoToDelete.icon?.let { icon ->
+                        val iconFile = File(icon)
 
-                    if (icon.exists()) {
-                        icon.delete()
+                        if (iconFile.exists()) {
+                            iconFile.delete()
+                        }
                     }
 
                     val iconPacksDirectory = File(
@@ -171,7 +170,10 @@ class SyncDataUseCase @Inject constructor(
                     )
 
                     val iconPackFile =
-                        File(iconPacksDirectory, eblanApplicationInfoToDelete.packageName)
+                        File(
+                            iconPacksDirectory,
+                            eblanApplicationInfoToDelete.packageName,
+                        )
 
                     if (iconPackFile.exists()) {
                         iconPackFile.delete()
@@ -250,25 +252,23 @@ class SyncDataUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
             )
 
-            eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
+            eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfoToDelete ->
                 currentCoroutineContext().ensureActive()
 
-                val icon = File(
-                    fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                    eblanAppWidgetProviderInfo.packageName,
-                )
+                eblanAppWidgetProviderInfoToDelete.icon?.let { icon ->
+                    val iconFile = File(icon)
 
-                val widgetFile = File(
-                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                    eblanAppWidgetProviderInfo.componentName.replace("/", "-"),
-                )
-
-                if (icon.exists()) {
-                    icon.delete()
+                    if (iconFile.exists()) {
+                        iconFile.delete()
+                    }
                 }
 
-                if (widgetFile.exists()) {
-                    widgetFile.delete()
+                eblanAppWidgetProviderInfoToDelete.preview?.let { preview ->
+                    val previewFile = File(preview)
+
+                    if (previewFile.exists()) {
+                        previewFile.delete()
+                    }
                 }
             }
         }
@@ -314,16 +314,15 @@ class SyncDataUseCase @Inject constructor(
                 eblanShortcutInfos = eblanShortcutInfosToDelete,
             )
 
-            eblanShortcutInfosToDelete.forEach { eblanShortcutInfo ->
+            eblanShortcutInfosToDelete.forEach { eblanShortcutInfoToDelete ->
                 currentCoroutineContext().ensureActive()
 
-                val shortcutFile = File(
-                    fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                    eblanShortcutInfo.shortcutId,
-                )
+                eblanShortcutInfoToDelete.icon?.let { icon ->
+                    val iconFile = File(icon)
 
-                if (shortcutFile.exists()) {
-                    shortcutFile.delete()
+                    if (iconFile.exists()) {
+                        iconFile.delete()
+                    }
                 }
             }
         }

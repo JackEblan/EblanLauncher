@@ -230,23 +230,21 @@ class ChangePackageUseCase @Inject constructor(
                 eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfosToDelete,
             )
 
-            eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfo ->
-                val icon = File(
-                    fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                    eblanAppWidgetProviderInfo.packageName,
-                )
+            eblanAppWidgetProviderInfosToDelete.forEach { eblanAppWidgetProviderInfoToDelete ->
+                eblanAppWidgetProviderInfoToDelete.icon?.let { icon ->
+                    val iconFile = File(icon)
 
-                val widgetFile = File(
-                    fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                    eblanAppWidgetProviderInfo.componentName.replace("/", "-"),
-                )
-
-                if (icon.exists()) {
-                    icon.delete()
+                    if (iconFile.exists()) {
+                        iconFile.delete()
+                    }
                 }
 
-                if (widgetFile.exists()) {
-                    widgetFile.delete()
+                eblanAppWidgetProviderInfoToDelete.preview?.let { preview ->
+                    val previewFile = File(preview)
+
+                    if (previewFile.exists()) {
+                        previewFile.delete()
+                    }
                 }
             }
         }
@@ -317,13 +315,12 @@ class ChangePackageUseCase @Inject constructor(
                     }
 
                 if (isUnique) {
-                    val shortcutFile = File(
-                        fileManager.getFilesDirectory(FileManager.SHORTCUTS_DIR),
-                        eblanShortcutInfo.shortcutId,
-                    )
+                    eblanShortcutInfo.icon?.let { icon ->
+                        val iconFile = File(icon)
 
-                    if (shortcutFile.exists()) {
-                        shortcutFile.delete()
+                        if (iconFile.exists()) {
+                            iconFile.delete()
+                        }
                     }
                 }
             }
@@ -539,16 +536,11 @@ class ChangePackageUseCase @Inject constructor(
         }
 
         deleteShortcutConfigGridItems.forEach { shortcutConfigGridItem ->
-            val shortcutIntentIcon = shortcutConfigGridItem.shortcutIntentIcon
+            shortcutConfigGridItem.shortcutIntentIcon?.let { shortcutIntentIcon ->
+                val shortcutIntentIconFile = File(shortcutIntentIcon)
 
-            if (shortcutIntentIcon != null) {
-                val uriIconFile = File(
-                    fileManager.getFilesDirectory(FileManager.SHORTCUT_INTENT_ICONS_DIR),
-                    shortcutIntentIcon,
-                )
-
-                if (uriIconFile.exists()) {
-                    uriIconFile.delete()
+                if (shortcutIntentIconFile.exists()) {
+                    shortcutIntentIconFile.delete()
                 }
             }
         }

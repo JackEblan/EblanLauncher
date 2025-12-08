@@ -43,40 +43,38 @@ class UpdateEblanShortcutConfigsUseCase @Inject constructor(
         label: String?,
     ) {
         withContext(ioDispatcher) {
-            val oldEblanShortcutConfigs =
-                eblanShortcutConfigRepository.getEblanShortcutConfig(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
-                )
+            val oldEblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfig(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            )
 
-            val newEblanShortcutConfigs =
-                launcherAppsWrapper.getShortcutConfigActivityList(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
-                ).map { launcherAppsInfo ->
-                    currentCoroutineContext().ensureActive()
+            val newEblanShortcutConfigs = launcherAppsWrapper.getShortcutConfigActivityList(
+                serialNumber = serialNumber,
+                packageName = packageName,
+            ).map { launcherAppsInfo ->
+                currentCoroutineContext().ensureActive()
 
-                    val activityIcon = launcherAppsInfo.activityIcon?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
-                            name = launcherAppsInfo.componentName.replace(
-                                "/",
-                                "-",
-                            ),
-                            byteArray = byteArray,
-                        )
-                    }
-
-                    EblanShortcutConfig(
-                        componentName = launcherAppsInfo.componentName,
-                        packageName = launcherAppsInfo.packageName,
-                        serialNumber = launcherAppsInfo.serialNumber,
-                        activityIcon = activityIcon,
-                        activityLabel = launcherAppsInfo.activityLabel,
-                        applicationIcon = icon,
-                        applicationLabel = label,
+                val activityIcon = launcherAppsInfo.activityIcon?.let { byteArray ->
+                    fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
+                        name = launcherAppsInfo.componentName.replace(
+                            "/",
+                            "-",
+                        ),
+                        byteArray = byteArray,
                     )
                 }
+
+                EblanShortcutConfig(
+                    componentName = launcherAppsInfo.componentName,
+                    packageName = launcherAppsInfo.packageName,
+                    serialNumber = launcherAppsInfo.serialNumber,
+                    activityIcon = activityIcon,
+                    activityLabel = launcherAppsInfo.activityLabel,
+                    applicationIcon = icon,
+                    applicationLabel = label,
+                )
+            }
 
             if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
                 val eblanShortcutConfigsToDelete =
@@ -93,20 +91,25 @@ class UpdateEblanShortcutConfigsUseCase @Inject constructor(
                 eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
                     currentCoroutineContext().ensureActive()
 
-                    val isUnique =
-                        newEblanShortcutConfigs.none { newEblanShortcutConfig ->
-                            newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName &&
-                                newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
-                        }
+                    val isUnique = newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                        newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName && newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
+                    }
 
                     if (isUnique) {
-                        val icon = File(
-                            fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
-                            eblanShortcutConfigToDelete.componentName,
-                        )
+                        eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
+                            val activityIconFile = File(activityIcon)
 
-                        if (icon.exists()) {
-                            icon.delete()
+                            if (activityIconFile.exists()) {
+                                activityIconFile.delete()
+                            }
+
+                            eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
+                                val applicationIconFile = File(applicationIcon)
+
+                                if (applicationIconFile.exists()) {
+                                    applicationIconFile.delete()
+                                }
+                            }
                         }
                     }
                 }

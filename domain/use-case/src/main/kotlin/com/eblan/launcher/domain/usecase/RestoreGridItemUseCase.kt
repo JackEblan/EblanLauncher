@@ -19,7 +19,6 @@ package com.eblan.launcher.domain.usecase
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,17 +27,15 @@ import java.io.File
 import javax.inject.Inject
 
 class RestoreGridItemUseCase @Inject constructor(
-    private val fileManager: FileManager,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem): GridItem {
         return withContext(defaultDispatcher) {
             when (val data = gridItem.data) {
                 is GridItemData.ApplicationInfo -> {
-                    File(
-                        fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        gridItem.id,
-                    ).delete()
+                    data.customIcon?.let { customIcon ->
+                        File(customIcon).delete()
+                    }
 
                     val newData = data.copy(
                         customIcon = null,
@@ -53,10 +50,9 @@ class RestoreGridItemUseCase @Inject constructor(
                 }
 
                 is GridItemData.ShortcutConfig -> {
-                    File(
-                        fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        gridItem.id,
-                    ).delete()
+                    data.shortcutIntentIcon?.let { shortcutIntentIcon ->
+                        File(shortcutIntentIcon).delete()
+                    }
 
                     val newData = data.copy(
                         shortcutIntentIcon = null,
@@ -67,10 +63,9 @@ class RestoreGridItemUseCase @Inject constructor(
                 }
 
                 is GridItemData.ShortcutInfo -> {
-                    File(
-                        fileManager.getFilesDirectory(FileManager.CUSTOM_ICONS_DIR),
-                        gridItem.id,
-                    ).delete()
+                    data.customIcon?.let { customIcon ->
+                        File(customIcon).delete()
+                    }
 
                     val newData = data.copy(
                         customIcon = null,

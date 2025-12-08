@@ -17,6 +17,10 @@
  */
 package com.eblan.launcher.feature.editgriditem
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +53,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -332,6 +337,11 @@ private fun EditApplicationInfo(
 
             onUpdateIconPackInfoPackageName(packageName)
         },
+        onUpdateUri = { uri ->
+            val newData = data.copy(customIcon = uri)
+
+            onUpdateGridItem(gridItem.copy(data = newData))
+        },
     )
 
     HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -430,6 +440,11 @@ private fun EditFolder(
             showCustomIconDialog = true
 
             onUpdateIconPackInfoPackageName(packageName)
+        },
+        onUpdateUri = { uri ->
+            val newData = data.copy(icon = uri)
+
+            onUpdateGridItem(gridItem.copy(data = newData))
         },
     )
 
@@ -571,6 +586,11 @@ private fun EditShortcutInfo(
 
             onUpdateIconPackInfoPackageName(packageName)
         },
+        onUpdateUri = { uri ->
+            val newData = data.copy(customIcon = uri)
+
+            onUpdateGridItem(gridItem.copy(data = newData))
+        },
     )
 
     HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -668,6 +688,11 @@ private fun EditShortcutConfig(
 
             onUpdateIconPackInfoPackageName(packageName)
         },
+        onUpdateUri = { uri ->
+            val newData = data.copy(customIcon = uri)
+
+            onUpdateGridItem(gridItem.copy(data = newData))
+        },
     )
 
     HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -740,8 +765,22 @@ private fun CustomIcon(
         packageName: String,
         label: String?,
     ) -> Unit,
+    onUpdateUri: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val pickMedia =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+                context.contentResolver.takePersistableUriPermission(uri, flag)
+
+                onUpdateUri(uri.toString())
+            }
+        }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -778,7 +817,9 @@ private fun CustomIcon(
             SettingsColumn(
                 title = "Gallery",
                 subtitle = "Pick icons from your gallery",
-                onClick = {},
+                onClick = {
+                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
             )
 
             packageManagerIconPackInfos.forEach { packageManagerIconPackInfo ->

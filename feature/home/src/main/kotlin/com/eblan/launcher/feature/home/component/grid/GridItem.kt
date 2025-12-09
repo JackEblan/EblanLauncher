@@ -220,7 +220,7 @@ internal fun ApplicationInfoGridItem(
 
         if (gridItemSettings.showLabel) {
             Text(
-                text = customLabel.toString(),
+                text = customLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,

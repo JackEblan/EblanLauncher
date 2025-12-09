@@ -167,7 +167,7 @@ class SyncDataUseCase @Inject constructor(
 
                 val isUnique = newSyncEblanApplicationInfos.none { newEblanApplicationInfo ->
                     newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName &&
-                            newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
+                        newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
                 }
 
                 if (isUnique) {
@@ -361,7 +361,7 @@ class SyncDataUseCase @Inject constructor(
                     currentCoroutineContext().ensureActive()
 
                     launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&
-                            launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
+                        launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
                 }
 
             if (launcherAppsActivityInfo != null) {
@@ -455,7 +455,7 @@ class SyncDataUseCase @Inject constructor(
                         currentCoroutineContext().ensureActive()
 
                         launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                                launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                            launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsShortcutInfo != null) {

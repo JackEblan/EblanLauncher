@@ -36,10 +36,10 @@ class GetEblanApplicationInfosByLabelUseCase @Inject constructor(
             eblanApplicationInfos
                 .filter { eblanApplicationInfo ->
                     label.isNotBlank() &&
-                            eblanApplicationInfo.label.contains(
-                                other = label,
-                                ignoreCase = true,
-                            )
+                        eblanApplicationInfo.label.contains(
+                            other = label,
+                            ignoreCase = true,
+                        )
                 }
                 .sortedBy { eblanApplicationInfo -> eblanApplicationInfo.label }
         }.flowOn(defaultDispatcher)

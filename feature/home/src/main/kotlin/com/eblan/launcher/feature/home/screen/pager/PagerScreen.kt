@@ -237,10 +237,11 @@ internal fun PagerScreen(
                         )
                     },
                     onPerformGlobalAction = { globalAction ->
-                        val intent = Intent(GlobalAction.NAME).putExtra(
-                            GlobalAction.GLOBAL_ACTION_TYPE,
-                            globalAction.name,
-                        )
+                        val intent = Intent(GlobalAction.NAME)
+                            .setPackage(context.packageName).putExtra(
+                                GlobalAction.GLOBAL_ACTION_TYPE,
+                                globalAction.name,
+                            )
 
                         context.sendBroadcast(intent)
                     },
@@ -285,7 +286,7 @@ internal fun PagerScreen(
                                 val intent = Intent(GlobalAction.NAME).putExtra(
                                     GlobalAction.GLOBAL_ACTION_TYPE,
                                     globalAction.name,
-                                )
+                                ).setPackage(context.packageName)
 
                                 context.sendBroadcast(intent)
                             },

@@ -602,7 +602,7 @@ private fun EblanApplicationInfoItem(
                                     icon = eblanApplicationInfo.icon,
                                     label = eblanApplicationInfo.label,
                                     customIcon = eblanApplicationInfo.customIcon,
-                                    customLabel = eblanApplicationInfo.customIcon,
+                                    customLabel = eblanApplicationInfo.customLabel,
                                 )
 
                             onLongPressGridItem(

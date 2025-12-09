@@ -15,7 +15,7 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.domain.usecase.launcherapps
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
@@ -32,6 +32,7 @@ import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.iconpack.UpdateIconPackInfoByPackageNameUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -78,15 +79,16 @@ class AddPackageUseCase @Inject constructor(
                 }
 
                 addEblanApplicationInfo(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
+                    componentName = launcherAppsActivityInfo.componentName,
+                    serialNumber = launcherAppsActivityInfo.serialNumber,
+                    packageName = launcherAppsActivityInfo.packageName,
                     icon = icon,
                     label = launcherAppsActivityInfo.label,
                 )
 
                 addEblanAppWidgetProviderInfos(
-                    serialNumber = serialNumber,
-                    packageName = packageName,
+                    serialNumber = launcherAppsActivityInfo.serialNumber,
+                    packageName = launcherAppsActivityInfo.packageName,
                     icon = icon,
                     label = launcherAppsActivityInfo.label,
                 )
@@ -107,26 +109,23 @@ class AddPackageUseCase @Inject constructor(
     }
 
     private suspend fun addEblanApplicationInfo(
+        componentName: String,
         serialNumber: Long,
         packageName: String,
         icon: String?,
         label: String,
     ) {
-        val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
-
-        if (componentName != null) {
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(
-                eblanApplicationInfo = EblanApplicationInfo(
-                    componentName = componentName,
-                    serialNumber = serialNumber,
-                    packageName = packageName,
-                    icon = icon,
-                    label = label,
-                    customIcon = null,
-                    customLabel = null,
-                ),
-            )
-        }
+        eblanApplicationInfoRepository.upsertEblanApplicationInfo(
+            eblanApplicationInfo = EblanApplicationInfo(
+                componentName = componentName,
+                serialNumber = serialNumber,
+                packageName = packageName,
+                icon = icon,
+                label = label,
+                customIcon = null,
+                customLabel = null,
+            ),
+        )
     }
 
     private suspend fun addEblanAppWidgetProviderInfos(

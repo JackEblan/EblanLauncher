@@ -27,9 +27,9 @@ import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.IconPackInfoComponent
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.RestoreGridItemUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemCustomIconUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.RestoreGridItemUseCase
+import com.eblan.launcher.domain.usecase.grid.UpdateGridItemCustomIconUseCase
+import com.eblan.launcher.domain.usecase.grid.UpdateGridItemUseCase
 import com.eblan.launcher.feature.editgriditem.model.EditGridItemUiState
 import com.eblan.launcher.feature.editgriditem.navigation.EditGridItemRouteData
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -15,41 +15,39 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.PageItem
-import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.repository.GridCacheRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class CachePageItemsUseCase @Inject constructor(
-    private val userDataRepository: UserDataRepository,
+class UpdateGridItemsAfterResizeUseCase @Inject constructor(
+    private val gridCacheRepository: GridCacheRepository,
+    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(gridItems: List<GridItem>): List<PageItem> {
-        return withContext(defaultDispatcher) {
-            val userData = userDataRepository.userData.first()
+    suspend operator fun invoke(resizingGridItem: GridItem) {
+        withContext(defaultDispatcher) {
+            val gridItems = gridCacheRepository.gridItemsCache.first()
 
-            val gridItemsByPage = gridItems.filter { gridItem ->
-                isGridItemSpanWithinBounds(
-                    gridItem = gridItem,
-                    columns = userData.homeSettings.columns,
-                    rows = userData.homeSettings.rows,
-                ) && gridItem.associate == Associate.Grid
-            }.groupBy { gridItem -> gridItem.page }
+            when (resizingGridItem.associate) {
+                Associate.Grid -> {
+                    updateGridItemsUseCase(
+                        gridItems = gridItems.filter { gridItem ->
+                            gridItem.page == resizingGridItem.page
+                        },
+                    )
+                }
 
-            (0 until userData.homeSettings.pageCount).map { page ->
-                PageItem(
-                    id = page,
-                    gridItems = gridItemsByPage[page] ?: emptyList(),
-                )
+                Associate.Dock -> {
+                    updateGridItemsUseCase(gridItems = gridItems)
+                }
             }
         }
     }

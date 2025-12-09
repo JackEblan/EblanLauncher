@@ -24,7 +24,7 @@ import com.eblan.launcher.domain.model.GeneralSettings
 import com.eblan.launcher.domain.model.PackageManagerIconPackInfo
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import com.eblan.launcher.domain.repository.UserDataRepository
-import com.eblan.launcher.domain.usecase.DeleteIconPackInfoUseCase
+import com.eblan.launcher.domain.usecase.iconpack.DeleteIconPackInfoUseCase
 import com.eblan.launcher.feature.settings.general.model.GeneralSettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

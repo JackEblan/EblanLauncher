@@ -23,9 +23,9 @@ import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.repository.GridCacheRepository
-import com.eblan.launcher.domain.usecase.AddPinShortcutToHomeScreenUseCase
-import com.eblan.launcher.domain.usecase.AddPinWidgetToHomeScreenUseCase
-import com.eblan.launcher.domain.usecase.UpdateGridItemsAfterPinUseCase
+import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsAfterPinUseCase
+import com.eblan.launcher.domain.usecase.pin.AddPinShortcutToHomeScreenUseCase
+import com.eblan.launcher.domain.usecase.pin.AddPinWidgetToHomeScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

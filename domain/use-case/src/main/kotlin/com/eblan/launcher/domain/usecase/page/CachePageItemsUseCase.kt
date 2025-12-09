@@ -15,10 +15,13 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.domain.usecase.page
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
+import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
+import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,40 +29,28 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdatePageItemsUseCase @Inject constructor(
+class CachePageItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val updateGridItemsUseCase: UpdateGridItemsUseCase,
-    private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(
-        id: Int,
-        pageItems: List<PageItem>,
-        pageItemsToDelete: List<PageItem>,
-    ) {
-        withContext(defaultDispatcher) {
-            val homeSettings = userDataRepository.userData.first().homeSettings
+    suspend operator fun invoke(gridItems: List<GridItem>): List<PageItem> {
+        return withContext(defaultDispatcher) {
+            val userData = userDataRepository.userData.first()
 
-            pageItemsToDelete.forEach { pageItem ->
-                deleteGridItemsUseCase(gridItems = pageItem.gridItems)
+            val gridItemsByPage = gridItems.filter { gridItem ->
+                isGridItemSpanWithinBounds(
+                    gridItem = gridItem,
+                    columns = userData.homeSettings.columns,
+                    rows = userData.homeSettings.rows,
+                ) && gridItem.associate == Associate.Grid
+            }.groupBy { gridItem -> gridItem.page }
+
+            (0 until userData.homeSettings.pageCount).map { page ->
+                PageItem(
+                    id = page,
+                    gridItems = gridItemsByPage[page] ?: emptyList(),
+                )
             }
-
-            val gridItems = pageItems.mapIndexed { index, pageItem ->
-                pageItem.gridItems.map { gridItem ->
-                    gridItem.copy(page = index)
-                }
-            }.flatten()
-
-            val newInitialPage = pageItems.indexOfFirst { it.id == id }
-
-            userDataRepository.updateHomeSettings(
-                homeSettings = homeSettings.copy(
-                    pageCount = pageItems.size,
-                    initialPage = newInitialPage,
-                ),
-            )
-
-            updateGridItemsUseCase(gridItems = gridItems)
         }
     }
 }

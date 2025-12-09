@@ -15,30 +15,51 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.domain.usecase.page
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.repository.UserDataRepository
+import com.eblan.launcher.domain.usecase.grid.DeleteGridItemsUseCase
+import com.eblan.launcher.domain.usecase.grid.UpdateGridItemsUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdateGridItemsAfterPinUseCase @Inject constructor(
-    private val gridCacheRepository: GridCacheRepository,
+class UpdatePageItemsUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
+    private val deleteGridItemsUseCase: DeleteGridItemsUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(
+        id: Int,
+        pageItems: List<PageItem>,
+        pageItemsToDelete: List<PageItem>,
+    ) {
         withContext(defaultDispatcher) {
-            val initialPage = userDataRepository.userData.first().homeSettings.initialPage
+            val homeSettings = userDataRepository.userData.first().homeSettings
 
-            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
-                gridItem.page == initialPage
+            pageItemsToDelete.forEach { pageItem ->
+                deleteGridItemsUseCase(gridItems = pageItem.gridItems)
             }
+
+            val gridItems = pageItems.mapIndexed { index, pageItem ->
+                pageItem.gridItems.map { gridItem ->
+                    gridItem.copy(page = index)
+                }
+            }.flatten()
+
+            val newInitialPage = pageItems.indexOfFirst { it.id == id }
+
+            userDataRepository.updateHomeSettings(
+                homeSettings = homeSettings.copy(
+                    pageCount = pageItems.size,
+                    initialPage = newInitialPage,
+                ),
+            )
 
             updateGridItemsUseCase(gridItems = gridItems)
         }

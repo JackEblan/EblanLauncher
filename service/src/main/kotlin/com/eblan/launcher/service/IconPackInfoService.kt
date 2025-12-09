@@ -23,7 +23,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.eblan.launcher.domain.usecase.UpdateIconPackInfosUseCase
+import com.eblan.launcher.domain.usecase.iconpack.UpdateIconPackInfosUseCase
 import com.eblan.launcher.framework.notificationmanager.AndroidNotificationManagerWrapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

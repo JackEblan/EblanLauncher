@@ -26,11 +26,11 @@ class Migration3To4 : Migration(3, 4) {
 
         updateEblanAppWidgetProviderInfoEntities(db = db)
 
+        updateEblanShortcutConfigEntities(db = db)
+
         updateApplicationInfoGridItemEntities(db = db)
 
         updateWidgetGridItemEntities(db = db)
-
-        updateEblanShortcutConfigEntities(db = db)
     }
 
     private fun updateEblanApplicationInfoEntities(db: SupportSQLiteDatabase) {
@@ -106,6 +106,57 @@ class Migration3To4 : Migration(3, 4) {
 
         db.execSQL("DROP TABLE `EblanAppWidgetProviderInfoEntity`")
         db.execSQL("ALTER TABLE `EblanAppWidgetProviderInfoEntity_new` RENAME TO `EblanAppWidgetProviderInfoEntity`")
+    }
+
+    private fun updateEblanShortcutConfigEntities(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+                    CREATE TABLE IF NOT EXISTS `EblanShortcutConfigEntity` (
+                        `componentName` TEXT NOT NULL,
+                        `packageName` TEXT NOT NULL,
+                        `serialNumber` INTEGER NOT NULL,
+                        `activityIcon` TEXT,
+                        `activityLabel` TEXT,
+                        `applicationIcon` TEXT,
+                        `applicationLabel` TEXT,
+                        PRIMARY KEY(`componentName`, `serialNumber`)
+                    )
+            """.trimIndent(),
+        )
+
+        db.execSQL(
+            """
+                    CREATE TABLE IF NOT EXISTS `ShortcutConfigGridItemEntity` (
+                        `id` TEXT NOT NULL,
+                        `folderId` TEXT,
+                        `page` INTEGER NOT NULL,
+                        `startColumn` INTEGER NOT NULL,
+                        `startRow` INTEGER NOT NULL,
+                        `columnSpan` INTEGER NOT NULL,
+                        `rowSpan` INTEGER NOT NULL,
+                        `associate` TEXT NOT NULL,
+                        `componentName` TEXT NOT NULL,
+                        `packageName` TEXT NOT NULL,
+                        `activityIcon` TEXT,
+                        `activityLabel` TEXT,
+                        `applicationIcon` TEXT,
+                        `applicationLabel` TEXT,
+                        `override` INTEGER NOT NULL,
+                        `serialNumber` INTEGER NOT NULL,
+                        `shortcutIntentName` TEXT,
+                        `shortcutIntentIcon` TEXT,
+                        `shortcutIntentUri` TEXT,
+                        `iconSize` INTEGER NOT NULL,
+                        `textColor` TEXT NOT NULL,
+                        `textSize` INTEGER NOT NULL,
+                        `showLabel` INTEGER NOT NULL,
+                        `singleLineLabel` INTEGER NOT NULL,
+                        `horizontalAlignment` TEXT NOT NULL,
+                        `verticalArrangement` TEXT NOT NULL,
+                        PRIMARY KEY(`id`)
+                    )
+            """.trimIndent(),
+        )
     }
 
     private fun updateApplicationInfoGridItemEntities(db: SupportSQLiteDatabase) {
@@ -214,56 +265,5 @@ class Migration3To4 : Migration(3, 4) {
 
         db.execSQL("DROP TABLE `WidgetGridItemEntity`")
         db.execSQL("ALTER TABLE `WidgetGridItemEntity_new` RENAME TO `WidgetGridItemEntity`")
-    }
-
-    private fun updateEblanShortcutConfigEntities(db: SupportSQLiteDatabase) {
-        db.execSQL(
-            """
-                    CREATE TABLE IF NOT EXISTS `EblanShortcutConfigEntity` (
-                        `componentName` TEXT NOT NULL,
-                        `packageName` TEXT NOT NULL,
-                        `serialNumber` INTEGER NOT NULL,
-                        `activityIcon` TEXT,
-                        `activityLabel` TEXT,
-                        `applicationIcon` TEXT,
-                        `applicationLabel` TEXT,
-                        PRIMARY KEY(`componentName`, `serialNumber`)
-                    )
-            """.trimIndent(),
-        )
-
-        db.execSQL(
-            """
-                    CREATE TABLE IF NOT EXISTS `ShortcutConfigGridItemEntity` (
-                        `id` TEXT NOT NULL,
-                        `folderId` TEXT,
-                        `page` INTEGER NOT NULL,
-                        `startColumn` INTEGER NOT NULL,
-                        `startRow` INTEGER NOT NULL,
-                        `columnSpan` INTEGER NOT NULL,
-                        `rowSpan` INTEGER NOT NULL,
-                        `associate` TEXT NOT NULL,
-                        `componentName` TEXT NOT NULL,
-                        `packageName` TEXT NOT NULL,
-                        `activityIcon` TEXT,
-                        `activityLabel` TEXT,
-                        `applicationIcon` TEXT,
-                        `applicationLabel` TEXT,
-                        `override` INTEGER NOT NULL,
-                        `serialNumber` INTEGER NOT NULL,
-                        `shortcutIntentName` TEXT,
-                        `shortcutIntentIcon` TEXT,
-                        `shortcutIntentUri` TEXT,
-                        `iconSize` INTEGER NOT NULL,
-                        `textColor` TEXT NOT NULL,
-                        `textSize` INTEGER NOT NULL,
-                        `showLabel` INTEGER NOT NULL,
-                        `singleLineLabel` INTEGER NOT NULL,
-                        `horizontalAlignment` TEXT NOT NULL,
-                        `verticalArrangement` TEXT NOT NULL,
-                        PRIMARY KEY(`id`)
-                    )
-            """.trimIndent(),
-        )
     }
 }

@@ -41,19 +41,20 @@ class Migration3To4Test {
     @Test
     @Throws(IOException::class)
     fun migrate3To4() {
-        var db = helper.createDatabase(testDatabase, 3)
-        // 1. EblanApplicationInfoEntity - componentName was nullable in v3
-        db.execSQL(
-            """
-            INSERT INTO EblanApplicationInfoEntity (packageName, serialNumber, componentName, icon, label)
+        helper.createDatabase(testDatabase, 3).apply {
+            // 1. EblanApplicationInfoEntity
+            execSQL(
+                """
+            INSERT INTO `EblanApplicationInfoEntity` 
+            (packageName, serialNumber, componentName, icon, label)
             VALUES ('com.example.app', 0, NULL, NULL, 'Test App')
-            """.trimIndent(),
-        )
+                """.trimIndent(),
+            )
 
-        // 2. EblanAppWidgetProviderInfoEntity - uses old className PK
-        db.execSQL(
-            """
-            INSERT INTO EblanAppWidgetProviderInfoEntity (
+            // 2. EblanAppWidgetProviderInfoEntity
+            execSQL(
+                """
+            INSERT INTO `EblanAppWidgetProviderInfoEntity` (
                 className, componentName, configure, packageName,
                 targetCellWidth, targetCellHeight, minWidth, minHeight,
                 resizeMode, minResizeWidth, minResizeHeight,
@@ -62,13 +63,13 @@ class Migration3To4Test {
                 'com.example.widget.OldWidget', 'com.example.app/com.example.widget.OldWidget', NULL, 'com.example.app',
                 2, 2, 110, 110, 3, 110, 110, 400, 400, NULL, 'Clock Widget', NULL
             )
-            """.trimIndent(),
-        )
+                """.trimIndent(),
+            )
 
-        // 3. ApplicationInfoGridItemEntity - componentName was nullable
-        db.execSQL(
-            """
-            INSERT INTO ApplicationInfoGridItemEntity (
+            // 3. ApplicationInfoGridItemEntity
+            execSQL(
+                """
+            INSERT INTO `ApplicationInfoGridItemEntity` (
                 id, folderId, page, startColumn, startRow, columnSpan, rowSpan, associate,
                 componentName, packageName, icon, label, override, serialNumber,
                 iconSize, textColor, textSize, showLabel, singleLineLabel,
@@ -78,13 +79,13 @@ class Migration3To4Test {
                 NULL, 'com.example.app', NULL, 'Legacy App', 0, 0,
                 48, '#FFFFFF', 14, 1, 1, 'CENTER', 'MIDDLE'
             )
-            """.trimIndent(),
-        )
+                """.trimIndent(),
+            )
 
-        // 4. WidgetGridItemEntity - has className column (to be dropped)
-        db.execSQL(
-            """
-            INSERT INTO WidgetGridItemEntity (
+            // 4. WidgetGridItemEntity
+            execSQL(
+                """
+            INSERT INTO `WidgetGridItemEntity` (
                 id, folderId, page, startColumn, startRow, columnSpan, rowSpan, associate,
                 appWidgetId, packageName, className, componentName, configure,
                 minWidth, minHeight, resizeMode, minResizeWidth, minResizeHeight,
@@ -99,27 +100,22 @@ class Migration3To4Test {
                 NULL, 'Weather', NULL, 0, 1,
                 56, '#000000', 12, 1, 0, 'LEFT', 'TOP'
             )
-            """.trimIndent(),
-        )
+                """.trimIndent(),
+            )
 
-        // Other tables unchanged - insert one row each
-        db.execSQL("INSERT INTO EblanShortcutInfoEntity VALUES ('sc1', 0, 'com.example', 'SC', 'Shortcut', NULL, 'flag', 1)")
-        db.execSQL("INSERT INTO ShortcutInfoGridItemEntity VALUES ('scgrid1', NULL, 0, 0, 0, 1, 1, 'a', 'sc1', 'com.example', 'S', 'L', NULL, 0, 0, 1, NULL, NULL, 48, '#FFF', 14, 1, 1, 'CENTER', 'BOTTOM')")
-        db.execSQL("INSERT INTO FolderGridItemEntity VALUES ('folder1', NULL, 0, 0, 0, 2, 2, 'f', 'Tools', 0, 3, 64, '#00FF00', 16, 1, 0, 'CENTER', 'MIDDLE')")
-        db.execSQL("INSERT INTO EblanIconPackInfoEntity VALUES ('com.iconpack', NULL, 'Cool Icons')")
-
-        db.close()
+            close()
+        }
 
         // Run migration and validate schema + data
-        db = helper.runMigrationsAndValidate(
+        val dbV5 = helper.runMigrationsAndValidate(
             testDatabase,
             4,
             true,
             Migration3To4(),
         )
 
-        // Now assert data survived correctly
-        db.query("SELECT * FROM EblanApplicationInfoEntity").use { cursor ->
+        // EblanApplicationInfoEntity
+        dbV5.query("SELECT * FROM `EblanApplicationInfoEntity`").use { cursor ->
             assertTrue(cursor.moveToFirst())
             assertEquals(
                 "com.example.app",
@@ -133,7 +129,8 @@ class Migration3To4Test {
             assertEquals("Test App", cursor.getString(cursor.getColumnIndexOrThrow("label")))
         }
 
-        db.query("SELECT componentName, serialNumber, packageName, label FROM EblanAppWidgetProviderInfoEntity")
+        // EblanAppWidgetProviderInfoEntity
+        dbV5.query("SELECT componentName, serialNumber, packageName, label FROM `EblanAppWidgetProviderInfoEntity`")
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertEquals(
@@ -150,13 +147,15 @@ class Migration3To4Test {
                 )
             }
 
-        db.query("SELECT componentName FROM ApplicationInfoGridItemEntity WHERE id = 'app1'")
+        // ApplicationInfoGridItemEntity
+        dbV5.query("SELECT componentName FROM `ApplicationInfoGridItemEntity` WHERE id = 'app1'")
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertEquals("", cursor.getString(0)) // NULL → "" safely migrated
             }
 
-        db.query("SELECT componentName FROM WidgetGridItemEntity WHERE id = 'widget1'")
+        // WidgetGridItemEntity
+        dbV5.query("SELECT componentName FROM `WidgetGridItemEntity` WHERE id = 'widget1'")
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertEquals("com.example.app/com.example.widget.OldWidget", cursor.getString(0))
@@ -165,12 +164,12 @@ class Migration3To4Test {
             }
 
         // New tables should exist and be empty (or ready)
-        db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='EblanShortcutConfigEntity'")
+        dbV5.query("SELECT name FROM sqlite_master WHERE type='table' AND name='EblanShortcutConfigEntity'")
             .use { cursor ->
                 assertEquals(cursor.count, 1)
             }
 
-        db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='ShortcutConfigGridItemEntity'")
+        dbV5.query("SELECT name FROM sqlite_master WHERE type='table' AND name='ShortcutConfigGridItemEntity'")
             .use { cursor ->
                 assertEquals(cursor.count, 1)
             }

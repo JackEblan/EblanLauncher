@@ -26,7 +26,6 @@ import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -40,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -172,7 +172,7 @@ internal fun DragScreen(
 
     val dockHeight = homeSettings.dockHeight.dp
 
-    val gridHorizontalPagerPaddingDp = 50.dp
+    val gridHorizontalPagerPaddingDp = 30.dp
 
     val gridPaddingDp = 8.dp
 
@@ -406,12 +406,7 @@ internal fun DragScreen(
                     .fillMaxSize()
                     .padding(gridPaddingDp)
                     .background(
-                        color = getSystemTextColor(textColor = textColor).copy(alpha = 0.25f),
-                        shape = RoundedCornerShape(8.dp),
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = getSystemTextColor(textColor = textColor),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                         shape = RoundedCornerShape(8.dp),
                     ),
                 gridItems = gridItemCache.gridItemsCacheByPage[page],
@@ -549,11 +544,7 @@ private fun AnimatedDropGridItem(
     gridItemSource: GridItemSource,
     statusBarNotifications: Map<String, Int>,
 ) {
-    if (drag != Drag.End ||
-        moveGridItemResult?.isSuccess != true ||
-        moveGridItemResult.movingGridItem.page != currentPage ||
-        gridItemSource is GridItemSource.Pin
-    ) {
+    if (drag != Drag.End || moveGridItemResult?.isSuccess != true || moveGridItemResult.movingGridItem.page != currentPage || gridItemSource is GridItemSource.Pin) {
         return
     }
 
@@ -639,8 +630,7 @@ private fun AnimatedDropGridItem(
 
             val cellHeight = dockHeightPx / dockRows
 
-            targetX =
-                (moveGridItemResult.movingGridItem.startColumn * cellWidth) + leftPadding
+            targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + leftPadding
 
             targetY =
                 (moveGridItemResult.movingGridItem.startRow * cellHeight) + (screenHeight - bottomPadding - dockHeightPx)
@@ -655,11 +645,9 @@ private fun AnimatedDropGridItem(
 
     val animatedY = remember { Animatable(overlayIntOffset.y.toFloat()) }
 
-    val animatedWidth =
-        remember { Animatable(overlayIntSize.width.toFloat()) }
+    val animatedWidth = remember { Animatable(overlayIntSize.width.toFloat()) }
 
-    val animatedHeight =
-        remember { Animatable(overlayIntSize.height.toFloat()) }
+    val animatedHeight = remember { Animatable(overlayIntSize.height.toFloat()) }
 
     val animatedAlpha = remember { Animatable(1f) }
 

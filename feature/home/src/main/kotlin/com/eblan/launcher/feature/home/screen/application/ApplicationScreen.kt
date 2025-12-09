@@ -601,8 +601,8 @@ private fun EblanApplicationInfoItem(
                                     packageName = eblanApplicationInfo.packageName,
                                     icon = eblanApplicationInfo.icon,
                                     label = eblanApplicationInfo.label,
-                                    customIcon = null,
-                                    customLabel = null,
+                                    customIcon = eblanApplicationInfo.customIcon,
+                                    customLabel = eblanApplicationInfo.customIcon,
                                 )
 
                             onLongPressGridItem(

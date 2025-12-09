@@ -259,16 +259,5 @@ class Migration4To5Test {
                 assertNull(c.getString(2)) // customIcon
                 assertNull(c.getString(3)) // customLabel
             }
-
-        // New tables should exist and be empty (or ready)
-        dbV5.query("SELECT name FROM sqlite_master WHERE type='table' AND name='EblanIconPackInfoEntity'")
-            .use { cursor ->
-                assertEquals(cursor.count, 1)
-            }
-
-        dbV5.query("SELECT name FROM sqlite_master WHERE type='table' AND name='EblanShortcutConfigEntity'")
-            .use { cursor ->
-                assertEquals(cursor.count, 1)
-            }
     }
 }

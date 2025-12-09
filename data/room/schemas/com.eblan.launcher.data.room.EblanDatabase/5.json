@@ -2,15 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "d51a378f08cccfe6bfc2aa7fc805cbe1",
+    "identityHash": "6179913287d0ff11a7fe16ee12ab4b63",
     "entities": [
       {
         "tableName": "EblanApplicationInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `componentName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `customIcon` TEXT, `customLabel` TEXT, PRIMARY KEY(`packageName`, `serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, `customIcon` TEXT, `customLabel` TEXT, PRIMARY KEY(`componentName`, `serialNumber`))",
         "fields": [
           {
-            "fieldPath": "packageName",
-            "columnName": "packageName",
+            "fieldPath": "componentName",
+            "columnName": "componentName",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -21,8 +21,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "componentName",
-            "columnName": "componentName",
+            "fieldPath": "packageName",
+            "columnName": "packageName",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -34,7 +34,8 @@
           {
             "fieldPath": "label",
             "columnName": "label",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "customIcon",
@@ -50,14 +51,14 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "packageName",
+            "componentName",
             "serialNumber"
           ]
         }
       },
       {
         "tableName": "EblanAppWidgetProviderInfoEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, PRIMARY KEY(`componentName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`componentName` TEXT NOT NULL, `serialNumber` INTEGER NOT NULL, `configure` TEXT, `packageName` TEXT NOT NULL, `targetCellWidth` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `preview` TEXT, `label` TEXT NOT NULL, `icon` TEXT, PRIMARY KEY(`componentName`))",
         "fields": [
           {
             "fieldPath": "componentName",
@@ -144,7 +145,8 @@
           {
             "fieldPath": "label",
             "columnName": "label",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "icon",
@@ -221,7 +223,7 @@
       },
       {
         "tableName": "ApplicationInfoGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `customIcon` TEXT, `customLabel` TEXT, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `componentName` TEXT NOT NULL, `packageName` TEXT NOT NULL, `icon` TEXT, `label` TEXT NOT NULL, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `customIcon` TEXT, `customLabel` TEXT, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -290,7 +292,8 @@
           {
             "fieldPath": "label",
             "columnName": "label",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "override",
@@ -366,7 +369,7 @@
       },
       {
         "tableName": "WidgetGridItemEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `label` TEXT, `icon` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `folderId` TEXT, `page` INTEGER NOT NULL, `startColumn` INTEGER NOT NULL, `startRow` INTEGER NOT NULL, `columnSpan` INTEGER NOT NULL, `rowSpan` INTEGER NOT NULL, `associate` TEXT NOT NULL, `appWidgetId` INTEGER NOT NULL, `packageName` TEXT NOT NULL, `componentName` TEXT NOT NULL, `configure` TEXT, `minWidth` INTEGER NOT NULL, `minHeight` INTEGER NOT NULL, `resizeMode` INTEGER NOT NULL, `minResizeWidth` INTEGER NOT NULL, `minResizeHeight` INTEGER NOT NULL, `maxResizeWidth` INTEGER NOT NULL, `maxResizeHeight` INTEGER NOT NULL, `targetCellHeight` INTEGER NOT NULL, `targetCellWidth` INTEGER NOT NULL, `preview` TEXT, `label` TEXT NOT NULL, `icon` TEXT, `override` INTEGER NOT NULL, `serialNumber` INTEGER NOT NULL, `iconSize` INTEGER NOT NULL, `textColor` TEXT NOT NULL, `textSize` INTEGER NOT NULL, `showLabel` INTEGER NOT NULL, `singleLineLabel` INTEGER NOT NULL, `horizontalAlignment` TEXT NOT NULL, `verticalArrangement` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -500,7 +503,8 @@
           {
             "fieldPath": "label",
             "columnName": "label",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "icon",
@@ -1113,7 +1117,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd51a378f08cccfe6bfc2aa7fc805cbe1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6179913287d0ff11a7fe16ee12ab4b63')"
     ]
   }
 }

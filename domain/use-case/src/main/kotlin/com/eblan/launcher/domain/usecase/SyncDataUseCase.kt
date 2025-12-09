@@ -124,10 +124,16 @@ class SyncDataUseCase @Inject constructor(
             launcherAppsActivityInfos.map { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val applicationIcon = launcherAppsActivityInfo.applicationIcon?.let { byteArray ->
+                val launcherAppsActivityInfoIcon = launcherAppsActivityInfo.activityIcon
+                    ?: launcherAppsActivityInfo.applicationIcon
+
+                val icon = launcherAppsActivityInfoIcon?.let { byteArray ->
                     fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                        name = launcherAppsActivityInfo.packageName,
+                        name = launcherAppsActivityInfo.componentName.replace(
+                            "/",
+                            "-",
+                        ),
                         byteArray = byteArray,
                     )
                 }
@@ -135,16 +141,16 @@ class SyncDataUseCase @Inject constructor(
                 updateEblanShortcutConfigsUseCase(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = applicationIcon,
-                    label = launcherAppsActivityInfo.applicationLabel,
+                    icon = icon,
+                    label = launcherAppsActivityInfo.label,
                 )
 
                 SyncEblanApplicationInfo(
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     componentName = launcherAppsActivityInfo.componentName,
                     packageName = launcherAppsActivityInfo.packageName,
-                    icon = applicationIcon,
-                    label = launcherAppsActivityInfo.applicationLabel,
+                    icon = icon,
+                    label = launcherAppsActivityInfo.label,
                 )
             }
 
@@ -161,7 +167,7 @@ class SyncDataUseCase @Inject constructor(
 
                 val isUnique = newSyncEblanApplicationInfos.none { newEblanApplicationInfo ->
                     newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName &&
-                        newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
+                            newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
                 }
 
                 if (isUnique) {
@@ -244,8 +250,8 @@ class SyncDataUseCase @Inject constructor(
                     maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                     maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                     preview = preview,
-                    label = label,
                     icon = icon,
+                    label = label.toString(),
                 )
             }
 
@@ -355,7 +361,7 @@ class SyncDataUseCase @Inject constructor(
                     currentCoroutineContext().ensureActive()
 
                     launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&
-                        launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
+                            launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
                 }
 
             if (launcherAppsActivityInfo != null) {
@@ -363,7 +369,7 @@ class SyncDataUseCase @Inject constructor(
                     UpdateApplicationInfoGridItem(
                         id = applicationInfoGridItem.id,
                         componentName = launcherAppsActivityInfo.componentName,
-                        label = launcherAppsActivityInfo.applicationLabel,
+                        label = launcherAppsActivityInfo.label,
                     ),
                 )
             } else {
@@ -449,7 +455,7 @@ class SyncDataUseCase @Inject constructor(
                         currentCoroutineContext().ensureActive()
 
                         launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                            launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                                launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsShortcutInfo != null) {

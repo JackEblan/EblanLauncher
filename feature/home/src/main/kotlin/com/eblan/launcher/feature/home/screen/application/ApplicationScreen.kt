@@ -706,7 +706,7 @@ private fun EblanApplicationInfoItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = customLabel.toString(),
+                text = customLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,
                 maxLines = maxLines,
@@ -1087,7 +1087,7 @@ private fun ScrollBarThumb(
 
                             isDraggingThumb = true
                         },
-                        onVerticalDrag = { change, deltaY ->
+                        onVerticalDrag = { _, deltaY ->
                             val totalRows =
                                 (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
                                     appDrawerSettings.appDrawerColumns

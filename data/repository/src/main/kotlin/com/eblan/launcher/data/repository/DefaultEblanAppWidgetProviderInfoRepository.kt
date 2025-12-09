@@ -100,8 +100,8 @@ class DefaultEblanAppWidgetProviderInfoRepository @Inject constructor(private va
             maxResizeWidth = maxResizeWidth,
             maxResizeHeight = maxResizeHeight,
             preview = preview,
-            label = label,
             icon = icon,
+            label = label,
         )
     }
 }

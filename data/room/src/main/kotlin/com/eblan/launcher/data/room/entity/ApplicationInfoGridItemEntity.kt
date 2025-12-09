@@ -37,7 +37,7 @@ data class ApplicationInfoGridItemEntity(
     val componentName: String,
     val packageName: String,
     val icon: String?,
-    val label: String?,
+    val label: String,
     val override: Boolean,
     val serialNumber: Long,
     val customIcon: String?,

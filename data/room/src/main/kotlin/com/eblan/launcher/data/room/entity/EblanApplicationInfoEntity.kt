@@ -19,13 +19,13 @@ package com.eblan.launcher.data.room.entity
 
 import androidx.room.Entity
 
-@Entity(primaryKeys = ["packageName", "serialNumber"])
+@Entity(primaryKeys = ["componentName", "serialNumber"])
 data class EblanApplicationInfoEntity(
-    val packageName: String,
-    val serialNumber: Long,
     val componentName: String,
+    val serialNumber: Long,
+    val packageName: String,
     val icon: String?,
-    val label: String?,
+    val label: String,
     val customIcon: String?,
     val customLabel: String?,
 )

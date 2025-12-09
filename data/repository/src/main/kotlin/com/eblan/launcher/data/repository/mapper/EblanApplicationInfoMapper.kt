@@ -22,9 +22,9 @@ import com.eblan.launcher.domain.model.EblanApplicationInfo
 
 fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
     return EblanApplicationInfoEntity(
+        componentName = componentName,
         serialNumber = serialNumber,
         packageName = packageName,
-        componentName = componentName,
         icon = icon,
         label = label,
         customIcon = customIcon,
@@ -34,9 +34,9 @@ fun EblanApplicationInfo.asEntity(): EblanApplicationInfoEntity {
 
 fun EblanApplicationInfoEntity.asModel(): EblanApplicationInfo {
     return EblanApplicationInfo(
+        componentName = componentName,
         serialNumber = serialNumber,
         packageName = packageName,
-        componentName = componentName,
         icon = icon,
         label = label,
         customIcon = customIcon,

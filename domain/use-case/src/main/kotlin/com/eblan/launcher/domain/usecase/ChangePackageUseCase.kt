@@ -48,7 +48,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
-import kotlin.collections.forEach
 
 class ChangePackageUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
@@ -82,7 +81,10 @@ class ChangePackageUseCase @Inject constructor(
                     ?.let { currentIconByteArray ->
                         fileManager.updateAndGetFilePath(
                             directory = fileManager.getFilesDirectory(FileManager.ICONS_DIR),
-                            name = packageName,
+                            name = launcherAppsActivityInfo.componentName.replace(
+                                "/",
+                                "-",
+                            ),
                             byteArray = currentIconByteArray,
                         )
                     }
@@ -90,29 +92,29 @@ class ChangePackageUseCase @Inject constructor(
                 updateEblanApplicationInfoByPackageName(
                     packageName = packageName,
                     serialNumber = serialNumber,
-                    label = launcherAppsActivityInfo.applicationLabel,
                     icon = icon,
+                    label = launcherAppsActivityInfo.label,
                 )
 
                 updateEblanAppWidgetProviderInfosByPackageName(
                     serialNumber = serialNumber,
                     packageName = packageName,
-                    label = launcherAppsActivityInfo.applicationLabel,
                     icon = icon,
+                    label = launcherAppsActivityInfo.label,
                 )
 
                 updateShortcutConfigGridItemsByPackageName(
                     serialNumber = serialNumber,
                     packageName = packageName,
-                    label = launcherAppsActivityInfo.applicationLabel,
-                    icon = icon,
+                    applicationIcon = icon,
+                    applicationLabel = launcherAppsActivityInfo.label,
                 )
 
                 updateEblanShortcutConfigsUseCase(
                     serialNumber = serialNumber,
                     packageName = packageName,
                     icon = icon,
-                    label = launcherAppsActivityInfo.applicationLabel,
+                    label = launcherAppsActivityInfo.label,
                 )
 
                 updateIconPackInfoByPackageNameUseCase(
@@ -136,8 +138,8 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanApplicationInfoByPackageName(
         packageName: String,
         serialNumber: Long,
-        label: String?,
         icon: String?,
+        label: String,
     ) {
         val componentName = packageManagerWrapper.getComponentName(packageName = packageName)
 
@@ -167,8 +169,8 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateEblanAppWidgetProviderInfosByPackageName(
         serialNumber: Long,
         packageName: String,
-        label: String?,
         icon: String?,
+        label: String,
     ) {
         if (!packageManagerWrapper.hasSystemFeatureAppWidgets) return
 
@@ -213,8 +215,8 @@ class ChangePackageUseCase @Inject constructor(
                         maxResizeWidth = appWidgetManagerAppWidgetProviderInfo.maxResizeWidth,
                         maxResizeHeight = appWidgetManagerAppWidgetProviderInfo.maxResizeHeight,
                         preview = preview,
-                        label = label,
                         icon = icon,
+                        label = label,
                     )
                 }
 
@@ -311,7 +313,7 @@ class ChangePackageUseCase @Inject constructor(
                         currentCoroutineContext().ensureActive()
 
                         newEblanShortcutInfo.packageName == packageName &&
-                            newEblanShortcutInfo.serialNumber != serialNumber
+                                newEblanShortcutInfo.serialNumber != serialNumber
                     }
 
                 if (isUnique) {
@@ -383,8 +385,8 @@ class ChangePackageUseCase @Inject constructor(
                 appWidgetManagerAppWidgetProviderInfos
                     .find { appWidgetManagerAppWidgetProviderInfo ->
                         appWidgetManagerAppWidgetProviderInfo.packageName == widgetGridItem.packageName &&
-                            appWidgetManagerAppWidgetProviderInfo.componentName == widgetGridItem.componentName &&
-                            serialNumber == widgetGridItem.serialNumber
+                                appWidgetManagerAppWidgetProviderInfo.componentName == widgetGridItem.componentName &&
+                                serialNumber == widgetGridItem.serialNumber
                     }
 
             if (appWidgetManagerAppWidgetProviderInfo != null) {
@@ -441,7 +443,7 @@ class ChangePackageUseCase @Inject constructor(
                 val launcherAppsShortcutInfo =
                     launcherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
                         launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                            launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                                launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsShortcutInfo != null) {
@@ -479,8 +481,8 @@ class ChangePackageUseCase @Inject constructor(
     private suspend fun updateShortcutConfigGridItemsByPackageName(
         serialNumber: Long,
         packageName: String,
-        label: String?,
-        icon: String?,
+        applicationIcon: String?,
+        applicationLabel: String,
     ) {
         val updateShortcutConfigGridItems =
             mutableListOf<UpdateShortcutConfigGridItem>()
@@ -505,7 +507,7 @@ class ChangePackageUseCase @Inject constructor(
             val launcherAppsActivityInfo =
                 eblanShortcutConfigs.find { launcherAppsShortcutInfo ->
                     launcherAppsShortcutInfo.componentName == shortcutConfigGridItem.componentName &&
-                        launcherAppsShortcutInfo.serialNumber == shortcutConfigGridItem.serialNumber
+                            launcherAppsShortcutInfo.serialNumber == shortcutConfigGridItem.serialNumber
                 }
 
             if (launcherAppsActivityInfo != null) {
@@ -524,10 +526,10 @@ class ChangePackageUseCase @Inject constructor(
                     UpdateShortcutConfigGridItem(
                         id = shortcutConfigGridItem.id,
                         componentName = launcherAppsActivityInfo.componentName,
-                        activityLabel = launcherAppsActivityInfo.activityLabel,
                         activityIcon = activityIcon,
-                        applicationLabel = label,
-                        applicationIcon = icon,
+                        activityLabel = launcherAppsActivityInfo.label,
+                        applicationIcon = applicationIcon,
+                        applicationLabel = applicationLabel,
                     ),
                 )
             } else {

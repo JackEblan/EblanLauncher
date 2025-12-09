@@ -60,7 +60,7 @@ class GetPinGridItemUseCase @Inject constructor(
                     val label =
                         packageManagerWrapper.getApplicationLabel(packageName = pinItemRequestType.packageName)
 
-                    val eblanApplicationInfoIcon =
+                    val icon =
                         packageManagerWrapper.getApplicationIcon(packageName = pinItemRequestType.packageName)
                             ?.let { byteArray ->
                                 fileManager.updateAndGetFilePath(
@@ -86,8 +86,8 @@ class GetPinGridItemUseCase @Inject constructor(
                         targetCellHeight = pinItemRequestType.targetCellHeight,
                         targetCellWidth = pinItemRequestType.targetCellWidth,
                         preview = preview,
-                        label = label,
-                        icon = eblanApplicationInfoIcon,
+                        label = label.toString(),
+                        icon = icon,
                     )
 
                     GridItem(

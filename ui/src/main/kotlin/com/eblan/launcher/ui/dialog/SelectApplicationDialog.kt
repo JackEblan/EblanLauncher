@@ -55,7 +55,7 @@ fun SelectApplicationDialog(
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(eblanApplicationInfos) { eblanApplicationInfo ->
                     ListItem(
-                        headlineContent = { Text(text = eblanApplicationInfo.label.toString()) },
+                        headlineContent = { Text(text = eblanApplicationInfo.label) },
                         leadingContent = {
                             AsyncImage(
                                 model = eblanApplicationInfo.icon,

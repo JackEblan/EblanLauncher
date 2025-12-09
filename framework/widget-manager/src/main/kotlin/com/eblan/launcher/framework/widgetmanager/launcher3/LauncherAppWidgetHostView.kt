@@ -59,7 +59,7 @@ internal class LauncherAppWidgetHostView(context: Context) :
 
                 if (distance > slop) {
                     if (mIsScrollable) {
-                        if (angle < 45 || angle > 135) {
+                        if (angle !in 45.0..135.0) {
                             // Horizontal swipe → let pager do the swipe
                             parent?.requestDisallowInterceptTouchEvent(false)
                         } else {

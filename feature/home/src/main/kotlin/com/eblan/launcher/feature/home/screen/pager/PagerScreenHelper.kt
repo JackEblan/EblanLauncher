@@ -286,7 +286,7 @@ internal fun handleHasDoubleTap(
             val intent = Intent(GlobalAction.NAME).putExtra(
                 GlobalAction.GLOBAL_ACTION_TYPE,
                 GlobalAction.Notifications.name,
-            )
+            ).setPackage(context.packageName)
 
             context.sendBroadcast(intent)
         }
@@ -295,7 +295,7 @@ internal fun handleHasDoubleTap(
             val intent = Intent(GlobalAction.NAME).putExtra(
                 GlobalAction.GLOBAL_ACTION_TYPE,
                 GlobalAction.LockScreen.name,
-            )
+            ).setPackage(context.packageName)
 
             context.sendBroadcast(intent)
         }
@@ -304,7 +304,7 @@ internal fun handleHasDoubleTap(
             val intent = Intent(GlobalAction.NAME).putExtra(
                 GlobalAction.GLOBAL_ACTION_TYPE,
                 GlobalAction.QuickSettings.name,
-            )
+            ).setPackage(context.packageName)
 
             context.sendBroadcast(intent)
         }
@@ -313,7 +313,7 @@ internal fun handleHasDoubleTap(
             val intent = Intent(GlobalAction.NAME).putExtra(
                 GlobalAction.GLOBAL_ACTION_TYPE,
                 GlobalAction.Recents.name,
-            )
+            ).setPackage(context.packageName)
 
             context.sendBroadcast(intent)
         }

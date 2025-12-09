@@ -81,4 +81,8 @@ internal class DefaultEblanApplicationInfoRepository @Inject constructor(private
     override suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>) {
         eblanApplicationInfoDao.deleteSyncEblanApplicationInfoEntities(syncEblanApplicationInfos = syncEblanApplicationInfos)
     }
+
+    override suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo) {
+        eblanApplicationInfoDao.updateEblanApplicationInfoEntity(entity = eblanApplicationInfo.asEntity())
+    }
 }

@@ -24,7 +24,7 @@ sealed interface GridItemData {
         val componentName: String,
         val packageName: String,
         val icon: String?,
-        val label: String?,
+        val label: String,
         val customIcon: String?,
         val customLabel: String?,
     ) : GridItemData
@@ -45,7 +45,7 @@ sealed interface GridItemData {
         val targetCellHeight: Int,
         val targetCellWidth: Int,
         val preview: String?,
-        val label: String?,
+        val label: String,
         val icon: String?,
     ) : GridItemData
 

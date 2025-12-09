@@ -18,11 +18,11 @@
 package com.eblan.launcher.domain.model
 
 data class EblanApplicationInfo(
-    val serialNumber: Long,
     val componentName: String,
+    val serialNumber: Long,
     val packageName: String,
     val icon: String?,
-    val label: String?,
+    val label: String,
     val customIcon: String?,
     val customLabel: String?,
 )

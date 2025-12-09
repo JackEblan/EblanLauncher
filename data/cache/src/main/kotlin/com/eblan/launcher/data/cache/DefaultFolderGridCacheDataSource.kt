@@ -27,7 +27,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class DefaultFolderGridCacheDataSource @Inject constructor(@Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher) :
+internal class DefaultFolderGridCacheDataSource @Inject constructor(
+    @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
+) :
     FolderGridCacheDataSource {
     private val _gridItemsCache = MutableStateFlow(emptyList<GridItem>())
 

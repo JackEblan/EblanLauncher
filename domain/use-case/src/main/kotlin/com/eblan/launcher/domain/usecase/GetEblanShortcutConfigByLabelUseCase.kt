@@ -37,7 +37,7 @@ class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
             eblanShortcutConfigs.sortedBy { eblanShortcutConfig ->
                 eblanShortcutConfig.applicationLabel?.lowercase()
             }.filter { eblanShortcutConfig ->
-                label.isNotBlank() && eblanShortcutConfig.activityLabel.toString().contains(
+                label.isNotBlank() && eblanShortcutConfig.applicationLabel.toString().contains(
                     other = label,
                     ignoreCase = true,
                 )
@@ -45,7 +45,7 @@ class GetEblanShortcutConfigByLabelUseCase @Inject constructor(
                 EblanApplicationInfoGroup(
                     packageName = eblanAppWidgetProviderInfo.packageName,
                     icon = eblanAppWidgetProviderInfo.activityIcon,
-                    label = eblanAppWidgetProviderInfo.activityLabel,
+                    label = eblanAppWidgetProviderInfo.applicationLabel,
                 )
             }
         }.flowOn(defaultDispatcher)

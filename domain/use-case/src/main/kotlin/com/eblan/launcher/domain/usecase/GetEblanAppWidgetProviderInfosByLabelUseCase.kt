@@ -35,9 +35,9 @@ class GetEblanAppWidgetProviderInfosByLabelUseCase @Inject constructor(
     operator fun invoke(label: String): Flow<Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>> {
         return eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
             eblanAppWidgetProviderInfos.sortedBy { eblanAppWidgetProviderInfo ->
-                eblanAppWidgetProviderInfo.label?.lowercase()
+                eblanAppWidgetProviderInfo.label.lowercase()
             }.filter { eblanAppWidgetProviderInfo ->
-                label.isNotBlank() && eblanAppWidgetProviderInfo.label.toString().contains(
+                label.isNotBlank() && eblanAppWidgetProviderInfo.label.contains(
                     other = label,
                     ignoreCase = true,
                 )

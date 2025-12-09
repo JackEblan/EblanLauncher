@@ -416,10 +416,8 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             activityIcon = getIcon(0).let { drawable ->
                 androidByteArrayWrapper.createByteArray(drawable = drawable)
             },
-            activityLabel = label.toString(),
             applicationIcon = packageManagerWrapper.getApplicationIcon(packageName = applicationInfo.packageName),
-            applicationLabel = packageManagerWrapper.getApplicationLabel(packageName = applicationInfo.packageName)
-                .toString(),
+            label = label.toString(),
         )
     }
 

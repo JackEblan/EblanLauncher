@@ -156,7 +156,7 @@ class AddPinWidgetToHomeScreenUseCase @Inject constructor(
                 targetCellHeight = targetCellHeight,
                 targetCellWidth = targetCellWidth,
                 preview = previewInferred,
-                label = label,
+                label = label.toString(),
                 icon = icon,
             )
 

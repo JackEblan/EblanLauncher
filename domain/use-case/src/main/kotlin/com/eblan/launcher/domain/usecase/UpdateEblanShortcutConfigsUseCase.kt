@@ -51,13 +51,13 @@ class UpdateEblanShortcutConfigsUseCase @Inject constructor(
             val newEblanShortcutConfigs = launcherAppsWrapper.getShortcutConfigActivityList(
                 serialNumber = serialNumber,
                 packageName = packageName,
-            ).map { launcherAppsInfo ->
+            ).map { launcherAppsActivityInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val activityIcon = launcherAppsInfo.activityIcon?.let { byteArray ->
+                val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
                     fileManager.updateAndGetFilePath(
                         directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
-                        name = launcherAppsInfo.componentName.replace(
+                        name = launcherAppsActivityInfo.componentName.replace(
                             "/",
                             "-",
                         ),
@@ -66,11 +66,11 @@ class UpdateEblanShortcutConfigsUseCase @Inject constructor(
                 }
 
                 EblanShortcutConfig(
-                    componentName = launcherAppsInfo.componentName,
-                    packageName = launcherAppsInfo.packageName,
-                    serialNumber = launcherAppsInfo.serialNumber,
+                    componentName = launcherAppsActivityInfo.componentName,
+                    packageName = launcherAppsActivityInfo.packageName,
+                    serialNumber = launcherAppsActivityInfo.serialNumber,
                     activityIcon = activityIcon,
-                    activityLabel = launcherAppsInfo.activityLabel,
+                    activityLabel = launcherAppsActivityInfo.label,
                     applicationIcon = icon,
                     applicationLabel = label,
                 )

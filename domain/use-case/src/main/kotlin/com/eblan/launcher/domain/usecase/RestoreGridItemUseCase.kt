@@ -21,12 +21,14 @@ import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
+import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
 class RestoreGridItemUseCase @Inject constructor(
+    private val eblanApplicationInfoRepository: EblanApplicationInfoRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(gridItem: GridItem): GridItem {
@@ -39,6 +41,21 @@ class RestoreGridItemUseCase @Inject constructor(
                         if (customIconFile.exists()) {
                             File(customIcon).delete()
                         }
+                    }
+
+                    val eblanApplicationInfo =
+                        eblanApplicationInfoRepository.getEblanApplicationInfo(
+                            serialNumber = data.serialNumber,
+                            packageName = data.packageName,
+                        )
+
+                    if (eblanApplicationInfo != null) {
+                        eblanApplicationInfoRepository.updateEblanApplicationInfo(
+                            eblanApplicationInfo = eblanApplicationInfo.copy(
+                                customIcon = null,
+                                customLabel = null,
+                            ),
+                        )
                     }
 
                     val newData = data.copy(

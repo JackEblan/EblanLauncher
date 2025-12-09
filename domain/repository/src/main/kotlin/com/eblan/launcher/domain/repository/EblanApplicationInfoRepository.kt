@@ -43,4 +43,6 @@ interface EblanApplicationInfoRepository {
     suspend fun upsertSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
 
     suspend fun deleteSyncEblanApplicationInfos(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
+
+    suspend fun updateEblanApplicationInfo(eblanApplicationInfo: EblanApplicationInfo)
 }

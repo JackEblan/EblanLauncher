@@ -20,6 +20,7 @@ package com.eblan.launcher.data.room.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import com.eblan.launcher.data.room.entity.EblanApplicationInfoEntity
 import com.eblan.launcher.domain.model.SyncEblanApplicationInfo
@@ -59,4 +60,7 @@ interface EblanApplicationInfoDao {
 
     @Delete(entity = EblanApplicationInfoEntity::class)
     suspend fun deleteSyncEblanApplicationInfoEntities(syncEblanApplicationInfos: List<SyncEblanApplicationInfo>)
+
+    @Update
+    suspend fun updateEblanApplicationInfoEntity(entity: EblanApplicationInfoEntity)
 }

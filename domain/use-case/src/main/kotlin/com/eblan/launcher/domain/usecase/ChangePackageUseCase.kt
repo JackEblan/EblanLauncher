@@ -149,7 +149,7 @@ class ChangePackageUseCase @Inject constructor(
         )
 
         if (eblanApplicationInfo != null && componentName != null) {
-            eblanApplicationInfoRepository.upsertEblanApplicationInfo(
+            eblanApplicationInfoRepository.updateEblanApplicationInfo(
                 eblanApplicationInfo = eblanApplicationInfo.copy(
                     componentName = componentName,
                     icon = icon,

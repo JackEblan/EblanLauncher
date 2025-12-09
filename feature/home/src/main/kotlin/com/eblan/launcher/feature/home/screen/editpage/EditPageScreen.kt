@@ -22,7 +22,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +38,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -146,13 +146,7 @@ internal fun EditPageScreen(
                 ) {
                     OutlinedCard(
                         colors = CardDefaults.cardColors(
-                            containerColor = getSystemTextColor(textColor = textColor).copy(
-                                alpha = 0.25f,
-                            ),
-                        ),
-                        border = BorderStroke(
-                            width = 2.dp,
-                            color = getSystemTextColor(textColor = textColor),
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                         ),
                     ) {
                         GridLayout(

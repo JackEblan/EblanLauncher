@@ -1,0 +1,4 @@
+- Refactor: Organize use cases into feature-specific packages (#392)
+- Refactor: Clean up styling in DragScreen (#389)
+- Fixed multiple launchable activities in a single package (#388)
+- Custom Label And Icon (#380)

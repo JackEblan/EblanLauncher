@@ -8,6 +8,7 @@ on:
 jobs:
   build_release_apk:
     name: "Build Release APK"
+    if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 120
 

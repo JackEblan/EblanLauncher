@@ -22,8 +22,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +37,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -140,17 +140,18 @@ internal fun EditPageScreen(
                 key = { _, pageItem -> pageItem.id },
             ) { index, pageItem ->
                 DraggableItem(
-                    modifier = Modifier.padding(5.dp),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                            shape = RoundedCornerShape(8.dp),
+                        ),
                     state = gridDragAndDropState,
                     index = index,
                 ) {
-                    OutlinedCard(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        ),
-                    ) {
+                    Column(modifier = Modifier.height(cardHeight)) {
                         GridLayout(
-                            modifier = Modifier.height(cardHeight),
+                            modifier = Modifier.weight(1f),
                             gridItems = pageItem.gridItems,
                             columns = homeSettings.columns,
                             rows = homeSettings.rows,

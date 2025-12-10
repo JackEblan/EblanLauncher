@@ -22,10 +22,10 @@ import android.content.Intent
 import android.os.IBinder
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.LauncherAppsEvent
-import com.eblan.launcher.domain.usecase.AddPackageUseCase
-import com.eblan.launcher.domain.usecase.ChangePackageUseCase
-import com.eblan.launcher.domain.usecase.ChangeShortcutsUseCase
-import com.eblan.launcher.domain.usecase.RemovePackageUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.AddPackageUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.ChangePackageUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.ChangeShortcutsUseCase
+import com.eblan.launcher.domain.usecase.launcherapps.RemovePackageUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

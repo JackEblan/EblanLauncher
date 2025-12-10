@@ -15,40 +15,32 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.usecase
+package com.eblan.launcher.domain.usecase.grid
 
 import com.eblan.launcher.domain.common.dispatcher.Dispatcher
 import com.eblan.launcher.domain.common.dispatcher.EblanDispatchers
-import com.eblan.launcher.domain.model.Associate
-import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.repository.GridCacheRepository
+import com.eblan.launcher.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UpdateGridItemsAfterResizeUseCase @Inject constructor(
+class UpdateGridItemsAfterPinUseCase @Inject constructor(
     private val gridCacheRepository: GridCacheRepository,
+    private val userDataRepository: UserDataRepository,
     private val updateGridItemsUseCase: UpdateGridItemsUseCase,
     @param:Dispatcher(EblanDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher,
 ) {
-    suspend operator fun invoke(resizingGridItem: GridItem) {
+    suspend operator fun invoke() {
         withContext(defaultDispatcher) {
-            val gridItems = gridCacheRepository.gridItemsCache.first()
+            val initialPage = userDataRepository.userData.first().homeSettings.initialPage
 
-            when (resizingGridItem.associate) {
-                Associate.Grid -> {
-                    updateGridItemsUseCase(
-                        gridItems = gridItems.filter { gridItem ->
-                            gridItem.page == resizingGridItem.page
-                        },
-                    )
-                }
-
-                Associate.Dock -> {
-                    updateGridItemsUseCase(gridItems = gridItems)
-                }
+            val gridItems = gridCacheRepository.gridItemsCache.first().filter { gridItem ->
+                gridItem.page == initialPage
             }
+
+            updateGridItemsUseCase(gridItems = gridItems)
         }
     }
 }

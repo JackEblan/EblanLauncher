@@ -140,16 +140,18 @@ internal fun EditPageScreen(
                 key = { _, pageItem -> pageItem.id },
             ) { index, pageItem ->
                 DraggableItem(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                            shape = RoundedCornerShape(8.dp),
-                        ),
+                    modifier = Modifier.padding(5.dp),
                     state = gridDragAndDropState,
                     index = index,
                 ) {
-                    Column(modifier = Modifier.height(cardHeight)) {
+                    Column(
+                        modifier = Modifier
+                            .height(cardHeight)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                                shape = RoundedCornerShape(8.dp),
+                            ),
+                    ) {
                         GridLayout(
                             modifier = Modifier.weight(1f),
                             gridItems = pageItem.gridItems,

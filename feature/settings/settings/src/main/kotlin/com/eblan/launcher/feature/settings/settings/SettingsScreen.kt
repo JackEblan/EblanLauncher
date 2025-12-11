@@ -17,10 +17,7 @@
  */
 package com.eblan.launcher.feature.settings.settings
 
-import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.TIRAMISU
 import android.provider.Settings.ACTION_HOME_SETTINGS
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -54,12 +51,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.feature.settings.settings.dialog.SupportDialog
+import com.eblan.launcher.ui.dialog.TextDialog
 import com.eblan.launcher.ui.local.LocalPackageManager
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 
 @Composable
 internal fun SettingsRoute(
@@ -84,7 +79,7 @@ internal fun SettingsRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -99,12 +94,6 @@ internal fun SettingsScreen(
     val context = LocalContext.current
 
     val packageManager = LocalPackageManager.current
-
-    val notificationsPermissionState = if (SDK_INT >= TIRAMISU) {
-        rememberPermissionState(permission = POST_NOTIFICATIONS)
-    } else {
-        null
-    }
 
     var showSupportDialog by remember { mutableStateOf(false) }
 
@@ -150,17 +139,6 @@ internal fun SettingsScreen(
                 )
 
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-                if (notificationsPermissionState != null && !notificationsPermissionState.status.isGranted) {
-                    SettingsRow(
-                        imageVector = EblanLauncherIcons.Info,
-                        title = "Notifications",
-                        subtitle = "Post notifications",
-                        onClick = notificationsPermissionState::launchPermissionRequest,
-                    )
-
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                }
 
                 if (!packageManager.isDefaultLauncher()) {
                     SettingsRow(
@@ -231,9 +209,23 @@ internal fun SettingsScreen(
     }
 
     if (showSupportDialog) {
-        SupportDialog(onDismissRequest = {
-            showSupportDialog = false
-        })
+        TextDialog(
+            title = "Support Development",
+            text = "Thank you for using Eblan Launcher Alpha! I’ve been building this project since January 2025, releasing weekly updates. It’s my most complex project yet, and I pour my heart into it. If you enjoy it, you can support development with a donation or a star on GitHub.",
+            onClick = {
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        "https://github.com/JackEblan/EblanLauncher".toUri(),
+                    ),
+                )
+
+                showSupportDialog = false
+            },
+            onDismissRequest = {
+                showSupportDialog = false
+            },
+        )
     }
 }
 

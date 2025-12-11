@@ -1,0 +1,2 @@
+- Feat: Add option to lock screen orientation
+- Refactor: Centralize and correct icon pack caching logic

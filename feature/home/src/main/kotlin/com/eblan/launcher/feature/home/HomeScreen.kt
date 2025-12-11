@@ -23,8 +23,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.IBinder
 import androidx.activity.compose.LocalActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -95,11 +97,15 @@ import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.service.EblanNotificationListenerService
 import com.eblan.launcher.service.LauncherAppsService
 import com.eblan.launcher.service.SyncDataService
+import com.eblan.launcher.ui.dialog.TextDialog
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalByteArray
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalPinItemRequest
 import com.eblan.launcher.ui.local.LocalUserManager
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -493,6 +499,7 @@ internal fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
@@ -896,6 +903,10 @@ private fun Success(
             }
         }
     }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        PostNotificationPermission()
+    }
 }
 
 @Composable
@@ -920,6 +931,40 @@ private fun OverlayImage(
                 .size(size),
             bitmap = overlayImageBitmap,
             contentDescription = null,
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun PostNotificationPermission(modifier: Modifier = Modifier) {
+    val notificationsPermissionState =
+        rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
+
+    var showTextDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = notificationsPermissionState) {
+        if (notificationsPermissionState.status.shouldShowRationale) {
+            showTextDialog = true
+        } else {
+            notificationsPermissionState.launchPermissionRequest()
+        }
+    }
+
+    if (showTextDialog) {
+        TextDialog(
+            modifier = modifier,
+            title = "Notification Permission",
+            text = "Allow notification permission so we can inform you about data sync status and important crash reports.",
+            onClick = {
+                notificationsPermissionState.launchPermissionRequest()
+
+                showTextDialog = false
+            },
+            onDismissRequest = {
+                showTextDialog = false
+            },
         )
     }
 }

@@ -15,9 +15,8 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.settings.settings.dialog
+package com.eblan.launcher.ui.dialog
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,18 +32,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.eblan.launcher.designsystem.component.EblanDialogContainer
 
 @Composable
-internal fun SupportDialog(
+fun TextDialog(
     modifier: Modifier = Modifier,
+    title: String,
+    text: String,
     onDismissRequest: () -> Unit,
+    onClick: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     EblanDialogContainer(onDismissRequest = onDismissRequest) {
         Column(
             modifier = modifier
@@ -56,13 +54,13 @@ internal fun SupportDialog(
                     start = 15.dp,
                     top = 10.dp,
                 ),
-                text = "Support Development",
+                text = title,
                 style = MaterialTheme.typography.titleLarge,
             )
 
             Text(
                 modifier = Modifier.padding(15.dp),
-                text = "Thank you for using Eblan Launcher Alpha! I’ve been building this project since January 2025, releasing weekly updates. It’s my most complex project yet, and I pour my heart into it. If you enjoy it, you can support development with a donation or a star on GitHub.",
+                text = text,
             )
 
             Row(
@@ -78,19 +76,10 @@ internal fun SupportDialog(
                     Text(text = "Later")
                 }
 
-                Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://github.com/JackEblan/EblanLauncher".toUri(),
-                            ),
-                        )
-
-                        onDismissRequest()
-                    },
+                    onClick = onClick,
                 ) {
                     Text(text = "Okay")
                 }

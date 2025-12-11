@@ -196,8 +196,6 @@ internal class DefaultIconPackManager @Inject constructor(
             }
         }
 
-        return iconPackInfoComponents.distinctBy { iconPackInfoComponent ->
-            iconPackInfoComponent.drawable
-        }
+        return iconPackInfoComponents
     }
 }

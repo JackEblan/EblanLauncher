@@ -1,0 +1,108 @@
+/*
+ *
+ *   Copyright 2023 Einstein Blanco
+ *
+ *   Licensed under the GNU General Public License v3.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/gpl-3.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+package com.eblan.launcher.domain.usecase.launcherapps
+
+import com.eblan.launcher.domain.framework.FileManager
+import com.eblan.launcher.domain.framework.LauncherAppsWrapper
+import com.eblan.launcher.domain.model.EblanShortcutConfig
+import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import java.io.File
+
+internal suspend fun updateEblanShortcutConfigs(
+    launcherAppsWrapper: LauncherAppsWrapper,
+    fileManager: FileManager,
+    eblanShortcutConfigRepository: EblanShortcutConfigRepository,
+    serialNumber: Long,
+    packageName: String,
+    icon: String?,
+    label: String?,
+) {
+    val oldEblanShortcutConfigs = eblanShortcutConfigRepository.getEblanShortcutConfig(
+        serialNumber = serialNumber,
+        packageName = packageName,
+    )
+
+    val newEblanShortcutConfigs = launcherAppsWrapper.getShortcutConfigActivityList(
+        serialNumber = serialNumber,
+        packageName = packageName,
+    ).map { launcherAppsActivityInfo ->
+        currentCoroutineContext().ensureActive()
+
+        val activityIcon = launcherAppsActivityInfo.activityIcon?.let { byteArray ->
+            fileManager.updateAndGetFilePath(
+                directory = fileManager.getFilesDirectory(FileManager.SHORTCUT_CONFIGS_DIR),
+                name = launcherAppsActivityInfo.componentName.replace(
+                    "/",
+                    "-",
+                ),
+                byteArray = byteArray,
+            )
+        }
+
+        EblanShortcutConfig(
+            componentName = launcherAppsActivityInfo.componentName,
+            packageName = launcherAppsActivityInfo.packageName,
+            serialNumber = launcherAppsActivityInfo.serialNumber,
+            activityIcon = activityIcon,
+            activityLabel = launcherAppsActivityInfo.label,
+            applicationIcon = icon,
+            applicationLabel = label,
+        )
+    }
+
+    if (oldEblanShortcutConfigs != newEblanShortcutConfigs) {
+        val eblanShortcutConfigsToDelete =
+            oldEblanShortcutConfigs - newEblanShortcutConfigs.toSet()
+
+        eblanShortcutConfigRepository.upsertEblanShortcutConfigs(
+            eblanShortcutConfigs = newEblanShortcutConfigs,
+        )
+
+        eblanShortcutConfigRepository.deleteEblanShortcutConfigs(
+            eblanShortcutConfigs = oldEblanShortcutConfigs,
+        )
+
+        eblanShortcutConfigsToDelete.forEach { eblanShortcutConfigToDelete ->
+            currentCoroutineContext().ensureActive()
+
+            val isUnique = newEblanShortcutConfigs.none { newEblanShortcutConfig ->
+                newEblanShortcutConfig.packageName == eblanShortcutConfigToDelete.packageName && newEblanShortcutConfig.serialNumber != eblanShortcutConfigToDelete.serialNumber
+            }
+
+            if (isUnique) {
+                eblanShortcutConfigToDelete.activityIcon?.let { activityIcon ->
+                    val activityIconFile = File(activityIcon)
+
+                    if (activityIconFile.exists()) {
+                        activityIconFile.delete()
+                    }
+
+                    eblanShortcutConfigToDelete.applicationIcon?.let { applicationIcon ->
+                        val applicationIconFile = File(applicationIcon)
+
+                        if (applicationIconFile.exists()) {
+                            applicationIconFile.delete()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -42,43 +42,24 @@ class UpdateIconPackInfoByPackageNameUseCase @Inject constructor(
             val iconPackInfoPackageName =
                 userDataRepository.userData.first().generalSettings.iconPackInfoPackageName
 
+            val iconPackDirectory = File(
+                fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
+                iconPackInfoPackageName,
+            ).apply { if (!exists()) mkdirs() }
+
+            val appFilter = iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+
             if (iconPackInfoPackageName.isNotEmpty()) {
                 cacheIconPackFile(
+                    iconPackManager = iconPackManager,
+                    fileManager = fileManager,
+                    appFilter = appFilter,
                     iconPackInfoPackageName = iconPackInfoPackageName,
+                    iconPackDirectory = iconPackDirectory,
                     componentName = componentName,
                     packageName = packageName,
                 )
             }
         }
-    }
-
-    private suspend fun cacheIconPackFile(
-        iconPackInfoPackageName: String,
-        componentName: String,
-        packageName: String,
-    ) {
-        val iconPackDirectory = File(
-            fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
-            iconPackInfoPackageName,
-        ).apply { if (!exists()) mkdirs() }
-
-        val appFilter =
-            iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
-
-        val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
-            iconPackInfoComponent.component.contains(componentName) ||
-                iconPackInfoComponent.component.contains(packageName)
-        } ?: return
-
-        val byteArray = iconPackManager.loadByteArrayFromIconPack(
-            packageName = iconPackInfoPackageName,
-            drawableName = iconPackInfoComponent.drawable,
-        ) ?: return
-
-        fileManager.updateAndGetFilePath(
-            directory = iconPackDirectory,
-            name = componentName,
-            byteArray = byteArray,
-        )
     }
 }

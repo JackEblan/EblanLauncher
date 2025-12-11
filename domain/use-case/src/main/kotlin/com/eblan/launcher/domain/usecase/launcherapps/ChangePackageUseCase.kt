@@ -36,6 +36,7 @@ import com.eblan.launcher.domain.model.WidgetGridItem
 import com.eblan.launcher.domain.repository.ApplicationInfoGridItemRepository
 import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
+import com.eblan.launcher.domain.repository.EblanShortcutConfigRepository
 import com.eblan.launcher.domain.repository.EblanShortcutInfoRepository
 import com.eblan.launcher.domain.repository.ShortcutConfigGridItemRepository
 import com.eblan.launcher.domain.repository.ShortcutInfoGridItemRepository
@@ -63,8 +64,8 @@ class ChangePackageUseCase @Inject constructor(
     private val eblanShortcutInfoRepository: EblanShortcutInfoRepository,
     private val widgetGridItemRepository: WidgetGridItemRepository,
     private val shortcutInfoGridItemRepository: ShortcutInfoGridItemRepository,
-    private val updateEblanShortcutConfigsUseCase: UpdateEblanShortcutConfigsUseCase,
     private val shortcutConfigGridItemRepository: ShortcutConfigGridItemRepository,
+    private val eblanShortcutConfigRepository: EblanShortcutConfigRepository,
     @param:Dispatcher(EblanDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -111,7 +112,10 @@ class ChangePackageUseCase @Inject constructor(
                     applicationLabel = launcherAppsActivityInfo.label,
                 )
 
-                updateEblanShortcutConfigsUseCase(
+                updateEblanShortcutConfigs(
+                    launcherAppsWrapper = launcherAppsWrapper,
+                    fileManager = fileManager,
+                    eblanShortcutConfigRepository = eblanShortcutConfigRepository,
                     serialNumber = launcherAppsActivityInfo.serialNumber,
                     packageName = launcherAppsActivityInfo.packageName,
                     icon = icon,

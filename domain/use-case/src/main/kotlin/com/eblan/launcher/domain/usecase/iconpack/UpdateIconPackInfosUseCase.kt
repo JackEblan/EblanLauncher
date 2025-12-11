@@ -23,8 +23,6 @@ import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.IconPackManager
 import com.eblan.launcher.domain.framework.LauncherAppsWrapper
 import com.eblan.launcher.domain.model.EblanIconPackInfo
-import com.eblan.launcher.domain.model.IconPackInfoComponent
-import com.eblan.launcher.domain.model.LauncherAppsActivityInfo
 import com.eblan.launcher.domain.repository.EblanApplicationInfoRepository
 import com.eblan.launcher.domain.repository.EblanIconPackInfoRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -51,7 +49,9 @@ class UpdateIconPackInfosUseCase @Inject constructor(
 
             if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
                 val appFilter =
-                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
+                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName).onEach {
+                        println(it.component)
+                    }
 
                 val iconPackDirectory = File(
                     fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),
@@ -63,16 +63,22 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                         ensureActive()
 
                         cacheIconPackFile(
+                            iconPackManager = iconPackManager,
+                            fileManager = fileManager,
                             appFilter = appFilter,
-                            launcherAppsActivityInfo = launcherAppsActivityInfo,
                             iconPackInfoPackageName = iconPackInfoPackageName,
                             iconPackDirectory = iconPackDirectory,
+                            componentName = launcherAppsActivityInfo.componentName,
+                            packageName = launcherAppsActivityInfo.packageName,
                         )
                     }
                     .map { launcherAppsActivityInfo ->
                         ensureActive()
 
-                        launcherAppsActivityInfo.packageName
+                        launcherAppsActivityInfo.componentName.replace(
+                            "/",
+                            "-",
+                        )
                     }
 
                 eblanIconPackInfoRepository.upsertEblanIconPackInfo(
@@ -92,30 +98,5 @@ class UpdateIconPackInfosUseCase @Inject constructor(
                     }
             }
         }
-    }
-
-    private suspend fun cacheIconPackFile(
-        appFilter: List<IconPackInfoComponent>,
-        launcherAppsActivityInfo: LauncherAppsActivityInfo,
-        iconPackInfoPackageName: String,
-        iconPackDirectory: File,
-    ) {
-        val iconPackInfoComponent = appFilter.find { iconPackInfoComponent ->
-            iconPackInfoComponent.component.contains(launcherAppsActivityInfo.componentName) ||
-                iconPackInfoComponent.component.contains(
-                    launcherAppsActivityInfo.packageName,
-                )
-        } ?: return
-
-        val byteArray = iconPackManager.loadByteArrayFromIconPack(
-            packageName = iconPackInfoPackageName,
-            drawableName = iconPackInfoComponent.drawable,
-        ) ?: return
-
-        fileManager.updateAndGetFilePath(
-            directory = iconPackDirectory,
-            name = launcherAppsActivityInfo.packageName,
-            byteArray = byteArray,
-        )
     }
 }

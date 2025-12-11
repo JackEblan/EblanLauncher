@@ -96,6 +96,9 @@ internal class EditApplicationInfoViewModel @Inject constructor(
         iconPackInfoComponentsJob = viewModelScope.launch {
             _iconPackInfoComponents.update {
                 iconPackManager.parseAppFilter(packageName = packageName)
+                    .distinctBy { iconPackInfoComponent ->
+                        iconPackInfoComponent.drawable
+                    }
             }
         }
     }

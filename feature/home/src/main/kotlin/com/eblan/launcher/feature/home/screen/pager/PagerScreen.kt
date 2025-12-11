@@ -214,7 +214,7 @@ internal fun PagerScreen(
         hasDoubleTap = false
     }
 
-    DisposableEffect(key1 = scope) {
+    DisposableEffect(key1 = activity) {
         val listener = Consumer<Intent> { intent ->
             scope.launch {
                 handleActionMainIntent(
@@ -237,8 +237,8 @@ internal fun PagerScreen(
                         )
                     },
                     onPerformGlobalAction = { globalAction ->
-                        val intent = Intent(GlobalAction.NAME)
-                            .setPackage(context.packageName).putExtra(
+                        val intent =
+                            Intent(GlobalAction.NAME).setPackage(context.packageName).putExtra(
                                 GlobalAction.GLOBAL_ACTION_TYPE,
                                 globalAction.name,
                             )
@@ -352,9 +352,7 @@ internal fun PagerScreen(
         onResetOverlay = onResetOverlay,
     )
 
-    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer ||
-        gestureSettings.swipeDown is EblanAction.OpenAppDrawer
-    ) {
+    if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
         ApplicationScreen(
             currentPage = currentPage,
             offsetY = {

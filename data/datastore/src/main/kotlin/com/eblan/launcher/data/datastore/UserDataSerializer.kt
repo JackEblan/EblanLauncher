@@ -70,6 +70,7 @@ class UserDataSerializer @Inject constructor() : Serializer<UserDataProto> {
         folderColumns = 5
         folderRows = 5
         gridItemSettingsProto = defaultGridItemSettingsProto
+        lockScreenOrientation = false
     }.build()
 
     private val defaultAppDrawerSettingsProto = AppDrawerSettingsProto.newBuilder().apply {

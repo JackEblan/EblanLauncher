@@ -68,6 +68,7 @@ internal fun HomeSettingsProto.toHomeSettings(): HomeSettings {
         folderColumns = folderColumns,
         folderRows = folderRows,
         gridItemSettings = gridItemSettingsProto.toGridItemSettings(),
+        lockScreenOrientation = lockScreenOrientation,
     )
 }
 
@@ -249,6 +250,7 @@ internal fun HomeSettings.toHomeSettingsProto(): HomeSettingsProto {
         .setFolderColumns(folderColumns)
         .setFolderRows(folderRows)
         .setGridItemSettingsProto(gridItemSettings.toGridItemSettingsProto())
+        .setLockScreenOrientation(lockScreenOrientation)
         .build()
 }
 

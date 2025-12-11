@@ -164,6 +164,17 @@ private fun Success(
                     onUpdateHomeSettings(homeSettings.copy(wallpaperScroll = wallpaperScroll))
                 },
             )
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            SettingsSwitch(
+                checked = homeSettings.lockScreenOrientation,
+                title = "Lock Screen Orientation",
+                subtitle = "Lock screen orientation",
+                onCheckedChange = { lockScreenOrientation ->
+                    onUpdateHomeSettings(homeSettings.copy(lockScreenOrientation = lockScreenOrientation))
+                },
+            )
         }
 
         Text(

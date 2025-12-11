@@ -695,15 +695,9 @@ private fun Success(
         }
     }
 
-    DisposableEffect(activity) {
+    LaunchedEffect(key1 = Unit) {
         if (homeData.userData.homeSettings.lockScreenOrientation) {
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        }
-
-        onDispose {
-            if (homeData.userData.homeSettings.lockScreenOrientation) {
-                activity?.requestedOrientation = activity.requestedOrientation
-            }
         }
     }
 

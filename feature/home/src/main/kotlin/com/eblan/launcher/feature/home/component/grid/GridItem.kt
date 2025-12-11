@@ -340,17 +340,24 @@ internal fun FolderGridItem(
 
                     when (val currentData = gridItem.data) {
                         is GridItemData.ApplicationInfo -> {
-                            val iconPacksDirectory =
-                                File(context.filesDir, FileManager.ICON_PACKS_DIR)
+                            val iconPacksDirectory = File(
+                                context.filesDir,
+                                FileManager.ICON_PACKS_DIR,
+                            )
 
-                            val iconPackDirectory =
-                                File(iconPacksDirectory, iconPackInfoPackageName)
+                            val iconPackDirectory = File(
+                                iconPacksDirectory,
+                                iconPackInfoPackageName,
+                            )
 
-                            val iconFile = File(iconPackDirectory, currentData.packageName)
+                            val iconPackFile = File(
+                                iconPackDirectory,
+                                currentData.componentName.replace("/", "-"),
+                            )
 
                             val icon =
-                                if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-                                    iconFile.absolutePath
+                                if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+                                    iconPackFile.absolutePath
                                 } else {
                                     currentData.icon
                                 }

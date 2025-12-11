@@ -19,7 +19,6 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -44,7 +43,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,22 +50,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
-import com.eblan.launcher.domain.framework.FileManager
-import com.eblan.launcher.domain.model.GridItem
-import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
-import java.io.File
 
 @Composable
 internal fun EditPageScreen(
@@ -158,11 +151,32 @@ internal fun EditPageScreen(
                             columns = homeSettings.columns,
                             rows = homeSettings.rows,
                             { gridItem ->
+                                val gridItemSettings = if (gridItem.override) {
+                                    gridItem.gridItemSettings
+                                } else {
+                                    homeSettings.gridItemSettings
+                                }.run {
+                                    copy(
+                                        iconSize = iconSize / 2,
+                                        textSize = textSize / 2,
+                                    )
+                                }
+                                val textColor = if (gridItem.override) {
+                                    getGridItemTextColor(
+                                        systemTextColor = textColor,
+                                        gridItemTextColor = gridItem.gridItemSettings.textColor,
+                                    )
+                                } else {
+                                    getSystemTextColor(textColor = textColor)
+                                }
+
                                 GridItemContent(
-                                    modifier = Modifier.padding(2.dp),
                                     gridItem = gridItem,
                                     textColor = textColor,
+                                    gridItemSettings = gridItemSettings,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
+                                    isDragging = false,
+                                    statusBarNotifications = emptyMap(),
                                 )
                             },
                         )
@@ -294,91 +308,6 @@ private fun ActionButtons(
                 Icon(
                     imageVector = EblanLauncherIcons.Add,
                     contentDescription = null,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalSharedTransitionApi::class)
-private fun GridItemContent(
-    modifier: Modifier = Modifier,
-    gridItem: GridItem,
-    textColor: TextColor,
-    iconPackInfoPackageName: String,
-) {
-    val context = LocalContext.current
-
-    val currentTextColor = if (gridItem.override) {
-        getGridItemTextColor(
-            systemTextColor = textColor,
-            gridItemTextColor = gridItem.gridItemSettings.textColor,
-        )
-    } else {
-        getSystemTextColor(textColor = textColor)
-    }
-
-    key(gridItem.id) {
-        when (val data = gridItem.data) {
-            is GridItemData.ApplicationInfo -> {
-                val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
-
-                val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
-
-                val iconFile = File(iconPackDirectory, data.packageName)
-
-                val icon = if (iconPackInfoPackageName.isNotEmpty() && iconFile.exists()) {
-                    iconFile.absolutePath
-                } else {
-                    data.icon
-                }
-
-                AsyncImage(
-                    model = icon,
-                    contentDescription = null,
-                    modifier = modifier,
-                )
-            }
-
-            is GridItemData.Widget -> {
-                AsyncImage(
-                    model = data.preview,
-                    contentDescription = null,
-                    modifier = modifier,
-                )
-            }
-
-            is GridItemData.ShortcutInfo -> {
-                AsyncImage(
-                    model = data.icon,
-                    contentDescription = null,
-                    modifier = modifier,
-                )
-            }
-
-            is GridItemData.Folder -> {
-                if (data.icon != null) {
-                    AsyncImage(
-                        model = data.icon,
-                        contentDescription = null,
-                        modifier = modifier,
-                    )
-                } else {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Folder,
-                        contentDescription = null,
-                        modifier = modifier,
-                        tint = currentTextColor,
-                    )
-                }
-            }
-
-            is GridItemData.ShortcutConfig -> {
-                AsyncImage(
-                    model = data.shortcutIntentIcon ?: data.activityIcon,
-                    contentDescription = null,
-                    modifier = modifier,
                 )
             }
         }

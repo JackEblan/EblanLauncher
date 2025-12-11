@@ -171,8 +171,7 @@ class SyncDataUseCase @Inject constructor(
                 currentCoroutineContext().ensureActive()
 
                 val isUnique = newSyncEblanApplicationInfos.none { newEblanApplicationInfo ->
-                    newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName &&
-                        newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
+                    newEblanApplicationInfo.packageName == eblanApplicationInfoToDelete.packageName && newEblanApplicationInfo.serialNumber != eblanApplicationInfoToDelete.serialNumber
                 }
 
                 if (isUnique) {
@@ -189,20 +188,19 @@ class SyncDataUseCase @Inject constructor(
                         iconPackInfoPackageName,
                     )
 
-                    val iconPackFile =
-                        File(
-                            iconPacksDirectory,
-                            eblanApplicationInfoToDelete.packageName,
-                        )
+                    val iconPackFile = File(
+                        iconPacksDirectory,
+                        eblanApplicationInfoToDelete.packageName,
+                    )
 
                     if (iconPackFile.exists()) {
                         iconPackFile.delete()
                     }
                 }
             }
-
-            updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
         }
+
+        updateIconPackInfosUseCase(iconPackInfoPackageName = iconPackInfoPackageName)
     }
 
     private suspend fun updateEblanAppWidgetProviderInfos(appWidgetManagerAppWidgetProviderInfos: List<AppWidgetManagerAppWidgetProviderInfo>) {
@@ -215,17 +213,16 @@ class SyncDataUseCase @Inject constructor(
             appWidgetManagerAppWidgetProviderInfos.map { appWidgetManagerAppWidgetProviderInfo ->
                 currentCoroutineContext().ensureActive()
 
-                val preview =
-                    appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
-                        fileManager.updateAndGetFilePath(
-                            directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
-                            name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
-                                "/",
-                                "-",
-                            ),
-                            byteArray = byteArray,
-                        )
-                    }
+                val preview = appWidgetManagerAppWidgetProviderInfo.preview?.let { byteArray ->
+                    fileManager.updateAndGetFilePath(
+                        directory = fileManager.getFilesDirectory(FileManager.WIDGETS_DIR),
+                        name = appWidgetManagerAppWidgetProviderInfo.componentName.replace(
+                            "/",
+                            "-",
+                        ),
+                        byteArray = byteArray,
+                    )
+                }
 
                 val label =
                     packageManagerWrapper.getApplicationLabel(packageName = appWidgetManagerAppWidgetProviderInfo.packageName)
@@ -323,8 +320,7 @@ class SyncDataUseCase @Inject constructor(
         }
 
         if (newEblanShortcutInfos != null && oldEblanShortcutInfos != newEblanShortcutInfos) {
-            val eblanShortcutInfosToDelete =
-                oldEblanShortcutInfos - newEblanShortcutInfos.toSet()
+            val eblanShortcutInfosToDelete = oldEblanShortcutInfos - newEblanShortcutInfos.toSet()
 
             eblanShortcutInfoRepository.upsertEblanShortcutInfos(
                 eblanShortcutInfos = newEblanShortcutInfos,
@@ -365,8 +361,7 @@ class SyncDataUseCase @Inject constructor(
                 launcherAppsActivityInfos.find { launcherAppsActivityInfo ->
                     currentCoroutineContext().ensureActive()
 
-                    launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName &&
-                        launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
+                    launcherAppsActivityInfo.packageName == applicationInfoGridItem.packageName && launcherAppsActivityInfo.serialNumber == applicationInfoGridItem.serialNumber
                 }
 
             if (launcherAppsActivityInfo != null) {
@@ -398,8 +393,7 @@ class SyncDataUseCase @Inject constructor(
 
         val deleteWidgetGridItems = mutableListOf<WidgetGridItem>()
 
-        val widgetGridItems =
-            widgetGridItemRepository.widgetGridItems.first()
+        val widgetGridItems = widgetGridItemRepository.widgetGridItems.first()
 
         widgetGridItems.filterNot { widgetGridItem ->
             widgetGridItem.override
@@ -459,8 +453,7 @@ class SyncDataUseCase @Inject constructor(
                     pinnedLauncherAppsShortcutInfos.find { launcherAppsShortcutInfo ->
                         currentCoroutineContext().ensureActive()
 
-                        launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId &&
-                            launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
+                        launcherAppsShortcutInfo.shortcutId == shortcutInfoGridItem.shortcutId && launcherAppsShortcutInfo.serialNumber == shortcutInfoGridItem.serialNumber
                     }
 
                 if (launcherAppsShortcutInfo != null) {

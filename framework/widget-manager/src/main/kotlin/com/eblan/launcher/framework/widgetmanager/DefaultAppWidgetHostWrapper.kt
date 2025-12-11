@@ -54,14 +54,14 @@ internal class DefaultAppWidgetHostWrapper @Inject constructor(@param:Applicatio
         return appWidgetHost.createView(context, appWidgetId, appWidgetProviderInfo).apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 updateAppWidgetSize(
-                    Bundle.EMPTY,
+                    Bundle(),
                     listOf(
                         SizeF(minWidth.toFloat(), minHeight.toFloat()),
                     ),
                 )
             } else {
                 updateAppWidgetSize(
-                    Bundle.EMPTY,
+                    Bundle(),
                     minWidth,
                     minHeight,
                     minWidth,

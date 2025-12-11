@@ -22,7 +22,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.ActivityInfo
 import android.os.IBinder
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -593,6 +595,8 @@ private fun Success(
         packageName: String,
     ) -> Unit,
 ) {
+    val activity = LocalActivity.current
+
     val context = LocalContext.current
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -688,6 +692,18 @@ private fun Success(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
+        }
+    }
+
+    DisposableEffect(activity) {
+        if (homeData.userData.homeSettings.lockScreenOrientation) {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        }
+
+        onDispose {
+            if (homeData.userData.homeSettings.lockScreenOrientation) {
+                activity?.requestedOrientation = activity.requestedOrientation
+            }
         }
     }
 

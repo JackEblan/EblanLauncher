@@ -30,4 +30,5 @@ data class HomeSettings(
     val folderColumns: Int,
     val folderRows: Int,
     val gridItemSettings: GridItemSettings,
+    val lockScreenOrientation: Boolean,
 )

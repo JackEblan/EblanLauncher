@@ -71,6 +71,7 @@ internal suspend fun handleDragGridItem(
     isScrollInProgress: Boolean,
     gridItemSource: GridItemSource,
     paddingValues: PaddingValues,
+    lastGridItem: GridItem?,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -81,9 +82,8 @@ internal suspend fun handleDragGridItem(
         gridWidth: Int,
         gridHeight: Int,
     ) -> Unit,
+    onUpdateGridItem: (GridItem) -> Unit,
 ) {
-    delay(100L)
-
     if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
@@ -134,93 +134,114 @@ internal suspend fun handleDragGridItem(
 
     val isOnDock = dragY > (gridHeight - dockHeightPx)
 
-    if (isOnLeftGrid && isVerticalBounds) {
-        onUpdatePageDirection(PageDirection.Left)
-    } else if (isOnRightGrid && isVerticalBounds) {
-        onUpdatePageDirection(PageDirection.Right)
-    } else if (isOnDock) {
-        val cellWidth = gridWidth / dockColumns
+    when {
+        isOnLeftGrid && isVerticalBounds -> {
+            delay(100L)
 
-        val cellHeight = dockHeightPx / dockRows
-
-        val dockY = dragY - (gridHeight - dockHeightPx)
-
-        val moveGridItem = getMoveGridItem(
-            targetPage = currentPage,
-            gridItem = gridItem,
-            cellWidth = cellWidth,
-            cellHeight = cellHeight,
-            columns = dockColumns,
-            rows = dockRows,
-            gridWidth = gridWidth,
-            gridHeight = dockHeightPx,
-            gridX = dragX,
-            gridY = dockY,
-            associate = Associate.Dock,
-            gridItemSource = gridItemSource,
-        )
-
-        val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-            gridItem = moveGridItem,
-            columns = dockColumns,
-            rows = dockRows,
-        )
-
-        if (isGridItemSpanWithinBounds) {
-            onMoveGridItem(
-                moveGridItem,
-                dragX,
-                dockY,
-                dockColumns,
-                dockRows,
-                gridWidth,
-                dockHeightPx,
-            )
+            onUpdatePageDirection(PageDirection.Left)
         }
-    } else if (isHorizontalBounds && isVerticalBounds) {
-        val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeightWithPadding = (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
+        isOnRightGrid && isVerticalBounds -> {
+            delay(100L)
 
-        val gridX = dragX - gridPadding
+            onUpdatePageDirection(PageDirection.Right)
+        }
 
-        val gridY = dragY - gridPadding
+        isOnDock -> {
+            val cellWidth = gridWidth / dockColumns
 
-        val cellWidth = gridWidthWithPadding / columns
+            val cellHeight = dockHeightPx / dockRows
 
-        val cellHeight = gridHeightWithPadding / rows
+            val dockY = dragY - (gridHeight - dockHeightPx)
 
-        val moveGridItem = getMoveGridItem(
-            targetPage = currentPage,
-            gridItem = gridItem,
-            cellWidth = cellWidth,
-            cellHeight = cellHeight,
-            columns = columns,
-            rows = rows,
-            gridWidth = gridWidthWithPadding,
-            gridHeight = gridHeightWithPadding,
-            gridX = gridX,
-            gridY = gridY,
-            associate = Associate.Grid,
-            gridItemSource = gridItemSource,
-        )
-
-        val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
-            gridItem = moveGridItem,
-            columns = columns,
-            rows = rows,
-        )
-
-        if (isGridItemSpanWithinBounds) {
-            onMoveGridItem(
-                moveGridItem,
-                gridX,
-                gridY,
-                columns,
-                rows,
-                gridWidthWithPadding,
-                gridHeightWithPadding,
+            val moveGridItem = getMoveGridItem(
+                targetPage = currentPage,
+                gridItem = gridItem,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                columns = dockColumns,
+                rows = dockRows,
+                gridWidth = gridWidth,
+                gridHeight = dockHeightPx,
+                gridX = dragX,
+                gridY = dockY,
+                associate = Associate.Dock,
+                gridItemSource = gridItemSource,
             )
+
+            val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+                gridItem = moveGridItem,
+                columns = dockColumns,
+                rows = dockRows,
+            )
+
+            if (isGridItemSpanWithinBounds &&
+                moveGridItem != lastGridItem
+            ) {
+                onMoveGridItem(
+                    moveGridItem,
+                    dragX,
+                    dockY,
+                    dockColumns,
+                    dockRows,
+                    gridWidth,
+                    dockHeightPx,
+                )
+
+                onUpdateGridItem(moveGridItem)
+            }
+        }
+
+        isHorizontalBounds && isVerticalBounds -> {
+            val gridWidthWithPadding = gridWidth - (gridPadding * 2)
+
+            val gridHeightWithPadding =
+                (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
+
+            val gridX = dragX - gridPadding
+
+            val gridY = dragY - gridPadding
+
+            val cellWidth = gridWidthWithPadding / columns
+
+            val cellHeight = gridHeightWithPadding / rows
+
+            val moveGridItem = getMoveGridItem(
+                targetPage = currentPage,
+                gridItem = gridItem,
+                cellWidth = cellWidth,
+                cellHeight = cellHeight,
+                columns = columns,
+                rows = rows,
+                gridWidth = gridWidthWithPadding,
+                gridHeight = gridHeightWithPadding,
+                gridX = gridX,
+                gridY = gridY,
+                associate = Associate.Grid,
+                gridItemSource = gridItemSource,
+            )
+
+            val isGridItemSpanWithinBounds = isGridItemSpanWithinBounds(
+                gridItem = moveGridItem,
+                columns = columns,
+                rows = rows,
+            )
+
+            if (isGridItemSpanWithinBounds &&
+                moveGridItem != lastGridItem
+            ) {
+                onMoveGridItem(
+                    moveGridItem,
+                    gridX,
+                    gridY,
+                    columns,
+                    rows,
+                    gridWidthWithPadding,
+                    gridHeightWithPadding,
+                )
+
+                onUpdateGridItem(moveGridItem)
+            }
         }
     }
 }

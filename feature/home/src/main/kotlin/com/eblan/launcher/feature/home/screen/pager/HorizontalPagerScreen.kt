@@ -425,6 +425,7 @@ internal fun HorizontalPagerScreen(
 
     if (showGridItemPopup && gridItemSource?.gridItem != null) {
         GridItemPopup(
+            modifier = modifier.padding(5.dp),
             gridItem = gridItemSource.gridItem,
             x = popupIntOffset.x,
             y = popupIntOffset.y,

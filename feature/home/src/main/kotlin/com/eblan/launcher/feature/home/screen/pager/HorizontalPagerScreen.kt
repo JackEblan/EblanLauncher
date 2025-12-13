@@ -72,7 +72,6 @@ internal fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,

@@ -174,12 +174,6 @@ internal fun PagerScreen(
 
     val activity = LocalActivity.current as ComponentActivity
 
-    val isApplicationComponentVisible by remember {
-        derivedStateOf {
-            swipeUpY.value == 0f || swipeDownY.value == 0f
-        }
-    }
-
     val swipeY by remember {
         derivedStateOf {
             if (swipeUpY.value < screenHeight.toFloat() && gestureSettings.swipeUp is EblanAction.OpenAppDrawer) {
@@ -312,7 +306,6 @@ internal fun PagerScreen(
             .alpha(alpha),
         gridHorizontalPagerState = gridHorizontalPagerState,
         currentPage = currentPage,
-        isApplicationComponentVisible = isApplicationComponentVisible,
         gridItems = gridItems,
         gridItemsByPage = gridItemsByPage,
         gridWidth = gridWidth,
@@ -358,7 +351,6 @@ internal fun PagerScreen(
             offsetY = {
                 swipeY.value
             },
-            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -418,7 +410,6 @@ internal fun PagerScreen(
             offsetY = {
                 swipeY.value
             },
-            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,
@@ -470,7 +461,6 @@ internal fun PagerScreen(
     if (showWidgets) {
         WidgetScreen(
             currentPage = currentPage,
-            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
@@ -491,7 +481,6 @@ internal fun PagerScreen(
     if (showShortcutConfigActivities) {
         ShortcutConfigScreen(
             currentPage = currentPage,
-            isApplicationComponentVisible = isApplicationComponentVisible,
             eblanApplicationComponentUiState = eblanApplicationComponentUiState,
             paddingValues = paddingValues,
             drag = drag,

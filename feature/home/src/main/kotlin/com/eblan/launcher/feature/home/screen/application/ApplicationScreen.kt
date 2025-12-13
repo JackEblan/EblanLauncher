@@ -131,7 +131,6 @@ internal fun ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     offsetY: () -> Float,
-    isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -192,7 +191,6 @@ internal fun ApplicationScreen(
             is EblanApplicationComponentUiState.Success -> {
                 Success(
                     currentPage = currentPage,
-                    isApplicationComponentVisible = isApplicationComponentVisible,
                     paddingValues = paddingValues,
                     drag = drag,
                     appDrawerSettings = appDrawerSettings,
@@ -222,7 +220,6 @@ internal fun ApplicationScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     paddingValues: PaddingValues,
     drag: Drag,
     appDrawerSettings: AppDrawerSettings,

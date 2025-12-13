@@ -122,6 +122,7 @@ internal fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onResetOverlay = onResetOverlay,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
 
@@ -143,6 +144,7 @@ internal fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onResetOverlay = onResetOverlay,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
 
@@ -158,6 +160,7 @@ internal fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onResetOverlay = onResetOverlay,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
 
@@ -174,6 +177,7 @@ internal fun InteractiveGridItemContent(
                 onLongPress = onLongPress,
                 onUpdateImageBitmap = onUpdateImageBitmap,
                 onResetOverlay = onResetOverlay,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
     }
@@ -302,6 +306,7 @@ private fun InteractiveWidgetGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val appWidgetHost = LocalAppWidgetHost.current
 
@@ -317,17 +322,31 @@ private fun InteractiveWidgetGridItem(
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            alpha = 1f
-
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onDraggingGridItem()
+                }
             }
 
-            onResetOverlay()
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -349,6 +368,8 @@ private fun InteractiveWidgetGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onLongPress()
+
+                            isLongPress = true
 
                             alpha = 0f
                         }
@@ -393,6 +414,7 @@ private fun InteractiveShortcutInfoGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -406,17 +428,31 @@ private fun InteractiveShortcutInfoGridItem(
         mutableFloatStateOf(defaultAlpha)
     }
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            alpha = defaultAlpha
-
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onDraggingGridItem()
+                }
             }
 
-            onResetOverlay()
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                alpha = defaultAlpha
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -440,6 +476,8 @@ private fun InteractiveShortcutInfoGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onLongPress()
+
+                            isLongPress = true
 
                             alpha = 0f
                         }
@@ -494,6 +532,7 @@ private fun InteractiveFolderGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -503,17 +542,31 @@ private fun InteractiveFolderGridItem(
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            alpha = 1f
-
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onDraggingGridItem()
+                }
             }
 
-            onResetOverlay()
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -537,6 +590,8 @@ private fun InteractiveFolderGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onLongPress()
+
+                            isLongPress = true
 
                             alpha = 0f
                         }
@@ -589,6 +644,7 @@ private fun InteractiveShortcutConfigGridItem(
     onLongPress: () -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -598,17 +654,31 @@ private fun InteractiveShortcutConfigGridItem(
 
     var alpha by remember { mutableFloatStateOf(1f) }
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            alpha = 1f
-
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onDraggingGridItem()
+                }
             }
 
-            onResetOverlay()
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -632,6 +702,8 @@ private fun InteractiveShortcutConfigGridItem(
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
                             onLongPress()
+
+                            isLongPress = true
 
                             alpha = 0f
                         }

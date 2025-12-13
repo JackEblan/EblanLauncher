@@ -96,7 +96,6 @@ import kotlin.uuid.Uuid
 internal fun WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
@@ -173,7 +172,6 @@ internal fun WidgetScreen(
             is EblanApplicationComponentUiState.Success -> {
                 Success(
                     currentPage = currentPage,
-                    isApplicationComponentVisible = isApplicationComponentVisible,
                     eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos,
                     gridItemSettings = gridItemSettings,
                     paddingValues = paddingValues,
@@ -209,7 +207,6 @@ internal fun WidgetScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
@@ -239,22 +236,6 @@ private fun Success(
         )
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (isApplicationComponentVisible) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    onResetOverlay()
-                }
-
-                else -> Unit
-            }
-        }
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -273,6 +254,7 @@ private fun Success(
             currentPage = currentPage,
             gridItemSettings = gridItemSettings,
             onResetOverlay = onResetOverlay,
+            onDraggingGridItem = onDraggingGridItem,
         )
 
         LazyColumn(
@@ -290,6 +272,7 @@ private fun Success(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -314,6 +297,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -362,6 +346,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -385,6 +370,7 @@ private fun EblanApplicationInfoItem(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -438,6 +424,7 @@ private fun EblanApplicationInfoItem(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -461,6 +448,7 @@ private fun EblanAppWidgetProviderInfoItem(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -529,6 +517,8 @@ private fun EblanAppWidgetProviderInfoItem(
                                 intOffset,
                                 intSize,
                             )
+
+                            onDraggingGridItem()
 
                             alpha = 0f
                         }

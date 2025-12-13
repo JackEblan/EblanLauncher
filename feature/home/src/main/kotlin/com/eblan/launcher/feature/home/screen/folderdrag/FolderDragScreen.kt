@@ -22,7 +22,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -36,6 +35,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -111,7 +111,7 @@ internal fun FolderDragScreen(
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    val horizontalPagerPaddingDp = 50.dp
+    val horizontalPagerPaddingDp = 30.dp
 
     val gridPaddingDp = 8.dp
 
@@ -227,12 +227,7 @@ internal fun FolderDragScreen(
                     .fillMaxSize()
                     .padding(gridPaddingDp)
                     .background(
-                        color = getSystemTextColor(textColor = textColor).copy(alpha = 0.25f),
-                        shape = RoundedCornerShape(8.dp),
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = getSystemTextColor(textColor = textColor),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                         shape = RoundedCornerShape(8.dp),
                     ),
                 gridItems = gridItemCache.folderGridItemsCacheByPage[index],

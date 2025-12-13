@@ -135,7 +135,7 @@ internal fun HorizontalPagerScreen(
 
     var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    var popupGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
+    var popupIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -280,7 +280,7 @@ internal fun HorizontalPagerScreen(
 
                             popupIntOffset = intOffset
 
-                            popupGridItemIntSize = intSize
+                            popupIntSize = intSize
 
                             onUpdateGridItemOffset(intOffset, intSize)
 
@@ -393,7 +393,7 @@ internal fun HorizontalPagerScreen(
 
                         popupIntOffset = intOffset
 
-                        popupGridItemIntSize = intSize
+                        popupIntSize = intSize
 
                         onUpdateGridItemOffset(intOffset, intSize)
 
@@ -425,12 +425,11 @@ internal fun HorizontalPagerScreen(
 
     if (showGridItemPopup && gridItemSource?.gridItem != null) {
         GridItemPopup(
-            modifier = modifier.padding(5.dp),
             gridItem = gridItemSource.gridItem,
             x = popupIntOffset.x,
             y = popupIntOffset.y,
-            width = popupGridItemIntSize.width,
-            height = popupGridItemIntSize.height,
+            width = popupIntSize.width,
+            height = popupIntSize.height,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
             onEdit = onEditGridItem,
@@ -443,8 +442,8 @@ internal fun HorizontalPagerScreen(
                     sourceBounds = Rect(
                         popupIntOffset.x,
                         popupIntOffset.y,
-                        popupIntOffset.x + popupGridItemIntSize.width,
-                        popupIntOffset.y + popupGridItemIntSize.height,
+                        popupIntOffset.x + popupIntSize.width,
+                        popupIntOffset.y + popupIntSize.height,
                     ),
                 )
             },
@@ -464,8 +463,8 @@ internal fun HorizontalPagerScreen(
                         sourceBounds = Rect(
                             sourceBoundsX,
                             sourceBoundsY,
-                            sourceBoundsX + popupGridItemIntSize.width,
-                            sourceBoundsY + popupGridItemIntSize.height,
+                            sourceBoundsX + popupIntSize.width,
+                            sourceBoundsY + popupIntSize.height,
                         ),
                     )
                 }

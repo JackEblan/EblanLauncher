@@ -52,3 +52,30 @@ internal class GridItemPopupPositionProvider(
         return IntOffset(x = childX, y = childY)
     }
 }
+
+fun testPos(
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    gridWidth: Int,
+    gridHeight: Int,
+    gridItemWidth: Int,
+    gridItemHeight: Int,
+): IntOffset {
+    val gridItemCenterX = x + gridItemWidth / 2
+
+    val childXInitial = gridItemCenterX - gridItemWidth / 2
+
+    val childX = childXInitial.coerceIn(0, gridWidth - width)
+
+    val topPositionY = y - gridItemHeight
+
+    val bottomPositionY = y + gridItemHeight
+
+    val childYInitial = if (topPositionY < 0) bottomPositionY else topPositionY
+
+    val childY = childYInitial.coerceIn(0, gridHeight - height)
+
+    return IntOffset(x = childX, y = childY)
+}

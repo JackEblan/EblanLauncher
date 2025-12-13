@@ -366,6 +366,8 @@ internal fun PagerScreen(
             eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
             iconPackInfoPackageName = iconPackInfoPackageName,
             screenHeight = screenHeight,
+            eblanShortcutInfos = eblanShortcutInfos,
+            hasShortcutHostPermission = hasShortcutHostPermission,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -424,6 +426,8 @@ internal fun PagerScreen(
             eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
             iconPackInfoPackageName = iconPackInfoPackageName,
             screenHeight = screenHeight,
+            eblanShortcutInfos = eblanShortcutInfos,
+            hasShortcutHostPermission = hasShortcutHostPermission,
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -460,6 +464,7 @@ internal fun PagerScreen(
                 }
             },
             onEditApplicationInfo = onEditApplicationInfo,
+
         )
     }
 

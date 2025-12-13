@@ -19,14 +19,16 @@ package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +41,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -47,7 +51,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
-import com.eblan.launcher.feature.home.component.popup.GridItemPopupPositionProvider
 import com.eblan.launcher.feature.home.component.popup.SettingsPopupPositionProvider
 import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 
@@ -115,28 +118,21 @@ internal fun GridItemPopup(
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
-    onInfo: (
-        serialNumber: Long,
-        componentName: String,
-    ) -> Unit,
+    onInfo: (Long, String) -> Unit,
     onDismissRequest: () -> Unit,
-    onTapShortcutInfo: (
-        serialNumber: Long,
-        packageName: String,
-        shortcutId: String,
-    ) -> Unit,
+    onTapShortcutInfo: (Long, String, String) -> Unit,
 ) {
-    Popup(
-        popupPositionProvider = GridItemPopupPositionProvider(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-        ),
-        onDismissRequest = onDismissRequest,
+    Layout(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    onDismissRequest()
+                })
+            }
+            .fillMaxSize(),
         content = {
             GridItemPopupContent(
-                modifier = modifier,
+                modifier = Modifier.padding(5.dp),
                 eblanShortcutInfos = eblanShortcutInfos,
                 gridItem = gridItem,
                 hasShortcutHostPermission = hasShortcutHostPermission,
@@ -148,7 +144,29 @@ internal fun GridItemPopup(
                 onTapShortcutInfo = onTapShortcutInfo,
             )
         },
-    )
+    ) { measurables, constraints ->
+        val placeable = measurables.first().measure(
+            constraints.copy(
+                minWidth = 0,
+                minHeight = 0,
+            ),
+        )
+
+        val parentCenterX = x + width / 2
+        val childX = (parentCenterX - placeable.width / 2)
+            .coerceIn(0, constraints.maxWidth - placeable.width)
+
+        val topY = y - placeable.height
+        val bottomY = y + height
+
+        val childY = (
+            if (topY < 0) bottomY else topY
+            ).coerceIn(0, constraints.maxHeight - placeable.height)
+
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(childX, childY)
+        }
+    }
 }
 
 @Composable
@@ -360,9 +378,7 @@ private fun ApplicationInfoGridItemMenu(
     ) -> Unit,
 ) {
     Surface(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .widthIn(max = 300.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(30.dp),
         shadowElevation = 2.dp,
         content = {
@@ -370,28 +386,36 @@ private fun ApplicationInfoGridItemMenu(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (hasShortcutHostPermission && !eblanShortcutInfosByPackageName.isNullOrEmpty()) {
-                    eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
-                        ListItem(
-                            modifier = Modifier.clickable {
-                                onTapShortcutInfo(
-                                    eblanShortcutInfo.serialNumber,
-                                    eblanShortcutInfo.packageName,
-                                    eblanShortcutInfo.shortcutId,
-                                )
-                            },
-                            headlineContent = {
-                                Text(text = eblanShortcutInfo.shortLabel)
-                            },
-                            leadingContent = {
-                                AsyncImage(
-                                    model = eblanShortcutInfo.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.height(20.dp),
-                                )
-                            },
-                        )
+                    Column(
+                        modifier = Modifier
+                            .sizeIn(
+                                maxWidth = 300.dp,
+                                maxHeight = 300.dp,
+                            )
+                            .verticalScroll(rememberScrollState()),
+                    ) {
+                        eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
+                            ListItem(
+                                modifier = Modifier.clickable {
+                                    onTapShortcutInfo(
+                                        eblanShortcutInfo.serialNumber,
+                                        eblanShortcutInfo.packageName,
+                                        eblanShortcutInfo.shortcutId,
+                                    )
+                                },
+                                headlineContent = {
+                                    Text(text = eblanShortcutInfo.shortLabel)
+                                },
+                                leadingContent = {
+                                    AsyncImage(
+                                        model = eblanShortcutInfo.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                },
+                            )
+                        }
                     }
-
                     Spacer(modifier = Modifier.height(5.dp))
                 }
 

@@ -151,14 +151,6 @@ internal fun HorizontalPagerScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (!isApplicationComponentVisible && drag == Drag.Dragging) {
-            showGridItemPopup = false
-
-            onDraggingGridItem()
-        }
-    }
-
     LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
             horizontalPagerState = gridHorizontalPagerState,
@@ -293,6 +285,11 @@ internal fun HorizontalPagerScreen(
                             )
                         },
                         onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = {
+                            showGridItemPopup = false
+
+                            onDraggingGridItem()
+                        },
                     )
                 },
             )
@@ -406,6 +403,11 @@ internal fun HorizontalPagerScreen(
                         )
                     },
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = {
+                        showGridItemPopup = false
+
+                        onDraggingGridItem()
+                    },
                 )
             }
 
@@ -432,6 +434,9 @@ internal fun HorizontalPagerScreen(
             height = popupIntSize.height,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
+            currentPage = currentPage,
+            drag = drag,
+            gridItemSettings = homeSettings.gridItemSettings,
             onEdit = onEditGridItem,
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,
@@ -469,6 +474,10 @@ internal fun HorizontalPagerScreen(
                     )
                 }
             },
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onResetOverlay = onResetOverlay,
+            onDraggingGridItem = onDraggingGridItem,
         )
     }
 

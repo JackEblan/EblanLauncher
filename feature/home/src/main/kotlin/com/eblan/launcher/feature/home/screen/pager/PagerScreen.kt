@@ -464,7 +464,6 @@ internal fun PagerScreen(
                 }
             },
             onEditApplicationInfo = onEditApplicationInfo,
-
         )
     }
 

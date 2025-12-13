@@ -23,5 +23,4 @@ data class UpdateShortcutInfoGridItem(
     val longLabel: String,
     val icon: String?,
     val isEnabled: Boolean,
-    val disabledMessage: String?,
 )

@@ -57,7 +57,6 @@ sealed interface GridItemData {
         val longLabel: String,
         val icon: String?,
         val isEnabled: Boolean,
-        val disabledMessage: String?,
         val eblanApplicationInfoIcon: String?,
         val customIcon: String?,
         val customShortLabel: String?,

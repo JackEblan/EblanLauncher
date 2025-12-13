@@ -159,7 +159,6 @@ class DeleteGridItemsUseCase @Inject constructor(
                                 override = gridItem.override,
                                 serialNumber = data.serialNumber,
                                 isEnabled = data.isEnabled,
-                                disabledMessage = data.disabledMessage,
                                 customIcon = data.customIcon,
                                 customShortLabel = data.customShortLabel,
                                 eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,

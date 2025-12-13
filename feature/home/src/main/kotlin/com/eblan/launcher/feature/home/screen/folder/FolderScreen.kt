@@ -132,12 +132,6 @@ internal fun FolderScreen(
         }
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Dragging) {
-            onDraggingGridItem(foldersDataById.last().gridItems)
-        }
-    }
-
     BackHandler(foldersDataById.isNotEmpty()) {
         onRemoveLastFolder()
     }
@@ -274,6 +268,9 @@ internal fun FolderScreen(
                                         )
                                     },
                                     onResetOverlay = onResetOverlay,
+                                    onDraggingGridItem = {
+                                        onDraggingGridItem(foldersDataById.last().gridItems)
+                                    },
                                 )
                             },
                         )

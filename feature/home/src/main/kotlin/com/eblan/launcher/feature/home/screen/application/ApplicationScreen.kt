@@ -23,7 +23,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +43,6 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -54,16 +52,12 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberOverscrollEffect
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SecondaryTabRow
@@ -90,7 +84,6 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
@@ -290,30 +283,6 @@ private fun Success(
         onDismiss()
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (isApplicationComponentVisible && showPopupApplicationMenu) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-
-                    showPopupApplicationMenu = false
-                }
-
-                Drag.Cancel -> {
-                    onResetOverlay()
-
-                    showPopupApplicationMenu = false
-                }
-
-                Drag.End -> {
-                    onResetOverlay()
-                }
-
-                else -> Unit
-            }
-        }
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -341,10 +310,11 @@ private fun Success(
                 focusManager.clearFocus()
             },
             onLongPressGridItem = onLongPressGridItem,
-            onUpdatePopupMenu = {
-                showPopupApplicationMenu = true
+            onUpdatePopupMenu = { newShowPopupApplicationMenu ->
+                showPopupApplicationMenu = newShowPopupApplicationMenu
             },
             onResetOverlay = onResetOverlay,
+            onDraggingGridItem = onDraggingGridItem,
         )
 
         if (eblanApplicationInfos.keys.size > 1) {
@@ -375,11 +345,12 @@ private fun Success(
 
                         popupIntSize = intSize
                     },
-                    onUpdatePopupMenu = {
-                        showPopupApplicationMenu = true
+                    onUpdatePopupMenu = { newShowPopupApplicationMenu ->
+                        showPopupApplicationMenu = newShowPopupApplicationMenu
                     },
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         } else {
@@ -400,11 +371,12 @@ private fun Success(
 
                     popupIntSize = intSize
                 },
-                onUpdatePopupMenu = {
-                    showPopupApplicationMenu = true
+                onUpdatePopupMenu = { newShowPopupApplicationMenu ->
+                    showPopupApplicationMenu = newShowPopupApplicationMenu
                 },
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
+                onDraggingGridItem = onDraggingGridItem,
             )
         }
     }
@@ -417,6 +389,9 @@ private fun Success(
             popupIntSize = popupIntSize,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
+            currentPage = currentPage,
+            drag = drag,
+            gridItemSettings = appDrawerSettings.gridItemSettings,
             onDismissRequest = {
                 showPopupApplicationMenu = false
             },
@@ -440,6 +415,10 @@ private fun Success(
                     )
                 }
             },
+            onResetOverlay = onResetOverlay,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDraggingGridItem = onDraggingGridItem,
         )
     }
 }
@@ -463,8 +442,9 @@ private fun EblanApplicationInfoDockSearchBar(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdatePopupMenu: () -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -509,6 +489,7 @@ private fun EblanApplicationInfoDockSearchBar(
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -533,8 +514,9 @@ private fun EblanApplicationInfoItem(
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
     ) -> Unit,
-    onUpdatePopupMenu: () -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -599,15 +581,33 @@ private fun EblanApplicationInfoItem(
 
     val customLabel = eblanApplicationInfo.customLabel ?: eblanApplicationInfo.label
 
+    var isLongPress by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            alpha = 1f
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onDraggingGridItem()
 
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+                    onUpdatePopupMenu(false)
+                }
             }
+
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                alpha = 1f
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -643,22 +643,20 @@ private fun EblanApplicationInfoItem(
 
                             scale.animateTo(1f)
 
-                            val data =
-                                GridItemData.ApplicationInfo(
-                                    serialNumber = eblanApplicationInfo.serialNumber,
-                                    componentName = eblanApplicationInfo.componentName,
-                                    packageName = eblanApplicationInfo.packageName,
-                                    icon = eblanApplicationInfo.icon,
-                                    label = eblanApplicationInfo.label,
-                                    customIcon = eblanApplicationInfo.customIcon,
-                                    customLabel = eblanApplicationInfo.customLabel,
-                                )
+                            val data = GridItemData.ApplicationInfo(
+                                serialNumber = eblanApplicationInfo.serialNumber,
+                                componentName = eblanApplicationInfo.componentName,
+                                packageName = eblanApplicationInfo.packageName,
+                                icon = eblanApplicationInfo.icon,
+                                label = eblanApplicationInfo.label,
+                                customIcon = eblanApplicationInfo.customIcon,
+                                customLabel = eblanApplicationInfo.customLabel,
+                            )
 
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
-                                        id = Uuid.random()
-                                            .toHexString(),
+                                        id = Uuid.random().toHexString(),
                                         folderId = null,
                                         page = currentPage,
                                         startColumn = -1,
@@ -679,7 +677,9 @@ private fun EblanApplicationInfoItem(
                                 intSize,
                             )
 
-                            onUpdatePopupMenu()
+                            onUpdatePopupMenu(true)
+
+                            isLongPress = true
 
                             alpha = 0f
                         }
@@ -720,8 +720,7 @@ private fun EblanApplicationInfoItem(
                     drawLayer(graphicsLayer)
                 }
                 .onGloballyPositioned { layoutCoordinates ->
-                    intOffset =
-                        layoutCoordinates.positionInRoot().round()
+                    intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
                 }
@@ -786,9 +785,10 @@ private fun EblanApplicationInfosPage(
         intOffset: IntOffset,
         intSize: IntSize,
     ) -> Unit,
-    onUpdatePopupMenu: () -> Unit,
+    onUpdatePopupMenu: (Boolean) -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -861,6 +861,7 @@ private fun EblanApplicationInfosPage(
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdatePopupMenu = onUpdatePopupMenu,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -910,199 +911,6 @@ private fun EblanApplicationInfoTabRow(
 }
 
 @Composable
-private fun PopupApplicationInfoMenu(
-    modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
-    popupIntOffset: IntOffset,
-    gridItem: GridItem?,
-    popupIntSize: IntSize,
-    eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
-    hasShortcutHostPermission: Boolean,
-    onDismissRequest: () -> Unit,
-    onEditApplicationInfo: (
-        serialNumber: Long,
-        packageName: String,
-    ) -> Unit,
-    onTapShortcutInfo: (
-        serialNumber: Long,
-        packageName: String,
-        shortcutId: String,
-    ) -> Unit,
-) {
-    val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
-
-    val density = LocalDensity.current
-
-    val launcherApps = LocalLauncherApps.current
-
-    val leftPadding = with(density) {
-        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
-
-    val x = popupIntOffset.x - leftPadding
-
-    val y = popupIntOffset.y - topPadding
-
-    Layout(
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    onDismissRequest()
-                })
-            }
-            .fillMaxSize(),
-        content = {
-            ApplicationInfoMenu(
-                modifier = modifier,
-                eblanShortcutInfosByPackageName = eblanShortcutInfos[
-                    EblanShortcutInfoByGroup(
-                        serialNumber = applicationInfo.serialNumber,
-                        packageName = applicationInfo.packageName,
-                    ),
-                ],
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                onApplicationInfo = {
-                    launcherApps.startAppDetailsActivity(
-                        serialNumber = applicationInfo.serialNumber,
-                        componentName = applicationInfo.componentName,
-                        sourceBounds = Rect(
-                            x,
-                            y,
-                            x + popupIntSize.width,
-                            y + popupIntSize.height,
-                        ),
-                    )
-
-                    onDismissRequest()
-                },
-                onEdit = {
-                    onDismissRequest()
-
-                    onEditApplicationInfo(
-                        applicationInfo.serialNumber,
-                        applicationInfo.packageName,
-                    )
-                },
-                onTapShortcutInfo = { serialNumber, packageName, shortcutId ->
-                    onTapShortcutInfo(
-                        serialNumber,
-                        packageName,
-                        shortcutId,
-                    )
-
-                    onDismissRequest()
-                },
-            )
-        },
-    ) { measurables, constraints ->
-        val placeable = measurables.first().measure(
-            constraints.copy(
-                minWidth = 0,
-                minHeight = 0,
-            ),
-        )
-
-        val parentCenterX = x + popupIntSize.width / 2
-        val childX = (parentCenterX - placeable.width / 2)
-            .coerceIn(0, constraints.maxWidth - placeable.width)
-
-        val topY = y - placeable.height
-        val bottomY = y + popupIntSize.height
-
-        val childY = (
-            if (topY < 0) bottomY else topY
-            ).coerceIn(0, constraints.maxHeight - placeable.height)
-
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(childX, childY)
-        }
-    }
-}
-
-@Composable
-private fun ApplicationInfoMenu(
-    modifier: Modifier = Modifier,
-    eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
-    hasShortcutHostPermission: Boolean,
-    onApplicationInfo: () -> Unit,
-    onEdit: () -> Unit,
-    onTapShortcutInfo: (
-        serialNumber: Long,
-        packageName: String,
-        shortcutId: String,
-    ) -> Unit,
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(30.dp),
-        shadowElevation = 2.dp,
-        content = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                if (hasShortcutHostPermission && !eblanShortcutInfosByPackageName.isNullOrEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .sizeIn(
-                                maxWidth = 300.dp,
-                                maxHeight = 300.dp,
-                            )
-                            .verticalScroll(rememberScrollState()),
-                    ) {
-                        eblanShortcutInfosByPackageName.forEach { eblanShortcutInfo ->
-                            ListItem(
-                                modifier = Modifier.clickable {
-                                    onTapShortcutInfo(
-                                        eblanShortcutInfo.serialNumber,
-                                        eblanShortcutInfo.packageName,
-                                        eblanShortcutInfo.shortcutId,
-                                    )
-                                },
-                                headlineContent = {
-                                    Text(text = eblanShortcutInfo.shortLabel)
-                                },
-                                leadingContent = {
-                                    AsyncImage(
-                                        model = eblanShortcutInfo.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                },
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(5.dp))
-                }
-
-                Row {
-                    IconButton(
-                        onClick = onApplicationInfo,
-                    ) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Info,
-                            contentDescription = null,
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onEdit,
-                    ) {
-                        Icon(
-                            imageVector = EblanLauncherIcons.Edit,
-                            contentDescription = null,
-                        )
-                    }
-                }
-            }
-        },
-    )
-}
-
-@Composable
 private fun ScrollBarThumb(
     modifier: Modifier = Modifier,
     lazyGridState: LazyGridState,
@@ -1115,10 +923,9 @@ private fun ScrollBarThumb(
 
     val scope = rememberCoroutineScope()
 
-    val appDrawerRowsHeightPx =
-        with(density) {
-            appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
-        }
+    val appDrawerRowsHeightPx = with(density) {
+        appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
+    }
 
     val bottomPadding = with(density) {
         paddingValues.calculateBottomPadding().roundToPx()
@@ -1135,8 +942,7 @@ private fun ScrollBarThumb(
     val viewPortThumbY by remember(key1 = lazyGridState) {
         derivedStateOf {
             val totalRows =
-                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                    appDrawerSettings.appDrawerColumns
+                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
             val visibleRows =
                 ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
@@ -1155,8 +961,9 @@ private fun ScrollBarThumb(
             }
 
             val availableHeight =
-                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding)
-                    .coerceAtLeast(0f)
+                (lazyGridState.layoutInfo.viewportSize.height - thumbHeightPx - bottomPadding).coerceAtLeast(
+                    0f,
+                )
 
             if (availableScroll <= 0) {
                 0f
@@ -1228,8 +1035,7 @@ private fun ScrollBarThumb(
                         },
                         onVerticalDrag = { _, deltaY ->
                             val totalRows =
-                                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) /
-                                    appDrawerSettings.appDrawerColumns
+                                (lazyGridState.layoutInfo.totalItemsCount + appDrawerSettings.appDrawerColumns - 1) / appDrawerSettings.appDrawerColumns
 
                             val visibleRows =
                                 ceil(lazyGridState.layoutInfo.viewportSize.height / appDrawerRowsHeightPx.toFloat()).toInt()
@@ -1251,9 +1057,9 @@ private fun ScrollBarThumb(
 
                             val targetRow = targetScrollY / appDrawerRowsHeightPx
 
-                            val targetIndex = (targetRow * appDrawerSettings.appDrawerColumns)
-                                .roundToInt()
-                                .coerceIn(0, eblanApplicationInfos.lastIndex)
+                            val targetIndex =
+                                (targetRow * appDrawerSettings.appDrawerColumns).roundToInt()
+                                    .coerceIn(0, eblanApplicationInfos.lastIndex)
 
                             scope.launch {
                                 onScrollToItem(targetIndex)

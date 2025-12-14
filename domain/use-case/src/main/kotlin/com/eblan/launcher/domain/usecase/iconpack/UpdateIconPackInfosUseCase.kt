@@ -49,9 +49,7 @@ class UpdateIconPackInfosUseCase @Inject constructor(
 
             if (iconPackInfoPackageName.isNotEmpty() && eblanApplicationInfo != null) {
                 val appFilter =
-                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName).onEach {
-                        println(it.component)
-                    }
+                    iconPackManager.parseAppFilter(packageName = iconPackInfoPackageName)
 
                 val iconPackDirectory = File(
                     fileManager.getFilesDirectory(name = FileManager.ICON_PACKS_DIR),

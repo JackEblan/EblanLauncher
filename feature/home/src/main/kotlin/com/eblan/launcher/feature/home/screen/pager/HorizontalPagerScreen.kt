@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import com.eblan.launcher.domain.model.EblanShortcutInfo
+import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GestureSettings
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.HomeSettings
@@ -59,7 +60,6 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor

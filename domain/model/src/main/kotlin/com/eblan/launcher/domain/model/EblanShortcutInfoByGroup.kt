@@ -15,9 +15,9 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.model
+package com.eblan.launcher.domain.model
 
-internal data class EblanShortcutInfoByGroup(
+data class EblanShortcutInfoByGroup(
     val serialNumber: Long,
     val packageName: String,
 )

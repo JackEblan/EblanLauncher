@@ -423,7 +423,7 @@ class ChangePackageUseCase @Inject constructor(
             packageName = packageName,
         )
 
-        val launcherAppsShortcutInfos = launcherAppsWrapper.getPinnedShortcutsByPackageName(
+        val launcherAppsShortcutInfos = launcherAppsWrapper.getShortcutsByPackageName(
             serialNumber = serialNumber,
             packageName = packageName,
         )

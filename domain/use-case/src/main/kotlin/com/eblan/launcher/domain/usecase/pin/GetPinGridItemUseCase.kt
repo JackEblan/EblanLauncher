@@ -133,7 +133,6 @@ class GetPinGridItemUseCase @Inject constructor(
                         longLabel = pinItemRequestType.longLabel,
                         icon = icon,
                         isEnabled = pinItemRequestType.isEnabled,
-                        disabledMessage = pinItemRequestType.disabledMessage,
                         eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                         customIcon = null,
                         customShortLabel = null,

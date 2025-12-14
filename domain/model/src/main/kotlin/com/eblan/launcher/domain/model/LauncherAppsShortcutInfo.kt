@@ -24,7 +24,6 @@ data class LauncherAppsShortcutInfo(
     val shortLabel: String,
     val longLabel: String,
     val isEnabled: Boolean,
-    val disabledMessage: String?,
     val icon: ByteArray?,
     val shortcutQueryFlag: ShortcutQueryFlag,
 ) {
@@ -40,7 +39,6 @@ data class LauncherAppsShortcutInfo(
         if (packageName != other.packageName) return false
         if (shortLabel != other.shortLabel) return false
         if (longLabel != other.longLabel) return false
-        if (disabledMessage != other.disabledMessage) return false
         if (!icon.contentEquals(other.icon)) return false
         if (shortcutQueryFlag != other.shortcutQueryFlag) return false
 
@@ -54,7 +52,6 @@ data class LauncherAppsShortcutInfo(
         result = 31 * result + packageName.hashCode()
         result = 31 * result + shortLabel.hashCode()
         result = 31 * result + longLabel.hashCode()
-        result = 31 * result + (disabledMessage?.hashCode() ?: 0)
         result = 31 * result + (icon?.contentHashCode() ?: 0)
         result = 31 * result + shortcutQueryFlag.hashCode()
         return result

@@ -15,12 +15,10 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.domain.model
+package com.eblan.launcher.data.room.migration
 
-data class UpdateShortcutInfoGridItem(
-    val id: String,
-    val shortLabel: String,
-    val longLabel: String,
-    val icon: String?,
-    val isEnabled: Boolean,
-)
+import androidx.room.DeleteColumn
+import androidx.room.migration.AutoMigrationSpec
+
+@DeleteColumn(tableName = "ShortcutInfoGridItemEntity", columnName = "disabledMessage")
+class AutoMigration5To6 : AutoMigrationSpec

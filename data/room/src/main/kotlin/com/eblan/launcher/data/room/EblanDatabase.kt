@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.data.room
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.eblan.launcher.data.room.dao.ApplicationInfoGridItemDao
@@ -39,6 +40,7 @@ import com.eblan.launcher.data.room.entity.FolderGridItemEntity
 import com.eblan.launcher.data.room.entity.ShortcutConfigGridItemEntity
 import com.eblan.launcher.data.room.entity.ShortcutInfoGridItemEntity
 import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
+import com.eblan.launcher.data.room.migration.AutoMigration5To6
 
 @Database(
     entities = [
@@ -53,8 +55,15 @@ import com.eblan.launcher.data.room.entity.WidgetGridItemEntity
         EblanShortcutConfigEntity::class,
         ShortcutConfigGridItemEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
+    autoMigrations = [
+        AutoMigration(
+            from = 5,
+            to = 6,
+            spec = AutoMigration5To6::class,
+        ),
+    ],
 )
 internal abstract class EblanDatabase : RoomDatabase() {
     abstract fun applicationInfoGridItemDao(): ApplicationInfoGridItemDao

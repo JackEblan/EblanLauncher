@@ -107,7 +107,6 @@ class AddPinShortcutToHomeScreenUseCase @Inject constructor(
                 longLabel = longLabel,
                 icon = icon,
                 isEnabled = isEnabled,
-                disabledMessage = disabledMessage,
                 eblanApplicationInfoIcon = eblanApplicationInfoIcon,
                 customIcon = null,
                 customShortLabel = null,

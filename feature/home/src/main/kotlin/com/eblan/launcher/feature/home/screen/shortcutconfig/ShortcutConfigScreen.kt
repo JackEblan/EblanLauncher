@@ -109,7 +109,6 @@ import kotlin.uuid.Uuid
 internal fun ShortcutConfigScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -187,7 +186,6 @@ internal fun ShortcutConfigScreen(
                 Success(
                     modifier = modifier,
                     currentPage = currentPage,
-                    isApplicationComponentVisible = isApplicationComponentVisible,
                     paddingValues = paddingValues,
                     drag = drag,
                     gridItemSettings = gridItemSettings,
@@ -224,7 +222,6 @@ internal fun ShortcutConfigScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     paddingValues: PaddingValues,
     drag: Drag,
     gridItemSettings: GridItemSettings,
@@ -250,22 +247,6 @@ private fun Success(
         },
     )
 
-    LaunchedEffect(key1 = drag) {
-        if (isApplicationComponentVisible) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    onResetOverlay()
-                }
-
-                else -> Unit
-            }
-        }
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -285,6 +266,7 @@ private fun Success(
             currentPage = currentPage,
             gridItemSettings = gridItemSettings,
             onResetOverlay = onResetOverlay,
+            onDraggingGridItem = onDraggingGridItem,
         )
 
         if (eblanShortcutConfigs.keys.size > 1) {
@@ -305,7 +287,6 @@ private fun Success(
                     drag = drag,
                     gridItemSettings = gridItemSettings,
                     eblanShortcutConfigs = eblanShortcutConfigs,
-                    isApplicationComponentVisible = isApplicationComponentVisible,
                     onLongPressGridItem = onLongPressGridItem,
                     onResetOverlay = onResetOverlay,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -322,7 +303,6 @@ private fun Success(
                 drag = drag,
                 gridItemSettings = gridItemSettings,
                 eblanShortcutConfigs = eblanShortcutConfigs,
-                isApplicationComponentVisible = isApplicationComponentVisible,
                 onLongPressGridItem = onLongPressGridItem,
                 onResetOverlay = onResetOverlay,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
@@ -352,6 +332,7 @@ private fun EblanShortcutConfigDockSearchBar(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -401,6 +382,7 @@ private fun EblanShortcutConfigDockSearchBar(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -446,7 +428,6 @@ private fun EblanShortcutConfigsPage(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanShortcutConfigs: Map<Long, Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>>,
-    isApplicationComponentVisible: Boolean,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -495,22 +476,6 @@ private fun EblanShortcutConfigsPage(
         )
     }
 
-    LaunchedEffect(key1 = drag) {
-        if (isApplicationComponentVisible) {
-            when (drag) {
-                Drag.Dragging -> {
-                    onDraggingGridItem()
-                }
-
-                Drag.Cancel, Drag.End -> {
-                    onResetOverlay()
-                }
-
-                else -> Unit
-            }
-        }
-    }
-
     Box(
         modifier = modifier
             .run {
@@ -545,6 +510,7 @@ private fun EblanShortcutConfigsPage(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -568,6 +534,7 @@ private fun EblanApplicationInfoItem(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -622,6 +589,7 @@ private fun EblanApplicationInfoItem(
                     currentPage = currentPage,
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
                 )
             }
         }
@@ -645,6 +613,7 @@ private fun EblanShortcutConfigItem(
     currentPage: Int,
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
+    onDraggingGridItem: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -718,6 +687,8 @@ private fun EblanShortcutConfigItem(
                                 intOffset,
                                 intSize,
                             )
+
+                            onDraggingGridItem()
 
                             alpha = 0f
                         }

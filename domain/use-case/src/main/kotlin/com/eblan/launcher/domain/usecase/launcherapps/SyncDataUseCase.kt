@@ -471,7 +471,6 @@ class SyncDataUseCase @Inject constructor(
                             shortLabel = launcherAppsShortcutInfo.shortLabel,
                             longLabel = launcherAppsShortcutInfo.longLabel,
                             isEnabled = launcherAppsShortcutInfo.isEnabled,
-                            disabledMessage = launcherAppsShortcutInfo.disabledMessage,
                             icon = icon,
                         ),
                     )

@@ -72,7 +72,6 @@ internal fun HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
-    isApplicationComponentVisible: Boolean,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
     gridWidth: Int,
@@ -135,7 +134,7 @@ internal fun HorizontalPagerScreen(
 
     var popupIntOffset by remember { mutableStateOf(IntOffset.Zero) }
 
-    var popupGridItemIntSize by remember { mutableStateOf(IntSize.Zero) }
+    var popupIntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
@@ -149,14 +148,6 @@ internal fun HorizontalPagerScreen(
 
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()
-    }
-
-    LaunchedEffect(key1 = drag) {
-        if (!isApplicationComponentVisible && drag == Drag.Dragging) {
-            showGridItemPopup = false
-
-            onDraggingGridItem()
-        }
     }
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
@@ -280,7 +271,7 @@ internal fun HorizontalPagerScreen(
 
                             popupIntOffset = intOffset
 
-                            popupGridItemIntSize = intSize
+                            popupIntSize = intSize
 
                             onUpdateGridItemOffset(intOffset, intSize)
 
@@ -293,6 +284,11 @@ internal fun HorizontalPagerScreen(
                             )
                         },
                         onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = {
+                            showGridItemPopup = false
+
+                            onDraggingGridItem()
+                        },
                     )
                 },
             )
@@ -393,7 +389,7 @@ internal fun HorizontalPagerScreen(
 
                         popupIntOffset = intOffset
 
-                        popupGridItemIntSize = intSize
+                        popupIntSize = intSize
 
                         onUpdateGridItemOffset(intOffset, intSize)
 
@@ -406,6 +402,11 @@ internal fun HorizontalPagerScreen(
                         )
                     },
                     onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = {
+                        showGridItemPopup = false
+
+                        onDraggingGridItem()
+                    },
                 )
             }
 
@@ -428,10 +429,13 @@ internal fun HorizontalPagerScreen(
             gridItem = gridItemSource.gridItem,
             x = popupIntOffset.x,
             y = popupIntOffset.y,
-            width = popupGridItemIntSize.width,
-            height = popupGridItemIntSize.height,
+            width = popupIntSize.width,
+            height = popupIntSize.height,
             eblanShortcutInfos = eblanShortcutInfos,
             hasShortcutHostPermission = hasShortcutHostPermission,
+            currentPage = currentPage,
+            drag = drag,
+            gridItemSettings = homeSettings.gridItemSettings,
             onEdit = onEditGridItem,
             onResize = onResize,
             onDeleteGridItem = onDeleteGridItem,
@@ -442,8 +446,8 @@ internal fun HorizontalPagerScreen(
                     sourceBounds = Rect(
                         popupIntOffset.x,
                         popupIntOffset.y,
-                        popupIntOffset.x + popupGridItemIntSize.width,
-                        popupIntOffset.y + popupGridItemIntSize.height,
+                        popupIntOffset.x + popupIntSize.width,
+                        popupIntOffset.y + popupIntSize.height,
                     ),
                 )
             },
@@ -463,12 +467,16 @@ internal fun HorizontalPagerScreen(
                         sourceBounds = Rect(
                             sourceBoundsX,
                             sourceBoundsY,
-                            sourceBoundsX + popupGridItemIntSize.width,
-                            sourceBoundsY + popupGridItemIntSize.height,
+                            sourceBoundsX + popupIntSize.width,
+                            sourceBoundsY + popupIntSize.height,
                         ),
                     )
                 }
             },
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onResetOverlay = onResetOverlay,
+            onDraggingGridItem = onDraggingGridItem,
         )
     }
 

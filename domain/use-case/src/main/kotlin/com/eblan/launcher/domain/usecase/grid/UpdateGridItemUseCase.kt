@@ -109,7 +109,6 @@ class UpdateGridItemUseCase @Inject constructor(
                             override = gridItem.override,
                             serialNumber = data.serialNumber,
                             isEnabled = data.isEnabled,
-                            disabledMessage = data.disabledMessage,
                             eblanApplicationInfoIcon = data.eblanApplicationInfoIcon,
                             customIcon = data.customIcon,
                             customShortLabel = data.customShortLabel,

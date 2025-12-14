@@ -448,7 +448,6 @@ internal class DefaultLauncherAppsWrapper @Inject constructor(
             shortLabel = shortLabel.toString(),
             longLabel = longLabel.toString(),
             isEnabled = isEnabled,
-            disabledMessage = disabledMessage?.toString(),
             icon = icon,
             shortcutQueryFlag = shortcutQueryFlag,
         )

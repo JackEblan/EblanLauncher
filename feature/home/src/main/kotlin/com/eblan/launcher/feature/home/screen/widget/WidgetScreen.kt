@@ -23,6 +23,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -447,17 +449,22 @@ private fun EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            eblanAppWidgetProviderInfos[eblanApplicationInfoGroup]?.forEach { eblanAppWidgetProviderInfo ->
-                EblanAppWidgetProviderInfoItem(
-                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                items(eblanAppWidgetProviderInfos[eblanApplicationInfoGroup].orEmpty()) { eblanAppWidgetProviderInfo ->
+                    EblanAppWidgetProviderInfoItem(
+                        eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                    )
+                }
             }
         }
     }
@@ -570,14 +577,27 @@ internal fun EblanAppWidgetProviderInfoItem(
                     },
                 )
             }
-            .fillMaxWidth()
+            .sizeIn(
+                maxWidth = 200.dp,
+                maxHeight = 200.dp,
+            )
+            .padding(20.dp)
             .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
+        Text(
+            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         AsyncImage(
             modifier = Modifier
                 .drawWithContent {
@@ -591,23 +611,9 @@ internal fun EblanAppWidgetProviderInfoItem(
                     intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
-                }
-                .sizeIn(
-                    maxWidth = 200.dp,
-                    maxHeight = 200.dp,
-                ),
+                },
             model = preview,
             contentDescription = null,
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
     }
 }

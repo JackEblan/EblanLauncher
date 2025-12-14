@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
@@ -122,11 +123,7 @@ internal fun GridItemPopup(
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
-    onWidgets: (
-        packageName: String,
-        icon: String?,
-        label: String?,
-    ) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (Long, String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -302,11 +299,7 @@ private fun GridItemPopupContent(
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
-    onWidgets: (
-        packageName: String,
-        icon: String?,
-        label: String?,
-    ) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -365,9 +358,11 @@ private fun GridItemPopupContent(
                 },
                 onWidgets = {
                     onWidgets(
-                        data.packageName,
-                        data.icon,
-                        data.label,
+                        EblanApplicationInfoGroup(
+                            packageName = data.packageName,
+                            icon = data.icon,
+                            label = data.label,
+                        )
                     )
 
                     onDismissRequest()

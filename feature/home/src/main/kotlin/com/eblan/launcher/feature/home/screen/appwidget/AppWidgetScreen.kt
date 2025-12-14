@@ -1,6 +1,7 @@
 package com.eblan.launcher.feature.home.screen.appwidget
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -9,6 +10,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
@@ -66,9 +69,7 @@ import kotlin.uuid.Uuid
 internal fun AppWidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    packageName: String?,
-    icon: String?,
-    label: String?,
+    eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
@@ -139,12 +140,44 @@ internal fun AppWidgetScreen(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp)),
         ) {
-            if (packageName != null) {
+            if (eblanApplicationInfoGroup != null) {
                 Success(
-                    paddingValues = paddingValues,
-                    icon = icon,
-                    label = label,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos[packageName].orEmpty(),
+                    modifier = Modifier
+                        .pointerInput(key1 = Unit) {
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { _, dragAmount ->
+                                    scope.launch {
+                                        offsetY.snapTo(
+                                            (offsetY.value + dragAmount).coerceAtLeast(0f)
+                                        )
+                                    }
+                                },
+                                onDragEnd = {
+                                    scope.launch {
+                                        handleApplyFling(
+                                            offsetY = offsetY,
+                                            remaining = 0f,
+                                            screenHeight = screenHeight,
+                                            onDismiss = onDismiss,
+                                        )
+                                    }
+                                },
+                                onDragCancel = {
+                                    scope.launch {
+                                        handleApplyFling(
+                                            offsetY = offsetY,
+                                            remaining = 0f,
+                                            screenHeight = screenHeight,
+                                            onDismiss = onDismiss,
+                                        )
+                                    }
+                                },
+                            )
+                        }
+                        .fillMaxWidth()
+                        .padding(paddingValues),
+                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos[eblanApplicationInfoGroup.packageName].orEmpty(),
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
@@ -152,21 +185,6 @@ internal fun AppWidgetScreen(
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
-                    onVerticalDrag = { dragAmount ->
-                        scope.launch {
-                            offsetY.snapTo(offsetY.value + dragAmount)
-                        }
-                    },
-                    onDragEnd = {
-                        scope.launch {
-                            handleApplyFling(
-                                offsetY = offsetY,
-                                remaining = 0f,
-                                screenHeight = screenHeight,
-                                onDismiss = onDismiss,
-                            )
-                        }
-                    },
                 )
             }
         }
@@ -177,9 +195,7 @@ internal fun AppWidgetScreen(
 @Composable
 private fun Success(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
-    icon: String?,
-    label: String?,
+    eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
@@ -188,35 +204,22 @@ private fun Success(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onVerticalDrag: (Float) -> Unit,
-    onDragEnd: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
     Column(
-        modifier = modifier
-            .pointerInput(key1 = Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, dragAmount ->
-                        onVerticalDrag(dragAmount)
-                    },
-                    onDragEnd = onDragEnd,
-                    onDragCancel = onDragEnd,
-                )
-            }
-            .fillMaxWidth()
-            .padding(paddingValues),
+        modifier = modifier.animateContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
-            model = icon,
+            model = eblanApplicationInfoGroup.icon,
             contentDescription = null,
             modifier = Modifier.size(40.dp),
         )
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        Text(text = label.toString())
+        Text(text = eblanApplicationInfoGroup.label.toString())
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -348,7 +351,10 @@ private fun EblanAppWidgetProviderInfoItem(
                     },
                 )
             }
-            .fillMaxWidth()
+            .sizeIn(
+                maxWidth = 200.dp,
+                maxHeight = 200.dp,
+            )
             .padding(20.dp)
             .alpha(alpha)
             .scale(
@@ -356,6 +362,7 @@ private fun EblanAppWidgetProviderInfoItem(
                 scaleY = scale.value,
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
@@ -378,11 +385,7 @@ private fun EblanAppWidgetProviderInfoItem(
                     intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
-                }
-                .sizeIn(
-                    maxWidth = 200.dp,
-                    maxHeight = 200.dp,
-                ),
+                },
             model = preview,
             contentDescription = null,
         )

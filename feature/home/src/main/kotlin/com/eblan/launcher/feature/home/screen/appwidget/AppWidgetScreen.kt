@@ -6,6 +6,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,7 +27,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -54,12 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
-import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GridItemSettings
-import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
-import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
@@ -72,8 +66,10 @@ import kotlin.uuid.Uuid
 internal fun AppWidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
-    eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    packageName: String?,
+    icon: String?,
+    label: String?,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     gridItemSettings: GridItemSettings,
     paddingValues: PaddingValues,
     drag: Drag,
@@ -123,20 +119,32 @@ internal fun AppWidgetScreen(
             }
             .pointerInput(key1 = Unit) {
                 detectTapGestures(onTap = {
-                    onDismiss()
+                    scope.launch {
+                        offsetY.animateTo(
+                            targetValue = screenHeight.toFloat(),
+                            animationSpec = tween(
+                                easing = FastOutSlowInEasing,
+                            ),
+                        )
+
+                        onDismiss()
+                    }
                 })
             }
             .fillMaxSize(),
         contentAlignment = Alignment.BottomCenter,
     ) {
-        Surface(modifier = Modifier.fillMaxWidth()) {
-            if (eblanApplicationComponentUiState is EblanApplicationComponentUiState.Success &&
-                eblanApplicationInfoGroup != null
-            ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp)),
+        ) {
+            if (packageName != null) {
                 Success(
                     paddingValues = paddingValues,
-                    eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-                    eblanAppWidgetProviderInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanAppWidgetProviderInfos[eblanApplicationInfoGroup].orEmpty(),
+                    icon = icon,
+                    label = label,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos[packageName].orEmpty(),
                     drag = drag,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onLongPressGridItem = onLongPressGridItem,
@@ -170,7 +178,8 @@ internal fun AppWidgetScreen(
 private fun Success(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
-    eblanApplicationInfoGroup: EblanApplicationInfoGroup,
+    icon: String?,
+    label: String?,
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
     drag: Drag,
     onUpdateGridItemOffset: (IntOffset, IntSize) -> Unit,
@@ -200,21 +209,21 @@ private fun Success(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
-            model = eblanApplicationInfoGroup.icon,
+            model = icon,
             contentDescription = null,
             modifier = Modifier.size(40.dp),
         )
 
         Spacer(modifier = Modifier.height(5.dp))
 
-        Text(text = eblanApplicationInfoGroup.label.toString())
+        Text(text = label.toString())
 
         Spacer(modifier = Modifier.height(5.dp))
 
         LazyRow(
             state = lazyListState,
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
             items(eblanAppWidgetProviderInfos) { eblanAppWidgetProviderInfo ->
                 EblanAppWidgetProviderInfoItem(
@@ -340,7 +349,7 @@ private fun EblanAppWidgetProviderInfoItem(
                 )
             }
             .fillMaxWidth()
-            .padding(5.dp)
+            .padding(20.dp)
             .alpha(alpha)
             .scale(
                 scaleX = scale.value,
@@ -348,6 +357,14 @@ private fun EblanAppWidgetProviderInfoItem(
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Text(
+            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         AsyncImage(
             modifier = Modifier
                 .drawWithContent {
@@ -369,15 +386,5 @@ private fun EblanAppWidgetProviderInfoItem(
             model = preview,
             contentDescription = null,
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
     }
 }

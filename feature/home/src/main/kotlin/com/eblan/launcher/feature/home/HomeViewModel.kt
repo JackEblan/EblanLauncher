@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.eblan.launcher.domain.framework.AppWidgetHostWrapper
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.framework.PackageManagerWrapper
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
@@ -30,6 +31,7 @@ import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
@@ -66,6 +68,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -97,6 +100,7 @@ internal class HomeViewModel @Inject constructor(
     private val packageManagerWrapper: PackageManagerWrapper,
     getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
     getPinnedEblanShortcutInfosUseCase: GetPinnedEblanShortcutInfosUseCase,
+    eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -189,6 +193,17 @@ internal class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyMap(),
     )
+
+    val eblanAppWidgetProviderInfos =
+        eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
+            eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.packageName
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
 
     fun moveGridItem(
         movingGridItem: GridItem,

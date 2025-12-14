@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GestureSettings
@@ -61,7 +61,6 @@ import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
-import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.screen.appwidget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
@@ -93,7 +92,7 @@ internal fun HorizontalPagerScreen(
     gestureSettings: GestureSettings,
     swipeY: Float,
     screenHeight: Int,
-    eblanApplicationComponentUiState: EblanApplicationComponentUiState,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onTapFolderGridItem: (String) -> Unit,
     onEditGridItem: (String) -> Unit,
     onResize: () -> Unit,
@@ -154,9 +153,11 @@ internal fun HorizontalPagerScreen(
         pageIndicatorHeight.roundToPx()
     }
 
-    var eblanApplicationInfoGroup by remember {
-        mutableStateOf<EblanApplicationInfoGroup?>(null)
-    }
+    var packageName by remember { mutableStateOf<String?>(null) }
+
+    var icon by remember { mutableStateOf<String?>(null) }
+
+    var label by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(key1 = gridHorizontalPagerState) {
         handleWallpaperScroll(
@@ -444,10 +445,13 @@ internal fun HorizontalPagerScreen(
             currentPage = currentPage,
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             onEdit = onEditGridItem,
             onResize = onResize,
-            onWidgets = { newEblanApplicationInfoGroup ->
-                eblanApplicationInfoGroup = newEblanApplicationInfoGroup
+            onWidgets = { newPackageName, newIcon, newLabel ->
+                packageName = newPackageName
+                icon = newIcon
+                label = newLabel
             },
             onDeleteGridItem = onDeleteGridItem,
             onInfo = { serialNumber, componentName ->
@@ -513,11 +517,16 @@ internal fun HorizontalPagerScreen(
         )
     }
 
-    if (eblanApplicationInfoGroup != null) {
+    if (packageName != null &&
+        icon != null &&
+        label != null
+    ) {
         AppWidgetScreen(
             currentPage = currentPage,
-            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
-            eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+            packageName = packageName,
+            icon = icon,
+            label = label,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             gridItemSettings = homeSettings.gridItemSettings,
             paddingValues = paddingValues,
             drag = drag,
@@ -525,7 +534,11 @@ internal fun HorizontalPagerScreen(
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDismiss = {
-                eblanApplicationInfoGroup = null
+                packageName = null
+
+                icon = null
+
+                label = null
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay

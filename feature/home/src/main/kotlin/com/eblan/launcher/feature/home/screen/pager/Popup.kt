@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
@@ -120,6 +121,7 @@ internal fun GridItemPopup(
     gridItemSettings: GridItemSettings,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (Long, String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -158,6 +160,7 @@ internal fun GridItemPopup(
                 onDismissRequest = onDismissRequest,
                 onResize = onResize,
                 onInfo = onInfo,
+                onWidgets = onWidgets,
                 onDeleteGridItem = onDeleteGridItem,
                 onTapShortcutInfo = onTapShortcutInfo,
                 onLongPressGridItem = onLongPressGridItem,
@@ -182,8 +185,8 @@ internal fun GridItemPopup(
         val bottomY = y + height
 
         val childY = (
-            if (topY < 0) bottomY else topY
-            ).coerceIn(0, constraints.maxHeight - placeable.height)
+                if (topY < 0) bottomY else topY
+                ).coerceIn(0, constraints.maxHeight - placeable.height)
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(childX, childY)
@@ -292,6 +295,7 @@ private fun GridItemPopupContent(
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -344,6 +348,17 @@ private fun GridItemPopupContent(
                 },
                 onDelete = {
                     onDeleteGridItem(gridItem)
+
+                    onDismissRequest()
+                },
+                onWidgets = {
+                    onWidgets(
+                        EblanApplicationInfoGroup(
+                            packageName = data.packageName,
+                            icon = data.icon,
+                            label = data.label,
+                        )
+                    )
 
                     onDismissRequest()
                 },
@@ -422,6 +437,7 @@ private fun ApplicationInfoGridItemMenu(
     onResize: () -> Unit,
     onInfo: () -> Unit,
     onDelete: () -> Unit,
+    onWidgets: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
@@ -489,6 +505,11 @@ private fun ApplicationInfoGridItemMenu(
                         onClick = onDelete,
                     ) {
                         Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
+                    }
+                    IconButton(
+                        onClick = onWidgets,
+                    ) {
+                        Icon(imageVector = EblanLauncherIcons.Widgets, contentDescription = null)
                     }
                 }
             }

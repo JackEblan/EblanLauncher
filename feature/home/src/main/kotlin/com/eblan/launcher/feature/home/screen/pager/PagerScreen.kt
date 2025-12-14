@@ -324,6 +324,7 @@ internal fun PagerScreen(
         gestureSettings = gestureSettings,
         swipeY = swipeY.value,
         screenHeight = screenHeight,
+        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
         onTapFolderGridItem = onTapFolderGridItem,
         onEditGridItem = onEditGridItem,
         onResize = onResize,

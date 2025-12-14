@@ -84,7 +84,11 @@ internal suspend fun handleDragGridItem(
 ) {
     delay(100L)
 
-    if (drag != Drag.Dragging || isScrollInProgress) {
+    if (drag == Drag.None ||
+        drag == Drag.End ||
+        drag == Drag.Cancel ||
+        isScrollInProgress
+    ) {
         return
     }
 
@@ -180,7 +184,8 @@ internal suspend fun handleDragGridItem(
     } else if (isHorizontalBounds && isVerticalBounds) {
         val gridWidthWithPadding = gridWidth - (gridPadding * 2)
 
-        val gridHeightWithPadding = (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
+        val gridHeightWithPadding =
+            (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
 
         val gridX = dragX - gridPadding
 

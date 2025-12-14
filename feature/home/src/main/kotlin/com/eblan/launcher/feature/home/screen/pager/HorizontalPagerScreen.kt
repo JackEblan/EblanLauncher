@@ -527,7 +527,7 @@ internal fun HorizontalPagerScreen(
                 eblanApplicationInfoGroup = null
             },
             onDraggingGridItem = onDraggingGridItem,
-            onResetOverlay = onResetOverlay
+            onResetOverlay = onResetOverlay,
         )
     }
 }

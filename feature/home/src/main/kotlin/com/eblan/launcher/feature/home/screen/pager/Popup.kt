@@ -188,8 +188,8 @@ internal fun GridItemPopup(
         val bottomY = y + height
 
         val childY = (
-                if (topY < 0) bottomY else topY
-                ).coerceIn(0, constraints.maxHeight - placeable.height)
+            if (topY < 0) bottomY else topY
+            ).coerceIn(0, constraints.maxHeight - placeable.height)
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(childX, childY)
@@ -362,7 +362,7 @@ private fun GridItemPopupContent(
                             packageName = data.packageName,
                             icon = data.icon,
                             label = data.label,
-                        )
+                        ),
                     )
 
                     onDismissRequest()
@@ -519,7 +519,7 @@ private fun ApplicationInfoGridItemMenu(
                         ) {
                             Icon(
                                 imageVector = EblanLauncherIcons.Widgets,
-                                contentDescription = null
+                                contentDescription = null,
                             )
                         }
                     }

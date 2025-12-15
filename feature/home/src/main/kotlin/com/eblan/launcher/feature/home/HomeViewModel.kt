@@ -39,7 +39,7 @@ import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanShortcutConfigByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.GetPinnedEblanShortcutInfosUseCase
+import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
@@ -97,7 +97,7 @@ internal class HomeViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
     getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
-    getPinnedEblanShortcutInfosUseCase: GetPinnedEblanShortcutInfosUseCase,
+    getEblanShortcutInfosUseCase: GetEblanShortcutInfosUseCase,
     eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
@@ -186,7 +186,7 @@ internal class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    val eblanShortcutInfos = getPinnedEblanShortcutInfosUseCase().stateIn(
+    val eblanShortcutInfos = getEblanShortcutInfosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyMap(),

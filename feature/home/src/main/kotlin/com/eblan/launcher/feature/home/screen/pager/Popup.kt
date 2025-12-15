@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
@@ -118,8 +120,10 @@ internal fun GridItemPopup(
     currentPage: Int,
     drag: Drag,
     gridItemSettings: GridItemSettings,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onInfo: (Long, String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -154,10 +158,12 @@ internal fun GridItemPopup(
                 currentPage = currentPage,
                 drag = drag,
                 gridItemSettings = gridItemSettings,
+                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                 onEdit = onEdit,
                 onDismissRequest = onDismissRequest,
                 onResize = onResize,
                 onInfo = onInfo,
+                onWidgets = onWidgets,
                 onDeleteGridItem = onDeleteGridItem,
                 onTapShortcutInfo = onTapShortcutInfo,
                 onLongPressGridItem = onLongPressGridItem,
@@ -285,6 +291,7 @@ private fun GridItemPopupContent(
     currentPage: Int,
     drag: Drag,
     gridItemSettings: GridItemSettings,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onEdit: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onResize: () -> Unit,
@@ -292,6 +299,7 @@ private fun GridItemPopupContent(
         serialNumber: Long,
         componentName: String,
     ) -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
@@ -324,6 +332,7 @@ private fun GridItemPopupContent(
                 drag = drag,
                 icon = data.icon,
                 gridItemSettings = gridItemSettings,
+                eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[data.packageName],
                 onEdit = {
                     onDismissRequest()
 
@@ -344,6 +353,17 @@ private fun GridItemPopupContent(
                 },
                 onDelete = {
                     onDeleteGridItem(gridItem)
+
+                    onDismissRequest()
+                },
+                onWidgets = {
+                    onWidgets(
+                        EblanApplicationInfoGroup(
+                            packageName = data.packageName,
+                            icon = data.icon,
+                            label = data.label,
+                        ),
+                    )
 
                     onDismissRequest()
                 },
@@ -418,10 +438,12 @@ private fun ApplicationInfoGridItemMenu(
     drag: Drag,
     icon: String?,
     gridItemSettings: GridItemSettings,
+    eblanAppWidgetProviderInfosByPackageName: List<EblanAppWidgetProviderInfo>?,
     onEdit: () -> Unit,
     onResize: () -> Unit,
     onInfo: () -> Unit,
     onDelete: () -> Unit,
+    onWidgets: () -> Unit,
     onTapShortcutInfo: (
         serialNumber: Long,
         packageName: String,
@@ -489,6 +511,17 @@ private fun ApplicationInfoGridItemMenu(
                         onClick = onDelete,
                     ) {
                         Icon(imageVector = EblanLauncherIcons.Delete, contentDescription = null)
+                    }
+
+                    if (!eblanAppWidgetProviderInfosByPackageName.isNullOrEmpty()) {
+                        IconButton(
+                            onClick = onWidgets,
+                        ) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Widgets,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
             }

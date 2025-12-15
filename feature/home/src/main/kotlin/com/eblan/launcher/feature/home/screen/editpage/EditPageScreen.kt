@@ -71,6 +71,7 @@ internal fun EditPageScreen(
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
@@ -177,6 +178,7 @@ internal fun EditPageScreen(
                                     iconPackInfoPackageName = iconPackInfoPackageName,
                                     isDragging = false,
                                     statusBarNotifications = emptyMap(),
+                                    hasShortcutHostPermission = hasShortcutHostPermission,
                                 )
                             },
                         )

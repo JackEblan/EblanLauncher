@@ -249,18 +249,7 @@ internal fun FolderScreen(
                                     onTapFolderGridItem = {
                                         onAddFolder(gridItem.id)
                                     },
-                                    onLongPress = {
-                                        onUpdateGridItemOffset(
-                                            IntOffset(
-                                                x = x + leftPadding,
-                                                y = y + (topPadding + titleHeight),
-                                            ),
-                                            IntSize(
-                                                width = width,
-                                                height = height,
-                                            ),
-                                        )
-                                    },
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onUpdateImageBitmap = { imageBitmap ->
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),

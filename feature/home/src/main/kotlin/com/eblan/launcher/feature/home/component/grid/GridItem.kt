@@ -33,9 +33,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -68,6 +71,7 @@ internal fun GridItemContent(
     iconPackInfoPackageName: String,
     isDragging: Boolean,
     statusBarNotifications: Map<String, Int>,
+    hasShortcutHostPermission: Boolean,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -106,6 +110,7 @@ internal fun GridItemContent(
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 }
 
@@ -133,7 +138,7 @@ internal fun GridItemContent(
 }
 
 @Composable
-internal fun ApplicationInfoGridItem(
+private fun ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ApplicationInfo,
     textColor: Color,
@@ -235,11 +240,12 @@ internal fun ApplicationInfoGridItem(
 }
 
 @Composable
-internal fun ShortcutInfoGridItem(
+private fun ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutInfo,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    hasShortcutHostPermission: Boolean,
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -259,8 +265,12 @@ internal fun ShortcutInfoGridItem(
 
     val customShortLabel = data.customShortLabel ?: data.shortLabel
 
+    val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
+
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .alpha(alpha)
+            .fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -294,7 +304,7 @@ internal fun ShortcutInfoGridItem(
 }
 
 @Composable
-internal fun FolderGridItem(
+private fun FolderGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.Folder,
     textColor: Color,
@@ -480,7 +490,7 @@ private fun WidgetGridItem(
 }
 
 @Composable
-internal fun ShortcutConfigGridItem(
+private fun ShortcutConfigGridItem(
     modifier: Modifier = Modifier,
     data: GridItemData.ShortcutConfig,
     textColor: Color,

@@ -292,9 +292,7 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
     val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
     Column(
-        modifier = modifier
-            .alpha(alpha)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
@@ -306,7 +304,8 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
                         rememberSharedContentState(key = gridItem.id),
                         visible = drag == Drag.Cancel || drag == Drag.End,
                     )
-                    .matchParentSize(),
+                    .matchParentSize()
+                    .alpha(alpha),
                 contentDescription = null,
             )
 
@@ -314,13 +313,15 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
                 model = data.eblanApplicationInfoIcon,
                 modifier = Modifier
                     .size((gridItemSettings.iconSize * 0.25).dp)
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
+                    .alpha(alpha),
                 contentDescription = null,
             )
         }
 
         if (gridItemSettings.showLabel) {
             Text(
+                modifier = Modifier.alpha(alpha),
                 text = customShortLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,

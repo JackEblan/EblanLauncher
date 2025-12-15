@@ -57,6 +57,7 @@ import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -64,6 +65,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -289,6 +291,8 @@ internal fun HomeScreen(
         packageName: String,
     ) -> Unit,
 ) {
+    val density = LocalDensity.current
+
     val context = LocalContext.current
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
@@ -318,6 +322,12 @@ internal fun HomeScreen(
     }
 
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
+
+    val touchSlop = with(density) {
+        24.dp.toPx()
+    }
+
+    var accumulatedDragOffset by remember { mutableStateOf(Offset.Zero) }
 
     val target = remember {
         object : DragAndDropTarget {
@@ -406,6 +416,8 @@ internal fun HomeScreen(
                         drag = Drag.Start
 
                         dragIntOffset = offset.round()
+
+                        accumulatedDragOffset = Offset.Zero
                     },
                     onDragEnd = {
                         drag = Drag.End
@@ -414,7 +426,11 @@ internal fun HomeScreen(
                         drag = Drag.Cancel
                     },
                     onDrag = { _, dragAmount ->
-                        drag = Drag.Dragging
+                        accumulatedDragOffset += dragAmount
+
+                        if (accumulatedDragOffset.getDistance() >= touchSlop) {
+                            drag = Drag.Dragging
+                        }
 
                         dragIntOffset += dragAmount.round()
 

@@ -23,6 +23,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +37,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -81,6 +85,7 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.feature.home.component.scroll.OffsetNestedScrollConnection
 import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
@@ -228,6 +233,8 @@ private fun Success(
 ) {
     val scope = rememberCoroutineScope()
 
+    val lazyListState = rememberLazyListState()
+
     val overscrollEffect = remember(key1 = scope) {
         OffsetOverscrollEffect(
             scope = scope,
@@ -236,8 +243,34 @@ private fun Success(
         )
     }
 
+    val canOverscroll by remember(key1 = lazyListState) {
+        derivedStateOf {
+            val layoutInfo = lazyListState.layoutInfo
+
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+            val total = layoutInfo.totalItemsCount
+
+            lastVisible < total - 1
+        }
+    }
+
+    val nestedScrollConnection = remember {
+        OffsetNestedScrollConnection(
+            onVerticalDrag = onVerticalDrag,
+            onDragEnd = onDragEnd,
+        )
+    }
+
     Column(
         modifier = modifier
+            .run {
+                if (!canOverscroll) {
+                    nestedScroll(nestedScrollConnection)
+                } else {
+                    this
+                }
+            }
             .fillMaxSize()
             .padding(
                 top = paddingValues.calculateTopPadding(),
@@ -258,6 +291,7 @@ private fun Success(
         )
 
         LazyColumn(
+            state = lazyListState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = paddingValues.calculateBottomPadding()),
             overscrollEffect = overscrollEffect,
@@ -415,17 +449,22 @@ private fun EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            eblanAppWidgetProviderInfos[eblanApplicationInfoGroup]?.forEach { eblanAppWidgetProviderInfo ->
-                EblanAppWidgetProviderInfoItem(
-                    eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                items(eblanAppWidgetProviderInfos[eblanApplicationInfoGroup].orEmpty()) { eblanAppWidgetProviderInfo ->
+                    EblanAppWidgetProviderInfoItem(
+                        eblanAppWidgetProviderInfo = eblanAppWidgetProviderInfo,
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                    )
+                }
             }
         }
     }
@@ -433,7 +472,7 @@ private fun EblanApplicationInfoItem(
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-private fun EblanAppWidgetProviderInfoItem(
+internal fun EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
@@ -538,14 +577,27 @@ private fun EblanAppWidgetProviderInfoItem(
                     },
                 )
             }
-            .fillMaxWidth()
+            .sizeIn(
+                maxWidth = 200.dp,
+                maxHeight = 200.dp,
+            )
+            .padding(20.dp)
             .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
+        Text(
+            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         AsyncImage(
             modifier = Modifier
                 .drawWithContent {
@@ -559,23 +611,9 @@ private fun EblanAppWidgetProviderInfoItem(
                     intOffset = layoutCoordinates.positionInRoot().round()
 
                     intSize = layoutCoordinates.size
-                }
-                .sizeIn(
-                    maxWidth = 200.dp,
-                    maxHeight = 200.dp,
-                ),
+                },
             model = preview,
             contentDescription = null,
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
     }
 }

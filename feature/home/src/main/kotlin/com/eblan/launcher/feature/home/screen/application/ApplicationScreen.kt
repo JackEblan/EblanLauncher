@@ -104,7 +104,9 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.AppDrawerSettings
 import com.eblan.launcher.domain.model.Associate
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
@@ -116,6 +118,7 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.screen.appwidget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
@@ -141,6 +144,7 @@ internal fun ApplicationScreen(
     screenHeight: Int,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -200,6 +204,8 @@ internal fun ApplicationScreen(
                     eblanApplicationInfos = eblanApplicationComponentUiState.eblanApplicationComponent.eblanApplicationInfos,
                     eblanShortcutInfos = eblanShortcutInfos,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    screenHeight = screenHeight,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
                     onLongPressGridItem = onLongPressGridItem,
                     onUpdateGridItemOffset = onUpdateGridItemOffset,
                     onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
@@ -229,6 +235,8 @@ private fun Success(
     eblanApplicationInfos: Map<Long, List<EblanApplicationInfo>>,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     hasShortcutHostPermission: Boolean,
+    screenHeight: Int,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onLongPressGridItem: (
         gridItemSource: GridItemSource,
         imageBitmap: ImageBitmap?,
@@ -273,6 +281,8 @@ private fun Success(
             eblanApplicationInfos.keys.size
         },
     )
+
+    var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
     BackHandler {
         showPopupApplicationMenu = false
@@ -389,6 +399,7 @@ private fun Success(
             currentPage = currentPage,
             drag = drag,
             gridItemSettings = appDrawerSettings.gridItemSettings,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
             onDismissRequest = {
                 showPopupApplicationMenu = false
             },
@@ -416,6 +427,28 @@ private fun Success(
             onLongPressGridItem = onLongPressGridItem,
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onDraggingGridItem = onDraggingGridItem,
+            onWidgets = { newEblanApplicationInfoGroup ->
+                eblanApplicationInfoGroup = newEblanApplicationInfoGroup
+            },
+        )
+    }
+
+    if (eblanApplicationInfoGroup != null) {
+        AppWidgetScreen(
+            currentPage = currentPage,
+            eblanApplicationInfoGroup = eblanApplicationInfoGroup,
+            eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            gridItemSettings = appDrawerSettings.gridItemSettings,
+            paddingValues = paddingValues,
+            drag = drag,
+            screenHeight = screenHeight,
+            onLongPressGridItem = onLongPressGridItem,
+            onUpdateGridItemOffset = onUpdateGridItemOffset,
+            onDismiss = {
+                eblanApplicationInfoGroup = null
+            },
+            onDraggingGridItem = onDraggingGridItem,
+            onResetOverlay = onResetOverlay,
         )
     }
 }

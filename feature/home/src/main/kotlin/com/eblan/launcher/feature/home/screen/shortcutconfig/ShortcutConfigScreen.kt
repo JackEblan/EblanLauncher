@@ -23,6 +23,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -37,6 +38,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -579,18 +581,22 @@ private fun EblanApplicationInfoItem(
         if (expanded) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            eblanShortcutConfigs[eblanApplicationInfoGroup]?.forEach { eblanShortcutConfig ->
-                EblanShortcutConfigItem(
-                    modifier = modifier,
-                    eblanShortcutConfig = eblanShortcutConfig,
-                    drag = drag,
-                    onUpdateGridItemOffset = onUpdateGridItemOffset,
-                    onLongPressGridItem = onLongPressGridItem,
-                    currentPage = currentPage,
-                    gridItemSettings = gridItemSettings,
-                    onResetOverlay = onResetOverlay,
-                    onDraggingGridItem = onDraggingGridItem,
-                )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                items(eblanShortcutConfigs[eblanApplicationInfoGroup].orEmpty()) { eblanShortcutConfig ->
+                    EblanShortcutConfigItem(
+                        eblanShortcutConfig = eblanShortcutConfig,
+                        drag = drag,
+                        onUpdateGridItemOffset = onUpdateGridItemOffset,
+                        onLongPressGridItem = onLongPressGridItem,
+                        currentPage = currentPage,
+                        gridItemSettings = gridItemSettings,
+                        onResetOverlay = onResetOverlay,
+                        onDraggingGridItem = onDraggingGridItem,
+                    )
+                }
             }
         }
     }
@@ -708,13 +714,14 @@ private fun EblanShortcutConfigItem(
                     },
                 )
             }
-            .fillMaxWidth()
+            .padding(10.dp)
             .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         Box(
             modifier = Modifier

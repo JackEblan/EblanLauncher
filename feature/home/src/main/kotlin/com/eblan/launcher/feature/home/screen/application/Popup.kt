@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
+import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.EblanShortcutInfo
 import com.eblan.launcher.domain.model.EblanShortcutInfoByGroup
 import com.eblan.launcher.domain.model.GridItem
@@ -64,6 +66,7 @@ internal fun PopupApplicationInfoMenu(
     currentPage: Int,
     drag: Drag,
     gridItemSettings: GridItemSettings,
+    eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
     onDismissRequest: () -> Unit,
     onEditApplicationInfo: (
         serialNumber: Long,
@@ -84,6 +87,7 @@ internal fun PopupApplicationInfoMenu(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onWidgets: (EblanApplicationInfoGroup) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -127,6 +131,7 @@ internal fun PopupApplicationInfoMenu(
                 icon = applicationInfo.icon,
                 drag = drag,
                 gridItemSettings = gridItemSettings,
+                eblanAppWidgetProviderInfosByPackageName = eblanAppWidgetProviderInfos[applicationInfo.packageName],
                 onApplicationInfo = {
                     launcherApps.startAppDetailsActivity(
                         serialNumber = applicationInfo.serialNumber,
@@ -162,6 +167,17 @@ internal fun PopupApplicationInfoMenu(
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
+                onWidgets = {
+                    onWidgets(
+                        EblanApplicationInfoGroup(
+                            packageName = applicationInfo.packageName,
+                            icon = applicationInfo.icon,
+                            label = applicationInfo.label,
+                        ),
+                    )
+
+                    onDismissRequest()
+                },
             )
         },
     ) { measurables, constraints ->
@@ -198,6 +214,7 @@ private fun ApplicationInfoMenu(
     drag: Drag,
     icon: String?,
     gridItemSettings: GridItemSettings,
+    eblanAppWidgetProviderInfosByPackageName: List<EblanAppWidgetProviderInfo>?,
     onApplicationInfo: () -> Unit,
     onEdit: () -> Unit,
     onTapShortcutInfo: (
@@ -215,6 +232,7 @@ private fun ApplicationInfoMenu(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onWidgets: () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -261,6 +279,17 @@ private fun ApplicationInfoMenu(
                             imageVector = EblanLauncherIcons.Edit,
                             contentDescription = null,
                         )
+                    }
+
+                    if (!eblanAppWidgetProviderInfosByPackageName.isNullOrEmpty()) {
+                        IconButton(
+                            onClick = onWidgets,
+                        ) {
+                            Icon(
+                                imageVector = EblanLauncherIcons.Widgets,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
             }

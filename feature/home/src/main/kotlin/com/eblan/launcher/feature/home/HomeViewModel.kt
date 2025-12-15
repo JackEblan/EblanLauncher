@@ -30,15 +30,16 @@ import com.eblan.launcher.domain.model.GridItemData.ShortcutInfo
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.PinItemRequestType
+import com.eblan.launcher.domain.repository.EblanAppWidgetProviderInfoRepository
 import com.eblan.launcher.domain.repository.FolderGridCacheRepository
 import com.eblan.launcher.domain.repository.GridCacheRepository
 import com.eblan.launcher.domain.usecase.GetEblanAppWidgetProviderInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationComponentUseCase
 import com.eblan.launcher.domain.usecase.GetEblanApplicationInfosByLabelUseCase
 import com.eblan.launcher.domain.usecase.GetEblanShortcutConfigByLabelUseCase
+import com.eblan.launcher.domain.usecase.GetEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.GetFolderDataByIdUseCase
 import com.eblan.launcher.domain.usecase.GetHomeDataUseCase
-import com.eblan.launcher.domain.usecase.GetPinnedEblanShortcutInfosUseCase
 import com.eblan.launcher.domain.usecase.grid.DeleteGridItemUseCase
 import com.eblan.launcher.domain.usecase.grid.GetGridItemsCacheUseCase
 import com.eblan.launcher.domain.usecase.grid.MoveFolderGridItemUseCase
@@ -96,7 +97,8 @@ internal class HomeViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val packageManagerWrapper: PackageManagerWrapper,
     getEblanShortcutConfigByLabelUseCase: GetEblanShortcutConfigByLabelUseCase,
-    getPinnedEblanShortcutInfosUseCase: GetPinnedEblanShortcutInfosUseCase,
+    getEblanShortcutInfosUseCase: GetEblanShortcutInfosUseCase,
+    eblanAppWidgetProviderInfoRepository: EblanAppWidgetProviderInfoRepository,
 ) : ViewModel() {
     val homeUiState = getHomeDataUseCase().map(HomeUiState::Success).stateIn(
         scope = viewModelScope,
@@ -184,11 +186,22 @@ internal class HomeViewModel @Inject constructor(
 
     val pinGridItem = _pinGridItem.asStateFlow()
 
-    val eblanShortcutInfos = getPinnedEblanShortcutInfosUseCase().stateIn(
+    val eblanShortcutInfos = getEblanShortcutInfosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = emptyMap(),
     )
+
+    val eblanAppWidgetProviderInfos =
+        eblanAppWidgetProviderInfoRepository.eblanAppWidgetProviderInfos.map { eblanAppWidgetProviderInfos ->
+            eblanAppWidgetProviderInfos.groupBy { eblanAppWidgetProviderInfo ->
+                eblanAppWidgetProviderInfo.packageName
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyMap(),
+        )
 
     fun moveGridItem(
         movingGridItem: GridItem,

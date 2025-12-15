@@ -21,6 +21,8 @@ import android.appwidget.AppWidgetManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -75,8 +77,9 @@ import com.eblan.launcher.ui.local.LocalUserManager
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun DragScreen(
+internal fun SharedTransitionScope.DragScreen(
     modifier: Modifier = Modifier,
     dragIntOffset: IntOffset,
     gridItemSource: GridItemSource?,
@@ -383,7 +386,7 @@ internal fun DragScreen(
                 gridItems = gridItemCache.gridItemsCacheByPage[page],
                 columns = homeSettings.columns,
                 rows = homeSettings.rows,
-                { gridItem ->
+                content = { gridItem ->
                     val gridItemSettings = if (gridItem.override) {
                         gridItem.gridItemSettings
                     } else {
@@ -418,6 +421,7 @@ internal fun DragScreen(
                         isDragging = isDragging,
                         statusBarNotifications = statusBarNotifications,
                         hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
                     )
                 },
             )
@@ -474,6 +478,7 @@ internal fun DragScreen(
                     isDragging = isDragging,
                     statusBarNotifications = statusBarNotifications,
                     hasShortcutHostPermission = hasShortcutHostPermission,
+                    drag = drag,
                 )
             },
         )

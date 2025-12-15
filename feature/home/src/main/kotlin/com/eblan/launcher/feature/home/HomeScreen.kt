@@ -28,6 +28,9 @@ import android.os.IBinder
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -194,6 +197,7 @@ internal fun HomeRoute(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -313,6 +317,8 @@ internal fun HomeScreen(
         mutableStateOf<Map<String, Int>>(emptyMap())
     }
 
+    var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
+
     val target = remember {
         object : DragAndDropTarget {
             override fun onStarted(event: DragAndDropEvent) {
@@ -392,7 +398,7 @@ internal fun HomeScreen(
         }
     }
 
-    BoxWithConstraints(
+    SharedTransitionLayout(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
@@ -424,89 +430,97 @@ internal fun HomeScreen(
             )
             .fillMaxSize(),
     ) {
-        when (homeUiState) {
-            HomeUiState.Loading -> {}
-            is HomeUiState.Success -> {
-                Success(
-                    screen = screen,
-                    homeData = homeUiState.homeData,
-                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                    pageItems = pageItems,
-                    movedGridItemResult = movedGridItemResult,
-                    screenWidth = this@BoxWithConstraints.constraints.maxWidth,
-                    screenHeight = this@BoxWithConstraints.constraints.maxHeight,
-                    paddingValues = paddingValues,
-                    dragIntOffset = dragIntOffset,
-                    drag = drag,
-                    foldersDataById = foldersDataById,
-                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                    gridItemCache = gridItemsCache,
-                    pinGridItem = pinGridItem,
-                    overlayIntOffset = overlayIntOffset,
-                    overlayIntSize = overlayIntSize,
-                    statusBarNotifications = statusBarNotifications,
-                    eblanShortcutInfos = eblanShortcutInfos,
-                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                    onMoveGridItem = onMoveGridItem,
-                    onMoveFolderGridItem = onMoveFolderGridItem,
-                    onResizeGridItem = onResizeGridItem,
-                    onShowGridCache = onShowGridCache,
-                    onShowFolderGridCache = onShowFolderGridCache,
-                    onResetGridCacheAfterResize = onResetGridCacheAfterResize,
-                    onResetGridCacheAfterMove = onResetGridCacheAfterMove,
-                    onCancelGridCache = onCancelGridCache,
-                    onCancelFolderDragGridCache = onCancelFolderDragGridCache,
-                    onEditGridItem = onEditGridItem,
-                    onSettings = onSettings,
-                    onEditPage = onEditPage,
-                    onSaveEditPage = onSaveEditPage,
-                    onUpdateScreen = onUpdateScreen,
-                    onDeleteGridItemCache = onDeleteGridItemCache,
-                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
-                    onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                    onShowFolder = onShowFolder,
-                    onRemoveLastFolder = onRemoveLastFolder,
-                    onAddFolder = onAddFolder,
-                    onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
-                    onUpdateGridItemImageBitmap = { imageBitmap ->
-                        overlayImageBitmap = imageBitmap
-                    },
-                    onUpdateGridItemOffset = { intOffset, intSize ->
-                        overlayIntOffset = intOffset
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            when (homeUiState) {
+                HomeUiState.Loading -> {}
+                is HomeUiState.Success -> {
+                    Success(
+                        screen = screen,
+                        homeData = homeUiState.homeData,
+                        eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                        pageItems = pageItems,
+                        movedGridItemResult = movedGridItemResult,
+                        screenWidth = this@BoxWithConstraints.constraints.maxWidth,
+                        screenHeight = this@BoxWithConstraints.constraints.maxHeight,
+                        paddingValues = paddingValues,
+                        dragIntOffset = dragIntOffset,
+                        drag = drag,
+                        foldersDataById = foldersDataById,
+                        eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                        eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                        gridItemCache = gridItemsCache,
+                        pinGridItem = pinGridItem,
+                        overlayIntOffset = overlayIntOffset,
+                        overlayIntSize = overlayIntSize,
+                        statusBarNotifications = statusBarNotifications,
+                        eblanShortcutInfos = eblanShortcutInfos,
+                        eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
+                        eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                        gridItemSource = gridItemSource,
+                        onMoveGridItem = onMoveGridItem,
+                        onMoveFolderGridItem = onMoveFolderGridItem,
+                        onResizeGridItem = onResizeGridItem,
+                        onShowGridCache = onShowGridCache,
+                        onShowFolderGridCache = onShowFolderGridCache,
+                        onResetGridCacheAfterResize = onResetGridCacheAfterResize,
+                        onResetGridCacheAfterMove = onResetGridCacheAfterMove,
+                        onCancelGridCache = onCancelGridCache,
+                        onCancelFolderDragGridCache = onCancelFolderDragGridCache,
+                        onEditGridItem = onEditGridItem,
+                        onSettings = onSettings,
+                        onEditPage = onEditPage,
+                        onSaveEditPage = onSaveEditPage,
+                        onUpdateScreen = onUpdateScreen,
+                        onDeleteGridItemCache = onDeleteGridItemCache,
+                        onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                        onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+                        onShowFolder = onShowFolder,
+                        onRemoveLastFolder = onRemoveLastFolder,
+                        onAddFolder = onAddFolder,
+                        onResetGridCacheAfterMoveFolder = onResetGridCacheAfterMoveFolder,
+                        onUpdateGridItemImageBitmap = { imageBitmap ->
+                            overlayImageBitmap = imageBitmap
+                        },
+                        onUpdateGridItemOffset = { intOffset, intSize ->
+                            overlayIntOffset = intOffset
 
-                        overlayIntSize = intSize
-                    },
-                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                    onDeleteGridItem = onDeleteGridItem,
-                    onResetOverlay = {
-                        overlayIntOffset = IntOffset.Zero
+                            overlayIntSize = intSize
+                        },
+                        onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                        onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                        onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+                        onDeleteGridItem = onDeleteGridItem,
+                        onResetOverlay = {
+                            overlayIntOffset = IntOffset.Zero
 
-                        overlayIntSize = IntSize.Zero
+                            overlayIntSize = IntSize.Zero
 
-                        overlayImageBitmap = null
-                    },
-                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
-                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
-                    onEditApplicationInfo = onEditApplicationInfo,
-                )
+                            overlayImageBitmap = null
+                        },
+                        onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                        onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+                        onEditApplicationInfo = onEditApplicationInfo,
+                        onUpdateGridItemSource = { newGridItemSource ->
+                            gridItemSource = newGridItemSource
+                        },
+                    )
+                }
             }
-        }
 
-        OverlayImage(
-            overlayIntOffset = overlayIntOffset,
-            overlayIntSize = overlayIntSize,
-            overlayImageBitmap = overlayImageBitmap,
-        )
+            OverlayImage(
+                overlayIntOffset = overlayIntOffset,
+                overlayIntSize = overlayIntSize,
+                overlayImageBitmap = overlayImageBitmap,
+                gridItemSource = gridItemSource,
+                drag = drag,
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun Success(
+private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     screen: Screen,
     homeData: HomeData,
@@ -529,6 +543,7 @@ private fun Success(
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    gridItemSource: GridItemSource?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -607,6 +622,7 @@ private fun Success(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
+    onUpdateGridItemSource: (GridItemSource) -> Unit,
 ) {
     val activity = LocalActivity.current
 
@@ -617,8 +633,6 @@ private fun Success(
     val appWidgetHost = LocalAppWidgetHost.current
 
     val pinItemRequestWrapper = LocalPinItemRequest.current
-
-    var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val gridHorizontalPagerState = rememberPagerState(
         initialPage = if (homeData.userData.homeSettings.infiniteScroll) {
@@ -658,9 +672,11 @@ private fun Success(
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
         if (pinGridItem != null && pinItemRequest != null) {
-            gridItemSource = GridItemSource.Pin(
-                gridItem = pinGridItem,
-                pinItemRequest = pinItemRequest,
+            onUpdateGridItemSource(
+                GridItemSource.Pin(
+                    gridItem = pinGridItem,
+                    pinItemRequest = pinItemRequest,
+                ),
             )
 
             onShowGridCache(
@@ -762,7 +778,7 @@ private fun Success(
                     onSettings = onSettings,
                     onEditPage = onEditPage,
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                        gridItemSource = newGridItemSource
+                        onUpdateGridItemSource(newGridItemSource)
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
@@ -861,7 +877,7 @@ private fun Success(
                     onRemoveLastFolder = onRemoveLastFolder,
                     onAddFolder = onAddFolder,
                     onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                        gridItemSource = newGridItemSource
+                        onUpdateGridItemSource(newGridItemSource)
 
                         onUpdateGridItemImageBitmap(imageBitmap)
                     },
@@ -896,7 +912,7 @@ private fun Success(
                     onDragEnd = onResetGridCacheAfterMoveFolder,
                     onDragCancel = onCancelFolderDragGridCache,
                     onMoveOutsideFolder = { newGridItemSource ->
-                        gridItemSource = newGridItemSource
+                        onUpdateGridItemSource(newGridItemSource)
 
                         onShowGridCache(
                             homeData.gridItems,
@@ -914,12 +930,15 @@ private fun Success(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun OverlayImage(
+private fun SharedTransitionScope.OverlayImage(
     modifier: Modifier = Modifier,
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     overlayImageBitmap: ImageBitmap?,
+    gridItemSource: GridItemSource?,
+    drag: Drag,
 ) {
     val density = LocalDensity.current
 
@@ -927,13 +946,17 @@ private fun OverlayImage(
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
     }
 
-    if (overlayImageBitmap != null) {
+    if (overlayImageBitmap != null && gridItemSource != null) {
         Image(
             modifier = modifier
                 .offset {
                     overlayIntOffset
                 }
-                .size(size),
+                .size(size)
+                .sharedElementWithCallerManagedVisibility(
+                    rememberSharedContentState(key = gridItemSource.gridItem.id),
+                    visible = drag == Drag.Cancel || drag == Drag.End,
+                ),
             bitmap = overlayImageBitmap,
             contentDescription = null,
         )

@@ -56,7 +56,6 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
-import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
@@ -171,15 +170,15 @@ internal fun EditPageScreen(
                                     getSystemTextColor(textColor = textColor)
                                 }
 
-                                GridItemContent(
-                                    gridItem = gridItem,
-                                    textColor = textColor,
-                                    gridItemSettings = gridItemSettings,
-                                    iconPackInfoPackageName = iconPackInfoPackageName,
-                                    isDragging = false,
-                                    statusBarNotifications = emptyMap(),
-                                    hasShortcutHostPermission = hasShortcutHostPermission,
-                                )
+//                                GridItemContent(
+//                                    gridItem = gridItem,
+//                                    textColor = textColor,
+//                                    gridItemSettings = gridItemSettings,
+//                                    iconPackInfoPackageName = iconPackInfoPackageName,
+//                                    isDragging = false,
+//                                    statusBarNotifications = emptyMap(),
+//                                    hasShortcutHostPermission = hasShortcutHostPermission,
+//                                )
                             },
                         )
 

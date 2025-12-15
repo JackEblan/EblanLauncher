@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.folderdrag
 
 import android.widget.Toast
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -58,8 +60,9 @@ import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun FolderDragScreen(
+internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
     gridItemCache: GridItemCache,
     gridItemSource: GridItemSource?,

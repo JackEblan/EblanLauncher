@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.resize
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -43,8 +45,9 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ResizeScreen(
+internal fun SharedTransitionScope.ResizeScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     gridItemCache: GridItemCache,

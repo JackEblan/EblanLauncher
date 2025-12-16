@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.application
 import android.graphics.Rect
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -129,8 +131,9 @@ import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ApplicationScreen(
+internal fun SharedTransitionScope.ApplicationScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     offsetY: () -> Float,
@@ -163,6 +166,7 @@ internal fun ApplicationScreen(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val alpha by remember {
         derivedStateOf {
@@ -215,15 +219,16 @@ internal fun ApplicationScreen(
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
                     onEditApplicationInfo = onEditApplicationInfo,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun Success(
+private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     paddingValues: PaddingValues,
@@ -255,6 +260,7 @@ private fun Success(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -322,6 +328,7 @@ private fun Success(
             },
             onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
 
         if (eblanApplicationInfos.keys.size > 1) {
@@ -358,6 +365,7 @@ private fun Success(
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         } else {
@@ -384,6 +392,7 @@ private fun Success(
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
                 onDraggingGridItem = onDraggingGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -453,9 +462,9 @@ private fun Success(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanApplicationInfoDockSearchBar(
+private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
@@ -475,6 +484,7 @@ private fun EblanApplicationInfoDockSearchBar(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -520,15 +530,16 @@ private fun EblanApplicationInfoDockSearchBar(
                     onUpdatePopupMenu = onUpdatePopupMenu,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanApplicationInfoItem(
+private fun SharedTransitionScope.EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
@@ -547,6 +558,7 @@ private fun EblanApplicationInfoItem(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -597,8 +609,6 @@ private fun EblanApplicationInfoItem(
         VerticalArrangement.Bottom -> Arrangement.Bottom
     }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
-
     val leftPadding = with(density) {
         paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
     }
@@ -613,6 +623,10 @@ private fun EblanApplicationInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val id = remember { Uuid.random().toHexString() }
+
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging -> {
@@ -625,8 +639,6 @@ private fun EblanApplicationInfoItem(
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                alpha = 1f
 
                 scale.stop()
 
@@ -686,7 +698,7 @@ private fun EblanApplicationInfoItem(
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
-                                        id = Uuid.random().toHexString(),
+                                        id = id,
                                         folderId = null,
                                         page = currentPage,
                                         startColumn = -1,
@@ -707,19 +719,17 @@ private fun EblanApplicationInfoItem(
                                 intSize,
                             )
 
+                            onUpdateSharedElementKey(id)
+
                             onUpdatePopupMenu(true)
 
                             isLongPress = true
-
-                            alpha = 0f
                         }
                     },
                     onPress = {
                         awaitRelease()
 
                         scale.stop()
-
-                        alpha = 1f
 
                         onResetOverlay()
 
@@ -730,7 +740,6 @@ private fun EblanApplicationInfoItem(
                 )
             }
             .height(appDrawerRowsHeight)
-            .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
@@ -738,66 +747,71 @@ private fun EblanApplicationInfoItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
-        Spacer(modifier = Modifier.height(5.dp))
+        if (!isDragging) {
+            Box(
+                modifier = Modifier
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
 
-        Box(
-            modifier = Modifier
-                .drawWithContent {
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
+                        drawLayer(graphicsLayer)
                     }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        intOffset = layoutCoordinates.positionInRoot().round()
 
-                    drawLayer(graphicsLayer)
-                }
-                .onGloballyPositioned { layoutCoordinates ->
-                    intOffset = layoutCoordinates.positionInRoot().round()
-
-                    intSize = layoutCoordinates.size
-                }
-                .size(appDrawerSettings.gridItemSettings.iconSize.dp),
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(customIcon)
-                    .addLastModifiedToFileCacheKey(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.matchParentSize(),
-            )
-
-            if (eblanApplicationInfo.serialNumber != 0L) {
-                ElevatedCard(
+                        intSize = layoutCoordinates.size
+                    }
+                    .size(appDrawerSettings.gridItemSettings.iconSize.dp),
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
+                        .build(),
+                    contentDescription = null,
                     modifier = Modifier
-                        .size((appDrawerSettings.gridItemSettings.iconSize * 0.40).dp)
-                        .align(Alignment.BottomEnd),
-                ) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Work,
-                        contentDescription = null,
-                        modifier = Modifier.padding(2.dp),
-                    )
+                        .matchParentSize()
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(key = id),
+                            visible = true,
+                        ),
+                )
+
+                if (eblanApplicationInfo.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((appDrawerSettings.gridItemSettings.iconSize * 0.40).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
+                    }
                 }
             }
-        }
 
-        if (appDrawerSettings.gridItemSettings.showLabel) {
-            Spacer(modifier = Modifier.height(10.dp))
+            if (appDrawerSettings.gridItemSettings.showLabel) {
+                Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = customLabel,
-                color = textColor,
-                textAlign = TextAlign.Center,
-                maxLines = maxLines,
-                fontSize = appDrawerSettings.gridItemSettings.textSize.sp,
-                overflow = TextOverflow.Ellipsis,
-            )
+                Text(
+                    text = customLabel,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = appDrawerSettings.gridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanApplicationInfosPage(
+private fun SharedTransitionScope.EblanApplicationInfosPage(
     modifier: Modifier = Modifier,
     index: Int,
     currentPage: Int,
@@ -819,6 +833,7 @@ private fun EblanApplicationInfosPage(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -892,6 +907,7 @@ private fun EblanApplicationInfosPage(
                     onUpdatePopupMenu = onUpdatePopupMenu,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }

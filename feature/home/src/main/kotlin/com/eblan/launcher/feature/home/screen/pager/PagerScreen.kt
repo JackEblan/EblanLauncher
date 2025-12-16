@@ -127,6 +127,7 @@ internal fun SharedTransitionScope.PagerScreen(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -348,6 +349,7 @@ internal fun SharedTransitionScope.PagerScreen(
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
+        onUpdateSharedElementKey = onUpdateSharedElementKey,
     )
 
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
@@ -397,6 +399,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 }
             },
             onEditApplicationInfo = onEditApplicationInfo,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -462,6 +465,7 @@ internal fun SharedTransitionScope.PagerScreen(
                 }
             },
             onEditApplicationInfo = onEditApplicationInfo,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 

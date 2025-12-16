@@ -320,13 +320,13 @@ internal fun HomeScreen(
         mutableStateOf<Map<String, Int>>(emptyMap())
     }
 
-    var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
-
     val touchSlop = with(density) {
         50.dp.toPx()
     }
 
     var accumulatedDragOffset by remember { mutableStateOf(Offset.Zero) }
+
+    var sharedElementKey by remember { mutableStateOf<String?>(null) }
 
     val target = remember {
         object : DragAndDropTarget {
@@ -471,7 +471,6 @@ internal fun HomeScreen(
                         eblanShortcutInfos = eblanShortcutInfos,
                         eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
                         eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                        gridItemSource = gridItemSource,
                         onMoveGridItem = onMoveGridItem,
                         onMoveFolderGridItem = onMoveFolderGridItem,
                         onResizeGridItem = onResizeGridItem,
@@ -511,12 +510,14 @@ internal fun HomeScreen(
                             overlayIntSize = IntSize.Zero
 
                             overlayImageBitmap = null
+
+                            sharedElementKey = null
                         },
                         onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
                         onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
                         onEditApplicationInfo = onEditApplicationInfo,
-                        onUpdateGridItemSource = { newGridItemSource ->
-                            gridItemSource = newGridItemSource
+                        onUpdateSharedElementKey = { newSharedElementKey ->
+                            sharedElementKey = newSharedElementKey
                         },
                     )
                 }
@@ -526,7 +527,7 @@ internal fun HomeScreen(
                 overlayIntOffset = overlayIntOffset,
                 overlayIntSize = overlayIntSize,
                 overlayImageBitmap = overlayImageBitmap,
-                gridItemSource = gridItemSource,
+                sharedElementKey = sharedElementKey,
                 drag = drag,
             )
         }
@@ -558,7 +559,6 @@ private fun SharedTransitionScope.Success(
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
-    gridItemSource: GridItemSource?,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -637,7 +637,7 @@ private fun SharedTransitionScope.Success(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
-    onUpdateGridItemSource: (GridItemSource) -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val activity = LocalActivity.current
 
@@ -683,15 +683,15 @@ private fun SharedTransitionScope.Success(
         }
     }
 
+    var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
+
     LaunchedEffect(key1 = pinGridItem) {
         val pinItemRequest = pinItemRequestWrapper.getPinItemRequest()
 
         if (pinGridItem != null && pinItemRequest != null) {
-            onUpdateGridItemSource(
-                GridItemSource.Pin(
-                    gridItem = pinGridItem,
-                    pinItemRequest = pinItemRequest,
-                ),
+            gridItemSource = GridItemSource.Pin(
+                gridItem = pinGridItem,
+                pinItemRequest = pinItemRequest,
             )
 
             onShowGridCache(
@@ -789,7 +789,7 @@ private fun SharedTransitionScope.Success(
                 onSettings = onSettings,
                 onEditPage = onEditPage,
                 onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                    onUpdateGridItemSource(newGridItemSource)
+                    gridItemSource = newGridItemSource
 
                     onUpdateGridItemImageBitmap(imageBitmap)
                 },
@@ -800,6 +800,7 @@ private fun SharedTransitionScope.Success(
                 onDeleteGridItem = onDeleteGridItem,
                 onResetOverlay = onResetOverlay,
                 onEditApplicationInfo = onEditApplicationInfo,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
 
@@ -890,7 +891,7 @@ private fun SharedTransitionScope.Success(
                 onRemoveLastFolder = onRemoveLastFolder,
                 onAddFolder = onAddFolder,
                 onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                    onUpdateGridItemSource(newGridItemSource)
+                    gridItemSource = newGridItemSource
 
                     onUpdateGridItemImageBitmap(imageBitmap)
                 },
@@ -902,6 +903,7 @@ private fun SharedTransitionScope.Success(
                     )
                 },
                 onResetOverlay = onResetOverlay,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
 
@@ -928,7 +930,7 @@ private fun SharedTransitionScope.Success(
                 onDragEnd = onResetGridCacheAfterMoveFolder,
                 onDragCancel = onCancelFolderDragGridCache,
                 onMoveOutsideFolder = { newGridItemSource ->
-                    onUpdateGridItemSource(newGridItemSource)
+                    gridItemSource = newGridItemSource
 
                     onShowGridCache(
                         homeData.gridItems,
@@ -952,7 +954,7 @@ private fun SharedTransitionScope.OverlayImage(
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     overlayImageBitmap: ImageBitmap?,
-    gridItemSource: GridItemSource?,
+    sharedElementKey: String?,
     drag: Drag,
 ) {
     val density = LocalDensity.current
@@ -961,7 +963,7 @@ private fun SharedTransitionScope.OverlayImage(
         DpSize(width = overlayIntSize.width.toDp(), height = overlayIntSize.height.toDp())
     }
 
-    if (overlayImageBitmap != null && gridItemSource != null) {
+    if (overlayImageBitmap != null && sharedElementKey != null) {
         Image(
             modifier = modifier
                 .offset {
@@ -969,7 +971,7 @@ private fun SharedTransitionScope.OverlayImage(
                 }
                 .size(size)
                 .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(key = gridItemSource.gridItem.id),
+                    rememberSharedContentState(key = sharedElementKey),
                     visible = drag == Drag.Cancel || drag == Drag.End,
                 ),
             bitmap = overlayImageBitmap,

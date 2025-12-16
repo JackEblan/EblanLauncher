@@ -94,6 +94,7 @@ internal fun SharedTransitionScope.FolderScreen(
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -263,6 +264,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                     onDraggingGridItem = {
                                         onDraggingGridItem(foldersDataById.last().gridItems)
                                     },
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 )
                             },
                         )

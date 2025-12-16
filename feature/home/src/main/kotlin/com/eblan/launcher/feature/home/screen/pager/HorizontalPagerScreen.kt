@@ -116,6 +116,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -294,6 +295,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
 
                             onDraggingGridItem()
                         },
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
                 },
             )
@@ -406,6 +408,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
 
                         onDraggingGridItem()
                     },
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 

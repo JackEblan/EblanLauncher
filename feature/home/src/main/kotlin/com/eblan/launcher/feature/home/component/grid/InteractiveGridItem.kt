@@ -113,6 +113,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -151,6 +152,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onResetOverlay = onResetOverlay,
                     statusBarNotifications = statusBarNotifications,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -164,6 +166,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -187,6 +190,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -204,6 +208,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -222,6 +227,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
                     onUpdateImageBitmap = onUpdateImageBitmap,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -247,6 +253,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -343,6 +350,8 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 intSize,
                             )
 
+                            onUpdateSharedElementKey(gridItem.id)
+
                             isLongPress = true
                         }
                     },
@@ -403,7 +412,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                         .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(key = gridItem.id),
-                            visible = drag == Drag.Cancel || drag == Drag.End,
+                            visible = true,
                         ),
                 )
 
@@ -462,6 +471,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -553,6 +563,8 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                     intSize,
                                 )
 
+                                onUpdateSharedElementKey(gridItem.id)
+
                                 isLongPress = true
                             }
 
@@ -590,6 +602,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -665,6 +678,8 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 intOffset,
                                 intSize,
                             )
+
+                            onUpdateSharedElementKey(gridItem.id)
 
                             isLongPress = true
                         }
@@ -771,6 +786,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -841,6 +857,8 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 intOffset,
                                 intSize,
                             )
+
+                            onUpdateSharedElementKey(gridItem.id)
 
                             isLongPress = true
                         }
@@ -1039,6 +1057,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1126,6 +1145,8 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 intOffset,
                                 intSize,
                             )
+
+                            onUpdateSharedElementKey(gridItem.id)
 
                             isLongPress = true
                         }

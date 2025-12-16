@@ -18,8 +18,6 @@
 package com.eblan.launcher.feature.home.screen.application
 
 import android.graphics.Rect
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,9 +55,8 @@ import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.PopupApplicationInfoMenu(
+internal fun PopupApplicationInfoMenu(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
@@ -211,9 +208,8 @@ internal fun SharedTransitionScope.PopupApplicationInfoMenu(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.ApplicationInfoMenu(
+private fun ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     hasShortcutHostPermission: Boolean,

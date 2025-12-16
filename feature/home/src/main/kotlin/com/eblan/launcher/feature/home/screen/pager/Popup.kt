@@ -18,8 +18,6 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -112,9 +110,8 @@ internal fun SettingsPopup(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.GridItemPopup(
+internal fun GridItemPopup(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     x: Int,
@@ -296,9 +293,8 @@ private fun PopupMenuRow(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.GridItemPopupContent(
+private fun GridItemPopupContent(
     modifier: Modifier = Modifier,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     gridItem: GridItem,
@@ -446,9 +442,8 @@ private fun SharedTransitionScope.GridItemPopupContent(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.ApplicationInfoGridItemMenu(
+private fun ApplicationInfoGridItemMenu(
     modifier: Modifier = Modifier,
     eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     hasShortcutHostPermission: Boolean,

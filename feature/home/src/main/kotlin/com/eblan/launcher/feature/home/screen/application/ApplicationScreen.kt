@@ -765,29 +765,13 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     ) {
         if (!isDragging) {
             Box(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .size(appDrawerSettings.gridItemSettings.iconSize.dp),
+                modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(customIcon)
-                        .addLastModifiedToFileCacheKey(true)
-                        .build(),
+                    model = ImageRequest.Builder(context).data(customIcon)
+                        .addLastModifiedToFileCacheKey(true).build(),
                     contentDescription = null,
                     modifier = Modifier
-                        .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
@@ -796,7 +780,20 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 ),
                             ),
                             visible = true,
-                        ),
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
                 )
 
                 if (eblanApplicationInfo.serialNumber != 0L) {

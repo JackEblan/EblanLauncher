@@ -17,8 +17,6 @@
  */
 package com.eblan.launcher.feature.home.component.popup
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -64,9 +62,8 @@ import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.ShortcutInfoMenu(
+internal fun ShortcutInfoMenu(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
@@ -116,9 +113,9 @@ internal fun SharedTransitionScope.ShortcutInfoMenu(
     }
 }
 
-@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
-private fun SharedTransitionScope.ShortcutInfoMenuItem(
+private fun ShortcutInfoMenuItem(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
@@ -276,6 +273,7 @@ private fun SharedTransitionScope.ShortcutInfoMenuItem(
                     AsyncImage(
                         model = eblanShortcutInfo.icon,
                         contentDescription = null,
+                        modifier = Modifier.matchParentSize(),
                     )
                 }
             }

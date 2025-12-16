@@ -748,24 +748,25 @@ private fun EblanShortcutConfigItem(
     ) {
         if (!isLongPress) {
             Box(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .size(gridItemSettings.iconSize.dp),
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
                     model = eblanShortcutConfig.activityIcon,
                     contentDescription = null,
+                    modifier = Modifier
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
                 )
 
                 if (eblanShortcutConfig.serialNumber != 0L) {

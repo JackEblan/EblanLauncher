@@ -177,7 +177,7 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
         data.componentName.replace("/", "-"),
     )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
         iconPackFile.absolutePath
     } else {
         data.icon
@@ -213,11 +213,11 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
                     .build(),
                 contentDescription = null,
                 modifier = Modifier
+                    .matchParentSize()
                     .sharedElementWithCallerManagedVisibility(
                         rememberSharedContentState(key = gridItem.id),
                         visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
-                    .matchParentSize(),
+                    ),
             )
 
             if (settings.isNotificationAccessGranted() && hasNotifications) {
@@ -300,12 +300,12 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
             AsyncImage(
                 model = customIcon,
                 modifier = Modifier
+                    .matchParentSize()
+                    .alpha(alpha)
                     .sharedElementWithCallerManagedVisibility(
                         rememberSharedContentState(key = gridItem.id),
                         visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
-                    .matchParentSize()
-                    .alpha(alpha),
+                    ),
                 contentDescription = null,
             )
 
@@ -527,7 +527,12 @@ private fun SharedTransitionScope.WidgetGridItem(
         AsyncImage(
             model = data.preview ?: data.icon,
             contentDescription = null,
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .sharedElementWithCallerManagedVisibility(
+                    rememberSharedContentState(key = gridItem.id),
+                    visible = drag == Drag.Cancel || drag == Drag.End,
+                ),
         )
     }
 }
@@ -585,11 +590,11 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
                     .build(),
                 contentDescription = null,
                 modifier = Modifier
+                    .matchParentSize()
                     .sharedElementWithCallerManagedVisibility(
                         rememberSharedContentState(key = gridItem.id),
                         visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
-                    .matchParentSize(),
+                    ),
             )
 
             if (data.serialNumber != 0L) {

@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
@@ -63,7 +64,6 @@ internal suspend fun handleDragGridItem(
     screenHeight: Int,
     pageIndicatorHeight: Int,
     dockHeight: Dp,
-    gridPadding: Int,
     rows: Int,
     columns: Int,
     dockRows: Int,
@@ -71,6 +71,8 @@ internal suspend fun handleDragGridItem(
     isScrollInProgress: Boolean,
     gridItemSource: GridItemSource,
     paddingValues: PaddingValues,
+    overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -124,23 +126,15 @@ internal suspend fun handleDragGridItem(
 
     val dragY = dragIntOffset.y - topPadding
 
-    val isOnLeftGrid = dragX < gridPadding
+    val isOnLeftGrid = overlayIntOffset.x < 0
 
-    val isOnRightGrid = dragX > gridWidth - gridPadding
-
-    val isOnTopGrid = dragY < gridPadding
-
-    val isOnBottomGrid = dragY > gridHeight - dockHeightPx - gridPadding
-
-    val isHorizontalBounds = !isOnLeftGrid && !isOnRightGrid
-
-    val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
+    val isOnRightGrid = overlayIntOffset.x + overlayIntSize.width > gridWidth
 
     val isOnDock = dragY > (gridHeight - dockHeightPx)
 
-    if (isOnLeftGrid && isVerticalBounds) {
+    if (isOnLeftGrid) {
         onUpdatePageDirection(PageDirection.Left)
-    } else if (isOnRightGrid && isVerticalBounds) {
+    } else if (isOnRightGrid) {
         onUpdatePageDirection(PageDirection.Right)
     } else if (isOnDock) {
         val cellWidth = gridWidth / dockColumns
@@ -181,17 +175,10 @@ internal suspend fun handleDragGridItem(
                 dockHeightPx,
             )
         }
-    } else if (isHorizontalBounds && isVerticalBounds) {
-        val gridWidthWithPadding = gridWidth - (gridPadding * 2)
+    } else {
+        val gridHeightWithPadding = gridHeight - pageIndicatorHeight - dockHeightPx
 
-        val gridHeightWithPadding =
-            (gridHeight - pageIndicatorHeight - dockHeightPx) - (gridPadding * 2)
-
-        val gridX = dragX - gridPadding
-
-        val gridY = dragY - gridPadding
-
-        val cellWidth = gridWidthWithPadding / columns
+        val cellWidth = gridWidth / columns
 
         val cellHeight = gridHeightWithPadding / rows
 
@@ -202,10 +189,10 @@ internal suspend fun handleDragGridItem(
             cellHeight = cellHeight,
             columns = columns,
             rows = rows,
-            gridWidth = gridWidthWithPadding,
+            gridWidth = gridWidth,
             gridHeight = gridHeightWithPadding,
-            gridX = gridX,
-            gridY = gridY,
+            gridX = dragX,
+            gridY = dragY,
             associate = Associate.Grid,
             gridItemSource = gridItemSource,
         )
@@ -219,11 +206,11 @@ internal suspend fun handleDragGridItem(
         if (isGridItemSpanWithinBounds) {
             onMoveGridItem(
                 moveGridItem,
-                gridX,
-                gridY,
+                dragX,
+                dragY,
                 columns,
                 rows,
-                gridWidthWithPadding,
+                gridWidth,
                 gridHeightWithPadding,
             )
         }

@@ -27,7 +27,6 @@ internal fun handleDropFolderGridItem(
     density: Density,
     dragIntOffset: IntOffset,
     screenHeight: Int,
-    gridPadding: Int,
     pageIndicatorHeight: Int,
     paddingValues: PaddingValues,
     onDragEnd: () -> Unit,
@@ -53,9 +52,9 @@ internal fun handleDropFolderGridItem(
 
     val dragY = dragIntOffset.y - topPadding
 
-    val isOnTopGrid = dragY < gridPadding
+    val isOnTopGrid = dragY < 0
 
-    val isOnBottomGrid = dragY > gridHeight - pageIndicatorHeight - gridPadding
+    val isOnBottomGrid = dragY > gridHeight - pageIndicatorHeight
 
     val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
 

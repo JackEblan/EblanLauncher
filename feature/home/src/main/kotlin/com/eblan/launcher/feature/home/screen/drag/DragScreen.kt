@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
@@ -97,6 +98,8 @@ internal fun SharedTransitionScope.DragScreen(
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
+    overlayIntOffset: IntOffset,
+    overlayIntSize: IntSize,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -160,15 +163,7 @@ internal fun SharedTransitionScope.DragScreen(
 
     val dockHeight = homeSettings.dockHeight.dp
 
-    val gridHorizontalPagerPaddingDp = 30.dp
-
-    val gridPaddingDp = 8.dp
-
-    val gridPadding = with(density) {
-        (gridHorizontalPagerPaddingDp + gridPaddingDp).roundToPx()
-    }
-
-    val pageIndicatorHeight = 20.dp
+    val pageIndicatorHeight = 30.dp
 
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()
@@ -246,7 +241,6 @@ internal fun SharedTransitionScope.DragScreen(
             screenHeight = screenHeight,
             pageIndicatorHeight = pageIndicatorHeightPx,
             dockHeight = dockHeight,
-            gridPadding = gridPadding,
             rows = homeSettings.rows,
             columns = homeSettings.columns,
             dockRows = homeSettings.dockRows,
@@ -254,6 +248,8 @@ internal fun SharedTransitionScope.DragScreen(
             isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
+            overlayIntOffset = overlayIntOffset,
+            overlayIntSize = overlayIntSize,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },
@@ -300,7 +296,7 @@ internal fun SharedTransitionScope.DragScreen(
                     onToast = {
                         Toast.makeText(
                             context,
-                            "Can't place grid item at this position",
+                            "Please wait for the box indicator",
                             Toast.LENGTH_LONG,
                         ).show()
                     },
@@ -363,10 +359,8 @@ internal fun SharedTransitionScope.DragScreen(
             state = gridHorizontalPagerState,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
-                top = gridHorizontalPagerPaddingDp,
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr) + gridHorizontalPagerPaddingDp,
-                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + gridHorizontalPagerPaddingDp,
-                bottom = gridHorizontalPagerPaddingDp,
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
         ) { index ->
             val page = calculatePage(
@@ -376,13 +370,7 @@ internal fun SharedTransitionScope.DragScreen(
             )
 
             GridLayout(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(gridPaddingDp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        shape = RoundedCornerShape(8.dp),
-                    ),
+                modifier = Modifier.fillMaxSize(),
                 gridItems = gridItemCache.gridItemsCacheByPage[page],
                 columns = homeSettings.columns,
                 rows = homeSettings.rows,
@@ -391,11 +379,6 @@ internal fun SharedTransitionScope.DragScreen(
                         gridItem.gridItemSettings
                     } else {
                         homeSettings.gridItemSettings
-                    }.run {
-                        copy(
-                            iconSize = iconSize / 2,
-                            textSize = textSize / 2,
-                        )
                     }
 
                     val textColor = if (gridItem.override) {

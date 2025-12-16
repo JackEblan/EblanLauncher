@@ -401,29 +401,13 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     ) {
         if (!isDragging) {
             Box(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .size(gridItemSettings.iconSize.dp),
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = Builder(context)
-                        .data(customIcon)
-                        .addLastModifiedToFileCacheKey(true)
+                    model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
                         .build(),
                     contentDescription = null,
                     modifier = Modifier
-                        .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
@@ -432,7 +416,20 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 ),
                             ),
                             visible = true,
-                        ),
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
                 )
 
                 if (settings.isNotificationAccessGranted() && hasNotifications) {
@@ -766,27 +763,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     ) {
         if (!isDragging) {
             Box(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .alpha(defaultAlpha)
-                    .size(gridItemSettings.iconSize.dp),
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
                     model = customIcon,
                     contentDescription = null,
                     modifier = Modifier
-                        .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
@@ -795,12 +777,27 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 ),
                             ),
                             visible = drag == Drag.Cancel || drag == Drag.End,
-                        ),
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .alpha(defaultAlpha)
+                        .matchParentSize(),
                 )
 
                 AsyncImage(
                     model = data.eblanApplicationInfoIcon,
                     modifier = Modifier
+                        .alpha(defaultAlpha)
                         .size((gridItemSettings.iconSize * 0.25).dp)
                         .align(Alignment.BottomEnd),
                     contentDescription = null,
@@ -809,6 +806,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
 
             if (gridItemSettings.showLabel) {
                 Text(
+                    modifier = Modifier.alpha(defaultAlpha),
                     text = customShortLabel,
                     color = textColor,
                     textAlign = TextAlign.Center,
@@ -995,91 +993,89 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                     maxItemsInEachRow = 2,
                     maxLines = 2,
                 ) {
-                    data.gridItems.sortedBy { it.startRow + it.startColumn }
-                        .forEach { gridItem ->
-                            val gridItemModifier =
-                                Modifier.size((gridItemSettings.iconSize * 0.25).dp)
+                    data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                        val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).dp)
 
-                            when (val currentData = gridItem.data) {
-                                is GridItemData.ApplicationInfo -> {
-                                    val iconPacksDirectory = File(
-                                        context.filesDir,
-                                        FileManager.ICON_PACKS_DIR,
-                                    )
+                        when (val currentData = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                val iconPacksDirectory = File(
+                                    context.filesDir,
+                                    FileManager.ICON_PACKS_DIR,
+                                )
 
-                                    val iconPackDirectory = File(
-                                        iconPacksDirectory,
-                                        iconPackInfoPackageName,
-                                    )
+                                val iconPackDirectory = File(
+                                    iconPacksDirectory,
+                                    iconPackInfoPackageName,
+                                )
 
-                                    val iconPackFile = File(
-                                        iconPackDirectory,
-                                        currentData.componentName.replace("/", "-"),
-                                    )
+                                val iconPackFile = File(
+                                    iconPackDirectory,
+                                    currentData.componentName.replace("/", "-"),
+                                )
 
-                                    val icon =
-                                        if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
-                                            iconPackFile.absolutePath
-                                        } else {
-                                            currentData.icon
-                                        }
+                                val icon =
+                                    if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+                                        iconPackFile.absolutePath
+                                    } else {
+                                        currentData.icon
+                                    }
 
-                                    AsyncImage(
-                                        model = Builder(context).data(icon)
-                                            .addLastModifiedToFileCacheKey(true).build(),
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
-                                    )
-                                }
+                                AsyncImage(
+                                    model = Builder(context).data(icon)
+                                        .addLastModifiedToFileCacheKey(true).build(),
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
 
-                                is GridItemData.ShortcutInfo -> {
+                            is GridItemData.ShortcutInfo -> {
+                                AsyncImage(
+                                    model = currentData.icon,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
+
+                            is GridItemData.Widget -> {
+                                AsyncImage(
+                                    model = currentData.preview,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
+
+                            is GridItemData.Folder -> {
+                                if (currentData.icon != null) {
                                     AsyncImage(
                                         model = currentData.icon,
                                         contentDescription = null,
                                         modifier = gridItemModifier,
                                     )
-                                }
-
-                                is GridItemData.Widget -> {
-                                    AsyncImage(
-                                        model = currentData.preview,
+                                } else {
+                                    Icon(
+                                        imageVector = EblanLauncherIcons.Folder,
                                         contentDescription = null,
                                         modifier = gridItemModifier,
-                                    )
-                                }
-
-                                is GridItemData.Folder -> {
-                                    if (currentData.icon != null) {
-                                        AsyncImage(
-                                            model = currentData.icon,
-                                            contentDescription = null,
-                                            modifier = gridItemModifier,
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = EblanLauncherIcons.Folder,
-                                            contentDescription = null,
-                                            modifier = gridItemModifier,
-                                            tint = textColor,
-                                        )
-                                    }
-                                }
-
-                                is GridItemData.ShortcutConfig -> {
-                                    val icon = when {
-                                        currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
-                                        currentData.activityIcon != null -> currentData.activityIcon
-                                        else -> currentData.applicationIcon
-                                    }
-
-                                    AsyncImage(
-                                        model = currentData.customIcon ?: icon,
-                                        contentDescription = null,
-                                        modifier = gridItemModifier,
+                                        tint = textColor,
                                     )
                                 }
                             }
+
+                            is GridItemData.ShortcutConfig -> {
+                                val icon = when {
+                                    currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
+                                    currentData.activityIcon != null -> currentData.activityIcon
+                                    else -> currentData.applicationIcon
+                                }
+
+                                AsyncImage(
+                                    model = currentData.customIcon ?: icon,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
                         }
+                    }
                 }
             } else if (data.icon != null) {
                 AsyncImage(
@@ -1265,28 +1261,13 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     ) {
         if (!isDragging) {
             Box(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    }
-                    .size(gridItemSettings.iconSize.dp),
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = Builder(context).data(customIcon)
-                        .addLastModifiedToFileCacheKey(true)
+                    model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
                         .build(),
                     contentDescription = null,
                     modifier = Modifier
-                        .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
                             rememberSharedContentState(
                                 key = SharedElementKey(
@@ -1295,7 +1276,20 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 ),
                             ),
                             visible = drag == Drag.Cancel || drag == Drag.End,
-                        ),
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
                 )
 
                 if (data.serialNumber != 0L) {

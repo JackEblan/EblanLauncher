@@ -359,6 +359,7 @@ internal fun SharedTransitionScope.DragScreen(
                 start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
+            userScrollEnabled = false,
         ) { index ->
             val page = calculatePage(
                 index = index,

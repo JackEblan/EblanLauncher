@@ -216,6 +216,7 @@ internal fun SharedTransitionScope.FolderDragScreen(
                 start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                 end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
+            userScrollEnabled = false,
         ) { index ->
             GridLayout(
                 modifier = modifier.fillMaxSize(),

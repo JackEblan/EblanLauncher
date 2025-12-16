@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,8 +72,9 @@ import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun HorizontalPagerScreen(
+internal fun SharedTransitionScope.HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,

@@ -21,6 +21,8 @@ import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -74,8 +76,9 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun PagerScreen(
+internal fun SharedTransitionScope.PagerScreen(
     modifier: Modifier = Modifier,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,

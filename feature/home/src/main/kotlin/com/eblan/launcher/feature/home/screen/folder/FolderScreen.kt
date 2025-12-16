@@ -22,6 +22,8 @@ import android.graphics.Rect
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,8 +66,9 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun FolderScreen(
+internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
     foldersDataById: ArrayDeque<FolderDataById>,
     drag: Drag,

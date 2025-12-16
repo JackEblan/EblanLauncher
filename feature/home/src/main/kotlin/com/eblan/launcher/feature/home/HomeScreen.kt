@@ -17,6 +17,7 @@
  */
 package com.eblan.launcher.feature.home
 
+import android.Manifest
 import android.content.ClipDescription
 import android.content.ComponentName
 import android.content.Context
@@ -27,6 +28,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -90,6 +92,7 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.HomeUiState
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.drag.DragScreen
 import com.eblan.launcher.feature.home.screen.editpage.EditPageScreen
 import com.eblan.launcher.feature.home.screen.folder.FolderScreen
@@ -326,7 +329,7 @@ internal fun HomeScreen(
 
     var accumulatedDragOffset by remember { mutableStateOf(Offset.Zero) }
 
-    var sharedElementKey by remember { mutableStateOf<String?>(null) }
+    var sharedElementKey by remember { mutableStateOf<SharedElementKey?>(null) }
 
     val target = remember {
         object : DragAndDropTarget {
@@ -637,7 +640,7 @@ private fun SharedTransitionScope.Success(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val activity = LocalActivity.current
 
@@ -745,200 +748,205 @@ private fun SharedTransitionScope.Success(
         }
     }
 
-    when (screen) {
-        Screen.Pager -> {
-            PagerScreen(
-                gridItems = homeData.gridItems,
-                gridItemsByPage = homeData.gridItemsByPage,
-                drag = drag,
-                dockGridItems = homeData.dockGridItems,
-                textColor = homeData.textColor,
-                eblanApplicationComponentUiState = eblanApplicationComponentUiState,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                paddingValues = paddingValues,
-                appDrawerSettings = homeData.userData.appDrawerSettings,
-                hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                hasSystemFeatureAppWidgets = homeData.hasSystemFeatureAppWidgets,
-                gestureSettings = homeData.userData.gestureSettings,
-                gridItemSource = gridItemSource,
-                homeSettings = homeData.userData.homeSettings,
-                eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
-                eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
-                iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                gridHorizontalPagerState = gridHorizontalPagerState,
-                currentPage = currentPage,
-                statusBarNotifications = statusBarNotifications,
-                eblanShortcutInfos = eblanShortcutInfos,
-                eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
-                eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
-                onTapFolderGridItem = onShowFolder,
-                onDraggingGridItem = {
-                    onShowGridCache(
-                        homeData.gridItems,
-                        Screen.Drag,
-                    )
-                },
-                onEditGridItem = onEditGridItem,
-                onResize = {
-                    onShowGridCache(
-                        homeData.gridItems,
-                        Screen.Resize,
-                    )
-                },
-                onSettings = onSettings,
-                onEditPage = onEditPage,
-                onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                    gridItemSource = newGridItemSource
+    AnimatedContent(
+        modifier = modifier,
+        targetState = screen,
+    ) { targetState ->
+        when (targetState) {
+            Screen.Pager -> {
+                PagerScreen(
+                    gridItems = homeData.gridItems,
+                    gridItemsByPage = homeData.gridItemsByPage,
+                    drag = drag,
+                    dockGridItems = homeData.dockGridItems,
+                    textColor = homeData.textColor,
+                    eblanApplicationComponentUiState = eblanApplicationComponentUiState,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    paddingValues = paddingValues,
+                    appDrawerSettings = homeData.userData.appDrawerSettings,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    hasSystemFeatureAppWidgets = homeData.hasSystemFeatureAppWidgets,
+                    gestureSettings = homeData.userData.gestureSettings,
+                    gridItemSource = gridItemSource,
+                    homeSettings = homeData.userData.homeSettings,
+                    eblanApplicationInfosByLabel = eblanApplicationInfosByLabel,
+                    eblanAppWidgetProviderInfosByLabel = eblanAppWidgetProviderInfosByLabel,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    gridHorizontalPagerState = gridHorizontalPagerState,
+                    currentPage = currentPage,
+                    statusBarNotifications = statusBarNotifications,
+                    eblanShortcutInfos = eblanShortcutInfos,
+                    eblanShortcutConfigsByLabel = eblanShortcutConfigsByLabel,
+                    eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+                    onTapFolderGridItem = onShowFolder,
+                    onDraggingGridItem = {
+                        onShowGridCache(
+                            homeData.gridItems,
+                            Screen.Drag,
+                        )
+                    },
+                    onEditGridItem = onEditGridItem,
+                    onResize = {
+                        onShowGridCache(
+                            homeData.gridItems,
+                            Screen.Resize,
+                        )
+                    },
+                    onSettings = onSettings,
+                    onEditPage = onEditPage,
+                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
+                        gridItemSource = newGridItemSource
 
-                    onUpdateGridItemImageBitmap(imageBitmap)
-                },
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
-                onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
-                onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
-                onDeleteGridItem = onDeleteGridItem,
-                onResetOverlay = onResetOverlay,
-                onEditApplicationInfo = onEditApplicationInfo,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
-            )
-        }
+                        onUpdateGridItemImageBitmap(imageBitmap)
+                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onGetEblanApplicationInfosByLabel = onGetEblanApplicationInfosByLabel,
+                    onGetEblanAppWidgetProviderInfosByLabel = onGetEblanAppWidgetProviderInfosByLabel,
+                    onGetEblanShortcutConfigsByLabel = onGetEblanShortcutConfigsByLabel,
+                    onDeleteGridItem = onDeleteGridItem,
+                    onResetOverlay = onResetOverlay,
+                    onEditApplicationInfo = onEditApplicationInfo,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
 
-        Screen.Drag -> {
-            DragScreen(
-                gridItemCache = gridItemCache,
-                dragIntOffset = dragIntOffset,
-                gridItemSource = gridItemSource,
-                drag = drag,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                paddingValues = paddingValues,
-                dockGridItemsCache = gridItemCache.dockGridItemsCache,
-                textColor = homeData.textColor,
-                moveGridItemResult = movedGridItemResult,
-                homeSettings = homeData.userData.homeSettings,
-                iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                gridHorizontalPagerState = gridHorizontalPagerState,
-                currentPage = currentPage,
-                statusBarNotifications = statusBarNotifications,
-                hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                overlayIntOffset = overlayIntOffset,
-                overlayIntSize = overlayIntSize,
-                onMoveGridItem = onMoveGridItem,
-                onDragEndAfterMove = onResetGridCacheAfterMove,
-                onDragCancelAfterMove = onCancelGridCache,
-                onDeleteGridItemCache = onDeleteGridItemCache,
-                onUpdateGridItemDataCache = onUpdateGridItemDataCache,
-                onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
-                onResetOverlay = onResetOverlay,
-                onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
-                onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
-            )
-        }
+            Screen.Drag -> {
+                DragScreen(
+                    gridItemCache = gridItemCache,
+                    dragIntOffset = dragIntOffset,
+                    gridItemSource = gridItemSource,
+                    drag = drag,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    paddingValues = paddingValues,
+                    dockGridItemsCache = gridItemCache.dockGridItemsCache,
+                    textColor = homeData.textColor,
+                    moveGridItemResult = movedGridItemResult,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    gridHorizontalPagerState = gridHorizontalPagerState,
+                    currentPage = currentPage,
+                    statusBarNotifications = statusBarNotifications,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    overlayIntOffset = overlayIntOffset,
+                    overlayIntSize = overlayIntSize,
+                    onMoveGridItem = onMoveGridItem,
+                    onDragEndAfterMove = onResetGridCacheAfterMove,
+                    onDragCancelAfterMove = onCancelGridCache,
+                    onDeleteGridItemCache = onDeleteGridItemCache,
+                    onUpdateGridItemDataCache = onUpdateGridItemDataCache,
+                    onDeleteWidgetGridItemCache = onDeleteWidgetGridItemCache,
+                    onResetOverlay = onResetOverlay,
+                    onUpdateShortcutConfigGridItemDataCache = onUpdateShortcutConfigGridItemDataCache,
+                    onUpdateShortcutConfigIntoShortcutInfoGridItem = onUpdateShortcutConfigIntoShortcutInfoGridItem,
+                )
+            }
 
-        Screen.Resize -> {
-            ResizeScreen(
-                currentPage = currentPage,
-                gridItemCache = gridItemCache,
-                gridItem = gridItemSource?.gridItem,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                dockGridItemsCache = gridItemCache.dockGridItemsCache,
-                textColor = homeData.textColor,
-                paddingValues = paddingValues,
-                homeSettings = homeData.userData.homeSettings,
-                iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                statusBarNotifications = statusBarNotifications,
-                hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                onResizeGridItem = onResizeGridItem,
-                onResizeEnd = onResetGridCacheAfterResize,
-                onResizeCancel = onCancelGridCache,
-            )
-        }
+            Screen.Resize -> {
+                ResizeScreen(
+                    currentPage = currentPage,
+                    gridItemCache = gridItemCache,
+                    gridItem = gridItemSource?.gridItem,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    dockGridItemsCache = gridItemCache.dockGridItemsCache,
+                    textColor = homeData.textColor,
+                    paddingValues = paddingValues,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    statusBarNotifications = statusBarNotifications,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    onResizeGridItem = onResizeGridItem,
+                    onResizeEnd = onResetGridCacheAfterResize,
+                    onResizeCancel = onCancelGridCache,
+                )
+            }
 
-        Screen.Loading -> {
-            LoadingScreen()
-        }
+            Screen.Loading -> {
+                LoadingScreen()
+            }
 
-        Screen.EditPage -> {
-            EditPageScreen(
-                screenHeight = screenHeight,
-                pageItems = pageItems,
-                textColor = homeData.textColor,
-                paddingValues = paddingValues,
-                homeSettings = homeData.userData.homeSettings,
-                iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                onSaveEditPage = onSaveEditPage,
-                onUpdateScreen = onUpdateScreen,
-            )
-        }
+            Screen.EditPage -> {
+                EditPageScreen(
+                    screenHeight = screenHeight,
+                    pageItems = pageItems,
+                    textColor = homeData.textColor,
+                    paddingValues = paddingValues,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    onSaveEditPage = onSaveEditPage,
+                    onUpdateScreen = onUpdateScreen,
+                )
+            }
 
-        Screen.Folder -> {
-            FolderScreen(
-                foldersDataById = foldersDataById,
-                drag = drag,
-                paddingValues = paddingValues,
-                hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                textColor = homeData.textColor,
-                homeSettings = homeData.userData.homeSettings,
-                iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                statusBarNotifications = statusBarNotifications,
-                onUpdateScreen = onUpdateScreen,
-                onRemoveLastFolder = onRemoveLastFolder,
-                onAddFolder = onAddFolder,
-                onLongPressGridItem = { newGridItemSource, imageBitmap ->
-                    gridItemSource = newGridItemSource
+            Screen.Folder -> {
+                FolderScreen(
+                    foldersDataById = foldersDataById,
+                    drag = drag,
+                    paddingValues = paddingValues,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    textColor = homeData.textColor,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                    statusBarNotifications = statusBarNotifications,
+                    onUpdateScreen = onUpdateScreen,
+                    onRemoveLastFolder = onRemoveLastFolder,
+                    onAddFolder = onAddFolder,
+                    onLongPressGridItem = { newGridItemSource, imageBitmap ->
+                        gridItemSource = newGridItemSource
 
-                    onUpdateGridItemImageBitmap(imageBitmap)
-                },
-                onUpdateGridItemOffset = onUpdateGridItemOffset,
-                onDraggingGridItem = { folderGridItems ->
-                    onShowFolderGridCache(
-                        folderGridItems,
-                        Screen.FolderDrag,
-                    )
-                },
-                onResetOverlay = onResetOverlay,
-                onUpdateSharedElementKey = onUpdateSharedElementKey,
-            )
-        }
+                        onUpdateGridItemImageBitmap(imageBitmap)
+                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onDraggingGridItem = { folderGridItems ->
+                        onShowFolderGridCache(
+                            folderGridItems,
+                            Screen.FolderDrag,
+                        )
+                    },
+                    onResetOverlay = onResetOverlay,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
 
-        Screen.FolderDrag -> {
-            FolderDragScreen(
-                gridItemCache = gridItemCache,
-                foldersDataById = foldersDataById,
-                gridItemSource = gridItemSource,
-                textColor = homeData.textColor,
-                drag = drag,
-                dragIntOffset = dragIntOffset,
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                paddingValues = paddingValues,
-                homeSettings = homeData.userData.homeSettings,
-                iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
-                moveGridItemResult = movedGridItemResult,
-                folderGridHorizontalPagerState = folderGridHorizontalPagerState,
-                statusBarNotifications = statusBarNotifications,
-                hasShortcutHostPermission = homeData.hasShortcutHostPermission,
-                overlayIntOffset = overlayIntOffset,
-                overlayIntSize = overlayIntSize,
-                onMoveFolderGridItem = onMoveFolderGridItem,
-                onDragEnd = onResetGridCacheAfterMoveFolder,
-                onDragCancel = onCancelFolderDragGridCache,
-                onMoveOutsideFolder = { newGridItemSource ->
-                    gridItemSource = newGridItemSource
+            Screen.FolderDrag -> {
+                FolderDragScreen(
+                    gridItemCache = gridItemCache,
+                    foldersDataById = foldersDataById,
+                    gridItemSource = gridItemSource,
+                    textColor = homeData.textColor,
+                    drag = drag,
+                    dragIntOffset = dragIntOffset,
+                    screenWidth = screenWidth,
+                    screenHeight = screenHeight,
+                    paddingValues = paddingValues,
+                    homeSettings = homeData.userData.homeSettings,
+                    iconPackInfoPackageName = homeData.userData.generalSettings.iconPackInfoPackageName,
+                    moveGridItemResult = movedGridItemResult,
+                    folderGridHorizontalPagerState = folderGridHorizontalPagerState,
+                    statusBarNotifications = statusBarNotifications,
+                    hasShortcutHostPermission = homeData.hasShortcutHostPermission,
+                    overlayIntOffset = overlayIntOffset,
+                    overlayIntSize = overlayIntSize,
+                    onMoveFolderGridItem = onMoveFolderGridItem,
+                    onDragEnd = onResetGridCacheAfterMoveFolder,
+                    onDragCancel = onCancelFolderDragGridCache,
+                    onMoveOutsideFolder = { newGridItemSource ->
+                        gridItemSource = newGridItemSource
 
-                    onShowGridCache(
-                        homeData.gridItems,
-                        Screen.Drag,
-                    )
-                },
-                onResetOverlay = onResetOverlay,
-            )
+                        onShowGridCache(
+                            homeData.gridItems,
+                            Screen.Drag,
+                        )
+                    },
+                    onResetOverlay = onResetOverlay,
+                )
+            }
         }
     }
 
@@ -954,7 +962,7 @@ private fun SharedTransitionScope.OverlayImage(
     overlayIntOffset: IntOffset,
     overlayIntSize: IntSize,
     overlayImageBitmap: ImageBitmap?,
-    sharedElementKey: String?,
+    sharedElementKey: SharedElementKey?,
     drag: Drag,
 ) {
     val density = LocalDensity.current
@@ -985,7 +993,7 @@ private fun SharedTransitionScope.OverlayImage(
 @Composable
 private fun PostNotificationPermission(modifier: Modifier = Modifier) {
     val notificationsPermissionState =
-        rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
+        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
 
     var showTextDialog by remember { mutableStateOf(false) }
 

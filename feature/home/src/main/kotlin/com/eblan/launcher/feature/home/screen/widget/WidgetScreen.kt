@@ -88,6 +88,8 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
 import kotlinx.coroutines.launch
@@ -117,7 +119,7 @@ internal fun WidgetScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -230,7 +232,7 @@ private fun Success(
     onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -335,7 +337,7 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -410,7 +412,7 @@ private fun EblanApplicationInfoItem(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -495,7 +497,7 @@ internal fun EblanAppWidgetProviderInfoItem(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -567,7 +569,12 @@ internal fun EblanAppWidgetProviderInfoItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(id)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = id,
+                                    screen = Screen.Drag,
+                                ),
+                            )
 
                             onDraggingGridItem()
 

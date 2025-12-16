@@ -69,6 +69,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
@@ -127,7 +128,7 @@ internal fun SharedTransitionScope.PagerScreen(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val context = LocalContext.current
 

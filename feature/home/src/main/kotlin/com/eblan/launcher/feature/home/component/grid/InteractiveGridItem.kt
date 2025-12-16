@@ -76,6 +76,8 @@ import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
@@ -113,7 +115,7 @@ internal fun SharedTransitionScope.InteractiveGridItemContent(
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     key(gridItem.id) {
         val currentGridItemSettings = if (gridItem.override) {
@@ -253,7 +255,7 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -313,6 +315,13 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
@@ -350,7 +359,12 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(gridItem.id)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
                         }
@@ -411,7 +425,12 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                     modifier = Modifier
                         .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(key = gridItem.id),
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
                             visible = true,
                         ),
                 )
@@ -471,7 +490,7 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -497,6 +516,13 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
@@ -520,7 +546,12 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
     if (!isDragging) {
         val commonModifier = modifier
             .sharedElementWithCallerManagedVisibility(
-                rememberSharedContentState(key = gridItem.id),
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = Screen.Pager,
+                    ),
+                ),
                 visible = drag == Drag.Cancel || drag == Drag.End,
             )
             .drawWithContent {
@@ -563,7 +594,12 @@ private fun SharedTransitionScope.InteractiveWidgetGridItem(
                                     intSize,
                                 )
 
-                                onUpdateSharedElementKey(gridItem.id)
+                                onUpdateSharedElementKey(
+                                    SharedElementKey(
+                                        id = gridItem.id,
+                                        screen = Screen.Pager,
+                                    ),
+                                )
 
                                 isLongPress = true
                             }
@@ -602,7 +638,7 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -642,6 +678,13 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
@@ -679,7 +722,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(gridItem.id)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
                         }
@@ -740,7 +788,12 @@ private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
                     modifier = Modifier
                         .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(key = gridItem.id),
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
                             visible = drag == Drag.Cancel || drag == Drag.End,
                         ),
                 )
@@ -786,7 +839,7 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -821,6 +874,13 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
@@ -858,7 +918,12 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(gridItem.id)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
                         }
@@ -896,7 +961,12 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
         if (!isDragging) {
             val commonModifier = Modifier
                 .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(key = gridItem.id),
+                    rememberSharedContentState(
+                        key = SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Pager,
+                        ),
+                    ),
                     visible = drag == Drag.Cancel || drag == Drag.End,
                 )
                 .size(gridItemSettings.iconSize.dp)
@@ -1057,7 +1127,7 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -1109,6 +1179,13 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
@@ -1146,7 +1223,12 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(gridItem.id)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
                         }
@@ -1206,7 +1288,12 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                     modifier = Modifier
                         .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(key = gridItem.id),
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
                             visible = drag == Drag.Cancel || drag == Drag.End,
                         ),
                 )

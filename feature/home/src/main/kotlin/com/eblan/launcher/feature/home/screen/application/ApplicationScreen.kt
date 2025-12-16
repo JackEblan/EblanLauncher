@@ -120,6 +120,8 @@ import com.eblan.launcher.feature.home.component.scroll.OffsetOverscrollEffect
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.appwidget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -166,7 +168,7 @@ internal fun SharedTransitionScope.ApplicationScreen(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val alpha by remember {
         derivedStateOf {
@@ -260,7 +262,7 @@ private fun SharedTransitionScope.Success(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -484,7 +486,7 @@ private fun SharedTransitionScope.EblanApplicationInfoDockSearchBar(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -558,7 +560,7 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
     onUpdatePopupMenu: (Boolean) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -631,6 +633,13 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
 
                     onUpdatePopupMenu(false)
@@ -719,7 +728,12 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                                 intSize,
                             )
 
-                            onUpdateSharedElementKey(id)
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             onUpdatePopupMenu(true)
 
@@ -773,7 +787,12 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                     modifier = Modifier
                         .matchParentSize()
                         .sharedElementWithCallerManagedVisibility(
-                            rememberSharedContentState(key = id),
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
                             visible = true,
                         ),
                 )
@@ -833,7 +852,7 @@ private fun SharedTransitionScope.EblanApplicationInfosPage(
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
     onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 

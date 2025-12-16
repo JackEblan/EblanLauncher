@@ -58,6 +58,8 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalSettings
@@ -215,7 +217,12 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
                 modifier = Modifier
                     .matchParentSize()
                     .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(key = gridItem.id),
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
                         visible = drag == Drag.Cancel || drag == Drag.End,
                     ),
             )
@@ -303,7 +310,12 @@ private fun SharedTransitionScope.ShortcutInfoGridItem(
                     .matchParentSize()
                     .alpha(alpha)
                     .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(key = gridItem.id),
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
                         visible = drag == Drag.Cancel || drag == Drag.End,
                     ),
                 contentDescription = null,
@@ -369,7 +381,12 @@ private fun SharedTransitionScope.FolderGridItem(
             FlowRow(
                 modifier = Modifier
                     .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(key = gridItem.id),
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
                         visible = drag == Drag.Cancel || drag == Drag.End,
                     )
                     .background(
@@ -519,7 +536,12 @@ private fun SharedTransitionScope.WidgetGridItem(
                 )
             },
             modifier = modifier.sharedElementWithCallerManagedVisibility(
-                rememberSharedContentState(key = gridItem.id),
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = Screen.Drag,
+                    ),
+                ),
                 visible = drag == Drag.Cancel || drag == Drag.End,
             ),
         )
@@ -530,7 +552,12 @@ private fun SharedTransitionScope.WidgetGridItem(
             modifier = modifier
                 .fillMaxSize()
                 .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(key = gridItem.id),
+                    rememberSharedContentState(
+                        key = SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    ),
                     visible = drag == Drag.Cancel || drag == Drag.End,
                 ),
         )
@@ -592,7 +619,12 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
                 modifier = Modifier
                     .matchParentSize()
                     .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(key = gridItem.id),
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
                         visible = drag == Drag.Cancel || drag == Drag.End,
                     ),
             )

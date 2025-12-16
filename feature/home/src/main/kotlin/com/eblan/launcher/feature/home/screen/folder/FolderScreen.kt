@@ -63,6 +63,7 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
@@ -94,7 +95,7 @@ internal fun SharedTransitionScope.FolderScreen(
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onResetOverlay: () -> Unit,
-    onUpdateSharedElementKey: (String?) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val density = LocalDensity.current
 

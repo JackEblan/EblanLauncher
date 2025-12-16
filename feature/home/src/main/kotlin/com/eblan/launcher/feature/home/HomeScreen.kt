@@ -27,7 +27,6 @@ import android.os.Build
 import android.os.IBinder
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -324,7 +323,7 @@ internal fun HomeScreen(
     var gridItemSource by remember { mutableStateOf<GridItemSource?>(null) }
 
     val touchSlop = with(density) {
-        24.dp.toPx()
+        50.dp.toPx()
     }
 
     var accumulatedDragOffset by remember { mutableStateOf(Offset.Zero) }

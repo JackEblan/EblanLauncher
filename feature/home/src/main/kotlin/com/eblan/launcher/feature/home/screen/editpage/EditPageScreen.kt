@@ -19,6 +19,8 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -56,13 +58,15 @@ import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.PageItem
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.feature.home.component.grid.GridItemContent
 import com.eblan.launcher.feature.home.component.grid.GridLayout
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun EditPageScreen(
+internal fun SharedTransitionScope.EditPageScreen(
     modifier: Modifier = Modifier,
     screenHeight: Int,
     pageItems: List<PageItem>,
@@ -170,15 +174,15 @@ internal fun EditPageScreen(
                                     getSystemTextColor(textColor = textColor)
                                 }
 
-//                                GridItemContent(
-//                                    gridItem = gridItem,
-//                                    textColor = textColor,
-//                                    gridItemSettings = gridItemSettings,
-//                                    iconPackInfoPackageName = iconPackInfoPackageName,
-//                                    isDragging = false,
-//                                    statusBarNotifications = emptyMap(),
-//                                    hasShortcutHostPermission = hasShortcutHostPermission,
-//                                )
+                                GridItemContent(
+                                    gridItem = gridItem,
+                                    textColor = textColor,
+                                    gridItemSettings = gridItemSettings,
+                                    iconPackInfoPackageName = iconPackInfoPackageName,
+                                    isDragging = false,
+                                    statusBarNotifications = emptyMap(),
+                                    hasShortcutHostPermission = hasShortcutHostPermission,
+                                )
                             },
                         )
 

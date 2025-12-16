@@ -433,6 +433,7 @@ internal fun HorizontalPagerScreen(
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            paddingValues = paddingValues,
             onEdit = onEditGridItem,
             onResize = onResize,
             onWidgets = { newEblanApplicationInfoGroup ->

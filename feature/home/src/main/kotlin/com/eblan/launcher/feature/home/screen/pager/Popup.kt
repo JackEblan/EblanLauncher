@@ -21,6 +21,7 @@ import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -121,6 +123,7 @@ internal fun GridItemPopup(
     drag: Drag,
     gridItemSettings: GridItemSettings,
     eblanAppWidgetProviderInfos: Map<String, List<EblanAppWidgetProviderInfo>>,
+    paddingValues: PaddingValues,
     onEdit: (String) -> Unit,
     onResize: () -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
@@ -139,6 +142,12 @@ internal fun GridItemPopup(
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
 ) {
+    val density = LocalDensity.current
+
+    val topPadding = with(density) {
+        paddingValues.calculateTopPadding().roundToPx()
+    }
+
     Layout(
         modifier = modifier
             .pointerInput(Unit) {
@@ -181,15 +190,14 @@ internal fun GridItemPopup(
         )
 
         val parentCenterX = x + width / 2
+
         val childX = (parentCenterX - placeable.width / 2)
             .coerceIn(0, constraints.maxWidth - placeable.width)
 
         val topY = y - placeable.height
-        val bottomY = y + height
+        val bottomY = y + height + placeable.height
 
-        val childY = (
-            if (topY < 0) bottomY else topY
-            ).coerceIn(0, constraints.maxHeight - placeable.height)
+        val childY = if (topY < topPadding) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(childX, childY)

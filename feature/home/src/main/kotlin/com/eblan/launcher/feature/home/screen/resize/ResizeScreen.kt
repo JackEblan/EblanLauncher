@@ -103,7 +103,7 @@ internal fun SharedTransitionScope.ResizeScreen(
         dockHeight.roundToPx()
     }
 
-    val pageIndicatorHeight = 20.dp
+    val pageIndicatorHeight = 30.dp
 
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()

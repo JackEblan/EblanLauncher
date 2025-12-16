@@ -486,6 +486,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -506,6 +507,7 @@ internal fun SharedTransitionScope.PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

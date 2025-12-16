@@ -61,7 +61,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -129,6 +128,7 @@ internal fun ShortcutConfigScreen(
     onDismiss: () -> Unit,
     onDraggingGridItem: () -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -213,6 +213,7 @@ internal fun ShortcutConfigScreen(
                             )
                         }
                     },
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -242,6 +243,7 @@ private fun Success(
     onResetOverlay: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val horizontalPagerState = rememberPagerState(
         pageCount = {
@@ -269,6 +271,7 @@ private fun Success(
             gridItemSettings = gridItemSettings,
             onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
 
         if (eblanShortcutConfigs.keys.size > 1) {
@@ -295,6 +298,7 @@ private fun Success(
                     onDraggingGridItem = onDraggingGridItem,
                     onVerticalDrag = onVerticalDrag,
                     onDragEnd = onDragEnd,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         } else {
@@ -311,6 +315,7 @@ private fun Success(
                 onDraggingGridItem = onDraggingGridItem,
                 onVerticalDrag = onVerticalDrag,
                 onDragEnd = onDragEnd,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
@@ -335,6 +340,7 @@ private fun EblanShortcutConfigDockSearchBar(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -385,6 +391,7 @@ private fun EblanShortcutConfigDockSearchBar(
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -439,6 +446,7 @@ private fun EblanShortcutConfigsPage(
     onDraggingGridItem: () -> Unit,
     onVerticalDrag: (Float) -> Unit,
     onDragEnd: (Float) -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -513,6 +521,7 @@ private fun EblanShortcutConfigsPage(
                     gridItemSettings = gridItemSettings,
                     onResetOverlay = onResetOverlay,
                     onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
         }
@@ -537,6 +546,7 @@ private fun EblanApplicationInfoItem(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -595,6 +605,7 @@ private fun EblanApplicationInfoItem(
                         gridItemSettings = gridItemSettings,
                         onResetOverlay = onResetOverlay,
                         onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
                 }
             }
@@ -620,6 +631,7 @@ private fun EblanShortcutConfigItem(
     gridItemSettings: GridItemSettings,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (String?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -631,11 +643,11 @@ private fun EblanShortcutConfigItem(
 
     val scale = remember { Animatable(1f) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
+    var isLongPress by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.Cancel || drag == Drag.End) {
-            alpha = 1f
+            isLongPress = false
 
             scale.stop()
 
@@ -670,10 +682,12 @@ private fun EblanShortcutConfigItem(
                                 customLabel = null,
                             )
 
+                            val id = Uuid.random().toHexString()
+
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
-                                        id = Uuid.random().toHexString(),
+                                        id = id,
                                         folderId = null,
                                         page = currentPage,
                                         startColumn = -1,
@@ -694,9 +708,11 @@ private fun EblanShortcutConfigItem(
                                 intSize,
                             )
 
+                            onUpdateSharedElementKey(id)
+
                             onDraggingGridItem()
 
-                            alpha = 0f
+                            isLongPress = true
                         }
                     },
                     onPress = {
@@ -704,7 +720,7 @@ private fun EblanShortcutConfigItem(
 
                         scale.stop()
 
-                        alpha = 1f
+                        isLongPress = false
 
                         onResetOverlay()
 
@@ -714,8 +730,8 @@ private fun EblanShortcutConfigItem(
                     },
                 )
             }
+            .size(100.dp)
             .padding(10.dp)
-            .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
@@ -723,50 +739,50 @@ private fun EblanShortcutConfigItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Box(
-            modifier = Modifier
-                .drawWithContent {
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
+        if (!isLongPress) {
+            Box(
+                modifier = Modifier
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+
+                        drawLayer(graphicsLayer)
                     }
+                    .onGloballyPositioned { layoutCoordinates ->
+                        intOffset = layoutCoordinates.positionInRoot().round()
 
-                    drawLayer(graphicsLayer)
-                }
-                .onGloballyPositioned { layoutCoordinates ->
-                    intOffset = layoutCoordinates.positionInRoot().round()
+                        intSize = layoutCoordinates.size
+                    }
+                    .size(gridItemSettings.iconSize.dp),
+            ) {
+                AsyncImage(
+                    model = eblanShortcutConfig.activityIcon,
+                    contentDescription = null,
+                )
 
-                    intSize = layoutCoordinates.size
-                }
-                .size(gridItemSettings.iconSize.dp),
-        ) {
-            AsyncImage(
-                model = eblanShortcutConfig.activityIcon,
-                contentDescription = null,
-            )
-
-            if (eblanShortcutConfig.serialNumber != 0L) {
-                ElevatedCard(
-                    modifier = Modifier
-                        .size((gridItemSettings.iconSize * 0.40).dp)
-                        .align(Alignment.BottomEnd),
-                ) {
-                    Icon(
-                        imageVector = EblanLauncherIcons.Work,
-                        contentDescription = null,
-                        modifier = Modifier.padding(2.dp),
-                    )
+                if (eblanShortcutConfig.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((gridItemSettings.iconSize * 0.40).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = eblanShortcutConfig.activityLabel.toString(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = eblanShortcutConfig.activityLabel.toString(),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
     }
 }

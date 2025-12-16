@@ -17,9 +17,12 @@
  */
 package com.eblan.launcher.feature.home.component.popup
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -30,13 +33,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
@@ -57,12 +58,15 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ShortcutInfoMenu(
+internal fun SharedTransitionScope.ShortcutInfoMenu(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
@@ -84,6 +88,7 @@ internal fun ShortcutInfoMenu(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -105,14 +110,15 @@ internal fun ShortcutInfoMenu(
                 onLongPressGridItem = onLongPressGridItem,
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onDraggingGridItem = onDraggingGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ShortcutInfoMenuItem(
+private fun SharedTransitionScope.ShortcutInfoMenuItem(
     modifier: Modifier = Modifier,
     currentPage: Int,
     drag: Drag,
@@ -130,6 +136,7 @@ private fun ShortcutInfoMenuItem(
         intSize: IntSize,
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     var intOffset by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -141,11 +148,11 @@ private fun ShortcutInfoMenuItem(
 
     val scale = remember { Animatable(1f) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
+    var isLongPress by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = drag) {
         if (drag == Drag.End || drag == Drag.Cancel) {
-            alpha = 1f
+            isLongPress = false
 
             scale.stop()
 
@@ -170,9 +177,7 @@ private fun ShortcutInfoMenuItem(
             Text(text = eblanShortcutInfo.shortLabel)
         },
         leadingContent = {
-            AsyncImage(
-                model = eblanShortcutInfo.icon,
-                contentDescription = null,
+            Box(
                 modifier = Modifier
                     .drawWithContent {
                         graphicsLayer.record {
@@ -188,6 +193,8 @@ private fun ShortcutInfoMenuItem(
                                     scale.animateTo(0.5f)
 
                                     scale.animateTo(1f)
+
+                                    val id = Uuid.random().toHexString()
 
                                     val data = GridItemData.ShortcutInfo(
                                         shortcutId = eblanShortcutInfo.shortcutId,
@@ -205,8 +212,7 @@ private fun ShortcutInfoMenuItem(
                                     onLongPressGridItem(
                                         GridItemSource.New(
                                             gridItem = GridItem(
-                                                id = Uuid.random()
-                                                    .toHexString(),
+                                                id = id,
                                                 folderId = null,
                                                 page = currentPage,
                                                 startColumn = -1,
@@ -227,9 +233,16 @@ private fun ShortcutInfoMenuItem(
                                         intSize,
                                     )
 
+                                    onUpdateSharedElementKey(
+                                        SharedElementKey(
+                                            id = id,
+                                            screen = Screen.Drag,
+                                        ),
+                                    )
+
                                     onDraggingGridItem()
 
-                                    alpha = 0f
+                                    isLongPress = true
                                 }
                             },
                             onPress = {
@@ -237,7 +250,7 @@ private fun ShortcutInfoMenuItem(
 
                                 scale.stop()
 
-                                alpha = 1f
+                                isLongPress = false
 
                                 onResetOverlay()
 
@@ -247,7 +260,6 @@ private fun ShortcutInfoMenuItem(
                             },
                         )
                     }
-                    .alpha(alpha)
                     .scale(
                         scaleX = scale.value,
                         scaleY = scale.value,
@@ -259,7 +271,14 @@ private fun ShortcutInfoMenuItem(
                         intSize = layoutCoordinates.size
                     }
                     .size(30.dp),
-            )
+            ) {
+                if (!isLongPress) {
+                    AsyncImage(
+                        model = eblanShortcutInfo.icon,
+                        contentDescription = null,
+                    )
+                }
+            }
         },
     )
 }

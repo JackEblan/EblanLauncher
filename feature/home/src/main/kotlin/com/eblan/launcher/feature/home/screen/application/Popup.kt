@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.application
 
 import android.graphics.Rect
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -52,10 +54,12 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun PopupApplicationInfoMenu(
+internal fun SharedTransitionScope.PopupApplicationInfoMenu(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     popupIntOffset: IntOffset,
@@ -88,6 +92,7 @@ internal fun PopupApplicationInfoMenu(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -178,6 +183,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         },
     ) { measurables, constraints ->
@@ -205,8 +211,9 @@ internal fun PopupApplicationInfoMenu(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ApplicationInfoMenu(
+private fun SharedTransitionScope.ApplicationInfoMenu(
     modifier: Modifier = Modifier,
     eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     hasShortcutHostPermission: Boolean,
@@ -233,6 +240,7 @@ private fun ApplicationInfoMenu(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onWidgets: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -257,6 +265,7 @@ private fun ApplicationInfoMenu(
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))

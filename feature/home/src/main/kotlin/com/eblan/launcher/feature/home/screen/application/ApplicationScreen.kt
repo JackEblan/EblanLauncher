@@ -441,6 +441,7 @@ private fun SharedTransitionScope.Success(
             onWidgets = { newEblanApplicationInfoGroup ->
                 eblanApplicationInfoGroup = newEblanApplicationInfoGroup
             },
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -460,6 +461,7 @@ private fun SharedTransitionScope.Success(
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.pager
 
 import android.appwidget.AppWidgetProviderInfo
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -57,6 +59,7 @@ import com.eblan.launcher.feature.home.component.popup.SettingsPopupPositionProv
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 
 @Composable
 internal fun SettingsPopup(
@@ -109,8 +112,9 @@ internal fun SettingsPopup(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun GridItemPopup(
+internal fun SharedTransitionScope.GridItemPopup(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     x: Int,
@@ -141,6 +145,7 @@ internal fun GridItemPopup(
     ) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -179,6 +184,7 @@ internal fun GridItemPopup(
                 onUpdateGridItemOffset = onUpdateGridItemOffset,
                 onResetOverlay = onResetOverlay,
                 onDraggingGridItem = onDraggingGridItem,
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         },
     ) { measurables, constraints ->
@@ -290,8 +296,9 @@ private fun PopupMenuRow(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun GridItemPopupContent(
+private fun SharedTransitionScope.GridItemPopupContent(
     modifier: Modifier = Modifier,
     eblanShortcutInfos: Map<EblanShortcutInfoByGroup, List<EblanShortcutInfo>>,
     gridItem: GridItem,
@@ -324,6 +331,7 @@ private fun GridItemPopupContent(
     ) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     when (val data = gridItem.data) {
         is GridItemData.ApplicationInfo -> {
@@ -392,6 +400,7 @@ private fun GridItemPopupContent(
 
                     onDismissRequest()
                 },
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         }
 
@@ -437,8 +446,9 @@ private fun GridItemPopupContent(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun ApplicationInfoGridItemMenu(
+private fun SharedTransitionScope.ApplicationInfoGridItemMenu(
     modifier: Modifier = Modifier,
     eblanShortcutInfosByPackageName: List<EblanShortcutInfo>?,
     hasShortcutHostPermission: Boolean,
@@ -467,6 +477,7 @@ private fun ApplicationInfoGridItemMenu(
     ) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -491,6 +502,7 @@ private fun ApplicationInfoGridItemMenu(
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))

@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.shortcutconfig
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -108,8 +110,9 @@ import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ShortcutConfigScreen(
+internal fun SharedTransitionScope.ShortcutConfigScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
@@ -222,9 +225,9 @@ internal fun ShortcutConfigScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun Success(
+private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     paddingValues: PaddingValues,
@@ -323,9 +326,9 @@ private fun Success(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanShortcutConfigDockSearchBar(
+private fun SharedTransitionScope.EblanShortcutConfigDockSearchBar(
     modifier: Modifier = Modifier,
     onQueryChange: (String) -> Unit,
     eblanShortcutConfigsByLabel: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
@@ -429,9 +432,9 @@ private fun EblanShortcutConfigTabRow(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanShortcutConfigsPage(
+private fun SharedTransitionScope.EblanShortcutConfigsPage(
     modifier: Modifier = Modifier,
     index: Int,
     currentPage: Int,
@@ -530,8 +533,9 @@ private fun EblanShortcutConfigsPage(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanApplicationInfoItem(
+private fun SharedTransitionScope.EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanShortcutConfigs: Map<EblanApplicationInfoGroup, List<EblanShortcutConfig>>,
@@ -615,9 +619,9 @@ private fun EblanApplicationInfoItem(
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanShortcutConfigItem(
+private fun SharedTransitionScope.EblanShortcutConfigItem(
     modifier: Modifier = Modifier,
     eblanShortcutConfig: EblanShortcutConfig,
     drag: Drag,
@@ -647,15 +651,38 @@ private fun EblanShortcutConfigItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val id = remember { Uuid.random().toHexString() }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            isLongPress = false
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = id,
+                            screen = Screen.Drag,
+                        ),
+                    )
 
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+                    onDraggingGridItem()
+                }
             }
+
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -684,8 +711,6 @@ private fun EblanShortcutConfigItem(
                                 customLabel = null,
                             )
 
-                            val id = Uuid.random().toHexString()
-
                             onLongPressGridItem(
                                 GridItemSource.New(
                                     gridItem = GridItem(
@@ -713,11 +738,9 @@ private fun EblanShortcutConfigItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    screen = Screen.Drag,
+                                    screen = Screen.Pager,
                                 ),
                             )
-
-                            onDraggingGridItem()
 
                             isLongPress = true
                         }
@@ -746,7 +769,7 @@ private fun EblanShortcutConfigItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (!isLongPress) {
+        if (!isDragging) {
             Box(
                 modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
@@ -754,6 +777,15 @@ private fun EblanShortcutConfigItem(
                     model = eblanShortcutConfig.activityIcon,
                     contentDescription = null,
                     modifier = Modifier
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
+                            visible = true,
+                        )
                         .drawWithContent {
                             graphicsLayer.record {
                                 this@drawWithContent.drawContent()

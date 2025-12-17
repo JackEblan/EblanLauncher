@@ -747,6 +747,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
                         scale.stop()
 
+                        isLongPress = false
+
                         onResetOverlay()
 
                         if (scale.value < 1f) {
@@ -768,8 +770,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context).data(customIcon)
-                        .addLastModifiedToFileCacheKey(true).build(),
+                    model = ImageRequest
+                        .Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
+                        .build(),
                     contentDescription = null,
                     modifier = Modifier
                         .sharedElementWithCallerManagedVisibility(

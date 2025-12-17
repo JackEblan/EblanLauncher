@@ -712,7 +712,9 @@ private fun SharedTransitionScope.Success(
 
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    if (homeData.userData.experimentalSettings.syncData) {
+                    if (homeData.userData.experimentalSettings.syncData &&
+                        pinItemRequestWrapper.getPinItemRequest() == null
+                    ) {
                         context.startService(launcherAppsIntent)
 
                         context.startService(syncDataIntent)
@@ -722,7 +724,9 @@ private fun SharedTransitionScope.Success(
                 }
 
                 Lifecycle.Event.ON_STOP -> {
-                    if (homeData.userData.experimentalSettings.syncData) {
+                    if (homeData.userData.experimentalSettings.syncData &&
+                        pinItemRequestWrapper.getPinItemRequest() == null
+                    ) {
                         context.stopService(launcherAppsIntent)
 
                         context.stopService(syncDataIntent)

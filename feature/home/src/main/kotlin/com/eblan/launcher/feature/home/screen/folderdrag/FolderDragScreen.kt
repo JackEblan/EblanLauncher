@@ -45,7 +45,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
@@ -83,8 +82,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
     folderGridHorizontalPagerState: PagerState,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -131,8 +128,6 @@ internal fun SharedTransitionScope.FolderDragScreen(
             rows = homeSettings.folderRows,
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
-            overlayIntOffset = overlayIntOffset,
-            overlayIntSize = overlayIntSize,
             titleHeight = titleHeight,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveOutsideFolder = onMoveOutsideFolder,

@@ -46,7 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.GridItem
@@ -95,8 +94,6 @@ internal fun SharedTransitionScope.DragScreen(
     currentPage: Int,
     statusBarNotifications: Map<String, Int>,
     hasShortcutHostPermission: Boolean,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
     onMoveGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -245,8 +242,6 @@ internal fun SharedTransitionScope.DragScreen(
             isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
             gridItemSource = gridItemSource,
             paddingValues = paddingValues,
-            overlayIntOffset = overlayIntOffset,
-            overlayIntSize = overlayIntSize,
             onUpdatePageDirection = { newPageDirection ->
                 pageDirection = newPageDirection
             },

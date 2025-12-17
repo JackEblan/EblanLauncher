@@ -419,6 +419,8 @@ private fun EditFolder(
         },
     )
 
+    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
     SettingsColumn(
         title = "Edit Label",
         subtitle = data.label,

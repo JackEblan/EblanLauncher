@@ -22,8 +22,8 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -45,8 +45,6 @@ internal suspend fun handleDragFolderGridItem(
     rows: Int,
     isScrollInProgress: Boolean,
     paddingValues: PaddingValues,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
     titleHeight: Int,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
@@ -60,8 +58,6 @@ internal suspend fun handleDragFolderGridItem(
     ) -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
-    delay(100L)
-
     if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
@@ -82,6 +78,10 @@ internal suspend fun handleDragFolderGridItem(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
+    val edgeDistance = with(density) {
+        15.dp.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -94,17 +94,23 @@ internal suspend fun handleDragFolderGridItem(
 
     val dragY = dragIntOffset.y - topPadding - pageIndicatorHeight - titleHeight
 
-    val isOnLeftGrid = overlayIntOffset.x < 0
+    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
 
-    val isOnRightGrid = overlayIntOffset.x + overlayIntSize.width > gridWidth
+    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
-    val isOnTopGrid = overlayIntOffset.y < topPadding + titleHeight
+    val isOnTopGrid = dragIntOffset.y < topPadding + titleHeight
 
     if (isOnLeftGrid && !isOnTopGrid) {
+        delay(1000L)
+
         onUpdatePageDirection(PageDirection.Left)
     } else if (isOnRightGrid && !isOnTopGrid) {
+        delay(1000L)
+
         onUpdatePageDirection(PageDirection.Right)
     } else if (isOnTopGrid) {
+        delay(100L)
+
         onMoveOutsideFolder(
             GridItemSource.Existing(
                 gridItem = gridItem.copy(
@@ -115,6 +121,8 @@ internal suspend fun handleDragFolderGridItem(
             ),
         )
     } else {
+        delay(100L)
+
         val cellWidth = gridWidth / columns
 
         val cellHeight = gridHeight / rows

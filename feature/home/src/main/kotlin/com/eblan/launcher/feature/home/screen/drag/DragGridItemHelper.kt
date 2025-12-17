@@ -23,8 +23,8 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.getWidgetGridItemSize
 import com.eblan.launcher.domain.grid.getWidgetGridItemSpan
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
@@ -71,8 +71,6 @@ internal suspend fun handleDragGridItem(
     isScrollInProgress: Boolean,
     gridItemSource: GridItemSource,
     paddingValues: PaddingValues,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveGridItem: (
         movingGridItem: GridItem,
@@ -84,8 +82,6 @@ internal suspend fun handleDragGridItem(
         gridHeight: Int,
     ) -> Unit,
 ) {
-    delay(100L)
-
     if (drag == Drag.None ||
         drag == Drag.End ||
         drag == Drag.Cancel ||
@@ -114,6 +110,10 @@ internal suspend fun handleDragGridItem(
         dockHeight.roundToPx()
     }
 
+    val edgeDistance = with(density) {
+        15.dp.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
@@ -126,17 +126,23 @@ internal suspend fun handleDragGridItem(
 
     val dragY = dragIntOffset.y - topPadding
 
-    val isOnLeftGrid = overlayIntOffset.x < 0
+    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
 
-    val isOnRightGrid = overlayIntOffset.x + overlayIntSize.width > gridWidth
+    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
     val isOnDock = dragY > (gridHeight - dockHeightPx)
 
     if (isOnLeftGrid) {
+        delay(1000L)
+
         onUpdatePageDirection(PageDirection.Left)
     } else if (isOnRightGrid) {
+        delay(1000L)
+
         onUpdatePageDirection(PageDirection.Right)
     } else if (isOnDock) {
+        delay(100L)
+
         val cellWidth = gridWidth / dockColumns
 
         val cellHeight = dockHeightPx / dockRows
@@ -176,6 +182,8 @@ internal suspend fun handleDragGridItem(
             )
         }
     } else {
+        delay(100L)
+
         val gridHeightWithPadding = gridHeight - pageIndicatorHeight - dockHeightPx
 
         val cellWidth = gridWidth / columns

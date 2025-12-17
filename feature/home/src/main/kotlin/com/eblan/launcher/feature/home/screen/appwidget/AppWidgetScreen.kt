@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.appwidget
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -80,8 +82,9 @@ import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun AppWidgetScreen(
+internal fun SharedTransitionScope.AppWidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
@@ -208,8 +211,9 @@ internal fun AppWidgetScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun Success(
+private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
@@ -262,9 +266,9 @@ private fun Success(
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanAppWidgetProviderInfoItem(
+private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
@@ -296,15 +300,38 @@ private fun EblanAppWidgetProviderInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val id = remember { Uuid.random().toHexString() }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            isLongPress = false
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = id,
+                            screen = Screen.Drag,
+                        ),
+                    )
 
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+                    onDraggingGridItem()
+                }
             }
+
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -317,8 +344,6 @@ private fun EblanAppWidgetProviderInfoItem(
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            val id = Uuid.random().toHexString()
 
                             onLongPressGridItem(
                                 GridItemSource.New(
@@ -355,11 +380,9 @@ private fun EblanAppWidgetProviderInfoItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    screen = Screen.Drag,
+                                    screen = Screen.Pager,
                                 ),
                             )
-
-                            onDraggingGridItem()
 
                             isLongPress = true
                         }
@@ -388,7 +411,7 @@ private fun EblanAppWidgetProviderInfoItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (!isLongPress) {
+        if (!isDragging) {
             Text(
                 text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
                 textAlign = TextAlign.Center,
@@ -399,6 +422,15 @@ private fun EblanAppWidgetProviderInfoItem(
 
             AsyncImage(
                 modifier = Modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = id,
+                                screen = Screen.Pager,
+                            ),
+                        ),
+                        visible = true,
+                    )
                     .drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()

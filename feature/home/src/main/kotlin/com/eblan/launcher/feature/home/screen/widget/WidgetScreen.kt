@@ -630,15 +630,12 @@ internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
         verticalArrangement = Arrangement.Center,
     ) {
         if (!isDragging) {
-            val text =
-                if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
+            Text(
+                text = if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
                     "Cell ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"
                 } else {
                     "Size ${eblanAppWidgetProviderInfo.minWidth}x${eblanAppWidgetProviderInfo.minHeight}"
-                }
-
-            Text(
-                text = text,
+                },
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
             )

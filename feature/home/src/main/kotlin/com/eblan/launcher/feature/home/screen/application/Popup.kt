@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -118,7 +119,8 @@ internal fun PopupApplicationInfoMenu(
                     onDismissRequest()
                 })
             }
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(paddingValues),
         content = {
             ApplicationInfoMenu(
                 modifier = modifier,
@@ -198,9 +200,7 @@ internal fun PopupApplicationInfoMenu(
         val topY = y - placeable.height
         val bottomY = y + popupIntSize.height
 
-        val childY = (
-            if (topY < 0) bottomY else topY
-            ).coerceIn(0, constraints.maxHeight - placeable.height)
+        val childY = if (topY < 0) bottomY else topY
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeable.place(childX, childY)

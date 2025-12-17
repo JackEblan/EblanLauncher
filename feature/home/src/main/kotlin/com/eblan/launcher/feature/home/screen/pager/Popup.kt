@@ -198,7 +198,7 @@ internal fun GridItemPopup(
             .coerceIn(0, constraints.maxWidth - placeable.width)
 
         val topY = y - placeable.height
-        val bottomY = y + height + placeable.height
+        val bottomY = y + height
 
         val childY = if (topY < topPadding) bottomY else topY
 

@@ -290,6 +290,10 @@ private fun SharedTransitionScope.Success(
         },
     )
 
+    val appDrawerRowsHeight = with(density) {
+        appDrawerSettings.appDrawerRowsHeight.dp.roundToPx()
+    }
+
     var eblanApplicationInfoGroup by remember { mutableStateOf<EblanApplicationInfoGroup?>(null) }
 
     BackHandler {
@@ -386,7 +390,10 @@ private fun SharedTransitionScope.Success(
 
                     popupIntOffset = intOffset
 
-                    popupIntSize = intSize
+                    popupIntSize = IntSize(
+                        width = intSize.width,
+                        height = appDrawerRowsHeight,
+                    )
                 },
                 onUpdatePopupMenu = { newShowPopupApplicationMenu ->
                     showPopupApplicationMenu = newShowPopupApplicationMenu

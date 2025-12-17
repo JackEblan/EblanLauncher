@@ -279,7 +279,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset
 
-                            popupIntSize = intSize
+                            popupIntSize = IntSize(
+                                width = width,
+                                height = height,
+                            )
 
                             onUpdateGridItemOffset(intOffset, intSize)
 
@@ -393,7 +396,10 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     onUpdateGridItemOffset = { intOffset, intSize ->
                         popupIntOffset = intOffset
 
-                        popupIntSize = intSize
+                        popupIntSize = IntSize(
+                            width = width,
+                            height = height,
+                        )
 
                         onUpdateGridItemOffset(intOffset, intSize)
 

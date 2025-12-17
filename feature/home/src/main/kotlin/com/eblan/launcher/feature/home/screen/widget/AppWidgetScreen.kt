@@ -15,9 +15,11 @@
  *   limitations under the License.
  *
  */
-package com.eblan.launcher.feature.home.screen.appwidget
+package com.eblan.launcher.feature.home.screen.widget
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -39,49 +41,34 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import coil3.compose.AsyncImage
 import com.eblan.launcher.domain.model.EblanAppWidgetProviderInfo
 import com.eblan.launcher.domain.model.EblanApplicationInfoGroup
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
-import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.pager.handleApplyFling
-import com.eblan.launcher.feature.home.screen.widget.getWidgetGridItem
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun AppWidgetScreen(
+internal fun SharedTransitionScope.AppWidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
@@ -208,8 +195,9 @@ internal fun AppWidgetScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun Success(
+private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
@@ -258,162 +246,6 @@ private fun Success(
                     onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalUuidApi::class)
-@Composable
-private fun EblanAppWidgetProviderInfoItem(
-    modifier: Modifier = Modifier,
-    eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
-    drag: Drag,
-    onUpdateGridItemOffset: (
-        intOffset: IntOffset,
-        intSize: IntSize,
-    ) -> Unit,
-    onLongPressGridItem: (
-        gridItemSource: GridItemSource,
-        imageBitmap: ImageBitmap?,
-    ) -> Unit,
-    currentPage: Int,
-    gridItemSettings: GridItemSettings,
-    onResetOverlay: () -> Unit,
-    onDraggingGridItem: () -> Unit,
-    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-
-    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
-
-    var intSize by remember { mutableStateOf(IntSize.Zero) }
-
-    val preview = eblanAppWidgetProviderInfo.preview ?: eblanAppWidgetProviderInfo.icon
-
-    val graphicsLayer = rememberGraphicsLayer()
-
-    val scale = remember { Animatable(1f) }
-
-    var isLongPress by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            isLongPress = false
-
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
-            }
-        }
-    }
-
-    Column(
-        modifier = modifier
-            .pointerInput(key1 = drag) {
-                detectTapGestures(
-                    onLongPress = {
-                        scope.launch {
-                            scale.animateTo(0.5f)
-
-                            scale.animateTo(1f)
-
-                            val id = Uuid.random().toHexString()
-
-                            onLongPressGridItem(
-                                GridItemSource.New(
-                                    gridItem = getWidgetGridItem(
-                                        id = id,
-                                        page = currentPage,
-                                        componentName = eblanAppWidgetProviderInfo.componentName,
-                                        configure = eblanAppWidgetProviderInfo.configure,
-                                        packageName = eblanAppWidgetProviderInfo.packageName,
-                                        serialNumber = eblanAppWidgetProviderInfo.serialNumber,
-                                        targetCellHeight = eblanAppWidgetProviderInfo.targetCellHeight,
-                                        targetCellWidth = eblanAppWidgetProviderInfo.targetCellWidth,
-                                        minWidth = eblanAppWidgetProviderInfo.minWidth,
-                                        minHeight = eblanAppWidgetProviderInfo.minHeight,
-                                        resizeMode = eblanAppWidgetProviderInfo.resizeMode,
-                                        minResizeWidth = eblanAppWidgetProviderInfo.minResizeWidth,
-                                        minResizeHeight = eblanAppWidgetProviderInfo.minResizeHeight,
-                                        maxResizeWidth = eblanAppWidgetProviderInfo.maxResizeWidth,
-                                        maxResizeHeight = eblanAppWidgetProviderInfo.maxResizeHeight,
-                                        preview = eblanAppWidgetProviderInfo.preview,
-                                        label = eblanAppWidgetProviderInfo.label,
-                                        icon = eblanAppWidgetProviderInfo.icon,
-                                        gridItemSettings = gridItemSettings,
-                                    ),
-                                ),
-                                graphicsLayer.toImageBitmap(),
-                            )
-
-                            onUpdateGridItemOffset(
-                                intOffset,
-                                intSize,
-                            )
-
-                            onUpdateSharedElementKey(
-                                SharedElementKey(
-                                    id = id,
-                                    screen = Screen.Drag,
-                                ),
-                            )
-
-                            onDraggingGridItem()
-
-                            isLongPress = true
-                        }
-                    },
-                    onPress = {
-                        awaitRelease()
-
-                        scale.stop()
-
-                        isLongPress = false
-
-                        onResetOverlay()
-
-                        if (scale.value < 1f) {
-                            scale.animateTo(1f)
-                        }
-                    },
-                )
-            }
-            .size(200.dp)
-            .padding(20.dp)
-            .scale(
-                scaleX = scale.value,
-                scaleY = scale.value,
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        if (!isLongPress) {
-            Text(
-                text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            AsyncImage(
-                modifier = Modifier
-                    .drawWithContent {
-                        graphicsLayer.record {
-                            this@drawWithContent.drawContent()
-                        }
-
-                        drawLayer(graphicsLayer)
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        intOffset = layoutCoordinates.positionInRoot().round()
-
-                        intSize = layoutCoordinates.size
-                    },
-                model = preview,
-                contentDescription = null,
-            )
         }
     }
 }

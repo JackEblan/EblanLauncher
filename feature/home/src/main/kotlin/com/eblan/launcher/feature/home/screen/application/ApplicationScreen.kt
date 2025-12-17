@@ -122,8 +122,8 @@ import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.model.SharedElementKey
-import com.eblan.launcher.feature.home.screen.appwidget.AppWidgetScreen
 import com.eblan.launcher.feature.home.screen.loading.LoadingScreen
+import com.eblan.launcher.feature.home.screen.widget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import kotlinx.coroutines.launch
@@ -747,6 +747,8 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
 
                         scale.stop()
 
+                        isLongPress = false
+
                         onResetOverlay()
 
                         if (scale.value < 1f) {
@@ -768,8 +770,11 @@ private fun SharedTransitionScope.EblanApplicationInfoItem(
                 modifier = Modifier.size(appDrawerSettings.gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context).data(customIcon)
-                        .addLastModifiedToFileCacheKey(true).build(),
+                    model = ImageRequest
+                        .Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
+                        .build(),
                     contentDescription = null,
                     modifier = Modifier
                         .sharedElementWithCallerManagedVisibility(

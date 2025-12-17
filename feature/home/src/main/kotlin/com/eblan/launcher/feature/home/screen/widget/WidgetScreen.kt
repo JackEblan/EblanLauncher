@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.widget
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -97,8 +99,9 @@ import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun WidgetScreen(
+internal fun SharedTransitionScope.WidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationComponentUiState: EblanApplicationComponentUiState,
@@ -210,8 +213,9 @@ internal fun WidgetScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun Success(
+private fun SharedTransitionScope.Success(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
@@ -318,9 +322,9 @@ private fun Success(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanAppWidgetProviderInfoDockSearchBar(
+private fun SharedTransitionScope.EblanAppWidgetProviderInfoDockSearchBar(
     modifier: Modifier = Modifier,
     onQueryChange: (String) -> Unit,
     eblanAppWidgetProviderInfosByLabel: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
@@ -394,8 +398,9 @@ private fun EblanAppWidgetProviderInfoDockSearchBar(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun EblanApplicationInfoItem(
+private fun SharedTransitionScope.EblanApplicationInfoItem(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanAppWidgetProviderInfos: Map<EblanApplicationInfoGroup, List<EblanAppWidgetProviderInfo>>,
@@ -479,9 +484,9 @@ private fun EblanApplicationInfoItem(
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun EblanAppWidgetProviderInfoItem(
+internal fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,
@@ -513,15 +518,38 @@ internal fun EblanAppWidgetProviderInfoItem(
 
     var isLongPress by remember { mutableStateOf(false) }
 
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
+
+    val id = remember { Uuid.random().toHexString() }
+
     LaunchedEffect(key1 = drag) {
-        if (drag == Drag.Cancel || drag == Drag.End) {
-            isLongPress = false
+        when (drag) {
+            Drag.Dragging -> {
+                if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = id,
+                            screen = Screen.Drag,
+                        ),
+                    )
 
-            scale.stop()
-
-            if (scale.value < 1f) {
-                scale.animateTo(1f)
+                    onDraggingGridItem()
+                }
             }
+
+            Drag.End, Drag.Cancel -> {
+                isLongPress = false
+
+                scale.stop()
+
+                if (scale.value < 1f) {
+                    scale.animateTo(1f)
+                }
+
+                onResetOverlay()
+            }
+
+            else -> Unit
         }
     }
 
@@ -534,8 +562,6 @@ internal fun EblanAppWidgetProviderInfoItem(
                             scale.animateTo(0.5f)
 
                             scale.animateTo(1f)
-
-                            val id = Uuid.random().toHexString()
 
                             onLongPressGridItem(
                                 GridItemSource.New(
@@ -572,11 +598,9 @@ internal fun EblanAppWidgetProviderInfoItem(
                             onUpdateSharedElementKey(
                                 SharedElementKey(
                                     id = id,
-                                    screen = Screen.Drag,
+                                    screen = Screen.Pager,
                                 ),
                             )
-
-                            onDraggingGridItem()
 
                             isLongPress = true
                         }
@@ -605,17 +629,30 @@ internal fun EblanAppWidgetProviderInfoItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (!isLongPress) {
+        if (!isDragging) {
             Text(
-                text = "${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}",
+                text = if (eblanAppWidgetProviderInfo.targetCellWidth > 0 && eblanAppWidgetProviderInfo.targetCellHeight > 0) {
+                    "Cell ${eblanAppWidgetProviderInfo.targetCellWidth}x${eblanAppWidgetProviderInfo.targetCellHeight}"
+                } else {
+                    "Size ${eblanAppWidgetProviderInfo.minWidth}x${eblanAppWidgetProviderInfo.minHeight}"
+                },
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             AsyncImage(
                 modifier = Modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = id,
+                                screen = Screen.Pager,
+                            ),
+                        ),
+                        visible = true,
+                    )
                     .drawWithContent {
                         graphicsLayer.record {
                             this@drawWithContent.drawContent()

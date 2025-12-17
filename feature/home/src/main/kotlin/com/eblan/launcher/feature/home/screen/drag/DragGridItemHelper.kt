@@ -111,7 +111,7 @@ internal suspend fun handleDragGridItem(
     }
 
     val edgeDistance = with(density) {
-        15.dp.roundToPx()
+        30.dp.roundToPx()
     }
 
     val horizontalPadding = leftPadding + rightPadding

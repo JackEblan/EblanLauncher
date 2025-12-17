@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.grid.isGridItemSpanWithinBounds
 import com.eblan.launcher.domain.model.Associate
 import com.eblan.launcher.domain.model.GridItem
@@ -38,13 +39,13 @@ internal suspend fun handleDragFolderGridItem(
     gridItem: GridItem,
     dragIntOffset: IntOffset,
     screenHeight: Int,
-    gridPadding: Int,
     screenWidth: Int,
     pageIndicatorHeight: Int,
     columns: Int,
     rows: Int,
     isScrollInProgress: Boolean,
     paddingValues: PaddingValues,
+    titleHeight: Int,
     onUpdatePageDirection: (PageDirection) -> Unit,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
@@ -57,8 +58,6 @@ internal suspend fun handleDragFolderGridItem(
     ) -> Unit,
     onMoveOutsideFolder: (GridItemSource) -> Unit,
 ) {
-    delay(100L)
-
     if (drag != Drag.Dragging || isScrollInProgress) {
         return
     }
@@ -79,33 +78,39 @@ internal suspend fun handleDragFolderGridItem(
         paddingValues.calculateBottomPadding().roundToPx()
     }
 
+    val edgeDistance = with(density) {
+        15.dp.roundToPx()
+    }
+
     val horizontalPadding = leftPadding + rightPadding
 
     val verticalPadding = topPadding + bottomPadding
 
     val gridWidth = screenWidth - horizontalPadding
 
-    val gridHeight = screenHeight - verticalPadding
+    val gridHeight = screenHeight - verticalPadding - pageIndicatorHeight - titleHeight
 
     val dragX = dragIntOffset.x - leftPadding
 
-    val dragY = dragIntOffset.y - topPadding
+    val dragY = dragIntOffset.y - topPadding - pageIndicatorHeight - titleHeight
 
-    val isOnLeftGrid = dragX < gridPadding
+    val isOnLeftGrid = dragIntOffset.x - edgeDistance < 0
 
-    val isOnRightGrid = dragX > gridWidth - gridPadding
+    val isOnRightGrid = dragIntOffset.x + edgeDistance > gridWidth
 
-    val isOnTopGrid = dragY < gridPadding
+    val isOnTopGrid = dragIntOffset.y < topPadding + titleHeight
 
-    val isOnBottomGrid = dragY > gridHeight - pageIndicatorHeight - gridPadding
+    if (isOnLeftGrid && !isOnTopGrid) {
+        delay(1000L)
 
-    val isVerticalBounds = !isOnTopGrid && !isOnBottomGrid
-
-    if (isOnLeftGrid && isVerticalBounds) {
         onUpdatePageDirection(PageDirection.Left)
-    } else if (isOnRightGrid && isVerticalBounds) {
+    } else if (isOnRightGrid && !isOnTopGrid) {
+        delay(1000L)
+
         onUpdatePageDirection(PageDirection.Right)
-    } else if (!isVerticalBounds) {
+    } else if (isOnTopGrid) {
+        delay(100L)
+
         onMoveOutsideFolder(
             GridItemSource.Existing(
                 gridItem = gridItem.copy(
@@ -116,22 +121,16 @@ internal suspend fun handleDragFolderGridItem(
             ),
         )
     } else {
-        val gridWidthWithPadding = gridWidth - (gridPadding * 2)
+        delay(100L)
 
-        val gridHeightWithPadding = (gridHeight - pageIndicatorHeight) - (gridPadding * 2)
+        val cellWidth = gridWidth / columns
 
-        val gridX = dragX - gridPadding
-
-        val gridY = dragY - gridPadding
-
-        val cellWidth = gridWidthWithPadding / columns
-
-        val cellHeight = gridHeightWithPadding / rows
+        val cellHeight = gridHeight / rows
 
         val newGridItem = gridItem.copy(
             page = currentPage,
-            startColumn = gridX / cellWidth,
-            startRow = gridY / cellHeight,
+            startColumn = dragX / cellWidth,
+            startRow = dragY / cellHeight,
             associate = Associate.Grid,
         )
 
@@ -144,12 +143,12 @@ internal suspend fun handleDragFolderGridItem(
         if (isGridItemSpanWithinBounds) {
             onMoveFolderGridItem(
                 newGridItem,
-                gridX,
-                gridY,
+                dragX,
+                dragY,
                 columns,
                 rows,
-                gridWidthWithPadding,
-                gridHeightWithPadding,
+                gridWidth,
+                gridHeight,
             )
         }
     }

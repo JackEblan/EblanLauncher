@@ -19,6 +19,8 @@ package com.eblan.launcher.feature.home.screen.editpage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -62,8 +64,9 @@ import com.eblan.launcher.feature.home.model.Screen
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun EditPageScreen(
+internal fun SharedTransitionScope.EditPageScreen(
     modifier: Modifier = Modifier,
     screenHeight: Int,
     pageItems: List<PageItem>,
@@ -71,6 +74,7 @@ internal fun EditPageScreen(
     paddingValues: PaddingValues,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
+    hasShortcutHostPermission: Boolean,
     onSaveEditPage: (
         id: Int,
         pageItems: List<PageItem>,
@@ -177,6 +181,7 @@ internal fun EditPageScreen(
                                     iconPackInfoPackageName = iconPackInfoPackageName,
                                     isDragging = false,
                                     statusBarNotifications = emptyMap(),
+                                    hasShortcutHostPermission = hasShortcutHostPermission,
                                 )
                             },
                         )

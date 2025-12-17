@@ -18,43 +18,38 @@
 package com.eblan.launcher.feature.home.screen.folderdrag
 
 import android.widget.Toast
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector2D
-import androidx.compose.animation.core.TwoWayConverter
-import androidx.compose.foundation.background
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.eblan.launcher.domain.model.FolderDataById
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemCache
-import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HomeSettings
 import com.eblan.launcher.domain.model.MoveGridItemResult
 import com.eblan.launcher.domain.model.TextColor
@@ -67,12 +62,12 @@ import com.eblan.launcher.feature.home.model.PageDirection
 import com.eblan.launcher.feature.home.screen.drag.handlePageDirection
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun FolderDragScreen(
+internal fun SharedTransitionScope.FolderDragScreen(
     modifier: Modifier = Modifier,
+    foldersDataById: ArrayDeque<FolderDataById>,
     gridItemCache: GridItemCache,
     gridItemSource: GridItemSource?,
     textColor: TextColor,
@@ -81,14 +76,12 @@ internal fun FolderDragScreen(
     screenWidth: Int,
     screenHeight: Int,
     paddingValues: PaddingValues,
-    folderDataById: FolderDataById?,
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     moveGridItemResult: MoveGridItemResult?,
     folderGridHorizontalPagerState: PagerState,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
     statusBarNotifications: Map<String, Int>,
+    hasShortcutHostPermission: Boolean,
     onMoveFolderGridItem: (
         movingGridItem: GridItem,
         x: Int,
@@ -111,33 +104,15 @@ internal fun FolderDragScreen(
 
     var pageDirection by remember { mutableStateOf<PageDirection?>(null) }
 
-    val horizontalPagerPaddingDp = 30.dp
-
-    val gridPaddingDp = 8.dp
-
-    val gridPadding = with(density) {
-        (horizontalPagerPaddingDp + gridPaddingDp).roundToPx()
-    }
-
-    val pageIndicatorHeight = 20.dp
+    val pageIndicatorHeight = 30.dp
 
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()
     }
 
-    val lastMoveGridItemResult = remember(key1 = moveGridItemResult) {
-        if (moveGridItemResult != null && moveGridItemResult.isSuccess) {
-            moveGridItemResult
-        } else if (gridItemSource.gridItem.startColumn > -1 && gridItemSource.gridItem.startRow > -1) {
-            MoveGridItemResult(
-                isSuccess = true,
-                movingGridItem = gridItemSource.gridItem,
-                conflictingGridItem = null,
-            )
-        } else {
-            null
-        }
-    }
+    var titleHeight by remember { mutableIntStateOf(0) }
+
+    val folderDataById = foldersDataById.lastOrNull()
 
     LaunchedEffect(key1 = drag, key2 = dragIntOffset) {
         handleDragFolderGridItem(
@@ -147,13 +122,13 @@ internal fun FolderDragScreen(
             gridItem = gridItemSource.gridItem,
             dragIntOffset = dragIntOffset,
             screenHeight = screenHeight,
-            gridPadding = gridPadding,
             screenWidth = screenWidth,
             pageIndicatorHeight = pageIndicatorHeightPx,
             columns = homeSettings.folderColumns,
             rows = homeSettings.folderRows,
             isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
             paddingValues = paddingValues,
+            titleHeight = titleHeight,
             onMoveFolderGridItem = onMoveFolderGridItem,
             onMoveOutsideFolder = onMoveOutsideFolder,
             onUpdatePageDirection = { newPageDirection ->
@@ -182,7 +157,6 @@ internal fun FolderDragScreen(
                     density = density,
                     dragIntOffset = dragIntOffset,
                     screenHeight = screenHeight,
-                    gridPadding = gridPadding,
                     pageIndicatorHeight = pageIndicatorHeightPx,
                     paddingValues = paddingValues,
                     onDragEnd = onDragEnd,
@@ -212,37 +186,43 @@ internal fun FolderDragScreen(
                 bottom = paddingValues.calculateBottomPadding(),
             ),
     ) {
+        Column(
+            modifier = Modifier
+                .onSizeChanged {
+                    titleHeight = it.height
+                }
+                .padding(5.dp),
+        ) {
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = folderDataById?.label.toString(),
+                color = getSystemTextColor(textColor = textColor),
+                style = MaterialTheme.typography.headlineLarge,
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
         HorizontalPager(
             state = folderGridHorizontalPagerState,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
-                top = horizontalPagerPaddingDp,
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr) + horizontalPagerPaddingDp,
-                bottom = horizontalPagerPaddingDp,
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
             ),
+            userScrollEnabled = false,
         ) { index ->
             GridLayout(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(gridPaddingDp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        shape = RoundedCornerShape(8.dp),
-                    ),
+                modifier = modifier.fillMaxSize(),
                 gridItems = gridItemCache.folderGridItemsCacheByPage[index],
                 columns = homeSettings.folderColumns,
                 rows = homeSettings.folderRows,
-                { gridItem ->
+                content = { gridItem ->
                     val gridItemSettings = if (gridItem.override) {
                         gridItem.gridItemSettings
                     } else {
                         homeSettings.gridItemSettings
-                    }.run {
-                        copy(
-                            iconSize = iconSize / 2,
-                            textSize = textSize / 2,
-                        )
                     }
 
                     val textColor = if (gridItem.override) {
@@ -254,13 +234,20 @@ internal fun FolderDragScreen(
                         getSystemTextColor(textColor = textColor)
                     }
 
+                    val isDragging = (
+                        drag == Drag.Start ||
+                            drag == Drag.Dragging
+                        ) &&
+                        gridItem.id == gridItemSource.gridItem.id
+
                     GridItemContent(
                         gridItem = gridItem,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
-                        isDragging = gridItem.id == gridItemSource.gridItem.id,
+                        isDragging = isDragging,
                         statusBarNotifications = statusBarNotifications,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
                     )
                 },
             )
@@ -276,190 +263,4 @@ internal fun FolderDragScreen(
             color = getSystemTextColor(textColor = textColor),
         )
     }
-
-    AnimatedDropGridItem(
-        targetPage = folderGridHorizontalPagerState.currentPage,
-        gridPadding = gridPadding,
-        screenWidth = screenWidth,
-        screenHeight = screenHeight,
-        pageIndicatorHeight = pageIndicatorHeightPx,
-        paddingValues = paddingValues,
-        columns = homeSettings.folderColumns,
-        rows = homeSettings.folderRows,
-        overlayIntOffset = overlayIntOffset,
-        overlayIntSize = overlayIntSize,
-        textColor = textColor,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-        gridItemSettings = homeSettings.gridItemSettings,
-        drag = drag,
-        moveGridItemResult = lastMoveGridItemResult,
-        folderDataById = folderDataById,
-        statusBarNotifications = statusBarNotifications,
-    )
-}
-
-@Composable
-private fun AnimatedDropGridItem(
-    modifier: Modifier = Modifier,
-    targetPage: Int,
-    gridPadding: Int,
-    screenWidth: Int,
-    screenHeight: Int,
-    pageIndicatorHeight: Int,
-    paddingValues: PaddingValues,
-    columns: Int,
-    rows: Int,
-    overlayIntOffset: IntOffset,
-    overlayIntSize: IntSize,
-    textColor: TextColor,
-    iconPackInfoPackageName: String,
-    gridItemSettings: GridItemSettings,
-    drag: Drag,
-    moveGridItemResult: MoveGridItemResult?,
-    folderDataById: FolderDataById?,
-    statusBarNotifications: Map<String, Int>,
-) {
-    if (drag != Drag.End ||
-        moveGridItemResult?.isSuccess != true ||
-        moveGridItemResult.movingGridItem.page != targetPage ||
-        folderDataById == null
-    ) {
-        return
-    }
-
-    val density = LocalDensity.current
-
-    val leftPadding = with(density) {
-        paddingValues.calculateStartPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val rightPadding = with(density) {
-        paddingValues.calculateEndPadding(LayoutDirection.Ltr).roundToPx()
-    }
-
-    val topPadding = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
-
-    val bottomPadding = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
-
-    val horizontalPadding = leftPadding + rightPadding
-
-    val verticalPadding = topPadding + bottomPadding
-
-    val gridWidth = screenWidth - horizontalPadding
-
-    val gridHeight = screenHeight - verticalPadding
-
-    val gridLeft = leftPadding + gridPadding
-
-    val gridTop = topPadding + gridPadding
-
-    val gridWidthWithPadding = gridWidth - (gridPadding * 2)
-
-    val gridHeightWithPadding = gridHeight - pageIndicatorHeight - (gridPadding * 2)
-
-    val cellWidth = gridWidthWithPadding / columns
-
-    val cellHeight = gridHeightWithPadding / rows
-
-    val targetX = (moveGridItemResult.movingGridItem.startColumn * cellWidth) + gridLeft
-
-    val targetY = (moveGridItemResult.movingGridItem.startRow * cellHeight) + gridTop
-
-    val targetWidth = moveGridItemResult.movingGridItem.columnSpan * cellWidth
-
-    val targetHeight = moveGridItemResult.movingGridItem.rowSpan * cellHeight
-
-    val animatedX = remember { Animatable(overlayIntOffset.x.toFloat()) }
-
-    val animatedY = remember { Animatable(overlayIntOffset.y.toFloat()) }
-
-    val animatedWidth =
-        remember { Animatable(overlayIntSize.width.toFloat()) }
-
-    val animatedHeight =
-        remember { Animatable(overlayIntSize.height.toFloat()) }
-
-    val animatedAlpha = remember { Animatable(1f) }
-
-    val currentGridItemSettings = if (moveGridItemResult.movingGridItem.override) {
-        moveGridItemResult.movingGridItem.gridItemSettings
-    } else {
-        gridItemSettings
-    }
-
-    val textColor = if (moveGridItemResult.movingGridItem.override) {
-        getGridItemTextColor(
-            systemTextColor = textColor,
-            gridItemTextColor = moveGridItemResult.movingGridItem.gridItemSettings.textColor,
-        )
-    } else {
-        getSystemTextColor(textColor = textColor)
-    }
-
-    val gridItemSettingsConverter = TwoWayConverter<GridItemSettings, AnimationVector2D>(
-        convertToVector = { settings ->
-            AnimationVector2D(
-                settings.iconSize.toFloat(),
-                settings.textSize.toFloat(),
-            )
-        },
-        convertFromVector = { vector ->
-            currentGridItemSettings.copy(
-                iconSize = vector.v1.roundToInt(),
-                textSize = vector.v2.roundToInt(),
-            )
-        },
-    )
-
-    val animatedGridItemSettings = remember {
-        Animatable(currentGridItemSettings, gridItemSettingsConverter)
-    }
-
-    LaunchedEffect(key1 = moveGridItemResult.movingGridItem) {
-        launch { animatedX.animateTo(targetX.toFloat()) }
-
-        launch { animatedY.animateTo(targetY.toFloat()) }
-
-        launch { animatedWidth.animateTo(targetWidth.toFloat()) }
-
-        launch { animatedHeight.animateTo(targetHeight.toFloat()) }
-
-        launch {
-            animatedGridItemSettings.animateTo(
-                currentGridItemSettings.copy(
-                    iconSize = currentGridItemSettings.iconSize / 2,
-                    textSize = currentGridItemSettings.textSize / 2,
-                ),
-            )
-        }
-    }
-
-    GridItemContent(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    x = animatedX.value.roundToInt(),
-                    y = animatedY.value.roundToInt(),
-                )
-            }
-            .alpha(animatedAlpha.value)
-            .size(
-                with(density) {
-                    DpSize(
-                        width = animatedWidth.value.toDp(),
-                        height = animatedHeight.value.toDp(),
-                    )
-                },
-            ),
-        gridItem = moveGridItemResult.movingGridItem,
-        textColor = textColor,
-        gridItemSettings = animatedGridItemSettings.value,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-        isDragging = false,
-        statusBarNotifications = statusBarNotifications,
-    )
 }

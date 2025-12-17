@@ -21,6 +21,8 @@ import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -67,6 +69,7 @@ import com.eblan.launcher.domain.model.TextColor
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.EblanApplicationComponentUiState
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.application.ApplicationScreen
 import com.eblan.launcher.feature.home.screen.shortcutconfig.ShortcutConfigScreen
 import com.eblan.launcher.feature.home.screen.widget.WidgetScreen
@@ -74,8 +77,9 @@ import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun PagerScreen(
+internal fun SharedTransitionScope.PagerScreen(
     modifier: Modifier = Modifier,
     gridItems: List<GridItem>,
     gridItemsByPage: Map<Int, List<GridItem>>,
@@ -124,6 +128,7 @@ internal fun PagerScreen(
         serialNumber: Long,
         packageName: String,
     ) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -345,6 +350,7 @@ internal fun PagerScreen(
         onDraggingGridItem = onDraggingGridItem,
         onDeleteGridItem = onDeleteGridItem,
         onResetOverlay = onResetOverlay,
+        onUpdateSharedElementKey = onUpdateSharedElementKey,
     )
 
     if (gestureSettings.swipeUp is EblanAction.OpenAppDrawer || gestureSettings.swipeDown is EblanAction.OpenAppDrawer) {
@@ -394,6 +400,7 @@ internal fun PagerScreen(
                 }
             },
             onEditApplicationInfo = onEditApplicationInfo,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -459,6 +466,7 @@ internal fun PagerScreen(
                 }
             },
             onEditApplicationInfo = onEditApplicationInfo,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -479,6 +487,7 @@ internal fun PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -499,6 +508,7 @@ internal fun PagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

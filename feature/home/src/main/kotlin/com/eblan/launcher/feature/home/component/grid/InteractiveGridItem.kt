@@ -17,17 +17,33 @@
  */
 package com.eblan.launcher.feature.home.component.grid
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -37,21 +53,42 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest.Builder
+import coil3.request.addLastModifiedToFileCacheKey
+import com.eblan.launcher.designsystem.icon.EblanLauncherIcons
+import com.eblan.launcher.domain.framework.FileManager
 import com.eblan.launcher.domain.model.GridItem
 import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
+import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.TextColor
+import com.eblan.launcher.domain.model.VerticalArrangement
 import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
+import com.eblan.launcher.ui.local.LocalSettings
 import kotlinx.coroutines.launch
+import java.io.File
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun InteractiveGridItemContent(
+internal fun SharedTransitionScope.InteractiveGridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     gridItemSettings: GridItemSettings,
@@ -60,6 +97,7 @@ internal fun InteractiveGridItemContent(
     drag: Drag,
     iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
+    isScrollInProgress: Boolean,
     onTapApplicationInfo: (
         serialNumber: Long,
         componentName: String,
@@ -71,155 +109,232 @@ internal fun InteractiveGridItemContent(
     ) -> Unit,
     onTapShortcutConfig: (String) -> Unit,
     onTapFolderGridItem: () -> Unit,
-    onLongPress: () -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap?) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
-    val currentGridItemSettings = if (gridItem.override) {
-        gridItem.gridItemSettings
-    } else {
-        gridItemSettings
-    }
-
-    val currentTextColor = if (gridItem.override) {
-        getGridItemTextColor(
-            systemTextColor = textColor,
-            gridItemTextColor = gridItem.gridItemSettings.textColor,
-        )
-    } else {
-        getSystemTextColor(textColor = textColor)
-    }
-
-    when (val data = gridItem.data) {
-        is GridItemData.ApplicationInfo -> {
-            InteractiveApplicationInfoGridItem(
-                modifier = modifier,
-                textColor = currentTextColor,
-                gridItemSettings = currentGridItemSettings,
-                data = data,
-                drag = drag,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                onTap = {
-                    onTapApplicationInfo(
-                        data.serialNumber,
-                        data.componentName,
-                    )
-                },
-                onLongPress = onLongPress,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onResetOverlay = onResetOverlay,
-                statusBarNotifications = statusBarNotifications,
-                onDraggingGridItem = onDraggingGridItem,
-            )
+    key(gridItem.id) {
+        val currentGridItemSettings = if (gridItem.override) {
+            gridItem.gridItemSettings
+        } else {
+            gridItemSettings
         }
 
-        is GridItemData.Widget -> {
-            InteractiveWidgetGridItem(
-                modifier = modifier,
-                data = data,
-                drag = drag,
-                onLongPress = onLongPress,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onResetOverlay = onResetOverlay,
-                onDraggingGridItem = onDraggingGridItem,
+        val currentTextColor = if (gridItem.override) {
+            getGridItemTextColor(
+                systemTextColor = textColor,
+                gridItemTextColor = gridItem.gridItemSettings.textColor,
             )
+        } else {
+            getSystemTextColor(textColor = textColor)
         }
 
-        is GridItemData.ShortcutInfo -> {
-            InteractiveShortcutInfoGridItem(
-                modifier = modifier,
-                gridItemSettings = currentGridItemSettings,
-                textColor = currentTextColor,
-                data = data,
-                drag = drag,
-                hasShortcutHostPermission = hasShortcutHostPermission,
-                onTap = {
-                    onTapShortcutInfo(
-                        data.serialNumber,
-                        data.packageName,
-                        data.shortcutId,
-                    )
-                },
-                onLongPress = onLongPress,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onResetOverlay = onResetOverlay,
-                onDraggingGridItem = onDraggingGridItem,
-            )
-        }
+        when (val data = gridItem.data) {
+            is GridItemData.ApplicationInfo -> {
+                InteractiveApplicationInfoGridItem(
+                    modifier = modifier,
+                    textColor = currentTextColor,
+                    gridItemSettings = currentGridItemSettings,
+                    gridItem = gridItem,
+                    data = data,
+                    drag = drag,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    isScrollInProgress = isScrollInProgress,
+                    onTap = {
+                        onTapApplicationInfo(
+                            data.serialNumber,
+                            data.componentName,
+                        )
+                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onResetOverlay = onResetOverlay,
+                    statusBarNotifications = statusBarNotifications,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
 
-        is GridItemData.Folder -> {
-            InteractiveFolderGridItem(
-                modifier = modifier,
-                gridItemSettings = currentGridItemSettings,
-                textColor = currentTextColor,
-                data = data,
-                drag = drag,
-                iconPackInfoPackageName = iconPackInfoPackageName,
-                onTap = onTapFolderGridItem,
-                onLongPress = onLongPress,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onResetOverlay = onResetOverlay,
-                onDraggingGridItem = onDraggingGridItem,
-            )
-        }
+            is GridItemData.Widget -> {
+                InteractiveWidgetGridItem(
+                    modifier = modifier,
+                    gridItem = gridItem,
+                    data = data,
+                    drag = drag,
+                    isScrollInProgress = isScrollInProgress,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
 
-        is GridItemData.ShortcutConfig -> {
-            InteractiveShortcutConfigGridItem(
-                modifier = modifier,
-                textColor = currentTextColor,
-                gridItemSettings = gridItemSettings,
-                data = data,
-                drag = drag,
-                onTap = {
-                    data.shortcutIntentUri?.let(onTapShortcutConfig)
-                },
-                onLongPress = onLongPress,
-                onUpdateImageBitmap = onUpdateImageBitmap,
-                onResetOverlay = onResetOverlay,
-                onDraggingGridItem = onDraggingGridItem,
-            )
+            is GridItemData.ShortcutInfo -> {
+                InteractiveShortcutInfoGridItem(
+                    modifier = modifier,
+                    gridItemSettings = currentGridItemSettings,
+                    textColor = currentTextColor,
+                    gridItem = gridItem,
+                    data = data,
+                    drag = drag,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
+                    isScrollInProgress = isScrollInProgress,
+                    onTap = {
+                        onTapShortcutInfo(
+                            data.serialNumber,
+                            data.packageName,
+                            data.shortcutId,
+                        )
+                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
+
+            is GridItemData.Folder -> {
+                InteractiveFolderGridItem(
+                    modifier = modifier,
+                    gridItemSettings = currentGridItemSettings,
+                    textColor = currentTextColor,
+                    gridItem = gridItem,
+                    data = data,
+                    drag = drag,
+                    iconPackInfoPackageName = iconPackInfoPackageName,
+                    isScrollInProgress = isScrollInProgress,
+                    onTap = onTapFolderGridItem,
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
+
+            is GridItemData.ShortcutConfig -> {
+                InteractiveShortcutConfigGridItem(
+                    modifier = modifier,
+                    textColor = currentTextColor,
+                    gridItemSettings = gridItemSettings,
+                    gridItem = gridItem,
+                    data = data,
+                    drag = drag,
+                    isScrollInProgress = isScrollInProgress,
+                    onTap = {
+                        data.shortcutIntentUri?.let(onTapShortcutConfig)
+                    },
+                    onUpdateGridItemOffset = onUpdateGridItemOffset,
+                    onUpdateImageBitmap = onUpdateImageBitmap,
+                    onResetOverlay = onResetOverlay,
+                    onDraggingGridItem = onDraggingGridItem,
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
+                )
+            }
         }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun InteractiveApplicationInfoGridItem(
+private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     drag: Drag,
     iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
+    isScrollInProgress: Boolean,
     onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
+
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
 
     val scale = remember { Animatable(1f) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val settings = LocalSettings.current
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val iconPacksDirectory = File(context.filesDir, FileManager.ICON_PACKS_DIR)
+
+    val iconPackDirectory = File(iconPacksDirectory, iconPackInfoPackageName)
+
+    val iconPackFile = File(
+        iconPackDirectory,
+        data.componentName.replace("/", "-"),
+    )
+
+    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+        iconPackFile.absolutePath
+    } else {
+        data.icon
+    }
+
+    val customIcon = data.customIcon ?: icon
+
+    val customLabel = data.customLabel ?: data.label
+
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
+    val hasNotifications =
+        statusBarNotifications[data.packageName] != null && statusBarNotifications[data.packageName]!! > 0
+
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                alpha = 1f
 
                 scale.stop()
 
@@ -234,15 +349,8 @@ private fun InteractiveApplicationInfoGridItem(
         }
     }
 
-    ApplicationInfoGridItem(
+    Column(
         modifier = modifier
-            .drawWithContent {
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
-                }
-
-                drawLayer(graphicsLayer)
-            }
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
@@ -253,11 +361,19 @@ private fun InteractiveApplicationInfoGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress()
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize,
+                            )
+
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -274,8 +390,6 @@ private fun InteractiveApplicationInfoGridItem(
 
                         scale.stop()
 
-                        alpha = 1f
-
                         onResetOverlay()
 
                         if (scale.value < 1f) {
@@ -284,30 +398,111 @@ private fun InteractiveApplicationInfoGridItem(
                     },
                 )
             }
-            .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        data = data,
-        textColor = textColor,
-        gridItemSettings = gridItemSettings,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-        statusBarNotifications = statusBarNotifications,
-    )
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
+    ) {
+        if (!isDragging) {
+            Box(
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+            ) {
+                AsyncImage(
+                    model = Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
+                            visible = !isScrollInProgress,
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
+                )
+
+                if (settings.isNotificationAccessGranted() && hasNotifications) {
+                    Box(
+                        modifier = Modifier
+                            .size((gridItemSettings.iconSize * 0.3).dp)
+                            .align(Alignment.TopEnd)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape,
+                            ),
+                    )
+                }
+
+                if (data.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((gridItemSettings.iconSize * 0.4).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
+                    }
+                }
+            }
+
+            if (gridItemSettings.showLabel) {
+                Text(
+                    text = customLabel,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = gridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun InteractiveWidgetGridItem(
+private fun SharedTransitionScope.InteractiveWidgetGridItem(
     modifier: Modifier = Modifier,
+    gridItem: GridItem,
     data: GridItemData.Widget,
     drag: Drag,
-    onLongPress: () -> Unit,
+    isScrollInProgress: Boolean,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
+
     val appWidgetHost = LocalAppWidgetHost.current
 
     val appWidgetManager = LocalAppWidgetManager.current
@@ -320,22 +515,27 @@ private fun InteractiveWidgetGridItem(
 
     val scale = remember { Animatable(1f) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
+
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                alpha = 1f
 
                 scale.stop()
 
@@ -350,72 +550,108 @@ private fun InteractiveWidgetGridItem(
         }
     }
 
-    if (appWidgetInfo != null) {
-        AndroidView(
-            factory = {
-                appWidgetHost.createView(
-                    appWidgetId = data.appWidgetId,
-                    appWidgetProviderInfo = appWidgetInfo,
-                    minWidth = data.minWidth,
-                    minHeight = data.minHeight,
-                ).apply {
-                    setOnLongClickListener {
-                        scope.launch {
-                            scale.animateTo(0.5f)
+    if (!isDragging) {
+        val commonModifier = modifier
+            .sharedElementWithCallerManagedVisibility(
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = Screen.Pager,
+                    ),
+                ),
+                visible = !isScrollInProgress,
+            )
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
 
-                            scale.animateTo(1f)
+                drawLayer(graphicsLayer)
+            }
+            .onGloballyPositioned { layoutCoordinates ->
+                intOffset = layoutCoordinates.positionInRoot().round()
 
-                            onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+                intSize = layoutCoordinates.size
+            }
+            .scale(
+                scaleX = scale.value,
+                scaleY = scale.value,
+            )
+            .fillMaxSize()
 
-                            onLongPress()
+        if (appWidgetInfo != null) {
+            AndroidView(
+                factory = {
+                    appWidgetHost.createView(
+                        appWidgetId = data.appWidgetId,
+                        appWidgetProviderInfo = appWidgetInfo,
+                        minWidth = data.minWidth,
+                        minHeight = data.minHeight,
+                    ).apply {
+                        setOnLongClickListener {
+                            scope.launch {
+                                scale.animateTo(0.5f)
 
-                            isLongPress = true
+                                scale.animateTo(1f)
 
-                            alpha = 0f
+                                onUpdateImageBitmap(graphicsLayer.toImageBitmap())
+
+                                onUpdateGridItemOffset(
+                                    intOffset,
+                                    intSize,
+                                )
+
+                                onUpdateSharedElementKey(
+                                    SharedElementKey(
+                                        id = gridItem.id,
+                                        screen = Screen.Pager,
+                                    ),
+                                )
+
+                                isLongPress = true
+                            }
+
+                            true
                         }
-
-                        true
                     }
-                }
-            },
-            modifier = modifier
-                .drawWithContent {
-                    graphicsLayer.record {
-                        this@drawWithContent.drawContent()
-                    }
-
-                    drawLayer(graphicsLayer)
-                }
-                .alpha(alpha)
-                .scale(
-                    scaleX = scale.value,
-                    scaleY = scale.value,
-                )
-                .fillMaxSize(),
-        )
-    } else {
-        AsyncImage(
-            model = data.preview ?: data.icon,
-            contentDescription = null,
-            modifier = modifier.fillMaxSize(),
-        )
+                },
+                modifier = commonModifier,
+            )
+        } else {
+            AsyncImage(
+                model = data.preview ?: data.icon,
+                contentDescription = null,
+                modifier = commonModifier,
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun InteractiveShortcutInfoGridItem(
+private fun SharedTransitionScope.InteractiveShortcutInfoGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     drag: Drag,
     hasShortcutHostPermission: Boolean,
+    isScrollInProgress: Boolean,
     onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
+
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
@@ -424,24 +660,45 @@ private fun InteractiveShortcutInfoGridItem(
 
     val defaultAlpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
 
-    var alpha by remember(key1 = defaultAlpha) {
-        mutableFloatStateOf(defaultAlpha)
+    var isLongPress by remember { mutableStateOf(false) }
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
     }
 
-    var isLongPress by remember { mutableStateOf(false) }
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
+    val customIcon = data.customIcon ?: data.icon
+
+    val customShortLabel = data.customShortLabel ?: data.shortLabel
+
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                alpha = defaultAlpha
 
                 scale.stop()
 
@@ -456,15 +713,8 @@ private fun InteractiveShortcutInfoGridItem(
         }
     }
 
-    ShortcutInfoGridItem(
+    Column(
         modifier = modifier
-            .drawWithContent {
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
-                }
-
-                drawLayer(graphicsLayer)
-            }
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
@@ -475,11 +725,19 @@ private fun InteractiveShortcutInfoGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress()
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize,
+                            )
+
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -498,8 +756,6 @@ private fun InteractiveShortcutInfoGridItem(
 
                         scale.stop()
 
-                        alpha = defaultAlpha
-
                         onResetOverlay()
 
                         if (scale.value < 1f) {
@@ -508,54 +764,139 @@ private fun InteractiveShortcutInfoGridItem(
                     },
                 )
             }
-            .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        data = data,
-        textColor = textColor,
-        gridItemSettings = gridItemSettings,
-    )
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
+    ) {
+        if (!isDragging) {
+            Box(
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+            ) {
+                AsyncImage(
+                    model = customIcon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
+                            visible = !isScrollInProgress,
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .alpha(defaultAlpha)
+                        .matchParentSize(),
+                )
+
+                AsyncImage(
+                    model = data.eblanApplicationInfoIcon,
+                    modifier = Modifier
+                        .alpha(defaultAlpha)
+                        .size((gridItemSettings.iconSize * 0.25).dp)
+                        .align(Alignment.BottomEnd),
+                    contentDescription = null,
+                )
+            }
+
+            if (gridItemSettings.showLabel) {
+                Text(
+                    modifier = Modifier.alpha(defaultAlpha),
+                    text = customShortLabel,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = gridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun InteractiveFolderGridItem(
+private fun SharedTransitionScope.InteractiveFolderGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
     data: GridItemData.Folder,
     drag: Drag,
     iconPackInfoPackageName: String,
+    isScrollInProgress: Boolean,
     onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
 
     val scale = remember { Animatable(1f) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                alpha = 1f
 
                 scale.stop()
 
@@ -570,15 +911,8 @@ private fun InteractiveFolderGridItem(
         }
     }
 
-    FolderGridItem(
+    Column(
         modifier = modifier
-            .drawWithContent {
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
-                }
-
-                drawLayer(graphicsLayer)
-            }
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
@@ -589,11 +923,19 @@ private fun InteractiveFolderGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress()
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize,
+                            )
+
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -610,8 +952,6 @@ private fun InteractiveFolderGridItem(
 
                         scale.stop()
 
-                        alpha = 1f
-
                         onResetOverlay()
 
                         if (scale.value < 1f) {
@@ -620,54 +960,249 @@ private fun InteractiveFolderGridItem(
                     },
                 )
             }
-            .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        data = data,
-        textColor = textColor,
-        gridItemSettings = gridItemSettings,
-        iconPackInfoPackageName = iconPackInfoPackageName,
-    )
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
+    ) {
+        if (!isDragging) {
+            val commonModifier = Modifier
+                .sharedElementWithCallerManagedVisibility(
+                    rememberSharedContentState(
+                        key = SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Pager,
+                        ),
+                    ),
+                    visible = !isScrollInProgress,
+                )
+                .size(gridItemSettings.iconSize.dp)
+
+            if (data.gridItems.isNotEmpty()) {
+                FlowRow(
+                    modifier = commonModifier
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .background(
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(5.dp),
+                        )
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        },
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    maxItemsInEachRow = 2,
+                    maxLines = 2,
+                ) {
+                    data.gridItems.sortedBy { it.startRow + it.startColumn }.forEach { gridItem ->
+                        val gridItemModifier = Modifier.size((gridItemSettings.iconSize * 0.25).dp)
+
+                        when (val currentData = gridItem.data) {
+                            is GridItemData.ApplicationInfo -> {
+                                val iconPacksDirectory = File(
+                                    context.filesDir,
+                                    FileManager.ICON_PACKS_DIR,
+                                )
+
+                                val iconPackDirectory = File(
+                                    iconPacksDirectory,
+                                    iconPackInfoPackageName,
+                                )
+
+                                val iconPackFile = File(
+                                    iconPackDirectory,
+                                    currentData.componentName.replace("/", "-"),
+                                )
+
+                                val icon =
+                                    if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+                                        iconPackFile.absolutePath
+                                    } else {
+                                        currentData.icon
+                                    }
+
+                                AsyncImage(
+                                    model = Builder(context)
+                                        .data(icon)
+                                        .addLastModifiedToFileCacheKey(true)
+                                        .build(),
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
+
+                            is GridItemData.ShortcutInfo -> {
+                                AsyncImage(
+                                    model = currentData.icon,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
+
+                            is GridItemData.Widget -> {
+                                AsyncImage(
+                                    model = currentData.preview,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
+
+                            is GridItemData.Folder -> {
+                                if (currentData.icon != null) {
+                                    AsyncImage(
+                                        model = currentData.icon,
+                                        contentDescription = null,
+                                        modifier = gridItemModifier,
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = EblanLauncherIcons.Folder,
+                                        contentDescription = null,
+                                        modifier = gridItemModifier,
+                                        tint = textColor,
+                                    )
+                                }
+                            }
+
+                            is GridItemData.ShortcutConfig -> {
+                                val icon = when {
+                                    currentData.shortcutIntentIcon != null -> currentData.shortcutIntentIcon
+                                    currentData.activityIcon != null -> currentData.activityIcon
+                                    else -> currentData.applicationIcon
+                                }
+
+                                AsyncImage(
+                                    model = currentData.customIcon ?: icon,
+                                    contentDescription = null,
+                                    modifier = gridItemModifier,
+                                )
+                            }
+                        }
+                    }
+                }
+            } else if (data.icon != null) {
+                AsyncImage(
+                    model = data.icon,
+                    contentDescription = null,
+                    modifier = commonModifier,
+                )
+            } else {
+                Icon(
+                    imageVector = EblanLauncherIcons.Folder,
+                    contentDescription = null,
+                    modifier = commonModifier,
+                    tint = textColor,
+                )
+            }
+
+            if (gridItemSettings.showLabel) {
+                Text(
+                    text = data.label,
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = gridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun InteractiveShortcutConfigGridItem(
+private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
     modifier: Modifier = Modifier,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
     drag: Drag,
+    isScrollInProgress: Boolean,
     onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onUpdateGridItemOffset: (
+        intOffset: IntOffset,
+        intSize: IntSize,
+    ) -> Unit,
     onUpdateImageBitmap: (ImageBitmap) -> Unit,
     onResetOverlay: () -> Unit,
     onDraggingGridItem: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
+    var intOffset by remember { mutableStateOf(IntOffset.Zero) }
+
+    var intSize by remember { mutableStateOf(IntSize.Zero) }
+
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
 
     val scale = remember { Animatable(1f) }
 
-    var alpha by remember { mutableFloatStateOf(1f) }
-
     var isLongPress by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
+
+    val horizontalAlignment = when (gridItemSettings.horizontalAlignment) {
+        HorizontalAlignment.Start -> Alignment.Start
+        HorizontalAlignment.CenterHorizontally -> Alignment.CenterHorizontally
+        HorizontalAlignment.End -> Alignment.End
+    }
+
+    val verticalArrangement = when (gridItemSettings.verticalArrangement) {
+        VerticalArrangement.Top -> Arrangement.Top
+        VerticalArrangement.Center -> Arrangement.Center
+        VerticalArrangement.Bottom -> Arrangement.Bottom
+    }
+
+    val icon = when {
+        data.shortcutIntentIcon != null -> data.shortcutIntentIcon
+        data.activityIcon != null -> data.activityIcon
+        else -> data.applicationIcon
+    }
+
+    val label = when {
+        data.shortcutIntentName != null -> data.shortcutIntentName
+        data.activityLabel != null -> data.activityLabel
+        else -> data.applicationLabel
+    }
+
+    val customIcon = data.customIcon ?: icon
+
+    val customLabel = data.customLabel ?: label
+
+    val isDragging = isLongPress && (drag == Drag.Start || drag == Drag.Dragging)
 
     LaunchedEffect(key1 = drag) {
         when (drag) {
             Drag.Dragging -> {
                 if (isLongPress) {
+                    onUpdateSharedElementKey(
+                        SharedElementKey(
+                            id = gridItem.id,
+                            screen = Screen.Drag,
+                        ),
+                    )
+
                     onDraggingGridItem()
                 }
             }
 
             Drag.End, Drag.Cancel -> {
                 isLongPress = false
-
-                alpha = 1f
 
                 scale.stop()
 
@@ -682,15 +1217,8 @@ private fun InteractiveShortcutConfigGridItem(
         }
     }
 
-    ShortcutConfigGridItem(
+    Column(
         modifier = modifier
-            .drawWithContent {
-                graphicsLayer.record {
-                    this@drawWithContent.drawContent()
-                }
-
-                drawLayer(graphicsLayer)
-            }
             .pointerInput(key1 = drag) {
                 detectTapGestures(
                     onLongPress = {
@@ -701,11 +1229,19 @@ private fun InteractiveShortcutConfigGridItem(
 
                             onUpdateImageBitmap(graphicsLayer.toImageBitmap())
 
-                            onLongPress()
+                            onUpdateGridItemOffset(
+                                intOffset,
+                                intSize,
+                            )
+
+                            onUpdateSharedElementKey(
+                                SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            )
 
                             isLongPress = true
-
-                            alpha = 0f
                         }
                     },
                     onTap = {
@@ -722,8 +1258,6 @@ private fun InteractiveShortcutConfigGridItem(
 
                         scale.stop()
 
-                        alpha = 1f
-
                         onResetOverlay()
 
                         if (scale.value < 1f) {
@@ -732,14 +1266,74 @@ private fun InteractiveShortcutConfigGridItem(
                     },
                 )
             }
-            .alpha(alpha)
             .scale(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
             .fillMaxSize(),
-        data = data,
-        textColor = textColor,
-        gridItemSettings = gridItemSettings,
-    )
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement,
+    ) {
+        if (!isDragging) {
+            Box(
+                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+            ) {
+                AsyncImage(
+                    model = Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .sharedElementWithCallerManagedVisibility(
+                            rememberSharedContentState(
+                                key = SharedElementKey(
+                                    id = gridItem.id,
+                                    screen = Screen.Pager,
+                                ),
+                            ),
+                            visible = !isScrollInProgress,
+                        )
+                        .drawWithContent {
+                            graphicsLayer.record {
+                                this@drawWithContent.drawContent()
+                            }
+
+                            drawLayer(graphicsLayer)
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            intOffset = layoutCoordinates.positionInRoot().round()
+
+                            intSize = layoutCoordinates.size
+                        }
+                        .matchParentSize(),
+                )
+
+                if (data.serialNumber != 0L) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .size((gridItemSettings.iconSize * 0.4).dp)
+                            .align(Alignment.BottomEnd),
+                    ) {
+                        Icon(
+                            imageVector = EblanLauncherIcons.Work,
+                            contentDescription = null,
+                            modifier = Modifier.padding(2.dp),
+                        )
+                    }
+                }
+            }
+
+            if (gridItemSettings.showLabel) {
+                Text(
+                    text = customLabel.toString(),
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = maxLines,
+                    fontSize = gridItemSettings.textSize.sp,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
 }

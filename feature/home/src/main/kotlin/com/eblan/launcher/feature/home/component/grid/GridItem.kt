@@ -17,6 +17,8 @@
  */
 package com.eblan.launcher.feature.home.component.grid
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -54,13 +57,17 @@ import com.eblan.launcher.domain.model.GridItemData
 import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.domain.model.HorizontalAlignment
 import com.eblan.launcher.domain.model.VerticalArrangement
+import com.eblan.launcher.feature.home.model.Drag
+import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalAppWidgetHost
 import com.eblan.launcher.ui.local.LocalAppWidgetManager
 import com.eblan.launcher.ui.local.LocalSettings
 import java.io.File
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun GridItemContent(
+internal fun SharedTransitionScope.GridItemContent(
     modifier: Modifier = Modifier,
     gridItem: GridItem,
     textColor: Color,
@@ -68,6 +75,8 @@ internal fun GridItemContent(
     iconPackInfoPackageName: String,
     isDragging: Boolean,
     statusBarNotifications: Map<String, Int>,
+    hasShortcutHostPermission: Boolean,
+    drag: Drag = Drag.End,
 ) {
     key(gridItem.id) {
         if (isDragging) {
@@ -85,46 +94,57 @@ internal fun GridItemContent(
                 is GridItemData.ApplicationInfo -> {
                     ApplicationInfoGridItem(
                         modifier = modifier,
+                        gridItem = gridItem,
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         statusBarNotifications = statusBarNotifications,
+                        drag = drag,
                     )
                 }
 
                 is GridItemData.Widget -> {
                     WidgetGridItem(
                         modifier = modifier,
+                        gridItem = gridItem,
                         data = data,
+                        drag = drag,
                     )
                 }
 
                 is GridItemData.ShortcutInfo -> {
                     ShortcutInfoGridItem(
                         modifier = modifier,
+                        gridItem = gridItem,
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
+                        hasShortcutHostPermission = hasShortcutHostPermission,
+                        drag = drag,
                     )
                 }
 
                 is GridItemData.Folder -> {
                     FolderGridItem(
                         modifier = modifier,
+                        gridItem = gridItem,
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
                         iconPackInfoPackageName = iconPackInfoPackageName,
+                        drag = drag,
                     )
                 }
 
                 is GridItemData.ShortcutConfig -> {
                     ShortcutConfigGridItem(
                         modifier = modifier,
+                        gridItem = gridItem,
                         data = data,
                         textColor = textColor,
                         gridItemSettings = gridItemSettings,
+                        drag = drag,
                     )
                 }
             }
@@ -132,14 +152,17 @@ internal fun GridItemContent(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ApplicationInfoGridItem(
+private fun SharedTransitionScope.ApplicationInfoGridItem(
     modifier: Modifier = Modifier,
+    gridItem: GridItem,
     data: GridItemData.ApplicationInfo,
     textColor: Color,
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
+    drag: Drag,
 ) {
     val context = LocalContext.current
 
@@ -156,7 +179,7 @@ internal fun ApplicationInfoGridItem(
         data.componentName.replace("/", "-"),
     )
 
-    val icon = if (iconPackInfoPackageName.isNotEmpty() && iconPackFile.exists()) {
+    val icon = if (iconPackInfoPackageName.isNotEmpty()) {
         iconPackFile.absolutePath
     } else {
         data.icon
@@ -188,10 +211,22 @@ internal fun ApplicationInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
+                model = Builder(context)
+                    .data(customIcon)
+                    .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
-                modifier = Modifier.matchParentSize(),
+                modifier = Modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    )
+                    .matchParentSize(),
             )
 
             if (settings.isNotificationAccessGranted() && hasNotifications) {
@@ -234,12 +269,16 @@ internal fun ApplicationInfoGridItem(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ShortcutInfoGridItem(
+private fun SharedTransitionScope.ShortcutInfoGridItem(
     modifier: Modifier = Modifier,
+    gridItem: GridItem,
     data: GridItemData.ShortcutInfo,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    hasShortcutHostPermission: Boolean,
+    drag: Drag,
 ) {
     val maxLines = if (gridItemSettings.singleLineLabel) 1 else Int.MAX_VALUE
 
@@ -259,6 +298,8 @@ internal fun ShortcutInfoGridItem(
 
     val customShortLabel = data.customShortLabel ?: data.shortLabel
 
+    val alpha = if (hasShortcutHostPermission && data.isEnabled) 1f else 0.3f
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = horizontalAlignment,
@@ -267,7 +308,18 @@ internal fun ShortcutInfoGridItem(
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
                 model = customIcon,
-                modifier = Modifier.matchParentSize(),
+                modifier = Modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    )
+                    .matchParentSize()
+                    .alpha(alpha),
                 contentDescription = null,
             )
 
@@ -275,13 +327,15 @@ internal fun ShortcutInfoGridItem(
                 model = data.eblanApplicationInfoIcon,
                 modifier = Modifier
                     .size((gridItemSettings.iconSize * 0.25).dp)
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
+                    .alpha(alpha),
                 contentDescription = null,
             )
         }
 
         if (gridItemSettings.showLabel) {
             Text(
+                modifier = Modifier.alpha(alpha),
                 text = customShortLabel,
                 color = textColor,
                 textAlign = TextAlign.Center,
@@ -293,13 +347,16 @@ internal fun ShortcutInfoGridItem(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun FolderGridItem(
+private fun SharedTransitionScope.FolderGridItem(
     modifier: Modifier = Modifier,
+    gridItem: GridItem,
     data: GridItemData.Folder,
     textColor: Color,
     gridItemSettings: GridItemSettings,
     iconPackInfoPackageName: String,
+    drag: Drag,
 ) {
     val context = LocalContext.current
 
@@ -322,14 +379,24 @@ internal fun FolderGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
+        val commonModifier = Modifier
+            .sharedElementWithCallerManagedVisibility(
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = Screen.Drag,
+                    ),
+                ),
+                visible = drag == Drag.Cancel || drag == Drag.End,
+            )
+            .size(gridItemSettings.iconSize.dp)
+
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(5.dp),
-                    )
-                    .size(gridItemSettings.iconSize.dp),
+                modifier = commonModifier.background(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(5.dp),
+                ),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,
@@ -363,8 +430,10 @@ internal fun FolderGridItem(
                                 }
 
                             AsyncImage(
-                                model = Builder(context).data(icon)
-                                    .addLastModifiedToFileCacheKey(true).build(),
+                                model = Builder(context)
+                                    .data(icon)
+                                    .addLastModifiedToFileCacheKey(true)
+                                    .build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )
@@ -423,13 +492,13 @@ internal fun FolderGridItem(
             AsyncImage(
                 model = data.icon,
                 contentDescription = null,
-                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+                modifier = commonModifier,
             )
         } else {
             Icon(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
-                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+                modifier = commonModifier,
                 tint = textColor,
             )
         }
@@ -447,16 +516,31 @@ internal fun FolderGridItem(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun WidgetGridItem(
+private fun SharedTransitionScope.WidgetGridItem(
     modifier: Modifier = Modifier,
+    gridItem: GridItem,
     data: GridItemData.Widget,
+    drag: Drag,
 ) {
     val appWidgetManager = LocalAppWidgetManager.current
 
     val appWidgetHost = LocalAppWidgetHost.current
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
+
+    val commonModifier = modifier
+        .sharedElementWithCallerManagedVisibility(
+            rememberSharedContentState(
+                key = SharedElementKey(
+                    id = gridItem.id,
+                    screen = Screen.Drag,
+                ),
+            ),
+            visible = drag == Drag.Cancel || drag == Drag.End,
+        )
+        .fillMaxSize()
 
     if (appWidgetInfo != null) {
         AndroidView(
@@ -468,23 +552,26 @@ private fun WidgetGridItem(
                     minHeight = data.minHeight,
                 )
             },
-            modifier = modifier,
+            modifier = commonModifier,
         )
     } else {
         AsyncImage(
             model = data.preview ?: data.icon,
             contentDescription = null,
-            modifier = modifier.fillMaxSize(),
+            modifier = commonModifier,
         )
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ShortcutConfigGridItem(
+private fun SharedTransitionScope.ShortcutConfigGridItem(
     modifier: Modifier = Modifier,
+    gridItem: GridItem,
     data: GridItemData.ShortcutConfig,
     textColor: Color,
     gridItemSettings: GridItemSettings,
+    drag: Drag,
 ) {
     val context = LocalContext.current
 
@@ -525,10 +612,22 @@ internal fun ShortcutConfigGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
+                model = Builder(context)
+                    .data(customIcon)
+                    .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
-                modifier = Modifier.matchParentSize(),
+                modifier = Modifier
+                    .sharedElementWithCallerManagedVisibility(
+                        rememberSharedContentState(
+                            key = SharedElementKey(
+                                id = gridItem.id,
+                                screen = Screen.Drag,
+                            ),
+                        ),
+                        visible = drag == Drag.Cancel || drag == Drag.End,
+                    )
+                    .matchParentSize(),
             )
 
             if (data.serialNumber != 0L) {

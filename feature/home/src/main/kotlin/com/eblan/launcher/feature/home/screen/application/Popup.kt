@@ -52,6 +52,7 @@ import com.eblan.launcher.domain.model.GridItemSettings
 import com.eblan.launcher.feature.home.component.popup.ShortcutInfoMenu
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
 @Composable
@@ -88,6 +89,7 @@ internal fun PopupApplicationInfoMenu(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onWidgets: (EblanApplicationInfoGroup) -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val applicationInfo = gridItem?.data as? GridItemData.ApplicationInfo ?: return
 
@@ -178,6 +180,7 @@ internal fun PopupApplicationInfoMenu(
 
                     onDismissRequest()
                 },
+                onUpdateSharedElementKey = onUpdateSharedElementKey,
             )
         },
     ) { measurables, constraints ->
@@ -233,6 +236,7 @@ private fun ApplicationInfoMenu(
     ) -> Unit,
     onDraggingGridItem: () -> Unit,
     onWidgets: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -257,6 +261,7 @@ private fun ApplicationInfoMenu(
                         onLongPressGridItem = onLongPressGridItem,
                         onUpdateGridItemOffset = onUpdateGridItemOffset,
                         onDraggingGridItem = onDraggingGridItem,
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))

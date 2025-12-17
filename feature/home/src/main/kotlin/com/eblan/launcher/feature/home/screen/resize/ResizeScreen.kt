@@ -18,6 +18,8 @@
 package com.eblan.launcher.feature.home.screen.resize
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -43,8 +45,9 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.util.getGridItemTextColor
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun ResizeScreen(
+internal fun SharedTransitionScope.ResizeScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     gridItemCache: GridItemCache,
@@ -57,6 +60,7 @@ internal fun ResizeScreen(
     homeSettings: HomeSettings,
     iconPackInfoPackageName: String,
     statusBarNotifications: Map<String, Int>,
+    hasShortcutHostPermission: Boolean,
     onResizeGridItem: (
         gridItem: GridItem,
         columns: Int,
@@ -99,7 +103,7 @@ internal fun ResizeScreen(
         dockHeight.roundToPx()
     }
 
-    val pageIndicatorHeight = 20.dp
+    val pageIndicatorHeight = 30.dp
 
     val pageIndicatorHeightPx = with(density) {
         pageIndicatorHeight.roundToPx()
@@ -142,6 +146,7 @@ internal fun ResizeScreen(
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     statusBarNotifications = statusBarNotifications,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             },
         )
@@ -186,6 +191,7 @@ internal fun ResizeScreen(
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     isDragging = false,
                     statusBarNotifications = statusBarNotifications,
+                    hasShortcutHostPermission = hasShortcutHostPermission,
                 )
             },
         )

@@ -20,6 +20,8 @@ package com.eblan.launcher.feature.home.screen.pager
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,6 +65,7 @@ import com.eblan.launcher.feature.home.component.grid.InteractiveGridItemContent
 import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.screen.appwidget.AppWidgetScreen
 import com.eblan.launcher.feature.home.util.calculatePage
 import com.eblan.launcher.feature.home.util.getSystemTextColor
@@ -70,8 +73,9 @@ import com.eblan.launcher.feature.home.util.handleWallpaperScroll
 import com.eblan.launcher.ui.local.LocalLauncherApps
 import com.eblan.launcher.ui.local.LocalWallpaperManager
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun HorizontalPagerScreen(
+internal fun SharedTransitionScope.HorizontalPagerScreen(
     modifier: Modifier = Modifier,
     gridHorizontalPagerState: PagerState,
     currentPage: Int,
@@ -113,6 +117,7 @@ internal fun HorizontalPagerScreen(
     onDraggingGridItem: () -> Unit,
     onDeleteGridItem: (GridItem) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -229,6 +234,7 @@ internal fun HorizontalPagerScreen(
                         drag = drag,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         statusBarNotifications = statusBarNotifications,
+                        isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -270,11 +276,7 @@ internal fun HorizontalPagerScreen(
                         onTapFolderGridItem = {
                             onTapFolderGridItem(gridItem.id)
                         },
-                        onLongPress = {
-                            val intOffset = IntOffset(x = x + leftPadding, y = y + topPadding)
-
-                            val intSize = IntSize(width = width, height = height)
-
+                        onUpdateGridItemOffset = { intOffset, intSize ->
                             popupIntOffset = intOffset
 
                             popupIntSize = intSize
@@ -295,6 +297,7 @@ internal fun HorizontalPagerScreen(
 
                             onDraggingGridItem()
                         },
+                        onUpdateSharedElementKey = onUpdateSharedElementKey,
                     )
                 },
             )
@@ -345,6 +348,7 @@ internal fun HorizontalPagerScreen(
                     drag = drag,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     statusBarNotifications = statusBarNotifications,
+                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 
@@ -386,13 +390,7 @@ internal fun HorizontalPagerScreen(
                     onTapFolderGridItem = {
                         onTapFolderGridItem(gridItem.id)
                     },
-                    onLongPress = {
-                        val dockY = y + (gridHeight - dockHeightPx)
-
-                        val intOffset = IntOffset(x = x + leftPadding, y = dockY + topPadding)
-
-                        val intSize = IntSize(width = width, height = height)
-
+                    onUpdateGridItemOffset = { intOffset, intSize ->
                         popupIntOffset = intOffset
 
                         popupIntSize = intSize
@@ -413,6 +411,7 @@ internal fun HorizontalPagerScreen(
 
                         onDraggingGridItem()
                     },
+                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                 )
             }
 
@@ -443,6 +442,7 @@ internal fun HorizontalPagerScreen(
             drag = drag,
             gridItemSettings = homeSettings.gridItemSettings,
             eblanAppWidgetProviderInfos = eblanAppWidgetProviderInfos,
+            paddingValues = paddingValues,
             onEdit = onEditGridItem,
             onResize = onResize,
             onWidgets = { newEblanApplicationInfoGroup ->
@@ -487,6 +487,7 @@ internal fun HorizontalPagerScreen(
             onUpdateGridItemOffset = onUpdateGridItemOffset,
             onResetOverlay = onResetOverlay,
             onDraggingGridItem = onDraggingGridItem,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 
@@ -528,6 +529,7 @@ internal fun HorizontalPagerScreen(
             },
             onDraggingGridItem = onDraggingGridItem,
             onResetOverlay = onResetOverlay,
+            onUpdateSharedElementKey = onUpdateSharedElementKey,
         )
     }
 }

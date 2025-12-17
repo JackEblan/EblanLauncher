@@ -22,6 +22,8 @@ import android.graphics.Rect
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -61,11 +63,13 @@ import com.eblan.launcher.feature.home.component.indicator.PageIndicator
 import com.eblan.launcher.feature.home.model.Drag
 import com.eblan.launcher.feature.home.model.GridItemSource
 import com.eblan.launcher.feature.home.model.Screen
+import com.eblan.launcher.feature.home.model.SharedElementKey
 import com.eblan.launcher.feature.home.util.getSystemTextColor
 import com.eblan.launcher.ui.local.LocalLauncherApps
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun FolderScreen(
+internal fun SharedTransitionScope.FolderScreen(
     modifier: Modifier = Modifier,
     foldersDataById: ArrayDeque<FolderDataById>,
     drag: Drag,
@@ -91,6 +95,7 @@ internal fun FolderScreen(
     ) -> Unit,
     onDraggingGridItem: (List<GridItem>) -> Unit,
     onResetOverlay: () -> Unit,
+    onUpdateSharedElementKey: (SharedElementKey?) -> Unit,
 ) {
     val density = LocalDensity.current
 
@@ -208,6 +213,7 @@ internal fun FolderScreen(
                                     textColor = textColor,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
                                     statusBarNotifications = statusBarNotifications,
+                                    isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
                                     onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 
@@ -249,18 +255,7 @@ internal fun FolderScreen(
                                     onTapFolderGridItem = {
                                         onAddFolder(gridItem.id)
                                     },
-                                    onLongPress = {
-                                        onUpdateGridItemOffset(
-                                            IntOffset(
-                                                x = x + leftPadding,
-                                                y = y + (topPadding + titleHeight),
-                                            ),
-                                            IntSize(
-                                                width = width,
-                                                height = height,
-                                            ),
-                                        )
-                                    },
+                                    onUpdateGridItemOffset = onUpdateGridItemOffset,
                                     onUpdateImageBitmap = { imageBitmap ->
                                         onLongPressGridItem(
                                             GridItemSource.Existing(gridItem = gridItem),
@@ -271,6 +266,7 @@ internal fun FolderScreen(
                                     onDraggingGridItem = {
                                         onDraggingGridItem(foldersDataById.last().gridItems)
                                     },
+                                    onUpdateSharedElementKey = onUpdateSharedElementKey,
                                 )
                             },
                         )

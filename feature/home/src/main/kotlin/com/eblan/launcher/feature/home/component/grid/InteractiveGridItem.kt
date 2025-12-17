@@ -404,7 +404,9 @@ private fun SharedTransitionScope.InteractiveApplicationInfoGridItem(
                 modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
+                    model = Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
                         .build(),
                     contentDescription = null,
                     modifier = Modifier
@@ -1021,8 +1023,10 @@ private fun SharedTransitionScope.InteractiveFolderGridItem(
                                     }
 
                                 AsyncImage(
-                                    model = Builder(context).data(icon)
-                                        .addLastModifiedToFileCacheKey(true).build(),
+                                    model = Builder(context)
+                                        .data(icon)
+                                        .addLastModifiedToFileCacheKey(true)
+                                        .build(),
                                     contentDescription = null,
                                     modifier = gridItemModifier,
                                 )
@@ -1264,7 +1268,9 @@ private fun SharedTransitionScope.InteractiveShortcutConfigGridItem(
                 modifier = Modifier.size(gridItemSettings.iconSize.dp),
             ) {
                 AsyncImage(
-                    model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
+                    model = Builder(context)
+                        .data(customIcon)
+                        .addLastModifiedToFileCacheKey(true)
                         .build(),
                     contentDescription = null,
                     modifier = Modifier

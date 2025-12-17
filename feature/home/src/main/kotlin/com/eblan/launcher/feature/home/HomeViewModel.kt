@@ -122,7 +122,7 @@ internal class HomeViewModel @Inject constructor(
 
     val movedGridItemResult = _moveGridItemResult.asStateFlow()
 
-    private val defaultDelay = 300L
+    private val defaultDelay = 500L
 
     private val _pageItems = MutableStateFlow(emptyList<PageItem>())
 

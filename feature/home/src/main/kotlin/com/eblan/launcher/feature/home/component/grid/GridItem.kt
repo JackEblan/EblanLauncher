@@ -211,7 +211,9 @@ private fun SharedTransitionScope.ApplicationInfoGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
+                model = Builder(context)
+                    .data(customIcon)
+                    .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier
@@ -377,23 +379,24 @@ private fun SharedTransitionScope.FolderGridItem(
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
     ) {
+        val commonModifier = Modifier
+            .sharedElementWithCallerManagedVisibility(
+                rememberSharedContentState(
+                    key = SharedElementKey(
+                        id = gridItem.id,
+                        screen = Screen.Drag,
+                    ),
+                ),
+                visible = drag == Drag.Cancel || drag == Drag.End,
+            )
+            .size(gridItemSettings.iconSize.dp)
+
         if (data.gridItems.isNotEmpty()) {
             FlowRow(
-                modifier = Modifier
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(
-                            key = SharedElementKey(
-                                id = gridItem.id,
-                                screen = Screen.Drag,
-                            ),
-                        ),
-                        visible = drag == Drag.Cancel || drag == Drag.End,
-                    )
-                    .background(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(5.dp),
-                    )
-                    .size(gridItemSettings.iconSize.dp),
+                modifier = commonModifier.background(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(5.dp),
+                ),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalArrangement = Arrangement.SpaceEvenly,
                 maxItemsInEachRow = 2,
@@ -427,8 +430,10 @@ private fun SharedTransitionScope.FolderGridItem(
                                 }
 
                             AsyncImage(
-                                model = Builder(context).data(icon)
-                                    .addLastModifiedToFileCacheKey(true).build(),
+                                model = Builder(context)
+                                    .data(icon)
+                                    .addLastModifiedToFileCacheKey(true)
+                                    .build(),
                                 contentDescription = null,
                                 modifier = gridItemModifier,
                             )
@@ -487,13 +492,13 @@ private fun SharedTransitionScope.FolderGridItem(
             AsyncImage(
                 model = data.icon,
                 contentDescription = null,
-                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+                modifier = commonModifier,
             )
         } else {
             Icon(
                 imageVector = EblanLauncherIcons.Folder,
                 contentDescription = null,
-                modifier = Modifier.size(gridItemSettings.iconSize.dp),
+                modifier = commonModifier,
                 tint = textColor,
             )
         }
@@ -525,6 +530,18 @@ private fun SharedTransitionScope.WidgetGridItem(
 
     val appWidgetInfo = appWidgetManager.getAppWidgetInfo(appWidgetId = data.appWidgetId)
 
+    val commonModifier = modifier
+        .sharedElementWithCallerManagedVisibility(
+            rememberSharedContentState(
+                key = SharedElementKey(
+                    id = gridItem.id,
+                    screen = Screen.Drag,
+                ),
+            ),
+            visible = drag == Drag.Cancel || drag == Drag.End,
+        )
+        .fillMaxSize()
+
     if (appWidgetInfo != null) {
         AndroidView(
             factory = {
@@ -535,31 +552,13 @@ private fun SharedTransitionScope.WidgetGridItem(
                     minHeight = data.minHeight,
                 )
             },
-            modifier = modifier.sharedElementWithCallerManagedVisibility(
-                rememberSharedContentState(
-                    key = SharedElementKey(
-                        id = gridItem.id,
-                        screen = Screen.Drag,
-                    ),
-                ),
-                visible = drag == Drag.Cancel || drag == Drag.End,
-            ),
+            modifier = commonModifier,
         )
     } else {
         AsyncImage(
             model = data.preview ?: data.icon,
             contentDescription = null,
-            modifier = modifier
-                .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(
-                        key = SharedElementKey(
-                            id = gridItem.id,
-                            screen = Screen.Drag,
-                        ),
-                    ),
-                    visible = drag == Drag.Cancel || drag == Drag.End,
-                )
-                .fillMaxSize(),
+            modifier = commonModifier,
         )
     }
 }
@@ -613,7 +612,9 @@ private fun SharedTransitionScope.ShortcutConfigGridItem(
     ) {
         Box(modifier = Modifier.size(gridItemSettings.iconSize.dp)) {
             AsyncImage(
-                model = Builder(context).data(customIcon).addLastModifiedToFileCacheKey(true)
+                model = Builder(context)
+                    .data(customIcon)
+                    .addLastModifiedToFileCacheKey(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier

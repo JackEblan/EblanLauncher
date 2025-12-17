@@ -18,8 +18,6 @@
 package com.eblan.launcher.feature.home.screen.appwidget
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -82,9 +80,8 @@ import kotlin.math.roundToInt
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-internal fun SharedTransitionScope.AppWidgetScreen(
+internal fun AppWidgetScreen(
     modifier: Modifier = Modifier,
     currentPage: Int,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup?,
@@ -211,9 +208,8 @@ internal fun SharedTransitionScope.AppWidgetScreen(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.Success(
+private fun Success(
     modifier: Modifier = Modifier,
     eblanApplicationInfoGroup: EblanApplicationInfoGroup,
     eblanAppWidgetProviderInfos: List<EblanAppWidgetProviderInfo>,
@@ -266,9 +262,9 @@ private fun SharedTransitionScope.Success(
     }
 }
 
-@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
-private fun SharedTransitionScope.EblanAppWidgetProviderInfoItem(
+private fun EblanAppWidgetProviderInfoItem(
     modifier: Modifier = Modifier,
     eblanAppWidgetProviderInfo: EblanAppWidgetProviderInfo,
     drag: Drag,

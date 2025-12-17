@@ -234,6 +234,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                         drag = drag,
                         iconPackInfoPackageName = iconPackInfoPackageName,
                         statusBarNotifications = statusBarNotifications,
+                        isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                         onTapApplicationInfo = { serialNumber, componentName ->
                             val sourceBoundsX = x + leftPadding
 
@@ -347,6 +348,7 @@ internal fun SharedTransitionScope.HorizontalPagerScreen(
                     drag = drag,
                     iconPackInfoPackageName = iconPackInfoPackageName,
                     statusBarNotifications = statusBarNotifications,
+                    isScrollInProgress = gridHorizontalPagerState.isScrollInProgress,
                     onTapApplicationInfo = { serialNumber, componentName ->
                         val sourceBoundsX = x + leftPadding
 

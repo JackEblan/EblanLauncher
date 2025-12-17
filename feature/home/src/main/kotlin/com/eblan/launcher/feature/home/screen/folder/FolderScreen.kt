@@ -213,6 +213,7 @@ internal fun SharedTransitionScope.FolderScreen(
                                     textColor = textColor,
                                     iconPackInfoPackageName = iconPackInfoPackageName,
                                     statusBarNotifications = statusBarNotifications,
+                                    isScrollInProgress = folderGridHorizontalPagerState.isScrollInProgress,
                                     onTapApplicationInfo = { serialNumber, componentName ->
                                         val sourceBoundsX = x + leftPadding
 
